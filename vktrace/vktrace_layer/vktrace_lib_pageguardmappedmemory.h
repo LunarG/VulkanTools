@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016-2019 Advanced Micro Devices, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <stdbool.h>
@@ -51,12 +51,11 @@ typedef class PageGuardMappedMemory {
     PageStatusArray *pPageStatus;
     bool BlockConflictError;  /// record if any block has been read by host and also write by host
     VkDeviceSize PageSizeLeft;
+    VkDeviceSize StartingAddressOffset;  /// the offset relative to the beginning of a system page where the starting address of the
+                                         /// mapped memory (returned to target title) located.
     uint64_t PageGuardAmount;
-    uint64_t *pPageChecksum;
 
    public:
-    static const uint64_t CHECKSUM_INVALID = ~0UL;
-
     PageGuardMappedMemory();
     ~PageGuardMappedMemory();
 
@@ -67,6 +66,8 @@ typedef class PageGuardMappedMemory {
     VkDeviceSize &getMappedOffset();
 
     PBYTE &getRealMappedDataPointer();  /// get pointer to real mapped memory in app process
+
+    PBYTE &getMappedDataPointer();  /// get pointer to mapped memory in app process
 
     VkDeviceSize &getMappedSize();  /// get the size of range
 
@@ -91,6 +92,9 @@ typedef class PageGuardMappedMemory {
     uint64_t getMappedBlockOffset(uint64_t index);
 
     bool isNoMappedBlockChanged();
+#if defined(WIN32)
+    uint64_t getWriteWatchForPage(DWORD dwFlags, void *pgAddr);
+#endif
 
     void resetMemoryObjectAllChangedFlagAndPageGuard();
 
@@ -98,16 +102,27 @@ typedef class PageGuardMappedMemory {
 
     bool setAllPageGuardAndFlag(bool bSetPageGuard, bool bSetBlockChanged);
 
+    /// Get VkMemoryPropertyFlags for a logical device and specific memoryTypeIndex
+    VkMemoryPropertyFlags getMemoryPropertyFlags(std::unordered_map<VkDevice, VkPhysicalDevice> &mapDevice, VkDevice device,
+                                                 uint32_t memoryTypeIndex);
+
+    /// Get VkMemoryPropertyFlags for this memory object.
+    bool getMemoryProperty(std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo> &mapMemoryCreateInfo,
+                           std::unordered_map<VkDevice, VkPhysicalDevice> &mapDevice, VkDeviceSize *pMemoryWholeSize,
+                           VkMemoryPropertyFlags *pMemoryPropertyFlags);
+
     bool vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkFlags flags,
-                                    void **ppData);
+                                    void **ppData, void *pExternalHostMemory = nullptr);
 
     void vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void **MappedData);
+
+    void SyncRealMappedMemoryToMemoryCopyHandle(VkDevice device, VkDeviceMemory memory);
 
     void backupBlockChangedArraySnapshot();
 
     void backupBlockReadArraySnapshot();
 
-    DWORD getChangedBlockAmount(int useWhich);
+    size_t getChangedBlockAmount(int useWhich);
 
     /// is RangeLimit cover or partly cover Range
     bool isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDeviceSize RangeSizeLimit, VkDeviceSize RangeOffset,
@@ -120,13 +135,13 @@ typedef class PageGuardMappedMemory {
     ///               blocks data
     ///
     /// if pData==nullptr, only get size
-    /// DWORD *pdwSaveSize, the size of all changed blocks
-    /// DWORD *pInfoSize, the size of array of PageGuardChangedBlockInfo
+    /// size_t *pdwSaveSize, the size of all changed blocks
+    /// size_t *pInfoSize, the size of array of PageGuardChangedBlockInfo
     /// VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
     /// RangeSize, if RangeOffset<0, consider whole mapped memory
     /// return the amount of changed blocks.
-    DWORD getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, DWORD *pdwSaveSize, DWORD *pInfoSize, PBYTE pData,
-                              DWORD DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
+    uint64_t getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, uint64_t *pdwSaveSize, uint64_t *pInfoSize,
+                                 PBYTE pData, uint64_t DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
 
     /// return: if memory already changed;
     ///        evenif no change to mmeory, it will still allocate memory for info array which only include one
@@ -145,11 +160,5 @@ typedef class PageGuardMappedMemory {
 
     /// get ptr and size of OPTChangedDataPackage;
     PBYTE getChangedDataPackage(VkDeviceSize *pSize);
-
-    uint64_t getPageChecksum(uint64_t index);
-
-    void setPageChecksum(uint64_t index, uint64_t sum);
-
-    uint64_t computePageChecksum(void *addr);
 
 } PageGuardMappedMemory, *LPPageGuardMappedMemory;

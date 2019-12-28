@@ -18,7 +18,7 @@
 #include "vktrace_lib_helpers.h"
 #include "vktrace_vk_vk_packets.h"
 #include "vktrace_vk_packet_id.h"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 // defined in vktrace_lib_trace.cpp
 extern layer_device_data *mdd(void *object);
@@ -453,7 +453,7 @@ vktrace_trace_packet_header *vkMapMemory(bool makeCall, VkDevice device, VkDevic
 vktrace_trace_packet_header *vkUnmapMemory(bool makeCall, VkDeviceSize size, void *pData, VkDevice device, VkDeviceMemory memory) {
     vktrace_trace_packet_header *pHeader;
     packet_vkUnmapMemory *pPacket;
-    CREATE_TRACE_PACKET(vkUnmapMemory, size);
+    CREATE_TRACE_PACKET(vkUnmapMemory, ROUNDUP_TO_4(size));
     pPacket = interpret_body_as_vkUnmapMemory(pHeader);
     if (size > 0) {
         vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pData), size, pData);
@@ -653,6 +653,42 @@ vktrace_trace_packet_header *vkResetFences(bool makeCall, VkDevice device, uint3
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pFences), fenceCount * sizeof(VkFence), pFences);
     pPacket->result = result;
     vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pFences));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+//=====================================================================
+vktrace_trace_packet_header *vkResetEvent(bool makeCall, VkDevice device, VkEvent event) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkResetEvent *pPacket = nullptr;
+    CREATE_TRACE_PACKET(vkResetEvent, 0);
+    if (makeCall) {
+        result = mdd(device)->devTable.ResetEvent(device, event);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkResetEvent(pHeader);
+    pPacket->device = device;
+    pPacket->event = event;
+    pPacket->result = result;
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+//=====================================================================
+vktrace_trace_packet_header *vkSetEvent(bool makeCall, VkDevice device, VkEvent event) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkSetEvent *pPacket = nullptr;
+    CREATE_TRACE_PACKET(vkSetEvent, 0);
+    if (makeCall) {
+        result = mdd(device)->devTable.SetEvent(device, event);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkSetEvent(pHeader);
+    pPacket->device = device;
+    pPacket->event = event;
+    pPacket->result = result;
     vktrace_finalize_trace_packet(pHeader);
     return pHeader;
 }
@@ -1125,6 +1161,7 @@ vktrace_trace_packet_header *vkCreateGraphicsPipelines(bool makeCall, VkDevice d
     pPacket->createInfoCount = createInfoCount;
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfos),
                                        createInfoCount * sizeof(VkGraphicsPipelineCreateInfo), pCreateInfos);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfos), pCreateInfos);
     add_VkGraphicsPipelineCreateInfos_to_trace_packet(pHeader, (VkGraphicsPipelineCreateInfo *)pPacket->pCreateInfos, pCreateInfos,
                                                       createInfoCount);
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);

@@ -15,7 +15,7 @@
 */
 #pragma once
 #include "vktrace_trace_packet_identifiers.h"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 namespace trim {
 namespace generate {
@@ -95,6 +95,10 @@ vktrace_trace_packet_header *vkWaitForFences(bool makeCall, VkDevice device, uin
                                              VkBool32 waitAll, uint64_t timeout);
 
 vktrace_trace_packet_header *vkResetFences(bool makeCall, VkDevice device, uint32_t fenceCount, const VkFence *pFences);
+
+vktrace_trace_packet_header *vkResetEvent(bool makeCall, VkDevice device, VkEvent event);
+
+vktrace_trace_packet_header *vkSetEvent(bool makeCall, VkDevice device, VkEvent event);
 
 vktrace_trace_packet_header *vkDestroyBuffer(bool makeCall, VkDevice device, VkBuffer buffer,
                                              const VkAllocationCallbacks *pAllocator);

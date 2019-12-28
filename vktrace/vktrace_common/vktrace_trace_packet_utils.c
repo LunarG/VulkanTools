@@ -26,7 +26,7 @@
 #include "vktrace_filelike.h"
 #include "vktrace_pageguard_memorycopy.h"
 
-#ifdef WIN32
+#if defined(WIN32)
 #include <rpc.h>
 #pragma comment(lib, "Rpcrt4.lib")
 #endif
@@ -46,10 +46,17 @@
 #include "vktrace_pageguard_memorycopy.h"
 
 static VKTRACE_CRITICAL_SECTION s_packet_index_lock;
+static VKTRACE_CRITICAL_SECTION s_trace_lock;
 
-void vktrace_initialize_trace_packet_utils() { vktrace_create_critical_section(&s_packet_index_lock); }
+void vktrace_initialize_trace_packet_utils() {
+    vktrace_create_critical_section(&s_packet_index_lock);
+    vktrace_create_critical_section(&s_trace_lock);
+}
 
-void vktrace_deinitialize_trace_packet_utils() { vktrace_delete_critical_section(&s_packet_index_lock); }
+void vktrace_deinitialize_trace_packet_utils() {
+    vktrace_delete_critical_section(&s_packet_index_lock);
+    vktrace_delete_critical_section(&s_trace_lock);
+}
 
 uint64_t vktrace_get_unique_packet_index() {
     // Keep the s_packet_index scope to within this method, to ensure this method is always used to get a unique packet index.
@@ -121,6 +128,16 @@ uint64_t get_endianess() {
     return *((char*)&x) ? VKTRACE_LITTLE_ENDIAN : VKTRACE_BIG_ENDIAN;
 }
 
+// Function to return string describing given endianess
+const char* get_endianess_string(uint64_t endianess) {
+    if (endianess == VKTRACE_LITTLE_ENDIAN)
+        return "VKTRACE_LITTLE_ENDIAN";
+    else if (endianess == VKTRACE_BIG_ENDIAN)
+        return "VKTRACE_BIG_ENDIAN";
+    else
+        return ("Unknown");
+}
+
 uint64_t get_arch() {
     uint64_t rval = 0;
 #if defined(PLATFORM_LINUX)
@@ -172,8 +189,10 @@ uint64_t get_os() {
 
 vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
                                                          uint64_t additional_buffers_size) {
+    vktrace_enter_critical_section(&s_trace_lock);
     // Always allocate at least enough space for the packet header
-    uint64_t total_packet_size = ROUNDUP_TO_4(sizeof(vktrace_trace_packet_header) + packet_size + additional_buffers_size);
+    uint64_t total_packet_size =
+        ROUNDUP_TO_8(sizeof(vktrace_trace_packet_header) + ROUNDUP_TO_8(packet_size) + additional_buffers_size);
     void* pMemory = vktrace_malloc((size_t)total_packet_size);
     memset(pMemory, 0, (size_t)total_packet_size);
 
@@ -187,20 +206,24 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
     pHeader->entrypoint_begin_time = pHeader->vktrace_begin_time;
     pHeader->entrypoint_end_time = 0;
     pHeader->vktrace_end_time = 0;
-    pHeader->next_buffers_offset =
-        sizeof(vktrace_trace_packet_header) + packet_size;  // initial offset is from start of header to after the packet body
+    pHeader->next_buffers_offset = sizeof(vktrace_trace_packet_header) +
+                                   ROUNDUP_TO_8(packet_size);  // Initial offset is from start of header to after the packet body.
+                                                               // Make the initial offset to 64-bit aligned to make it meets the
+                                                               // alignement requirement of instruction vst1.64 which may be used
+                                                               // by a 32-bit GPU driver on ARMv8 platform.
+                                                               // Assuming the content of the buffer has expected alignment of the
+                                                               // tracing platform.
     if (total_packet_size > sizeof(vktrace_trace_packet_header)) {
         pHeader->pBody = (uintptr_t)(((char*)pMemory) + sizeof(vktrace_trace_packet_header));
     }
     return pHeader;
 }
 
+// Delete packet after vktrace_create_trace_packet being called.
 void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader) {
-    if (ppHeader == NULL) return;
-    if (*ppHeader == NULL) return;
+    vktrace_delete_trace_packet_no_lock(ppHeader);
 
-    VKTRACE_DELETE(*ppHeader);
-    *ppHeader = NULL;
+    vktrace_leave_critical_section(&s_trace_lock);
 }
 
 void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* pHeader, uint64_t byteCount) {
@@ -219,17 +242,14 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
     return pBufferStart;
 }
 
-// size is the buffer size pointed by pBuffer, it should be 4 byte aligned.
-// if size is not 4 byte aligned (some title is not 4 byte aligned when call
-// vkMapMemory), it will be ROUNDUP_TO_4 when get new buffer address in the
-// function.
-// as input parameter, size must be size of pBuffer because we also memcpy
-// pBuffer in the function.
+// size is the size of the buffer pointed to by pBuffer.
+// If size is not 4 byte aligned, when computing dest buffer addresses, round up
+// the size so it is 4 byte aligned. We use the unrounded size when doing the
+// actual copy -- this is so that we don't access memory past the end of the buffer.
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
                                         const void* pBuffer) {
-    // Make sure we have valid pointers and sizes. All pointers and sizes must be 4 byte aligned.
+    // Make sure we have a valid pointer.
     assert(ptr_address != NULL);
-    assert((size & 0x3) == 0);
 
     if (pBuffer == NULL || size == 0) {
         *ptr_address = NULL;
@@ -277,30 +297,29 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
             vktrace_add_buffer_to_trace_packet(pHeader, ppOutNext, size, pInNext);
             // TODO: Might be able codegen this switch statement
             switch (((VkApplicationInfo*)*ppOutNext)->sType) {
-                case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupDeviceCreateInfoKHX, VkPhysicalDevice, pPhysicalDevices,
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupDeviceCreateInfo, VkPhysicalDevice, pPhysicalDevices,
                                                      physicalDeviceCount);
                     break;
-                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupRenderPassBeginInfoKHX, VkRect2D, pDeviceRenderAreas,
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupRenderPassBeginInfo, VkRect2D, pDeviceRenderAreas,
                                                      deviceRenderAreaCount);
                     break;
-                case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfoKHX, uint32_t, pWaitSemaphoreDeviceIndices,
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfo, uint32_t, pWaitSemaphoreDeviceIndices,
                                                      waitSemaphoreCount);
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfoKHX, uint32_t, pCommandBufferDeviceMasks,
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfo, uint32_t, pCommandBufferDeviceMasks,
                                                      commandBufferCount);
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfoKHX, uint32_t, pSignalSemaphoreDeviceIndices,
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfo, uint32_t, pSignalSemaphoreDeviceIndices,
                                                      signalSemaphoreCount);
                     break;
-                case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkBindBufferMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices,
-                                                     deviceIndexCount);
+                case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
+                    AddPointerWithCountToTracebuffer(VkBindBufferMemoryDeviceGroupInfo, uint32_t, pDeviceIndices, deviceIndexCount);
                     break;
-                case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices,
-                                                     deviceIndexCount);
-                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfoKHX, VkRect2D, pSFRRects, SFRRectCount);
+                case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
+                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, uint32_t, pDeviceIndices, deviceIndexCount);
+                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, VkRect2D, pSplitInstanceBindRegions,
+                                                     splitInstanceBindRegionCount);
                     break;
                 case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                     AddPointerWithCountToTracebuffer(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks,
@@ -313,6 +332,10 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                 case VK_STRUCTURE_TYPE_CMD_PROCESS_COMMANDS_INFO_NVX:
                     AddPointerWithCountToTracebuffer(VkCmdProcessCommandsInfoNVX, VkIndirectCommandsTokenNVX,
                                                      pIndirectCommandsTokens, indirectCommandsTokenCount);
+                    break;
+                case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT:
+                    AddPointerWithCountToTracebuffer(VkDescriptorSetVariableDescriptorCountAllocateInfoEXT, uint32_t,
+                                                     pDescriptorCounts, descriptorSetCount);
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
                     AddPointerWithCountToTracebuffer(VkPipelineViewportWScalingStateCreateInfoNV, VkViewportWScalingNV,
@@ -343,13 +366,13 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                 case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
                     AddPointerWithCountToTracebuffer(VkImageFormatListCreateInfoKHR, VkFormat, pViewFormats, viewFormatCount);
                     break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pViewMasks, subpassCount);
-                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfoKHX, int32_t, pViewOffsets, dependencyCount);
-                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pCorrelationMasks,
+                case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
+                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, uint32_t, pViewMasks, subpassCount);
+                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, int32_t, pViewOffsets, dependencyCount);
+                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks,
                                                      correlationMaskCount);
                     break;
-#ifdef WIN32
+#if defined(WIN32)
                 case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
                     AddPointerWithCountToTracebuffer(VkWin32KeyedMutexAcquireReleaseInfoKHR, VkDeviceMemory, pAcquireSyncs,
                                                      acquireCount);
@@ -371,6 +394,13 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                     AddPointerWithCountToTracebuffer(VkWin32KeyedMutexAcquireReleaseInfoNV, uint64_t, pReleaseKeys, releaseCount);
                     break;
 #endif
+                case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
+                    AddPointerWithCountToTracebuffer(VkPresentTimesInfoGOOGLE, VkPresentTimeGOOGLE, pTimes, swapchainCount);
+                    break;
+                case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT:
+                    AddPointerWithCountToTracebuffer(VkDescriptorSetLayoutBindingFlagsCreateInfoEXT, VkDescriptorBindingFlagsEXT,
+                                                     pBindingFlags, bindingCount);
+
                 default:
                     // The cases in this switch statement are only those pnext struct types that have
                     // pointers inside them that need to be added. The pnext list may contain
@@ -429,7 +459,8 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile) {
         pHeader->size = total_packet_size;
         if (vktrace_FileLike_ReadRaw(pFile, (char*)pHeader + sizeof(uint64_t), (size_t)total_packet_size - sizeof(uint64_t)) ==
             FALSE) {
-            vktrace_LogError("Failed to read trace packet with size of %u.", total_packet_size);
+            vktrace_LogError("Failed to read trace packet with size of %ju from %s source.", (intmax_t)total_packet_size,
+                             FILELIKE_MODE_NAME(pFile->mMode));
             return NULL;
         }
 
@@ -439,6 +470,15 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile) {
     }
 
     return pHeader;
+}
+
+// Delete packet after vktrace_read_trace_packet being called.
+void vktrace_delete_trace_packet_no_lock(vktrace_trace_packet_header** ppHeader) {
+    if (ppHeader == NULL) return;
+    if (*ppHeader == NULL) return;
+
+    VKTRACE_DELETE(*ppHeader);
+    *ppHeader = NULL;
 }
 
 void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable) {
@@ -457,12 +497,11 @@ void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApp
                                      const VkApplicationInfo* pInStruct) {
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkApplicationInfo), pInStruct);
     vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)ppStruct, (void*)pInStruct);
-    vktrace_add_buffer_to_trace_packet(
-        pHeader, (void**)&((*ppStruct)->pApplicationName),
-        (pInStruct->pApplicationName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pApplicationName) + 1) : 0,
-        pInStruct->pApplicationName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pApplicationName),
+                                       (pInStruct->pApplicationName != NULL) ? strlen(pInStruct->pApplicationName) + 1 : 0,
+                                       pInStruct->pApplicationName);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName),
-                                       (pInStruct->pEngineName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pEngineName) + 1) : 0,
+                                       (pInStruct->pEngineName != NULL) ? strlen(pInStruct->pEngineName) + 1 : 0,
                                        pInStruct->pEngineName);
     vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pApplicationName));
     vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pEngineName));
@@ -472,7 +511,7 @@ void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApp
 void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkInstanceCreateInfo** ppStruct,
                                         VkInstanceCreateInfo* pInStruct) {
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkInstanceCreateInfo), pInStruct);
-    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)ppStruct, (void*)pInStruct);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)*ppStruct, (void*)pInStruct);
     if (pInStruct->pApplicationInfo)
         add_VkApplicationInfo_to_packet(pHeader, (VkApplicationInfo**)&((*ppStruct)->pApplicationInfo),
                                         pInStruct->pApplicationInfo);
@@ -481,7 +520,7 @@ void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, Vk
                                        pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
     if (pInStruct->enabledLayerCount > 0) {
         for (i = 0; i < pInStruct->enabledLayerCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
                                                pInStruct->ppEnabledLayerNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
@@ -492,7 +531,7 @@ void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, Vk
                                        pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
     if (pInStruct->enabledExtensionCount > 0) {
         for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
                                                pInStruct->ppEnabledExtensionNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);
@@ -506,7 +545,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                       const VkDeviceCreateInfo* pInStruct) {
     uint32_t i, siz = 0;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkDeviceCreateInfo), pInStruct);
-    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)ppStruct, (void*)pInStruct);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)*ppStruct, (void*)pInStruct);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(*ppStruct)->pQueueCreateInfos,
                                        pInStruct->queueCreateInfoCount * sizeof(VkDeviceQueueCreateInfo),
                                        pInStruct->pQueueCreateInfos);
@@ -523,7 +562,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                        pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
     if (pInStruct->enabledLayerCount > 0) {
         for (i = 0; i < pInStruct->enabledLayerCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
                                                pInStruct->ppEnabledLayerNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
@@ -534,7 +573,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                        pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
     if (pInStruct->enabledExtensionCount > 0) {
         for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
                                                pInStruct->ppEnabledExtensionNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);
@@ -637,10 +676,10 @@ void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHea
     }
 }
 
-VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
-                                                                             intptr_t ptr_variable) {
-    VkDeviceGroupDeviceCreateInfoKHX* pCreateInfo =
-        (VkDeviceGroupDeviceCreateInfoKHX*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
+VkDeviceGroupDeviceCreateInfo* interpret_VkDeviceGroupDeviceCreateInfo(vktrace_trace_packet_header* pHeader,
+                                                                       intptr_t ptr_variable) {
+    VkDeviceGroupDeviceCreateInfo* pCreateInfo =
+        (VkDeviceGroupDeviceCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
     uint32_t i;
     if (pCreateInfo != NULL) {
         if (pCreateInfo->physicalDeviceCount > 0) {
@@ -662,7 +701,7 @@ VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vkt
             (_sPtrType*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)struct_ptr_cur->_sPtr); \
     } while (0)
 
-void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr) {
+void vkreplay_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr) {
     uint32_t i;
     if (!struct_ptr) return;
 
@@ -684,23 +723,26 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
                         pHeader, (intptr_t)struct_ptr_cur->pBindings[i].pImmutableSamplers);
                 }
             } break;
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHX:
-                InterpretPointerInPNext(VkDeviceGroupDeviceCreateInfoKHX, VkPhysicalDevice, pPhysicalDevices);
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
+                InterpretPointerInPNext(VkDeviceGroupDeviceCreateInfo, VkPhysicalDevice, pPhysicalDevices);
                 break;
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO_KHX:
-                InterpretPointerInPNext(VkDeviceGroupRenderPassBeginInfoKHX, VkRect2D, pDeviceRenderAreas);
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                InterpretPointerInPNext(VkDeviceGroupRenderPassBeginInfo, VkRect2D, pDeviceRenderAreas);
                 break;
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO_KHX:
-                InterpretPointerInPNext(VkDeviceGroupSubmitInfoKHX, uint32_t, pWaitSemaphoreDeviceIndices);
-                InterpretPointerInPNext(VkDeviceGroupSubmitInfoKHX, uint32_t, pCommandBufferDeviceMasks);
-                InterpretPointerInPNext(VkDeviceGroupSubmitInfoKHX, uint32_t, pSignalSemaphoreDeviceIndices);
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
+                InterpretPointerInPNext(VkDeviceGroupSubmitInfo, uint32_t, pWaitSemaphoreDeviceIndices);
+                InterpretPointerInPNext(VkDeviceGroupSubmitInfo, uint32_t, pCommandBufferDeviceMasks);
+                InterpretPointerInPNext(VkDeviceGroupSubmitInfo, uint32_t, pSignalSemaphoreDeviceIndices);
                 break;
-            case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO_KHX:
-                InterpretPointerInPNext(VkBindBufferMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices);
+            case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
+                InterpretPointerInPNext(VkBindBufferMemoryDeviceGroupInfo, uint32_t, pDeviceIndices);
                 break;
-            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO_KHX:
-                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices);
-                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfoKHX, VkRect2D, pSFRRects);
+            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
+                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfo, uint32_t, pDeviceIndices);
+                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfo, VkRect2D, pSplitInstanceBindRegions);
+                break;
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT:
+                InterpretPointerInPNext(VkDescriptorSetVariableDescriptorCountAllocateInfoEXT, uint32_t, pDescriptorCounts);
                 break;
             case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                 InterpretPointerInPNext(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks);
@@ -735,12 +777,12 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
             case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
                 InterpretPointerInPNext(VkImageFormatListCreateInfoKHR, VkFormat, pViewFormats);
                 break;
-            case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHX:
-                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pViewMasks);
-                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfoKHX, int32_t, pViewOffsets);
-                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pCorrelationMasks);
+            case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
+                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, uint32_t, pViewMasks);
+                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, int32_t, pViewOffsets);
+                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks);
                 break;
-#ifdef WIN32
+#if defined(WIN32)
             case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
                 InterpretPointerInPNext(VkWin32KeyedMutexAcquireReleaseInfoKHR, VkDeviceMemory, pAcquireSyncs);
                 InterpretPointerInPNext(VkWin32KeyedMutexAcquireReleaseInfoKHR, uint64_t, pAcquireKeys);
@@ -756,6 +798,12 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
                 InterpretPointerInPNext(VkWin32KeyedMutexAcquireReleaseInfoNV, uint64_t, pReleaseKeys);
                 break;
 #endif
+            case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
+                InterpretPointerInPNext(VkPresentTimesInfoGOOGLE, VkPresentTimeGOOGLE, pTimes);
+                break;
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT:
+                InterpretPointerInPNext(VkDescriptorSetLayoutBindingFlagsCreateInfoEXT, VkDescriptorBindingFlagsEXT, pBindingFlags);
+                break;
             default:
                 // The cases in this switch statement are only those pnext struct types that have
                 // pointers inside them that need to be interpreted. The pnext list may contain

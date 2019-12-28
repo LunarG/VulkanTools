@@ -1,5 +1,67 @@
-# VK_LAYER_LUNARG_device_simulation (DevSim)
-The goal of this layer is to simplify application testing on a wide range of simulated device capabilities, without requiring an actual physical copy of every device.
+<!-- markdownlint-disable MD041 -->
+[![LunarG][1]][2]
+
+[1]: https://vulkan.lunarg.com/img/LunarGLogo.png "www.LunarG.com"
+[2]: https://www.LunarG.com/
+
+[![Creative Commons][3]][4]
+
+[3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
+[4]: https://creativecommons.org/licenses/by-nd/4.0/
+
+Copyright &copy; 2015-2019 LunarG, Inc.
+
+# VK\_LAYER\_LUNARG\_device\_simulation
+
+## Overview
+
+### Extend your Vulkan test coverage with free LunarG tool
+
+Do you have a test lab with examples of all the GPUs you hope your application will support?
+
+Is your Vulkan application stress-tested to ensure it behaves correctly across the wide range of hardware available in the marketplace?
+
+If either answer is "no," LunarG offers a free tool that could extend your test coverage and increase your peace of mind.
+
+### Introducing the LunarG Device Simulation Layer
+The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device. It can be applied without modifying any application binaries, and in a fully automated fashion. The Device Simulation layer (aka DevSim) is a Vulkan layer that can override the values returned by your application’s queries of the GPU. DevSim uses a JSON text configuration file to make your application see a different driver/GPU than is actually in your system. This capability is useful to verify that your application both a) properly queries the limits from Vulkan, and b) obeys those limits.
+
+The DevSim layer library is available pre-built in the LunarG Vulkan SDK, and continues to evolve. DevSim works for all Vulkan platforms (Linux, Windows, and Android), and is open-source software hosted on GitHub.
+
+The role of DevSim is to "simulate" a less-capable Vulkan implementation by constraining the features and resources of a more-capable implementation. Note that the actual device in your machine should be more capable than that which you are simulating. DevSim does not add capabilities to your existing Vulkan implementation by "emulating" additional capabilities with software; e.g. DevSim cannot add geometry shader capability to an actual device that doesn’t already provide it. Also, DevSim does not "enforce" the features being simulated. For enforcement, you would continue to use the Validation Layers as usual, in conjunction with DevSim.
+
+### Using DevSim
+DevSim supports a flexible configuration file format using JSON syntax. The configuration file format is defined by a formal JSON schema available on the Khronos website, so any configuration file may be verified to be correct using freely-available JSON validators. Browsing through the schema file, you can see the extent of parameters that are available for your configuration. As a convenience, DevSim supports loading multiple JSON files, so your configuration data can be split among separate files for modularity as desired.
+
+### Android
+To enable, use a setting with the path of configuration file to load:
+```
+adb shell settings put global debug.vulkan.devsim.filepath <path/to/DevSim/JSON/configuration/file>
+```
+Example of a DevSim JSON configuration file: [tiny1.json](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/tiny1.json)
+
+Optional: use settings to enable debugging output and exit-on-error:
+```
+adb shell settings put global debug.vulkan.devsim.debugenable 1
+adb shell settings put global debug.vulkan.devsim.exitonerror 1
+```
+
+### How DevSim Works
+DevSim builds its internal data tables by querying the capabilities of the underlying actual device, then applying each of the configuration files “on top of” those tables. Therefore you only need to specify the features you wish to modify from the actual device; tweaking a single feature is easy. Here’s an example of  a valid configuration file for changing only the maximum permitted viewport size:
+
+```json
+{
+   "$schema": "https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
+   "VkPhysicalDeviceProperties": {
+       "limits": { "maxViewportDimensions": [1024, 1024] }
+   }
+}
+```
+
+### Simulating Entire Real-World Devices
+If you instead wish to simulate entire real-world devices, LunarG has collaborated with the Vulkan Hardware Database to make their data compatible with the DevSim schema. You can download device configurations from the website in JSON format, and use those configuration files directly with DevSim.
+
+# Technical Details
 
 The Device Simulation Layer is a Vulkan layer that can modify the results of Vulkan PhysicalDevice queries based on a JSON configuration file, thus simulating some of the capabilities of device by overriding the capabilities of the actual device under test.
 
@@ -26,12 +88,12 @@ When configuring the order of the layers list, the DevSim layer should be "last"
 i.e.: closest to the driver, farthest from the application.
 That allows the Validation layer to see the results of the DevSim layer, and permit Validation to enforce the simulated capabilities.
 
-Please report issues to the [GitHub VulkanTools repository](https://github.com/LunarG/VulkanTools/issues) and include "DevSim" in the title text.
+Please report issues to [LunarG's VulkanTools GitHub repository](https://github.com/LunarG/VulkanTools/issues) and include "DevSim" in the title text.
 
-## Layer name
+### Layer name
 `VK_LAYER_LUNARG_device_simulation`
 
-## DevSim Layer operation and configuration
+### DevSim Layer operation and configuration
 At application startup, during vkCreateInstance(), the DevSim layer initializes its internal tables from the actual physical device in the system, then loads its configuration file, which specifies override values to apply to those internal tables.
 
 How the JSON configuration values are applied depends on whether the top-level section begins with "ArrayOf" or not.
@@ -62,7 +124,7 @@ This version of DevSim currently supports only Vulkan v1.0.
 If the application requests an unsupported version of the Vulkan API, DevSim will emit an error message.
 If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` environment variable (see below).
 
-## Example of a DevSim JSON configuration file
+### Example of a DevSim JSON configuration file
 ```json
 {
     "$schema": "https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
@@ -82,7 +144,7 @@ If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` env
 }
 ```
 
-## Environment variables used by DevSim layer.
+### Environment variables used by DevSim layer.
 
 * `VK_DEVSIM_FILENAME` - Name of one or more configuration file(s) to load.
   _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`.
@@ -90,7 +152,15 @@ If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` env
 * `VK_DEVSIM_DEBUG_ENABLE` - A non-zero integer enables debug message output.
 * `VK_DEVSIM_EXIT_ON_ERROR` - A non-zero integer enables exit-on-error.
 
-## Example using the DevSim layer
+#### vk_layer_settings.txt Options
+
+* `lunarg_device_simulation.filename` - Equivalent to the `VK_DEVSIM_FILENAME` environment variable.
+* `lunarg_device_simulation.debug_enable` - Equivalent to the `VK_DEVSIM_DEBUG_ENABLE` environment variable.
+* `lunarg_device_simulation.exit_on_error` - Equivalent to the `VK_DEVSIM_EXIT_ON_ERROR` environment variable.
+
+**Note:** Environment variables take precedence over vk_layer_settings.txt options.
+
+### Example using the DevSim layer
 ```bash
 # Configure bash to find the Vulkan SDK.
 source $VKSDK/setup-env.sh
@@ -100,7 +170,7 @@ export VK_LAYER_PATH="${VulkanTools}/build/layersvt"
 export VK_INSTANCE_LAYERS="VK_LAYER_LUNARG_device_simulation"
 
 # Specify the simulated device's configuration file.
-export VK_DEVSIM_FILENAME="${VulkanTools}/layersvt/device_simulation_examples/tiny1.json" 
+export VK_DEVSIM_FILENAME="${VulkanTools}/layersvt/device_simulation_examples/tiny1.json"
 # A list of files could look like:
 # export VK_DEVSIM_FILENAME="/home/foo/first.json:/home/foo/second.json"
 
@@ -115,7 +185,7 @@ See also
 * ${VulkanTools}/tests/devsim_layer_test.sh - a test runner script.
 * ${VulkanTools}/tests/devsim_test1.json - an example configuration file, containing bogus test data.
 
-## Device configuration data from vulkan.gpuinfo.org
+### Device configuration data from vulkan.gpuinfo.org
 A large and growing database of device capabilities is available at https://vulkan.gpuinfo.org/
 
 That device data can be downloaded in JSON format, compatible with the DevSim JSON schema.
@@ -125,15 +195,20 @@ A JSON index of the available device records can be queried with https://vulkan.
 That index includes URLs to download the specific device records in DevSim-compatible format, for example https://vulkan.gpuinfo.org/api/v2/devsim/getreport.php?id=1456
 
 As mentioned above, attempting to use a configuration file that does not fit within the capabilities of the underlying device may produce undefined results.
-Downloaded device records should be reviewed to determine that its capabilities can be simulated by the underlying device.
+Downloaded device records should be reviewed to determine that their capabilities can be simulated by the underlying device.
 
-## JSON validation
+### Device configuration data from the local system
+Vulkan Info can write its output in a format compatible the DevSim JSON schema,
+so the configuration of the local system can be captured.
+Use `vulkaninfo -j` to generate output in JSON format and redirect to a file, which can be consumed directly by DevSim.
+See the Vulkan Info documentation for further details.
+
+### JSON validation
 The DevSim layer itself does very little sanity checking of the configuration file, so those files should be validated to the schema using a separate tool, such as the following web-based validators.
 1. http://www.jsonschemavalidator.net/
-1. https://jsonschemalint.com/#/version/draft-04/markup/json
-1. https://json-schema-validator.herokuapp.com/
+2. https://json-schema-validator.herokuapp.com/
+3. https://jsonschemalint.com/#/version/draft-04/markup/json/
 
-## Other Resources
+### Other Resources
 1. http://json.org/
-1. http://json-schema.org/
-
+2. http://json-schema.org/

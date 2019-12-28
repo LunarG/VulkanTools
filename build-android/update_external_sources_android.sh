@@ -1,5 +1,5 @@
 #!/bin/bash
-# Update source for glslang, spirv-tools, shaderc
+# Update source for jsoncpp, Vulkan-Headers, Vulkan-Tools, and Vulkan-ValidationLayers
 
 # Copyright 2016 The Android Open Source Project
 # Copyright (C) 2015 Valve Corporation
@@ -22,29 +22,24 @@ ANDROIDBUILDDIR=$PWD
 BUILDDIR=$ANDROIDBUILDDIR
 BASEDIR=$BUILDDIR/third_party
 
-GLSLANG_REVISION=$(cat $ANDROIDBUILDDIR/glslang_revision_android)
-SPIRV_TOOLS_REVISION=$(cat $ANDROIDBUILDDIR/spirv-tools_revision_android)
-SPIRV_HEADERS_REVISION=$(cat $ANDROIDBUILDDIR/spirv-headers_revision_android)
-SHADERC_REVISION=$(cat $ANDROIDBUILDDIR/shaderc_revision_android)
 JSONCPP_REVISION=$(cat $ANDROIDBUILDDIR/jsoncpp_revision_android)
+VULKAN_TOOLS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-tools_revision_android)
+VULKAN_HEADERS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-headers_revision_android)
+VULKAN_VALIDATIONLAYERS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-validationlayers_revision_android)
 
-echo "GLSLANG_REVISION=$GLSLANG_REVISION"
-echo "SPIRV_TOOLS_REVISION=$SPIRV_TOOLS_REVISION"
-echo "SPIRV_HEADERS_REVISION=$SPIRV_HEADERS_REVISION"
-echo "SHADERC_REVISION=$SHADERC_REVISION"
 echo "JSONCPP_REVISION=$JSONCPP_REVISION"
+echo "VULKAN_TOOLS_REVISION=$VULKAN_TOOLS_REVISION"
+echo "VULKAN_HEADERS_REVISION=$VULKAN_HEADERS_REVISION"
+echo "VULKAN_VALIDATIONLAYERS_REVISION=$VULKAN_VALIDATIONLAYERS_REVISION"
 
-GLSLANG_URL=$(cat $ANDROIDBUILDDIR/glslang_url_android)
-SPIRV_TOOLS_URL=$(cat $ANDROIDBUILDDIR/spirv-tools_url_android)
-SPIRV_HEADERS_URL=$(cat $ANDROIDBUILDDIR/spirv-headers_url_android)
-SHADERC_URL=$(cat $ANDROIDBUILDDIR/shaderc_url_android)
 JSONCPP_URL=$(cat $ANDROIDBUILDDIR/jsoncpp_url_android)
+VULKAN_TOOLS_URL=$(cat $ANDROIDBUILDDIR/vulkan-tools_url_android)
+VULKAN_HEADERS_URL=$(cat $ANDROIDBUILDDIR/vulkan-headers_url_android)
+VULKAN_VALIDATIONLAYERS_URL=$(cat $ANDROIDBUILDDIR/vulkan-validationlayers_url_android)
 
-echo "GLSLANG_URL=$GLSLANG_URL"
-echo "SPIRV_TOOL_URLS_=$SPIRV_TOOLS_URL"
-echo "SPIRV_HEADERS_URL=$SPIRV_HEADERS_URL"
-echo "SHADERC_URL=$SHADERC_URL"
 echo "JSONCPP_URL=$JSONCPP_URL"
+echo "VULKAN_TOOLS_URL=$VULKAN_TOOLS_URL"
+echo "VULKAN_HEADERS_URL=$VULKAN_HEADERS_URL"
 
 if [[ $(uname) == "Linux" ]]; then
     cores="$(nproc || echo 4)"
@@ -59,19 +54,11 @@ fi
 function printUsage {
    echo "Supported parameters are:"
    echo "    --abi <abi> (optional)"
+   echo "    --no-build (optional)"
    echo
    echo "i.e. ${0##*/} --abi arm64-v8a \\"
    exit 1
 }
-
-if [[ $(($# % 2)) -ne 0 ]]
-then
-    echo Parameters must be provided in pairs.
-    echo parameter count = $#
-    echo
-    printUsage
-    exit 1
-fi
 
 while [[ $# -gt 0 ]]
 do
@@ -79,6 +66,10 @@ do
         --abi)
             abi="$2"
             shift 2
+            ;;
+        --no-build)
+            nobuild=1
+            shift 1
             ;;
         *)
             # unknown option
@@ -96,68 +87,11 @@ then
     echo No abi provided, so building for all supported abis.
 fi
 
-function create_glslang () {
-   rm -rf $BASEDIR/shaderc/third_party/glslang
-   echo "Creating local glslang repository ($BASEDIR/glslang)."
-   mkdir -p $BASEDIR/shaderc/third_party/glslang
-   cd $BASEDIR/shaderc/third_party/glslang
-   git clone $GLSLANG_URL .
-   git checkout $GLSLANG_REVISION
-}
-
-function update_glslang () {
-   echo "Updating $BASEDIR/shaderc/third_party/glslang"
-   cd $BASEDIR/shaderc/third_party/glslang
-   if [[ $(git config --get remote.origin.url) != $GLSLANG_URL ]]; then
-      echo "glslang URL mismatch, recreating local repo"
-      create_glslang
-      return
-   fi
-   git fetch --all
-   git checkout $GLSLANG_REVISION
-}
-
-function create_spirv-tools () {
-   rm -rf $BASEDIR/shaderc/third_party/spirv-tools
-   echo "Creating local spirv-tools repository ($BASEDIR/shaderc/third_party/spirv-tools)."
-   mkdir -p $BASEDIR/shaderc/third_party/spirv-tools
-   cd $BASEDIR/shaderc/third_party/spirv-tools
-   git clone $SPIRV_TOOLS_URL .
-   git checkout $SPIRV_TOOLS_REVISION
-}
-
-function update_spirv-tools () {
-   echo "Updating $BASEDIR/shaderc/third_party/spirv-tools"
-   cd $BASEDIR/shaderc/third_party/spirv-tools
-   if [[ $(git config --get remote.origin.url) != $SPIRV_TOOLS_URL ]]; then
-      echo "spirv-tools URL mismatch, recreating local repo"
-      create_spirv-tools
-      return
-   fi
-   git fetch --all
-   git checkout $SPIRV_TOOLS_REVISION
-}
-
-function create_spirv-headers () {
-   rm -rf $BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers
-   echo "Creating local spirv-headers repository ($BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers)."
-   mkdir -p $BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers
-   cd $BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers
-   git clone $SPIRV_HEADERS_URL .
-   git checkout $SPIRV_HEADERS_REVISION
-}
-
-function update_spirv-headers () {
-   echo "Updating $BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers"
-   cd $BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers
-   if [[ $(git config --get remote.origin.url) != $SPIRV_HEADERS_URL ]]; then
-      echo "spirv-headers URL mismatch, recreating local repo"
-      create_spirv-headers
-      return
-   fi
-   git fetch --all
-   git checkout $SPIRV_HEADERS_REVISION
-}
+echo no-build=$nobuild
+if [[ $nobuild ]]
+then
+    echo Skipping build.
+fi
 
 function create_jsoncpp () {
    rm -rf ${BASEDIR}/jsoncpp
@@ -181,58 +115,95 @@ function build_jsoncpp () {
    python amalgamate.py
 }
 
-function create_shaderc () {
-   rm -rf $BASEDIR/shaderc
-   echo "Creating local shaderc repository ($BASEDIR/shaderc)."
-   mkdir -p $BASEDIR/shaderc
-   cd $BASEDIR/shaderc
-   git clone $SHADERC_URL .
-   git checkout $SHADERC_REVISION
+function create_vulkan-headers () {
+   rm -rf $BASEDIR/Vulkan-Headers
+   echo "Creating local Vulkan-Headers repository ($BASEDIR/Vulkan-Headers)."
+   mkdir -p $BASEDIR/Vulkan-Headers
+   cd $BASEDIR/Vulkan-Headers
+   git clone $VULKAN_HEADERS_URL .
+   git checkout $VULKAN_HEADERS_REVISION
 }
 
-function update_shaderc () {
-   echo "Updating $BASEDIR/shaderc"
-   cd $BASEDIR/shaderc
-   if [[ $(git config --get remote.origin.url) != $SHADERC_URL ]]; then
-      echo "shaderc URL mismatch, recreating local repo"
-      create_shaderc
+function update_vulkan-headers () {
+   echo "Updating $BASEDIR/Vulkan-Headers"
+   cd $BASEDIR/Vulkan-Headers
+   if [[ $(git config --get remote.origin.url) != $VULKAN_HEADERS_URL ]]; then
+      echo "Vulkan-Headers URL mismatch, recreating local repo"
+      create_vulkan-headers
       return
    fi
    git fetch --all
-   git checkout $SHADERC_REVISION
+   git checkout $VULKAN_HEADERS_REVISION
+}
+ 
+function create_vulkan-tools () {
+   rm -rf $BASEDIR/Vulkan-Tools
+   echo "Creating local Vulkan-Tools repository ($BASEDIR/Vulkan-Tools)."
+   mkdir -p $BASEDIR/Vulkan-Tools
+   cd $BASEDIR/Vulkan-Tools
+   git clone $VULKAN_TOOLS_URL .
+   git checkout $VULKAN_TOOLS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
 }
 
-function build_shaderc () {
-   echo "Building $BASEDIR/shaderc"
-   cd $BASEDIR/shaderc/android_test
-   if [[ $abi ]]; then
-      ndk-build THIRD_PARTY_PATH=../third_party APP_ABI=$abi -j $cores;
-   else
-      ndk-build THIRD_PARTY_PATH=../third_party -j $cores;
+function update_vulkan-tools () {
+   echo "Updating $BASEDIR/Vulkan-Tools"
+   cd $BASEDIR/Vulkan-Tools
+   if [[ $(git config --get remote.origin.url) != $VULKAN_TOOLS_URL ]]; then
+      echo "Vulkan-Tools URL mismatch, recreating local repo"
+      create_vulkan-tools
+      return
    fi
+   git fetch --all
+   git checkout $VULKAN_TOOLS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
 }
 
-if [ ! -d "$BASEDIR/shaderc" -o ! -d "$BASEDIR/shaderc/.git" ]; then
-     create_shaderc
-fi
-update_shaderc
+function create_vulkan-validationlayers () {
+   rm -rf $BASEDIR/Vulkan-ValidationLayers
+   echo "Creating local Vulkan-ValidationLayers repository ($BASEDIR/Vulkan-ValidationLayers)."
+   mkdir -p $BASEDIR/Vulkan-ValidationLayers
+   cd $BASEDIR/Vulkan-ValidationLayers
+   git clone $VULKAN_VALIDATIONLAYERS_URL .
+   git checkout $VULKAN_VALIDATIONLAYERS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
+}
 
-if [ ! -d "$BASEDIR/shaderc/third_party/glslang" -o ! -d "$BASEDIR/shaderc/third_party/glslang/.git" -o -d "$BASEDIR/shaderc/third_party/glslang/.svn" ]; then
-   create_glslang
-fi
-update_glslang
+function update_vulkan-validationlayers () {
+   echo "Updating $BASEDIR/Vulkan-ValidationLayers"
+   cd $BASEDIR/Vulkan-ValidationLayers
+   if [[ $(git config --get remote.origin.url) != $VULKAN_VALIDATIONLAYERS_URL ]]; then
+      echo "Vulkan-ValidationLayers URL mismatch, recreating local repo"
+      create_vulkan-tools
+      return
+   fi
+   git fetch --all
+   git checkout $VULKAN_VALIDATIONLAYERS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
+}
 
-if [ ! -d "$BASEDIR/shaderc/third_party/spirv-tools" -o ! -d "$BASEDIR/shaderc/third_party/spirv-tools/.git" ]; then
-   create_spirv-tools
-fi
-update_spirv-tools
+# Always init the submodules, which includes vulkan headers
+echo "Initializing submodules"
+git submodule update --init --recursive
 
-if [ ! -d "$BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers" -o ! -d "$BASEDIR/shaderc/third_party/spirv-tools/external/spirv-headers/.git" ]; then
-   create_spirv-headers
+if [ ! -d "$BASEDIR/Vulkan-Headers" -o ! -d "$BASEDIR/Vulkan-Headers/.git" ]; then
+   create_vulkan-headers
 fi
-update_spirv-headers
+update_vulkan-headers
 
-build_shaderc
+if [ ! -d "$BASEDIR/Vulkan-Tools" -o ! -d "$BASEDIR/Vulkan-Tools/.git" ]; then
+   create_vulkan-tools
+fi
+update_vulkan-tools
+
+if [ ! -d "$BASEDIR/Vulkan-ValidationLayers" -o ! -d "$BASEDIR/Vulkan-ValidationLayers/.git" ]; then
+   create_vulkan-validationlayers
+fi
+update_vulkan-validationlayers
 
 if [ ! -d "${BASEDIR}/jsoncpp" -o ! -d "${BASEDIR}/jsoncpp/.git" ]; then
    create_jsoncpp

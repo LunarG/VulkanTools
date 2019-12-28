@@ -1,7 +1,7 @@
 /**************************************************************************
  *
- * Copyright 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright 2015-2018 Valve Corporation
+ * Copyright (C) 2015-2018 LunarG, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,8 @@
 
 #include <stdio.h>
 #include <string>
+#include <algorithm>
+#include <inttypes.h>
 #if defined(ANDROID)
 #include <sstream>
 #include <android/log.h>
@@ -35,10 +37,19 @@
 #include "vkreplay_main.h"
 #include "vkreplay_factory.h"
 #include "vkreplay_seq.h"
-#include "vkreplay_window.h"
+#include "vkreplay_vkdisplay.h"
 #include "screenshot_parsing.h"
+#include "vktrace_vk_packet_id.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, false, NULL, NULL, NULL, NULL};
+
+#if defined(ANDROID)
+const char* env_var_screenshot_frames = "debug.vulkan.screenshot";
+const char* env_var_screenshot_format = "debug.vulkan.screenshot.format";
+#else
+const char* env_var_screenshot_frames = "VK_SCREENSHOT_FRAMES";
+const char* env_var_screenshot_format = "VK_SCREENSHOT_FORMAT";
+#endif
 
 vktrace_SettingInfo g_settings_info[] = {
     {"o",
@@ -64,18 +75,25 @@ vktrace_SettingInfo g_settings_info[] = {
      "The number of times to replay the trace file or loop range."},
     {"lsf",
      "LoopStartFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&replaySettings.loopStartFrame},
      {&replaySettings.loopStartFrame},
      TRUE,
      "The start frame number of the loop range."},
     {"lef",
      "LoopEndFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&replaySettings.loopEndFrame},
      {&replaySettings.loopEndFrame},
      TRUE,
      "The end frame number of the loop range."},
+    {"c",
+     "CompatibilityMode",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.compatibilityMode},
+     {&replaySettings.compatibilityMode},
+     TRUE,
+     "Use compatibiltiy mode, i.e. convert memory indices to replay device indices, default is TRUE."},
     {"s",
      "Screenshot",
      VKTRACE_SETTING_STRING,
@@ -93,7 +111,23 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
-#if _DEBUG
+    {"x",
+     "ExitOnAnyError",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.exitOnAnyError},
+     {&replaySettings.exitOnAnyError},
+     TRUE,
+     "Exit if an error occurs during replay, default is FALSE"},
+#if defined(PLATFORM_LINUX)
+    {"ds",
+     "DisplayServer",
+     VKTRACE_SETTING_STRING,
+     {&replaySettings.displayServer},
+     {&replaySettings.displayServer},
+     TRUE,
+     "Display server used for replay. Options are \"xcb\", \"wayland\"."},
+#endif
+#if defined(_DEBUG)
     {"v",
      "Verbosity",
      VKTRACE_SETTING_STRING,
@@ -117,8 +151,7 @@ vktrace_SettingInfo g_settings_info[] = {
 vktrace_SettingGroup g_replaySettingGroup = {"vkreplay", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
 
 namespace vktrace_replay {
-int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_trace_packet_replay_library* replayerArray[],
-              vkreplayer_settings settings) {
+int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_trace_packet_replay_library* replayerArray[]) {
     int err = 0;
     vktrace_trace_packet_header* packet;
     unsigned int res;
@@ -127,13 +160,34 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     struct seqBookmark startingPacket;
 
     bool trace_running = true;
-    int prevFrameNumber = -1;
+    unsigned int prevFrameNumber = UINT_MAX;
+
+    if (replaySettings.loopEndFrame != UINT_MAX) {
+        // Increase by 1 because it is comparing with the frame number which is increased right after vkQueuePresentKHR being
+        // called.
+        // e.g. when frame number is 3, maybe frame 2 is just finished replaying and frame 3 is not started yet.
+        replaySettings.loopEndFrame += 1;
+    }
 
     // record the location of looping start packet
     seq.record_bookmark();
     seq.get_bookmark(startingPacket);
-    unsigned int totalLoops = settings.numLoops;
-    while (settings.numLoops > 0) {
+    uint64_t totalLoops = replaySettings.numLoops;
+    uint64_t totalLoopFrames = 0;
+    uint64_t start_time = vktrace_get_time();
+    uint64_t end_time;
+    uint64_t start_frame = replaySettings.loopStartFrame == UINT_MAX ? 0 : replaySettings.loopStartFrame;
+    uint64_t end_frame = UINT_MAX;
+    const char* screenshot_list = replaySettings.screenshotList;
+    while (replaySettings.numLoops > 0) {
+        if (replaySettings.numLoops > 1 && replaySettings.screenshotList != NULL) {
+            // Don't take screenshots until the last loop
+            replaySettings.screenshotList = NULL;
+        } else if (replaySettings.numLoops == 1 && replaySettings.screenshotList != screenshot_list) {
+            // Re-enable screenshots on last loop if they have been disabled
+            replaySettings.screenshotList = screenshot_list;
+        }
+
         while (trace_running) {
             display.process_event();
             if (display.get_quit_status()) {
@@ -181,27 +235,26 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                         if (res != VKTRACE_REPLAY_SUCCESS) {
                             vktrace_LogError("Failed to replay packet_id %d, with global_packet_index %d.", packet->packet_id,
                                              packet->global_packet_index);
-                            static BOOL QuitOnAnyError = FALSE;
-                            if (QuitOnAnyError) {
+                            if (replaySettings.exitOnAnyError) {
                                 err = -1;
                                 goto out;
                             }
                         }
 
                         // frame control logic
-                        int frameNumber = replayer->GetFrameNumber();
+                        unsigned int frameNumber = replayer->GetFrameNumber();
                         if (prevFrameNumber != frameNumber) {
                             prevFrameNumber = frameNumber;
 
-                            // Only set the loop start location in the first loop when loopStartFrame is not 0
-                            if (frameNumber == settings.loopStartFrame && settings.loopStartFrame > 0 &&
-                                settings.numLoops == totalLoops) {
+                            // Only set the loop start location and start_time in the first loop when loopStartFrame is not 0
+                            if (frameNumber == start_frame && start_frame > 0 && replaySettings.numLoops == totalLoops) {
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
+                                start_time = vktrace_get_time();
                             }
 
-                            if (frameNumber == settings.loopEndFrame) {
+                            if (frameNumber == replaySettings.loopEndFrame) {
                                 trace_running = false;
                             }
                         }
@@ -214,21 +267,34 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                 }
             }
         }
-        settings.numLoops--;
-        if (settings.numLoops)
-            vktrace_LogAlways("Loop number %d completed. Remaining loops:%d", settings.numLoops + 1, settings.numLoops);
+        replaySettings.numLoops--;
+        vktrace_LogVerbose("Loop number %d completed. Remaining loops:%d", replaySettings.numLoops + 1, replaySettings.numLoops);
 
-        // if screenshot is enabled run it for one cycle only
-        // as all consecutive cycles must generate same screen
-        if (replaySettings.screenshotList != NULL) {
-            vktrace_free((char*)replaySettings.screenshotList);
-            replaySettings.screenshotList = NULL;
-        }
+        if (end_frame == UINT_MAX)
+            end_frame = replaySettings.loopEndFrame == UINT_MAX
+                            ? replayer->GetFrameNumber()
+                            : std::min((unsigned int)replayer->GetFrameNumber(), replaySettings.loopEndFrame);
+        totalLoopFrames += end_frame - start_frame;
+
         seq.set_bookmark(startingPacket);
         trace_running = true;
         if (replayer != NULL) {
-            replayer->ResetFrameNumber(settings.loopStartFrame);
+            replayer->ResetFrameNumber(replaySettings.loopStartFrame);
         }
+    }
+    end_time = vktrace_get_time();
+    if (end_time > start_time) {
+        double fps = static_cast<double>(totalLoopFrames) / (end_time - start_time) * 1000000000;
+        if (end_frame > 0)
+            vktrace_LogAlways("%f fps, %f seconds, %" PRIu64 " frame%s, %" PRIu64 " loop%s, framerange %" PRId64 "-%" PRId64, fps,
+                              static_cast<double>(end_time - start_time) / 1000000000, totalLoopFrames,
+                              totalLoopFrames != 1 ? "s" : "", totalLoops, totalLoops > 1 ? "s" : "", start_frame, end_frame - 1);
+        else
+            vktrace_LogAlways("%f fps, %f seconds, %" PRIu64 " frame%s, %" PRIu64 " loop%s", fps,
+                              static_cast<double>(end_time - start_time) / 1000000000, totalLoopFrames,
+                              totalLoopFrames != 1 ? "s" : "", totalLoops, totalLoops > 1 ? "s" : "");
+    } else {
+        vktrace_LogError("fps error!");
     }
 
 out:
@@ -292,27 +358,63 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 #endif  // ANDROID
 }
 
-static bool readPortabilityTable() {
-    size_t tableSize;
-    int originalFilePos;
+static void freePortabilityTablePackets() {
+    for (size_t i = 0; i < portabilityTablePackets.size(); i++) {
+        vktrace_trace_packet_header* pPacket = (vktrace_trace_packet_header*)portabilityTablePackets[i];
+        if (pPacket) {
+            vktrace_free(pPacket);
+        }
+    }
+}
 
-    originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
-    if (-1 == originalFilePos) return false;
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(size_t))) return false;
-    if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(size_t))) return false;
-    if (tableSize == 0) return true;
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(size_t)))) return false;
-    portabilityTable.resize(tableSize);
-    if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(size_t) * tableSize)) return false;
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
+std::vector<uint64_t> portabilityTable;
+static bool preloadPortabilityTablePackets() {
+    uint64_t originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
+    uint64_t portabilityTableTotalPacketSize = 0;
 
-    vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
-    for (size_t i = 0; i < tableSize; i++) vktrace_LogDebug("   %p %ld", &portabilityTable[i], portabilityTable[i]);
+    for (size_t i = 0; i < portabilityTable.size(); i++) {
+        if (!vktrace_FileLike_SetCurrentPosition(traceFile, portabilityTable[i])) {
+            return false;
+        }
+        vktrace_trace_packet_header* pPacket = vktrace_read_trace_packet(traceFile);
+        if (!pPacket) {
+            return false;
+        }
+        pPacket = interpret_trace_packet_vk(pPacket);
+        portabilityTablePackets[i] = (uintptr_t)pPacket;
+        portabilityTableTotalPacketSize += pPacket->size;
+    }
 
+    vktrace_LogVerbose("Total packet size preloaded for portability table: %" PRIu64 " bytes", portabilityTableTotalPacketSize);
+
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) {
+        freePortabilityTablePackets();
+        return false;
+    }
     return true;
 }
 
-int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
+static bool readPortabilityTable() {
+    uint64_t tableSize;
+    uint64_t originalFilePos;
+
+    originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
+    if (UINT64_MAX == originalFilePos) return false;
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(uint64_t))) return false;
+    if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(uint64_t))) return false;
+    if (tableSize != 0) {
+        if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(uint64_t))))
+            return false;
+        portabilityTable.resize((size_t)tableSize);
+        portabilityTablePackets.resize((size_t)tableSize);
+        if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
+    }
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
+    vktrace_LogDebug("portabilityTable size=%" PRIu64 "\n", tableSize);
+    return true;
+}
+
+int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp = nullptr) {
     int err = 0;
     vktrace_SettingGroup* pAllSettings = NULL;
     unsigned int numAllSettings = 0;
@@ -330,6 +432,11 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
+    if (replaySettings.loopStartFrame > replaySettings.loopEndFrame) {
+        vktrace_LogError("Bad loop frame range");
+        return -1;
+    }
+
     // merge settings so that new settings will get written into the settings file
     vktrace_SettingGroup_merge(&g_replaySettingGroup, &pAllSettings, &numAllSettings);
 
@@ -342,7 +449,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
     else if (!strcmp(replaySettings.verbosity, "full"))
         vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#if _DEBUG
+#if defined(_DEBUG)
     else if (!strcmp(replaySettings.verbosity, "debug"))
         vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
 #endif
@@ -366,20 +473,18 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             return -1;
         } else {
             // Set env var that communicates list to ScreenShot layer
-            vktrace_set_global_var("VK_SCREENSHOT_FRAMES", replaySettings.screenshotList);
+            vktrace_set_global_var(env_var_screenshot_frames, replaySettings.screenshotList);
         }
-    } else {
-        vktrace_set_global_var("VK_SCREENSHOT_FRAMES", "");
-    }
 
-    // Set up environment for screenshot color space format
-    if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList != NULL) {
-        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", replaySettings.screenshotColorFormat);
-    }else if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList == NULL) {
-        vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
-        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
-    } else {
-        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+        // Set up environment for screenshot color space format
+        if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList != NULL) {
+            vktrace_set_global_var(env_var_screenshot_format, replaySettings.screenshotColorFormat);
+        } else if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList == NULL) {
+            vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
+            vktrace_set_global_var(env_var_screenshot_format, "");
+        } else {
+            vktrace_set_global_var(env_var_screenshot_format, "");
+        }
     }
 
     // open the trace file
@@ -425,11 +530,15 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     // set global version num
     vktrace_set_trace_version(fileHeader.trace_file_version);
 
-    // Make sure trace file version is supported
-    if (fileHeader.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE) {
+    // Make sure trace file version is supported.
+    // We can't play trace files with a version prior to the minimum compatible version.
+    // We also won't attempt to play trace files that are newer than this replayer.
+    if (fileHeader.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE ||
+        fileHeader.trace_file_version > VKTRACE_TRACE_FILE_VERSION) {
         vktrace_LogError(
-            "Trace file version %u is older than minimum compatible version (%u).\nYou'll need to make a new trace file, or use an "
-            "older replayer.",
+            "Trace file version %u is not compatible with this replayer version (%u).\nYou'll need to make a new trace file, or "
+            "use "
+            "the appropriate replayer.",
             fileHeader.trace_file_version, VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE);
         fclose(tracefp);
         vktrace_free(pTraceFile);
@@ -446,9 +555,28 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
+    // Make sure we replay 64-bit traces with 64-bit replayer, and 32-bit traces with 32-bit replayer
+    if (sizeof(void*) != fileHeader.ptrsize) {
+        vktrace_LogError("%d-bit trace file is not supported by %d-bit vkreplay.", 8 * fileHeader.ptrsize, 8 * sizeof(void*));
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
+    // Make sure replay system endianess matches endianess in trace file
+    if (get_endianess() != fileHeader.endianess) {
+        vktrace_LogError("System endianess (%s) does not appear match endianess of tracefile (%s).",
+                         get_endianess_string(get_endianess()), get_endianess_string(fileHeader.endianess));
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
     // Allocate a new header that includes space for all gpuinfo structs
     if (!(pFileHeader = (vktrace_trace_file_header*)vktrace_malloc(sizeof(vktrace_trace_file_header) +
-                                                                   fileHeader.n_gpuinfo * sizeof(struct_gpuinfo)))) {
+                                                                   (size_t)(fileHeader.n_gpuinfo * sizeof(struct_gpuinfo))))) {
         vktrace_LogError("Can't allocate space for trace file header.");
         if (pAllSettings != NULL) {
             vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
@@ -469,11 +597,13 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         fclose(tracefp);
         vktrace_free(pTraceFile);
         vktrace_free(traceFile);
+        vktrace_free(pFileHeader);
         return -1;
     }
 
     // read portability table if it exists
     if (pFileHeader->portability_table_valid) pFileHeader->portability_table_valid = readPortabilityTable();
+    if (pFileHeader->portability_table_valid) pFileHeader->portability_table_valid = preloadPortabilityTablePackets();
     if (!pFileHeader->portability_table_valid)
         vktrace_LogAlways("Trace file does not appear to contain portability table. Will not attempt to map memoryType indices.");
 
@@ -482,15 +612,38 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     vktrace_trace_packet_replay_library* replayer[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE];
     ReplayFactory makeReplayer;
 
-// Create window. Initial size is 100x100. It will later get resized to the size
-// used by the traced app. The resize will happen  during playback of swapchain functions.
-#if defined(ANDROID)
-    vktrace_replay::ReplayDisplay disp(window, 100, 100);
-#else
-    vktrace_replay::ReplayDisplay disp(100, 100, 0, false);
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+    // Choose default display server if unset
+    if (replaySettings.displayServer == NULL) {
+        auto session = getenv("XDG_SESSION_TYPE");
+        if (session == NULL || strcmp(session, "x11") == 0) {
+            replaySettings.displayServer = "xcb";
+        } else if (strcmp(session, "wayland") == 0) {
+            replaySettings.displayServer = "wayland";
+        }
+    }
 #endif
+
+    // Create window. Initial size is 100x100. It will later get resized to the size
+    // used by the traced app. The resize will happen  during playback of swapchain functions.
+    vktrace_replay::ReplayDisplay disp(100, 100);
+
+    // Create display
+    if (GetDisplayImplementation(replaySettings.displayServer, &pDisp) == -1) {
+        if (pAllSettings != NULL) {
+            vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+        }
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+        vktrace_free(pFileHeader);
+        return -1;
+    }
+
+    disp.set_implementation(pDisp);
 //**********************************************************
-#if _DEBUG
+#if defined(_DEBUG)
     static BOOL debugStartup = FALSE;  // TRUE
     while (debugStartup)
         ;
@@ -522,6 +675,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
                 fclose(tracefp);
                 vktrace_free(pTraceFile);
                 vktrace_free(traceFile);
+                if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+                vktrace_free(pFileHeader);
                 return -1;
             }
 
@@ -542,6 +697,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
                 fclose(tracefp);
                 vktrace_free(pTraceFile);
                 vktrace_free(traceFile);
+                if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+                vktrace_free(pFileHeader);
                 return err;
             }
         }
@@ -555,12 +712,14 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         fclose(tracefp);
         vktrace_free(pTraceFile);
         vktrace_free(traceFile);
+        if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+        vktrace_free(pFileHeader);
         return -1;
     }
 
     // main loop
     Sequencer sequencer(traceFile);
-    err = vktrace_replay::main_loop(disp, sequencer, replayer, replaySettings);
+    err = vktrace_replay::main_loop(disp, sequencer, replayer);
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
         if (replayer[i] != NULL) {
@@ -576,6 +735,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     fclose(tracefp);
     vktrace_free(pTraceFile);
     vktrace_free(traceFile);
+    if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+    vktrace_free(pFileHeader);
 
     return err;
 }
@@ -624,7 +785,20 @@ std::vector<std::string> get_args(android_app& app, const char* intent_extra_dat
     return args;
 }
 
-static int32_t processInput(struct android_app* app, AInputEvent* event) { return 0; }
+static int32_t processInput(struct android_app* app, AInputEvent* event) {
+    if ((app->userData != nullptr) && (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)) {
+        vkDisplayAndroid* display = reinterpret_cast<vkDisplayAndroid*>(app->userData);
+
+        // TODO: Distinguish between tap and swipe actions; swipe to advance to next frame when paused.
+        int32_t action = AMotionEvent_getAction(event);
+        if (action == AMOTION_EVENT_ACTION_UP) {
+            display->set_pause_status(!display->get_pause_status());
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 static void processCommand(struct android_app* app, int32_t cmd) {
     switch (cmd) {
@@ -648,6 +822,9 @@ static void processCommand(struct android_app* app, int32_t cmd) {
 // Start with carbon copy of main() and convert it to support Android, then diff them and move common code to helpers.
 void android_main(struct android_app* app) {
     const char* appTag = "vkreplay";
+
+    // This will be set by the vkDisplay object.
+    app->userData = nullptr;
 
     int vulkanSupport = InitVulkan();
     if (vulkanSupport == 0) {
@@ -691,8 +868,10 @@ void android_main(struct android_app* app) {
             // sleep to allow attaching debugger
             // sleep(10);
 
+            auto pDisp = new vkDisplayAndroid(app);
+
             // Call into common code
-            int err = vkreplay_main(argc, argv, app->window);
+            int err = vkreplay_main(argc, argv, pDisp);
             __android_log_print(ANDROID_LOG_DEBUG, appTag, "vkreplay_main returned %i", err);
 
             ANativeActivity_finish(app->activity);

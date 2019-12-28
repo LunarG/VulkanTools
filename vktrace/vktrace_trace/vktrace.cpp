@@ -93,7 +93,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.enable_pmb},
      TRUE,
      "Enable tracking of persistently mapped buffers, default is TRUE."},
-#if _DEBUG
+#if defined(_DEBUG)
     {"v",
      "Verbosity",
      VKTRACE_SETTING_STRING,
@@ -101,7 +101,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.verbosity},
      TRUE,
      "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", "
-     "\"debug\"."},
+     "\"max\", \"debug\"."},
 #else
     {"v",
      "Verbosity",
@@ -110,7 +110,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.verbosity},
      TRUE,
      "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", "
-     "\"full\"."},
+     "\"full\", \"max\"."},
 #endif
 
     {"tr",
@@ -123,9 +123,31 @@ vktrace_SettingInfo g_settings_info[] = {
                                          hotkey-[F1-F12|TAB|CONTROL]\n\
                                          hotkey-[F1-F12|TAB|CONTROL]-<frameCount>\n\
                                          frames-<startFrame>-<endFrame>"},
+    {"tpp",
+     "TrimPostProcessing",
+     VKTRACE_SETTING_BOOL,
+     {&g_settings.enable_trim_post_processing},
+     {&g_default_settings.enable_trim_post_processing},
+     TRUE,
+     "Enable trim post processing to make trimmed trace file smaller, default is FALSE."},
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause,
     //&g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger
     // can be attached)" },
+    {"tbs",
+     "TrimBatchSize",
+     VKTRACE_SETTING_STRING,
+     {&g_settings.trimCmdBatchSizeStr},
+     {&g_default_settings.trimCmdBatchSizeStr},
+     TRUE,
+     "Set the maximum trim commands batch size, default is device allocation limit count divide by 100."},
+    {"tl",
+     "TraceLock",
+     VKTRACE_SETTING_BOOL,
+     {&g_settings.enable_trace_lock},
+     {&g_default_settings.enable_trace_lock},
+     TRUE,
+     "Enable locking of API calls during trace if TraceLock is set to TRUE,\n\
+                                       default is FALSE in which it is enabled only when trimming is enabled."},
 };
 
 vktrace_SettingGroup g_settingGroup = {"vktrace", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
@@ -205,7 +227,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
     fflush(stdout);
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -214,7 +236,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 // ------------------------------------------------------------------------------------------------
 char* append_index_to_filename(const char* base, uint32_t index, const char* extension) {
     char num[17];
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX)
     snprintf(num, 17, "-%u", index);
 #elif defined(WIN32)
     _snprintf_s(num, 17, _TRUNCATE, "-%u", index);
@@ -265,7 +287,7 @@ char* find_available_filename(const char* originalFilename, bool bForceOverwrite
 // we need to access to determine what memory index should be used
 // in vkAllocateMemory during trace playback. This table is appended
 // to the trace file.
-std::vector<size_t> portabilityTable;
+std::vector<uint64_t> portabilityTable;
 uint32_t lastPacketThreadId;
 uint64_t lastPacketIndex;
 uint64_t lastPacketEndTime;
@@ -286,7 +308,7 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     portabilityTable.push_back(portabilityTable.size());
 
     // Append the table packet to the trace file.
-    hdr.size = sizeof(hdr) + portabilityTable.size() * sizeof(size_t);
+    hdr.size = sizeof(hdr) + portabilityTable.size() * sizeof(uint64_t);
     hdr.global_packet_index = lastPacketIndex + 1;
     hdr.tracer_id = VKTRACE_TID_VULKAN;
     hdr.packet_id = VKTRACE_TPI_PORTABILITY_TABLE;
@@ -295,9 +317,9 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     hdr.next_buffers_offset = 0;
     hdr.pBody = (uintptr_t)NULL;
     if (0 == Fseek(pTraceFile, 0, SEEK_END) && 1 == fwrite(&hdr, sizeof(hdr), 1, pTraceFile) &&
-        portabilityTable.size() == fwrite(&portabilityTable[0], sizeof(size_t), portabilityTable.size(), pTraceFile)) {
+        portabilityTable.size() == fwrite(&portabilityTable[0], sizeof(uint64_t), portabilityTable.size(), pTraceFile)) {
         // Set the flag in the file header that indicates the portability table has been written
-        if (0 == fseek(pTraceFile, offsetof(vktrace_trace_file_header, portability_table_valid), SEEK_SET))
+        if (0 == Fseek(pTraceFile, offsetof(vktrace_trace_file_header, portability_table_valid), SEEK_SET))
             fwrite(&one_64, sizeof(uint64_t), 1, pTraceFile);
     }
     portabilityTable.clear();
@@ -306,7 +328,7 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
 
 // ------------------------------------------------------------------------------------------------
 int main(int argc, char* argv[]) {
-    uint64_t exitval = 0;
+    int exitval = 0;
     memset(&g_settings, 0, sizeof(vktrace_settings));
 
     vktrace_LogSetCallback(loggingCallback);
@@ -319,12 +341,28 @@ int main(int argc, char* argv[]) {
     g_default_settings.screenshotList = NULL;
     g_default_settings.screenshotColorFormat = NULL;
     g_default_settings.enable_pmb = true;
+    g_default_settings.enable_trim_post_processing = false;
 
     // Check to see if the PAGEGUARD_PAGEGUARD_ENABLE_ENV env var is set.
     // If it is set to anything but "1", set the default to false.
     // Note that the command line option will override the env variable.
     char* pmbEnableEnv = vktrace_get_global_var(VKTRACE_PMB_ENABLE_ENV);
     if (pmbEnableEnv && strcmp(pmbEnableEnv, "1")) g_default_settings.enable_pmb = false;
+
+    // Check to see if the VKTRACE_TRIM_POST_PROCESS_ENV env var is set.
+    // If it is set to "1", set it to true.
+    // If it is set to anything but "1", set it to false.
+    // Note that the command line option will override the env variable.
+    char* tppEnableEnv = vktrace_get_global_var(VKTRACE_TRIM_POST_PROCESS_ENV);
+    if (tppEnableEnv && strcmp(tppEnableEnv, "1")) g_default_settings.enable_trim_post_processing = false;
+    if (tppEnableEnv && !strcmp(tppEnableEnv, "1")) g_default_settings.enable_trim_post_processing = true;
+
+    // get the value of VKTRACE_ENABLE_TRACE_LOCK_ENV env variable.
+    // if it is set to "1" (true), locking for API calls is enabled.
+    // by default it is set to "0" (false), in which locking is enabled only when trimming is enabled.
+    // Note that the command line option will override the env variable.
+    char* tl_enable_env = vktrace_get_global_var(VKTRACE_ENABLE_TRACE_LOCK_ENV);
+    if (tl_enable_env && (strcmp(tl_enable_env, "1") == 0)) g_default_settings.enable_trace_lock = true;
 
     if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0) {
         // invalid cmd-line parameters
@@ -347,7 +385,7 @@ int main(int argc, char* argv[]) {
             vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
         else if (strcmp(g_settings.verbosity, "full") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#if _DEBUG
+#if defined(_DEBUG)
         else if (strcmp(g_settings.verbosity, "debug") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
 #endif
@@ -406,12 +444,39 @@ int main(int argc, char* argv[]) {
     }
 
     vktrace_set_global_var(VKTRACE_PMB_ENABLE_ENV, g_settings.enable_pmb ? "1" : "0");
+    vktrace_set_global_var(VKTRACE_TRIM_POST_PROCESS_ENV, g_settings.enable_trim_post_processing ? "1" : "0");
+    vktrace_set_global_var(VKTRACE_ENABLE_TRACE_LOCK_ENV, g_settings.enable_trace_lock ? "1" : "0");
 
     if (g_settings.traceTrigger) {
         // Export list to screenshot layer
         vktrace_set_global_var(VKTRACE_TRIM_TRIGGER_ENV, g_settings.traceTrigger);
     } else {
         vktrace_set_global_var(VKTRACE_TRIM_TRIGGER_ENV, "");
+    }
+
+    // set trim max commands batched size env var that communicates with the layer
+    if (g_settings.trimCmdBatchSizeStr != NULL) {
+        uint64_t trimMaxCmdBatchSzValue = 0;
+        if (sscanf(g_settings.trimCmdBatchSizeStr, "%d", &trimMaxCmdBatchSzValue) == 1) {
+            if (trimMaxCmdBatchSzValue > 0) {
+                vktrace_set_global_var(VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV, g_settings.trimCmdBatchSizeStr);
+                vktrace_LogVerbose(
+                    "Maximum trim commands batched size set by option is: '%s'.\n\
+                                    Note: This maximum number will be limited by device max memory allocation \
+                                    count determined during trim.",
+                    g_settings.trimCmdBatchSizeStr);
+            } else {
+                vktrace_LogError(
+                    "Trim commands batched size range error. Commands batched size should be bigger than \
+                                  0 and will be limited by device max memory allocation count determined during trim.");
+                return 1;
+            }
+        } else {
+            vktrace_LogError("Trim Max Commands Batched Size option must be formatted as: \"<max batched size>\".");
+            return 1;
+        }
+    } else {
+        vktrace_set_global_var(VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV, "");
     }
 
     unsigned int serverIndex = 0;
@@ -502,7 +567,7 @@ int main(int argc, char* argv[]) {
             vktrace_platform_resume_thread(&procInfo.hThread);
 
             // Now into the main message loop, listen for hotkeys to send over.
-            exitval = MessageLoop();
+            exitval = (int)MessageLoop();
 #endif
         }
         vktrace_appendPortabilityPacket(procInfo.pTraceFile);

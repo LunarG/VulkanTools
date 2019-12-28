@@ -23,6 +23,7 @@ import os,re,sys
 import xml.etree.ElementTree as etree
 from generator import *
 from collections import namedtuple
+from common_codegen import *
 
 approved_ext = [
                 'VK_AMD_draw_indirect_count',
@@ -53,29 +54,32 @@ approved_ext = [
                 'VK_IMG_format_pvrtc',
                 'VK_KHR_16bit_storage',
                 'VK_KHR_android_surface',
+                'VK_KHR_bind_memory2',
                 'VK_KHR_dedicated_allocation',
                 'VK_KHR_descriptor_update_template',
                 'VK_KHR_display',
                 'VK_KHR_display_swapchain',
                 'VK_KHR_external_fence',
                 'VK_KHR_external_fence_capabilities',
-                #'VK_KHR_external_fence_fd',
-                #'VK_KHR_external_fence_win32',
+                'VK_KHR_external_fence_fd',
+                'VK_KHR_external_fence_win32',
                 'VK_KHR_external_memory',
                 'VK_KHR_external_memory_capabilities',
                 'VK_KHR_external_memory_fd',
-                #'VK_KHR_external_memory_win32',
+                'VK_KHR_external_memory_win32',
                 'VK_KHR_external_semaphore',
                 'VK_KHR_external_semaphore_capabilities',
                 'VK_KHR_external_semaphore_fd',
-                #'VK_KHR_external_semaphore_win32',
+                'VK_KHR_external_semaphore_win32',
                 'VK_KHR_get_memory_requirements2',
                 'VK_KHR_get_physical_device_properties2',
                 'VK_KHR_get_surface_capabilities2',
+                'VK_KHR_image_format_list',
                 'VK_KHR_incremental_present',
                 'VK_KHR_maintenance1',
-                #'VK_KHR_mir_surface',
+                'VK_KHR_maintenance2',
                 'VK_KHR_push_descriptor',
+                'VK_KHR_relaxed_block_layout',
                 'VK_KHR_sampler_filter_minmax',
                 'VK_KHR_sampler_mirror_clamp_to_edge',
                 'VK_KHR_shader_draw_parameters',
@@ -92,6 +96,20 @@ approved_ext = [
                 'VK_KHX_device_group',
                 'VK_KHX_device_group_creation',
                 'VK_KHX_multiview',
+                'VK_EXT_depth_range_unrestricted',
+                'VK_EXT_external_memory_dma_buf',
+                'VK_EXT_external_memory_host',
+                'VK_EXT_global_priority',
+                'VK_EXT_post_depth_coverage',
+                'VK_EXT_queue_family_foreign',
+                'VK_EXT_sampler_filter_minmax',
+                'VK_EXT_shader_stencil_export',
+                'VK_EXT_shader_viewport_index_layer',
+                'VK_EXT_validation_cache',
+                'VK_AMD_mixed_attachment_samples',
+                'VK_AMD_shader_fragment_mask',
+                'VK_AMD_shader_image_load_store_lod',
+                'VK_AMD_shader_info',
                 #'VK_MVK_ios_surface',
                 #'VK_MVK_macos_surface',
                 #'VK_MVK_moltenvk',
@@ -100,7 +118,7 @@ approved_ext = [
                 'VK_NV_dedicated_allocation',
                 'VK_NV_external_memory',
                 'VK_NV_external_memory_capabilities',
-                #'VK_NV_external_memory_win32',
+                'VK_NV_external_memory_win32',
                 'VK_NV_fill_rectangle',
                 'VK_NV_fragment_coverage_to_color',
                 'VK_NV_framebuffer_mixed_samples',
@@ -112,19 +130,40 @@ approved_ext = [
                 'VK_NV_win32_keyed_mutex',
                 'VK_NVX_device_generated_commands',
                 'VK_NVX_multiview_per_view_attributes',
+                'VK_EXT_sample_locations',
+                'VK_KHR_sampler_ycbcr_conversion',
+                'VK_KHR_get_display_properties2',
+                'VK_KHR_memory2',
+                'VK_KHR_protected_memory',
+                'VK_KHX_subgroup',
                 ]
 
 api_exclusions = [
-                # VK_KHR_display
-                'GetDisplayPlaneSupportedDisplaysKHR',
-
-                # VK_KHR_display_swapchain
-                'CreateSharedSwapchainsKHR'
+                'EnumerateInstanceVersion'
                 ]
+
+# Helper functions
+
+def isSupportedCmd(cmd, cmd_extension_dict):
+    extension = cmd_extension_dict[cmd.name]
+    if 'VK_VERSION_1_' not in extension and extension not in approved_ext:
+        return False
+
+    cmdname = cmd.name[2:]
+    if cmdname in api_exclusions:
+        return False
+    return True
+
+def isInstanceCmd(cmd):
+    cmdtarget = cmd.members[0].type
+    handle = cmd.members[0].handle
+    return handle is None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice'
+
 #
 # VkTraceFileOutputGeneratorOptions - subclass of GeneratorOptions.
 class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
     def __init__(self,
+                 conventions = None,
                  filename = None,
                  directory = '.',
                  apiname = None,
@@ -134,32 +173,31 @@ class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = regSortFeatures,
                  prefixText = "",
                  genFuncPointers = True,
                  protectFile = True,
                  protectFeature = True,
-                 protectProto = None,
-                 protectProtoStr = None,
                  apicall = '',
                  apientry = '',
                  apientryp = '',
                  alignFuncParam = 0,
+                 expandEnumerants = True,
                  library_name = '',
                  vktrace_file_type = ''):
-        GeneratorOptions.__init__(self, filename, directory, apiname, profile,
+        GeneratorOptions.__init__(self, conventions, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, sortProcedure)
+                                  addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.prefixText       = prefixText
         self.genFuncPointers  = genFuncPointers
         self.protectFile      = protectFile
         self.protectFeature   = protectFeature
-        self.protectProto     = protectProto
-        self.protectProtoStr  = protectProtoStr
         self.apicall          = apicall
         self.apientry         = apientry
         self.apientryp        = apientryp
         self.alignFuncParam   = alignFuncParam
+        self.expandEnumerants = expandEnumerants,
         self.library_name     = library_name
         self.vktrace_file_type = vktrace_file_type
 #
@@ -243,8 +281,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         OutputGenerator.endFile(self)
     #
     # Called for each type -- if the type is a struct/union, grab the metadata
-    def genType(self, typeinfo, name):
-        OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        OutputGenerator.genType(self, typeinfo, name, alias)
         typeElem = typeinfo.elem
         # If the type is a struct type, traverse the imbedded <member> tags generating a structure.
         # Otherwise, emit the tag text.
@@ -253,7 +291,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             self.object_types.append(name)
         elif (category == 'struct' or category == 'union'):
             self.structNames.append(name)
-            self.genStruct(typeinfo, name)
+            self.genStruct(typeinfo, name, alias) # TODO: This is bad. Might confuse parent class
     #
     # Check if the parameter passed in is a pointer
     def paramIsPointer(self, param):
@@ -303,9 +341,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 decoratedName = '{}/{}'.format(*match.group(2, 3))
         else:
             # Matches expressions similar to 'latexmath : [dataSize \over 4]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*(\w+)\s*\\over\s*(\d+)\s*\]', source)
-            name = match.group(1)
-            decoratedName = '{}/{}'.format(*match.group(1, 2))
+            match = re.match(r'latexmath\s*\:\s*\[\s*(\\textrm\{)?(\w+)\}?\s*\\over\s*(\d+)\s*\]', source)
+            name = match.group(2)
+            decoratedName = '{}/{}'.format(*match.group(2, 3))
         return name, decoratedName
     #
     # Retrieve the value of the len tag
@@ -327,7 +365,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             result = str(result).replace('::', '->')
         return result
     #
-    # Check if a structure is or contains a dispatchable (dispatchable = True) or 
+    # Check if a structure is or contains a dispatchable (dispatchable = True) or
     # non-dispatchable (dispatchable = False) handle
     def TypeContainsObjectHandle(self, handle_type, dispatchable):
         if dispatchable:
@@ -348,9 +386,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         return False
     #
     # Capture command parameter info needed
-    def genCmd(self, cmdinfo, cmdname):
+    def genCmd(self, cmdinfo, cmdname, alias):
+        if "GetPhysicalDeviceSurfacePresentModes" in cmdname:
+           stop="here"
         # Add struct-member type information to command parameter information
-        OutputGenerator.genCmd(self, cmdinfo, cmdname)
+        OutputGenerator.genCmd(self, cmdinfo, cmdname, alias)
         members = cmdinfo.elem.findall('.//param')
         # Iterate over members once to get length parameters for arrays
         lens = set()
@@ -390,8 +430,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         self.cmd_feature_protect.append(self.CmdExtraProtect(name=cmdname, extra_protect=self.featureExtraProtect))
     #
     # Generate local ready-access data describing Vulkan structures and unions from the XML metadata
-    def genStruct(self, typeinfo, typeName):
-        OutputGenerator.genStruct(self, typeinfo, typeName)
+    def genStruct(self, typeinfo, typeName, alias):
+        OutputGenerator.genStruct(self, typeinfo, typeName, alias)
         members = typeinfo.elem.findall('.//member')
         # Iterate over members once to get length parameters for arrays
         lens = set()
@@ -425,6 +465,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     def beginFeature(self, interface, emit):
         # Start processing in superclass
         OutputGenerator.beginFeature(self, interface, emit)
+        self.featureExtraProtect = GetFeatureProtect(interface)
         self.current_feature_name = self.featureName
     #
     # Enum_string_header: Create a routine to convert an enumerated value into a string
@@ -448,7 +489,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_objmapper_header  = '\n'
         replay_objmapper_header += '#pragma once\n\n'
         replay_objmapper_header += '#include <set>\n'
-        replay_objmapper_header += '#include <map>\n'
+        replay_objmapper_header += '#include <unordered_map>\n'
         replay_objmapper_header += '#include <list>\n'
         replay_objmapper_header += '#include <vector>\n'
         replay_objmapper_header += '#include <string>\n'
@@ -478,7 +519,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 obj_name = item[2:].lower() + 'Obj'
             else:
                 obj_name = item
-            replay_objmapper_header += '    std::map<%s, %s> %s;\n' % (item, obj_name, mangled_name)
+            replay_objmapper_header += '    std::unordered_map<%s, %s> %s;\n' % (item, obj_name, mangled_name)
             replay_objmapper_header += '    void add_to_%s_map(%s pTraceVal, %s pReplayVal) {\n' % (map_name, item, obj_name)
             replay_objmapper_header += '        %s[pTraceVal] = pReplayVal;\n' % mangled_name
             replay_objmapper_header += '    }\n\n'
@@ -490,14 +531,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             replay_objmapper_header += '    %s remap_%s(const %s& value) {\n' % (item, map_name, item)
             replay_objmapper_header += '        if (value == 0) { return 0; }\n'
             if item in remapped_objects:
-                replay_objmapper_header += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
+                replay_objmapper_header += '        std::unordered_map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
                 if item == 'VkDeviceMemory':
                     replay_objmapper_header += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (mangled_name, item)
                 else:
                     replay_objmapper_header += '        if (q == %s.end()) return VK_NULL_HANDLE;\n' % mangled_name
                 replay_objmapper_header += '        return q->second.replay%s;\n' % item[2:]
             else:
-                replay_objmapper_header += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
+                replay_objmapper_header += '        std::unordered_map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
                 replay_objmapper_header += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (mangled_name, item)
                 replay_objmapper_header += '        return q->second;\n'
             replay_objmapper_header += '    }\n\n'
@@ -557,9 +598,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'FlushMappedMemoryRanges',
                                  'InvalidateMappedMemoryRanges',
                                  'GetPhysicalDeviceProperties',
+                                 'GetPhysicalDeviceProperties2KHR',
                                  'GetPhysicalDeviceMemoryProperties',
+                                 'GetPhysicalDeviceMemoryProperties2KHR',
                                  'GetPhysicalDeviceQueueFamilyProperties',
+                                 'GetPhysicalDeviceQueueFamilyProperties2KHR',
                                  'GetPhysicalDeviceSparseImageFormatProperties',
+                                 'GetPhysicalDeviceSparseImageFormatProperties2KHR',
                                  'GetPhysicalDeviceSurfaceSupportKHR',
                                  'GetPhysicalDeviceSurfaceCapabilitiesKHR',
                                  'GetPhysicalDeviceSurfaceFormatsKHR',
@@ -586,12 +631,19 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'DestroyDebugReportCallbackEXT',
                                  'AllocateCommandBuffers',
                                  'GetImageMemoryRequirements',
+                                 'GetImageMemoryRequirements2KHR',
                                  'GetBufferMemoryRequirements',
+                                 'GetBufferMemoryRequirements2KHR',
                                  'CreateDescriptorUpdateTemplateKHR',
+                                 'CreateDescriptorUpdateTemplate',
                                  'DestroyDescriptorUpdateTemplateKHR',
+                                 'DestroyDescriptorUpdateTemplate',
                                  'UpdateDescriptorSetWithTemplateKHR',
+                                 'UpdateDescriptorSetWithTemplate',
+                                 'CmdPushDescriptorSetKHR',
                                  'CmdPushDescriptorSetWithTemplateKHR',
                                  'BindBufferMemory',
+                                 'BindImageMemory',
                                  # VK_EXT_display_control
                                  'RegisterDeviceEventEXT',
                                  'RegisterDisplayEventEXT',
@@ -599,6 +651,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'CreateObjectTableNVX',
                                  'CmdProcessCommandsNVX',
                                  'CreateIndirectCommandsLayoutNVX',
+                                 'BindBufferMemory2KHR',
+                                 'BindImageMemory2KHR',
+                                 'BindBufferMemory2',
+                                 'BindImageMemory2',
+                                 'GetDisplayPlaneSupportedDisplaysKHR',
+                                 'EnumerateDeviceExtensionProperties',
+                                 'CreateSampler'
                                  ]
         # Map APIs to functions if body is fully custom
         custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
@@ -626,18 +685,16 @@ class VkTraceFileOutputGenerator(OutputGenerator):
 
         for api in self.cmdMembers:
             cmdname = api.name[2:]
-            extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
-                continue
-            if cmdname in api_exclusions:
+            if not isSupportedCmd(api, cmd_extension_dict):
+                continue;
+            temp_exclude = ['CreateInstance', 'EnumerateInstanceExtensionProperties', 'EnumerateInstanceLayerProperties', 'EnumerateInstanceVersion']
+            if cmdname in temp_exclude: # TODO verify this needs to be here
                 continue
             protect = cmd_protect_dict[api.name]
-            if protect is not None:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#ifdef %s\n' % protect
             disp_table = ""
-            cmdtarget = api.members[0].type
-            handle = api.members[0].handle
-            if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+            if isInstanceCmd(api):
                 disp_table = "m_vkFuncs"
             else:
                 disp_table = "m_vkDeviceFuncs"
@@ -645,48 +702,56 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 replay_gen_source += '    %s.%s = (PFN_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));\n' % (disp_table, cmdname, cmdname, cmdname)
             else: # These func ptrs get assigned at GetProcAddr time
                 replay_gen_source += '    %s.%s = (PFN_vk%s)NULL;\n' % (disp_table, cmdname, cmdname)
-            if protect is not None:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#endif // %s\n' % protect
+        replay_gen_source += '}\n\n'
+        replay_gen_source += 'bool vkReplay::callFailedDuringTrace(VkResult result, uint16_t packet_id) {\n'
+        replay_gen_source += '    if (result && g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch() &&\n'
+        replay_gen_source += '        result != VK_SUCCESS && result != VK_NOT_READY && result != VK_TIMEOUT && result != VK_EVENT_SET &&\n'
+        replay_gen_source += '        result != VK_EVENT_RESET && result != VK_INCOMPLETE && result != VK_SUBOPTIMAL_KHR) {\n'
+        replay_gen_source += '        vktrace_LogVerbose("Skip %s which has failed result in trace file!",\n'
+        replay_gen_source += '                           vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)packet_id));\n'
+        replay_gen_source += '        return true;\n'
+        replay_gen_source += '    } else {\n'
+        replay_gen_source += '        return false;\n'
+        replay_gen_source += '    }\n'
         replay_gen_source += '}\n\n'
         replay_gen_source += 'vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::replay(vktrace_trace_packet_header *packet) { \n'
         replay_gen_source += '    vktrace_replay::VKTRACE_REPLAY_RESULT returnValue = vktrace_replay::VKTRACE_REPLAY_SUCCESS;\n'
-        replay_gen_source += '    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;\n'
+        replay_gen_source += '    VkResult replayResult = VK_SUCCESS;\n'
         replay_gen_source += '    switch (packet->packet_id) {\n'
-        replay_gen_source += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
-        replay_gen_source += '            packet_vkApiVersion* pPacket = (packet_vkApiVersion*)(packet->pBody);\n'
-        replay_gen_source += '            if (VK_VERSION_MAJOR(pPacket->version) != 1 || VK_VERSION_MINOR (pPacket->version) != 0) {\n'
-        replay_gen_source += '                vktrace_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the vktrace plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, (pPacket->version & 0xFFC00000) >> 22, (pPacket->version & 0x003FF000) >> 12, (pPacket->version & 0x00000FFF), VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0xFFC00000) >> 22, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x003FF000) >> 12, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x00000FFF));\n'
-        replay_gen_source += '                returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
-        replay_gen_source += '            }\n'
+        replay_gen_source += '        case VKTRACE_TPI_VK_vkApiVersion:\n'
+        replay_gen_source += '            // Ignore api version packets\n'
         replay_gen_source += '            break;\n'
-        replay_gen_source += '        }\n'
 
         for api in self.cmdMembers:
-            extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if not isSupportedCmd(api, cmd_extension_dict):
                 continue
-            cmdname = api.name
-            vk_cmdname = cmdname
+
+            vk_cmdname = api.name
             # Strip off 'vk' from command name
-            cmdname = cmdname[2:]
-            if cmdname in api_exclusions:
-                continue
+            cmdname = api.name[2:]
+
             cmdinfo = cmd_info_dict[vk_cmdname]
             protect = cmd_protect_dict[vk_cmdname]
-            if protect is not None:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#ifdef %s\n' % protect
             # TODO : How to handle void* return of GetProcAddr?
             # TODO : Make sure vkDestroy object functions really do clean up the object maps
             # Handle return values, if any
             ret_value = True
             resulttype = cmdinfo.elem.find('proto/type')
-            if resulttype != None and resulttype.text == 'void' or cmdname in custom_body_dict:
+            if resulttype is not None and resulttype.text == 'void' or cmdname in custom_body_dict:
               ret_value = False
             create_func = True if True in [create_txt in cmdname for create_txt in ['Create', 'Allocate', 'Acquire', 'GetDeviceQueue']] else False
             create_view = True if True in [create_txt in cmdname for create_txt in ['CreateBufferView', 'CreateImageView']] else False
             params = cmd_member_dict[vk_cmdname]
             replay_gen_source += '        case VKTRACE_TPI_VK_vk%s: { \n' % cmdname
             replay_gen_source += '            packet_vk%s* pPacket = (packet_vk%s*)(packet->pBody);\n' % (cmdname, cmdname)
+            if resulttype is not None and resulttype.text == 'VkResult':
+                replay_gen_source += '            if (callFailedDuringTrace(pPacket->result, packet->packet_id)) {\n'
+                replay_gen_source += '                break;\n'
+                replay_gen_source += '            }\n'
 
             if cmdname in manually_replay_funcs:
                 if ret_value == True:
@@ -743,7 +808,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     else:
                         replay_gen_source += '            %s local_%s;\n' % (params[-1].type.strip('*').replace('const ', ''), params[-1].name)
                 elif cmdname == 'ResetFences':
-                    replay_gen_source += '            VkFence* fences = VKTRACE_NEW_ARRAY(VkFence, pPacket->fenceCount);\n'
+                    replay_gen_source += '            VkFence* fences = (VkFence *)pPacket->pFences;\n'
                     replay_gen_source += '            for (uint32_t i = 0; i < pPacket->fenceCount; i++) {\n'
                     replay_gen_source += '                fences[i] = m_objMapper.remap_fences(pPacket->%s[i]);\n' % (params[-1].name)
                     replay_gen_source += '                if (fences[i] == VK_NULL_HANDLE) {\n'
@@ -764,23 +829,21 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         last_name = p.name
 
                 if cmdname == 'DestroyInstance':
-                    replay_gen_source += '            if (m_vkFuncs.DestroyDebugReportCallbackEXT != NULL) {\n'
+                    replay_gen_source += '            if (g_fpDbgMsgCallback && (m_vkFuncs.DestroyDebugReportCallbackEXT != NULL)) {\n'
                     replay_gen_source += '                m_vkFuncs.DestroyDebugReportCallbackEXT(remappedinstance, m_dbgMsgCallbackObj, pPacket->pAllocator);\n'
                     replay_gen_source += '            }\n'
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
                 elif cmdname == 'GetInstanceProcAddr':
                     for command in self.cmdMembers:
-                        cmdtarget = command.members[0].type
-                        handle = command.members[0].handle
-                        if handle != None and cmdtarget != "VkInstance" and cmdtarget != 'VkPhysicalDevice':
+                        if not isInstanceCmd(command):
                             continue
                         extension = cmd_extension_dict[command.name]
-                        if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                        if 'VK_VERSION_' not in extension and extension not in approved_ext:
                             continue
                         command_name_novk = command.name[2:]
                         if command_name_novk in api_exclusions:
                             continue
-                        if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
+                        if 'VK_VERSION_' not in cmd_extension_dict[command.name] and command.name not in api_exclusions:
                             gipa_params = cmd_member_dict[vk_cmdname]
                             gipa_protect = cmd_protect_dict[command.name]
                             if gipa_protect is not None:
@@ -792,17 +855,15 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                 replay_gen_source += '#endif // %s\n' % gipa_protect
                 elif cmdname == 'GetDeviceProcAddr':
                     for command in self.cmdMembers:
-                        cmdtarget = command.members[0].type
-                        handle = command.members[0].handle
-                        if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+                        if isInstanceCmd(command):
                             continue
                         extension = cmd_extension_dict[command.name]
-                        if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                        if 'VK_VERSION_' not in extension and extension not in approved_ext:
                             continue
                         command_name_novk = command.name[2:]
                         if command_name_novk in api_exclusions:
                             continue
-                        if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
+                        if 'VK_VERSION_' not in cmd_extension_dict[command.name] and command.name not in api_exclusions:
                             gdpa_params = cmd_member_dict[vk_cmdname]
                             gdpa_protect = cmd_protect_dict[command.name]
                             if gdpa_protect is not None:
@@ -816,6 +877,34 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            VkPhysicalDeviceMemoryProperties memProperties = *(pPacket->pMemoryProperties);\n'
                 elif cmdname == 'GetImageMemoryRequirements':
                     replay_gen_source += '            VkMemoryRequirements memReqs = *(pPacket->pMemoryRequirements);\n'
+                elif cmdname == 'DebugReportMessageEXT':
+                    replay_gen_source += '            if (!g_fpDbgMsgCallback || !m_vkFuncs.DebugReportMessageEXT) {\n'
+                    replay_gen_source += '                // just eat this call as we don\'t have local call back function defined\n'
+                    replay_gen_source += '                break;\n'
+                    replay_gen_source += '            }\n'
+                elif 'SparseMemoryRequirements2' in cmdname:
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pInfo);\n'
+                    replay_gen_source += '            for (uint32_t i=0; i<*pPacket->pSparseMemoryRequirementCount; i++)\n'
+                    replay_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)(&pPacket->pSparseMemoryRequirements[i]));\n'
+                elif 'CreateSamplerYcbcrConversion' in cmdname:
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pCreateInfo);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pYcbcrConversion);\n'
+                elif 'GetPhysicalDeviceFormatProperties2' in cmdname:
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pFormatProperties);\n'
+                elif 'GetPhysicalDeviceImageFormatProperties2' in cmdname:
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pImageFormatInfo);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pImageFormatProperties);\n'
+                elif 'GetPhysicalDeviceQueueFamilyProperties2' in cmdname:
+                    replay_gen_source += '            for (uint32_t i=0; i<*pPacket->pQueueFamilyPropertyCount; i++)\n'
+                    replay_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)(&pPacket->pQueueFamilyProperties[i]));\n'
+                elif 'GetPhysicalDeviceMemoryProperties2' in cmdname:
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pMemoryProperties);\n'
+                elif 'GetDeviceQueue2' in cmdname:
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pQueueInfo);\n'
+                elif 'GetPhysicalDeviceSparseImageFormatProperties2' in cmdname:
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pFormatInfo);\n'
+                    replay_gen_source += '            for (uint32_t i=0; i<*pPacket->pPropertyCount; i++)\n'
+                    replay_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)(&pPacket->pProperties[i]));\n'
                 # Build the call to the "real_" entrypoint
                 rr_string = '            '
                 if ret_value:
@@ -823,9 +912,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         ret_value = False
                     else:
                         rr_string = '            replayResult = '
-                cmdtarget = api.members[0].type
-                handle = api.members[0].handle
-                if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+                if cmdname == "EnumerateInstanceExtensionProperties" or cmdname == "EnumerateInstanceLayerProperties" or cmdname == "EnumerateInstanceVersion":
+                    rr_string += 'vk%s(' % cmdname # TODO figure out if we need this case
+                elif isInstanceCmd(api):
                     rr_string += 'm_vkFuncs.%s(' % cmdname
                 else:
                     rr_string += 'm_vkDeviceFuncs.%s(' % cmdname
@@ -857,32 +946,23 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # Insert the real_*(..) call
                 replay_gen_source += '%s\n' % rr_string
                 # Handle return values or anything that needs to happen after the real_*(..) call
-                get_ext_layers_proto = ['EnumerateInstanceExtensionProperties', 'EnumerateDeviceExtensionProperties','EnumerateInstanceLayerProperties', 'EnumerateDeviceLayerProperties']
+                if 'Destroy' in cmdname:
+                    clean_type = params[-2].type.strip('*').replace('const ', '')
+                    replay_gen_source += '            m_objMapper.rm_from_%ss_map(pPacket->%s);\n' % (clean_type.lower()[2:], params[-2].name)
                 if 'DestroyDevice' in cmdname:
-                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
-                    replay_gen_source += '                m_pCBDump = NULL;\n'
-                    replay_gen_source += '                m_pDSDump = NULL;\n'
+                    replay_gen_source += '            m_pCBDump = NULL;\n'
+                    replay_gen_source += '            m_pDSDump = NULL;\n'
                     #TODO138 : disabling snapshot
-                    #replay_gen_source += '                m_pVktraceSnapshotPrint = NULL;\n'
-                    replay_gen_source += '                m_objMapper.rm_from_devices_map(pPacket->device);\n'
-                    replay_gen_source += '                m_display->m_initedVK = false;\n'
-                    replay_gen_source += '            }\n'
-                elif cmdname in get_ext_layers_proto:
-                    replay_gen_source += '            if (replayResult == VK_ERROR_LAYER_NOT_PRESENT || replayResult == VK_INCOMPLETE) {\n'
-                    replay_gen_source += '                replayResult = VK_SUCCESS;\n'
-                    replay_gen_source += '            }\n'
-                elif 'DestroySwapchainKHR' in cmdname:
-                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
-                    replay_gen_source += '                m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
-                    replay_gen_source += '            }\n'
+                    #replay_gen_source += '            m_pVktraceSnapshotPrint = NULL;\n'
                 elif 'AcquireNextImage' in cmdname:
-                    replay_gen_source += '            m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
-                elif 'DestroyInstance' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
-                    replay_gen_source += '                // TODO need to handle multiple instances and only clearing maps within an instance.\n'
-                    replay_gen_source += '                // TODO this only works with a single instance used at any given time.\n'
-                    replay_gen_source += '                m_objMapper.clear_all_map_handles();\n'
+                    replay_gen_source += '                m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
                     replay_gen_source += '            }\n'
+                elif 'DestroyInstance' in cmdname:
+                    replay_gen_source += '            // TODO need to handle multiple instances and only clearing maps within an instance.\n'
+                    replay_gen_source += '            // TODO this only works with a single instance used at any given time.\n'
+                    replay_gen_source += '            m_objMapper.clear_all_map_handles();\n'
+                    replay_gen_source += '            m_display->m_initedVK = false;\n'
                 elif 'MergePipelineCaches' in cmdname:
                     replay_gen_source += '            delete[] remappedpSrcCaches;\n'
                 elif 'FreeCommandBuffers' in cmdname:
@@ -905,13 +985,19 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            if (memcmp(&memProperties, pPacket->pMemoryProperties, sizeof(VkPhysicalDeviceMemoryProperties)) != 0) {\n'
                     replay_gen_source += '                vktrace_LogError("Physical Device Memory properties differ. Memory heaps may not match as expected.");\n'
                     replay_gen_source += '            }\n'
-                elif cmdname == 'ResetFences':
-                    replay_gen_source += '            VKTRACE_DELETE(fences);\n'
                 elif create_func: # Save handle mapping if create successful
                     if ret_value:
                         replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     clean_type = params[-1].type.strip('*').replace('const ', '')
                     replay_gen_source += '                m_objMapper.add_to_%ss_map(*(pPacket->%s), local_%s);\n' % (clean_type.lower()[2:], params[-1].name, params[-1].name)
+                    if not isInstanceCmd(api) \
+                       and cmdname != 'GetDeviceQueue' \
+                       and cmdname != 'GetDeviceQueue2' \
+                       and cmdname != 'CreateSamplerYcbcrConversion' \
+                       and cmdname != 'CreateSharedSwapchainsKHR' \
+                       and cmdname != 'CreateSamplerYcbcrConversionKHR' \
+                       and cmdname != 'CreateValidationCacheEXT': \
+                        replay_gen_source += '                replay%sToDevice[local_%s] = remappeddevice;\n' % (cmdname[6:], params[-1].name)
                     if 'AllocateMemory' == cmdname:
                         replay_gen_source += '                m_objMapper.add_entry_to_mapData(local_%s, pPacket->pAllocateInfo->allocationSize);\n' % (params[-1].name)
                     if ret_value:
@@ -923,7 +1009,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 replay_gen_source += '            CHECK_RETURN_VALUE(vk%s);\n' % cmdname
             replay_gen_source += '            break;\n'
             replay_gen_source += '        }\n'
-            if protect is not None:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#endif // %s\n' % protect
         replay_gen_source += '        default:\n'
         replay_gen_source += '            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);\n'
@@ -937,6 +1023,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     #
     # Parameter remapping utility function
     def RemapPacketParam(self, funcName, param, lastName):
+        # These are very specific to a particular args for a particular functions, but it's the most staightforward day to handle it
+        if (funcName == 'GetPhysicalDeviceSurfaceCapabilities2KHR' or (funcName == 'GetPhysicalDeviceSurfaceFormats2KHR')) and (param.name == 'pSurfaceInfo'):
+            result = '            *((VkSurfaceKHR*)&pPacket->pSurfaceInfo->surface) = m_objMapper.remap_surfacekhrs(pPacket->pSurfaceInfo->surface);\n'
+            return result
+        if (funcName == 'GetPhysicalDeviceSurfaceFormats2KHR') and (param.name == 'pSurfaceFormats'):
+            result = '            if (pPacket->pSurfaceFormats == NULL)\n'
+            result += '                *pPacket->pSurfaceFormatCount = 0;\n'
+            return result
         param_exclude_list = ['pDescriptorSets', 'pFences']
         cleanParamType = param.type.strip('*').replace('const ', '')
         for obj in self.object_types:
@@ -1000,20 +1094,21 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cb_body.append('                    returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
         cb_body.append('                    break;')
         cb_body.append('                }')
+        cb_body.append('                if (!g_fpDbgMsgCallback || !m_vkFuncs.CreateDebugReportCallbackEXT) {')
+        cb_body.append('                    vktrace_LogWarning("%s not enabled in vkCreateInstance. Not going to register vulkan callback for replayer error handling.", VK_EXT_DEBUG_REPORT_EXTENSION_NAME);')
+        cb_body.append('                    break;')
+        cb_body.append('                }')
         cb_body.append('                VkFlags reportFlags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;')
-        cb_body.append('                PFN_vkCreateDebugReportCallbackEXT callback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(remappedInstance, "vkCreateDebugReportCallbackEXT");')
-        cb_body.append('                if (callback != NULL) {')
-        cb_body.append('                    VkDebugReportCallbackCreateInfoEXT dbgCreateInfo;')
-        cb_body.append('                    memset(&dbgCreateInfo, 0, sizeof(dbgCreateInfo));')
-        cb_body.append('                    dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;')
-        cb_body.append('                    dbgCreateInfo.flags = reportFlags;')
-        cb_body.append('                    dbgCreateInfo.pfnCallback = g_fpDbgMsgCallback;')
-        cb_body.append('                    dbgCreateInfo.pUserData = NULL;')
-        cb_body.append('                    if (callback(remappedInstance, &dbgCreateInfo, NULL, &m_dbgMsgCallbackObj) != VK_SUCCESS) {')
-        cb_body.append('                        vktrace_LogWarning("Failed to register vulkan callback for replayer error handling.");')
-        cb_body.append('                        returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
-        cb_body.append('                        break;')
-        cb_body.append('                    }')
+        cb_body.append('                VkDebugReportCallbackCreateInfoEXT dbgCreateInfo;')
+        cb_body.append('                memset(&dbgCreateInfo, 0, sizeof(dbgCreateInfo));')
+        cb_body.append('                dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;')
+        cb_body.append('                dbgCreateInfo.flags = reportFlags;')
+        cb_body.append('                dbgCreateInfo.pfnCallback = g_fpDbgMsgCallback;')
+        cb_body.append('                dbgCreateInfo.pUserData = NULL;')
+        cb_body.append('                if (m_vkFuncs.CreateDebugReportCallbackEXT(remappedInstance, &dbgCreateInfo, NULL, &m_dbgMsgCallbackObj) != VK_SUCCESS) {')
+        cb_body.append('                    vktrace_LogWarning("Failed to register vulkan callback for replayer error handling.");')
+        cb_body.append('                    returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
+        cb_body.append('                    break;')
         cb_body.append('                }')
         cb_body.append('            }')
         return "\n".join(cb_body)
@@ -1102,10 +1197,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_id_hdr += '        }\n'
         cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
-            extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
-                continue
-            if api.name[2:] in api_exclusions:
+            if not isSupportedCmd(api, cmd_extension_dict):
                 continue
             trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_%s: {\n' % api.name
             trace_pkt_id_hdr += '            return "%s";\n' % api.name
@@ -1128,12 +1220,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_member_dict = dict(self.cmdMembers)
         for api in self.cmdMembers:
             extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             if api.name[2:] in api_exclusions:
                 continue
             trace_pkt_id_hdr += '    case VKTRACE_TPI_VK_%s: {\n' % api.name
-            func_str = 'vk%s(' % api.name
+            func_str = '%s(' % api.name
             print_vals = ''
             create_func = True if True in [create_txt in api.name for create_txt in ['Create', 'Allocate', 'MapMemory', 'GetSwapchainImages']] else False
             params = cmd_member_dict[api.name]
@@ -1180,7 +1272,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
             extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             if api.name[2:] in api_exclusions:
                 continue
@@ -1219,6 +1311,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%p {size=%\" PRIu64 \", alignment=%\" PRIu64 \", memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->memoryRequirements.size, (%s == NULL)?0:%s->memoryRequirements.alignment, (%s == NULL)?0:%s->memoryRequirements.memoryTypeBits" % (name, name, name, name, name, name, name), "")
         elif "VkMemoryRequirements" in vk_type:
             return ("%p {size=%\" PRIu64 \", alignment=%\" PRIu64 \", memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->size, (%s == NULL)?0:%s->alignment, (%s == NULL)?0:%s->memoryTypeBits" % (name, name, name, name, name, name, name), "")
+        if "VkFenceGet" in vk_type:
+            return ("%p {fence=%\" PRIx64 \", handleType=%\" PRIx64 \"}", "%s, (%s == NULL)?0:(uint64_t)%s->fence, (%s == NULL)?0:(uint64_t)%s->handleType" % (name, name, name, name, name), "")
         if "VkClearColor" in vk_type:
             return ("%p", "(void*)&%s" % name, deref)
         if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
@@ -1245,9 +1339,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%\" PRIu64 \"", "(uint64_t)%s" % name, deref)
         if "VkBool32" in vk_type:
             if param.ispointer:
-                return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
+                return ("%s",  "(%s && *%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name, name), "*")
             return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
-        if "VkFence" in vk_type:
+        if "VkFence" == vk_type:
             if param.ispointer:
                 return ("%p {%\" PRIx64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), "*")
             return ("%p", "(void*)%s" %(name), deref)
@@ -1263,6 +1357,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%u", name, deref)
         if "RROutput" in vk_type:
             return ("%u", "(uint32_t)(%s)" % name, "")
+        if "PointerProperties" in vk_type and "int" != vk_type:
+            return ("%p", "(void*)(%s)" % name, deref)
         if True in [t in vk_type.lower() for t in ["int", "flags", "mask", "xcb_window_t"]]:
             if param.isstaticarray > 0: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
                 return ("[%i, %i, %i, %i]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)
@@ -1299,7 +1395,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
             extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             cmdinfo = cmd_info_dict[api.name]
             cdecl = self.makeCDecls(cmdinfo.elem)[0]
@@ -1344,11 +1440,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize))'},
                            'pData': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), _dataSize, pData)',
                                      'finalize_txt': 'default'},
-                           'pName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((pName != NULL) ? ROUNDUP_TO_4(strlen(pName) + 1) : 0), pName)',
+                           'pName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((pName != NULL) ? strlen(pName) + 1 : 0), pName)',
                                      'finalize_txt': 'default'},
-                           'pMarker': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMarker), ((pMarker != NULL) ? ROUNDUP_TO_4(strlen(pMarker) + 1) : 0), pMarker)',
+                           'pMarker': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMarker), ((pMarker != NULL) ? strlen(pMarker) + 1 : 0), pMarker)',
                                        'finalize_txt': 'default'},
-                           'pExtName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pExtName), ((pExtName != NULL) ? ROUNDUP_TO_4(strlen(pExtName) + 1) : 0), pExtName)',
+                           'pExtName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pExtName), ((pExtName != NULL) ? strlen(pExtName) + 1 : 0), pExtName)',
                                         'finalize_txt': 'default'},
                            'pDescriptorSets': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), customSize, pDescriptorSets)',
                                                'finalize_txt': 'default'},
@@ -1390,8 +1486,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                                      '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pPoolSizes), pCreateInfo->poolSizeCount * sizeof(VkDescriptorPoolSize), pCreateInfo->pPoolSizes)',
                                                      'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pPoolSizes));\n'
                                                                      '    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo))'},
-                           'VkDescriptorSetLayoutCreateInfo': {'add_txt': 'add_create_ds_layout_to_trace_packet(pHeader, &pPacket->pCreateInfo, pCreateInfo)',
-                                                          'finalize_txt': '// pCreateInfo finalized in add_create_ds_layout_to_trace_packet'},
+                           'VkDescriptorSetLayoutCreateInfo': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkDescriptorSetLayoutCreateInfo), pCreateInfo)',
+                                                          'finalize_txt': 'add_create_ds_layout_to_trace_packet(pHeader, &pPacket->pCreateInfo, pCreateInfo);\n'
+                                                                          '    // pCreateInfo finalized in add_create_ds_layout_to_trace_packet'},
                            'VkSwapchainCreateInfoKHR': {'add_txt':      'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkSwapchainCreateInfoKHR), pCreateInfo);\n'
                                                                         '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), pPacket->pCreateInfo->queueFamilyIndexCount * sizeof(uint32_t), pCreateInfo->pQueueFamilyIndices)',
                                                         'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));\n'
@@ -1422,7 +1519,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     # TODO : This is custom hack to account for 2 pData items with dataSize param for sizing
                     if 'pData' == p.name and 'dataSize' == params[params.index(p)-1].name:
                         pp_dict['add_txt'] = pp_dict['add_txt'].replace('_dataSize', 'dataSize')
-                elif 'void' in p.type and (p.name == 'pData' or p.name == 'pValues'):
+                elif 'void' in p.type and (p.name == 'pData' or p.name == 'pValues' or p.name == 'pHostPointer'):
                     pp_dict['add_txt'] = '//TODO FIXME vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->%s), sizeof(%s), %s)' % (p.name, p.type.strip('*').replace('const ', ''), p.name)
                     pp_dict['finalize_txt'] = '//TODO FIXME vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->%s))' % (p.name)
                 else:
@@ -1439,21 +1536,21 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         skip_list = [] # store params that are already accounted for so we don't count them twice
         # Dict of specific params with unique custom sizes
         # TODO: Now using bitfields for all stages, need pSetBindPoints to accommodate that.
-        custom_size_dict = {'VkSwapchainCreateInfoKHR' : 'vk_size_vkswapchaincreateinfokhr(pCreateInfo)',
+        custom_size_dict = {'VkSwapchainCreateInfoKHR' : 'vk_size_vkswapchaincreateinfokhr',
                             }
         for p in params:
             # First handle custom cases
             if ((p.name in ['pCreateInfo', 'pBeginInfo', 'pAllocateInfo','pReserveSpaceInfo','pLimits','pExternalBufferInfo','pExternalBufferProperties','pGetFdInfo','pMemoryFdProperties','pExternalSemaphoreProperties','pExternalSemaphoreInfo','pImportSemaphoreFdInfo','pExternalFenceInfo','pExternalFenceProperties','pSurfaceInfo', 'pTagInfo','pNameInfo','pMarkerInfo','pDeviceGroupPresentCapabilities','pAcquireInfo','pPhysicalDeviceGroupProperties','pDisplayPowerInfo','pDeviceEventInfo','pDisplayEventInfo','pMetadata','pRenderPassBegin','pPresentInfo'])
                 or (p.name in ['pFeatures'] and 'nvx' in p.type.lower())
-                or (p.name in ['pFeatures', 'pProperties', 'pFormatProperties','pImageFormatInfo','pImageFormatProperties','pQueueFamilyProperties','pMemoryProperties','pFormatInfo','pSurfaceFormats','pMemoryRequirements','pInfo','pSparseMemoryRequirements','pSurfaceCapabilities'] and '2khr' in p.type.lower())
-                or (p.name in ['pSurfaceCapabilities'] and '2ext' in p.type.lower())):
+                or (p.name in ['pInfo'] and 'void' not in p.type.lower())
+                or (p.name in ['pFeatures', 'pProperties', 'pFormatProperties','pImageFormatInfo','pImageFormatProperties','pQueueFamilyProperties','pMemoryProperties','pFormatInfo','pSurfaceFormats','pMemoryRequirements','pSparseMemoryRequirements','pSurfaceCapabilities','pSurfaceCapabilities'] and '2' in p.type)):
                 ps.append('get_struct_chain_size((void*)%s)' % (p.name))
                 skip_list.append(p.name)
             elif p.name in custom_size_dict:
-                ps.append(custom_size_dict[p.name])
+                ps.append('%s(%s)' % (custom_size_dict[p.name], p.name))
                 skip_list.append(p.name)
             if p.type in custom_size_dict:
-                ps.append(custom_size_dict[p.type])
+                ps.append('%s(%s)' % (custom_size_dict[p.type], p.name))
                 skip_list.append(p.name)
             # Skip any params already handled
             if p.name in skip_list:
@@ -1462,7 +1559,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if p.len:
                 if p.ispointer:
                     if p.type == 'void':
-                        ps.append('%s' % p.len)
+                        if p.len[0] == 'p':
+                            ps.append('(*%s)' % p.len)
+                        else:
+                            ps.append('%s' % p.len)
                     else:
                         if p.len[0] == 'p':
                             ps.append('(*%s) * sizeof(%s)' % (p.len, p.type))
@@ -1495,14 +1595,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     # during the trim frames.
     def GenerateTrimRecordingInstructions(self, proto):
         trim_instructions = []
-        if 'CmdExecuteCommands' is proto.name:
+        if 'vkCmdExecuteCommands' == proto.name:
             trim_instructions.append("            trim::write_packet(pHeader);")
             trim_instructions.append("            trim::mark_CommandBuffer_reference(commandBuffer);")
             trim_instructions.append("            if (pCommandBuffers != nullptr && commandBufferCount > 0) {")
             trim_instructions.append("                for (uint32_t i = 0; i < commandBufferCount; i++) {")
             trim_instructions.append("                    trim::mark_CommandBuffer_reference(pCommandBuffers[i]);")
             trim_instructions.append("                }")
-            trim_instructions.append("            }")
+            trim_instructions.append("            }\n")
         else:
             return None
         return "\n".join(trim_instructions)
@@ -1539,14 +1639,38 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyCommandPool' == proto.name:
             trim_instructions.append("        trim::remove_CommandPool_object(commandPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_CommandPool_reference(commandPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
-        elif 'vkDestroyCommandPool' == proto.name:
-            trim_instructions.append("        trim::remove_CommandPool_object(commandPool);")
+        elif 'vkResetCommandPool' == proto.name:
             trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('            trim::mark_CommandPool_reference(commandPool);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkGetBufferMemoryRequirements2', 'vkGetBufferMemoryRequirements2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Buffer_reference(pInfo->buffer);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkGetBufferMemoryRequirements' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Buffer_reference(buffer);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkBindBufferMemory2', 'vkBindBufferMemory2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            for (uint32_t i = 0; i < bindInfoCount; i++) {')
+            trim_instructions.append('                trim::mark_Buffer_reference(pBindInfos[i].buffer);')
+            trim_instructions.append('            }')
+            trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
@@ -1577,6 +1701,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("                    trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo->pWaitSemaphores[i]);")
             trim_instructions.append("                    if (pInfo != NULL) {")
             trim_instructions.append("                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
+            trim_instructions.append("                        pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;")
             trim_instructions.append("                    }")
             trim_instructions.append("                }")
             trim_instructions.append("            }")
@@ -1585,6 +1710,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("                    trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo->pSignalSemaphores[i]);")
             trim_instructions.append("                    if (pInfo != NULL) {")
             trim_instructions.append("                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;")
+            trim_instructions.append("                        pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;")
             trim_instructions.append("                    }")
             trim_instructions.append("                }")
             trim_instructions.append("            }")
@@ -1599,6 +1725,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        info.belongsToDevice = device;")
             trim_instructions.append("        info.ObjectInfo.Semaphore.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        info.ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
+            trim_instructions.append("        info.ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            info.ObjectInfo.Semaphore.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -1658,6 +1785,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkCmdCopyBufferToImage' == proto.name:
+                trim_instructions.append("            trim::mark_Buffer_reference(srcBuffer);")
+                trim_instructions.append("            trim::mark_Image_reference(dstImage);")
+            else:
+                trim_instructions.append("            trim::mark_Image_reference(srcImage);")
+                trim_instructions.append("            trim::mark_Image_reference(dstImage);")
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1670,6 +1803,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append("            trim::mark_Image_reference(image);")
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1692,7 +1826,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        }')
 
         elif ('vkEndCommandBuffer' == proto.name or
-              'vkCmdBindPipeline' == proto.name or
               'vkCmdSetViewport' == proto.name or
               'vkCmdSetScissor' == proto.name or
               'vkCmdSetLineWidth' == proto.name or
@@ -1718,10 +1851,34 @@ class VkTraceFileOutputGenerator(OutputGenerator):
               'vkCmdClearAttachments' == proto.name or
               'vkCmdSetEvent' == proto.name or
               'vkCmdResetEvent' == proto.name or
-              'vkCmdNextSubpass' == proto.name or
-              'vkCmdExecuteCommands' == proto.name):
+              'vkCmdNextSubpass' == proto.name):
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkCmdBindDescriptorSets' == proto.name:
+                trim_instructions.append('            for (uint32_t i = 0; i < descriptorSetCount; i++) {')
+                trim_instructions.append('                trim::mark_DescriptorSet_reference(pDescriptorSets[i]);')
+                trim_instructions.append('            }')
+            elif proto.name in [ 'vkCmdBindIndexBuffer', 'vkCmdDrawIndirect', 'vkCmdDrawIndexedIndirect', 'vkCmdDispatchIndirect' ]:
+                trim_instructions.append('            trim::mark_Buffer_reference(buffer);')
+            elif 'vkCmdCopyBuffer' == proto.name:
+                trim_instructions.append('            trim::mark_Buffer_reference(srcBuffer);')
+                trim_instructions.append('            trim::mark_Buffer_reference(dstBuffer);')
+            elif proto.name in [ 'vkCmdUpdateBuffer', 'vkCmdFillBuffer' ]:
+                trim_instructions.append('            trim::mark_Buffer_reference(dstBuffer);')
+            elif 'vkCmdBindVertexBuffers' == proto.name:
+                trim_instructions.append('            for (uint32_t i = 0; i < bindingCount; i++) {')
+                trim_instructions.append('                trim::mark_Buffer_reference(pBuffers[i]);')
+                trim_instructions.append('            }')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif ('vkCmdBindPipeline' == proto.name):
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append("        trim::add_CommandBuffer_to_binding_Pipeline(commandBuffer, pipeline);")
+            trim_instructions.append("        trim::add_binding_Pipeline_to_CommandBuffer(commandBuffer, pipeline);")
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Pipeline_reference(pipeline);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1730,6 +1887,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        trim::remove_CommandBuffer_calls(commandBuffer);")
             trim_instructions.append("        trim::ClearImageTransitions(commandBuffer);")
             trim_instructions.append("        trim::ClearBufferTransitions(commandBuffer);")
+            trim_instructions.append("        trim::clear_binding_Pipelines_from_CommandBuffer(commandBuffer);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
@@ -1745,6 +1903,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(pCreateInfo->image);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1752,33 +1911,63 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyImageView' == proto.name:
             trim_instructions.append("        trim::remove_ImageView_object(imageView);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_ImageView_reference(imageView);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
-        elif ('vkGetImageMemoryRequirements' == proto.name):
-            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
-            trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->size;")
+        elif ('vkGetImageMemoryRequirements' == proto.name) or ('vkGetImageMemoryRequirements2' == proto.name) or ('vkGetImageMemoryRequirements2KHR' == proto.name):
+            if ('vkGetImageMemoryRequirements' == proto.name):
+                trim_instructions.append("        trim::ObjectInfo* pTrimObjectInfo = trim::get_Image_objectInfo(image);")
+            else:
+                trim_instructions.append("        trim::ObjectInfo* pTrimObjectInfo = trim::get_Image_objectInfo(pInfo->image);")
+            trim_instructions.append("        if (pTrimObjectInfo != NULL) {")
+            if ('vkGetImageMemoryRequirements' == proto.name):
+                trim_instructions.append("            pTrimObjectInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->size;")
+            else:
+                trim_instructions.append("            pTrimObjectInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->memoryRequirements.size;")
             trim_instructions.append("        }")
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::add_Image_call(trim::copy_packet(pHeader));")
             trim_instructions.append("#else")
-            trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pTrimObjectInfo != NULL) {")
+            trim_instructions.append("            pTrimObjectInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkGetImageMemoryRequirements' == proto.name:
+                trim_instructions.append('            trim::mark_Image_reference(image);')
+            else:
+                trim_instructions.append('            trim::mark_Image_reference(pInfo->image);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkGetImageSparseMemoryRequirements', 'vkGetImageSparseMemoryRequirements2', 'vkGetImageSparseMemoryRequirements2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkGetImageSparseMemoryRequirements' == proto.name:
+                trim_instructions.append('            trim::mark_Image_reference(image);')
+            else:
+                trim_instructions.append('            trim::mark_Image_reference(pInfo->image);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkGetImageSubresourceLayout' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(image);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
         elif 'vkDestroyImage' == proto.name:
+            trim_instructions.append("        trim::deleteImageSubResourceSizes(image);")
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::add_Image_call(trim::copy_packet(pHeader));")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::remove_Image_object(image);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(image);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1786,12 +1975,32 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkBindImageMemory' == proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
             trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            if (pInfo->ObjectInfo.Image.memorySize == 0) {")
+            trim_instructions.append("                // trim get image memory size through target title call")
+            trim_instructions.append("                // vkGetImageMemoryRequirements for the image, but so")
+            trim_instructions.append("                // far the title doesn't call vkGetImageMemoryRequirements,")
+            trim_instructions.append("                // so here we call it for the image.")
+            trim_instructions.append("                VkMemoryRequirements MemoryRequirements;")
+            trim_instructions.append("                mdd(device)->devTable.GetImageMemoryRequirements(device,image,&MemoryRequirements);")
+            trim_instructions.append("                pInfo->ObjectInfo.Image.memorySize = MemoryRequirements.size;")
+            trim_instructions.append("            }")
+            trim_instructions.append("")
             trim_instructions.append("            pInfo->ObjectInfo.Image.pBindImageMemoryPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            pInfo->ObjectInfo.Image.memory = memory;")
             trim_instructions.append("            pInfo->ObjectInfo.Image.memoryOffset = memoryOffset;")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.needsStagingBuffer = trim::IsMemoryDeviceOnly(memory);")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.needsStagingBuffer = pInfo->ObjectInfo.Image.needsStagingBuffer || trim::IsMemoryDeviceOnly(memory);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(image);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkBindImageMemory2', 'vkBindImageMemory2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            for (uint32_t i = 0; i < bindInfoCount; i++) {')
+            trim_instructions.append('                trim::mark_Image_reference(pBindInfos[i].image);')
+            trim_instructions.append('            }')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1800,6 +2009,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        trim::ObjectInfo &info = trim::add_BufferView_object(*pView);")
             trim_instructions.append("        info.belongsToDevice = device;")
             trim_instructions.append("        info.ObjectInfo.BufferView.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        info.ObjectInfo.BufferView.buffer = pCreateInfo->buffer;")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            info.ObjectInfo.BufferView.pAllocator = pAllocator;")
             trim_instructions.append("        }")
@@ -1807,6 +2017,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Buffer_reference(pCreateInfo->buffer);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1814,6 +2025,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyBufferView' == proto.name:
             trim_instructions.append("        trim::remove_BufferView_object(bufferView);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_BufferView_reference(bufferView);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1829,26 +2041,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
-            trim_instructions.append("        }")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::write_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroyBuffer' == proto.name:
-            trim_instructions.append("        trim::remove_Buffer_object(buffer);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::write_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkBindBufferMemory' == proto.name:
-            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);")
-            trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = trim::copy_packet(pHeader);")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memory = memory;")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim::IsMemoryDeviceOnly(memory);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
             trim_instructions.append('            trim::write_packet(pHeader);')
@@ -1919,9 +2111,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        }')
         elif 'vkResetDescriptorPool' == proto.name:
             trim_instructions.append("        trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(descriptorPool);")
-            trim_instructions.append("        pPoolInfo->ObjectInfo.DescriptorPool.numSets = 0;")
+            trim_instructions.append("        if (pPoolInfo != NULL) {")
+            trim_instructions.append("            pPoolInfo->ObjectInfo.DescriptorPool.numSets = 0;")
+            trim_instructions.append('        }')
             trim_instructions.append("        trim::reset_DescriptorPool(descriptorPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_DescriptorPool_reference(descriptorPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1952,6 +2147,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyPipelineCache' == proto.name:
             trim_instructions.append("        trim::remove_PipelineCache_object(pipelineCache);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_PipelineCache_reference(pipelineCache);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1967,27 +2163,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        trim::remove_SurfaceKHR_object(surface);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
             trim_instructions.append('            trim::write_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroyPipelineCache' == proto.name:
-            trim_instructions.append("        trim::remove_PipelineCache_object(pipelineCache);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroySwapchainKHR' == proto.name:
-            trim_instructions.append("        trim::remove_SwapchainKHR_object(swapchain);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroySurfaceKHR' == proto.name:
-            trim_instructions.append("        trim::remove_SurfaceKHR_object(surface);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
@@ -2014,13 +2189,16 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyShaderModule' == proto.name:
             trim_instructions.append("        trim::remove_ShaderModule_object(shaderModule);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_ShaderModule_reference(shaderModule);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
         elif 'vkDestroyPipeline' == proto.name:
             trim_instructions.append("        trim::remove_Pipeline_object(pipeline);")
+            trim_instructions.append("        trim::clear_CommandBuffer_calls_by_binding_Pipeline(pipeline);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Pipeline_reference(pipeline);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2028,6 +2206,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyDescriptorPool' == proto.name:
             trim_instructions.append("        trim::remove_DescriptorPool_object(descriptorPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_DescriptorPool_reference(descriptorPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2035,6 +2214,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyFramebuffer' == proto.name:
             trim_instructions.append("        trim::remove_Framebuffer_object(framebuffer);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Framebuffer_reference(framebuffer);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2089,6 +2269,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2096,6 +2277,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkCmdBeginQuery' == proto.name:
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2109,6 +2291,15 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkCmdCopyQueryPoolResults' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
+            trim_instructions.append('            trim::mark_Buffer_reference(dstBuffer);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2116,6 +2307,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyQueryPool' == proto.name:
             trim_instructions.append("        trim::remove_QueryPool_object(queryPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2125,12 +2317,35 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("            if (semaphore != VK_NULL_HANDLE) {")
             trim_instructions.append("                trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(semaphore);")
             trim_instructions.append("                if (pInfo != NULL) {")
-            trim_instructions.append("                    // TODO Find another way to signal this semaphore since it's not on a queue.")
+            trim_instructions.append("                    // We need to signal the semaphore because other command may wait on it.")
             trim_instructions.append("                    pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
+            trim_instructions.append("                    pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = swapchain;")
             trim_instructions.append("                }")
             trim_instructions.append("            }")
             trim_instructions.append("            if (fence != VK_NULL_HANDLE) {")
             trim_instructions.append("                trim::ObjectInfo* pFenceInfo = trim::get_Fence_objectInfo(fence);")
+            trim_instructions.append("                if (pFenceInfo != NULL) {")
+            trim_instructions.append("                    pFenceInfo->ObjectInfo.Fence.signaled = true;")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkAcquireNextImage2KHR' == proto.name:
+            trim_instructions.append("        if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR ) {")
+            trim_instructions.append("            if (pAcquireInfo->semaphore != VK_NULL_HANDLE) {")
+            trim_instructions.append("                trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pAcquireInfo->semaphore);")
+            trim_instructions.append("                if (pInfo != NULL) {")
+            trim_instructions.append("                    // We need to signal the semaphore because other command may wait on it.")
+            trim_instructions.append("                    pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
+            trim_instructions.append("                    pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = pAcquireInfo->swapchain;")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+            trim_instructions.append("            if (pAcquireInfo->fence != VK_NULL_HANDLE) {")
+            trim_instructions.append("                trim::ObjectInfo* pFenceInfo = trim::get_Fence_objectInfo(pAcquireInfo->fence);")
             trim_instructions.append("                if (pFenceInfo != NULL) {")
             trim_instructions.append("                    pFenceInfo->ObjectInfo.Fence.signaled = true;")
             trim_instructions.append("                }")
@@ -2160,11 +2375,256 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
+        elif 'vkMergePipelineCaches' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            for (uint32_t i = 0; i < srcCacheCount; i++) {')
+            trim_instructions.append('                trim::mark_PipelineCache_reference(pSrcCaches[i]);')
+            trim_instructions.append('            }')
+            trim_instructions.append('            trim::mark_PipelineCache_reference(dstCache);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
         else:
             return None
         return "\n".join(trim_instructions)
 
 
+    #
+    # Construct vktracedump gen source file
+    def GenerateParserGenSource(self):
+        cmd_member_dict = dict(self.cmdMembers)
+        cmd_info_dict = dict(self.cmd_info_data)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
+        cmd_extension_dict = dict(self.cmd_extension_names)
+
+        dump_gen_source  = '\n'
+        dump_gen_source += '#include "vktrace_vk_packet_id.h"\n\n'
+        dump_gen_source += '#undef NOMINMAX\n'
+        dump_gen_source += '#include "api_dump_text.h"\n'
+        dump_gen_source += '#include "api_dump_html.h"\n'
+        dump_gen_source += '#include "api_dump_json.h"\n'
+        dump_gen_source += '#include "vktracedump_main.h"'
+        dump_gen_source += '\n'
+        dump_gen_source += 'void dump_packet(const vktrace_trace_packet_header* packet) {\n'
+        dump_gen_source += '    switch (packet->packet_id) {\n'
+
+        for api in self.cmdMembers:
+            if not isSupportedCmd(api, cmd_extension_dict):
+                continue
+
+            vk_cmdname = api.name
+            # Strip off 'vk' from command name
+            cmdname = api.name[2:]
+
+            cmdinfo = cmd_info_dict[vk_cmdname]
+            protect = cmd_protect_dict[vk_cmdname]
+            if protect is not None:
+                dump_gen_source += '#ifdef %s\n' % protect
+
+            ret_value = True
+            resulttype = cmdinfo.elem.find('proto/type')
+            if resulttype is not None and resulttype.text == 'void':
+                ret_value = False
+
+            params = cmd_member_dict[vk_cmdname]
+            dump_gen_source += '        case VKTRACE_TPI_VK_vk%s: { \n' % cmdname
+            if cmdname != 'GetInstanceProcAddr' and cmdname != 'GetDeviceProcAddr':
+                dump_gen_source += '            packet_vk%s* pPacket = (packet_vk%s*)(packet->pBody);\n' % (cmdname, cmdname)
+
+                # Build the call to the "dump_" entrypoint
+                param_string = ''
+                param_string_no_result = ''
+                if ret_value:
+                    param_string += 'pPacket->result, '
+                for p in params:
+                    if p.name is not '':
+                        param_string += 'pPacket->%s, ' % p.name
+                        param_string_no_result += 'pPacket->%s, ' % p.name
+                param_string = '%s);' % param_string[:-2]
+                param_string_no_result = '%s);' % param_string_no_result[:-2]
+
+                if cmdname == 'CreateDescriptorSetLayout':
+                    dump_gen_source += '            VkDescriptorSetLayoutCreateInfo *pInfo = (VkDescriptorSetLayoutCreateInfo *)pPacket->pCreateInfo;\n'
+                    dump_gen_source += '            if (pInfo != NULL) {\n'
+                    dump_gen_source += '                if (pInfo->pBindings != NULL) {\n'
+                    dump_gen_source += '                    pInfo->pBindings = (VkDescriptorSetLayoutBinding *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                        pPacket->header, (intptr_t)pInfo->pBindings);\n'
+                    dump_gen_source += '                    for (unsigned int i = 0; i < pInfo->bindingCount; i++) {\n'
+                    dump_gen_source += '                        VkDescriptorSetLayoutBinding *pBindings = (VkDescriptorSetLayoutBinding *)&pInfo->pBindings[i];\n'
+                    dump_gen_source += '                        if (pBindings->pImmutableSamplers != NULL) {\n'
+                    dump_gen_source += '                            pBindings->pImmutableSamplers = (const VkSampler *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                                pPacket->header, (intptr_t)pBindings->pImmutableSamplers);\n'
+                    dump_gen_source += '                        }\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '            }\n'
+                elif cmdname == 'QueueBindSparse':
+                    dump_gen_source += '            VkSparseImageMemoryBindInfo *sIMBinf = NULL;\n'
+                    dump_gen_source += '            VkSparseBufferMemoryBindInfo *sBMBinf = NULL;\n'
+                    dump_gen_source += '            VkSparseImageOpaqueMemoryBindInfo *sIMOBinf = NULL;\n'
+                    dump_gen_source += '            VkSparseImageMemoryBind *pLocalIMs = NULL;\n'
+                    dump_gen_source += '            VkSparseMemoryBind *pLocalBMs = NULL;\n'
+                    dump_gen_source += '            VkSparseMemoryBind *pLocalIOMs = NULL;\n'
+                    dump_gen_source += '            VkBindSparseInfo *pLocalBIs = VKTRACE_NEW_ARRAY(VkBindSparseInfo, pPacket->bindInfoCount);\n'
+                    dump_gen_source += '            memcpy((void *)pLocalBIs, (void *)(pPacket->pBindInfo), sizeof(VkBindSparseInfo) * pPacket->bindInfoCount);\n'
+                    dump_gen_source += '            for (uint32_t i = 0; i < pPacket->bindInfoCount; i++) {\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)&pLocalBIs[i]);\n'
+                    dump_gen_source += '                if (pLocalBIs[i].pBufferBinds) {\n'
+                    dump_gen_source += '                    sBMBinf = VKTRACE_NEW_ARRAY(VkSparseBufferMemoryBindInfo, pLocalBIs[i].bufferBindCount);\n'
+                    dump_gen_source += '                    pLocalBIs[i].pBufferBinds =\n'
+                    dump_gen_source += '                        (const VkSparseBufferMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pBufferBinds));\n'
+                    dump_gen_source += '                    memcpy((void *)sBMBinf, (void *)pLocalBIs[i].pBufferBinds,\n'
+                    dump_gen_source += '                        sizeof(VkSparseBufferMemoryBindInfo) * pLocalBIs[i].bufferBindCount);\n'
+                    dump_gen_source += '                    if (pLocalBIs[i].pBufferBinds->bindCount > 0 && pLocalBIs[i].pBufferBinds->pBinds) {\n'
+                    dump_gen_source += '                        pLocalBMs  = (VkSparseMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pBufferBinds->pBinds));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    sBMBinf->pBinds = pLocalBMs;\n'
+                    dump_gen_source += '                    pLocalBIs[i].pBufferBinds = sBMBinf;\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '                if (pLocalBIs[i].pImageBinds) {\n'
+                    dump_gen_source += '                    sIMBinf = VKTRACE_NEW_ARRAY(VkSparseImageMemoryBindInfo, pLocalBIs[i].imageBindCount);\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageBinds =\n'
+                    dump_gen_source += '                        (const VkSparseImageMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageBinds));\n'
+                    dump_gen_source += '                    memcpy((void *)sIMBinf, (void *)pLocalBIs[i].pImageBinds,\n'
+                    dump_gen_source += '                        sizeof(VkSparseImageMemoryBindInfo) * pLocalBIs[i].imageBindCount);\n'
+                    dump_gen_source += '                    if (pLocalBIs[i].pImageBinds->bindCount > 0 && pLocalBIs[i].pImageBinds->pBinds) {\n'
+                    dump_gen_source += '                        pLocalIMs  = (VkSparseImageMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageBinds->pBinds));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    sIMBinf->pBinds = pLocalIMs;\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageBinds = sIMBinf;\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '                if (pLocalBIs[i].pImageOpaqueBinds) {\n'
+                    dump_gen_source += '                    sIMOBinf = VKTRACE_NEW_ARRAY(VkSparseImageOpaqueMemoryBindInfo, pLocalBIs[i].imageOpaqueBindCount);\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageOpaqueBinds =\n'
+                    dump_gen_source += '                        (const VkSparseImageOpaqueMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageOpaqueBinds));\n'
+                    dump_gen_source += '                    memcpy((void *)sIMOBinf, (void *)pLocalBIs[i].pImageOpaqueBinds,\n'
+                    dump_gen_source += '                        sizeof(VkSparseImageOpaqueMemoryBindInfo) * pLocalBIs[i].imageOpaqueBindCount);\n'
+                    dump_gen_source += '                    if (pLocalBIs[i].pImageOpaqueBinds->bindCount > 0 && pLocalBIs[i].pImageOpaqueBinds->pBinds) {\n'
+                    dump_gen_source += '                        pLocalIOMs = (VkSparseMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageOpaqueBinds->pBinds));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    sIMOBinf->pBinds = pLocalIOMs;\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageOpaqueBinds = sIMOBinf;\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '            }\n'
+                    dump_gen_source += '            pPacket->pBindInfo = pLocalBIs;\n'
+                elif cmdname == 'CreateComputePipelines':
+                    dump_gen_source += '            VkComputePipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);\n'
+                    dump_gen_source += '            memcpy((void *)pLocalCIs, (void *)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo) * pPacket->createInfoCount);\n'
+                    dump_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    dump_gen_source += '                if (pLocalCIs[i].stage.pName) {\n'
+                    dump_gen_source += '                    pLocalCIs[i].stage.pName =\n'
+                    dump_gen_source += '                        (const char *)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '                if (pLocalCIs[i].stage.pSpecializationInfo) {\n'
+                    dump_gen_source += '                    pLocalCIs[i].stage.pSpecializationInfo = \n'
+                    dump_gen_source += '                        (const VkSpecializationInfo  *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo));\n'
+                    dump_gen_source += '                    if (pLocalCIs[i].stage.pSpecializationInfo->mapEntryCount > 0 && pLocalCIs[i].stage.pSpecializationInfo->pMapEntries) {\n'
+                    dump_gen_source += '                        ((VkSpecializationInfo *)(pLocalCIs[i]).stage.pSpecializationInfo)->pMapEntries =\n'
+                    dump_gen_source += '                            (const VkSpecializationMapEntry *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                                pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pMapEntries));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    if (pLocalCIs[i].stage.pSpecializationInfo->dataSize > 0 && pLocalCIs[i].stage.pSpecializationInfo->pData) {\n'
+                    dump_gen_source += '                        ((VkSpecializationInfo *)(pLocalCIs[i]).stage.pSpecializationInfo)->pData =\n'
+                    dump_gen_source += '                            (const void *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                                pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pData));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '            }\n'
+                    dump_gen_source += '            pPacket->pCreateInfos = pLocalCIs;\n'
+                elif cmdname == 'CreateGraphicsPipelines':
+                    dump_gen_source += '            VkGraphicsPipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkGraphicsPipelineCreateInfo, pPacket->createInfoCount);\n'
+                    dump_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
+                    dump_gen_source += '                memcpy((void *)&(pLocalCIs[i]), (void *)&(pPacket->pCreateInfos[i]), sizeof(VkGraphicsPipelineCreateInfo));\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pStages);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pVertexInputState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pInputAssemblyState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pTessellationState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pViewportState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pRasterizationState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pMultisampleState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pDepthStencilState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pColorBlendState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pDynamicState);\n'
+                    dump_gen_source += '                ((VkPipelineViewportStateCreateInfo *)pLocalCIs[i].pViewportState)->pViewports =\n'
+                    dump_gen_source += '                    (VkViewport *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                        pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pViewportState->pViewports);\n'
+                    dump_gen_source += '                ((VkPipelineViewportStateCreateInfo *)pLocalCIs[i].pViewportState)->pScissors =\n'
+                    dump_gen_source += '                    (VkRect2D *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header,\n'
+                    dump_gen_source += '                        (intptr_t)pPacket->pCreateInfos[i].pViewportState->pScissors);\n'
+                    dump_gen_source += '                ((VkPipelineMultisampleStateCreateInfo *)pLocalCIs[i].pMultisampleState)->pSampleMask =\n'
+                    dump_gen_source += '                    (VkSampleMask *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                        pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pMultisampleState->pSampleMask);\n'
+                    dump_gen_source += '            }\n'
+                    dump_gen_source += '            pPacket->pCreateInfos = pLocalCIs;\n'
+                dump_gen_source += '            ApiDumpInstance& dump_inst = ApiDumpInstance::current();\n'
+                dump_gen_source += '            const ApiDumpSettings& settings(dump_inst.settings());\n'
+                dump_gen_source += '            dump_inst.setThreadID(packet->thread_id);\n'
+                dump_gen_source += '            if (dump_inst.settings().format() == ApiDumpFormat::Text) {\n'
+                dump_gen_source += '                settings.stream() << \"GlobalPacketIndex \" << packet->global_packet_index << \", \";\n'
+                dump_gen_source += '            }\n'
+                if cmdname == 'AllocateCommandBuffers':
+                    dump_gen_source += '            dump_inst.addCmdBuffers(pPacket->device,\n'
+                    dump_gen_source += '                                    pPacket->pAllocateInfo->commandPool,\n'
+                    dump_gen_source += '                                    std::vector<VkCommandBuffer>(pPacket->pCommandBuffers, pPacket->pCommandBuffers + pPacket->pAllocateInfo->commandBufferCount),\n'
+                    dump_gen_source += '                                    pPacket->pAllocateInfo->level);\n'
+                elif cmdname == 'DestroyCommandPool':
+                    dump_gen_source += '            dump_inst.eraseCmdBufferPool(pPacket->device, pPacket->commandPool);\n'
+                elif cmdname == 'FreeCommandBuffers':
+                    dump_gen_source += '            dump_inst.eraseCmdBuffers(pPacket->device,\n'
+                    dump_gen_source += '                                      pPacket->commandPool,\n'
+                    dump_gen_source += '                                      std::vector<VkCommandBuffer>(pPacket->pCommandBuffers, pPacket->pCommandBuffers + pPacket->commandBufferCount));\n'
+                dump_gen_source += '            switch(dump_inst.settings().format()) {\n'
+                dump_gen_source += '            case ApiDumpFormat::Text:\n'
+                dump_gen_source += '                dump_text_head_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' %param_string_no_result
+                dump_gen_source += '                dump_text_body_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' % param_string
+                dump_gen_source += '                break;\n'
+                dump_gen_source += '            case ApiDumpFormat::Html:\n'
+                dump_gen_source += '                dump_html_head_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' %param_string_no_result
+                dump_gen_source += '                dump_html_body_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' % param_string
+                dump_gen_source += '                break;\n'
+                dump_gen_source += '            case ApiDumpFormat::Json:\n'
+                dump_gen_source += '                dump_json_head_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' %param_string_no_result
+                dump_gen_source += '                dump_json_body_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' % param_string
+                dump_gen_source += '                break;\n'
+                dump_gen_source += '            }\n'
+                if cmdname == 'QueuePresentKHR':
+                    dump_gen_source += '            dump_inst.nextFrame();\n'
+                elif cmdname == 'QueueBindSparse':
+                    dump_gen_source += '            VKTRACE_DELETE(pLocalBIs);\n'
+                    dump_gen_source += '            VKTRACE_DELETE(sIMBinf);\n'
+                    dump_gen_source += '            VKTRACE_DELETE(sBMBinf);\n'
+                    dump_gen_source += '            VKTRACE_DELETE(sIMOBinf);\n'
+                elif cmdname == 'CreateComputePipelines':
+                    dump_gen_source += '            VKTRACE_DELETE(pLocalCIs);\n'
+                elif cmdname == 'CreateGraphicsPipelines':
+                    dump_gen_source += '            VKTRACE_DELETE(pLocalCIs);\n'
+            dump_gen_source += '            break;\n'
+            dump_gen_source += '        }\n'
+            if protect is not None:
+                dump_gen_source += '#endif // %s\n' % protect
+        dump_gen_source += '        default:\n'
+        dump_gen_source += '            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);\n'
+        dump_gen_source += '            break;\n'
+        dump_gen_source += '    }\n'
+        dump_gen_source += '    return;\n'
+        dump_gen_source += '}\n'
+        return dump_gen_source
 
 
     #
@@ -2189,6 +2649,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_vk_src += '#include "vktrace_trace_packet_utils.h"\n'
         trace_vk_src += '#include <stdio.h>\n'
         trace_vk_src += '#include <string.h>\n'
+        trace_vk_src += '#include "vktrace_pageguard_memorycopy.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pagestatusarray.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pageguardmappedmemory.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pageguardcapture.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pageguard.h"\n'
         trace_vk_src += '\n'
         trace_vk_src += '#ifdef WIN32\n'
         trace_vk_src += 'INIT_ONCE gInitOnce = INIT_ONCE_STATIC_INIT;\n'
@@ -2224,7 +2689,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_vk_src += '#elif defined(PLATFORM_LINUX)\n'
         trace_vk_src += '    return;\n}\n'
         trace_vk_src += '#endif\n'
-        trace_vk_src += ''
+        trace_vk_src += 'VkPhysicalDeviceMemoryProperties g_savedDevMemProps;\n'
+        trace_vk_src += '\n'
 
         # Generate functions used to trace API calls and store the input and result data into a packet
         # Here's the general flow of code insertion w/ option items flagged w/ "?"
@@ -2236,13 +2702,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         # Assign packet values
         # FINISH packet
         # return result if needed
-       
+
         manually_written_hooked_funcs = ['vkAllocateCommandBuffers',
                                          'vkAllocateMemory',
                                          'vkAllocateDescriptorSets',
                                          'vkBeginCommandBuffer',
                                          'vkCreateDescriptorPool',
                                          'vkGetPhysicalDeviceProperties',
+                                         'vkGetPhysicalDeviceProperties2KHR',
                                          'vkCreateDevice',
                                          'vkCreateFramebuffer',
                                          'vkCreateImage',
@@ -2257,6 +2724,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkCmdWaitEvents',
                                          'vkCmdBeginRenderPass',
                                          'vkCmdPushConstants',
+                                         'vkCmdExecuteCommands',
+                                         'vkCmdCopyImageToBuffer',
+                                         'vkDestroyBuffer',
                                          'vkDestroyInstance',
                                          'vkEnumeratePhysicalDevices',
                                          'vkFreeMemory',
@@ -2272,17 +2742,19 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkEnumerateInstanceLayerProperties',
                                          'vkEnumerateDeviceLayerProperties',
                                          'vkGetPhysicalDeviceQueueFamilyProperties',
+                                         'vkGetPhysicalDeviceQueueFamilyProperties2KHR',
                                          'vkGetQueryPoolResults',
                                          'vkMapMemory',
                                          'vkUnmapMemory',
+                                         'vkBindBufferMemory',
                                          'vkUpdateDescriptorSets',
+                                         'vkWaitForFences',
                                          'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                          'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                          'vkGetPhysicalDeviceSurfacePresentModesKHR',
                                          'vkCreateSwapchainKHR',
                                          'vkGetSwapchainImagesKHR',
                                          'vkQueuePresentKHR',
-                                         #TODO add Mir
                                          'vkCreateXcbSurfaceKHR',
                                          'vkCreateWaylandSurfaceKHR',
                                          'vkCreateXlibSurfaceKHR',
@@ -2293,8 +2765,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkGetPhysicalDeviceWin32PresentationSupportKHR',
                                          'vkCreateAndroidSurfaceKHR',
                                          'vkCreateDescriptorUpdateTemplateKHR',
+                                         'vkCreateDescriptorUpdateTemplate',
                                          'vkDestroyDescriptorUpdateTemplateKHR',
+                                         'vkDestroyDescriptorUpdateTemplate',
                                          'vkUpdateDescriptorSetWithTemplateKHR',
+                                         'vkUpdateDescriptorSetWithTemplate',
+                                         'vkCmdPushDescriptorSetKHR',
                                          'vkCmdPushDescriptorSetWithTemplateKHR',
                                          'vkAcquireXlibDisplayEXT',
                                          'vkGetRandROutputDisplayEXT',
@@ -2321,44 +2797,57 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
         # Process each of the entrypoint prototypes
         cmd_extension_dict = dict(self.cmd_extension_names)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
         cmd_info_dict = dict(self.cmd_info_data)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
         for proto in self.cmdMembers:
             extension = cmd_extension_dict[proto.name]
             cmdinfo = cmd_info_dict[proto.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext or proto.name[2:] in api_exclusions:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext or proto.name[2:] in api_exclusions:
                 trace_vk_src += '// TODO: Add support for __HOOKED_%s: Skipping for now.\n' % proto.name
                 continue
+
             if proto.name in manually_written_hooked_funcs:
-                trace_vk_src += '// __HOOKED_%s is manually written. Look in vktrace_lib_trace.cpp\n' % proto.name
+                trace_vk_src += '// __HOOKED_%s is manually written. Look in vktrace_lib_trace.cpp. Stub for proc mapping function.\n' % proto.name
+
+            protect = cmd_protect_dict[proto.name]
+            if protect is not None:
+                trace_vk_src += '#ifdef %s\n' % protect
+
+            resulttype = cmdinfo.elem.find('proto/type')
+            resulttype = resulttype.text if not None else ''
+            raw_packet_update_list = [] # Non-ptr elements placed directly into packet
+            ptr_packet_update_list = [] # Ptr elements to be updated into packet
+            return_txt = ''
+            packet_size = []
+            in_data_size = False # Flag when we need to capture local input size variable for in/out size
+            trace_vk_src += 'VKTRACER_EXPORT VKAPI_ATTR %s VKAPI_CALL __HOOKED_%s(\n' % (resulttype, proto.name)
+            for p in proto.members: # TODO : For all of the ptr types, check them for NULL and return 0 if NULL
+                if p.name == '':
+                    continue
+                trace_vk_src += '%s,\n' % p.cdecl
+                if p.ispointer and p.name not in ['pSysMem', 'pReserved']:
+                    if 'pDataSize' in p.name:
+                        in_data_size = True;
+                elif 'pfnMsgCallback' == p.name:
+                    raw_packet_update_list.append('    PFN_vkDebugReportCallbackEXT* pNonConstCallback = (PFN_vkDebugReportCallbackEXT*)&pPacket->pfnMsgCallback;')
+                    raw_packet_update_list.append('    *pNonConstCallback = pfnMsgCallback;')
+                elif p.isstaticarray:
+                    raw_packet_update_list.append('    memcpy((void *) pPacket->%s, %s, sizeof(pPacket->%s));' % (p.name, p.name, p.name))
+                else:
+                    raw_packet_update_list.append('    pPacket->%s = %s;' % (p.name, p.name))
+            trace_vk_src = trace_vk_src[:-2] + ')'
+
+            if proto.name in manually_written_hooked_funcs:
+                # Just declare function for manually written entrypoints. Declaration needed for proc mapping
+                trace_vk_src += ';\n';
             else:
-                raw_packet_update_list = [] # Non-ptr elements placed directly into packet
-                ptr_packet_update_list = [] # Ptr elements to be updated into packet
-                return_txt = ''
-                packet_size = []
-                in_data_size = False # Flag when we need to capture local input size variable for in/out size
-                resulttype = cmdinfo.elem.find('proto/type')
-                resulttype = resulttype.text if not None else ''
-                trace_vk_src += 'VKTRACER_EXPORT VKAPI_ATTR %s VKAPI_CALL __HOOKED_%s(\n' % (resulttype, proto.name)
-                for p in proto.members: # TODO : For all of the ptr types, check them for NULL and return 0 if NULL
-                    if p.name == '':
-                        continue
-                    trace_vk_src += '%s,\n' % p.cdecl
-                    if p.ispointer and p.name not in ['pSysMem', 'pReserved']:
-                        if 'pDataSize' in p.name:
-                            in_data_size = True;
-                    elif 'pfnMsgCallback' == p.name:
-                        raw_packet_update_list.append('    PFN_vkDebugReportCallbackEXT* pNonConstCallback = (PFN_vkDebugReportCallbackEXT*)&pPacket->pfnMsgCallback;')
-                        raw_packet_update_list.append('    *pNonConstCallback = pfnMsgCallback;')
-                    elif p.isstaticarray:
-                        raw_packet_update_list.append('    memcpy((void *) pPacket->%s, %s, sizeof(pPacket->%s));' % (p.name, p.name, p.name))
-                    else:
-                        raw_packet_update_list.append('    pPacket->%s = %s;' % (p.name, p.name))
-                trace_vk_src = trace_vk_src[:-2] + ')\n'
                 # Get list of packet size modifiers due to ptr params
                 packet_size = self.GetPacketSize(proto.members)
                 ptr_packet_update_list = self.GetPacketPtrParamList(proto.members)
                 # End of function declaration portion, begin function body
-                trace_vk_src += '{\n'
+                trace_vk_src += ' {\n'
+                trace_vk_src += '    trim::TraceLock<std::mutex> lock(g_mutex_trace);\n'
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    %s result;\n' % resulttype
                     return_txt = 'result = '
@@ -2368,10 +2857,24 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    packet_%s* pPacket = NULL;\n' % proto.name
                 if proto.name == 'vkDestroyInstance' or proto.name == 'vkDestroyDevice':
                     trace_vk_src += '    dispatch_key key = get_dispatch_key(%s);\n' % proto.members[0].name
-                if (0 == len(packet_size)):
-                    trace_vk_src += '    CREATE_TRACE_PACKET(%s, 0);\n' % (proto.name)
+                if proto.name == 'vkDestroyDevice':
+                    trace_vk_src += '#ifdef USE_PAGEGUARD_SPEEDUP\n'
+                    trace_vk_src += '    pageguardEnter();\n'
+                    trace_vk_src += '    getPageGuardControlInstance().vkDestroyDevice(%s, %s);\n' % (proto.members[0].name, proto.members[1].name)
+                    trace_vk_src += '    pageguardExit();\n'
+                    trace_vk_src += '#endif\n'
+                if proto.name == 'vkGetPhysicalDeviceSurfaceFormats2KHR':
+                    trace_vk_src += '    size_t byteCount=0;\n'
+                    trace_vk_src += '    uint32_t surfaceFormatCount = *pSurfaceFormatCount;\n'
+                    trace_vk_src += '    for (uint32_t i=0; i<surfaceFormatCount; i++) {\n'
+                    trace_vk_src += '        byteCount += get_struct_chain_size(&pSurfaceFormats[i]);\n'
+                    trace_vk_src += '    }\n'
+                    trace_vk_src += '    CREATE_TRACE_PACKET(vkGetPhysicalDeviceSurfaceFormats2KHR, get_struct_chain_size((void*)pSurfaceInfo) + sizeof(uint32_t) + byteCount);\n'
                 else:
-                    trace_vk_src += '    CREATE_TRACE_PACKET(%s, %s);\n' % (proto.name, ' + '.join(packet_size))
+                    if (0 == len(packet_size)):
+                        trace_vk_src += '    CREATE_TRACE_PACKET(%s, 0);\n' % (proto.name)
+                    else:
+                        trace_vk_src += '    CREATE_TRACE_PACKET(%s, %s);\n' % (proto.name, ' + '.join(packet_size))
                 if proto.name == 'vkCreateImage':
                     trace_vk_src += '    VkImageCreateInfo replayCreateInfo = *pCreateInfo;\n'
                     trace_vk_src += '    VkImageCreateInfo trimCreateInfo = *pCreateInfo;\n'
@@ -2420,22 +2923,62 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    pPacket = interpret_body_as_%s(pHeader);\n' % proto.name
                 trace_vk_src += '\n'.join(raw_packet_update_list)
                 trace_vk_src += '\n'
-                for pp_dict in ptr_packet_update_list: # buff_ptr_indices:
-                    trace_vk_src += '    %s;\n' % (pp_dict['add_txt'])
-                    if '(pPacket->pCreateInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pCreateInfo, (void *)pCreateInfo);\n'
-                    if '(pPacket->pBeginInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pBeginInfo, (void *)pBeginInfo);\n'
-                    if '(pPacket->pAllocateInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pAllocateInfo, (void *)pAllocateInfo);\n'
-                    if '(pPacket->pReserveSpaceInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pReserveSpaceInfo, (void *)pReserveSpaceInfo);\n'
-                    if '(pPacket->pLimits)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pLimits, (void *)pLimits);\n'
-                    if ('(pPacket->pFeatures)' in pp_dict['add_txt'] and ('KHR' in pp_dict['add_txt'] or ('NVX' in pp_dict['add_txt']))):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
-                    if ('(pPacket->pSurfaceInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pSurfaceInfo, (void *)pSurfaceInfo);\n'
+                if proto.name == 'vkGetPhysicalDeviceSurfaceFormats2KHR':
+                    # This is very specific to a particular function, but it's the most staightforward day to handle it
+                    trace_vk_src += '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurfaceInfo), sizeof(VkPhysicalDeviceSurfaceInfo2KHR), pSurfaceInfo);\n'
+                    trace_vk_src += '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurfaceFormatCount), sizeof(uint32_t), pSurfaceFormatCount);\n'
+                    trace_vk_src += '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurfaceFormats), surfaceFormatCount*sizeof(VkSurfaceFormat2KHR), pSurfaceFormats);\n'
+                    trace_vk_src += '    for (uint32_t i = 0; i < surfaceFormatCount; i++) {\n'
+                    trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pSurfaceFormats[i]), (void *)(&pSurfaceFormats[i]));\n'
+                    trace_vk_src += '    }\n'
+                else:
+                    for pp_dict in ptr_packet_update_list: # buff_ptr_indices:
+                        trace_vk_src += '    %s;\n' % (pp_dict['add_txt'])
+                        if '(pPacket->pCreateInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pCreateInfo, (void *)pCreateInfo);\n'
+                        if '(pPacket->pBeginInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pBeginInfo, (void *)pBeginInfo);\n'
+                        if '(pPacket->pAllocateInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pAllocateInfo, (void *)pAllocateInfo);\n'
+                        if '(pPacket->pReserveSpaceInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pReserveSpaceInfo, (void *)pReserveSpaceInfo);\n'
+                        if '(pPacket->pLimits)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pLimits, (void *)pLimits);\n'
+                        if ('(pPacket->pFeatures)' in pp_dict['add_txt'] and ('KHR' in pp_dict['add_txt'] or ('NVX' in pp_dict['add_txt']))):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
+                        if ('(pPacket->pSurfaceInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pSurfaceInfo, (void *)pSurfaceInfo);\n'
+                        if ('(pPacket->pInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pInfo, (void *)pInfo);\n'
+                        elif ('(pPacket->pInfo)' in pp_dict['add_txt'] and ('RequirementsInfo2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pInfo, (void *)pInfo);\n'
+                        if ('(pPacket->pMemoryRequirements)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pMemoryRequirements, (void *)pMemoryRequirements);\n'
+                        if ('(pPacket->pSparseMemoryRequirements)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pSparseMemoryRequirementCount; i++)\n'
+                            trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pSparseMemoryRequirements[i]), (void *)(&pSparseMemoryRequirements[i]));\n'
+                        if ('(pPacket->pFeatures)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
+                        if ('(pPacket->pProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pProperties, (void *)pProperties);\n'
+                        if ('(pPacket->pFormatProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFormatProperties, (void *)pFormatProperties);\n'
+                        if ('(pPacket->pImageFormatInfo)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pImageFormatInfo, (void *)pImageFormatInfo);\n'
+                        if ('(pPacket->pImageFormatProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pImageFormatProperties, (void *)pImageFormatProperties);\n'
+                        if ('(pPacket->pQueueFamilyProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pQueueFamilyPropertyCount; i++)\n'
+                            trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pQueueFamilyProperties[i]), (void *)(&pQueueFamilyProperties[i]));\n'
+                        if ('(pPacket->pMemoryProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pMemoryProperties, (void *)pMemoryProperties);\n'
+                        if ('(pPacket->pQueueInfo)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pQueueInfo, (void *)pQueueInfo);\n'
+                        if (proto.name == 'vkGetPhysicalDeviceSparseImageFormatProperties2' and '(pPacket->pFormatInfo)' in pp_dict['add_txt']):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFormatInfo, (void *)pFormatInfo);\n'
+                            trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pPropertyCount; i++)\n'
+                            trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pProperties[i]), (void *)(&pProperties[i]));\n'
+
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    pPacket->result = result;\n'
                 for pp_dict in ptr_packet_update_list:
@@ -2444,7 +2987,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    if (!g_trimEnabled) {\n'
                 # All buffers should be finalized by now, and the trace packet can be finished (which sends it over the socket)
                 trace_vk_src += '        FINISH_TRACE_PACKET();\n'
-       
+
                 # Else half of g_trimEnabled conditional
                 # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
                 trace_vk_src += '    } else {\n'
@@ -2463,17 +3006,68 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     trace_vk_src += '            vktrace_delete_trace_packet(&pHeader);\n'
                     trace_vk_src += '        }\n'
                 trace_vk_src += '    }\n'
-       
+
+                # Save the device memory properties
+                if proto.name == "vkGetPhysicalDeviceMemoryProperties":
+                    trace_vk_src += "    g_savedDevMemProps = *pMemoryProperties;\n"
+
+                if proto.name == "vkGetPhysicalDeviceMemoryProperties2":
+                    trace_vk_src += "    g_savedDevMemProps = pMemoryProperties->memoryProperties;\n"
+
+                if proto.name == "vkGetPhysicalDeviceMemoryProperties2KHR":
+                    trace_vk_src += "    g_savedDevMemProps = pMemoryProperties->memoryProperties;\n"
+
                 # Clean up instance or device data if needed
                 if proto.name == "vkDestroyInstance":
                     trace_vk_src += '    g_instanceDataMap.erase(key);\n'
                 elif proto.name == "vkDestroyDevice":
                     trace_vk_src += '    g_deviceDataMap.erase(key);\n'
-       
+
                 # Return result if needed
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    return result;\n'
                 trace_vk_src += '}\n'
+
+            # Close off protect preprocessor if necessary
+            if protect is not None:
+                trace_vk_src += '#endif // %s\n' % protect
+
+        # Add name to intercept proc mapping functions
+        trace_vk_src += 'PFN_vkVoidFunction layer_intercept_instance_proc(const char* name) {\n'
+        trace_vk_src += '    if (!name || name[0] != \'v\' || name[1] != \'k\') return NULL;\n'
+        trace_vk_src += '    name += 2;\n'
+
+        for cmd in self.cmdMembers:
+            cmdname = cmd.name[2:]
+            if not isSupportedCmd(cmd, cmd_extension_dict) or not isInstanceCmd(cmd):
+                continue
+            protect = cmd_protect_dict[cmd.name]
+            if protect is not None:
+                trace_vk_src += '#ifdef %s\n' % protect
+            trace_vk_src += '   if (!strcmp(name, "%s")) return (PFN_vkVoidFunction)__HOOKED_vk%s;\n' % (cmdname, cmdname)
+            if protect is not None:
+                trace_vk_src += '#endif // %s\n' % protect
+
+        trace_vk_src += '    return NULL;\n'
+        trace_vk_src += '}\n\n'
+
+        trace_vk_src += 'PFN_vkVoidFunction layer_intercept_proc(const char* name) {\n'
+        trace_vk_src += '    if (!name || name[0] != \'v\' || name[1] != \'k\') return NULL;\n'
+        trace_vk_src += '    name += 2;\n'
+
+        for cmd in self.cmdMembers:
+            cmdname = cmd.name[2:]
+            if not isSupportedCmd(cmd, cmd_extension_dict) or isInstanceCmd(cmd):
+                continue
+            protect = cmd_protect_dict[cmd.name]
+            if protect is not None:
+                trace_vk_src += '#ifdef %s\n' % protect
+            trace_vk_src += '   if (!strcmp(name, "%s")) return (PFN_vkVoidFunction)__HOOKED_vk%s;\n' % (cmdname, cmdname)
+            if protect is not None:
+                trace_vk_src += '#endif // %s\n' % protect
+
+        trace_vk_src += '    return NULL;\n'
+        trace_vk_src += '}\n\n'
 
         return trace_vk_src
     #
@@ -2484,6 +3078,18 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_hdr += '#include "vulkan/vulkan.h"\n'
         trace_pkt_hdr += '#include "vktrace_trace_packet_utils.h"\n'
         trace_pkt_hdr += '\n'
+        trace_pkt_hdr += '#ifdef VKREPLAY\n'
+        trace_pkt_hdr += 'void vkreplay_interpret_pnext_handles(void *struct_ptr);\n'
+        trace_pkt_hdr += '#endif\n'
+        trace_pkt_hdr += '\n'
+        trace_pkt_hdr += 'static void vkreplay_process_pnext_structs(vktrace_trace_packet_header *pHeader, void *struct_ptr)\n'
+        trace_pkt_hdr += '{\n'
+        trace_pkt_hdr += '    vkreplay_interpret_pnext_pointers(pHeader, struct_ptr);\n'
+        trace_pkt_hdr += '#ifdef VKREPLAY\n'
+        trace_pkt_hdr += '    // Handles need to be translated only in replayer\n'
+        trace_pkt_hdr += '    vkreplay_interpret_pnext_handles(struct_ptr);\n'
+        trace_pkt_hdr += '#endif\n'
+        trace_pkt_hdr += '}\n\n'
 
         # Custom txt for given function and parameter.  First check if param is NULL, then insert txt if not
         # First some common code used by both CmdWaitEvents & CmdPipelineBarrier
@@ -2534,7 +3140,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                             'pNonConst->pViewportState = (const VkPipelineViewportStateCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pCreateInfos[i].pViewportState);\n',
                             '// Raster State\n',
                             'pNonConst->pRasterizationState = (const VkPipelineRasterizationStateCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pCreateInfos[i].pRasterizationState);\n',
-                            'vktrace_interpret_pnext_pointers(pHeader, (void *)pNonConst->pRasterizationState);\n',
 
 
                             '// MultiSample State\n',
@@ -2578,13 +3183,40 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                              'CmdPushDescriptorSetKHR' : {'param': 'pDescriptorWrites', 'txt':
                                                                                [ 'uint32_t i;\n',
                                                                                  'for (i = 0; i < pPacket->descriptorWriteCount; i++) {\n',
-                                                                                 '    vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
+                                                                                 '    vkreplay_process_pnext_structs(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
+                                                                                 '    switch (pPacket->pDescriptorWrites[i].descriptorType) {\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_SAMPLER:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {\n',
+                                                                                 '            VkDescriptorImageInfo** ppImageInfo = (VkDescriptorImageInfo**)&pPacket->pDescriptorWrites[i].pImageInfo;\n',
+                                                                                 '            *ppImageInfo = (VkDescriptorImageInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pDescriptorWrites[i].pImageInfo);\n',
+                                                                                 '        }',
+                                                                                 '        break;',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {\n',
+                                                                                 '            VkBufferView** ppTexelBufferView = (VkBufferView**)&pPacket->pDescriptorWrites[i].pTexelBufferView;\n',
+                                                                                 '            *ppTexelBufferView = (VkBufferView*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pDescriptorWrites[i].pTexelBufferView);\n',
+                                                                                 '        }',
+                                                                                 '        break;',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:\n',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {\n',
+                                                                                 '            VkDescriptorBufferInfo** ppBufferInfo = (VkDescriptorBufferInfo**)&pPacket->pDescriptorWrites[i].pBufferInfo;\n',
+                                                                                 '            *ppBufferInfo = (VkDescriptorBufferInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pDescriptorWrites[i].pBufferInfo);\n',
+                                                                                 '        }\n',
+                                                                                 '        break;\n',
+                                                                                 '    default:\n',
+                                                                                 '        break;\n',
+                                                                                 '    }\n',
                                                                                  '}'
                                                                                ]},
                              'UpdateDescriptorSets' : {'param': 'pDescriptorWrites', 'txt':
                                                                                [ 'uint32_t i;\n',
                                                                                  'for (i = 0; i < pPacket->descriptorWriteCount; i++) {\n',
-                                                                                 '    vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
+                                                                                 '    vkreplay_process_pnext_structs(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
                                                                                  '    switch (pPacket->pDescriptorWrites[i].descriptorType) {\n',
                                                                                  '    case VK_DESCRIPTOR_TYPE_SAMPLER:\n',
                                                                                  '    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:\n',
@@ -2614,7 +3246,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                                                  '    }\n',
                                                                                  '}\n',
                                                                                  'for (i = 0; i < pPacket->descriptorCopyCount; i++) {\n',
-                                                                                 '    vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pDescriptorCopies[i]);\n',
+                                                                                 '    vkreplay_process_pnext_structs(pPacket->header, (void *)&pPacket->pDescriptorCopies[i]);\n',
                                                                                  '}'
                                                                                ]},
                              'QueueSubmit' : {'param': 'pSubmits', 'txt':
@@ -2628,7 +3260,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                                                  '   *ppSems = (VkSemaphore*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pSubmits[i].pSignalSemaphores);\n',
                                                                                  '   VkPipelineStageFlags** ppStageMask = (VkPipelineStageFlags**)&pPacket->pSubmits[i].pWaitDstStageMask;\n',
                                                                                  '   *ppStageMask = (VkPipelineStageFlags*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pSubmits[i].pWaitDstStageMask);\n',
-                                                                                 '   vktrace_interpret_pnext_pointers(pHeader, (void *)&pPacket->pSubmits[i]);\n'
+                                                                                 '   vkreplay_process_pnext_structs(pHeader, (void *)&pPacket->pSubmits[i]);\n'
                                                                                  '}'
                                                                                ]},
                              'CreateGraphicsPipelines' : {'param': 'pCreateInfos', 'txt': create_gfx_pipe},
@@ -2674,7 +3306,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         for proto in self.cmdMembers:
             extension = cmd_extension_dict[proto.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             novk_name = proto.name[2:]
             if novk_name not in api_exclusions:
@@ -2693,7 +3325,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 elif 'FlushMappedMemoryRanges' in proto.name or 'InvalidateMappedMemoryRanges' in proto.name:
                     trace_pkt_hdr += '    void** ppData;\n'
                 resulttype = cmdinfo.elem.find('proto/type')
-                if resulttype != None and resulttype.text != 'void':
+                if resulttype is not None and resulttype.text != 'void':
                     trace_pkt_hdr += '    %s result;\n' % resulttype.text
                 trace_pkt_hdr += '} packet_%s;\n\n' % proto.name
                 trace_pkt_hdr += 'static packet_%s* interpret_body_as_%s(vktrace_trace_packet_header* pHeader) {\n' % (proto.name, proto.name)
@@ -2722,10 +3354,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                             or (p.name in ['pFeatures'] and 'nvx' in p.type.lower())
                             or (p.name in ['pFeatures', 'pProperties','pFormatProperties','pImageFormatInfo','pImageFormatProperties','pQueueFamilyProperties',
                                            'pMemoryProperties','pFormatInfo','pSurfaceFormats','pMemoryRequirements','pInfo',
-                                           'pSparseMemoryRequirements','pSurfaceCapabilities'] and '2khr' in p.type.lower())
-                            or (p.name in ['pSurfaceCapabilities'] and '2ext' in p.type.lower())):
+                                           'pSparseMemoryRequirements','pSurfaceCapabilities'] and '2' in p.type.lower())):
                             trace_pkt_hdr += '    if (pPacket->%s != NULL) {\n' % p.name
-                            trace_pkt_hdr += '        vktrace_interpret_pnext_pointers(pHeader, (void *)pPacket->%s);\n' % p.name
+                            trace_pkt_hdr += '        vkreplay_process_pnext_structs(pHeader, (void *)pPacket->%s);\n' % p.name
                             trace_pkt_hdr += '    }\n'
                 if 'UnmapMemory' in proto.name:
                     trace_pkt_hdr += '    pPacket->pData = (void*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pData);\n'
@@ -2760,6 +3391,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return self.GenerateTraceVkSource()
         elif self.vktrace_file_type == 'vktrace_vk_packets_header':
             return self.GenerateTraceVkPacketsHeader()
+        elif self.vktrace_file_type == 'vktrace_dump_gen_source':
+            return self.GenerateParserGenSource()
         else:
             return 'Bad VkTrace File Generator Option %s' % self.vktrace_file_type
-

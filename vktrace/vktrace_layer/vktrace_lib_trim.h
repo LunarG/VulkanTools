@@ -16,13 +16,16 @@
 #pragma once
 #include <list>
 #include <map>
+#include <algorithm>
+#include <mutex>
 #include "vktrace_trace_packet_identifiers.h"
 
 #include "vktrace_lib_trim_generate.h"
 #include "vktrace_lib_trim_statetracker.h"
-#include "vulkan.h"
+#include "vktrace_lib_trim_descriptoriterator.h"
+#include "vulkan/vulkan.h"
 
-#ifdef PLATFORM_LINUX  // VK_USE_PLATFORM_XCB_KHR
+#if defined(PLATFORM_LINUX)  // VK_USE_PLATFORM_XCB_KHR
 #if defined(ANDROID)
 // TODO
 #else
@@ -47,7 +50,45 @@ extern uint64_t g_trimStartFrame;
 extern uint64_t g_trimEndFrame;
 extern bool g_trimAlreadyFinished;
 
+extern bool g_TraceLockEnabled;
+
+// This mutex is used to protect API calls sequence
+// during trace
+extern std::mutex g_mutex_trace;
+
 namespace trim {
+
+template <typename _Mutex>
+class TraceLock {  // specialization for a single mutex
+   private:
+    _Mutex &_MyMutex;
+    bool m_islocked;
+
+   public:
+    typedef _Mutex mutex_type;
+
+    explicit TraceLock(_Mutex &_Mtx) : _MyMutex(_Mtx) {
+        // construct and lock only when trim enabled (default behaviour)
+        // or when env var VKTRACE_ENABLE_TRACE_LOCK is set to "1"
+        if (g_trimEnabled || g_TraceLockEnabled) {
+            _MyMutex.lock();
+            m_islocked = true;
+        } else {
+            m_islocked = false;
+        }
+    }
+
+    ~TraceLock() {  // unlock
+        if (m_islocked) {
+            _MyMutex.unlock();
+            m_islocked = false;
+        }
+    }
+
+    TraceLock(const TraceLock &) = delete;
+    TraceLock &operator=(const TraceLock &) = delete;
+};
+
 void initialize();
 void deinitialize();
 
@@ -70,7 +111,7 @@ char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType);
 //  if specified trigger enabled
 bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType);
 
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
 // TODO
 #else
@@ -89,6 +130,21 @@ enum enum_key_state {
 
 // return if hotkey triggered;
 bool is_hotkey_trim_triggered();
+
+VkDeviceSize calculateImageSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo,
+                                           const VkAllocationCallbacks *pAllocator, uint32_t subresourceIndex);
+bool calculateImageAllSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                      std::vector<VkDeviceSize> &subResourceSizes);
+
+void addImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> subResourceSizes);
+
+bool getImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> *pSubresourceSizes);
+
+void deleteImageSubResourceSizes(VkImage image);
+
+VkDeviceSize getImageSize(VkImage image);
+
+VkDeviceSize getImageSubResourceOffset(VkImage image, uint32_t mipLevel);
 
 // Use this to snapshot the global state tracker at the start of the trim
 // frames.
@@ -114,6 +170,8 @@ void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 #if TRIM_USE_ORDERED_IMAGE_CREATION
 void add_Image_call(vktrace_trace_packet_header *pHeader);
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
+
+void add_InTrim_call(vktrace_trace_packet_header *pHeader);
 
 void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
 std::list<ImageTransition> GetImageTransitions(VkCommandBuffer commandBuffer);
@@ -141,7 +199,21 @@ VkImageAspectFlags getImageAspectFromFormat(VkFormat format);
 void add_Allocator(const VkAllocationCallbacks *pAllocator);
 VkAllocationCallbacks *get_Allocator(const VkAllocationCallbacks *pAllocator);
 
-void mark_CommandBuffer_reference(VkCommandBuffer commandbuffer);
+void mark_Device_reference(VkDevice var);
+void mark_CommandBuffer_reference(VkCommandBuffer var);
+void mark_CommandPool_reference(VkCommandPool var);
+void mark_ShaderModule_reference(VkShaderModule var);
+void mark_Pipeline_reference(VkPipeline var);
+void mark_PipelineCache_reference(VkPipelineCache var);
+void mark_DescriptorPool_reference(VkDescriptorPool var);
+void mark_DescriptorSet_reference(VkDescriptorSet var);
+void mark_Image_reference(VkImage var);
+void mark_ImageView_reference(VkImageView var);
+void mark_Framebuffer_reference(VkFramebuffer var);
+void mark_QueryPool_reference(VkQueryPool var);
+void mark_DeviceMemory_reference(VkDeviceMemory var);
+void mark_Buffer_reference(VkBuffer var);
+void mark_BufferView_reference(VkBufferView var);
 
 ObjectInfo &add_Instance_object(VkInstance var);
 ObjectInfo *get_Instance_objectInfo(VkInstance var);
@@ -223,6 +295,9 @@ ObjectInfo *get_Sampler_objectInfo(VkSampler var);
 ObjectInfo &add_DescriptorSetLayout_object(VkDescriptorSetLayout var);
 ObjectInfo *get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var);
 
+ObjectInfo &add_DescriptorUpdateTemplate_object(VkDescriptorUpdateTemplate var);
+ObjectInfo *get_DescriptorUpdateTemplate_objectInfo(VkDescriptorUpdateTemplate var);
+
 ObjectInfo &add_DescriptorSet_object(VkDescriptorSet var);
 ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var);
 
@@ -252,5 +327,12 @@ void remove_ShaderModule_object(const VkShaderModule var);
 void remove_PipelineLayout_object(const VkPipelineLayout var);
 void remove_Sampler_object(const VkSampler var);
 void remove_DescriptorSetLayout_object(const VkDescriptorSetLayout var);
+void remove_DescriptorUpdateTemplate_object(VkDescriptorUpdateTemplate var);
 void remove_DescriptorSet_object(const VkDescriptorSet var);
+
+void add_binding_Pipeline_to_CommandBuffer(VkCommandBuffer commandBuffer, VkPipeline pipeLine);
+void clear_binding_Pipelines_from_CommandBuffer(VkCommandBuffer commandBuffer);
+void add_CommandBuffer_to_binding_Pipeline(VkCommandBuffer commandBuffer, VkPipeline pipeLine);
+void clear_CommandBuffer_calls_by_binding_Pipeline(VkPipeline pipeLine);
+
 }  // namespace trim

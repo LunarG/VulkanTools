@@ -25,10 +25,10 @@
 BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
     assert(pInfo != NULL);
 
+    char fullExePath[_MAX_PATH];
 #if defined(WIN32)
     {
         unsigned long processCreateFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED;
-        char fullExePath[_MAX_PATH];
         PROCESS_INFORMATION processInformation;
         STARTUPINFO si = {0};
         si.cb = sizeof(si);
@@ -65,6 +65,8 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
         const char delim[] = " \t";
         unsigned int idx;
 
+        realpath(pInfo->exeName, fullExePath);
+
         // Change process name so the the tracer DLLs will behave as expected when loaded.
         // NOTE: Must be 15 characters or less.
         const char* tmpProcName = "vktraceChildProcess";
@@ -75,7 +77,7 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
             vktrace_LogError("Failed to set working directory.");
         }
 
-        args[0] = pInfo->exeName;
+        args[0] = fullExePath;
         args[127] = NULL;
         idx = 1;
         args[idx] = pInfo->processArgs ? strtok(pInfo->processArgs, delim) : NULL;
@@ -83,7 +85,7 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
             idx++;
             args[idx] = strtok(NULL, delim);
         }
-        vktrace_LogDebug("exec process=%s argc=%u\n", pInfo->exeName, idx);
+        vktrace_LogDebug("exec process=%s argc=%u\n", fullExePath, idx);
 #if 0  // uncoment to print out list of env vars
         char *env = environ[0];
         idx = 0;
@@ -95,9 +97,14 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
             env = environ[idx];
         }
 #endif
-        if (execv(pInfo->exeName, args) < 0) {
+        if (execv(fullExePath, args) < 0) {
             vktrace_LogError("Failed to spawn process.");
-            exit(1);
+            perror(NULL);
+            // Exit by killing the whole process group.
+            // This kills both our process and our parent. We do this because
+            // we don't want to leave the parent hanging, waiting for data
+            // to arrive from the child.
+            kill(0, SIGINT);
         }
     }
 #endif
@@ -111,7 +118,7 @@ void vktrace_process_info_delete(vktrace_process_info* pInfo) {
         VKTRACE_DELETE(pInfo->pCaptureThreads);
     }
 
-#ifdef WIN32
+#if defined(WIN32)
     vktrace_platform_delete_thread(&(pInfo->watchdogThread));
 #endif
 

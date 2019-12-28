@@ -72,9 +72,9 @@ fi
 # Install everything built by build_all.sh
 echo "adb $serialFlag install -r bin/VulkanLayerValidationTests.apk"
 adb $serialFlag install -r bin/VulkanLayerValidationTests.apk
-echo "adb $serialFlag install -r ../demos/android/cube/bin/cube.apk"
-adb $serialFlag install -r ../demos/android/cube/bin/cube.apk
-echo "adb $serialFlag install -r ../demos/android/cube-with-layers/bin/cube-with-layers.apk"
-adb $serialFlag install -r ../demos/android/cube-with-layers/bin/cube-with-layers.apk
+echo "adb $serialFlag install -r ../submodules/Vulkan-Tools/cube/android/cube/bin/vkcube.apk"
+adb $serialFlag install -r ../submodules/Vulkan-Tools/cube/android/cube/bin/vkcube.apk
+echo "adb $serialFlag install -r ../submodules/Vulkan-Tools/cube/android/cube-with-layers/bin/vkcube-with-layers.apk"
+adb $serialFlag install -r ../submodules/Vulkan-Tools/cube/android/cube-with-layers/bin/vkcube-with-layers.apk
 
 exit $?

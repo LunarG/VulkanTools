@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#set -vex
+# Verbosity helps when triaging failures
+set -x
 
 script_start_time=$(date +%s)
 
@@ -282,6 +283,9 @@ fi
 # We want to halt on errors here
 set -e
 
+# Start up for logging
+adb $serialFlag logcat -c
+
 # Wake up the device
 adb $serialFlag shell input keyevent "KEYCODE_MENU"
 adb $serialFlag shell input keyevent "KEYCODE_HOME"
@@ -328,8 +332,8 @@ adb $serialFlag reverse localabstract:vktrace tcp:34201
 $vktrace_exe -v full -o $package.vktrace &
 adb $serialFlag shell am start $package/$activity
 
-# don't halt on error for this loop
-set +e
+# don't halt on the errors in this loop.  don't need verbosity either.
+set +ex
 
 # wait until trace screenshot arrives, or a timeout
 vktrace_seconds=300                                    # Duration in seconds.
@@ -343,6 +347,11 @@ do
     then
         echo "vktrace timeout reached: $vktrace_seconds seconds"
         echo "No vktrace screenshot, closing down"
+        # Cleanup
+        adb $serialFlag shell am force-stop $package
+        adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
+        adb $serialFlag shell setprop debug.vulkan.layer.2 '""'
+        adb $serialFlag logcat -d > $serial.$package.$frame.logcat.txt
         exit 1
     fi
 
@@ -355,20 +364,20 @@ kill -9 $!
 # pause for a moment to let our trace file finish writing
 sleep 1
 
-# halt on errors here
-set -e
+# halt on errors here, and bring verbosity back
+set -ex
 
 # set up for vkreplay
 adb $serialFlag shell am force-stop $package
 if [ -f $package.vktrace ]; then
-    adb $serialFlag push $package.vktrace /sdcard/$package.vktrace
+    adb $serialFlag push $package.vktrace /sdcard/$package.vktrace > /dev/null
 fi
 if [ -f $package\0.vktrace ]; then
-    adb $serialFlag push $package\0.vktrace /sdcard/$package.vktrace
+    adb $serialFlag push $package\0.vktrace /sdcard/$package.vktrace > /dev/null
 fi
 
 # grab the screenshot
-adb $serialFlag pull /sdcard/Android/$frame.ppm $package.$frame.vktrace.ppm
+adb $serialFlag pull /sdcard/Android/$frame.ppm $serial.$package.$frame.vktrace.ppm > /dev/null
 adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$frame.vktrace.ppm
 
 # replay and screenshot
@@ -381,12 +390,14 @@ sleep 5 # small pause to allow permission to take
 
 # Wake up the device
 adb $serialFlag shell input keyevent "KEYCODE_MENU"
+sleep 1
 adb $serialFlag shell input keyevent "KEYCODE_HOME"
+sleep 1
 
 adb $serialFlag shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/$package.vktrace"
 
-# don't halt on the errors in this loop
-set +e
+# don't halt on the errors in this loop.  don't need verbosity either.
+set +ex
 
 # wait until vkreplay screenshot arrives, or a timeout
 vkreplay_seconds=300                                     # Duration in seconds.
@@ -398,23 +409,29 @@ do
 
     if [ $(date +%s) -gt $vkreplay_end_time ]
     then
+        set -x
         echo "vkreplay timeout reached: $vkreplay_seconds seconds"
         echo "No vkreplay screenshot, closing down"
+        # Cleanup
+        adb $serialFlag shell am force-stop com.example.vkreplay
+        adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
+        adb $serialFlag logcat -d > $serial.$package.$frame.logcat.txt
         exit 1
     fi
     sleep 5
 done
 
-# halt on any errors here
-set -e
+# halt on any errors here, and be verbose again.
+set -ex
 
 # grab the screenshot
-adb $serialFlag pull /sdcard/Android/$frame.ppm $package.$frame.vkreplay.ppm
+adb $serialFlag pull /sdcard/Android/$frame.ppm $serial.$package.$frame.vkreplay.ppm > /dev/null
 adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$frame.vkreplay.ppm
 
 # clean up
 adb $serialFlag shell am force-stop com.example.vkreplay
 adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
+adb $serialFlag logcat -d > $serial.$package.$frame.logcat.txt
 
 # don't halt in the exit code below
 set +e
@@ -431,15 +448,32 @@ else
     NC=''
 fi
 
-cmp -s $package.$frame.vktrace.ppm $package.$frame.vkreplay.ppm
+cmp -s $serial.$package.$frame.vktrace.ppm $serial.$package.$frame.vkreplay.ppm
 
 if [ $? -eq 0 ] ; then
-    printf "$GREEN[  PASSED  ]$NC {$apk-$package}\n"
+    printf "$GREEN[  PASSED  ]$NC {$apk-$package} identical images\n"
 else
-    printf "$RED[  FAILED  ]$NC screenshot file compare failed\n"
-    printf "$RED[  FAILED  ]$NC {$apk-$package}\n"
-    printf "TEST FAILED\n"
-    exit 1
+    # An ImageMagick comparison might work where an exact match failed.
+    # If ImageMagick is installed on the system, the output will look like:
+    #    133.176 (0.00203213)
+    # We want the value in parentheses.  Generally, a threshold of 0.01 means the
+    # images are close enough to be casually indistinguishable.
+    compare=$(which compare)
+    if [ -n "$compare" ]; then
+        metric=$($compare -metric RMSE $serial.$package.$frame.vktrace.ppm $serial.$package.$frame.vkreplay.ppm null: 2>&1 | sed -n '/^.*(\([0-9.]*\)).*$/s//\1/p')
+        # bash can't do floating-point comparison, but awk can.  Awk evaluates
+        # boolean expressions to 1 if true or 0 if false, so we need to reverse the
+        # sense of the comparison to get an exit value of 0 if good and 1 if bad.
+        if echo $metric | awk '{exit(!($1 < 0.01));}' ; then
+            printf "$GREEN[  PASSED  ]$NC {$apk-$package} similar images (RMSE=$metric)\n"
+        else
+            printf "$RED[  FAILED  ]$NC {$apk-$package} screenshot compare failed (RMSE=$metric)\n"
+            exit 1
+        fi
+    else
+        printf "$RED[  FAILED  ]$NC {$apk-$package} screenshot compare failed\n"
+        exit 1
+    fi
 fi
 
 exit 0

@@ -1,5 +1,3 @@
-PROJECT(vktrace_project)
-
 #
 # cmake -DCMAKE_BUILD_TYPE=Debug ..
 #
@@ -8,7 +6,8 @@ PROJECT(vktrace_project)
 #   http://clang.llvm.org/docs/LanguageExtensions.html
 #
 #
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10.2)
+PROJECT(vktrace_project)
 
 set(BUILD_X64 "" CACHE STRING "whether to perform 64-bit build: ON or OFF overrides default detection")
 
@@ -64,7 +63,7 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE_LIST "/O2 ${CMAKE_CXX_FLAGS_RELEASE_LIST} /DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG_LIST "/Od /D_DEBUG")
 else()
-    set(CMAKE_CXX_FLAGS_LIST "-Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_LIST "${CMAKE_CXX_FLAGS} -Wall -Wextra")
     set(CMAKE_CXX_FLAGS_RELEASE_LIST "-O2 ${CMAKE_CXX_FLAGS_RELEASE_LIST} -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG_LIST "-g -O0 -D_DEBUG")
 endif()
@@ -127,7 +126,7 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 endif()
 
 
-if ((NOT MSVC) AND (NOT BUILD_X64) AND (CMAKE_SIZEOF_VOID_P EQUAL 8))
+if ((NOT MSVC) AND (NOT BUILD_X64) AND (NOT CMAKE_SIZEOF_VOID_P EQUAL 8))
     set(CMAKE_CXX_FLAGS_LIST "${CMAKE_CXX_FLAGS_LIST} -m32")
     set(CMAKE_EXE_LINK_FLAGS_LIST "${CMAKE_EXE_LINK_FLAGS_LIST} -m32")
     set(CMAKE_SHARED_LINK_FLAGS_LIST "${CMAKE_SHARED_LINK_FLAGS_LIST} -m32")
@@ -259,11 +258,11 @@ if (NOT MSVC)
 endif()
 
 # Compiler flags
-string(REPLACE ";" " " CMAKE_C_FLAGS              "${CMAKE_CXX_FLAGS_LIST}")
+string(REPLACE ";" " " CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS_LIST}")
 string(REPLACE ";" " " CMAKE_C_FLAGS_RELEASE      "${CMAKE_CXX_FLAGS_RELEASE_LIST}")
 string(REPLACE ";" " " CMAKE_C_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG_LIST}")
 
-string(REPLACE ";" " " CMAKE_CXX_FLAGS            "${CMAKE_CXX_FLAGS_LIST}")
+string(REPLACE ";" " " CMAKE_CXX_FLAGS            "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_LIST}")
 string(REPLACE ";" " " CMAKE_CXX_FLAGS_RELEASE    "${CMAKE_CXX_FLAGS_RELEASE_LIST}")
 string(REPLACE ";" " " CMAKE_CXX_FLAGS_DEBUG      "${CMAKE_CXX_FLAGS_DEBUG_LIST}")
 
@@ -479,6 +478,8 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_compiler_flag("-DPLATFORM_POSIX=1")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     add_compiler_flag("-DPLATFORM_WINDOWS=1")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    add_compiler_flag("-DPLATFORM_ANDROID=1")
 else()
     message(FATAL_ERROR "Platform unset, build will fail--stopping at CMake time.")
 endif()
@@ -527,12 +528,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
     endif()
 
-    if (BUILD_WSI_MIR_SUPPORT)
-        # TODO Add Mir Support
-        # add_definitions(-DVK_USE_PLATFORM_MIR_KHR)
-        # include_directories(${MIR_INCLUDE_DIR})
-    endif()
-
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Only vktrace is supported on macOS
 else()
@@ -540,13 +535,6 @@ else()
 endif()
 
 option(BUILD_VKTRACEVIEWER "Build VkTraceViewer" ON)
-
-if (BUILD_VKTRACEVIEWER)
-    # We need CMake version 3.0+ in order to "find_package(Qt5)":
-    cmake_minimum_required(VERSION 3.0)
-else ()
-    cmake_minimum_required(VERSION 2.8.11)
-endif()
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -568,26 +556,15 @@ endif()
 
 #search for QT only if BUILD_VKTRACEVIEWER is ON
 if(BUILD_VKTRACEVIEWER)
-    find_package(Qt5 COMPONENTS Widgets Gui Core Svg)
+    find_package(Qt5 COMPONENTS Widgets Gui Core Svg QUIET)
     if (NOT Qt5_FOUND)
         if (WIN32)
-            message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.\nTo enable build of vktraceviewer, set env var Qt5_Dir to\nC:\\Qt\\5.3\\msvc2013_64\\lib\\cmake\\Qt5 or C:\\Qt\\5.3\\msvc2013\\lib\\cmake\\Qt5")
+            message("WARNING: Qt5 dev libraries not found, vktraceviewer will not be built.\n   To enable build of vktraceviewer, set env var Qt5_Dir to\n   C:\\Qt\\5.3\\msvc2013_64\\lib\\cmake\\Qt5 or C:\\Qt\\5.3\\msvc2013\\lib\\cmake\\Qt5")
         else()
-            message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.\nTo enable build of vktraceviewer, install package qt5-default.")
+            message("WARNING: Qt5 dev libraries not found, vktraceviewer will not be built.\n   To enable build of vktraceviewer, install package qt5-default.")
         endif()
     endif()
 endif()
-
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
-)
-
-message("")
-message("cmake options:")
-message("  -DCMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}': Build debug or release. (Debug|Release)")
-message("  -DCMAKE_VERBOSE='${CMAKE_VERBOSE}': Spew cmake project options. (On|Off)")
-message("  -DBUILD_X64='${BUILD_X64}': Build 32 or 64-bit. (On|Off)")
-message("")
 
 #
 #  Components to build
@@ -596,8 +573,64 @@ set(VKTRACE_VULKAN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
 
+# Initial build of vktrace generated files when running cmake.
+# Need to generate the files here because cmake of vktrace subdirectories depends on the generated files already existing.
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vk_struct_size_helper.h)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vk_struct_size_helper.c)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vktrace_vk_vk.h)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_vk.h)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_vk.cpp)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
+endif()
+if(NOT EXISTS ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vkreplay_vk_func_ptrs.h)
+endif()
+
+# Command and target to build vktrace generated files from Makefile or VisualStudio.
+# This makes sure that if (and only if) a dependency is modified, the files are regenerated.
+add_custom_command(
+    OUTPUT ${GENERATED_FILES_DIR}/vk_struct_size_helper.h ${GENERATED_FILES_DIR}/vk_struct_size_helper.c ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
+           ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp
+           ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h
+    DEPENDS ${VULKANTOOLS_SCRIPTS_DIR}/vktrace_file_generator.py ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VulkanRegistry_DIR}/vk.xml
+    COMMENT Generating vktrace helper files
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_vk.h
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vktrace_vk_vk.cpp
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h
+    COMMAND ${PYTHON_EXECUTABLE} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} -o ${GENERATED_FILES_DIR} vkreplay_vk_func_ptrs.h
+    )
+add_custom_target(vktrace_generate_helper_files
+    DEPENDS ${VULKANTOOLS_SCRIPTS_DIR}/vktrace_file_generator.py ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VulkanRegistry_DIR}/vk.xml
+            ${GENERATED_FILES_DIR}/vk_struct_size_helper.h ${GENERATED_FILES_DIR}/vk_struct_size_helper.c ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
+            ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp
+            ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h
+    )
+
 add_subdirectory(vktrace_common)
 add_subdirectory(vktrace_trace)
+add_subdirectory(vktrace_dump)
 
 option(BUILD_VKTRACE_LAYER "Build vktrace_layer" ON)
 if(BUILD_VKTRACE_LAYER)
@@ -625,12 +658,6 @@ MACRO(SUBDIRLIST result curdir)
   SET(${result} ${dirlist})
 ENDMACRO()
 
-# now generate the list and add each of the subdirectories
-SUBDIRLIST(SUBDIRS ${SRC_DIR}/vktrace_extensions)
-message("Adding extensions: '${SUBDIRS}'")
-FOREACH(subdir ${SUBDIRS})
-    add_subdirectory(${SRC_DIR}/vktrace_extensions/${subdir})
-ENDFOREACH()
 
 
 

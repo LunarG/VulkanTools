@@ -49,7 +49,53 @@ extern "C" {
 
 #include "vulkan/vulkan.h"
 
+#if !defined(VK_USE_PLATFORM_WIN32_KHR)
+#define VK_USE_PLATFORM_WIN32_KHR
+#define undef_VK_USE_PLATFORM_WIN32_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_XLIB_KHR)
+#define VK_USE_PLATFORM_XLIB_KHR
+#define undef_VK_USE_PLATFORM_XLIB_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_XCB_KHR)
+#define VK_USE_PLATFORM_XCB_KHR
+#define undef_VK_USE_PLATFORM_XCB_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#define undef_VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_ANDROID_KHR)
+#define VK_USE_PLATFORM_ANDROID_KHR
+#define undef_VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
 #include "vk_layer_dispatch_table.h"
+
+#if defined(undef_VK_USE_PLATFORM_WIN32_KHR)
+#undef VK_USE_PLATFORM_WIN32_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_XLIB_KHR)
+#undef VK_USE_PLATFORM_XLIB_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_XCB_KHR)
+#undef VK_USE_PLATFORM_XCB_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_WAYLAND_KHR)
+#undef VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_ANDROID_KHR)
+#undef VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
 #include "vk_dispatch_table_helper.h"
 
 #include "vkreplay_vkdisplay.h"
@@ -62,10 +108,11 @@ extern vkreplayer_settings* g_pReplaySettings;
 class vkReplay {
    public:
     ~vkReplay();
-    vkReplay(vkreplayer_settings* pReplaySettings, vktrace_trace_file_header* pFileHeader);
+    vkReplay(vkreplayer_settings* pReplaySettings, vktrace_trace_file_header* pFileHeader,
+             vktrace_replay::ReplayDisplayImp* display);
 
     int init(vktrace_replay::ReplayDisplay& disp);
-    vkDisplay* get_display() { return m_display; }
+    vktrace_replay::ReplayDisplayImp* get_display() { return m_display; }
     vktrace_replay::VKTRACE_REPLAY_RESULT replay(vktrace_trace_packet_header* packet);
     vktrace_replay::VKTRACE_REPLAY_RESULT handle_replay_errors(const char* entrypointName, const VkResult resCall,
                                                                const VkResult resTrace,
@@ -77,6 +124,7 @@ class vkReplay {
     int dump_validation_data();
     int get_frame_number() { return m_frameNumber; }
     void reset_frame_number(int frameNumber) { m_frameNumber = frameNumber > 0 ? frameNumber : 0; }
+    void interpret_pnext_handles(void* struct_ptr);
 
    private:
     void init_funcs(void* handle);
@@ -87,11 +135,15 @@ class vkReplay {
     void (*m_pDSDump)(char*);
     void (*m_pCBDump)(char*);
     // VKTRACESNAPSHOT_PRINT_OBJECTS m_pVktraceSnapshotPrint;
-    vkDisplay* m_display;
+    vktrace_replay::ReplayDisplayImp* m_display;
 
     int m_frameNumber;
     vktrace_trace_file_header* m_pFileHeader;
     struct_gpuinfo* m_pGpuinfo;
+    uint32_t m_gpu_count = 0;
+
+    VkDisplayType m_displayServer;
+    const char* initialized_screenshot_list;
 
     // Replay platform description
     uint64_t m_replay_endianess;
@@ -104,6 +156,26 @@ class vkReplay {
     // Result of comparing trace platform with replay platform
     // -1: Not initialized. 0: No match. 1: Match.
     int m_platformMatch;
+
+    bool platformMatch() {
+        if (m_platformMatch == -1 && m_replay_gpu != 0 && m_replay_drv_vers != 0) {
+            // Compare trace file platform to replay platform.
+            // If a value is null/zero, it is unknown, and we'll consider the platform to not match.
+            // If m_replay_gpu and/or m_replay_drv_vers is 0, we don't yet have replay device gpu and driver version info because
+            // vkGetPhysicalDeviceProperties has not yet been called. We'll consider it a non-match, but will keep checking for
+            // non-zero on subsequent calls.
+            // We save the result of the compare so we don't have to keep doing this complex compare.
+            m_platformMatch = (m_replay_endianess == m_pFileHeader->endianess) & (m_replay_ptrsize == m_pFileHeader->ptrsize) &
+                              (m_replay_arch == m_pFileHeader->arch) & (m_replay_os == m_pFileHeader->os) &
+                              (m_replay_gpu == m_pGpuinfo->gpu_id) & (m_replay_drv_vers == m_pGpuinfo->gpu_drv_vers) &
+                              (m_pGpuinfo->gpu_id != 0) & (m_pGpuinfo->gpu_drv_vers != 0) & (strlen((char*)&m_replay_arch) != 0) &
+                              (strlen((char*)&m_replay_os) != 0) & (strlen((char*)&m_pFileHeader->arch) != 0) &
+                              (strlen((char*)&m_pFileHeader->os) != 0);
+        }
+        return (m_platformMatch == 1);
+    }
+
+    bool callFailedDuringTrace(VkResult result, uint16_t packet_id);
 
     struct ValidationMsg {
         VkFlags msgFlags;
@@ -162,12 +234,19 @@ class vkReplay {
     VkResult manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappedMemoryRanges* pPacket);
     VkResult manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInvalidateMappedMemoryRanges* pPacket);
     void manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetPhysicalDeviceMemoryProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceMemoryProperties2KHR(packet_vkGetPhysicalDeviceMemoryProperties2KHR* pPacket);
     void manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_vkGetPhysicalDeviceQueueFamilyProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceQueueFamilyProperties2KHR(packet_vkGetPhysicalDeviceQueueFamilyProperties2KHR* pPacket);
     void manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties(
         packet_vkGetPhysicalDeviceSparseImageFormatProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
+        packet_vkGetPhysicalDeviceSparseImageFormatProperties2KHR* pPacket);
     void manually_replay_vkGetImageMemoryRequirements(packet_vkGetImageMemoryRequirements* pPacket);
+    void manually_replay_vkGetImageMemoryRequirements2KHR(packet_vkGetImageMemoryRequirements2KHR* pPacket);
     void manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferMemoryRequirements* pPacket);
+    void manually_replay_vkGetBufferMemoryRequirements2KHR(packet_vkGetBufferMemoryRequirements2KHR* pPacket);
     void manually_replay_vkGetPhysicalDeviceProperties(packet_vkGetPhysicalDeviceProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceProperties2KHR(packet_vkGetPhysicalDeviceProperties2KHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_vkGetPhysicalDeviceSurfaceSupportKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(packet_vkGetPhysicalDeviceSurfaceCapabilitiesKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_vkGetPhysicalDeviceSurfaceFormatsKHR* pPacket);
@@ -191,16 +270,30 @@ class vkReplay {
     VkResult manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndroidSurfaceKHR* pPacket);
     VkResult manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCreateDebugReportCallbackEXT* pPacket);
     void manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyDebugReportCallbackEXT* pPacket);
+    VkResult manually_replay_vkCreateDescriptorUpdateTemplate(packet_vkCreateDescriptorUpdateTemplate* pPacket);
     VkResult manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vkCreateDescriptorUpdateTemplateKHR* pPacket);
+    void manually_replay_vkDestroyDescriptorUpdateTemplate(packet_vkDestroyDescriptorUpdateTemplate* pPacket);
     void manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDestroyDescriptorUpdateTemplateKHR* pPacket);
+    void manually_replay_vkUpdateDescriptorSetWithTemplate(packet_vkUpdateDescriptorSetWithTemplate* pPacket);
     void manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpdateDescriptorSetWithTemplateKHR* pPacket);
+    void manually_replay_vkCmdPushDescriptorSetKHR(packet_vkCmdPushDescriptorSetKHR* pPacket);
     void manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCmdPushDescriptorSetWithTemplateKHR* pPacket);
-    VkResult manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory* pPacket);
-    VkResult manually_replay_vkRegisterDeviceEventEXT(packet_vkRegisterDeviceEventEXT *pPacket);
-    VkResult manually_replay_vkRegisterDisplayEventEXT(packet_vkRegisterDisplayEventEXT *pPacket);
     VkResult manually_replay_vkCreateObjectTableNVX(packet_vkCreateObjectTableNVX *pPacket);
     void manually_replay_vkCmdProcessCommandsNVX(packet_vkCmdProcessCommandsNVX *pPacket);
     VkResult manually_replay_vkCreateIndirectCommandsLayoutNVX(packet_vkCreateIndirectCommandsLayoutNVX *pPacket);
+    VkResult manually_replay_vkBindBufferMemory2KHR(packet_vkBindBufferMemory2KHR* pPacket);
+    VkResult manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemory2KHR* pPacket);
+    VkResult manually_replay_vkBindBufferMemory2(packet_vkBindBufferMemory2* pPacket);
+    VkResult manually_replay_vkBindImageMemory2(packet_vkBindImageMemory2* pPacket);
+    VkResult manually_replay_vkGetDisplayPlaneSupportedDisplaysKHR(packet_vkGetDisplayPlaneSupportedDisplaysKHR* pPacket);
+    VkResult manually_replay_vkEnumerateDeviceExtensionProperties(packet_vkEnumerateDeviceExtensionProperties* pPacket);
+    VkResult manually_replay_vkRegisterDeviceEventEXT(packet_vkRegisterDeviceEventEXT* pPacket);
+    VkResult manually_replay_vkRegisterDisplayEventEXT(packet_vkRegisterDisplayEventEXT* pPacket);
+    VkResult manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory* pPacket);
+    VkResult manually_replay_vkBindImageMemory(packet_vkBindImageMemory* pPacket);
+    void manually_replay_vkGetImageMemoryRequirements2(packet_vkGetImageMemoryRequirements2* pPacket);
+    void manually_replay_vkGetBufferMemoryRequirements2(packet_vkGetBufferMemoryRequirements2* pPacket);
+    VkResult manually_replay_vkCreateSampler(packet_vkCreateSampler* pPacket);
 
     void process_screenshot_list(const char* list) {
         std::string spec(list), word;
@@ -242,6 +335,27 @@ class vkReplay {
     std::unordered_map<VkImage, VkDevice> traceImageToDevice;
     std::unordered_map<VkImage, VkDevice> replayImageToDevice;
 
+    // Map Vulkan objects to VkDevice, so we can search for the VkDevice used to create an object
+    std::unordered_map<VkQueryPool, VkDevice> replayQueryPoolToDevice;
+    std::unordered_map<VkEvent, VkDevice> replayEventToDevice;
+    std::unordered_map<VkFence, VkDevice> replayFenceToDevice;
+    std::unordered_map<VkSemaphore, VkDevice> replaySemaphoreToDevice;
+    std::unordered_map<VkFramebuffer, VkDevice> replayFramebufferToDevice;
+    std::unordered_map<VkDescriptorPool, VkDevice> replayDescriptorPoolToDevice;
+    std::unordered_map<VkPipeline, VkDevice> replayPipelineToDevice;
+    std::unordered_map<VkPipelineCache, VkDevice> replayPipelineCacheToDevice;
+    std::unordered_map<VkShaderModule, VkDevice> replayShaderModuleToDevice;
+    std::unordered_map<VkRenderPass, VkDevice> replayRenderPassToDevice;
+    std::unordered_map<VkPipelineLayout, VkDevice> replayPipelineLayoutToDevice;
+    std::unordered_map<VkDescriptorSetLayout, VkDevice> replayDescriptorSetLayoutToDevice;
+    std::unordered_map<VkSampler, VkDevice> replaySamplerToDevice;
+    std::unordered_map<VkBufferView, VkDevice> replayBufferViewToDevice;
+    std::unordered_map<VkImageView, VkDevice> replayImageViewToDevice;
+    std::unordered_map<VkDeviceMemory, VkDevice> replayDeviceMemoryToDevice;
+    std::unordered_map<VkSwapchainKHR, VkDevice> replaySwapchainKHRToDevice;
+    std::unordered_map<VkCommandPool, VkDevice> replayCommandPoolToDevice;
+    std::unordered_map<VkImage, VkDevice> replaySwapchainImageToDevice;
+
     // Map VkSwapchainKHR to vector of VkImage, so we can unmap swapchain images at vkDestroySwapchainKHR
     std::unordered_map<VkSwapchainKHR, std::vector<VkImage>> traceSwapchainToImages;
 
@@ -255,12 +369,22 @@ class vkReplay {
     // Map VkBuffer to VkMemoryRequirements
     std::unordered_map<VkBuffer, VkMemoryRequirements> replayGetBufferMemoryRequirements;
 
-    bool getMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, VkMemoryRequirements* memRequirements,
-                          uint32_t* pReplayIdx);
+    // Map device to extension property count, for device extension property queries
+    std::unordered_map<VkPhysicalDevice, uint32_t> replayDeviceExtensionPropertyCount;
 
-    bool getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysicalDevice replayPhysicalDevice, uint32_t traceIdx,
-                           uint32_t* pReplayIdx);
-    bool getQueueFamilyIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, uint32_t* pReplayIdx);
+    bool modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevice, packet_vkAllocateMemory* pPacket);
+
+    std::unordered_map<VkImage, VkImageTiling> replayImageToTiling;
+    std::unordered_map<VkImage, VkDeviceMemory> replayOptimalImageToDeviceMemory;
+    std::unordered_map<VkDeviceMemory, uint32_t> traceDeviceMemoryToMemoryTypeIndex;
+
+    std::unordered_set<VkDeviceMemory> traceSkippedDeviceMemories;
+
+    bool getReplayMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx,
+                                VkMemoryRequirements* memRequirements, uint32_t* pReplayIdx);
+
+    void getReplayQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysicalDevice replayPhysicalDevice, uint32_t* pIdx);
+    void getReplayQueueFamilyIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t* pIdx);
 
     void remapHandlesInDescriptorSetWithTemplateData(VkDescriptorUpdateTemplateKHR remappedDescriptorUpdateTemplate, char* pData);
 };

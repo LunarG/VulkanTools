@@ -1,56 +1,73 @@
-#![LunarG's Vulkan Installation Analyzer (VIA)](images/lunarg_via_title.png)
+<!-- markdownlint-disable MD041 -->
+
+![LunarG's Vulkan Installation Analyzer (VIA)](images/lunarg_via_title.png)
+
+[![Creative Commons][3]][4]
+
+[3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
+[4]: https://creativecommons.org/licenses/by-nd/4.0/
+
+Copyright &copy; 2015-2019 LunarG, Inc.
+
 This document is an overview of how to use the [LunarG Vulkan Installation Analyzer (VIA)](https://vulkan.lunarg.com/doc/sdk/latest/windows/via.html).
+
 VIA is a tool that can:
  1. Determine the state of Vulkan components on your system
  2. Validate that your Vulkan Loader and drivers are installed properly
  3. Capture your system state in a form that can be used as an attachment when submitting bugs
 
- This document describes where to find the source for VIA, building it, runnning it, and how to understand the resulting command line output that is generated.
+ This document describes where to find the source for VIA, building it, running it, and how to understand the resulting command line output that is generated.
 
 <BR />
 
-
 ## Building
-Many components of the LunarG Vulkan SDK are Open Source, including VIA.  VIA is currently part of the LunarG
+Many components of the Vulkan SDK are Open Source, including VIA.  VIA is currently part of the LunarG
 [VulkanTools](https://github.com/LunarG/VulkanTools) GitHub respository.
 
-**Windows Note:** VIA is already pre-built as part of the LunarG Windows Vulkan SDK, but should you wish to build a
+**Note:** VIA is already pre-built as part of the Windows and MacOS Vulkan SDK, but should you wish to build a
 debug version or find the source, this section should provide you with the information you need.  Otherwise, simply
 skip down to the "Running" section below.
 
 #### Building VIA in VulkanTools
 Because it is part of a group of tools, you build it from the top folder by
-following the instructions in the [BuilidVT.md](https://github.com/LunarG/VulkanTools/blob/master/BUILDVT.md)
+following the instructions in the [VulkanTools/BUILD.md](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md)
 file at the top of the source tree.
 
 #### Building VIA in the Linux Vulkan SDK
-The source for VIA can also be found in the LunarG Linux [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) in the "source/via" directory.
+The source for VIA can also be found in the Linux [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) in the "source/via" directory.
  1. Download and install the Linux SDK
  2. Run "source setup-env.sh" in the SDK root directory
- 3. Run "./build_tools.sh"
+ 3. Run "./vulkansdk lunarg-tools"
 
 <BR />
 
 ## Running
 You will find the VIA binary in a different location depending on which OS you are using and whether you have built it, or installed it as part of the SDK.  The following information states where to find the proper executable.
 
-When running, if VIA detects an installed Vulkan SDK, it will attempt to run the "Cube" demo in several ways to make sure the install truly appears valid.  The first run of "Cube" it attempts will run in the standard way, but only for a few frames.  After that completes, it will attempt to run "Cube" with validation enabled, again, for only a few frames.  Because of this, you may notice "Cube" popping up several times while running VIA.  When it has completed the tests, it will then record the results as normal to the HTML file.
+When running, if VIA detects an installed Vulkan SDK, it will attempt to run the Vulkan Cube demo in several ways to make sure the install truly appears valid.  The first run of Vulkan Cube it attempts will run in the standard way, but only for a few frames.  After that completes, it will attempt to run Vulkan Cube with validation enabled, again, for only a few frames.  Because of this, you may notice Vulkan Cube popping up several times while running VIA.  When it has completed the tests, it will then record the results as normal to the HTML file.
 
-Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the via executable).
+Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the vkvia executable).
 
 #### In the Windows Vulkan SDK
-VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "via".  This will output the resulting via.html directly to your desktop.
+VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "VIA".  This will output the resulting vkvia.html directly to your desktop.
 
-If you need to run via from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
+If you need to run VIA from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
 ```
-via.exe
+vkvia.exe
 ```
 
 #### In the Linux Vulkan SDK
 Once built, VIA can be found in the x86_64/bin directory.  You can simply execute it from there using:
 
 ```
-via
+vkvia
+```
+
+#### In the MacOS Vulkan SDK
+VIA cane be found in the macOS/bin directory.  You can simply execute it from there using:
+
+```
+vkvia
 ```
 
 <BR />
@@ -59,11 +76,11 @@ via
 #### If Built from VulkanTools
 Go into the folder where you generated the build items from the above building step.
 
-**Linux**
+**Linux and MacOS**
 
 Simply run:
 ```
-via
+vkvia
 ```
 
 
@@ -77,23 +94,23 @@ Steps to run the first time:
  3. Go into the "Debug" or "Release" folder (whichever you are desiring to work with) 
  4. Run 
 ```
-via.exe
+vkvia.exe
 ```
 
-After the first time, you just need to go into the folder and re-run "via.exe".
+After the first time, you just need to go into the folder and re-run "vkvia.exe".
 
 <BR />
 
 ### Resulting Output
 VIA outputs two things:
  - A command-line output indicating the overall status
- - An HTML file (called via.html) containing the details which will be output to one of two locations:
-  1. If the current directory is writeable, the HTML will be placed in that location.
+ - An HTML file (called vkvia.html) containing the details which will be output to one of two locations:
+  1. If the current directory is writable, the HTML will be placed in that location.
   2. Otherwise, it will be saved to your home folder, except for the Windows Start Menu short-cut which writes the file to your desktop.
 
 Your home folder is the following location (based on your OS):
  - Windows: Wherever your environment variables %HOMEDRIVE%\%HOMEPATH% point to.
- - Linux: It will be placed in your home folder ("~/.").
+ - Linux and MacOS: It will be placed in your home folder ("~/.").
 
 <BR />
 
@@ -112,35 +129,35 @@ Where each component stands for the numeric values for year (YYYY), month (MM), 
 #### --output_path
 The --output_path arument allows the user to specify a location for the output html file. For
 example, if the user runs `via --output_path /home/me/Documents`, then the output file will be
-`/home/me/Documents/via.html`.
+`/home/me/Documents/vkvia.html`.
 
 <BR />
 
 ## Common Command-Line Outputs
 
 
-#### "SUCCESS: Vulkan analysis completed properly"
+#### "SUCCESS: Vulkan analysis completed properly using Vulkan X.Y"
 
 ##### Problem:
-LunarG's VIA could detect no problems with your setup.
+LunarG's VIA could detect no problems with your setup.  In fact it was able to create an instance and device up through Vulkan version X.Y.
 
 ##### Possible Reason:
-Your system is likely setup properly.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
+Your system is likely set up properly.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
 Re-run VIA from the location your Vulkan application/game is supposed to run.
 
 
-#### "SUCCESS: Vulkan analysis able to create Vulkan Instance/Devices - However, No SDK Detected"
+#### "SUCCESS: Vulkan analysis able to create Vulkan X.Y instance/devices - However, No SDK Detected"
 
 ##### Problem:
 LunarG's VIA could detect no problems with your setup other than a missing SDK.  It was able to run some limited tests and create both a Vulkan instance and device.
 
 ##### Possible Reason:
-Your system is likely setup properly, but is either missing an installed Vulkan SDK or you didn't setup your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
+Your system is likely set up properly, but is either missing an installed Vulkan SDK or you didn't set up your environment variable to point at an installed SDK. If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
-Install the LunarG Vulkan SDK and define the VK_SDK_PATH to point to the location of the installed SDK.
+Install the Vulkan SDK and define the environment variable to point to the location of the installed SDK. See the getting started guide for your platform on how to set up your environment variables.
 
 
 #### "ERROR: Failed to find Vulkan Driver JSON in registry"
@@ -256,7 +273,7 @@ See the [Vulkan Graphics Driver Problems](#vulkan-graphics-driver-problems) sect
 
 ##### Problem:
 The Vulkan loader "vulkan-1.dll" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
-some Vulkan-capable games, or the LunarG Vulkan SDK.
+some Vulkan-capable games, or the Vulkan SDK.
 
 ##### Possible Reason:
 The last Vulkan Runtime install that executed on your system failed to behave properly.  Or, you have never installed a Vulkan loader
@@ -331,11 +348,11 @@ it's possible the SDK did not install properly.
 See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 
-#### [WINDOWS] Dialog box pop's up indicating "vulkan-1.dll is missing from your computer."
+#### [WINDOWS] Dialog box pops up indicating "vulkan-1.dll is missing from your computer."
 
 ##### Problem:
 The Vulkan loader "vulkan-1.dll" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
-some Vulkan-capable games, or the LunarG Vulkan SDK.
+some Vulkan-capable games, or the Vulkan SDK.
 
 ##### Possible Reason:
 The last Vulkan Runtime install that executed on your system failed to behave properly.  Or, you have never installed a Vulkan loader
@@ -349,7 +366,7 @@ See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 ##### Problem:
 The Vulkan loader "libvulkan.so.1" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
-some Vulkan-capable games, or the LunarG Vulkan SDK.
+some Vulkan-capable games, or the Vulkan SDK.
 
 ##### Possible Reason:
  1. There is no Vulkan loader installed to a system folder.
@@ -366,9 +383,9 @@ See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 
 ## Vulkan SDK Issues
-If the problem you've encountered is possibly related to an SDK issue.  Visit [LunarXchange](https://vulkan.lunarg.com/), and install
+If the problem you've encountered is possibly related to an SDK issue.  Visit [vulkan.lunarg.com](https://vulkan.lunarg.com/), and install
 the latest Vulkan SDK.  If that does not help, attempt to install a new [Vulkan Driver](#vulkan-graphics-driver-problems).  If that still
-fails, file an issue on [LunarXchange](https://vulkan.lunarg.com/).  To file an issue, you may be required to create a free account
+fails, file an issue at [vulkan.lunarg.com](https://vulkan.lunarg.com/).  To file an issue, you may be required to create a free account
 (only requires an email address).
 
 <BR />
@@ -379,7 +396,7 @@ If the problem is possibly related to your Graphics Driver, it could be for seve
  1. The hardware you have doesn't support Vulkan.
  2. Your hardware supports Vulkan, but you haven't yet installed a driver with Vulkan support.
  3. There is no Vulkan driver with support for the OS on which you are currently running.
-    - Sometimes, the company may provide Vulkan support for some devices on one Operatings System (say Windows), while still waiting to complete Vulkan on other systems.
+    - Sometimes, the company may provide Vulkan support for some devices on one Operating System (say Windows), while still waiting to complete Vulkan on other systems.
  4. Everything supports Vulkan, but the driver failed to install properly.
 
 Before approaching your Graphics driver vendor, it would help if you verified that your current driver for your current hardware on your current

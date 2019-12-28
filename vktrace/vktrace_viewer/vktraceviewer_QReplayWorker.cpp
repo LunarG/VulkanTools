@@ -19,9 +19,11 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com> <plohrmann@gmail.com>
  **************************************************************************/
 
-#include "vktraceviewer_QReplayWorker.h"
 #include <QAction>
 #include <QCoreApplication>
+
+#include "vktraceviewer_QReplayWorker.h"
+
 #include "vktraceviewer_trace_file_utils.h"
 
 vktraceviewer_QReplayWorker* g_pWorker;
@@ -50,7 +52,7 @@ void replayWorkerLoggingCallback(VktraceLogLevel level, const char* pMessage) {
     }
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -140,17 +142,23 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
     bool bReplayerLoaded = false;
 
     vktrace_replay::ReplayDisplay disp;
-    if (separateReplayWindow) {
-        disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight, 0, false);
-    } else {
-        disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, replayWindowWidth, replayWindowHeight);
+    disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight);
+    if (!separateReplayWindow) {
+        disp.set_window_handle(&hWindow);
     }
+    vktrace_replay::ReplayDisplayImp* pDisp = nullptr;
+    // Get display implementation. Use XCB on linux
+    if (GetDisplayImplementation("xcb", &pDisp) == -1) {
+        emit OutputMessage(VKTRACE_LOG_ERROR, QString("Could not initialize display."));
+        return false;
+    }
+    disp.set_implementation(pDisp);
 
-    for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
+    for (uint64_t i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
         m_pReplayers[i] = NULL;
     }
 
-    for (int i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
+    for (uint64_t i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
         uint8_t tracerId = pTraceFileInfo->pHeader->tracer_id_array[i].id;
         tidApi = tracerId;
 
@@ -327,7 +335,7 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
         if (m_bPauseReplay || m_pauseAtPacketIndex == pCurPacket->pHeader->global_packet_index) {
             if (m_pauseAtPacketIndex == pCurPacket->pHeader->global_packet_index) {
                 // reset
-                m_pauseAtPacketIndex = -1;
+                m_pauseAtPacketIndex = (uint64_t)-1;
             }
 
             m_bReplayInProgress = false;
@@ -438,13 +446,18 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
 
             vktrace_replay::ReplayDisplay disp;
             if (detach) {
-                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight, 0, false);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight);
             } else {
                 WId hWindow = m_pReplayWindow->winId();
-                disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight);
+                disp.set_window_handle(&hWindow);
             }
 
+#if defined(PLATFORM_LINUX)
+            int err __attribute__((unused)) = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
+#else
             int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
+#endif
             assert(err == 0);
         }
     }

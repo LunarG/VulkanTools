@@ -16,6 +16,8 @@
 #include "vktrace_lib_trim_statetracker.h"
 #include "vktrace_lib_trim.h"
 
+#include <algorithm>
+
 namespace trim {
 // declared extern in statetracker.h
 VKTRACE_CRITICAL_SECTION trimTransitionMapLock;
@@ -29,9 +31,9 @@ vktrace_trace_packet_header *copy_packet(vktrace_trace_packet_header *pHeader) {
     }
 
     uint64_t packetSize = pHeader->size;
-    vktrace_trace_packet_header *pCopy = static_cast<vktrace_trace_packet_header *>(malloc(packetSize));
+    vktrace_trace_packet_header *pCopy = static_cast<vktrace_trace_packet_header *>(malloc((size_t)packetSize));
     if (pCopy != nullptr) {
-        memcpy(pCopy, pHeader, packetSize);
+        memcpy(pCopy, pHeader, (size_t)packetSize);
     }
     return pCopy;
 }
@@ -99,8 +101,13 @@ void StateTracker::remove_CommandBuffer_calls(VkCommandBuffer commandBuffer) {
 void StateTracker::add_Image_call(vktrace_trace_packet_header *pHeader) { m_image_calls.push_back(pHeader); }
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
+void StateTracker::add_InTrim_call(vktrace_trace_packet_header *pHeader) { m_inTrim_calls.push_back(pHeader); }
+
 //-------------------------------------------------------------------------
 void StateTracker::clear() {
+    seqInstances.clear();
+    seqSwapchainKHRs.clear();
+
     while (createdInstances.size() != 0) {
         remove_Instance(reinterpret_cast<const VkInstance>(createdInstances.begin()->first));
     }
@@ -224,6 +231,12 @@ void StateTracker::clear() {
         vktrace_delete_trace_packet(&pHeader);
     }
     m_image_calls.clear();
+
+    for (auto packet = m_inTrim_calls.begin(); packet != m_inTrim_calls.end(); ++packet) {
+        vktrace_trace_packet_header *pHeader = *packet;
+        vktrace_delete_trace_packet(&pHeader);
+    }
+    m_inTrim_calls.clear();
 
     for (auto renderPassIter = m_renderPassVersions.begin(); renderPassIter != m_renderPassVersions.end(); ++renderPassIter) {
         std::vector<VkRenderPassCreateInfo *> versions = renderPassIter->second;
@@ -367,6 +380,9 @@ VkRenderPassCreateInfo *StateTracker::get_RenderPassCreateInfo(VkRenderPass rend
 StateTracker &StateTracker::operator=(const StateTracker &other) {
     if (this == &other) return *this;
 
+    seqInstances = other.seqInstances;
+    seqSwapchainKHRs = other.seqSwapchainKHRs;
+
     m_renderPassVersions = other.m_renderPassVersions;
     for (auto iter = m_renderPassVersions.begin(); iter != m_renderPassVersions.end(); ++iter) {
         for (uint32_t i = 0; i < iter->second.size(); i++) {
@@ -399,9 +415,12 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     createdPhysicalDevices = other.createdPhysicalDevices;
     for (auto obj = createdPhysicalDevices.begin(); obj != createdPhysicalDevices.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDevicePropertiesPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceProperties2KHRPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRCountPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRPacket);
     }
 
     createdDevices = other.createdDevices;
@@ -439,6 +458,27 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     createdDescriptorPools = other.createdDescriptorPools;
     for (auto obj = createdDescriptorPools.begin(); obj != createdDescriptorPools.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.DescriptorPool.pCreatePacket);
+    }
+
+    createdDescriptorUpdateTemplates = other.createdDescriptorUpdateTemplates;
+    for (auto obj = createdDescriptorUpdateTemplates.begin(); obj != createdDescriptorUpdateTemplates.end(); obj++) {
+        COPY_PACKET(obj->second.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket);
+
+        if (obj->second.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount != 0) {
+            const VkDescriptorUpdateTemplateEntry *pOtherDescriptorUpdateEntries =
+                obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries;
+
+            obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries = VKTRACE_NEW_ARRAY(
+                VkDescriptorUpdateTemplateEntry, obj->second.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount);
+
+            assert(obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries != nullptr);
+
+            memcpy(reinterpret_cast<void *>(const_cast<VkDescriptorUpdateTemplateEntry *>(
+                       obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries)),
+                   reinterpret_cast<const void *>(const_cast<VkDescriptorUpdateTemplateEntry *>(pOtherDescriptorUpdateEntries)),
+                   obj->second.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount *
+                       sizeof(VkDescriptorUpdateTemplateEntry));
+        }
     }
 
     createdSwapchainKHRs = other.createdSwapchainKHRs;
@@ -875,6 +915,9 @@ void StateTracker::copy_VkComputePipelineCreateInfo(VkComputePipelineCreateInfo 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 ObjectInfo &StateTracker::add_Instance(VkInstance var) {
+    if (std::find(seqInstances.begin(), seqInstances.end(), var) == seqInstances.end()) {
+        seqInstances.push_back(var);
+    }
     ObjectInfo &info = createdInstances[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
@@ -973,6 +1016,9 @@ ObjectInfo &StateTracker::add_Fence(VkFence var) {
 }
 
 ObjectInfo &StateTracker::add_SwapchainKHR(VkSwapchainKHR var) {
+    if (std::find(seqSwapchainKHRs.begin(), seqSwapchainKHRs.end(), var) == seqSwapchainKHRs.end()) {
+        seqSwapchainKHRs.push_back(var);
+    }
     ObjectInfo &info = createdSwapchainKHRs[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
@@ -1058,6 +1104,13 @@ ObjectInfo &StateTracker::add_DescriptorSetLayout(VkDescriptorSetLayout var) {
 
 ObjectInfo &StateTracker::add_DescriptorSet(VkDescriptorSet var) {
     ObjectInfo &info = createdDescriptorSets[var];
+    memset(&info, 0, sizeof(ObjectInfo));
+    info.vkObject = (uint64_t)var;
+    return info;
+}
+
+ObjectInfo &StateTracker::add_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var) {
+    ObjectInfo &info = createdDescriptorUpdateTemplates[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
     return info;
@@ -1200,6 +1253,15 @@ ObjectInfo *StateTracker::get_DescriptorSetLayout(VkDescriptorSetLayout var) {
     return pResult;
 }
 
+ObjectInfo *StateTracker::get_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var) {
+    auto iter = createdDescriptorUpdateTemplates.find(var);
+    ObjectInfo *pResult = NULL;
+    if (iter != createdDescriptorUpdateTemplates.end()) {
+        pResult = &(iter->second);
+    }
+    return pResult;
+}
+
 ObjectInfo *StateTracker::get_PipelineLayout(VkPipelineLayout var) {
     auto iter = createdPipelineLayouts.find(var);
     ObjectInfo *pResult = NULL;
@@ -1250,6 +1312,32 @@ ObjectInfo *StateTracker::get_Pipeline(VkPipeline var) {
     ObjectInfo *pResult = NULL;
     if (iter != createdPipelines.end()) {
         pResult = &(iter->second);
+    }
+    return pResult;
+}
+
+std::set<VkCommandBuffer> *StateTracker::get_BoundCommandBuffers(VkPipeline var, bool createFlag) {
+    auto iter = m_BindingPipelineTocmdBuffersMap.find(var);
+    std::set<VkCommandBuffer> *pResult = NULL;
+    if (iter != m_BindingPipelineTocmdBuffersMap.end()) {
+        pResult = &(iter->second);
+    } else {
+        if (createFlag) {
+            pResult = &m_BindingPipelineTocmdBuffersMap[var];
+        }
+    }
+    return pResult;
+}
+
+std::set<VkPipeline> *StateTracker::get_BindingPipelines(VkCommandBuffer var, bool createFlag) {
+    auto iter = m_cmdBufferToBindingPipelinesMap.find(var);
+    std::set<VkPipeline> *pResult = NULL;
+    if (iter != m_cmdBufferToBindingPipelinesMap.end()) {
+        pResult = &(iter->second);
+    } else {
+        if (createFlag) {
+            pResult = &m_cmdBufferToBindingPipelinesMap[var];
+        }
     }
     return pResult;
 }
@@ -1326,6 +1414,8 @@ void StateTracker::remove_PhysicalDevice(const VkPhysicalDevice var) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRCountPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRPacket);
     }
     createdPhysicalDevices.erase(var);
 }
@@ -1452,6 +1542,18 @@ void StateTracker::remove_DescriptorSetLayout(const VkDescriptorSetLayout var) {
         }
     }
     createdDescriptorSetLayouts.erase(var);
+}
+
+void StateTracker::remove_DescriptorUpdateTemplate(const VkDescriptorUpdateTemplate var) {
+    ObjectInfo *pInfo = get_DescriptorUpdateTemplate(var);
+    if (pInfo != nullptr) {
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorUpdateTemplate.pCreatePacket);
+        if ((pInfo->ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount != 0) &&
+            (pInfo->ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries != nullptr)) {
+            delete[] pInfo->ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries;
+        }
+    }
+    createdDescriptorUpdateTemplates.erase(var);
 }
 
 void StateTracker::remove_PipelineLayout(const VkPipelineLayout var) {

@@ -24,9 +24,28 @@
 #include <unordered_map>
 #include "vktrace_vk_vk.h"
 #include "vulkan/vk_layer.h"
+#include "vk_layer_dispatch_table.h"
 #include "vktrace_platform.h"
 
+#include "vk_layer_dispatch_table.h"
 #include "vk_struct_size_helper.h"
+
+// utilities to convert API handles to uint64_t type and vice versa
+template <typename T>
+uint64_t ToHandleId(const T &handle) {
+    return reinterpret_cast<uint64_t>(handle);
+}
+
+template <>
+uint64_t ToHandleId<uint64_t>(const uint64_t &handle);
+
+template <typename T>
+T FromHandleId(uint64_t handle_id) {
+    return reinterpret_cast<T>(handle_id);
+}
+
+template <>
+uint64_t FromHandleId<uint64_t>(uint64_t handle_id);
 
 // Support for shadowing CPU mapped memory
 // TODO better handling of multiple range rather than fixed array
@@ -36,6 +55,7 @@ typedef struct _VKAllocInfo {
     VkDeviceSize rangeOffset;
     BOOL didFlush;
     VkDeviceMemory handle;
+    VkMemoryPropertyFlags props;
     uint8_t *pData;
     BOOL valid;
 } VKAllocInfo;
@@ -58,7 +78,6 @@ typedef struct _layer_instance_data {
     bool KHRXcbSurfaceEnabled;
     bool KHRXlibSurfaceEnabled;
     bool KHRWaylandSurfaceEnabled;
-    bool KHRMirSurfaceEnabled;
     bool KHRWin32SurfaceEnabled;
     bool KHRAndroidSurfaceEnabled;
 } layer_instance_data;
@@ -68,6 +87,7 @@ extern VKMemInfo g_memInfo;
 extern VKTRACE_CRITICAL_SECTION g_memInfoLock;
 extern std::unordered_map<void *, layer_device_data *> g_deviceDataMap;
 extern std::unordered_map<void *, layer_instance_data *> g_instanceDataMap;
+extern VkPhysicalDeviceMemoryProperties g_savedDevMemProps;
 
 typedef void *dispatch_key;
 inline dispatch_key get_dispatch_key(const void *object) { return (dispatch_key) * (VkLayerDispatchTable **)object; }
@@ -166,7 +186,7 @@ static VKAllocInfo *find_mem_info_entry_lock(const VkDeviceMemory handle) {
     return res;
 }
 
-static void add_new_handle_to_mem_info(const VkDeviceMemory handle, VkDeviceSize size, void *pData) {
+static void add_new_handle_to_mem_info(const VkDeviceMemory handle, uint32_t memTypeIdx, VkDeviceSize size, void *pData) {
     VKAllocInfo *entry;
 
     vktrace_enter_critical_section(&g_memInfoLock);
@@ -180,6 +200,7 @@ static void add_new_handle_to_mem_info(const VkDeviceMemory handle, VkDeviceSize
         entry->rangeSize = 0;
         entry->rangeOffset = 0;
         entry->didFlush = FALSE;
+        entry->props = g_savedDevMemProps.memoryTypes[memTypeIdx].propertyFlags;
         entry->pData = (uint8_t *)pData;  // NOTE: VKFreeMemory will free this mem, so no malloc()
     }
     vktrace_leave_critical_section(&g_memInfoLock);
@@ -215,6 +236,7 @@ static void rm_handle_from_mem_info(const VkDeviceMemory handle) {
         entry->rangeSize = 0;
         entry->rangeOffset = 0;
         entry->didFlush = FALSE;
+        entry->props = 0;
         memset(&entry->handle, 0, sizeof(VkDeviceMemory));
 
         if (entry == g_memInfo.pLastMapped) g_memInfo.pLastMapped = NULL;
@@ -231,8 +253,7 @@ static void rm_handle_from_mem_info(const VkDeviceMemory handle) {
 static void add_VkPipelineShaderStageCreateInfo_to_trace_packet(vktrace_trace_packet_header *pHeader,
                                                                 VkPipelineShaderStageCreateInfo *packetShader,
                                                                 const VkPipelineShaderStageCreateInfo *paramShader) {
-    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&packetShader->pName, ROUNDUP_TO_4(strlen(paramShader->pName) + 1),
-                                       paramShader->pName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&packetShader->pName, strlen(paramShader->pName) + 1, paramShader->pName);
     vktrace_finalize_buffer_address(pHeader, (void **)&packetShader->pName);
 
     // Specialization info
@@ -256,7 +277,6 @@ static void add_create_ds_layout_to_trace_packet(vktrace_trace_packet_header *pH
                                                  const VkDescriptorSetLayoutCreateInfo **ppOut,
                                                  const VkDescriptorSetLayoutCreateInfo *pIn) {
     uint32_t i;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void **)(ppOut), sizeof(VkDescriptorSetLayoutCreateInfo), pIn);
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&((*ppOut)->pBindings),
                                        sizeof(VkDescriptorSetLayoutBinding) * pIn->bindingCount, pIn->pBindings);
     for (i = 0; i < pIn->bindingCount; i++) {

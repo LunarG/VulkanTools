@@ -1,7 +1,7 @@
 /**************************************************************************
  *
- * Copyright 2014-2016 Valve Corporation, Inc.
- * Copyright (C) 2014-2016 LunarG, Inc.
+ * Copyright 2014-2018 Valve Corporation, Inc.
+ * Copyright (C) 2014-2018 LunarG, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  * Author: Jon Ashburn <jon@lunarg.com>
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
+ * Author: David Pinedo <david@lunarg.com>
  **************************************************************************/
 #include "vulkan/vk_layer.h"
 
@@ -26,7 +27,7 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, false, NULL, NULL, NULL, NULL};
 
 vktrace_SettingInfo g_vk_settings_info[] = {
     {"o",
@@ -52,18 +53,25 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      "The number of times to replay the trace file or loop range."},
     {"lsf",
      "LoopStartFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&g_vkReplaySettings.loopStartFrame},
      {&s_defaultVkReplaySettings.loopStartFrame},
      TRUE,
      "The start frame number of the loop range."},
     {"lef",
      "LoopEndFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&g_vkReplaySettings.loopEndFrame},
      {&s_defaultVkReplaySettings.loopEndFrame},
      TRUE,
      "The end frame number of the loop range."},
+    {"c",
+     "CompatibilityMode",
+     VKTRACE_SETTING_BOOL,
+     {&g_vkReplaySettings.compatibilityMode},
+     {&s_defaultVkReplaySettings.compatibilityMode},
+     TRUE,
+     "Use compatibiltiy mode, i.e. convert memory indices to replay device indices, default is TRUE."},
     {"s",
      "Screenshot",
      VKTRACE_SETTING_STRING,
@@ -78,6 +86,13 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      {&s_defaultVkReplaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
+    {"x",
+     "ExitOnAnyError",
+     VKTRACE_SETTING_BOOL,
+     {&g_vkReplaySettings.exitOnAnyError},
+     {&s_defaultVkReplaySettings.exitOnAnyError},
+     TRUE,
+     "Exit if an error occurs during replay, default is FALSE"},
 };
 
 vktrace_SettingGroup g_vkReplaySettingGroup = {"vkreplay_vk", sizeof(g_vk_settings_info) / sizeof(g_vk_settings_info[0]),

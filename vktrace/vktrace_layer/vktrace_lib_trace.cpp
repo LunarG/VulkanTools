@@ -50,6 +50,9 @@
 
 #include "vk_struct_size_helper.h"
 
+// This mutex is used to protect API calls sequence when trim starting process.
+std::mutex g_mutex_trace;
+
 VKTRACER_LEAVE _Unload(void) {
     // only do the hooking and networking if the tracer is NOT loaded by vktrace
     if (vktrace_is_loaded_into_vktrace() == FALSE) {
@@ -70,6 +73,21 @@ VKTRACER_LEAVE _Unload(void) {
         vktrace_LogVerbose("vktrace_lib library unloaded from PID %d", vktrace_get_pid());
     }
 }
+
+PFN_vkVoidFunction layer_intercept_instance_proc(const char* name);
+PFN_vkVoidFunction layer_intercept_proc(const char* name);
+
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+typedef struct _DeviceMemory {
+    VkDevice device;
+    VkDeviceMemory memory;
+} DeviceMemory;
+
+std::unordered_map<VkCommandBuffer, std::list<VkBuffer>> g_cmdBufferToBuffers;
+std::unordered_map<VkBuffer, DeviceMemory> g_bufferToDeviceMemory;
+std::unordered_map<VkFence, std::list<VkCommandBuffer>> g_fenceToCommandBuffers;
+std::unordered_map<VkCommandBuffer, std::list<VkCommandBuffer>> g_commandBufferToCommandBuffers;
+#endif
 
 // declared as extern in vktrace_lib_helpers.h
 VKTRACE_CRITICAL_SECTION g_memInfoLock;
@@ -149,210 +167,81 @@ void* strip_create_extensions(const void* pNext) {
     return create_info;
 }
 
-#if defined(PLATFORM_LINUX)
-
-// Function to call mprotect and check for errors.
-// Returns 0 on success, -1 on failure.
-static int32_t mprotectWithErrorCheck(void* addr, size_t size, int prot) {
-    while (0 != mprotect(addr, size, prot)) {
-        if (errno == EAGAIN) continue;
-
-        // Something bad happened, and it's fatal.
-        return -1;
-    }
-    return 0;
-}
-
-// When quering dirty pages from /proc/self/pagemap, there is a
-// small window between the reading of this file and when the dirty bits
-// are cleared in which some other thread might modify mapped memory.
-// We trap these memory writes by setting mapped memory pages to read-only and
-// setting the signal handler for SIGSEGV. The signal handler writes the
-// addresses that caused a SIGSEGV to a pipe, which are read and handled
-// by getMappedDirtyPagesLinux.
-
-// Note that we call mprotect(2) and write(2) in this signal handler.
-// Calling mprotect(2) in a signal hander is not POSIX compliant, but
-// is known to work on Linux. Calling write(2) in a signal hander is
-// allowed by POSIX.
-
-static int pipefd[2];
-
-static void segvHandler(int sig, siginfo_t* si, void* ununsed) {
-    size_t pageSize = pageguardGetSystemPageSize();
-    void* addr;
-
-    addr = si->si_addr;
-    if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr))) {
-        // Write to pipe failed. This could happen if the app generates 8k SIGSEGV exceptions and the pipe overflows. We'll just
-        // abort in that case.
-        abort();
-    }
-
-    // Change the protection of this page to allow the write to proceed.
-    if (mprotectWithErrorCheck((void*)((uint64_t)si->si_addr & ~(pageSize - 1)), pageSize, PROT_READ | PROT_WRITE) != 0) {
-        // If the mprotect failed, write addr to the pipe a second time.  getMappedDirtyPagesLinux will read consective identical
-        // values from the pipe and generate an error.
-        if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr))) abort();
-    }
-}
-
-// This function is called when we need to update our list of mapped memory
-// that is dirty.  On Linux, we use the /proc/self/pagemap to detect which pages
-// changed. But we also use mprotect with a signal handler for the rare case
-// in which mapped memory is written to between when we read the dirty bits
-// from /proc/self/pagemap dirty and clear the dirty bits.
-
-void getMappedDirtyPagesLinux(void) {
-    LPPageGuardMappedMemory pMappedMem;
-    PBYTE addr, alignedAddrStart, alignedAddrEnd, previousAddr;
-    uint64_t nPages;
-    VkDeviceMemory mappedMemory;
-    off_t pmOffset;
-    int64_t index;
-    size_t pageSize = pageguardGetSystemPageSize();
-    size_t readLen;
-    VKAllocInfo* pEntry;
-    struct sigaction sigAction;
-    static int pmFd = -1;
-    static std::vector<uint64_t> pageEntries;
-
-    // If pageguard isn't enabled, we don't need to do anythhing
-    if (!getPageGuardEnableFlag()) return;
-
-    vktrace_enter_critical_section(&g_memInfoLock);
-
-    // Open pagefile, open the pipe, and set a SIGSEGV handler
-    if (pmFd == -1) {
-        pmFd = open("/proc/self/pagemap", O_RDONLY);
-        if (pmFd < 0) VKTRACE_FATAL_ERROR("Failed to open pagemap file. Is your kernel configured with CONFIG_MEM_SOFT_DIRTY?");
-
-        if (0 != pipe2(pipefd, O_NONBLOCK)) VKTRACE_FATAL_ERROR("Failed to create pipe.");
-
-        // Set the SIGSEGV signal handler
-        sigAction.sa_sigaction = segvHandler;
-        sigfillset(&sigAction.sa_mask);
-        sigAction.sa_flags = SA_SIGINFO;
-        if (0 != sigaction(SIGSEGV, &sigAction, NULL)) VKTRACE_FATAL_ERROR("sigaction sys call failed.");
-    }
-
-    // Iterate through all mapped memory allocations.
-    // Check dirty bits of each page in each mapped memory allocation.
-    for (std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>::iterator it =
-             getPageGuardControlInstance().getMapMemory().begin();
-         it != getPageGuardControlInstance().getMapMemory().end(); it++) {
-        pMappedMem = &(it->second);
-        mappedMemory = pMappedMem->getMappedMemory();
-        pEntry = find_mem_info_entry(mappedMemory);
-        addr = pEntry->pData;
-        if (!addr) continue;
-        alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize - 1));
-        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize - 1));
-        nPages = (alignedAddrEnd - alignedAddrStart) / pageSize;
-
-        // Make pages in this memory allocation non-writable so we get a SIGSEGV
-        // if some other thread writes to this memory while we are examining
-        // and clearing its dirty bit.
-        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ);
-
-        // Read all the pagemap entries for this mapped memory allocation
-        if (pageEntries.size() < nPages) pageEntries.resize(nPages);
-        pmOffset = (off_t)((uint64_t)alignedAddrStart / (uint64_t)pageSize) * 8;
-        lseek(pmFd, pmOffset, SEEK_SET);
-        readLen = read(pmFd, &pageEntries[0], 8 * nPages);
-        assert(readLen == 8 * nPages);
-        if (readLen != 8 * nPages) VKTRACE_FATAL_ERROR("Failed to read from pagemap file.");
-
-        // Examine the dirty bits in each pagemap entry
-        addr = alignedAddrStart;
-        for (uint64_t i = 0; i < nPages; i++) {
-            if ((pageEntries[i] & PTE_DIRTY_BIT) != 0) {
-                index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-                if (index >= 0) {
-                    // If the page is not already marked changed, compute a
-                    // checksum.
-                    // Mark the page as changed if the new checksum doesn't
-                    // match the
-                    // saved checksum, and save the new checksum.
-                    if (!pMappedMem->isMappedBlockChanged(index, BLOCK_FLAG_ARRAY_CHANGED)) {
-                        uint64_t checksum = pMappedMem->computePageChecksum(addr);
-                        if (checksum != pMappedMem->getPageChecksum(index)) {
-                            pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-                            pMappedMem->setPageChecksum(index, checksum);
-                        }
-                    }
-                }
-            }
-            addr += pageSize;
-        }
-    }
-
-// Clear all dirty bits for this process
-#if !defined(ANDROID)
-    getPageGuardControlInstance().pageRefsDirtyClear();
-#endif
-
-    // Re-enable write permission for all mapped memory
-    for (std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>::iterator it =
-             getPageGuardControlInstance().getMapMemory().begin();
-         it != getPageGuardControlInstance().getMapMemory().end(); it++) {
-        pMappedMem = &(it->second);
-        mappedMemory = pMappedMem->getMappedMemory();
-        pEntry = find_mem_info_entry(mappedMemory);
-        addr = pEntry->pData;
-        if (!addr) continue;
-        alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize - 1));
-        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize - 1));
-        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ | PROT_WRITE);
-    }
-
-    // Read all the addresses that caused a segv and mark those pages dirty
-
-    previousAddr = 0;
-    while ((sizeof(addr) == read(pipefd[0], &addr, sizeof(addr)))) {
-        // If we get consecutive identical addresses, the sig handler is getting called repeatedly with the same address, the
-        // mprotect call in the sig handler failed, or the app is writing to the same address from different threads.  Generate an
-        // error and exit.
-        if (previousAddr == addr) {
-            VKTRACE_FATAL_ERROR("vktrace layer trapped SIGSEGV but unable to handle.");
-        }
-        previousAddr = addr;
-
-        for (std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>::iterator it =
-                 getPageGuardControlInstance().getMapMemory().begin();
-             it != getPageGuardControlInstance().getMapMemory().end(); it++) {
-            pMappedMem = &(it->second);
-            index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-            if (index >= 0) {
-                // Mark block as changed, and set checksum to invalid.
-                // We have to set the checksum to invalid because the block
-                // may be changed by another thread in this process, so
-                // the checksum we compute would be incorrect. We
-                // can only compute checksums while memory is mprotect'ed.
-                pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-                pMappedMem->setPageChecksum(index, PageGuardMappedMemory::CHECKSUM_INVALID);
-                break;
-            } else {
-                // We can't give an error here if we didn't find the address
-                // in mapped memory. The arrival of a signal might be delayed
-                // due to process scheduling, and thus might arrive after the
-                // mapped memory has been unmapped.
-            }
-        }
-    }
-    vktrace_leave_critical_section(&g_memInfoLock);
-}
-#endif
-
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkDeviceMemory* pMemory) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateMemory* pPacket = NULL;
+
+    // If user disable using shadow memory, we'll use host memory through
+    // VK_EXT_external_memory_host extension. If user enable using shadow
+    // memory, there's no need to handle vkAllocateMemory because we don't
+    // need to decide using the extension or not through memory property
+    // flag.
+    if (UseMappedExternalHostMemoryExtension()) {
+        pageguardEnter();
+    }
+
     size_t packetSize = get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDeviceMemory) * 2;
     CREATE_TRACE_PACKET(vkAllocateMemory, packetSize);
+
+    VkImportMemoryHostPointerInfoEXT importMemoryHostPointerInfo = {};
+    void* pNextOriginal = const_cast<void*>(pAllocateInfo->pNext);
+    void* pHostPointer = nullptr;
+    VkDeviceSize original_allocation_size = pAllocateInfo->allocationSize;
+    if (UseMappedExternalHostMemoryExtension()) {
+        VkMemoryPropertyFlags propertyFlags =
+            getPageGuardControlInstance().getMemoryPropertyFlags(device, pAllocateInfo->memoryTypeIndex);
+        if ((propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0) {
+            // host visible memory, enable extension
+            if (pAllocateInfo->pNext != nullptr) {
+                // Todo: add checking process to detect if the extension we
+                //      use here is compatible with the existing pNext chain,
+                //      and output warning message if not compatible.
+                assert(false);
+            }
+
+            // we insert our extension struct into the pNext chain.
+            void** ppNext = const_cast<void**>(&(pAllocateInfo->pNext));
+            *ppNext = &importMemoryHostPointerInfo;
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->sType =
+                VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT;
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->handleType =
+                VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT;
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pNext = pNextOriginal;
+            // provide the title host memory pointer which is already added
+            // memory write watch.
+            size_t page_size = pageguardGetSystemPageSize();
+            if ((original_allocation_size % page_size) != 0) {
+                const_cast<VkMemoryAllocateInfo*>(pAllocateInfo)->allocationSize =
+                    pAllocateInfo->allocationSize - (pAllocateInfo->allocationSize % page_size) + page_size;
+            }
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pHostPointer =
+                pageguardAllocateMemory(pAllocateInfo->allocationSize);
+            pHostPointer = reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pHostPointer;
+        }
+    }
+
     result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
+    const_cast<VkMemoryAllocateInfo*>(pAllocateInfo)->allocationSize = original_allocation_size;
+    if (UseMappedExternalHostMemoryExtension()) {
+        if (result == VK_SUCCESS) {
+            getPageGuardControlInstance().vkAllocateMemoryPageGuardHandle(device, pAllocateInfo, pAllocator, pMemory, pHostPointer);
+            void** ppNext = const_cast<void**>(&(pAllocateInfo->pNext));
+            // after allocation, we restore the original pNext. the extension
+            // we insert here should not appear during playback.
+            *ppNext = pNextOriginal;
+        } else {
+            if (pHostPointer) {
+                pageguardFreeMemory(pHostPointer);
+                pHostPointer = nullptr;
+                assert(false);
+            }
+        }
+    }
+
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkAllocateMemory(pHeader);
     pPacket->device = device;
@@ -389,17 +278,25 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     }
 
     // begin custom code
-    add_new_handle_to_mem_info(*pMemory, pAllocateInfo->allocationSize, NULL);
+    add_new_handle_to_mem_info(*pMemory, pAllocateInfo->memoryTypeIndex, pAllocateInfo->allocationSize, NULL);
     // end custom code
+    if (UseMappedExternalHostMemoryExtension()) {
+        // only needed if user enable using VK_EXT_external_memory_host.
+        pageguardExit();
+    }
     return result;
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset,
                                                                     VkDeviceSize size, VkFlags flags, void** ppData) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkMapMemory* pPacket = NULL;
     VKAllocInfo* entry;
+#if defined(USE_PAGEGUARD_SPEEDUP)
+    pageguardEnter();
+#endif
     CREATE_TRACE_PACKET(vkMapMemory, sizeof(void*));
     result = mdd(device)->devTable.MapMemory(device, memory, offset, size, flags, ppData);
     vktrace_set_packet_entrypoint_end_time(pHeader);
@@ -410,10 +307,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
         size = entry->totalSize - offset;
     }
 
-#ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
+#if defined(USE_PAGEGUARD_SPEEDUP)
+    // Pageguard handling will change real mapped memory pointer to a pointer
+    // of shadow memory, but trim need to use real mapped pointer to keep
+    // the pageguard status no change.
+    //
+    // So here, we save the real mapped memory pointer before page guard
+    // handling replace it with shadow memory pointer.
+    void* pRealMappedData = *ppData;
     getPageGuardControlInstance().vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
-    pageguardExit();
 #endif
     pPacket = interpret_body_as_vkMapMemory(pHeader);
     pPacket->device = device;
@@ -438,7 +340,27 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
         if (pInfo != NULL) {
             pInfo->ObjectInfo.DeviceMemory.mappedOffset = offset;
             pInfo->ObjectInfo.DeviceMemory.mappedSize = size;
-            pInfo->ObjectInfo.DeviceMemory.mappedAddress = *ppData;
+
+            // Page guard handling create a shadow memory for every mapped
+            // memory object and add page guard to capture the access of
+            // write and read, so the page guard handling can keep dual
+            // direction of sync between real mapped memory and the shadow
+            // memory.
+            //
+            // When starting trim, trim process need to read and save all image
+            // and buffer data to trace file, that will trigger all page guard
+            // on those memory if trim access shadow memory, and the status of
+            // page guard for those memory will be different with capture
+            // without trim. It causes corruption for some title if trim at
+            // some locations.
+            //
+            // So here we make trim to use real memory pointer to avoid change
+            // the pageguard status when PMB enabled.
+            // Note:we'll have to change here if adding pageguard on real
+            //      mapped memory in future, because the pointer here may
+            //      already have page guard protection before trim dump its
+            //      content.
+            pInfo->ObjectInfo.DeviceMemory.mappedAddress = pRealMappedData;
         }
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
@@ -446,20 +368,21 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
             vktrace_delete_trace_packet(&pHeader);
         }
     }
+#if defined(USE_PAGEGUARD_SPEEDUP)
+    pageguardExit();
+#endif
     return result;
 }
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice device, VkDeviceMemory memory) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkUnmapMemory* pPacket;
     VKAllocInfo* entry;
     size_t siz = 0;
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     void* PageGuardMappedData = NULL;
     pageguardEnter();
-#if defined(PLATFORM_LINUX)
-    getMappedDirtyPagesLinux();
-#endif
     getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData,
                                                                &vkFlushMappedMemoryRangesWithoutAPICall);
 #endif
@@ -509,7 +432,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
             vktrace_delete_trace_packet(&pHeader);
         }
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     if (PageGuardMappedData != nullptr) {
         pageguardFreeMemory(PageGuardMappedData);
     }
@@ -519,28 +442,32 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device, VkDeviceMemory memory,
                                                                  const VkAllocationCallbacks* pAllocator) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkFreeMemory* pPacket = NULL;
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     // There are some apps call vkFreeMemory without call vkUnmapMemory on
     // same memory object. in that situation, capture/playback run into error.
     // so add process here for that situation.
     pageguardEnter();
     if (getPageGuardControlInstance().findMappedMemoryObject(device, memory) != nullptr) {
         void* PageGuardMappedData = nullptr;
-#if defined(PLATFORM_LINUX)
-        getMappedDirtyPagesLinux();
-#endif
         getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData,
                                                                    &vkFlushMappedMemoryRangesWithoutAPICall);
         if (PageGuardMappedData != nullptr) {
             pageguardFreeMemory(PageGuardMappedData);
         }
     }
+    getPageGuardControlInstance().vkFreeMemoryPageGuardHandle(device, memory, pAllocator);
     pageguardExit();
 #endif
     CREATE_TRACE_PACKET(vkFreeMemory, sizeof(VkAllocationCallbacks));
     mdd(device)->devTable.FreeMemory(device, memory, pAllocator);
+    if (UseMappedExternalHostMemoryExtension()) {
+        pageguardEnter();
+        getPageGuardControlInstance().vkFreeMemoryPageGuardHandle(device, memory, pAllocator);
+        pageguardExit();
+    }
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkFreeMemory(pHeader);
     pPacket->device = device;
@@ -567,6 +494,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemoryRanges(VkDevice device, uint32_t memoryRangeCount,
                                                                                        const VkMappedMemoryRange* pMemoryRanges) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     size_t rangesSize = 0;
@@ -575,16 +503,27 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     packet_vkInvalidateMappedMemoryRanges* pPacket = NULL;
     uint64_t trace_begin_time = vktrace_get_time();
 
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     pageguardEnter();
-    resetAllReadFlagAndPageGuard();
+    if (!UseMappedExternalHostMemoryExtension()) {
+        // If enable external host memory extension, there will be no shadow
+        // memory, so we don't need any read pageguard handling.
+        resetAllReadFlagAndPageGuard();
+    }
 #endif
 
     // determine sum of sizes of memory ranges and pNext structures
     for (iter = 0; iter < memoryRangeCount; iter++) {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
+        VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
         rangesSize += vk_size_vkmappedmemoryrange(pRange);
-        dataSize += ROUNDUP_TO_4((size_t)pRange->size);
+        uint64_t range_size = pRange->size;
+        if (pRange->size == VK_WHOLE_SIZE) {
+            assert(pRange->offset >= pEntry->rangeOffset);
+            range_size = pEntry->totalSize - pRange->offset;
+            assert(range_size <= pEntry->rangeSize);
+        }
+        dataSize += ROUNDUP_TO_4((size_t)range_size);
         dataSize += get_struct_chain_size((void*)pRange);
     }
 
@@ -614,11 +553,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 
         if (pEntry != NULL) {
             assert(pEntry->handle == pRange->memory);
-            assert(pEntry->totalSize >= (pRange->size + pRange->offset));
-            assert(pEntry->totalSize >= pRange->size);
-            assert(pRange->offset >= pEntry->rangeOffset &&
-                   (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size,
+            uint64_t range_size = 0;
+            if (pRange->size != VK_WHOLE_SIZE) {
+                assert(pEntry->totalSize >= (pRange->size + pRange->offset));
+                assert(pEntry->totalSize >= pRange->size);
+                assert(pRange->offset >= pEntry->rangeOffset &&
+                       (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
+                range_size = pRange->size;
+            } else {
+                range_size = pEntry->totalSize - pRange->offset;
+            }
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), range_size,
                                                pEntry->pData + pRange->offset);
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
             pEntry->didFlush = TRUE;  // Do we need didInvalidate?
@@ -648,7 +593,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
             vktrace_delete_trace_packet(&pHeader);
         }
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     pageguardExit();
 #endif
     return result;
@@ -656,18 +601,16 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRanges(VkDevice device, uint32_t memoryRangeCount,
                                                                                   const VkMappedMemoryRange* pMemoryRanges) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
-    size_t rangesSize = 0;
-    size_t dataSize = 0;
-    size_t pnextSize = 0;
+    uint64_t rangesSize = 0;
+    uint64_t dataSize = 0;
+    uint64_t pnextSize = 0;
     uint32_t iter;
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     pageguardEnter();
-#if defined(PLATFORM_LINUX)
-    getMappedDirtyPagesLinux();
-#endif
     PBYTE* ppPackageData = new PBYTE[memoryRangeCount];
     getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(
         device, memoryRangeCount, pMemoryRanges, ppPackageData);  // the packet is not needed if no any change on data of all ranges
@@ -676,7 +619,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     uint64_t trace_begin_time = vktrace_get_time();
 
 // find out how much memory is in the ranges
-#ifndef USE_PAGEGUARD_SPEEDUP
+#if !defined(USE_PAGEGUARD_SPEEDUP)
     for (iter = 0; iter < memoryRangeCount; iter++) {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
         dataSize += ROUNDUP_TO_4((size_t)(getPageGuardControlInstance().getMappedMemorySize(device, pRange->memory)));
@@ -713,12 +656,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
 
     // now the actual memory
     vktrace_enter_critical_section(&g_memInfoLock);
+    std::set<VkDeviceMemory> flushed_mem;
     for (iter = 0; iter < memoryRangeCount; iter++) {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
+
+        if (flushed_mem.find(pRange->memory) != flushed_mem.end()) continue;
+        flushed_mem.insert(pRange->memory);
+
         VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
 
         if (pEntry != NULL) {
-#if PLATFORM_LINUX
+#if defined(PLATFORM_LINUX)
             VkDeviceSize rangeSize __attribute__((unused));
 #else
             VkDeviceSize rangeSize;
@@ -734,24 +682,22 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
             assert(pEntry->totalSize >= rangeSize);
             assert(pRange->offset >= pEntry->rangeOffset &&
                    (pRange->offset + rangeSize) <= (pEntry->rangeOffset + pEntry->rangeSize));
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
             LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
             VkDeviceSize OPTPackageSizeTemp = 0;
             if (pOPTMemoryTemp) {
                 PBYTE pOPTDataTemp = pOPTMemoryTemp->getChangedDataPackage(&OPTPackageSizeTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(OPTPackageSizeTemp),
-                                                   pOPTDataTemp);
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
                 pOPTMemoryTemp->clearChangedDataPackage();
                 pOPTMemoryTemp->resetMemoryObjectAllChangedFlagAndPageGuard();
             } else {
                 PBYTE pOPTDataTemp =
                     getPageGuardControlInstance().getChangedDataPackageOutOfMap(ppPackageData, iter, &OPTPackageSizeTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(OPTPackageSizeTemp),
-                                                   pOPTDataTemp);
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
                 getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
             }
 #else
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(rangeSize),
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), rangeSize,
                                                pEntry->pData + pRange->offset);
 #endif
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
@@ -761,7 +707,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
                              pHeader->global_packet_index);
         }
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     delete[] ppPackageData;
 #endif
     vktrace_leave_critical_section(&g_memInfoLock);
@@ -787,7 +733,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
             vktrace_delete_trace_packet(&pHeader);
         }
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     pageguardExit();
 #endif
     return result;
@@ -796,6 +742,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers(VkDevice device,
                                                                                  const VkCommandBufferAllocateInfo* pAllocateInfo,
                                                                                  VkCommandBuffer* pCommandBuffers) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateCommandBuffers* pPacket = NULL;
@@ -832,6 +779,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
         }
 
         if (g_trimIsInTrim) {
+            trim::mark_CommandPool_reference(pAllocateInfo->commandPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -842,6 +790,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(VkCommandBuffer commandBuffer,
                                                                              const VkCommandBufferBeginInfo* pBeginInfo) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkBeginCommandBuffer* pPacket = NULL;
@@ -867,8 +816,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(VkC
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         trim::ClearImageTransitions(commandBuffer);
         trim::ClearBufferTransitions(commandBuffer);
+        trim::clear_binding_Pipelines_from_CommandBuffer(commandBuffer);
 
         if (g_trimIsInTrim) {
+            if (pBeginInfo->pInheritanceInfo) {
+                trim::mark_Framebuffer_reference(pBeginInfo->pInheritanceInfo->framebuffer);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -881,6 +834,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(V
                                                                                const VkDescriptorPoolCreateInfo* pCreateInfo,
                                                                                const VkAllocationCallbacks* pAllocator,
                                                                                VkDescriptorPool* pDescriptorPool) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateDescriptorPool* pPacket = NULL;
@@ -938,10 +892,9 @@ VkLayerDeviceCreateInfo* get_chain_info(const VkDeviceCreateInfo* pCreateInfo, V
     return chain_info;
 }
 
-VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceProperties(
-    VkPhysicalDevice physicalDevice,
-    VkPhysicalDeviceProperties* pProperties)
-{
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice,
+                                                                                  VkPhysicalDeviceProperties* pProperties) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceProperties* pPacket = NULL;
     CREATE_TRACE_PACKET(vkGetPhysicalDeviceProperties, sizeof(VkPhysicalDeviceProperties));
@@ -983,9 +936,43 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDevicePropertie
     }
 }
 
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceProperties2KHR(VkPhysicalDevice physicalDevice,
+                                                                                      VkPhysicalDeviceProperties2KHR* pProperties) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkGetPhysicalDeviceProperties2KHR* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceProperties2KHR, get_struct_chain_size((void*)pProperties));
+    // Munge the pipeline cache UUID so app won't use the pipeline cache. This increases portability of the trace file.
+    memset(pProperties->properties.pipelineCacheUUID, 0xff, sizeof(pProperties->properties.pipelineCacheUUID));
+    mid(physicalDevice)->instTable.GetPhysicalDeviceProperties2KHR(physicalDevice, pProperties);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkGetPhysicalDeviceProperties2KHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProperties), sizeof(VkPhysicalDeviceProperties2KHR),
+                                       pProperties);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pProperties, pProperties);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pProperties));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
+            // See comment above in __HOOKED_vkGetPhysicalDeviceProperties
+            if (pInfo != nullptr) {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceProperties2KHRPacket = trim::copy_packet(pHeader);
+            }
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysicalDevice physicalDevice,
                                                                        const VkDeviceCreateInfo* pCreateInfo,
                                                                        const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateDevice* pPacket = NULL;
@@ -1009,6 +996,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
     if (result != VK_SUCCESS) {
         return result;
     }
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
+    getPageGuardControlInstance().vkCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+    pageguardExit();
+#endif
 
     initDeviceData(*pDevice, fpGetDeviceProcAddr, g_deviceDataMap);
     // Setup device dispatch table for extensions
@@ -1034,11 +1026,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
     pPacket = interpret_body_as_vkCreateDevice(pHeader);
     pPacket->physicalDevice = physicalDevice;
     add_VkDeviceCreateInfo_to_packet(pHeader, (VkDeviceCreateInfo**)&(pPacket->pCreateInfo), &localCreateInfo);
-    //    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)&pPacket->pCreateInfo, (void *)&localCreateInfo);
-    //    for (uint32_t iter = 0; iter < localCreateInfo.queueCreateInfoCount; iter++) {
-    //        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)&pPacket->pCreateInfo->pQueueCreateInfos[iter],
-    //                                                  (void *)&localCreateInfo.pQueueCreateInfos[iter]);
-    //    }
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDevice), sizeof(VkDevice), pDevice);
     pPacket->result = result;
@@ -1073,6 +1060,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
                     VkQueue queue = VK_NULL_HANDLE;
                     mdd(*pDevice)->devTable.GetDeviceQueue(*pDevice, queueFamilyIndex, q, &queue);
                     info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues[q] = queue;
+
+                    // Because this queue was not retrieved through the loader's
+                    // trampoile function, we need to assign the dispatch table here
+                    *(void**)queue = *(void**)*pDevice;
                 }
             }
         }
@@ -1094,6 +1085,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(VkDe
                                                                             const VkFramebufferCreateInfo* pCreateInfo,
                                                                             const VkAllocationCallbacks* pAllocator,
                                                                             VkFramebuffer* pFramebuffer) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateFramebuffer* pPacket = NULL;
@@ -1138,6 +1130,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(VkDe
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
+            for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++) {
+                trim::mark_ImageView_reference(pCreateInfo->pAttachments[i]);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -1221,7 +1216,7 @@ static void send_vk_api_version_packet() {
     vktrace_trace_packet_header* pHeader;
     pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_VK_vkApiVersion, sizeof(packet_vkApiVersion), 0);
     pPacket = interpret_body_as_vkApiVersion(pHeader);
-    pPacket->version = VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION);
+    pPacket->version = VK_MAKE_VERSION(1, 1, VK_HEADER_VERSION);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     FINISH_TRACE_PACKET();
 }
@@ -1229,6 +1224,7 @@ static void send_vk_api_version_packet() {
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkInstance* pInstance) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateInstance* pPacket = NULL;
@@ -1315,10 +1311,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
     pHeader->entrypoint_begin_time = startTime;
     pHeader->entrypoint_end_time = endTime;
     pPacket = interpret_body_as_vkCreateInstance(pHeader);
-
     add_VkInstanceCreateInfo_to_packet(pHeader, (VkInstanceCreateInfo**)&(pPacket->pCreateInfo),
                                        (VkInstanceCreateInfo*)&localCreateInfo);
-    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)&pPacket->pCreateInfo, (void*)&localCreateInfo);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pInstance), sizeof(VkInstance), pInstance);
     pPacket->result = result;
@@ -1350,6 +1344,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(VkInstance instance,
                                                                       const VkAllocationCallbacks* pAllocator) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     if (g_trimEnabled && g_trimIsInTrim) {
         trim::stop();
     }
@@ -1389,6 +1384,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(VkDev
                                                                            const VkRenderPassCreateInfo* pCreateInfo,
                                                                            const VkAllocationCallbacks* pAllocator,
                                                                            VkRenderPass* pRenderPass) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateRenderPass* pPacket = NULL;
@@ -1484,6 +1480,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
                                                                                              const char* pLayerName,
                                                                                              uint32_t* pPropertyCount,
                                                                                              VkExtensionProperties* pProperties) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkEnumerateDeviceExtensionProperties* pPacket = NULL;
@@ -1508,8 +1505,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
     pHeader->entrypoint_end_time = endTime;
     pPacket = interpret_body_as_vkEnumerateDeviceExtensionProperties(pHeader);
     pPacket->physicalDevice = physicalDevice;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pLayerName),
-                                       ((pLayerName != NULL) ? ROUNDUP_TO_4(strlen(pLayerName) + 1) : 0), pLayerName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pLayerName), ((pLayerName != NULL) ? strlen(pLayerName) + 1 : 0),
+                                       pLayerName);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPropertyCount), sizeof(uint32_t), pPropertyCount);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProperties), *pPropertyCount * sizeof(VkExtensionProperties),
                                        pProperties);
@@ -1534,6 +1531,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice,
                                                                                          uint32_t* pPropertyCount,
                                                                                          VkLayerProperties* pProperties) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkEnumerateDeviceLayerProperties* pPacket = NULL;
@@ -1568,10 +1566,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceLayerPr
     }
     return result;
 }
-// TODO : This should be pretty easy to fit into codegen. Don't need to make the call prior to creating packet
-//  Just need to account for "count" number of queue properties
+
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFamilyProperties(
     VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceQueueFamilyProperties* pPacket = NULL;
     uint64_t startTime;
@@ -1618,9 +1616,62 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
     }
 }
 
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
+    VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties2KHR* pQueueFamilyProperties) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkGetPhysicalDeviceQueueFamilyProperties2KHR* pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    startTime = vktrace_get_time();
+    mid(physicalDevice)
+        ->instTable.GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    endTime = vktrace_get_time();
+    int resultArraySize = 0;
+    if (pQueueFamilyProperties != nullptr) {
+        for (uint32_t i = 0; i < *pQueueFamilyPropertyCount; ++i) {
+            resultArraySize += get_struct_chain_size((void*)&pQueueFamilyProperties[i]);
+        }
+    }
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceQueueFamilyProperties2KHR, sizeof(uint32_t) + resultArraySize);
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkGetPhysicalDeviceQueueFamilyProperties2KHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pQueueFamilyPropertyCount), sizeof(uint32_t),
+                                       pQueueFamilyPropertyCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pQueueFamilyProperties), resultArraySize,
+                                       pQueueFamilyProperties);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pQueueFamilyPropertyCount));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pQueueFamilyProperties));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
+        if (pInfo != NULL) {
+            if (pQueueFamilyProperties == nullptr) {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket = trim::copy_packet(pHeader);
+                pInfo->ObjectInfo.PhysicalDevice.queueFamilyCount = *pQueueFamilyPropertyCount;
+            } else {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = trim::copy_packet(pHeader);
+            }
+        }
+
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevices(VkInstance instance,
                                                                                    uint32_t* pPhysicalDeviceCount,
                                                                                    VkPhysicalDevice* pPhysicalDevices) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkEnumeratePhysicalDevices* pPacket = NULL;
@@ -1684,6 +1735,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(Vk
                                                                               uint32_t firstQuery, uint32_t queryCount,
                                                                               size_t dataSize, void* pData, VkDeviceSize stride,
                                                                               VkQueryResultFlags flags) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetQueryPoolResults* pPacket = NULL;
@@ -1713,6 +1765,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(Vk
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
+            trim::mark_QueryPool_reference(queryPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -1725,6 +1778,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(Vk
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets(VkDevice device,
                                                                                  const VkDescriptorSetAllocateInfo* pAllocateInfo,
                                                                                  VkDescriptorSet* pDescriptorSets) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateDescriptorSets* pPacket = NULL;
@@ -1760,98 +1814,111 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
     } else {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(pAllocateInfo->descriptorPool);
-        if (pPoolInfo != NULL) {
-            pPoolInfo->ObjectInfo.DescriptorPool.numSets += pAllocateInfo->descriptorSetCount;
-        }
+        if (VK_SUCCESS == result) {
+            // If the call fail, DescriptorPool.numSets of trim trackinfo
+            // should not be changed because no new descriptorSet be allocated
+            // from the pool. Otherwise, for some title it cause  numSets
+            // beyond the pool maxSets in VkDescriptorPoolCreateInfo, and make
+            // trim generate wrong vkAllocateDescriptorSets for that pool
+            // which cause the call failed with VK_ERROR_OUT_OF_POOL_MEMORY
+            // during playback the trimmed trace file. So here we only track
+            // successful vkAllocateDescriptorSets.
 
-        for (uint32_t i = 0; i < pAllocateInfo->descriptorSetCount; i++) {
-            trim::ObjectInfo& setInfo = trim::add_DescriptorSet_object(pDescriptorSets[i]);
-            setInfo.belongsToDevice = device;
-            setInfo.ObjectInfo.DescriptorSet.descriptorPool = pAllocateInfo->descriptorPool;
-            setInfo.ObjectInfo.DescriptorSet.layout = pAllocateInfo->pSetLayouts[i];
+            if (pPoolInfo != NULL) {
+                pPoolInfo->ObjectInfo.DescriptorPool.numSets += pAllocateInfo->descriptorSetCount;
+            }
+            for (uint32_t i = 0; i < pAllocateInfo->descriptorSetCount; i++) {
+                trim::ObjectInfo& setInfo = trim::add_DescriptorSet_object(pDescriptorSets[i]);
+                setInfo.belongsToDevice = device;
+                setInfo.ObjectInfo.DescriptorSet.descriptorPool = pAllocateInfo->descriptorPool;
+                setInfo.ObjectInfo.DescriptorSet.layout = pAllocateInfo->pSetLayouts[i];
 
-            // need to allocate for a potential write & copy to update the descriptor; one for each binding based on the layout
-            trim::ObjectInfo* pLayoutInfo = trim::get_DescriptorSetLayout_objectInfo(pAllocateInfo->pSetLayouts[i]);
-            if (pLayoutInfo != NULL) {
-                uint32_t numImages = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numImages;
-                uint32_t numBuffers = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numBuffers;
-                uint32_t numTexelBufferViews = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numTexelBufferViews;
-                uint32_t numBindings = numImages + numBuffers + numTexelBufferViews;
+                // need to allocate for a potential write & copy to update the descriptor; one for each binding based on the layout
+                trim::ObjectInfo* pLayoutInfo = trim::get_DescriptorSetLayout_objectInfo(pAllocateInfo->pSetLayouts[i]);
+                if (pLayoutInfo != NULL) {
+                    uint32_t numImages = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numImages;
+                    uint32_t numBuffers = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numBuffers;
+                    uint32_t numTexelBufferViews = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numTexelBufferViews;
+                    uint32_t numBindings = numImages + numBuffers + numTexelBufferViews;
 
-                setInfo.ObjectInfo.DescriptorSet.numBindings = numBindings;
-                setInfo.ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
-                setInfo.ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
-                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets = new VkWriteDescriptorSet[numBindings];
-                setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets = new VkCopyDescriptorSet[numBindings];
+                    setInfo.ObjectInfo.DescriptorSet.numBindings = numBindings;
+                    setInfo.ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
+                    setInfo.ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets = new VkWriteDescriptorSet[numBindings];
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets = new VkCopyDescriptorSet[numBindings];
 
-                // setup these WriteDescriptorSets to be specific to each binding of the associated layout
-                for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++) {
-                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pNext = NULL;
-                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstArrayElement =
-                        0;  // defaulting to 0, no way to know for sure at this time
-                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstSet = pDescriptorSets[i];
-                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstBinding =
-                        pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
-                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount =
-                        pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
-                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType =
-                        pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorType;
+                    // setup these WriteDescriptorSets to be specific to each binding of the associated layout
+                    for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++) {
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pNext = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstArrayElement =
+                            0;  // defaulting to 0, no way to know for sure at this time
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstSet = pDescriptorSets[i];
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstBinding =
+                            pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount =
+                            pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType =
+                            pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorType;
 
-                    switch (setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType) {
-                        case VK_DESCRIPTOR_TYPE_SAMPLER:
-                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo =
-                                new VkDescriptorImageInfo[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
-                        } break;
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo =
-                                new VkDescriptorBufferInfo[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b]
-                                                               .descriptorCount];
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
-                        } break;
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
-                            setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView =
-                                new VkBufferView[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
-                        } break;
-                        default:
-                            break;
+                        switch (setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType) {
+                            case VK_DESCRIPTOR_TYPE_SAMPLER:
+                            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo =
+                                    new VkDescriptorImageInfo[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b]
+                                                                  .descriptorCount];
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
+                            } break;
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo =
+                                    new VkDescriptorBufferInfo[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b]
+                                                                   .descriptorCount];
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
+                            } break;
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
+                                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView =
+                                    new VkBufferView[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
+                            } break;
+                            default:
+                                break;
+                        }
                     }
-                }
 
-                // setup the CopyDescriptorSets similar to above
-                for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++) {
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].pNext = NULL;
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].descriptorCount =
-                        pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstArrayElement =
-                        0;  // defaulting to 0, no way to know for sure at this time
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstSet = pDescriptorSets[i];
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstBinding =
-                        pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcArrayElement =
-                        0;  // defaulting to 0, no way to know for sure at this time
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcSet =
-                        0;  // defaulting to 0, no way to know for sure at this time
-                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcBinding =
-                        0;  // defaulting to 0, no way to know for sure at this time
+                    // setup the CopyDescriptorSets similar to above
+                    for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++) {
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].pNext = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].descriptorCount =
+                            pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstArrayElement =
+                            0;  // defaulting to 0, no way to know for sure at this time
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstSet = pDescriptorSets[i];
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstBinding =
+                            pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcArrayElement =
+                            0;  // defaulting to 0, no way to know for sure at this time
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcSet =
+                            0;  // defaulting to 0, no way to know for sure at this time
+                        setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcBinding =
+                            0;  // defaulting to 0, no way to know for sure at this time
+                    }
                 }
             }
         }
+
         if (g_trimIsInTrim) {
+            trim::mark_DescriptorPool_reference(pAllocateInfo->descriptorPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -1883,151 +1950,166 @@ uint32_t get_binding_index(VkDescriptorSet dstSet, uint32_t binding) {
 }
 
 // The method is supposed to be used in __HOOKED_vkUpdateDescriptorSets
-// to detect if the specified binding will be updated by vkUpdateDescriptorSets
-// with the input specified parameters, if it will be updated, return true
-// and also return some parameters for the update process to use.
+// to handle a VkCopyDescriptorSet struct, the struct is one element of
+// VkCopyDescriptorSet array which is specified as an input parameter in
+// vkUpdateDescriptorSets call.
 //
-// const VkWriteDescriptorSet* pDescriptorWrites, the input
-//      VkWriteDescriptorSet array.
-// uint32_t WriteDescriptorIndex, the index in array pDescriptorWrites,
-//      it specify one element in pDescriptorWrites array.
-// uint32_t BindingIndex, the specified binding in a VkWriteDescriptorSet
-//      structure which is specified in the above two parameters,
-//      we are going to update the DescriptorSet from this binding,
-//      note: by doc, it's possible that VkWriteDescriptorSet also
-//      update other bindings after this binding.
-// uint32_t *pBindingDescriptorInfoArrayWriteIndex, for this binding of
-//      BindingIndex, we will need to update its array from
-//      *Binding_DescriptorArray_Index element.
-//      the parameter cannot be nullptr.
-// uint32_t *pBindingDescriptorInfoArrayWriteLength, for this binding
-//      of BindingIndex, we will need to update its array's
-//      *Binding_DescriptorArray_Write_Length elements.
-//      the parameter cannot be nullptr.
-// uint32_t *pDescriptorWritesIndex, for this binding of BindingIndex,
-//      we will need to update its array with the input
-//      pDescriptorWrites[WriteDescriptorIndex] from this index of
-//      its Descriptor info array.
-//      the parameter cannot be nullptr.
-// return:
-//      return true if the specified bind (BindingIndex) will be updated when call
-//      vkUpdateDescriptorSets by using the input parameter pDescriptorWrites
-//      and WriteDescriptorIndex. otherwise return false.
-bool isUpdateDescriptorSetBindingNeeded(const VkWriteDescriptorSet* pDescriptorWrites, uint32_t WriteDescriptorIndex,
-                                        uint32_t BindingIndex, uint32_t* pBindingDescriptorInfoArrayWriteIndex,
-                                        uint32_t* pBindingDescriptorInfoArrayWriteLength, uint32_t* pDescriptorWritesIndex) {
-    bool update_DescriptorSet_binding = false;
-    VkDescriptorSet dstSet =
-        pDescriptorWrites[WriteDescriptorIndex].dstSet;  // the DescriptorSet that we are going to update its bindings
-    trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(dstSet);
-    uint32_t initial_binding_index = get_binding_index(dstSet, pDescriptorWrites[WriteDescriptorIndex].dstBinding);
-    if (initial_binding_index == INVALID_BINDING_INDEX) {
-        vktrace_LogWarning(
-            "The binding is invalid when the app tries to update the bindings of the DescriptorSet using "
-            "vkUpdateDescriptorSets.");
-        return false;
+// Compare with VkWriteDescriptorSet handling which is also an input parameter
+// of vkUpdateDescriptorSets, the handling here is quite different. for
+// VkWriteDescriptorSet, the caller specify a descriptor array, use it to
+// update one or more bindings of a descriptor set. In trim process,
+// coresponding to every binding, we use an descriptor info array which is
+// the same length with number of descriptors in that binding, trim track
+// these input VkWriteDescriptorSet and update to correspond trim descriptor
+// info array. we can think this as we track every command that change the
+// binding state through VkWriteDescriptorSet and combine these commands
+// into one and record it.
+//
+// But for VkCopyDescriptorSet, that's different. In a VkCopyDescriptorSet,
+// the caller specify the copy is from a location in one src bindings
+// of a source descriptorset to another location in the dst bindings of a dst
+// descriptorset, the copy should continue until it reach specified count.
+// so it only specify the "location" not "value" of related
+// descriptor. but the tracking time and the time of starting to trim is
+// (always) different, so it's possible for same binding and same location,
+// the descriptor there is changed to other value or already invalid when
+// starting to trim.
+//
+// So we need to track/store the "value" at same time. In the following
+// function, we directly copy corresponding trim descriptor array of
+// binding according to the VkCopyDescriptorSet struct. for example,
+// if the struct specify the copy from one location in binding A of
+// descriptorset B to another location in binding C of descriptorset D,
+// we do not record the location, we directly copy corresponding trim
+// descriptor info from source to target at once, and when starting to
+// trim, we generate vkUpdateDescriptorSets which only based on
+// VkWriteDescriptorSet.
+//
+// const VkCopyDescriptorSet* pDescriptorCopies, point to a VkCopyDescriptorSet
+// struct.
+void handleCopyDescriptorSet(const VkCopyDescriptorSet* pDescriptorCopies) {
+    trim::ObjectInfo* pDstInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies->dstSet);
+    trim::ObjectInfo* pSrcInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies->srcSet);
+    if ((pDstInfo == nullptr) || (pSrcInfo == nullptr)) {
+        assert(false);
+        return;
     }
-    uint32_t target_binding_Descriptor_count = pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].descriptorCount;
-    if ((BindingIndex < initial_binding_index) || (target_binding_Descriptor_count == 0)) {
-        return false;
-    }
-    // we are going to update the binding of initial_binding_index from
-    // here:initial_binding_array_element
-    uint32_t initial_binding_array_element = pDescriptorWrites[WriteDescriptorIndex].dstArrayElement;
 
-    // the Descriptor count defined in related Descriptor layout
-    uint32_t initial_binding_Descriptor_count =
-        pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[initial_binding_index].descriptorCount;
+    // In pDescriptorCopies, the caller specified the initial src and dst
+    // bindings, we need to convert to binding index.
 
-    // the input descriptor Count in pDescriptorWrites[WriteDescriptorIndex],
-    // it specify how many elements in array need to be written.
-    uint32_t write_Descriptor_count = pDescriptorWrites[WriteDescriptorIndex].descriptorCount;
+    uint32_t current_dst_binding_index = get_binding_index(pDescriptorCopies->dstSet, pDescriptorCopies->dstBinding);
+    uint32_t current_src_binding_index = get_binding_index(pDescriptorCopies->srcSet, pDescriptorCopies->srcBinding);
 
-    if ((initial_binding_Descriptor_count - initial_binding_array_element) >=
-        write_Descriptor_count) {  // this is the normal case: pDescriptorWrites[WriteDescriptor_Index] will only update specified
-                                   // binding of initial_binding_index
-        if (BindingIndex == initial_binding_index) {
-            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].dstBinding ==
-                pDescriptorWrites[WriteDescriptorIndex].dstBinding) {
-                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].descriptorType !=
-                    pDescriptorWrites[WriteDescriptorIndex]
-                        .descriptorType) {  // by doc, the target app should make sure the specified descriptorType
-                                            // same with original layout define, here target app doesn't following
-                                            // this, so we give user warning message although we track and record
-                                            // it. During playback, we will send the data to API same as the title.
-
-                    vktrace_LogWarning(
-                        "The descriptorType does not match when the app tries to update the bindings of the DescriptorSet using "
-                        "vkUpdateDescriptorSets.");
-                }
-                update_DescriptorSet_binding = true;
-                *pBindingDescriptorInfoArrayWriteIndex = initial_binding_array_element;
-                *pBindingDescriptorInfoArrayWriteLength = write_Descriptor_count;
-                *pDescriptorWritesIndex = 0;
-            }
-        }
-    } else {  // this is the special case that need more process: by Doc,"If the dstBinding
-              // has fewer than descriptorCount array elements remaining starting from
-              // dstArrayElement, then the remainder will be used to update the subsequent
-              // binding - dstBinding+1 starting at array element zero....", we have to
-              // consider the possibility that the write may update other binding of which
-              // the binding number isnot pDescriptorWrites[WriteDescriptor_Index].dstBinding
-
-        // let's first calculate how many array elements (in Descriptor info array of
-        // pDescriptorWrites[WriteDescriptor_Index] ) will be passed when reach this
-        // target binding.
-        uint32_t passed_array_elements = 0;
-        for (uint32_t i = 0; i < BindingIndex; i++) {
-            if (i >= initial_binding_index) {  // By Doc, only current binding or its subsequent bindings to be updated.
-                if (i == initial_binding_index) {
-                    // if it's the initial binding( which is directly specified in VkWriteDescriptorSet
-                    // by dstSet), it will only update descriptors starting from
-                    // initial_binding_array_element.
-                    passed_array_elements += initial_binding_Descriptor_count - initial_binding_array_element;
-                } else {
-                    // if it's not the initial binding, all the binding's descriptor array should be included.
-                    passed_array_elements += pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[i].descriptorCount;
-                }
-            }
-        }
-        if (write_Descriptor_count >
-            passed_array_elements) {  // it means even all bindings before the target BindingIndex are updated by
-                                      // descriptors in the input pDescriptorWrites[WriteDescriptorIndex], there
-                                      // are still descriptors left to update the target binding index.
-
-            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].descriptorType !=
-                pDescriptorWrites[WriteDescriptorIndex].descriptorType) {
-                vktrace_LogWarning(
-                    "the descriptorType not match when the app try to update the bindings of DescriptorSet by "
-                    "vkUpdateDescriptorSets.");
-            }
-            update_DescriptorSet_binding = true;
-
-            if (BindingIndex == initial_binding_index) {
-                // if the target binding that we are detecting now is the binding
-                // which is specified in pDescriptorWrites[WriteDescriptor_Index],
-                // its descriptor array updating will start from
-                // initial_binding_array_element.
-                *pBindingDescriptorInfoArrayWriteIndex = initial_binding_array_element;
-            } else {
-                // if the target binding is after initial_binding_index, its
-                // descriptor array updating will start from beginning.
-                *pBindingDescriptorInfoArrayWriteIndex = 0;
-            }
-
-            if ((write_Descriptor_count - passed_array_elements) >=
-                (target_binding_Descriptor_count - *pBindingDescriptorInfoArrayWriteIndex)) {
-                // the left descriptors is enough to update all descriptors of which the amount
-                // is defined in related descriptorset layout.
-                *pBindingDescriptorInfoArrayWriteLength = target_binding_Descriptor_count - *pBindingDescriptorInfoArrayWriteIndex;
-            } else {
-                // the left descriptors is not enough to update all descriptors of this binding.
-                *pBindingDescriptorInfoArrayWriteLength = write_Descriptor_count - passed_array_elements;
-            }
-            *pDescriptorWritesIndex = passed_array_elements;
+    uint32_t j = 0;
+    for (trim::DescriptorIterator descriptor_iterator_dst(pDstInfo, current_dst_binding_index, pDescriptorCopies->dstArrayElement,
+                                                          pDescriptorCopies->descriptorCount),
+         descriptor_iterator_src(pSrcInfo, current_src_binding_index, pDescriptorCopies->srcArrayElement,
+                                 pDescriptorCopies->descriptorCount);
+         (false == descriptor_iterator_dst.IsEnd()) && (false == descriptor_iterator_src.IsEnd());
+         ++descriptor_iterator_dst, ++descriptor_iterator_src, ++j) {
+        switch (descriptor_iterator_dst.GetCurrentDescriptorType()) {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator_dst)), reinterpret_cast<void*>(&(*descriptor_iterator_src)),
+                       sizeof(VkDescriptorImageInfo));
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator_dst)), reinterpret_cast<void*>(&(*descriptor_iterator_src)),
+                       sizeof(VkDescriptorBufferInfo));
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator_dst)), reinterpret_cast<void*>(&(*descriptor_iterator_src)),
+                       sizeof(VkBufferView));
+                break;
+            default:
+                assert(0);
+                break;
         }
     }
-    return update_DescriptorSet_binding;
+}
+
+void handleWriteDescriptorSet(const VkWriteDescriptorSet* pDescriptorUpdateEntry) {
+    // The following variables are used to locate the descriptor
+    // track info in the target descriptor set, so we can use the
+    // input descriptor data to update it.
+    // For every input descriptor data, we need to find
+    // corresponding binding number and array element index.
+    VkWriteDescriptorSet* pWriteDescriptorSet;  // This is the pointer to trim tracking info of binding in target descriptorset.
+    uint32_t bindingDescriptorInfoArrayWriteIndex = 0;   // This is the array index of current descriptor
+                                                         // (within the binding array) that we'll update.
+    uint32_t bindingDescriptorInfoArrayWriteLength = 0;  // The descriptor amount in the binding array.
+
+    trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorUpdateEntry->dstSet);
+
+    // Get the binding index from the binding number which is the
+    // updating target. this is the array index of the current
+    // binding in the descriptorset track info.
+    //
+    // Note: by Doc, Vulkan allows the descriptor bindings to be
+    // specified sparsely so we cannot assume the binding index
+    // is the binding number.
+    uint32_t bindingIndex = get_binding_index(pDescriptorUpdateEntry->dstSet, pDescriptorUpdateEntry->dstBinding);
+    assert(bindingIndex != INVALID_BINDING_INDEX);
+
+    pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex];
+    bindingDescriptorInfoArrayWriteIndex = pDescriptorUpdateEntry->dstArrayElement;
+    bindingDescriptorInfoArrayWriteLength = pWriteDescriptorSet->descriptorCount;
+    if (!(bindingDescriptorInfoArrayWriteIndex < bindingDescriptorInfoArrayWriteLength))
+        assert(bindingDescriptorInfoArrayWriteIndex < bindingDescriptorInfoArrayWriteLength);
+
+    uint32_t j = 0;
+    for (trim::DescriptorIterator descriptor_iterator(pInfo, bindingIndex, bindingDescriptorInfoArrayWriteIndex,
+                                                      pDescriptorUpdateEntry->descriptorCount);
+         !descriptor_iterator.IsEnd(); ++descriptor_iterator, ++j) {
+        // The following code update the descriptorset track info
+        // with the descriptor data.
+
+        if (descriptor_iterator.GetCurrentBindingIndex() >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
+            // this is to track the latest data in this call and also cover previous calls.
+            // writeDescriptorCount is used to indicate so far how many bindings of this
+            // descriptorset has been updated, this include this call and all previous
+            // calls, from all these calls, we record the max bindingindex. its value must
+            // be <= numBindings.
+            pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = descriptor_iterator.GetCurrentBindingIndex() + 1;
+        }
+
+        switch (pDescriptorUpdateEntry->descriptorType) {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)),
+                       reinterpret_cast<void*>(const_cast<VkDescriptorImageInfo*>(pDescriptorUpdateEntry->pImageInfo + j)),
+                       sizeof(VkDescriptorImageInfo));
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)),
+                       reinterpret_cast<void*>(const_cast<VkDescriptorBufferInfo*>(pDescriptorUpdateEntry->pBufferInfo + j)),
+                       sizeof(VkDescriptorBufferInfo));
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)),
+                       reinterpret_cast<void*>(const_cast<VkBufferView*>(pDescriptorUpdateEntry->pTexelBufferView + j)),
+                       sizeof(VkBufferView));
+                break;
+            default:
+                assert(0);
+                break;
+        }
+    }
 }
 
 // Manually written because it needs to use get_struct_chain_size and allocate some extra pointers (why?)
@@ -2036,6 +2118,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
                                                                            const VkWriteDescriptorSet* pDescriptorWrites,
                                                                            uint32_t descriptorCopyCount,
                                                                            const VkCopyDescriptorSet* pDescriptorCopies) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkUpdateDescriptorSets* pPacket = NULL;
     // begin custom code
@@ -2110,75 +2193,47 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
         for (uint32_t i = 0; i < descriptorWriteCount; i++) {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
             if (pInfo != NULL) {
-                // find existing writeDescriptorSet info to update.
-                VkWriteDescriptorSet* pWriteDescriptorSet = NULL;
-                for (uint32_t w = 0; w < pInfo->ObjectInfo.DescriptorSet.numBindings; w++) {
-                    uint32_t bindingDescriptorInfoArrayWriteIndex;
-                    uint32_t bindingDescriptorInfoArrayWriteLength;
-                    uint32_t DescriptorWritesIndex;
-                    if (isUpdateDescriptorSetBindingNeeded(pDescriptorWrites, i, w, &bindingDescriptorInfoArrayWriteIndex,
-                                                           &bindingDescriptorInfoArrayWriteLength, &DescriptorWritesIndex)) {
-                        pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w];
-                        if (w >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
-                            // this is to track the latest data in this call and also cover previous calls.
-                            // writeDescriptorCount is used to indicate so far how many bindings of this
-                            // descriptorset has been updated, this include this call and all previous
-                            // calls, from all these calls, we record the max bindingindex. its value must
-                            // be <= numBindings.
-                            pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = w + 1;
+                if (g_trimIsInTrim) {
+                    trim::mark_DescriptorSet_reference(pDescriptorWrites[i].dstSet);
+                    for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                        switch (pDescriptorWrites[i].descriptorType) {
+                            case VK_DESCRIPTOR_TYPE_SAMPLER:
+                            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                                trim::mark_ImageView_reference(pDescriptorWrites[i].pImageInfo[j].imageView);
+                            } break;
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                                trim::mark_Buffer_reference(pDescriptorWrites[i].pBufferInfo[j].buffer);
+                            } break;
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                                trim::mark_BufferView_reference(pDescriptorWrites[i].pTexelBufferView[j]);
+                            } break;
+                            default:
+                                break;
                         }
-
-                        pWriteDescriptorSet->dstArrayElement = 0;
-                        if (pDescriptorWrites[i].pImageInfo != nullptr && pWriteDescriptorSet->pImageInfo != nullptr) {
-                            memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo +
-                                                                      bindingDescriptorInfoArrayWriteIndex),
-                                   pDescriptorWrites[i].pImageInfo + DescriptorWritesIndex,
-                                   sizeof(VkDescriptorImageInfo) * bindingDescriptorInfoArrayWriteLength);
-                            pWriteDescriptorSet->pBufferInfo = nullptr;
-                            pWriteDescriptorSet->pTexelBufferView = nullptr;
-                        }
-                        if (pDescriptorWrites[i].pBufferInfo != nullptr && pWriteDescriptorSet->pBufferInfo != nullptr) {
-                            memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo +
-                                                                       bindingDescriptorInfoArrayWriteIndex),
-                                   pDescriptorWrites[i].pBufferInfo + DescriptorWritesIndex,
-                                   sizeof(VkDescriptorBufferInfo) * bindingDescriptorInfoArrayWriteLength);
-                            pWriteDescriptorSet->pImageInfo = nullptr;
-                            pWriteDescriptorSet->pTexelBufferView = nullptr;
-                        }
-                        if (pDescriptorWrites[i].pTexelBufferView != nullptr && pWriteDescriptorSet->pTexelBufferView != nullptr) {
-                            memcpy(const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView +
-                                                             bindingDescriptorInfoArrayWriteIndex),
-                                   pDescriptorWrites[i].pTexelBufferView + DescriptorWritesIndex,
-                                   sizeof(VkBufferView) * bindingDescriptorInfoArrayWriteLength);
-                            pWriteDescriptorSet->pImageInfo = nullptr;
-                            pWriteDescriptorSet->pBufferInfo = nullptr;
-                        }
-                        break;
                     }
                 }
             }
+            handleWriteDescriptorSet(&pDescriptorWrites[i]);
         }
 
         for (uint32_t i = 0; i < descriptorCopyCount; i++) {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
             if (pInfo != NULL) {
-                // find existing CopyDescriptorSet info to update, or allocate space for a new one.
-                VkCopyDescriptorSet* pCopyDescriptorSet = NULL;
-                for (uint32_t c = 0; c < pInfo->ObjectInfo.DescriptorSet.numBindings; c++) {
-                    if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[c].dstSet == pDescriptorCopies[i].dstSet &&
-                        pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[c].dstBinding == pDescriptorCopies[i].dstBinding) {
-                        pCopyDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[c];
-                        if (c >= pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount) {
-                            pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount = c + 1;
-                        }
-                        pCopyDescriptorSet->dstArrayElement = pDescriptorCopies[i].dstArrayElement;
-                        pCopyDescriptorSet->srcArrayElement = pDescriptorCopies[i].srcArrayElement;
-                        pCopyDescriptorSet->srcBinding = pDescriptorCopies[i].srcBinding;
-                        pCopyDescriptorSet->srcSet = pDescriptorCopies[i].srcSet;
-                        break;
-                    }
+                if (g_trimIsInTrim) {
+                    trim::mark_DescriptorSet_reference(pDescriptorCopies[i].srcSet);
+                    trim::mark_DescriptorSet_reference(pDescriptorCopies[i].dstSet);
                 }
-                assert(pCopyDescriptorSet != NULL);
+                // handle all elements of the pDescriptorCopies array one by one, note: in
+                // handleCopyDescriptorSet function, we do not record these CopyDescriptorSet
+                // directly, but update WriteDescriptorSet of related bindings instead.
+                handleCopyDescriptorSet(&pDescriptorCopies[i]);
             }
         }
 
@@ -2192,13 +2247,18 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue queue, uint32_t submitCount,
                                                                       const VkSubmitInfo* pSubmits, VkFence fence) {
-#ifdef USE_PAGEGUARD_SPEEDUP
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    if ((g_trimEnabled) && (pSubmits != NULL)) {
+        vktrace_enter_critical_section(&trim::trimTransitionMapLock);
+    }
+#if defined(USE_PAGEGUARD_SPEEDUP)
     pageguardEnter();
-#if defined(PLATFORM_LINUX)
-    getMappedDirtyPagesLinux();
-#endif
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
-    resetAllReadFlagAndPageGuard();
+    if (!UseMappedExternalHostMemoryExtension()) {
+        // If enable external host memory extension, there will be no shadow
+        // memory, so we don't need any read pageguard handling.
+        resetAllReadFlagAndPageGuard();
+    }
     pageguardExit();
 #endif
     VkResult result;
@@ -2212,6 +2272,21 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
     CREATE_TRACE_PACKET(vkQueueSubmit, arrayByteCount);
     result = mdd(queue)->devTable.QueueSubmit(queue, submitCount, pSubmits, fence);
     vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (!UseMappedExternalHostMemoryExtension()) {
+        if (fence != VK_NULL_HANDLE) {
+            if (g_fenceToCommandBuffers.find(fence) != g_fenceToCommandBuffers.end()) {
+                g_fenceToCommandBuffers[fence].clear();
+            }
+
+            for (uint32_t i = 0; i < submitCount; ++i) {
+                for (uint32_t j = 0; j < pSubmits[i].commandBufferCount; ++j) {
+                    g_fenceToCommandBuffers[fence].push_back(pSubmits[i].pCommandBuffers[j]);
+                }
+            }
+        }
+    }
+#endif
     pPacket = interpret_body_as_vkQueueSubmit(pHeader);
     pPacket->queue = queue;
     pPacket->submitCount = submitCount;
@@ -2256,7 +2331,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                     // Update attachment objects based on RenderPass transitions
                     for (uint32_t c = 0; c < pSubmits[i].commandBufferCount; c++) {
                         trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pSubmits[i].pCommandBuffers[c]);
-                        pCBInfo->ObjectInfo.CommandBuffer.submitQueue = queue;
+                        if (pCBInfo != nullptr) {
+                            pCBInfo->ObjectInfo.CommandBuffer.submitQueue = queue;
+                        }
 
                         // apply image transitions
                         std::list<trim::ImageTransition> imageTransitions =
@@ -2287,6 +2364,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                             trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pWaitSemaphores[w]);
                             if (pInfo != NULL) {
                                 pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                             }
                         }
                     }
@@ -2296,6 +2374,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                             trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pSignalSemaphores[s]);
                             if (pInfo != NULL) {
                                 pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                             }
                         }
                     }
@@ -2316,11 +2395,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
             vktrace_delete_trace_packet(&pHeader);
         }
     }
+
+    if ((g_trimEnabled) && (pSubmits != NULL)) {
+        vktrace_leave_critical_section(&trim::trimTransitionMapLock);
+    }
+
     return result;
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(VkQueue queue, uint32_t bindInfoCount,
                                                                           const VkBindSparseInfo* pBindInfo, VkFence fence) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkQueueBindSparse* pPacket = NULL;
@@ -2403,7 +2488,42 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(VkQueu
     } else {
         vktrace_finalize_trace_packet(pHeader);
 
+        if (result == VK_SUCCESS) {
+            if (bindInfoCount != 0) {
+                for (uint32_t i = 0; i < bindInfoCount; i++) {
+                    if (pBindInfo[i].pWaitSemaphores != NULL) {
+                        for (uint32_t w = 0; w < pBindInfo[i].waitSemaphoreCount; w++) {
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo[i].pWaitSemaphores[w]);
+                            if (pInfo != NULL) {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
+                            }
+                        }
+                    }
+
+                    if (pBindInfo[i].pSignalSemaphores != NULL) {
+                        for (uint32_t s = 0; s < pBindInfo[i].signalSemaphoreCount; s++) {
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo[i].pSignalSemaphores[s]);
+                            if (pInfo != NULL) {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         if (g_trimIsInTrim) {
+            for (uint32_t i = 0; i < pBindInfo->bufferBindCount; i++) {
+                trim::mark_Buffer_reference(pBindInfo->pBufferBinds[i].buffer);
+            }
+            for (uint32_t i = 0; i < pBindInfo->imageBindCount; i++) {
+                trim::mark_Image_reference(pBindInfo->pImageBinds[i].image);
+            }
+            for (uint32_t i = 0; i < pBindInfo->imageOpaqueBindCount; i++) {
+                trim::mark_Image_reference(pBindInfo->pImageOpaqueBinds[i].image);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2417,6 +2537,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
     VkPipelineStageFlags dstStageMask, uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers,
     uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
     const VkImageMemoryBarrier* pImageMemoryBarriers) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdWaitEvents* pPacket = NULL;
     size_t customSize;
@@ -2468,7 +2589,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) {
             trim::ObjectInfo* pImageInfo = trim::get_Image_objectInfo(pImageMemoryBarriers[i].image);
-            assert(pImageInfo != nullptr);
             if (pImageInfo != nullptr) {
                 pImageInfo->ObjectInfo.Image.mostRecentLayout = pImageMemoryBarriers[i].newLayout;
             }
@@ -2477,6 +2597,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
 
         if (g_trimIsInTrim) {
+            for (uint32_t i = 0; i < bufferMemoryBarrierCount; i++) {
+                trim::mark_Buffer_reference(pBufferMemoryBarriers[i].buffer);
+            }
+            for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) {
+                trim::mark_Image_reference(pImageMemoryBarriers[i].image);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2489,6 +2615,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
     VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers,
     uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
     const VkImageMemoryBarrier* pImageMemoryBarriers) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPipelineBarrier* pPacket = NULL;
     size_t customSize;
@@ -2536,7 +2663,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) {
             trim::ObjectInfo* pImageInfo = trim::get_Image_objectInfo(pImageMemoryBarriers[i].image);
-            assert(pImageInfo != nullptr);
             if (pImageInfo != nullptr) {
                 trim::ImageTransition transition;
                 transition.image = pImageMemoryBarriers[i].image;
@@ -2546,12 +2672,14 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
                 transition.dstAccessMask = pImageMemoryBarriers[i].dstAccessMask;
 
                 trim::AddImageTransition(commandBuffer, transition);
+                if (g_trimIsInTrim) {
+                    trim::mark_Image_reference(pImageMemoryBarriers[i].image);
+                }
             }
         }
 
         for (uint32_t i = 0; i < bufferMemoryBarrierCount; i++) {
             trim::ObjectInfo* pBufferInfo = trim::get_Buffer_objectInfo(pBufferMemoryBarriers[i].buffer);
-            assert(pBufferInfo != nullptr);
             if (pBufferInfo != nullptr) {
                 trim::BufferTransition transition;
                 transition.buffer = pBufferMemoryBarriers[i].buffer;
@@ -2559,6 +2687,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
                 transition.dstAccessMask = pBufferMemoryBarriers[i].dstAccessMask;
 
                 trim::AddBufferTransition(commandBuffer, transition);
+                if (g_trimIsInTrim) {
+                    trim::mark_Buffer_reference(pBufferMemoryBarriers[i].buffer);
+                }
             }
         }
 
@@ -2574,6 +2705,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout layout,
                                                                        VkShaderStageFlags stageFlags, uint32_t offset,
                                                                        uint32_t size, const void* pValues) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPushConstants* pPacket = NULL;
     CREATE_TRACE_PACKET(vkCmdPushConstants, size);
@@ -2601,8 +2733,52 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(VkCommand
     }
 }
 
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBufferCount,
+                                                                         const VkCommandBuffer* pCommandBuffers) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCmdExecuteCommands* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCmdExecuteCommands, commandBufferCount * sizeof(VkCommandBuffer));
+    mdd(commandBuffer)->devTable.CmdExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (!UseMappedExternalHostMemoryExtension()) {
+        if (g_commandBufferToCommandBuffers.find(commandBuffer) != g_commandBufferToCommandBuffers.end()) {
+            g_commandBufferToCommandBuffers[commandBuffer].clear();
+        }
+        g_commandBufferToCommandBuffers[commandBuffer].push_back(commandBuffer);
+        for (uint32_t i = 0; i < commandBufferCount; ++i) {
+            g_commandBufferToCommandBuffers[commandBuffer].push_back(pCommandBuffers[i]);
+        }
+    }
+#endif
+    pPacket = interpret_body_as_vkCmdExecuteCommands(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->commandBufferCount = commandBufferCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCommandBuffers), commandBufferCount * sizeof(VkCommandBuffer),
+                                       pCommandBuffers);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCommandBuffers));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+            trim::mark_CommandBuffer_reference(commandBuffer);
+            if (pCommandBuffers != nullptr && commandBufferCount > 0) {
+                for (uint32_t i = 0; i < commandBufferCount; i++) {
+                    trim::mark_CommandBuffer_reference(pCommandBuffers[i]);
+                }
+            }
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(VkDevice device, VkPipelineCache pipelineCache,
                                                                                size_t* pDataSize, void* pData) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkGetPipelineCacheData* pPacket = NULL;
@@ -2622,7 +2798,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
     pPacket->device = device;
     pPacket->pipelineCache = pipelineCache;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDataSize), sizeof(size_t), pDataSize);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), ROUNDUP_TO_4(*pDataSize), pData);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), *pDataSize, pData);
     pPacket->result = result;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
@@ -2632,6 +2808,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
         vktrace_finalize_trace_packet(pHeader);
 
         if (g_trimIsInTrim) {
+            trim::mark_PipelineCache_reference(pipelineCache);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2640,6 +2817,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
     return result;
 }
 
+// This function returns the size of VkGraphicsPipelineCreateInfo struct to be used when creating a packet.
 static size_t get_VkGraphicsPipelineCreateInfo_size(const VkGraphicsPipelineCreateInfo* pCreateInfos) {
     size_t entryPointNameLength = 0;
     size_t struct_size = get_struct_chain_size(pCreateInfos);
@@ -2655,7 +2833,6 @@ static size_t get_VkGraphicsPipelineCreateInfo_size(const VkGraphicsPipelineCrea
             ++pStage;
         }
     }
-    struct_size += get_struct_chain_size(pCreateInfos->pVertexInputState);
     struct_size += get_struct_chain_size(pCreateInfos->pVertexInputState);
     struct_size += get_struct_chain_size(pCreateInfos->pInputAssemblyState);
     struct_size += get_struct_chain_size(pCreateInfos->pTessellationState);
@@ -2673,6 +2850,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
                                                                                   const VkGraphicsPipelineCreateInfo* pCreateInfos,
                                                                                   const VkAllocationCallbacks* pAllocator,
                                                                                   VkPipeline* pPipelines) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateGraphicsPipelines* pPacket = NULL;
@@ -2721,6 +2899,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
                     trim::StateTracker::copy_VkShaderModuleCreateInfo(
                         &info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex],
                         pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+                } else {
+                    memset(&info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex], 0, sizeof(VkShaderModuleCreateInfo));
+                }
+
+                if (g_trimIsInTrim) {
+                    trim::mark_ShaderModule_reference(pCreateInfos[i].pStages[stageIndex].module);
                 }
             }
 
@@ -2733,6 +2917,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
         }
 
         if (g_trimIsInTrim) {
+            trim::mark_PipelineCache_reference(pipelineCache);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2762,6 +2947,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
                                                                                  const VkComputePipelineCreateInfo* pCreateInfos,
                                                                                  const VkAllocationCallbacks* pAllocator,
                                                                                  VkPipeline* pPipelines) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateComputePipelines* pPacket = NULL;
@@ -2811,6 +2997,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
             if (pShaderModuleInfo != nullptr) {
                 trim::StateTracker::copy_VkShaderModuleCreateInfo(&info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[0],
                                                                   pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+            } else {
+                memset(info.ObjectInfo.Pipeline.pShaderModuleCreateInfos, 0, sizeof(VkShaderModuleCreateInfo));
             }
 
             trim::StateTracker::copy_VkComputePipelineCreateInfo(&info.ObjectInfo.Pipeline.computePipelineCreateInfo,
@@ -2819,8 +3007,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
                 info.ObjectInfo.Pipeline.pAllocator = pAllocator;
                 trim::add_Allocator(pAllocator);
             }
+
+            if (g_trimIsInTrim) {
+                trim::mark_ShaderModule_reference(pCreateInfos[i].stage.module);
+            }
         }
         if (g_trimIsInTrim) {
+            trim::mark_PipelineCache_reference(pipelineCache);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2833,6 +3026,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(Vk
                                                                               const VkPipelineCacheCreateInfo* pCreateInfo,
                                                                               const VkAllocationCallbacks* pAllocator,
                                                                               VkPipelineCache* pPipelineCache) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreatePipelineCache* pPacket = NULL;
@@ -2846,7 +3040,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(Vk
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkPipelineCacheCreateInfo), pCreateInfo);
     if (pCreateInfo) vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pCreateInfo, pCreateInfo);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData),
-                                       ROUNDUP_TO_4(pPacket->pCreateInfo->initialDataSize), pCreateInfo->pInitialData);
+                                       pPacket->pCreateInfo->initialDataSize, pCreateInfo->pInitialData);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelineCache), sizeof(VkPipelineCache), pPipelineCache);
     pPacket->result = result;
@@ -2877,6 +3071,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(Vk
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkCommandBuffer commandBuffer,
                                                                          const VkRenderPassBeginInfo* pRenderPassBegin,
                                                                          VkSubpassContents contents) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdBeginRenderPass* pPacket = NULL;
     size_t clearValueSize = sizeof(VkClearValue) * pRenderPassBegin->clearValueCount;
@@ -2905,7 +3100,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
 
             trim::ObjectInfo* pFramebuffer = trim::get_Framebuffer_objectInfo(pRenderPassBegin->framebuffer);
             trim::ObjectInfo* pRenderPass = trim::get_RenderPass_objectInfo(pRenderPassBegin->renderPass);
-            assert(pRenderPass != nullptr && pFramebuffer != nullptr);
             if (pRenderPass != nullptr && pFramebuffer != nullptr) {
                 assert(pRenderPass->ObjectInfo.RenderPass.attachmentCount == pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
                 uint32_t minAttachmentCount = std::min<uint32_t>(pRenderPass->ObjectInfo.RenderPass.attachmentCount,
@@ -2913,7 +3107,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
                 for (uint32_t i = 0; i < minAttachmentCount; i++) {
                     trim::ObjectInfo* pImageView =
                         trim::get_ImageView_objectInfo(pFramebuffer->ObjectInfo.Framebuffer.pAttachments[i]);
-                    assert(pImageView != nullptr);
                     if (pImageView != nullptr) {
                         pRenderPass->ObjectInfo.RenderPass.pAttachments[i].image = pImageView->ObjectInfo.ImageView.image;
                     } else {
@@ -2924,6 +3117,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
         }
 
         if (g_trimIsInTrim) {
+            trim::mark_Framebuffer_reference(pRenderPassBegin->framebuffer);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2934,6 +3128,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool,
                                                                              uint32_t descriptorSetCount,
                                                                              const VkDescriptorSet* pDescriptorSets) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkFreeDescriptorSets* pPacket = NULL;
@@ -2960,9 +3155,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(VkD
             for (uint32_t i = 0; i < descriptorSetCount; i++) {
                 // Clean up memory
                 trim::remove_DescriptorSet_object(pDescriptorSets[i]);
+                if (g_trimIsInTrim) {
+                    trim::mark_DescriptorSet_reference(pDescriptorSets[i]);
+                }
             }
         }
         if (g_trimIsInTrim) {
+            trim::mark_DescriptorPool_reference(descriptorPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2973,11 +3172,57 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(VkD
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice device, const VkImageCreateInfo* pCreateInfo,
                                                                       const VkAllocationCallbacks* pAllocator, VkImage* pImage) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateImage* pPacket = NULL;
     CREATE_TRACE_PACKET(vkCreateImage, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkImage));
+
+    if (g_trimEnabled) {
+        // need to add TRANSFER_SRC usage to the image so that we can copy out of it.
+        // By Doc, image for which we can use vkCmdCopyImageToBuffer and vkCmdCopyImage
+        // to copy out must have been created with VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag.
+        (const_cast<VkImageCreateInfo*>(pCreateInfo))->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+
     result = mdd(device)->devTable.CreateImage(device, pCreateInfo, pAllocator, pImage);
+
+    if (g_trimEnabled && (pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL) && (result == VK_SUCCESS)) {
+        // For all miplevels of the image, here we fisrt get all subresource
+        // memory sizes and put them in a vector, then save the vector to a
+        // map of which the key is image handle.
+        //
+        // Such process is part of a solution to fix an image difference
+        // problem for some title:
+        //
+        // For some title, if trim start at some specific locations, trimmed
+        // trace file playback show image difference compared with original
+        // title running.
+
+        // The reason of the problem is: when trim copy out an optimal tiling
+        // image which is bound to device local only memory, it will first
+        // copy the image data to a staging buffer. An API
+        // vkGetImageSubresourceLayout is used to get every subresource data
+        // offset for saving to the buffer. But by Doc, the image must
+        // be linear tiling image. In the problem title, trim need to copy
+        // out some optimal tiling images to staging buffer, the call
+        // vkGetImageSubresourceLayout return wrong offset and size for some
+        // miplevel of the image and cause image data overwriting and finally
+        // cause trimmed trace file playback show image difference.
+        //
+        // The fix of the problem use the following process to replace
+        // vkGetImageSubresourceLayout call and get the subresource size and
+        // then get the offset. The basic process is: create image with
+        // specific miplevel, then query its memory requirement to get the
+        // size. such process performed when vkCreateImage and save these
+        // sizes to a map. When starting to trim and copy out the image, trim
+        // will directly use these sizes.
+
+        std::vector<VkDeviceSize> subResourceSizes;
+        if (trim::calculateImageAllSubResourceSize(device, *pCreateInfo, pAllocator, subResourceSizes)) {
+            trim::addImageSubResourceSizes(*pImage, subResourceSizes);
+        }
+    }
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkCreateImage(pHeader);
     pPacket->device = device;
@@ -3013,11 +3258,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
 #endif  //! TRIM_USE_ORDERED_IMAGE_CREATION
         info.ObjectInfo.Image.bIsSwapchainImage = false;
         info.ObjectInfo.Image.format = pCreateInfo->format;
+        info.ObjectInfo.Image.imageType = pCreateInfo->imageType;
         info.ObjectInfo.Image.aspectMask = trim::getImageAspectFromFormat(pCreateInfo->format);
         info.ObjectInfo.Image.extent = pCreateInfo->extent;
         info.ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;
         info.ObjectInfo.Image.arrayLayers = pCreateInfo->arrayLayers;
         info.ObjectInfo.Image.sharingMode = pCreateInfo->sharingMode;
+        info.ObjectInfo.Image.needsStagingBuffer = (pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL);
         info.ObjectInfo.Image.queueFamilyIndex =
             (pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT && pCreateInfo->pQueueFamilyIndices != NULL &&
              pCreateInfo->queueFamilyIndexCount != 0)
@@ -3040,6 +3287,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateBuffer(VkDevice device, const VkBufferCreateInfo* pCreateInfo,
                                                                        const VkAllocationCallbacks* pAllocator, VkBuffer* pBuffer) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateBuffer* pPacket = NULL;
@@ -3093,8 +3341,88 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateBuffer(VkDevice 
     return result;
 }
 
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyBuffer(VkDevice device, VkBuffer buffer,
+                                                                    const VkAllocationCallbacks* pAllocator) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkDestroyBuffer* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkDestroyBuffer, sizeof(VkAllocationCallbacks));
+    mdd(device)->devTable.DestroyBuffer(device, buffer, pAllocator);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (!UseMappedExternalHostMemoryExtension()) {
+        if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end() &&
+            g_bufferToDeviceMemory[buffer].device == device) {
+            g_bufferToDeviceMemory.erase(buffer);
+        }
+    }
+#endif
+    pPacket = interpret_body_as_vkDestroyBuffer(pHeader);
+    pPacket->device = device;
+    pPacket->buffer = buffer;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::remove_Buffer_object(buffer);
+        if (g_trimIsInTrim) {
+            trim::mark_Buffer_reference(buffer);
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory,
+                                                                           VkDeviceSize memoryOffset) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkBindBufferMemory* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkBindBufferMemory, 0);
+    result = mdd(device)->devTable.BindBufferMemory(device, buffer, memory, memoryOffset);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (!UseMappedExternalHostMemoryExtension()) {
+        DeviceMemory deviceMemory = {};
+        deviceMemory.device = device;
+        deviceMemory.memory = memory;
+        g_bufferToDeviceMemory[buffer] = deviceMemory;
+    }
+#endif
+    pPacket = interpret_body_as_vkBindBufferMemory(pHeader);
+    pPacket->device = device;
+    pPacket->buffer = buffer;
+    pPacket->memory = memory;
+    pPacket->memoryOffset = memoryOffset;
+    pPacket->result = result;
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);
+        if (pInfo != NULL) {
+            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = trim::copy_packet(pHeader);
+            pInfo->ObjectInfo.Buffer.memory = memory;
+            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;
+            pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim::IsMemoryDeviceOnly(memory);
+        }
+        if (g_trimIsInTrim) {
+            trim::mark_Buffer_reference(buffer);
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+    return result;
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR* pSurfaceCapabilities) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceSurfaceCapabilitiesKHR* pPacket = NULL;
@@ -3124,6 +3452,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
                                                                                              VkSurfaceKHR surface,
                                                                                              uint32_t* pSurfaceFormatCount,
                                                                                              VkSurfaceFormatKHR* pSurfaceFormats) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     size_t _dataSize;
@@ -3165,6 +3494,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
                                                                                                   VkSurfaceKHR surface,
                                                                                                   uint32_t* pPresentModeCount,
                                                                                                   VkPresentModeKHR* pPresentModes) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     size_t _dataSize;
@@ -3207,6 +3537,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(VkD
                                                                              const VkSwapchainCreateInfoKHR* pCreateInfo,
                                                                              const VkAllocationCallbacks* pAllocator,
                                                                              VkSwapchainKHR* pSwapchain) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateSwapchainKHR* pPacket = NULL;
@@ -3250,6 +3581,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(VkD
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
                                                                                 uint32_t* pSwapchainImageCount,
                                                                                 VkImage* pSwapchainImages) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     size_t _dataSize;
@@ -3297,6 +3629,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
         }
 
         if (g_trimIsInTrim) {
+            if ((pSwapchainImageCount != nullptr) && (pSwapchainImages != nullptr)) {
+                for (uint32_t i = 0; i < *pSwapchainImageCount; i++) {
+                    trim::mark_Image_reference(pSwapchainImages[i]);
+                }
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -3306,6 +3643,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkQueuePresentKHR* pPacket = NULL;
@@ -3353,6 +3691,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
                 trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pPresentInfo->pWaitSemaphores[i]);
                 if (pInfo != NULL) {
                     pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                    pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                 }
             }
         }
@@ -3371,7 +3710,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
             {
                 if (trim::is_hotkey_trim_triggered()) {
                     if (g_trimIsInTrim) {
-                        vktrace_LogAlways("Trim stopping now at frame: %d", g_trimFrameCounter-1);
+                        vktrace_LogAlways("Trim stopping now at frame: %" PRIu64, g_trimFrameCounter - 1);
                         trim::stop();
                     }
                     else {
@@ -3380,7 +3719,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
                         {
                             g_trimEndFrame += g_trimStartFrame;
                         }
-                        vktrace_LogAlways("Trim starting now at frame: %d", g_trimStartFrame);
+                        vktrace_LogAlways("Trim starting now at frame: %" PRIu64, g_trimStartFrame);
                         trim::start();
                     }
                 }
@@ -3394,7 +3733,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
                     {
                         if (g_trimFrameCounter == g_trimEndFrame)
                         {
-                            vktrace_LogAlways("Trim stopping now at frame: %d", g_trimEndFrame);
+                            vktrace_LogAlways("Trim stopping now at frame: %" PRIu64, g_trimEndFrame);
                             trim::stop();
                         }
                     }
@@ -3402,11 +3741,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
             }
         } else if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::frameCounter)) {
             if (g_trimFrameCounter == g_trimStartFrame) {
-                vktrace_LogAlways("Trim starting now at frame: %d", g_trimStartFrame);
+                vktrace_LogAlways("Trim starting now at frame: %" PRIu64, g_trimStartFrame);
                 trim::start();
             }
             if (g_trimEndFrame < UINT64_MAX && g_trimFrameCounter == g_trimEndFrame + 1) {
-                vktrace_LogAlways("Trim stopping now at frame: %d", g_trimEndFrame);
+                vktrace_LogAlways("Trim stopping now at frame: %" PRIu64, g_trimEndFrame);
                 trim::stop();
             }
         }
@@ -3415,11 +3754,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
 }
 
 /* TODO these can probably be moved into code gen */
-#ifdef VK_USE_PLATFORM_WIN32_KHR
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(VkInstance instance,
                                                                                 const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
                                                                                 const VkAllocationCallbacks* pAllocator,
                                                                                 VkSurfaceKHR* pSurface) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateWin32SurfaceKHR* pPacket = NULL;
@@ -3460,6 +3800,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
 
 VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL
 __HOOKED_vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkBool32 result;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket = NULL;
@@ -3483,7 +3824,7 @@ __HOOKED_vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physica
     return result;
 }
 #endif
-#ifdef VK_USE_PLATFORM_XCB_KHR
+#if defined(VK_USE_PLATFORM_XCB_KHR)
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXcbSurfaceKHR(VkInstance instance,
                                                                               const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
                                                                               const VkAllocationCallbacks* pAllocator,
@@ -3555,7 +3896,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXcbPr
     return result;
 }
 #endif
-#ifdef VK_USE_PLATFORM_XLIB_KHR
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXlibSurfaceKHR(VkInstance instance,
                                                                                const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
                                                                                const VkAllocationCallbacks* pAllocator,
@@ -3627,7 +3968,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
     return result;
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
+#if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAcquireXlibDisplayEXT(
     VkPhysicalDevice physicalDevice,
@@ -3693,7 +4034,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetRandROutputDisplayE
 }
 #endif
 #endif
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWaylandSurfaceKHR(VkInstance instance,
                                                                                   const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
                                                                                   const VkAllocationCallbacks* pAllocator,
@@ -3766,7 +4107,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceWayla
     return result;
 }
 #endif
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKHR(VkInstance instance,
                                                                                   const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
                                                                                   const VkAllocationCallbacks* pAllocator,
@@ -3811,67 +4152,235 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKH
 }
 #endif
 
-static std::unordered_map<VkDescriptorUpdateTemplateKHR, VkDescriptorUpdateTemplateCreateInfoKHR*>
-    descriptorUpdateTemplateCreateInfo;
+static std::unordered_map<VkDescriptorUpdateTemplate, VkDescriptorUpdateTemplateCreateInfo*> descriptorUpdateTemplateCreateInfo;
+static vktrace_sem_id descriptorUpdateTemplateCreateInfo_sem_id;
+static bool descriptorUpdateTemplateCreateInfo_success = vktrace_sem_create(&descriptorUpdateTemplateCreateInfo_sem_id, 1);
+
+void lockDescriptorUpdateTemplateCreateInfo() {
+    if (!descriptorUpdateTemplateCreateInfo_success) {
+        vktrace_LogError("Semaphore create failed!");
+    }
+    vktrace_sem_wait(descriptorUpdateTemplateCreateInfo_sem_id);
+}
+
+void unlockDescriptorUpdateTemplateCreateInfo() { vktrace_sem_post(descriptorUpdateTemplateCreateInfo_sem_id); }
+
+void FinalizeTrimCreateDescriptorUpdateTemplate(vktrace_trace_packet_header* pHeader, VkDevice device,
+                                                const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                const VkAllocationCallbacks* pAllocator,
+                                                VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate) {
+    vktrace_finalize_trace_packet(pHeader);
+    trim::ObjectInfo& info = trim::add_DescriptorUpdateTemplate_object(*pDescriptorUpdateTemplate);
+    info.belongsToDevice = device;
+    info.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket = trim::copy_packet(pHeader);
+    info.ObjectInfo.DescriptorUpdateTemplate.flags = pCreateInfo->flags;
+    info.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount = pCreateInfo->descriptorUpdateEntryCount;
+    if ((pCreateInfo->descriptorUpdateEntryCount != 0) && (pCreateInfo->pDescriptorUpdateEntries != nullptr)) {
+        info.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries =
+            VKTRACE_NEW_ARRAY(VkDescriptorUpdateTemplateEntry, pCreateInfo->descriptorUpdateEntryCount);
+        assert(info.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries != nullptr);
+        memcpy(reinterpret_cast<void*>(
+                   const_cast<VkDescriptorUpdateTemplateEntry*>(info.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries)),
+               reinterpret_cast<const void*>(const_cast<VkDescriptorUpdateTemplateEntry*>(pCreateInfo->pDescriptorUpdateEntries)),
+               pCreateInfo->descriptorUpdateEntryCount * sizeof(VkDescriptorUpdateTemplateEntry));
+    }
+    info.ObjectInfo.DescriptorUpdateTemplate.templateType = pCreateInfo->templateType;
+    info.ObjectInfo.DescriptorUpdateTemplate.descriptorSetLayout = pCreateInfo->descriptorSetLayout;
+    info.ObjectInfo.DescriptorUpdateTemplate.pipelineBindPoint = pCreateInfo->pipelineBindPoint;
+    info.ObjectInfo.DescriptorUpdateTemplate.pipelineLayout = pCreateInfo->pipelineLayout;
+    info.ObjectInfo.DescriptorUpdateTemplate.set = pCreateInfo->set;
+
+    if (pAllocator != NULL) {
+        info.ObjectInfo.DescriptorUpdateTemplate.pAllocator = pAllocator;
+        trim::add_Allocator(pAllocator);
+    }
+
+    if (g_trimIsInTrim) {
+        trim::write_packet(pHeader);
+    } else {
+        vktrace_delete_trace_packet(&pHeader);
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdateTemplate(
+    VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator,
+    VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateDescriptorUpdateTemplate* pPacket = NULL;
+
+    CREATE_TRACE_PACKET(
+        vkCreateDescriptorUpdateTemplate,
+        get_struct_chain_size(reinterpret_cast<void*>(const_cast<VkDescriptorUpdateTemplateCreateInfo*>(pCreateInfo))) +
+            sizeof(VkAllocationCallbacks) + sizeof(VkDescriptorUpdateTemplate) +
+            sizeof(VkDescriptorUpdateTemplateEntry) * pCreateInfo->descriptorUpdateEntryCount);
+    result = mdd(device)->devTable.CreateDescriptorUpdateTemplate(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+
+    lockDescriptorUpdateTemplateCreateInfo();
+    descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate] =
+        reinterpret_cast<VkDescriptorUpdateTemplateCreateInfo*>(malloc(sizeof(VkDescriptorUpdateTemplateCreateInfo)));
+    memcpy(descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate], pCreateInfo,
+           sizeof(VkDescriptorUpdateTemplateCreateInfo));
+    descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate]->pDescriptorUpdateEntries =
+        reinterpret_cast<VkDescriptorUpdateTemplateEntry*>(
+            malloc(sizeof(VkDescriptorUpdateTemplateEntry) * pCreateInfo->descriptorUpdateEntryCount));
+    memcpy(reinterpret_cast<void*>(const_cast<VkDescriptorUpdateTemplateEntry*>(
+               descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate]->pDescriptorUpdateEntries)),
+           pCreateInfo->pDescriptorUpdateEntries,
+           sizeof(VkDescriptorUpdateTemplateEntry) * pCreateInfo->descriptorUpdateEntryCount);
+    unlockDescriptorUpdateTemplateCreateInfo();
+
+    pPacket = interpret_body_as_vkCreateDescriptorUpdateTemplate(pHeader);
+    pPacket->device = device;
+
+    vktrace_add_buffer_to_trace_packet(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateCreateInfo**>(&(pPacket->pCreateInfo))),
+        sizeof(VkDescriptorUpdateTemplateCreateInfo), pCreateInfo);
+
+    if (nullptr != pCreateInfo) {
+        vktrace_add_pnext_structs_to_trace_packet(
+            pHeader, reinterpret_cast<void*>(const_cast<VkDescriptorUpdateTemplateCreateInfo*>(pPacket->pCreateInfo)), pCreateInfo);
+    }
+
+    vktrace_add_buffer_to_trace_packet(
+        pHeader,
+        reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateEntry**>(&(pPacket->pCreateInfo->pDescriptorUpdateEntries))),
+        sizeof(VkDescriptorUpdateTemplateEntry) * pCreateInfo->descriptorUpdateEntryCount, pCreateInfo->pDescriptorUpdateEntries);
+    vktrace_add_buffer_to_trace_packet(pHeader,
+                                       reinterpret_cast<void**>(const_cast<VkAllocationCallbacks**>(&(pPacket->pAllocator))),
+                                       sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplate**>(&(pPacket->pDescriptorUpdateTemplate))),
+        sizeof(VkDescriptorUpdateTemplate), pDescriptorUpdateTemplate);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(
+        pHeader,
+        reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateEntry**>(&(pPacket->pCreateInfo->pDescriptorUpdateEntries))));
+    vktrace_finalize_buffer_address(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateCreateInfo**>(&(pPacket->pCreateInfo))));
+    vktrace_finalize_buffer_address(pHeader, reinterpret_cast<void**>(const_cast<VkAllocationCallbacks**>(&(pPacket->pAllocator))));
+    vktrace_finalize_buffer_address(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplate**>(&(pPacket->pDescriptorUpdateTemplate))));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        FinalizeTrimCreateDescriptorUpdateTemplate(pHeader, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    }
+
+    return result;
+}
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdateTemplateKHR(
     VkDevice device, const VkDescriptorUpdateTemplateCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator,
     VkDescriptorUpdateTemplateKHR* pDescriptorUpdateTemplate) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateDescriptorUpdateTemplateKHR* pPacket = NULL;
 
-    CREATE_TRACE_PACKET(vkCreateDescriptorUpdateTemplateKHR,
-                        get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) +
-                            sizeof(VkDescriptorUpdateTemplateKHR) +
-                            sizeof(VkDescriptorUpdateTemplateEntryKHR) * pCreateInfo->descriptorUpdateEntryCount);
+    CREATE_TRACE_PACKET(
+        vkCreateDescriptorUpdateTemplateKHR,
+        get_struct_chain_size(reinterpret_cast<void*>(const_cast<VkDescriptorUpdateTemplateCreateInfoKHR*>(pCreateInfo))) +
+            sizeof(VkAllocationCallbacks) + sizeof(VkDescriptorUpdateTemplateKHR) +
+            sizeof(VkDescriptorUpdateTemplateEntryKHR) * pCreateInfo->descriptorUpdateEntryCount);
     result = mdd(device)->devTable.CreateDescriptorUpdateTemplateKHR(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     vktrace_set_packet_entrypoint_end_time(pHeader);
 
+    lockDescriptorUpdateTemplateCreateInfo();
     descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate] =
-        (VkDescriptorUpdateTemplateCreateInfoKHR*)malloc(sizeof(VkDescriptorUpdateTemplateCreateInfoKHR));
+        reinterpret_cast<VkDescriptorUpdateTemplateCreateInfoKHR*>(malloc(sizeof(VkDescriptorUpdateTemplateCreateInfoKHR)));
     memcpy(descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate], pCreateInfo,
            sizeof(VkDescriptorUpdateTemplateCreateInfoKHR));
     descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate]->pDescriptorUpdateEntries =
-        (VkDescriptorUpdateTemplateEntryKHR*)malloc(sizeof(VkDescriptorUpdateTemplateEntryKHR) *
-                                                    pCreateInfo->descriptorUpdateEntryCount);
-    memcpy((void*)descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate]->pDescriptorUpdateEntries,
+        reinterpret_cast<VkDescriptorUpdateTemplateEntryKHR*>(
+            malloc(sizeof(VkDescriptorUpdateTemplateEntryKHR) * pCreateInfo->descriptorUpdateEntryCount));
+    memcpy(reinterpret_cast<void*>(const_cast<VkDescriptorUpdateTemplateEntry*>(
+               descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate]->pDescriptorUpdateEntries)),
            pCreateInfo->pDescriptorUpdateEntries,
            sizeof(VkDescriptorUpdateTemplateEntryKHR) * pCreateInfo->descriptorUpdateEntryCount);
+    unlockDescriptorUpdateTemplateCreateInfo();
 
     pPacket = interpret_body_as_vkCreateDescriptorUpdateTemplateKHR(pHeader);
     pPacket->device = device;
 
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkDescriptorUpdateTemplateCreateInfoKHR),
-                                       pCreateInfo);
-    if (pCreateInfo) vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pCreateInfo, pCreateInfo);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pDescriptorUpdateEntries),
-                                       sizeof(VkDescriptorUpdateTemplateEntryKHR) * pCreateInfo->descriptorUpdateEntryCount,
-                                       pCreateInfo->pDescriptorUpdateEntries);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorUpdateTemplate),
-                                       sizeof(VkDescriptorUpdateTemplateKHR), pDescriptorUpdateTemplate);
+    vktrace_add_buffer_to_trace_packet(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateCreateInfo**>(&(pPacket->pCreateInfo))),
+        sizeof(VkDescriptorUpdateTemplateCreateInfoKHR), pCreateInfo);
+    if (nullptr != pCreateInfo) {
+        vktrace_add_pnext_structs_to_trace_packet(
+            pHeader, reinterpret_cast<void*>(const_cast<VkDescriptorUpdateTemplateCreateInfo*>(pPacket->pCreateInfo)), pCreateInfo);
+    }
+
+    vktrace_add_buffer_to_trace_packet(
+        pHeader,
+        reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateEntry**>(&(pPacket->pCreateInfo->pDescriptorUpdateEntries))),
+        sizeof(VkDescriptorUpdateTemplateEntryKHR) * pCreateInfo->descriptorUpdateEntryCount,
+        pCreateInfo->pDescriptorUpdateEntries);
+    vktrace_add_buffer_to_trace_packet(pHeader,
+                                       reinterpret_cast<void**>(const_cast<VkAllocationCallbacks**>(&(pPacket->pAllocator))),
+                                       sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplate**>(&(pPacket->pDescriptorUpdateTemplate))),
+        sizeof(VkDescriptorUpdateTemplateKHR), pDescriptorUpdateTemplate);
     pPacket->result = result;
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pDescriptorUpdateEntries));
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(
+        pHeader,
+        reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateEntry**>(&(pPacket->pCreateInfo->pDescriptorUpdateEntries))));
+    vktrace_finalize_buffer_address(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplateCreateInfo**>(&(pPacket->pCreateInfo))));
+    vktrace_finalize_buffer_address(pHeader, reinterpret_cast<void**>(const_cast<VkAllocationCallbacks**>(&(pPacket->pAllocator))));
+    vktrace_finalize_buffer_address(
+        pHeader, reinterpret_cast<void**>(const_cast<VkDescriptorUpdateTemplate**>(&(pPacket->pDescriptorUpdateTemplate))));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        FinalizeTrimCreateDescriptorUpdateTemplate(pHeader, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    }
+
+    return result;
+}
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTemplate(
+    VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkDestroyDescriptorUpdateTemplate* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkDestroyDescriptorUpdateTemplate, sizeof(VkAllocationCallbacks));
+    mdd(device)->devTable.DestroyDescriptorUpdateTemplate(device, descriptorUpdateTemplate, pAllocator);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkDestroyDescriptorUpdateTemplate(pHeader);
+    pPacket->device = device;
+    pPacket->descriptorUpdateTemplate = descriptorUpdateTemplate;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorUpdateTemplate));
     if (!g_trimEnabled) {
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+        trim::remove_DescriptorUpdateTemplate_object(descriptorUpdateTemplate);
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
     }
-
-    return result;
+    lockDescriptorUpdateTemplateCreateInfo();
+    if (descriptorUpdateTemplateCreateInfo.find(descriptorUpdateTemplate) != descriptorUpdateTemplateCreateInfo.end()) {
+        if (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]) {
+            if (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries)
+                free((void*)descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries);
+            free(descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]);
+        }
+        descriptorUpdateTemplateCreateInfo.erase(descriptorUpdateTemplate);
+    }
+    unlockDescriptorUpdateTemplateCreateInfo();
 }
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTemplateKHR(
     VkDevice device, VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkDestroyDescriptorUpdateTemplateKHR* pPacket = NULL;
     CREATE_TRACE_PACKET(vkDestroyDescriptorUpdateTemplateKHR, sizeof(VkAllocationCallbacks));
@@ -3886,12 +4395,14 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTem
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+        trim::remove_DescriptorUpdateTemplate_object(descriptorUpdateTemplate);
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
     }
+    lockDescriptorUpdateTemplateCreateInfo();
     if (descriptorUpdateTemplateCreateInfo.find(descriptorUpdateTemplate) != descriptorUpdateTemplateCreateInfo.end()) {
         if (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]) {
             if (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries)
@@ -3900,14 +4411,16 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTem
         }
         descriptorUpdateTemplateCreateInfo.erase(descriptorUpdateTemplate);
     }
+    unlockDescriptorUpdateTemplateCreateInfo();
 }
 
-static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate) {
+static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplate descriptorUpdateTemplate) {
     size_t dataSize = 0;
+    lockDescriptorUpdateTemplateCreateInfo();
     for (uint32_t i = 0; i < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->descriptorUpdateEntryCount; i++) {
         for (uint32_t j = 0;
              j < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i].descriptorCount; j++) {
-            size_t thisSize;
+            size_t thisSize = 0;
             switch (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i].descriptorType) {
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
                 case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -3942,11 +4455,141 @@ static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplateKHR descriptorU
             dataSize = std::max(dataSize, thisSize);
         }
     }
+    unlockDescriptorUpdateTemplateCreateInfo();
     return dataSize;
+}
+
+void FinalizeTrimUpdateDescriptorSetWithTemplate(vktrace_trace_packet_header* pHeader, VkDescriptorSet descriptorSet,
+                                                 VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) {
+    vktrace_finalize_trace_packet(pHeader);
+    lockDescriptorUpdateTemplateCreateInfo();
+
+    // Trim keep tracking all descriptorsets from beginning, include all
+    // descriptors in the descriptorset. If any function change any
+    // descriptor of it, the track info of that descriptorset should
+    // also be changed. The following source code update the descriptorset
+    // trackinfo to make sure the track info reflect current descriptorset
+    // state after the function update its descriptors.
+    //
+    if (VK_NULL_HANDLE != descriptorUpdateTemplate) {
+        for (uint32_t i = 0; i < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->descriptorUpdateEntryCount; i++) {
+            const VkDescriptorUpdateTemplateEntry* pDescriptorUpdateEntry =
+                &(descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i]);
+            // The following variables are used to locate the descriptor
+            // track info in the target descriptor set, so we can use the
+            // descriptor data in template to update it.
+            // For every input descriptor data, we need to find
+            // corresponding binding number and array element index.
+            VkWriteDescriptorSet* pWriteDescriptorSet =
+                nullptr;  // This is the pointer to trim tracking info of binding in target descriptorset.
+            uint32_t bindingDescriptorInfoArrayWriteIndex = 0;   // This is the array index of current descriptor
+                                                                 // (within the binding array) that we'll update.
+            uint32_t bindingDescriptorInfoArrayWriteLength = 0;  // The descriptor amount in the binding array.
+
+            uint32_t bindingIndex = 0;  // the array index of the current binding in the descriptorset track info.
+
+            trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(descriptorSet);
+
+            // Get the binding index from the binding number which is the
+            // updating target.
+            //
+            // Note: by Doc, Vulkan allows the descriptor bindings to be
+            // specified sparsely so we cannot assume the binding index
+            // is the binding number.
+            bindingIndex = get_binding_index(descriptorSet, pDescriptorUpdateEntry->dstBinding);
+            assert(bindingIndex != INVALID_BINDING_INDEX);
+
+            pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex];
+            bindingDescriptorInfoArrayWriteIndex = pDescriptorUpdateEntry->dstArrayElement;
+            bindingDescriptorInfoArrayWriteLength = pWriteDescriptorSet->descriptorCount;
+            if (!(bindingDescriptorInfoArrayWriteIndex < bindingDescriptorInfoArrayWriteLength))
+                assert(bindingDescriptorInfoArrayWriteIndex < bindingDescriptorInfoArrayWriteLength);
+
+            uint32_t j = 0;
+            for (trim::DescriptorIterator descriptor_iterator(pInfo, bindingIndex, bindingDescriptorInfoArrayWriteIndex,
+                                                              pDescriptorUpdateEntry->descriptorCount);
+                 !descriptor_iterator.IsEnd(); descriptor_iterator++, j++) {
+                // update writeDescriptorCount accordingly with the number of binding
+                // the descriptorset has been updated by chekcing the binding index.
+                if (descriptor_iterator.GetCurrentBindingIndex() >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
+                    pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = descriptor_iterator.GetCurrentBindingIndex() + 1;
+                }
+
+                // First get the descriptor data pointer, Doc provide the
+                // following formula to calculate the pointer for every
+                // array element:
+                const char* pDescriptorRawData =
+                    reinterpret_cast<const char*>(pData) + pDescriptorUpdateEntry->offset + j * pDescriptorUpdateEntry->stride;
+
+                // The following code update the descriptorset track info
+                // with the descriptor data.
+
+                switch (pDescriptorUpdateEntry->descriptorType) {
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                        memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)), pDescriptorRawData, sizeof(VkDescriptorImageInfo));
+                        break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                        memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)), pDescriptorRawData,
+                               sizeof(VkDescriptorBufferInfo));
+                        break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                        memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)), pDescriptorRawData, sizeof(VkBufferView));
+                        break;
+                    default:
+                        assert(0);
+                        break;
+                }
+            }
+        }
+    }
+
+    unlockDescriptorUpdateTemplateCreateInfo();
+    if (g_trimIsInTrim) {
+        trim::mark_DescriptorSet_reference(descriptorSet);
+        trim::write_packet(pHeader);
+    } else {
+        vktrace_delete_trace_packet(&pHeader);
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTemplate(
+    VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkUpdateDescriptorSetWithTemplate* pPacket = NULL;
+    size_t dataSize;
+
+    // TODO: We're saving all the data, from pData to the end of the last item, including data before offset and skipped data.
+    // This could be optimized to save only the data chunks that are actually needed.
+    dataSize = getDescriptorSetDataSize(descriptorUpdateTemplate);
+
+    CREATE_TRACE_PACKET(vkUpdateDescriptorSetWithTemplate, dataSize);
+    mdd(device)->devTable.UpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkUpdateDescriptorSetWithTemplate(pHeader);
+    pPacket->device = device;
+    pPacket->descriptorSet = descriptorSet;
+    pPacket->descriptorUpdateTemplate = descriptorUpdateTemplate;
+    vktrace_add_buffer_to_trace_packet(pHeader, const_cast<void**>(&(pPacket->pData)), dataSize, pData);
+    vktrace_finalize_buffer_address(pHeader, const_cast<void**>(&(pPacket->pData)));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        FinalizeTrimUpdateDescriptorSetWithTemplate(pHeader, descriptorSet, descriptorUpdateTemplate, pData);
+    }
 }
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTemplateKHR(
     VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, const void* pData) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkUpdateDescriptorSetWithTemplateKHR* pPacket = NULL;
     size_t dataSize;
@@ -3962,12 +4605,118 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
     pPacket->device = device;
     pPacket->descriptorSet = descriptorSet;
     pPacket->descriptorUpdateTemplate = descriptorUpdateTemplate;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), dataSize, pData);
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
+    vktrace_add_buffer_to_trace_packet(pHeader, const_cast<void**>(&(pPacket->pData)), dataSize, pData);
+    vktrace_finalize_buffer_address(pHeader, const_cast<void**>(&(pPacket->pData)));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        FinalizeTrimUpdateDescriptorSetWithTemplate(pHeader, descriptorSet, descriptorUpdateTemplate, pData);
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetKHR(VkCommandBuffer commandBuffer,
+                                                                              VkPipelineBindPoint pipelineBindPoint,
+                                                                              VkPipelineLayout layout, uint32_t set,
+                                                                              uint32_t descriptorWriteCount,
+                                                                              const VkWriteDescriptorSet* pDescriptorWrites) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCmdPushDescriptorSetKHR* pPacket = NULL;
+    size_t arrayByteCount = 0;
+
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+        arrayByteCount += get_struct_chain_size(&pDescriptorWrites[i]);
+    }
+
+    CREATE_TRACE_PACKET(vkCmdPushDescriptorSetKHR, arrayByteCount);
+    mdd(commandBuffer)
+        ->devTable.CmdPushDescriptorSetKHR(commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCmdPushDescriptorSetKHR(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->pipelineBindPoint = pipelineBindPoint;
+    pPacket->layout = layout;
+    pPacket->set = set;
+    pPacket->descriptorWriteCount = descriptorWriteCount;
+
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites),
+                                       descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+        switch (pPacket->pDescriptorWrites[i].descriptorType) {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo),
+                                                   pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo),
+                                                   pDescriptorWrites[i].pImageInfo);
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo));
+            } break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView),
+                                                   pDescriptorWrites[i].descriptorCount * sizeof(VkBufferView),
+                                                   pDescriptorWrites[i].pTexelBufferView);
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView));
+            } break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo),
+                                                   pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorBufferInfo),
+                                                   pDescriptorWrites[i].pBufferInfo);
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo));
+            } break;
+            default:
+                break;
+        }
+        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)(pPacket->pDescriptorWrites + i), pDescriptorWrites + i);
+    }
+
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites));
+
     if (!g_trimEnabled) {
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+        for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+            if (g_trimIsInTrim) {
+                trim::mark_DescriptorSet_reference(pDescriptorWrites[i].dstSet);
+                for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                    switch (pDescriptorWrites[i].descriptorType) {
+                        case VK_DESCRIPTOR_TYPE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                            trim::mark_ImageView_reference(pDescriptorWrites[i].pImageInfo[j].imageView);
+                        } break;
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                            trim::mark_Buffer_reference(pDescriptorWrites[i].pBufferInfo[j].buffer);
+                        } break;
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                            trim::mark_BufferView_reference(pDescriptorWrites[i].pTexelBufferView[j]);
+                        } break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            // TODO: add more process to handle the following case: the title
+            //       recording commands cross multiple frames and there are
+            //       one or more vkCmdPushDescriptorSetKHR recorded into
+            //       the command buffer, and the trim starting frame is one of
+            //       them. We need adding more process and move some of
+            //       the process into vkQueueSubmit.
+            handleWriteDescriptorSet(&pDescriptorWrites[i]);
+        }
+
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
         } else {
@@ -3979,6 +4728,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetWithTemplateKHR(
     VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set,
     const void* pData) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPushDescriptorSetWithTemplateKHR* pPacket = NULL;
     size_t dataSize;
@@ -4009,12 +4759,168 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetWithTe
     }
 }
 
-VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(
-     VkDevice                                    device,
-     const VkObjectTableCreateInfoNVX*           pCreateInfo,
-     const VkAllocationCallbacks*                pAllocator,
-     VkObjectTableNVX*                           pObjectTable)
-{
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdCopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage srcImage,
+                                                                           VkImageLayout srcImageLayout, VkBuffer dstBuffer,
+                                                                           uint32_t regionCount,
+                                                                           const VkBufferImageCopy* pRegions) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCmdCopyImageToBuffer* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCmdCopyImageToBuffer, regionCount * sizeof(VkBufferImageCopy));
+    mdd(commandBuffer)->devTable.CmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (!UseMappedExternalHostMemoryExtension()) {
+        g_cmdBufferToBuffers[commandBuffer].push_back(dstBuffer);
+    }
+#endif
+    pPacket = interpret_body_as_vkCmdCopyImageToBuffer(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->srcImage = srcImage;
+    pPacket->srcImageLayout = srcImageLayout;
+    pPacket->dstBuffer = dstBuffer;
+    pPacket->regionCount = regionCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pRegions), regionCount * sizeof(VkBufferImageCopy), pRegions);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRegions));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
+        if (g_trimIsInTrim) {
+            trim::mark_Buffer_reference(dstBuffer);
+            trim::mark_Image_reference(srcImage);
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice device, uint32_t fenceCount,
+                                                                        const VkFence* pFences, VkBool32 waitAll,
+                                                                        uint64_t timeout) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkWaitForFences* pPacket = NULL;
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY) && !defined(WIN32)
+    pageguardEnter();
+#endif
+    CREATE_TRACE_PACKET(vkWaitForFences, fenceCount * sizeof(VkFence));
+    result = mdd(device)->devTable.WaitForFences(device, fenceCount, pFences, waitAll, timeout);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY) && !defined(WIN32)
+    // Sync real mapped memory back to the copy of that memory after vkCmdCopyImageToBuffer being executed.
+    // * The real mapped memory is bound with the destination buffer in vkCmdCopyImageToBuffer.
+    // * Do the sync when a fence from vkQueueSubmit is signaled and the command buffer submitted contains vkCmdCopyImageToBuffer
+    // command.
+    //
+    // It workarounds a known issue of pageguard on Linux and Android:
+    //      The default configuration of vktrace is not able to know there's a read to a mapped memory on Linux and Android
+    //      platforms. Which means it is not going to sync data back from the real mapped memory mapped via vkMapMemory to the copy
+    //      of that memory for Vulkan application to read.
+    //      This is the default behavior when PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY is disabled in
+    //      vktrace/vktrace_layer/vktrace_lib_pageguardcapture.h.
+    //      And it will cause problem when tracing an app which needs to read back rendering results for environment probes.
+    //
+    // TODO:
+    // Find a way to fully resolve the memory read not detectable issue in pageguard on Linux and Android.
+    // Because current solution won't solve memory read problem when a linear image's memory is mapped to CPU memory and application
+    // wants to read from that CPU memory. It only works for applications which always read from buffers instead of images.
+    if (!UseMappedExternalHostMemoryExtension()) {
+        for (uint32_t i = 0; i < fenceCount; ++i) {
+            if (g_fenceToCommandBuffers.find(pFences[i]) != g_fenceToCommandBuffers.end()) {
+                // Iterate command buffers related to a fence (from the mapping created in __HOOKED_vkQueueSubmit)
+                for (auto iterPrim = g_fenceToCommandBuffers[pFences[i]].begin();
+                     iterPrim != g_fenceToCommandBuffers[pFences[i]].end(); ++iterPrim) {
+                    VkCommandBuffer primaryCmdBuffer = *iterPrim;
+                    if (g_commandBufferToCommandBuffers.find(primaryCmdBuffer) != g_commandBufferToCommandBuffers.end()) {
+                        // Iterate secondary command buffers and their primary command buffer (from the mapping created in
+                        // __HOOKED_vkCmdExecuteCommands)
+                        for (auto iter = g_commandBufferToCommandBuffers[primaryCmdBuffer].begin();
+                             iter != g_commandBufferToCommandBuffers[primaryCmdBuffer].end(); ++iter) {
+                            VkCommandBuffer cmdBuffer = *iter;
+                            if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
+                                // Iterate buffers (from the mapping created in __HOOKED_vkCmdCopyImageToBuffer)
+                                for (auto iterBuffer = g_cmdBufferToBuffers[cmdBuffer].begin();
+                                     iterBuffer != g_cmdBufferToBuffers[cmdBuffer].end(); ++iterBuffer) {
+                                    VkBuffer buffer = *iterBuffer;
+                                    if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end()) {
+                                        // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer
+                                        // (recorded in __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
+                                        VkDevice device = g_bufferToDeviceMemory[buffer].device;
+                                        VkDeviceMemory memory = g_bufferToDeviceMemory[buffer].memory;
+                                        getPageGuardControlInstance().SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
+                                    }
+                                }
+                                // Assuming the command buffer which has vkCmdCopyImageToBuffer will not be re-used.
+                                if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
+                                    g_cmdBufferToBuffers[cmdBuffer].clear();
+                                }
+                                g_cmdBufferToBuffers.erase(cmdBuffer);
+                            }
+                        }
+                        g_commandBufferToCommandBuffers[primaryCmdBuffer].clear();
+                        g_commandBufferToCommandBuffers.erase(primaryCmdBuffer);
+                    } else {
+                        // There's no secondary command buffer so no need to iterate.
+                        if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
+                            // Iterate buffers (from the mapping created in __HOOKED_vkCmdCopyImageToBuffer)
+                            for (auto iterBuffer = g_cmdBufferToBuffers[primaryCmdBuffer].begin();
+                                 iterBuffer != g_cmdBufferToBuffers[primaryCmdBuffer].end(); ++iterBuffer) {
+                                VkBuffer buffer = *iterBuffer;
+                                if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end()) {
+                                    // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer
+                                    // (recorded in __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
+                                    VkDevice device = g_bufferToDeviceMemory[buffer].device;
+                                    VkDeviceMemory memory = g_bufferToDeviceMemory[buffer].memory;
+                                    getPageGuardControlInstance().SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
+                                }
+                            }
+                            // Assuming the command buffer which has vkCmdCopyImageToBuffer will not be re-used.
+                            if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
+                                g_cmdBufferToBuffers[primaryCmdBuffer].clear();
+                            }
+                            g_cmdBufferToBuffers.erase(primaryCmdBuffer);
+                        }
+                    }
+                }
+                g_fenceToCommandBuffers[pFences[i]].clear();
+                g_fenceToCommandBuffers.erase(pFences[i]);
+            }
+        }
+    }
+#endif
+    pPacket = interpret_body_as_vkWaitForFences(pHeader);
+    pPacket->device = device;
+    pPacket->fenceCount = fenceCount;
+    pPacket->waitAll = waitAll;
+    pPacket->timeout = timeout;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pFences), fenceCount * sizeof(VkFence), pFences);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pFences));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY) && !defined(WIN32)
+    pageguardExit();
+#endif
+    return result;
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(VkDevice device,
+                                                                               const VkObjectTableCreateInfoNVX* pCreateInfo,
+                                                                               const VkAllocationCallbacks* pAllocator,
+                                                                               VkObjectTableNVX* pObjectTable) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateObjectTableNVX* pPacket = NULL;
@@ -4066,11 +4972,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(
     return result;
 }
 
-
-VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdProcessCommandsNVX(
-    VkCommandBuffer commandBuffer,
-    const VkCmdProcessCommandsInfoNVX* pProcessCommandsInfo)
-{
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL
+__HOOKED_vkCmdProcessCommandsNVX(VkCommandBuffer commandBuffer, const VkCmdProcessCommandsInfoNVX* pProcessCommandsInfo) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdProcessCommandsNVX* pPacket;
     size_t datasize = 0;
@@ -4111,11 +5015,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdProcessCommandsNVX(
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateIndirectCommandsLayoutNVX(
-    VkDevice device,
-    const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo,
-    const VkAllocationCallbacks* pAllocator,
-    VkIndirectCommandsLayoutNVX* pIndirectCommandsLayout)
-{
+    VkDevice device, const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo, const VkAllocationCallbacks* pAllocator,
+    VkIndirectCommandsLayoutNVX* pIndirectCommandsLayout) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateIndirectCommandsLayoutNVX* pPacket = NULL;
@@ -4162,8 +5064,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateIndirectCommands
     return result;
 }
 
-
-// TODO Wayland and Mir support
+// TODO Wayland support
 
 /* TODO: Probably want to make this manual to get the result of the boolean and then check it on replay
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfaceSupportKHR(
@@ -4208,184 +5109,12 @@ pSurfaceDescription);
 }
 */
 
-static inline PFN_vkVoidFunction layer_intercept_proc(const char* name) {
-    if (!name || name[0] != 'v' || name[1] != 'k') return NULL;
-
-    name += 2;
-
-    if (!strcmp(name, "CreateDevice")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDevice;
-    if (!strcmp(name, "DestroyDevice")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyDevice;
-    if (!strcmp(name, "GetDeviceQueue")) return (PFN_vkVoidFunction)__HOOKED_vkGetDeviceQueue;
-    if (!strcmp(name, "QueueSubmit")) return (PFN_vkVoidFunction)__HOOKED_vkQueueSubmit;
-    if (!strcmp(name, "QueueWaitIdle")) return (PFN_vkVoidFunction)__HOOKED_vkQueueWaitIdle;
-    if (!strcmp(name, "DeviceWaitIdle")) return (PFN_vkVoidFunction)__HOOKED_vkDeviceWaitIdle;
-    if (!strcmp(name, "AllocateMemory")) return (PFN_vkVoidFunction)__HOOKED_vkAllocateMemory;
-    if (!strcmp(name, "FreeMemory")) return (PFN_vkVoidFunction)__HOOKED_vkFreeMemory;
-    if (!strcmp(name, "MapMemory")) return (PFN_vkVoidFunction)__HOOKED_vkMapMemory;
-    if (!strcmp(name, "UnmapMemory")) return (PFN_vkVoidFunction)__HOOKED_vkUnmapMemory;
-    if (!strcmp(name, "FlushMappedMemoryRanges")) return (PFN_vkVoidFunction)__HOOKED_vkFlushMappedMemoryRanges;
-    if (!strcmp(name, "InvalidateMappedMemoryRanges")) return (PFN_vkVoidFunction)__HOOKED_vkInvalidateMappedMemoryRanges;
-    if (!strcmp(name, "GetDeviceMemoryCommitment")) return (PFN_vkVoidFunction)__HOOKED_vkGetDeviceMemoryCommitment;
-    if (!strcmp(name, "BindBufferMemory")) return (PFN_vkVoidFunction)__HOOKED_vkBindBufferMemory;
-    if (!strcmp(name, "BindImageMemory")) return (PFN_vkVoidFunction)__HOOKED_vkBindImageMemory;
-    if (!strcmp(name, "GetBufferMemoryRequirements")) return (PFN_vkVoidFunction)__HOOKED_vkGetBufferMemoryRequirements;
-    if (!strcmp(name, "GetImageMemoryRequirements")) return (PFN_vkVoidFunction)__HOOKED_vkGetImageMemoryRequirements;
-    if (!strcmp(name, "GetImageSparseMemoryRequirements")) return (PFN_vkVoidFunction)__HOOKED_vkGetImageSparseMemoryRequirements;
-    if (!strcmp(name, "GetPhysicalDeviceSparseImageFormatProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceSparseImageFormatProperties;
-    if (!strcmp(name, "QueueBindSparse")) return (PFN_vkVoidFunction)__HOOKED_vkQueueBindSparse;
-    if (!strcmp(name, "CreateFence")) return (PFN_vkVoidFunction)__HOOKED_vkCreateFence;
-    if (!strcmp(name, "DestroyFence")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyFence;
-    if (!strcmp(name, "ResetFences")) return (PFN_vkVoidFunction)__HOOKED_vkResetFences;
-    if (!strcmp(name, "GetFenceStatus")) return (PFN_vkVoidFunction)__HOOKED_vkGetFenceStatus;
-    if (!strcmp(name, "WaitForFences")) return (PFN_vkVoidFunction)__HOOKED_vkWaitForFences;
-    if (!strcmp(name, "CreateSemaphore")) return (PFN_vkVoidFunction)__HOOKED_vkCreateSemaphore;
-    if (!strcmp(name, "DestroySemaphore")) return (PFN_vkVoidFunction)__HOOKED_vkDestroySemaphore;
-    if (!strcmp(name, "CreateEvent")) return (PFN_vkVoidFunction)__HOOKED_vkCreateEvent;
-    if (!strcmp(name, "DestroyEvent")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyEvent;
-    if (!strcmp(name, "GetEventStatus")) return (PFN_vkVoidFunction)__HOOKED_vkGetEventStatus;
-    if (!strcmp(name, "SetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkSetEvent;
-    if (!strcmp(name, "ResetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkResetEvent;
-    if (!strcmp(name, "CreateQueryPool")) return (PFN_vkVoidFunction)__HOOKED_vkCreateQueryPool;
-    if (!strcmp(name, "DestroyQueryPool")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyQueryPool;
-    if (!strcmp(name, "GetQueryPoolResults")) return (PFN_vkVoidFunction)__HOOKED_vkGetQueryPoolResults;
-    if (!strcmp(name, "CreateBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCreateBuffer;
-    if (!strcmp(name, "DestroyBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyBuffer;
-    if (!strcmp(name, "CreateBufferView")) return (PFN_vkVoidFunction)__HOOKED_vkCreateBufferView;
-    if (!strcmp(name, "DestroyBufferView")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyBufferView;
-    if (!strcmp(name, "CreateImage")) return (PFN_vkVoidFunction)__HOOKED_vkCreateImage;
-    if (!strcmp(name, "DestroyImage")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyImage;
-    if (!strcmp(name, "GetImageSubresourceLayout")) return (PFN_vkVoidFunction)__HOOKED_vkGetImageSubresourceLayout;
-    if (!strcmp(name, "CreateImageView")) return (PFN_vkVoidFunction)__HOOKED_vkCreateImageView;
-    if (!strcmp(name, "DestroyImageView")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyImageView;
-    if (!strcmp(name, "CreateShaderModule")) return (PFN_vkVoidFunction)__HOOKED_vkCreateShaderModule;
-    if (!strcmp(name, "DestroyShaderModule")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyShaderModule;
-    if (!strcmp(name, "CreatePipelineCache")) return (PFN_vkVoidFunction)__HOOKED_vkCreatePipelineCache;
-    if (!strcmp(name, "DestroyPipelineCache")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyPipelineCache;
-    if (!strcmp(name, "GetPipelineCacheData")) return (PFN_vkVoidFunction)__HOOKED_vkGetPipelineCacheData;
-    if (!strcmp(name, "MergePipelineCaches")) return (PFN_vkVoidFunction)__HOOKED_vkMergePipelineCaches;
-    if (!strcmp(name, "CreateGraphicsPipelines")) return (PFN_vkVoidFunction)__HOOKED_vkCreateGraphicsPipelines;
-    if (!strcmp(name, "CreateComputePipelines")) return (PFN_vkVoidFunction)__HOOKED_vkCreateComputePipelines;
-    if (!strcmp(name, "DestroyPipeline")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyPipeline;
-    if (!strcmp(name, "CreatePipelineLayout")) return (PFN_vkVoidFunction)__HOOKED_vkCreatePipelineLayout;
-    if (!strcmp(name, "DestroyPipelineLayout")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyPipelineLayout;
-    if (!strcmp(name, "CreateSampler")) return (PFN_vkVoidFunction)__HOOKED_vkCreateSampler;
-    if (!strcmp(name, "DestroySampler")) return (PFN_vkVoidFunction)__HOOKED_vkDestroySampler;
-    if (!strcmp(name, "CreateDescriptorSetLayout")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDescriptorSetLayout;
-    if (!strcmp(name, "DestroyDescriptorSetLayout")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyDescriptorSetLayout;
-    if (!strcmp(name, "CreateDescriptorPool")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDescriptorPool;
-    if (!strcmp(name, "DestroyDescriptorPool")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyDescriptorPool;
-    if (!strcmp(name, "ResetDescriptorPool")) return (PFN_vkVoidFunction)__HOOKED_vkResetDescriptorPool;
-    if (!strcmp(name, "AllocateDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkAllocateDescriptorSets;
-    if (!strcmp(name, "FreeDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkFreeDescriptorSets;
-    if (!strcmp(name, "UpdateDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkUpdateDescriptorSets;
-    if (!strcmp(name, "CreateCommandPool")) return (PFN_vkVoidFunction)__HOOKED_vkCreateCommandPool;
-    if (!strcmp(name, "DestroyCommandPool")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyCommandPool;
-    if (!strcmp(name, "ResetCommandPool")) return (PFN_vkVoidFunction)__HOOKED_vkResetCommandPool;
-    if (!strcmp(name, "AllocateCommandBuffers")) return (PFN_vkVoidFunction)__HOOKED_vkAllocateCommandBuffers;
-    if (!strcmp(name, "FreeCommandBuffers")) return (PFN_vkVoidFunction)__HOOKED_vkFreeCommandBuffers;
-    if (!strcmp(name, "BeginCommandBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkBeginCommandBuffer;
-    if (!strcmp(name, "EndCommandBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkEndCommandBuffer;
-    if (!strcmp(name, "ResetCommandBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkResetCommandBuffer;
-    if (!strcmp(name, "CmdBindPipeline")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindPipeline;
-    if (!strcmp(name, "CmdSetViewport")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetViewport;
-    if (!strcmp(name, "CmdSetScissor")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetScissor;
-    if (!strcmp(name, "CmdSetLineWidth")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetLineWidth;
-    if (!strcmp(name, "CmdSetDepthBias")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetDepthBias;
-    if (!strcmp(name, "CmdSetBlendConstants")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetBlendConstants;
-    if (!strcmp(name, "CmdSetDepthBounds")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetDepthBounds;
-    if (!strcmp(name, "CmdSetStencilCompareMask")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetStencilCompareMask;
-    if (!strcmp(name, "CmdSetStencilWriteMask")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetStencilWriteMask;
-    if (!strcmp(name, "CmdSetStencilReference")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetStencilReference;
-    if (!strcmp(name, "CmdBindDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindDescriptorSets;
-    if (!strcmp(name, "CmdBindIndexBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindIndexBuffer;
-    if (!strcmp(name, "CmdBindVertexBuffers")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindVertexBuffers;
-    if (!strcmp(name, "CmdDraw")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDraw;
-    if (!strcmp(name, "CmdDrawIndexed")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDrawIndexed;
-    if (!strcmp(name, "CmdDrawIndirect")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDrawIndirect;
-    if (!strcmp(name, "CmdDrawIndexedIndirect")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDrawIndexedIndirect;
-    if (!strcmp(name, "CmdDispatch")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDispatch;
-    if (!strcmp(name, "CmdDispatchIndirect")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDispatchIndirect;
-    if (!strcmp(name, "CmdCopyBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyBuffer;
-    if (!strcmp(name, "CmdCopyImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyImage;
-    if (!strcmp(name, "CmdBlitImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBlitImage;
-    if (!strcmp(name, "CmdCopyBufferToImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyBufferToImage;
-    if (!strcmp(name, "CmdCopyImageToBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyImageToBuffer;
-    if (!strcmp(name, "CmdUpdateBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdUpdateBuffer;
-    if (!strcmp(name, "CmdFillBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdFillBuffer;
-    if (!strcmp(name, "CmdClearColorImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdClearColorImage;
-    if (!strcmp(name, "CmdClearDepthStencilImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdClearDepthStencilImage;
-    if (!strcmp(name, "CmdClearAttachments")) return (PFN_vkVoidFunction)__HOOKED_vkCmdClearAttachments;
-    if (!strcmp(name, "CmdResolveImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdResolveImage;
-    if (!strcmp(name, "CmdSetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetEvent;
-    if (!strcmp(name, "CmdResetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkCmdResetEvent;
-    if (!strcmp(name, "CmdWaitEvents")) return (PFN_vkVoidFunction)__HOOKED_vkCmdWaitEvents;
-    if (!strcmp(name, "CmdPipelineBarrier")) return (PFN_vkVoidFunction)__HOOKED_vkCmdPipelineBarrier;
-    if (!strcmp(name, "CmdBeginQuery")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBeginQuery;
-    if (!strcmp(name, "CmdEndQuery")) return (PFN_vkVoidFunction)__HOOKED_vkCmdEndQuery;
-    if (!strcmp(name, "CmdResetQueryPool")) return (PFN_vkVoidFunction)__HOOKED_vkCmdResetQueryPool;
-    if (!strcmp(name, "CmdWriteTimestamp")) return (PFN_vkVoidFunction)__HOOKED_vkCmdWriteTimestamp;
-    if (!strcmp(name, "CmdCopyQueryPoolResults")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyQueryPoolResults;
-    if (!strcmp(name, "CreateFramebuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCreateFramebuffer;
-    if (!strcmp(name, "DestroyFramebuffer")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyFramebuffer;
-    if (!strcmp(name, "CreateRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkCreateRenderPass;
-    if (!strcmp(name, "DestroyRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyRenderPass;
-    if (!strcmp(name, "GetRenderAreaGranularity")) return (PFN_vkVoidFunction)__HOOKED_vkGetRenderAreaGranularity;
-    if (!strcmp(name, "CmdBeginRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBeginRenderPass;
-    if (!strcmp(name, "CmdNextSubpass")) return (PFN_vkVoidFunction)__HOOKED_vkCmdNextSubpass;
-    if (!strcmp(name, "CmdPushConstants")) return (PFN_vkVoidFunction)__HOOKED_vkCmdPushConstants;
-    if (!strcmp(name, "CmdEndRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkCmdEndRenderPass;
-    if (!strcmp(name, "CmdExecuteCommands")) return (PFN_vkVoidFunction)__HOOKED_vkCmdExecuteCommands;
-    if (!strcmp(name, "CreateDescriptorUpdateTemplateKHR")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDescriptorUpdateTemplateKHR;
-    if (!strcmp(name, "DestroyDescriptorUpdateTemplateKHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkDestroyDescriptorUpdateTemplateKHR;
-    if (!strcmp(name, "UpdateDescriptorSetWithTemplateKHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkUpdateDescriptorSetWithTemplateKHR;
-    if (!strcmp(name, "CmdPushDescriptorSetWithTemplateKHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkCmdPushDescriptorSetWithTemplateKHR;
-    if (!strcmp(name, "CreateObjectTableNVX")) return (PFN_vkVoidFunction)__HOOKED_vkCreateObjectTableNVX;
-    if (!strcmp(name, "CmdProcessCommandsNVX")) return (PFN_vkVoidFunction)__HOOKED_vkCmdProcessCommandsNVX;
-    if (!strcmp(name, "CmdReserveSpaceForCommandsNVX")) return(PFN_vkVoidFunction)__HOOKED_vkCmdReserveSpaceForCommandsNVX;
-    if (!strcmp(name, "CreateIndirectCommandsLayoutNVX")) return(PFN_vkVoidFunction)__HOOKED_vkCreateIndirectCommandsLayoutNVX;
-    if (!strcmp(name, "vkRegisterObjectsNVX")) return (PFN_vkVoidFunction)__HOOKED_vkRegisterObjectsNVX;
-    if (!strcmp(name, "GetPhysicalDeviceGeneratedCommandsPropertiesNVX")) return(PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX;
-    if (!strcmp(name, "DestroyIndirectCommandsLayoutNVX")) return(PFN_vkVoidFunction)__HOOKED_vkDestroyIndirectCommandsLayoutNVX;
-    if (!strcmp(name, "DestroyObjectTableNVX")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyObjectTableNVX;
-    if (!strcmp(name, "UnregisterObjectsNVX")) return (PFN_vkVoidFunction)__HOOKED_vkUnregisterObjectsNVX;
-
-    return NULL;
-}
-
-static inline PFN_vkVoidFunction layer_intercept_instance_proc(const char* name) {
-    if (!name || name[0] != 'v' || name[1] != 'k') return NULL;
-
-    name += 2;
-    if (!strcmp(name, "CreateDevice")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDevice;
-    if (!strcmp(name, "CreateInstance")) return (PFN_vkVoidFunction)__HOOKED_vkCreateInstance;
-    if (!strcmp(name, "DestroyInstance")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyInstance;
-    if (!strcmp(name, "EnumeratePhysicalDevices")) return (PFN_vkVoidFunction)__HOOKED_vkEnumeratePhysicalDevices;
-    if (!strcmp(name, "GetPhysicalDeviceFeatures")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFeatures;
-    if (!strcmp(name, "GetPhysicalDeviceFormatProperties")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFormatProperties;
-    if (!strcmp(name, "GetPhysicalDeviceImageFormatProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceImageFormatProperties;
-    if (!strcmp(name, "GetPhysicalDeviceSparseImageFormatProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceSparseImageFormatProperties;
-    if (!strcmp(name, "GetPhysicalDeviceProperties")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceProperties;
-    if (!strcmp(name, "GetPhysicalDeviceQueueFamilyProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceQueueFamilyProperties;
-    if (!strcmp(name, "GetPhysicalDeviceMemoryProperties")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceMemoryProperties;
-    if (!strcmp(name, "EnumerateDeviceLayerProperties")) return (PFN_vkVoidFunction)__HOOKED_vkEnumerateDeviceLayerProperties;
-    if (!strcmp(name, "EnumerateDeviceExtensionProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkEnumerateDeviceExtensionProperties;
-
-    return NULL;
-}
-
 /**
  * Want trace packets created for GetDeviceProcAddr that is app initiated
  * but not for loader initiated calls to GDPA. Thus need two versions of GDPA.
  */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAddr(VkDevice device, const char* funcName) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     PFN_vkVoidFunction addr;
 
     vktrace_trace_packet_header* pHeader;
@@ -4395,8 +5124,8 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAdd
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkGetDeviceProcAddr(pHeader);
     pPacket->device = device;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName),
-                                       ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0), funcName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((funcName != NULL) ? strlen(funcName) + 1 : 0),
+                                       funcName);
     pPacket->result = addr;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pName));
     if (!g_trimEnabled) {
@@ -4451,6 +5180,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDevicePro
  * but not for loader initiated calls to GIPA. Thus need two versions of GIPA.
  */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcAddr(VkInstance instance, const char* funcName) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     PFN_vkVoidFunction addr;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetInstanceProcAddr* pPacket = NULL;
@@ -4460,8 +5190,8 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkGetInstanceProcAddr(pHeader);
     pPacket->instance = instance;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName),
-                                       ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0), funcName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((funcName != NULL) ? strlen(funcName) + 1 : 0),
+                                       funcName);
     pPacket->result = addr;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pName));
     if (!g_trimEnabled) {
@@ -4480,6 +5210,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
 
 /* GIPA with no trace packet creation */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceProcAddr(VkInstance instance, const char* funcName) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     PFN_vkVoidFunction addr;
     layer_instance_data* instData;
 
@@ -4518,42 +5249,35 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
             if (!strcmp("vkGetPhysicalDeviceSurfacePresentModesKHR", funcName))
                 return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceSurfacePresentModesKHR;
         }
-#ifdef VK_USE_PLATFORM_XLIB_KHR
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
         if (instData->KHRXlibSurfaceEnabled) {
             if (!strcmp("vkCreateXlibSurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateXlibSurfaceKHR;
             if (!strcmp("vkGetPhysicalDeviceXlibPresentationSupportKHR", funcName))
                 return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceXlibPresentationSupportKHR;
         }
 #endif
-#ifdef VK_USE_PLATFORM_XCB_KHR
+#if defined(VK_USE_PLATFORM_XCB_KHR)
         if (instData->KHRXcbSurfaceEnabled) {
             if (!strcmp("vkCreateXcbSurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateXcbSurfaceKHR;
             if (!strcmp("vkGetPhysicalDeviceXcbPresentationSupportKHR", funcName))
                 return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceXcbPresentationSupportKHR;
         }
 #endif
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
         if (instData->KHRWaylandSurfaceEnabled) {
             if (!strcmp("vkCreateWaylandSurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateWaylandSurfaceKHR;
             if (!strcmp("vkGetPhysicalDeviceWaylandPresentationSupportKHR", funcName))
                 return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceWaylandPresentationSupportKHR;
         }
 #endif
-#ifdef VK_USE_PLATFORM_MIR_KHR
-        if (instData->KHRMirSurfaceEnabled) {
-            if (!strcmp("vkCreateMirSurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateMirSurfaceKHR;
-            if (!strcmp("vkGetPhysicalDeviceMirPresentationSupportKHR", funcName))
-                return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceMirPresentationSupportKHR;
-        }
-#endif
-#ifdef VK_USE_PLATFORM_WIN32_KHR
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
         if (instData->KHRWin32SurfaceEnabled) {
             if (!strcmp("vkCreateWin32SurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateWin32SurfaceKHR;
             if (!strcmp("vkGetPhysicalDeviceWin32PresentationSupportKHR", funcName))
                 return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceWin32PresentationSupportKHR;
         }
 #endif
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
         if (instData->KHRAndroidSurfaceEnabled) {
             if (!strcmp("vkCreateAndroidSurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateAndroidSurfaceKHR;
         }
@@ -4589,7 +5313,7 @@ VkResult EnumerateProperties(uint32_t src_count, const T* src_props, uint32_t* d
 }
 
 // LoaderLayerInterface V0
-// https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/blob/master/loader/LoaderAndLayerInterface.md
+// https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
                                                                                   VkLayerProperties* pProperties) {
@@ -4605,9 +5329,21 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
     return VK_ERROR_LAYER_NOT_PRESENT;
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceExtensionProperties(const char* pLayerName,
+                                                                                               uint32_t* pPropertyCount,
+                                                                                               VkExtensionProperties* pProperties) {
+    return vkEnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
+                                                                                           VkLayerProperties* pProperties) {
+    return vkEnumerateInstanceLayerProperties(pPropertyCount, pProperties);
+}
+
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice,
                                                                                 uint32_t* pPropertyCount,
                                                                                 VkLayerProperties* pProperties) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
 }
 
@@ -4627,5 +5363,6 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktrace
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetDeviceProcAddr(VkDevice device,
                                                                                                   const char* funcName) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     return __HOOKED_vkGetDeviceProcAddr(device, funcName);
 }

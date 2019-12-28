@@ -34,6 +34,12 @@
 #include <sys/wait.h>
 #endif
 
+#include <vector>
+
+#if defined(WIN32)
+#include <TlHelp32.h>
+#endif
+
 extern "C" {
 #include "vktrace_filelike.h"
 #include "vktrace_interconnect.h"
@@ -56,24 +62,66 @@ void SafeCloseHandle(HANDLE& _handle) {
 // Needs to be static because Process_RunWatchdogThread passes the address of rval to pthread_exit
 static int rval;
 #endif
-
 // ------------------------------------------------------------------------------------------------
 VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr) {
     vktrace_process_info* pProcInfo = (vktrace_process_info*)_procInfoPtr;
 
 #if defined(WIN32)
 
-    DWORD rv;
-    while (WaitForSingleObject(pProcInfo->hProcess, kWatchDogPollTime) == WAIT_TIMEOUT) {
+    DWORD processExitCode = 0;
+    DWORD waitingResult = WAIT_FAILED;
+    while (WAIT_TIMEOUT == (waitingResult = WaitForSingleObject(pProcInfo->hProcess, kWatchDogPollTime))) {
         if (pProcInfo->serverRequestsTermination) {
             vktrace_LogVerbose("Vktrace has requested exit.");
             return 0;
         }
     }
+    if (WAIT_OBJECT_0 == waitingResult) {
+        std::vector<vktrace_process_id> childProcesses;
 
+        // The process is finished, now we need to check all its child proess
+        // also be finished. When capturing steam game and that game cannot
+        // run without steam client, if launch the game binary directly, the
+        // binary will just start steam client and quit, then steam client
+        // launch the game binary.
+
+        HANDLE processSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (processSnapShot != INVALID_HANDLE_VALUE) {
+            PROCESSENTRY32 processEntry;
+            memset(&processEntry, 0, sizeof(processEntry));
+            processEntry.dwSize = sizeof(PROCESSENTRY32);
+            bool queryProcess = (TRUE == Process32First(processSnapShot, &processEntry));
+            while (queryProcess) {
+                if (processEntry.th32ParentProcessID == pProcInfo->processId) {
+                    childProcesses.push_back(processEntry.th32ProcessID);
+                }
+                queryProcess = (TRUE == Process32Next(processSnapShot, &processEntry));
+            }
+            CloseHandle(processSnapShot);
+            if (childProcesses.size() != 0) {
+                HANDLE childProcessHandle;
+                // The target process has one or more child processes, we're
+                // going to get their handles and wait them all signaled.
+                std::vector<HANDLE> childProcessHandles;
+                childProcessHandles.reserve(childProcesses.size());
+                for (vktrace_process_id childProcessId : childProcesses) {
+                    childProcessHandle = OpenProcess(SYNCHRONIZE, false, childProcessId);
+                    if (childProcessHandle != nullptr) {
+                        childProcessHandles.push_back(childProcessHandle);
+                    }
+                }
+
+                WaitForMultipleObjects(childProcessHandles.size(), childProcessHandles.data(), TRUE, INFINITE);
+
+                for (HANDLE finishedProcessHandle : childProcessHandles) {
+                    CloseHandle(finishedProcessHandle);
+                }
+            }
+        }
+    }
     vktrace_LogVerbose("Child process has terminated.");
-    GetExitCodeProcess(pProcInfo->hProcess, &rv);
-    PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, rv, 0);
+    GetExitCodeProcess(pProcInfo->hProcess, &processExitCode);
+    PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, processExitCode, 0);
     pProcInfo->serverRequestsTermination = TRUE;
     return 0;
 
@@ -120,14 +168,14 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     uint64_t fileHeaderSize;
     vktrace_trace_file_header file_header;
     vktrace_trace_packet_header* pHeader = NULL;
-    size_t bytes_written;
-    size_t fileOffset;
+    uint64_t bytes_written;
+    uint64_t fileOffset;
 #if defined(WIN32)
     BOOL rval;
 #elif defined(PLATFORM_LINUX)
-    sighandler_t rval;
+    sighandler_t rval __attribute__((unused));
 #elif defined(PLATFORM_OSX)
-    sig_t rval;
+    sig_t rval __attribute__((unused));
 #endif
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
@@ -142,7 +190,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     if (pInfo->pProcessInfo->pTraceFile == NULL) {
         // open of trace file generated an error, no sense in continuing.
         vktrace_LogError("Error cannot create trace file.");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
 
@@ -160,7 +207,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         file_header.first_packet_offset != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
         // Trace file header we received is the wrong size
         vktrace_LogError("Error creating trace file header. Are vktrace and trace layer the same version?");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
 
@@ -180,7 +226,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 
     if (bytes_written != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
         vktrace_LogError("Unable to write trace file header - fwrite failed.");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
     fileOffset = file_header.first_packet_offset;
@@ -230,7 +275,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 
             if (pHeader->packet_id == VKTRACE_TPI_MARKER_TERMINATE_PROCESS) {
                 pInfo->pProcessInfo->serverRequestsTermination = true;
-                vktrace_delete_trace_packet(&pHeader);
+                vktrace_delete_trace_packet_no_lock(&pHeader);
                 vktrace_LogVerbose("Thread_CaptureTrace is exiting.");
                 break;
             }
@@ -247,9 +292,13 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
                 // If the packet is one we need to track, add it to the table
                 if (pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory2KHR ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory2KHR ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkAllocateMemory || pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkFreeMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkCreateBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkCreateImage) {
+                    vktrace_LogDebug("Add packet to portability table: %s",
+                                     vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id));
                     portabilityTable.push_back(fileOffset);
                 }
                 lastPacketIndex = pHeader->global_packet_index;
@@ -260,7 +309,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         }
 
         // clean up
-        vktrace_delete_trace_packet(&pHeader);
+        vktrace_delete_trace_packet_no_lock(&pHeader);
     }
 
 #if defined(WIN32)

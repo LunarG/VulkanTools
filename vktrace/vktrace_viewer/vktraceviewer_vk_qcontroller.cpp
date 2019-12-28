@@ -65,16 +65,6 @@ vktrace_trace_packet_header* vktraceviewer_vk_QController::InterpretTracePacket(
     vktrace_trace_packet_header* pInterpretedHeader = interpret_trace_packet_vk(pHeader);
     if (pInterpretedHeader == NULL) {
         vktrace_LogError("Unrecognized Vulkan packet id: %u.", pHeader->packet_id);
-    } else if (pInterpretedHeader->packet_id == VKTRACE_TPI_VK_vkApiVersion) {
-        packet_vkApiVersion* pPacket = (packet_vkApiVersion*)pInterpretedHeader->pBody;
-        if (pPacket->version != VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) {
-            vktrace_LogError(
-                "Trace file is from Vulkan version 0x%x (%u.%u.%u), but the VkTraceViewer plugin only supports version 0x%x "
-                "(%u.%u.%u).",
-                pPacket->version, VK_VERSION_MAJOR(pPacket->version), VK_VERSION_MINOR(pPacket->version),
-                VK_VERSION_PATCH(pPacket->version), VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, 0, VK_HEADER_VERSION);
-            pInterpretedHeader = NULL;
-        }
     }
 
     return pInterpretedHeader;

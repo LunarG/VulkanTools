@@ -1,5 +1,5 @@
+cmake_minimum_required(VERSION 3.10.2)
 project(vktrace_common)
-cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
@@ -8,6 +8,8 @@ include_directories(
     ${PROJECT_BINARY_DIR}/../..
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
+    ${CMAKE_BINARY_DIR}/vktrace
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -42,7 +44,7 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${CXX_SRC_LIST} ${HDRS})
 
-add_dependencies(${PROJECT_NAME} generate_helper_files)
+add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 target_link_libraries(${PROJECT_NAME}
@@ -53,6 +55,10 @@ target_link_Libraries(${PROJECT_NAME}
     dl
     pthread
 )
+    find_library(LIBRT rt)
+    if(LIBRT)
+        target_link_libraries(${PROJECT_NAME} ${LIBRT})
+    endif()
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 build_options_finalize()

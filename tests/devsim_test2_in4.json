@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
+  "comments": {
+    "url": "https://github.com/LunarG/VulkanTools/tree/master/tests",
+    "desc": "A configuration file fragment for the Device Simulation layer test."
+  },
+  "ArrayOfVkQueueFamilyProperties": [
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004001,
+        "height": 900004002,
+        "width": 900004003
+      },
+      "queueCount": 1,
+      "queueFlags": 900004005,
+      "timestampValidBits": 900004006
+    },
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004007,
+        "height": 900004008,
+        "width": 900004009
+      },
+      "queueCount": 1,
+      "queueFlags": 900004011,
+      "timestampValidBits": 900004012
+    },
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004013,
+        "height": 900004014,
+        "width": 900004015
+      },
+      "queueCount": 1,
+      "queueFlags": 900004017,
+      "timestampValidBits": 900004018
+    }
+  ]
+}

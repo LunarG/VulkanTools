@@ -27,7 +27,7 @@
 #include "vktrace_memory.h"
 #include "vktrace_process.h"
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -40,6 +40,7 @@ void vktrace_initialize_trace_packet_utils();
 void vktrace_deinitialize_trace_packet_utils();
 
 uint64_t get_endianess();
+const char* get_endianess_string(uint64_t endianess);
 uint64_t get_arch();
 uint64_t get_os();
 
@@ -76,7 +77,7 @@ static FILE* vktrace_open_trace_file(vktrace_process_info* pProcInfo) {
 vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
                                                          uint64_t additional_buffers_size);
 
-// deletes a trace packet and sets pointer to NULL
+// deletes a trace packet and sets pointer to NULL, this function should be used on a packet created to write to trace file
 void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader);
 
 // gets the next address available to write a buffer into the packet
@@ -110,6 +111,9 @@ void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, File
 // Reads in the trace packet header, the body of the packet, and additional buffers
 vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile);
 
+// deletes a trace packet and sets pointer to NULL, this function should be used on a packet read from trace file
+void vktrace_delete_trace_packet_no_lock(vktrace_trace_packet_header** ppHeader);
+
 // converts a pointer variable that is currently byte offset into a pointer to the actual offset location
 void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
 
@@ -125,10 +129,10 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
 VkInstanceCreateInfo* interpret_VkInstanceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
 VkDeviceCreateInfo* interpret_VkDeviceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
 void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHeader, VkPipelineShaderStageCreateInfo* pShader);
-VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
-                                                                             intptr_t ptr_variable);
+VkDeviceGroupDeviceCreateInfo* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
+                                                                          intptr_t ptr_variable);
 // converts the Vulkan struct pnext chain that is currently byte offsets into pointers
-void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr);
+void vkreplay_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr);
 
 //=============================================================================
 // trace packet message
@@ -145,6 +149,6 @@ static vktrace_trace_packet_message* vktrace_interpret_body_as_trace_packet_mess
     return pPacket;
 }
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif

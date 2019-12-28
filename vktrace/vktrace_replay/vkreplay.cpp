@@ -1,7 +1,7 @@
 /**************************************************************************
  *
- * Copyright 2014-2016 Valve Corporation, Inc.
- * Copyright (C) 2014-2016 LunarG, Inc.
+ * Copyright 2014-2018 Valve Corporation, Inc.
+ * Copyright (C) 2014-2018 LunarG, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,14 +19,19 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  * Author: Jon Ashburn <jon@lunarg.com>
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
+ * Author: David Pinedo <david@lunarg.com>
  **************************************************************************/
+
+// Define VKREPLAY for vktrace_vk_vk_packets.h
+#define VKREPLAY
+
 #include <inttypes.h>
 #include "vkreplay.h"
 #include "vkreplay_vkreplay.h"
 #include "vktrace_vk_packet_id.h"
 #include "vktrace_tracelog.h"
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, false, NULL, NULL, NULL, "xcb"};
 
 vkReplay* g_pReplayer = NULL;
 VKTRACE_CRITICAL_SECTION g_handlerLock;
@@ -92,9 +97,9 @@ int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::ReplayDisplay* pDisplay, v
                                       vktrace_trace_file_header* pFileHeader) {
     try {
         if (pReplaySettings == NULL) {
-            g_pReplayer = new vkReplay(&s_defaultVkReplaySettings, pFileHeader);
+            g_pReplayer = new vkReplay(&s_defaultVkReplaySettings, pFileHeader, pDisplay->get_imp());
         } else {
-            g_pReplayer = new vkReplay(pReplaySettings, pFileHeader);
+            g_pReplayer = new vkReplay(pReplaySettings, pFileHeader, pDisplay->get_imp());
         }
     } catch (int e) {
         vktrace_LogError("Failed to create vkReplay, probably out of memory. Error %d", e);
@@ -153,5 +158,14 @@ int VKTRACER_CDECL VkReplayGetFrameNumber() {
 void VKTRACER_CDECL VkReplayResetFrameNumber(int frameNumber) {
     if (g_pReplayer != NULL) {
         g_pReplayer->reset_frame_number(frameNumber);
+    }
+}
+
+// This function is called from vkreplay_process_pnext_structs in vktrace_vk_vk_packets.h
+// to translate handles inside of pnext structures.  We call g_pReplayer->interpret_pnext_handles
+// because only an instance of the vkReplay class can interpret handles.
+void vkreplay_interpret_pnext_handles(void* struct_ptr) {
+    if (g_pReplayer != NULL) {
+        g_pReplayer->interpret_pnext_handles(struct_ptr);
     }
 }

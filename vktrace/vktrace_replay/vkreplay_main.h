@@ -1,7 +1,7 @@
 /**************************************************************************
  *
- * Copyright 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright 2015-2018 Valve Corporation
+ * Copyright (C) 2015-2018 LunarG, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
  *
  * Author: Jon Ashburn <jon@lunarg.com>
  * Author: Tony Barbour <tony@lunarg.com>
+ * Author: David Pinedo <david@lunarg.com>
  **************************************************************************/
 #ifndef VKREPLAY__MAIN_H
 #define VKREPLAY__MAIN_H
@@ -25,15 +26,18 @@
 typedef struct vkreplayer_settings {
     char* pTraceFilePath;
     unsigned int numLoops;
-    int loopStartFrame;
-    int loopEndFrame;
+    unsigned int loopStartFrame;
+    unsigned int loopEndFrame;
+    bool compatibilityMode;
+    bool exitOnAnyError;
     const char* screenshotList;
     const char* screenshotColorFormat;
     const char* verbosity;
+    const char* displayServer;
 } vkreplayer_settings;
 
 #include <vector>
-extern std::vector<size_t> portabilityTable;
+extern std::vector<uintptr_t> portabilityTablePackets;
 extern FileLike* traceFile;
 
 #endif  // VKREPLAY__MAIN_H

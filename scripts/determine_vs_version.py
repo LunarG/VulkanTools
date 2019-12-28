@@ -20,6 +20,7 @@
 
 import sys
 import os
+import subprocess
 
 # Following function code snippet was found on StackOverflow (with a change to lower
 # camel-case on the variable names):
@@ -63,7 +64,7 @@ def determine_year(version):
 # it into a format we can use, which is "<version_num> <version_year>".
 if __name__ == '__main__':
     exeName     = 'msbuild.exe'
-    versionCall = exeName + ' /ver'
+    arguments   = '/ver'
 
     # Determine if the executable exists in the path, this is critical.
     #
@@ -71,11 +72,12 @@ if __name__ == '__main__':
 
     # If not found, return an invalid number but in the appropriate format so it will
     # fail if the program above tries to use it.
-    if foundExeName == None:
+    if foundExeName is None:
         print('00 0000')
         print('Executable ' + exeName + ' not found in PATH!')
     else:
-        sysCallOut = os.popen(versionCall).read()
+        proc = subprocess.Popen([exeName, arguments], stdout=subprocess.PIPE)
+        sysCallOut = proc.stdout.readline().decode('iso-8859-1').rstrip()
         
         version = None
 
@@ -84,7 +86,7 @@ if __name__ == '__main__':
         for spaceString in spaceList:
 
             # If we've already found it, bail.
-            if version != None:
+            if version is not None:
                 break
         
             # Now split around line feeds
@@ -92,7 +94,7 @@ if __name__ == '__main__':
             for curLine in lineList:
 
                 # If we've already found it, bail.
-                if version != None:
+                if version is not None:
                     break
             
                 # We only want to continue if there's a period in the list
@@ -107,7 +109,7 @@ if __name__ == '__main__':
                     break
         
         # Failsafe to return a number in the proper format, but one that will fail.
-        if version == None:
+        if version is None:
             version = 00
 
         # Determine the year associated with that version

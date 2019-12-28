@@ -52,13 +52,13 @@ extern vktraceviewer_output gs_OUTPUT;
 inline void vktraceviewer_output_init(QTextBrowser* pTextEdit) { gs_OUTPUT.init(pTextEdit); }
 
 inline void vktraceviewer_output_message(uint64_t packetIndex, const QString& message) { gs_OUTPUT.message(packetIndex, message); }
-inline void vktraceviewer_output_message(const QString& message) { gs_OUTPUT.message(-1, message); }
+inline void vktraceviewer_output_message(const QString& message) { gs_OUTPUT.message((uint64_t)-1, message); }
 
 inline void vktraceviewer_output_warning(uint64_t packetIndex, const QString& warning) { gs_OUTPUT.warning(packetIndex, warning); }
-inline void vktraceviewer_output_warning(const QString& warning) { gs_OUTPUT.warning(-1, warning); }
+inline void vktraceviewer_output_warning(const QString& warning) { gs_OUTPUT.warning((uint64_t)-1, warning); }
 
 inline void vktraceviewer_output_error(uint64_t packetIndex, const QString& error) { gs_OUTPUT.error(packetIndex, error); }
-inline void vktraceviewer_output_error(const QString& error) { gs_OUTPUT.error(-1, error); }
+inline void vktraceviewer_output_error(const QString& error) { gs_OUTPUT.error((uint64_t)-1, error); }
 inline void vktraceviewer_output_deinit() { gs_OUTPUT.init(0); }
 
 #endif  // VKTRACEVIEWER_OUTPUT_H

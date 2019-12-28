@@ -20,6 +20,8 @@
  **************************************************************************/
 #pragma once
 
+#include "vktrace_multiplatform.h"
+
 extern "C" {
 #include "vktrace_platform.h"
 }
@@ -27,50 +29,50 @@ extern "C" {
 #if defined(PLATFORM_LINUX) || defined(XCB_NVIDIA)
 #if defined(ANDROID)
 #include <android_native_app_glue.h>
-typedef ANativeWindow* vktrace_window_handle;
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VK_USE_PLATFORM_XCB_KHR)
 #include <xcb/xcb.h>
-typedef xcb_window_t vktrace_window_handle;
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VK_USE_PLATFORM_XLIB_KHR)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
 #include <wayland-client.h>
-typedef wl_display* vktrace_window_handle;
 #endif
 #endif
 #elif defined(WIN32)
-typedef HWND vktrace_window_handle;
 #endif
 
 /* classes to abstract the display and initialization of rendering API for presenting
- * framebuffers for display into a window on the screen or else fullscreen.
+ * framebuffers for display into a window on the screen.
  * Uses Bridge design pattern.
  */
 namespace vktrace_replay {
 
 class ReplayDisplayImp {
    public:
+    ReplayDisplayImp() : m_initedVK(false) {}
     virtual ~ReplayDisplayImp() {}
     virtual int init(const unsigned int gpu_idx) = 0;
-    virtual int set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height) = 0;
     virtual int create_window(const unsigned int width, const unsigned int height) = 0;
+    virtual void resize_window(const unsigned int width, const unsigned int height) = 0;
     virtual void process_event() = 0;
     virtual bool get_pause_status() = 0;
     virtual void set_pause_status(bool pause) = 0;
     virtual bool get_quit_status() = 0;
     virtual void set_quit_status(bool quit) = 0;
+    virtual VkSurfaceKHR get_surface() = 0;
+    virtual void set_window_handle(void* pHandle) = 0;
+
+    bool m_initedVK;
 };
 
 class ReplayDisplay {
    public:
-    ReplayDisplay() : m_imp(NULL), m_width(0), m_height(0), m_gpu(0), m_fullscreen(false), m_hWindow(0) {}
+    ReplayDisplay() : m_imp(NULL), m_width(0), m_height(0), m_gpu(0) {}
 
-    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen)
-        : m_imp(NULL), m_width(width), m_height(height), m_gpu(gpu), m_fullscreen(fullscreen), m_hWindow(0) {}
+    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu)
+        : m_imp(NULL), m_width(width), m_height(height), m_gpu(gpu) {}
 
-    ReplayDisplay(vktrace_window_handle hWindow, unsigned int width, unsigned int height)
-        : m_imp(NULL), m_width(width), m_height(height), m_gpu(0), m_fullscreen(false), m_hWindow(hWindow) {}
+    ReplayDisplay(const unsigned int width, const unsigned int height) : m_imp(NULL), m_width(width), m_height(height), m_gpu(-1) {}
 
     virtual ~ReplayDisplay() {}
 
@@ -82,14 +84,20 @@ class ReplayDisplay {
         else
             return -1;
     }
+
+    void set_window_handle(void* pHandle) {
+        if (m_imp) {
+            m_imp->set_window_handle(pHandle);
+        }
+    }
+
     void process_event() {
         if (m_imp) m_imp->process_event();
     }
+    ReplayDisplayImp* get_imp() { return m_imp; }
     unsigned int get_gpu() { return m_gpu; }
     unsigned int get_width() { return m_width; }
     unsigned int get_height() { return m_height; }
-    bool get_fullscreen() { return m_fullscreen; }
-    vktrace_window_handle get_window_handle() { return m_hWindow; }
     bool get_pause_status() {
         if (m_imp) {
             return m_imp->get_pause_status();
@@ -114,8 +122,6 @@ class ReplayDisplay {
     unsigned int m_width;
     unsigned int m_height;
     unsigned int m_gpu;
-    bool m_fullscreen;
-    vktrace_window_handle m_hWindow;
 };
 
 }  // namespace vktrace_replay

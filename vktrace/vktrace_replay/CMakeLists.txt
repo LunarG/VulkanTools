@@ -1,38 +1,58 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10.2)
 project(vkreplay)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
 if(WIN32)
-  set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
-elseif(UNIX)
-  set (LIBRARIES "${API_LOWERCASE}")
-else()
+    set_source_files_properties(vkreplay_vkreplay.cpp PROPERTIES COMPILE_FLAGS "/bigobj")
 endif()
-
-# Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-    if(BUILD_WSI_XCB_SUPPORT AND VKREPLAY_WSI_SELECTION STREQUAL XCB)
-        set(OS_REPLAYER_LIBS xcb ${LIBRARIES})
-    elseif(BUILD_WSI_WAYLAND_SUPPORT AND VKREPLAY_WSI_SELECTION STREQUAL WAYLAND)
-        set(OS_REPLAYER_LIBS ${WAYLAND_CLIENT_LIBRARIES} ${LIBRARIES})
+    set(XCB_DISPLAY_LIB vkdisplay_xcb)
+
+    set(XCB_SRC_LIST
+        vkreplay_vkdisplay_xcb.cpp
+    )
+
+    set (XCB_HDR_LIST
+        vkreplay_vkdisplay.h
+    )
+
+    add_library(${XCB_DISPLAY_LIB} SHARED ${XCB_SRC_LIST} ${XCB_HDR_LIST})
+
+    target_link_libraries(${XCB_DISPLAY_LIB}
+        xcb-randr xcb-ewmh xcb
+        vktrace_common
+    )
+
+    if(BUILD_WSI_WAYLAND_SUPPORT)
+        set(WAYLAND_DISPLAY_LIB vkdisplay_wayland)
+
+        set(WAYLAND_SRC_LIST
+            vkreplay_vkdisplay_wayland.cpp
+        )
+
+        set (WAYLAND_HDR_LIST
+            vkreplay_vkdisplay.h
+        )
+
+        add_library(${WAYLAND_DISPLAY_LIB} SHARED ${WAYLAND_SRC_LIST} ${WAYLAND_HDR_LIST})
+
+        target_link_libraries(${WAYLAND_DISPLAY_LIB}
+            ${WAYLAND_CLIENT_LIBRARIES}
+            vktrace_common
+        )
     endif()
+
+    # Make sure the exe directory is searched when loading libraries with dlopen
+    set(CMAKE_BUILD_RPATH $ORIGIN)
     
-    # TODO Add Mir Support
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
-    ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(OS_REPLAYER_LIBS ${LIBRARIES})
-endif()
+
 set(SRC_LIST
     ${SRC_LIST}
     vkreplay.cpp
@@ -64,30 +84,28 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
     ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
     ${GENERATED_FILES_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CMAKE_BINARY_DIR}
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
-
-add_definitions(-DAPI_LOWERCASE="${API_LOWERCASE}")
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
 
-if(WIN32)
-    add_dependencies(${PROJECT_NAME} generate_helper_files "${API_LOWERCASE}-${MAJOR}")
-else()
-    add_dependencies(${PROJECT_NAME} generate_helper_files "${API_LOWERCASE}")
-endif()
+add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
-    ${OS_REPLAYER_LIBS}
-    ${VKTRACE_VULKAN_LIB}
+    ${LIBRARIES}
+    Vulkan::Vulkan
     vktrace_common
 )
 
 build_options_finalize()
 if(UNIX)
     install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS ${XCB_DISPLAY_LIB} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    if(BUILD_WSI_WAYLAND_SUPPORT)
+        install(TARGETS ${WAYLAND_DISPLAY_LIB} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    endif()
 endif()

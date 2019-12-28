@@ -1,9 +1,10 @@
 @echo off
-REM Update source for glslang, spirv-tools, and shaderc
+REM Update source for jsoncpp, Vulkan-Headers, Vulkan-Tools, and Vulkan-ValidationLayers
 
 REM
-REM Copyright 2016 The Android Open Source Project
-REM Copyright (C) 2015 Valve Corporation
+REM Copyright 2016-2019 The Android Open Source Project
+REM Copyright (C) 2015-2019 Valve Corporation
+REM Copyright (C) 2015-2019 LunarG, Inc.
 REM
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.
@@ -23,11 +24,10 @@ set errorCode=0
 set ANDROID_BUILD_DIR=%~dp0
 set BUILD_DIR=%ANDROID_BUILD_DIR%
 set BASE_DIR=%BUILD_DIR%\third_party
-set GLSLANG_DIR=%BASE_DIR%\shaderc\third_party\glslang
-set SPIRV_TOOLS_DIR=%BASE_DIR%\shaderc\third_party\spirv-tools
-set SPIRV_HEADERS_DIR=%BASE_DIR%\shaderc\third_party\spirv-tools\external\spirv-headers
-set SHADERC_DIR=%BASE_DIR%\shaderc
 set JSONCPP_DIR=%BASE_DIR%\jsoncpp
+set VULKAN_TOOLS_DIR=%BASE_DIR%\Vulkan-Tools
+set VULKAN_HEADERS_DIR=%BASE_DIR%\Vulkan-Headers
+set VULKAN_VALIDATIONLAYERS_DIR=%BASE_DIR%\Vulkan-ValidationLayers
 
 for %%X in (where.exe) do (set FOUND=%%~$PATH:X)
 if not defined FOUND (
@@ -67,33 +67,6 @@ if %errorCode% neq 0 (goto:error)
 
 REM Read the target versions from external file, which is shared with Linux script
 
-if not exist %ANDROID_BUILD_DIR%\glslang_revision_android (
-   echo.
-   echo Missing glslang_revision_android file. Place it in %ANDROID_BUILD_DIR%
-   goto:error
-)
-
-if not exist %ANDROID_BUILD_DIR%\spirv-tools_revision_android (
-   echo.
-   echo Missing spirv-tools_revision_android file. Place it in %ANDROID_BUILD_DIR%
-   set errorCode=1
-   goto:error
-)
-
-if not exist %ANDROID_BUILD_DIR%\spirv-headers_revision_android (
-   echo.
-   echo Missing spirv-headers_revision_android file. Place it in %ANDROID_BUILD_DIR%
-   set errorCode=1
-   goto:error
-)
-
-if not exist %ANDROID_BUILD_DIR%\shaderc_revision_android (
-   echo.
-   echo Missing shaderc_revision_android file. Place it in %ANDROID_BUILD_DIR%
-   set errorCode=1
-   goto:error
-)
-
 if not exist %ANDROID_BUILD_DIR%\jsoncpp_revision_android (
    echo.
    echo Missing jsoncpp_revision_android file. Place it in %ANDROID_BUILD_DIR%
@@ -101,62 +74,48 @@ if not exist %ANDROID_BUILD_DIR%\jsoncpp_revision_android (
    goto:error
 )
 
-set /p GLSLANG_REVISION= < glslang_revision_android
-set /p SPIRV_TOOLS_REVISION= < spirv-tools_revision_android
-set /p SPIRV_HEADERS_REVISION= < spirv-headers_revision_android
-set /p SHADERC_REVISION= < shaderc_revision_android
+if not exist %ANDROID_BUILD_DIR%\vulkan-tools_revision_android (
+   echo.
+   echo Missing vulkan-tools_revision_android file. Place it in %ANDROID_BUILD_DIR%
+   set errorCode=1
+   goto:error
+)
+
+if not exist %ANDROID_BUILD_DIR%\vulkan-validationlayers_revision_android (
+   echo.
+   echo Missing vulkan-validationlayers_revision_android file. Place it in %ANDROID_BUILD_DIR%
+   set errorCode=1
+   goto:error
+)
+
 set /p JSONCPP_REVISION= < jsoncpp_revision_android
-echo GLSLANG_REVISION=%GLSLANG_REVISION%
-echo SPIRV_TOOLS_REVISION=%SPIRV_TOOLS_REVISION%
-echo SPIRV_HEADERS_REVISION=%SPIRV_HEADERS_REVISION%
-echo SHADERC_REVISION=%SHADERC_REVISION%
+set /p VULKAN_TOOLS_REVISION= < vulkan-tools_revision_android
+set /p VULKAN_VALIDATIONLAYERS_REVISION= < vulkan-validationlayers_revision_android
+set /p VULKAN_HEADERS_REVISION= < vulkan-headers_revision_android
 echo JSONCPP_REVISION=%JSONCPP_REVISION%
+echo VULKAN_TOOLS_REVISION=%VULKAN_TOOLS_REVISION%
+echo VULKAN_VALIDATIONLAYERS_REVISION=%VULKAN_VALIDATIONLAYERS_REVISION%
+echo VULKAN_HEADERS_REVISION=%VULKAN_HEADERS_REVISION%
 
-echo Creating and/or updating glslang, spirv-tools, spirv-headers, shaderc in %BASE_DIR%
+echo Creating and/or updating jsoncpp, vulkan-tools, vulkan-validationlayers in %BASE_DIR%
 
-set sync-glslang=1
-set sync-spirv-tools=1
-set sync-spirv-headers=1
-set sync-shaderc=1
+set sync-vulkan-headers=1
 set sync-jsoncpp=1
-set build-shaderc=1
+set sync-vulkan-tools=1
+set sync-vulkan-validationlayers=1
 set build-jsoncpp=1
 
-if %sync-shaderc% equ 1 (
-   if not exist %SHADERC_DIR% (
-      call:create_shaderc
-   )
-   if %errorCode% neq 0 (goto:error)
-   call:update_shaderc
-   if %errorCode% neq 0 (goto:error)
-)
+REM Always init the submodules, which includes vulkan headers
+echo Initializing submodules
+git submodule update --init --recursive
 
-if %sync-glslang% equ 1 (
-   if not exist %GLSLANG_DIR% (
-      call:create_glslang
-   )
-   if %errorCode% neq 0 (goto:error)
-   call:update_glslang
-   if %errorCode% neq 0 (goto:error)
-)
-
-if %sync-spirv-tools% equ 1 (
+if %sync-vulkan-headers% equ 1 (
    if %ERRORLEVEL% neq 0 (goto:error)
-   if not exist %SPIRV_TOOLS_DIR% (
-      call:create_spirv-tools
+   if not exist %VULKAN_HEADERS_DIR% (
+      call:create_vulkan-headers
    )
    if %errorCode% neq 0 (goto:error)
-   call:update_spirv-tools
-   if %errorCode% neq 0 (goto:error)
-)
-
-if %sync-spirv-headers% equ 1 (
-   if %ERRORLEVEL% neq 0 (goto:error)
-   if not exist %SPIRV_HEADERS_DIR% (
-      call:create_spirv-headers
-   )
-   if %errorCode% neq 0 (goto:error)
-   call:update_spirv-headers
+   call:update_vulkan-headers
    if %errorCode% neq 0 (goto:error)
 )
 
@@ -173,8 +132,23 @@ if %sync-jsoncpp% equ 1 (
    if %errorCode% neq 0 (goto:error)
 )
 
-if %build-shaderc% equ 1 (
-   call:build_shaderc
+if %sync-vulkan-tools% equ 1 (
+   if %ERRORLEVEL% neq 0 (goto:error)
+   if not exist %VULKAN_TOOLS_DIR% (
+      call:create_vulkan-tools
+   )
+   if %errorCode% neq 0 (goto:error)
+   call:update_vulkan-tools
+   if %errorCode% neq 0 (goto:error)
+)
+
+if %sync-vulkan-validationlayers% equ 1 (
+   if %ERRORLEVEL% neq 0 (goto:error)
+   if not exist %VULKAN_VALIDATIONLAYERS_DIR% (
+      call:create_vulkan-validationlayers
+   )
+   if %errorCode% neq 0 (goto:error)
+   call:update_vulkan-validationlayers
    if %errorCode% neq 0 (goto:error)
 )
 
@@ -204,120 +178,31 @@ goto:eof
 
 REM // ======== Functions ======== //
 
-:create_glslang
-   echo.
-   echo Creating local glslang repository %GLSLANG_DIR%
-   if not exist "%GLSLANG_DIR%\" mkdir %GLSLANG_DIR%
-   cd %GLSLANG_DIR%
-   git clone https://github.com/KhronosGroup/glslang.git .
-   git checkout %GLSLANG_REVISION%
-   if not exist %GLSLANG_DIR%\SPIRV (
-      echo glslang source download failed!
-      set errorCode=1
-   )
+:create_vulkan-headers
+    echo.
+    echo Creating local vulkan-headers repository %VULKAN_HEADERS_DIR%
+    if not exist "%VULKAN_HEADERS_DIR%\" mkdir %VULKAN_HEADERS_DIR%
+    cd %VULKAN_HEADERS_DIR%
+    git clone https://github.com/KhronosGroup/Vulkan-Headers.git .
+    git checkout %VULKAN_HEADERS_REVISION%
+    if not exist %VULKAN_HEADERS_DIR%\registry (
+       echo vulkan-headers source download failed!
+       set errorCode=1
+    )
 goto:eof
-
-:update_glslang
-   echo.
-   echo Updating %GLSLANG_DIR%
-   cd %GLSLANG_DIR%
-   git fetch --all
-   git checkout %GLSLANG_REVISION%
-   if not exist %GLSLANG_DIR%\SPIRV (
-      echo glslang source update failed!
-      set errorCode=1
-   )
+ 
+:update_vulkan-headers
+    echo.
+    echo Updating %VULKAN_HEADERS_DIR%
+    cd %VULKAN_HEADERS_DIR%
+    git fetch --all
+    git checkout %VULKAN_HEADERS_REVISION%
+    if not exist %VULKAN_HEADERS_DIR%\registry (
+       echo vulkan-headers source update failed!
+       set errorCode=1
+    )
 goto:eof
-
-:create_spirv-tools
-   echo.
-   echo Creating local spirv-tools repository %SPIRV_TOOLS_DIR%
-   if not exist "%SPIRV_TOOLS_DIR%\" mkdir %SPIRV_TOOLS_DIR%
-   cd %SPIRV_TOOLS_DIR%
-   git clone https://github.com/KhronosGroup/SPIRV-Tools.git .
-   git checkout %SPIRV_TOOLS_REVISION%
-   if not exist %SPIRV_TOOLS_DIR%\source (
-      echo spirv-tools source download failed!
-      set errorCode=1
-   )
-goto:eof
-
-:update_spirv-tools
-   echo.
-   echo Updating %SPIRV_TOOLS_DIR%
-   cd %SPIRV_TOOLS_DIR%
-   git fetch --all
-   git checkout %SPIRV_TOOLS_REVISION%
-   if not exist %SPIRV_TOOLS_DIR%\source (
-      echo spirv-tools source update failed!
-      set errorCode=1
-   )
-goto:eof
-
-:create_spirv-headers
-   echo.
-   echo Creating local spirv-headers repository %SPIRV_HEADERS_DIR%
-   if not exist "%SPIRV_HEADERS_DIR%\" mkdir %SPIRV_HEADERS_DIR%
-   cd %SPIRV_HEADERS_DIR%
-   git clone https://github.com/KhronosGroup/SPIRV-Headers.git .
-   git checkout %SPIRV_HEADERS_REVISION%
-   if not exist %SPIRV_HEADERS_DIR%\include (
-      echo spirv-headers source download failed!
-      set errorCode=1
-   )
-goto:eof
-
-:update_spirv-headers
-   echo.
-   echo Updating %SPIRV_HEADERS_DIR%
-   cd %SPIRV_HEADERS_DIR%
-   git fetch --all
-   git checkout %SPIRV_HEADERS_REVISION%
-   if not exist %SPIRV_HEADERS_DIR%\include (
-      echo spirv-headers source update failed!
-      set errorCode=1
-   )
-goto:eof
-
-:create_shaderc
-   echo.
-   echo Creating local shaderc repository %SHADERC_DIR%
-   if not exist "%SHADERC_DIR%\" mkdir %SHADERC_DIR%
-   cd %SHADERC_DIR%
-   git clone https://github.com/google/shaderc.git .
-   git checkout %SHADERC_REVISION%
-   if not exist %SHADERC_DIR%\libshaderc (
-      echo shaderc source download failed!
-      set errorCode=1
-   )
-goto:eof
-
-:update_shaderc
-   echo.
-   echo Updating %SHADERC_DIR%
-   cd %SHADERC_DIR%
-   git fetch --all
-   git checkout %SHADERC_REVISION%
-   if not exist %SHADERC_DIR%\libshaderc (
-      echo shaderc source update failed!
-      set errorCode=1
-   )
-goto:eof
-
-:build_shaderc
-   echo.
-   echo Building %SHADERC_DIR%
-   cd %SHADERC_DIR%\android_test
-   echo Building shaderc with Android NDK
-   call ndk-build THIRD_PARTY_PATH=../third_party -j 4
-   REM Check for existence of one lib, even though we should check for all results
-   if not exist %SHADERC_DIR%\android_test\obj\local\x86\libshaderc.a (
-      echo.
-      echo shaderc build failed!
-      set errorCode=1
-   )
-goto:eof
-
+ 
 :create_jsoncpp
    echo.
    echo Creating local jsoncpp repository %JSONCPP_DIR%)
@@ -348,6 +233,56 @@ goto:eof
    if not exist %JSONCPP_DIR%\dist\json\json.h (
       echo.
       echo JsonCPP Amalgamation failed to generate %JSONCPP_DIR%\dist\json\json.h
+      set errorCode=1
+   )
+goto:eof
+
+:create_vulkan-tools
+   echo.
+   echo Creating local vulkan-tools repository %VULKAN_TOOLS_DIR%
+   if not exist "%VULKAN_TOOLS_DIR%\" mkdir %VULKAN_TOOLS_DIR%
+   cd %VULKAN_TOOLS_DIR%
+   git clone https://github.com/KhronosGroup/Vulkan-Tools.git .
+   git checkout %VULKAN_TOOLS_REVISION%
+   if not exist %VULKAN_TOOLS_DIR%\common (
+      echo vulkan-tools source download failed!
+      set errorCode=1
+   )
+goto:eof
+
+:update_vulkan-tools
+   echo.
+   echo Updating %VULKAN_TOOLS_DIR%
+   cd %VULKAN_TOOLS_DIR%
+   git fetch --all
+   git checkout %VULKAN_TOOLS_REVISION%
+   if not exist %VULKAN_TOOLS_DIR%\common (
+      echo vulkan-tools source update failed!
+      set errorCode=1
+   )
+goto:eof
+
+:create_vulkan-validationlayers
+   echo.
+   echo Creating local vulkan-validationlayers repository %VULKAN_VALIDATIONLAYERS_DIR%
+   if not exist "%VULKAN_VALIDATIONLAYERS_DIR%\" mkdir %VULKAN_VALIDATIONLAYERS_DIR%
+   cd %VULKAN_VALIDATIONLAYERS_DIR%
+   git clone https://github.com/KhronosGroup/Vulkan-ValidationLayers.git .
+   git checkout %VULKAN_VALIDATIONLAYERS_REVISION%
+   if not exist %VULKAN_VALIDATIONLAYERS_DIR% (
+      echo vulkan-validationlayers source download failed!
+      set errorCode=1
+   )
+goto:eof
+
+:update_vulkan-validationlayers
+   echo.
+   echo Updating %VULKAN_VALIDATIONLAYERS_DIR%
+   cd %VULKAN_VALIDATIONLAYERS_DIR%
+   git fetch --all
+   git checkout %VULKAN_VALIDATIONLAYERS_REVISION%
+   if not exist %VULKAN_VALIDATIONLAYERS_DIR% (
+      echo vulkan-validationlayers source update failed!
       set errorCode=1
    )
 goto:eof

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10.2)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
    if (BUILD_WSI_XCB_SUPPORT)
        set(ENV{VULKAN_WSI} "Xcb")
-       pkg_search_module(XCB-KEYSYMS REQUIRED xcb-keysyms)
+       find_library(XCB-KEYSYMS xcb-keysyms)
    elseif (BUILD_WSI_XLIB_SUPPORT)
        set(ENV{VULKAN_WSI} "Xlib")
    elseif (BUILD_WSI_WAYLAND_SUPPORT)
@@ -19,12 +19,7 @@ project(VkLayer_vktrace_layer)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-# Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.cpp)
+set(TARGET_NAME VkLayer_vktrace_layer)
 
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
@@ -35,6 +30,7 @@ endif()
 set(SRC_LIST
     ${SRC_LIST}
     vktrace_lib.c
+    vktrace_lib_helpers.cpp
     vktrace_lib_pagestatusarray.cpp
     vktrace_lib_pageguardmappedmemory.cpp
     vktrace_lib_pageguardcapture.cpp
@@ -43,6 +39,7 @@ set(SRC_LIST
     vktrace_lib_trim.cpp
     vktrace_lib_trim_generate.cpp
     vktrace_lib_trim_statetracker.cpp
+    vktrace_lib_trim_descriptoriterator.cpp
     vktrace_vk_exts.cpp
     ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp
 )
@@ -54,6 +51,7 @@ set(HDR_LIST
     vktrace_lib_trim.h
     vktrace_lib_trim_generate.h
     vktrace_lib_trim_statetracker.h
+    vktrace_lib_trim_descriptoriterator.h
     vktrace_lib_pagestatusarray.h
     vktrace_lib_pageguardmappedmemory.h
     vktrace_lib_pageguardcapture.h
@@ -75,50 +73,56 @@ include_directories(
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CMAKE_BINARY_DIR}
     ${GENERATED_FILES_DIR}
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
-# copy/link layer json file into build/layersvt directory
 if (NOT WIN32)
-    # extra setup for out-of-tree builds
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        add_custom_target(vktrace_layer-json ALL
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/VkLayer_vktrace_layer.json ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}../layersvt/
-            VERBATIM
-            )
-    endif()
-    # Add targets for JSON file install on Linux.
-    # Need to remove the "../vktrace" from the library path before installing to /etc.
-    set (LAYER_JSON_FILES VkLayer_vktrace_layer)
-    foreach (config_file ${LAYER_JSON_FILES})
-        add_custom_target(${config_file}-staging-json ALL
-            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND sed -i -e "/\"library_path\":/s$../vktrace/libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json
-            VERBATIM
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
-            )
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
-    endforeach(config_file)
+    set (GIPA VK_LAYER_LUNARG_vktraceGetInstanceProcAddr)
+    set (GDPA VK_LAYER_LUNARG_vktraceGetDeviceProcAddr)
 else()
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/VkLayer_vktrace_layer.json src_json)
-        if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
-            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
-        else()
-            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/VkLayer_vktrace_layer.json dst_json)
-        endif()
+    set (GIPA __HOOKED_vkGetInstanceProcAddr)
+    set (GDPA __HOOKED_vkGetDeviceProcAddr)
+endif()
 
-        add_custom_target(vktrace_layer-json ALL
-            COMMAND copy ${src_json} ${dst_json}
+# json file creation
+
+# Run the .json.in file through the generator.
+# We need to create the generator.cmake script so that the generator can be run at compile time, instead of configure time.
+# Running at compile time lets us use cmake generator expressions (TARGET_FILE_NAME and TARGET_FILE_DIR, specifically).
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${INPUT_FILE}\" \"\${OUTPUT_FILE}\")")
+set(CONFIG_DEFINES
+    -DGIPA="${GIPA}"
+    -DGDPA="${GDPA}"
+    -DINPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.json.in"
+    -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+)
+if(WIN32)
+    set(CONFIG_DEFINES ${CONFIG_DEFINES}
+        -DOUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/../../layersvt/$<CONFIGURATION>/${TARGET_NAME}.json"
+        -DRELATIVE_LAYER_BINARY=".\\\\$<TARGET_FILE_NAME:${TARGET_NAME}>"
+    )
+else()
+    set(CONFIG_DEFINES ${CONFIG_DEFINES}
+        -DOUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/../../layersvt/${TARGET_NAME}.json"
+        -DRELATIVE_LAYER_BINARY="../vktrace/$<TARGET_FILE_NAME:${TARGET_NAME}>"
+    )
+endif()
+add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
+# Add target for JSON file install
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    add_custom_target(${TARGET_NAME}-staging-json ALL
+            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+            COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/../../layersvt/${TARGET_NAME}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+            COMMAND sed -i -e "/.library_path.:/s=../vktrace/libVkLayer=libVkLayer=" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json
             VERBATIM
+            DEPENDS ${TARGET_NAME}-json
             )
-        add_dependencies(vktrace_layer-json VkLayer_vktrace_layer)
-    endif()
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${HDR_LIST})
 
-add_dependencies(${PROJECT_NAME} generate_helper_files)
+add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 # Set Compiler Flags, Libraries
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

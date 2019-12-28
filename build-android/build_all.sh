@@ -45,9 +45,9 @@ findtool jarsigner
 set -ev
 
 LAYER_BUILD_DIR=$PWD
-DEMO_BUILD_DIR=$PWD/../demos/android
+CUBE_BUILD_DIR=$PWD/third_party/Vulkan-Tools/cube/android
 echo LAYER_BUILD_DIR="${LAYER_BUILD_DIR}"
-echo DEMO_BUILD_DIR="${DEMO_BUILD_DIR}"
+echo CUBE_BUILD_DIR="${CUBE_BUILD_DIR}"
 
 function create_APK() {
     aapt package -f -M AndroidManifest.xml -I "$ANDROID_SDK_HOME/platforms/android-23/android.jar" -S res -F bin/$1-unaligned.apk bin/libs
@@ -57,9 +57,14 @@ function create_APK() {
 }
 
 #
+# Init base submodules
+#
+(pushd ..; git submodule update --init --recursive; popd)
+
+#
 # build layers
 #
-./update_external_sources_android.sh
+./update_external_sources_android.sh --no-build
 ./android-generate.sh
 ndk-build -j $cores
 
@@ -71,22 +76,22 @@ cp -r $LAYER_BUILD_DIR/libs/* $LAYER_BUILD_DIR/bin/libs/lib/
 create_APK VulkanLayerValidationTests
 
 #
-# build cube APKs (with and without layers)
+# build vkcube APKs (with and without layers)
 #
 (
-pushd $DEMO_BUILD_DIR
+pushd $CUBE_BUILD_DIR
 ndk-build -j $cores
 # Package one APK without validation layers
-mkdir -p $DEMO_BUILD_DIR/cube/bin/libs/lib
-cp -r $DEMO_BUILD_DIR/libs/* $DEMO_BUILD_DIR/cube/bin/libs/lib/
-cd $DEMO_BUILD_DIR/cube
-create_APK cube
+mkdir -p $CUBE_BUILD_DIR/cube/bin/libs/lib
+cp -r $CUBE_BUILD_DIR/libs/* $CUBE_BUILD_DIR/cube/bin/libs/lib/
+cd $CUBE_BUILD_DIR/cube
+create_APK vkcube
 # And one with validation layers
-mkdir -p $DEMO_BUILD_DIR/cube-with-layers/bin/libs/lib
-cp -r $DEMO_BUILD_DIR/libs/* $DEMO_BUILD_DIR/cube-with-layers/bin/libs/lib/
-cp -r $LAYER_BUILD_DIR/libs/* $DEMO_BUILD_DIR/cube-with-layers/bin/libs/lib/
-cd $DEMO_BUILD_DIR/cube-with-layers
-create_APK cube-with-layers
+mkdir -p $CUBE_BUILD_DIR/cube-with-layers/bin/libs/lib
+cp -r $CUBE_BUILD_DIR/libs/* $CUBE_BUILD_DIR/cube-with-layers/bin/libs/lib/
+cp -r $LAYER_BUILD_DIR/libs/* $CUBE_BUILD_DIR/cube-with-layers/bin/libs/lib/
+cd $CUBE_BUILD_DIR/cube-with-layers
+create_APK vkcube-with-layers
 popd
 )
 

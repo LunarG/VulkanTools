@@ -33,9 +33,9 @@
 #include <QAbstractProxyModel>
 #include <qwindow.h>
 
+#include "vktraceviewer_settings.h"
 #include "ui_vktraceviewer.h"
 #include "vktraceviewer.h"
-#include "vktraceviewer_settings.h"
 #include "vktraceviewer_output.h"
 
 #include "vktraceviewer_controller_factory.h"
@@ -52,20 +52,20 @@ static QString g_PROJECT_NAME = "VkTrace Viewer";
 void loggingCallback(VktraceLogLevel level, const char* pMessage) {
     switch (level) {
         case VKTRACE_LOG_ERROR:
-            gs_OUTPUT.error(-1, QString(pMessage));
+            gs_OUTPUT.error((uint64_t)-1, QString(pMessage));
             break;
         case VKTRACE_LOG_WARNING:
-            gs_OUTPUT.warning(-1, QString(pMessage));
+            gs_OUTPUT.warning((uint64_t)-1, QString(pMessage));
             break;
         case VKTRACE_LOG_DEBUG:
         case VKTRACE_LOG_VERBOSE:
         default:
-            gs_OUTPUT.message(-1, QString(pMessage));
+            gs_OUTPUT.message((uint64_t)-1, QString(pMessage));
             break;
     }
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -575,7 +575,7 @@ void vktraceviewer::onTraceFileLoaded(bool bSuccess, const vktraceviewer_trace_f
         g_settings.trace_file_to_open = vktrace_allocate_and_copy(m_traceFileInfo.filename);
         vktraceviewer_settings_updated();
 
-#ifndef USE_STATIC_CONTROLLER_LIBRARY
+#if !defined(USE_STATIC_CONTROLLER_LIBRARY)
         if (!controllerFilename.isEmpty()) {
             m_pController = m_controllerFactory.Load(controllerFilename.toStdString().c_str());
         }
@@ -632,7 +632,7 @@ void vktraceviewer::close_trace_file() {
     if (m_pController != NULL) {
         ui->bottomTabWidget->removeTab(ui->bottomTabWidget->indexOf(m_pTraceStatsTab));
         m_pController->UnloadTraceFile();
-#ifndef USE_STATIC_CONTROLLER_LIBRARY
+#if !defined(USE_STATIC_CONTROLLER_LIBRARY)
         m_controllerFactory.Unload(&m_pController);
 #else
         vtvDeleteQController(&m_pController);
@@ -1110,7 +1110,9 @@ void vktraceviewer::prompt_generate_trace() {
     }
 }
 
-void vktraceviewer::OnOutputMessage(VktraceLogLevel level, const QString& message) { OnOutputMessage(level, -1, message); }
+void vktraceviewer::OnOutputMessage(VktraceLogLevel level, const QString& message) {
+    OnOutputMessage(level, (uint64_t)-1, message);
+}
 
 void vktraceviewer::OnOutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& message) {
     switch (level) {

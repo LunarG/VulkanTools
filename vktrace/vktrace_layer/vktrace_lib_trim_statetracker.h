@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <list>
 #include <vector>
+#include <set>
 #include "vktrace_trace_packet_utils.h"
 
 // Create / Destroy all image resources in the order performed by the
@@ -69,6 +70,8 @@ typedef struct _Trim_ObjectInfo {
     uint64_t vkObject;                         // object handle
     bool bReferencedInTrim;                    // True if the object was referenced during the trim
                                                // frames
+    bool bReferencedInTrimChecked;             // True if the object has been checked if it was referenced
+                                               // during the trim frames
     VkInstance belongsToInstance;              // owning Instance
     VkPhysicalDevice belongsToPhysicalDevice;  // owning PhysicalDevice
     VkDevice belongsToDevice;                  // owning Device
@@ -81,9 +84,12 @@ typedef struct _Trim_ObjectInfo {
         } Instance;
         struct _PhysicalDevice {  // VkPhysicalDevice
             vktrace_trace_packet_header *pGetPhysicalDevicePropertiesPacket;
+            vktrace_trace_packet_header *pGetPhysicalDeviceProperties2KHRPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceMemoryPropertiesPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyPropertiesCountPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyPropertiesPacket;
+            vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyProperties2KHRCountPacket;
+            vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyProperties2KHRPacket;
             VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
             uint32_t queueFamilyCount;
         } PhysicalDevice;
@@ -148,6 +154,7 @@ typedef struct _Trim_ObjectInfo {
             VkDeviceSize memoryOffset;
             VkDeviceSize memorySize;
             VkFormat format;
+            VkImageType imageType;
             VkExtent3D extent;
             uint32_t mipLevels;
             uint32_t arrayLayers;
@@ -180,6 +187,7 @@ typedef struct _Trim_ObjectInfo {
         struct _BufferView {  // VkBufferView
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
+            VkBuffer buffer;
         } BufferView;
         struct _Sampler {  // VkSampler
             vktrace_trace_packet_header *pCreatePacket;
@@ -244,6 +252,18 @@ typedef struct _Trim_ObjectInfo {
                                            // sets that will need a copy update.
             VkCopyDescriptorSet *pCopyDescriptorSets;
         } DescriptorSet;
+        struct _DescriptorUpdateTemplate {  // VkDescriptorSet
+            vktrace_trace_packet_header *pCreatePacket;
+            const VkAllocationCallbacks *pAllocator;
+            VkDescriptorUpdateTemplateCreateFlags flags;
+            uint32_t descriptorUpdateEntryCount;
+            const VkDescriptorUpdateTemplateEntry *pDescriptorUpdateEntries;
+            VkDescriptorUpdateTemplateType templateType;
+            VkDescriptorSetLayout descriptorSetLayout;
+            VkPipelineBindPoint pipelineBindPoint;
+            VkPipelineLayout pipelineLayout;
+            uint32_t set;
+        } DescriptorUpdateTemplate;
         struct _Framebuffer {  // VkFramebuffer
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
@@ -254,6 +274,16 @@ typedef struct _Trim_ObjectInfo {
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
             VkQueue signaledOnQueue;
+            VkSwapchainKHR signaledOnSwapChain;  // The member variable is the swapchain object for
+                                                 // which the related calls signal the semaphore. If
+                                                 // the member variable is not VK_NULL_HANDLE, that
+                                                 // mean the semaphore should be signaled after
+                                                 // recreation in trimmed trace file.
+                                                 //
+                                                 // Swapchain related calls like vkAcquireNextImageKHR
+                                                 // and vkQueuePresentKHR also wait or signal semaphore,
+                                                 // so it's also needed to track the state change caused
+                                                 // by them.
         } Semaphore;
         struct _Fence {  // VkFence
             const VkAllocationCallbacks *pAllocator;
@@ -286,6 +316,21 @@ class StateTracker {
 
     void clear();
 
+    // The following two maps are used to record the binding relations between
+    // command buffer and pipeline.
+    //
+    // Some title destroy a pipeline object when the command buffer which use
+    // it still alive. If trim starting just at the location, the generated
+    // trimmed trace file will include invalid calls in the command buffer
+    // recreation process. During playback, some of these calls cause crash,
+    // (also may cause undefined behaviour by Doc.). The two maps let us know
+    // the binding relation between command buffer and pipeline. So we can
+    // clears all record calls in bound command buffer if a pipeline is
+    // destroyed before the command buffer.
+
+    std::unordered_map<VkCommandBuffer, std::set<VkPipeline>> m_cmdBufferToBindingPipelinesMap;
+    std::unordered_map<VkPipeline, std::set<VkCommandBuffer>> m_BindingPipelineTocmdBuffersMap;
+
     std::unordered_map<VkCommandBuffer, std::list<ImageTransition>> m_cmdBufferToImageTransitionsMap;
     void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
     void ClearImageTransitions(VkCommandBuffer commandBuffer);
@@ -304,6 +349,8 @@ class StateTracker {
 #if TRIM_USE_ORDERED_IMAGE_CREATION
     void add_Image_call(vktrace_trace_packet_header *pHeader);
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
+
+    void add_InTrim_call(vktrace_trace_packet_header *pHeader);
 
     StateTracker &operator=(const StateTracker &other);
 
@@ -334,6 +381,7 @@ class StateTracker {
     ObjectInfo &add_Sampler(VkSampler var);
     ObjectInfo &add_DescriptorSetLayout(VkDescriptorSetLayout var);
     ObjectInfo &add_DescriptorSet(VkDescriptorSet var);
+    ObjectInfo &add_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var);
 
     ObjectInfo *get_Instance(VkInstance var);
     ObjectInfo *get_PhysicalDevice(VkPhysicalDevice var);
@@ -361,7 +409,11 @@ class StateTracker {
     ObjectInfo *get_PipelineLayout(VkPipelineLayout var);
     ObjectInfo *get_Sampler(VkSampler var);
     ObjectInfo *get_DescriptorSetLayout(VkDescriptorSetLayout var);
+    ObjectInfo *get_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var);
     ObjectInfo *get_DescriptorSet(VkDescriptorSet var);
+
+    std::set<VkCommandBuffer> *get_BoundCommandBuffers(VkPipeline var, bool createFlag = true);
+    std::set<VkPipeline> *get_BindingPipelines(VkCommandBuffer var, bool createFlag = true);
 
     void remove_Instance(const VkInstance var);
     void remove_PhysicalDevice(const VkPhysicalDevice var);
@@ -389,6 +441,7 @@ class StateTracker {
     void remove_PipelineLayout(const VkPipelineLayout var);
     void remove_Sampler(const VkSampler var);
     void remove_DescriptorSetLayout(const VkDescriptorSetLayout var);
+    void remove_DescriptorUpdateTemplate(const VkDescriptorUpdateTemplate var);
     void remove_DescriptorSet(const VkDescriptorSet var);
 
     static void copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst, const VkRenderPassCreateInfo &src);
@@ -416,7 +469,10 @@ class StateTracker {
     // same size requirements as they had a trace-time.
     std::list<vktrace_trace_packet_header *> m_image_calls;
 
+    std::list<vktrace_trace_packet_header *> m_inTrim_calls;
+
     std::unordered_map<VkInstance, ObjectInfo> createdInstances;
+    std::vector<VkInstance> seqInstances;
     std::unordered_map<VkPhysicalDevice, ObjectInfo> createdPhysicalDevices;
     std::unordered_map<VkDevice, ObjectInfo> createdDevices;
     std::unordered_map<VkSurfaceKHR, ObjectInfo> createdSurfaceKHRs;
@@ -431,6 +487,7 @@ class StateTracker {
     std::unordered_map<VkDeviceMemory, ObjectInfo> createdDeviceMemorys;
     std::unordered_map<VkFence, ObjectInfo> createdFences;
     std::unordered_map<VkSwapchainKHR, ObjectInfo> createdSwapchainKHRs;
+    std::vector<VkSwapchainKHR> seqSwapchainKHRs;
     std::unordered_map<VkImage, ObjectInfo> createdImages;
     std::unordered_map<VkImageView, ObjectInfo> createdImageViews;
     std::unordered_map<VkBuffer, ObjectInfo> createdBuffers;
@@ -442,6 +499,7 @@ class StateTracker {
     std::unordered_map<VkPipelineLayout, ObjectInfo> createdPipelineLayouts;
     std::unordered_map<VkSampler, ObjectInfo> createdSamplers;
     std::unordered_map<VkDescriptorSetLayout, ObjectInfo> createdDescriptorSetLayouts;
+    std::unordered_map<VkDescriptorUpdateTemplate, ObjectInfo> createdDescriptorUpdateTemplates;
     std::unordered_map<VkDescriptorSet, ObjectInfo> createdDescriptorSets;
 };
 }

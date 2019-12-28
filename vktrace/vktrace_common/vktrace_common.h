@@ -32,7 +32,7 @@
 #include "vktrace_memory.h"
 #include "vktrace_tracelog.h"
 
-#ifndef STRINGIFY
+#if !defined(STRINGIFY)
 #define STRINGIFY(x) #x
 #endif
 
@@ -67,22 +67,28 @@
 #define U_ASSERT_ONLY
 #endif
 
-static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
+static const uint32_t INVALID_BINDING_INDEX = UINT32_MAX;
 // Windows needs 64 bit versions of fseek and ftell
-#if defined (WIN32)
+#if defined(WIN32)
 #define Ftell _ftelli64
 #define Fseek _fseeki64
+#elif defined(ANDROID)
+#define Ftell vktrace_ftell
+#define Fseek vktrace_fseek
 #else
-#define Ftell ftell
-#define Fseek fseek
+#define Ftell ftello
+#define Fseek fseeko
 #endif
 
 // Enviroment variables used by vktrace/replay
 
-// VKTRACE_PMB_ENABLE env var enables tracking of PMB if the value is 1.
+// VKTRACE_PMB_ENABLE env var enables tracking of PMB if the value is 1 or 2.
+// Currently 2 is only used to enable using external host memory extension
+// and memory write watch to capture PMB on Windows platform.
 // Other values disable PMB tracking. If this env var is undefined, PMB
 // tracking is enabled. The env var is set by the vktrace program to
 // communicate the --PMB arg value to the trace layer.
+//
 #define VKTRACE_PMB_ENABLE_ENV "VKTRACE_PMB_ENABLE"
 
 // _VKTRACE_PMB_TARGET_RANGE_SIZE env var specifies the minimum size of
@@ -145,7 +151,40 @@ static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 // trace layer.
 #define VKTRACE_TRIM_TRIGGER_ENV "VKTRACE_TRIM_TRIGGER"
 
+// VKTRACE_TRIM_POST_PROCESS env var is an option to be configured to do write
+// all referenced object calls in either trim start frame or trim stop frame.
+//
+// When it is set to 0, write all referenced object calls will happen in trim start frame.
+// When it is set to 1, write all referenced object calls will happen in trim end frame.
+// If this var is undefined or other value, trimmed data writes will happen in the start frame.
+//
+// Setting it to 1 will reduce trimmed trace file size a lot for some vulkan titles which have
+// lots of shader modules, images and buffers NOT referenced in-trim.
+//
+// But the post processing will consume a lot of memory if there are too many in-trim frames
+// because it keeps both trimmed data and in-trim packets in memory until writting everything to
+// trace file in trim end frame which may exceeds the system memory.
+// So it is default to 0 (disabled) and should be only enabled as needed.
+// (e.g. when generating trace file with only 1 or small range of frames.)
+#define VKTRACE_TRIM_POST_PROCESS_ENV "VKTRACE_TRIM_POST_PROCESS"
+
+// VKTRACE_ENABLE_TRACE_LOCK env var is set by the vktrace program to
+// pass the option argument to the trace layer to enables locking
+// of API calls during trace if set to a non-null value.
+// Not setting this variable will sometimes result in race conditions
+// and remap errors during replay. Setting this variable will avoid those errors,
+// with a slight performance loss during tracing.
+// By default, locking of API calls is always enabled when trimming is enabled.
+#define VKTRACE_ENABLE_TRACE_LOCK_ENV "VKTRACE_ENABLE_TRACE_LOCK"
+
 // _VKTRACE_VERBOSITY env var is set by the vktrace program to
 // communicate verbosity level to the trace layer. It is set to
-// one of "quiet", "errors", "warnings", "full", or "debug".
+// one of "quiet", "errors", "warnings", "full", "debug", or "max".
 #define _VKTRACE_VERBOSITY_ENV "_VKTRACE_VERBOSITY"
+
+// VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE env var is an option used only
+// when trim capture is enabled. It can be set by vktrace program
+// to limit the size of the commands that are batched in a commanmd buffer
+// during the resource (images and buffers) upload in trim capture.
+// It is default to device max memory allocation count divide by 100.
+#define VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV "VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE"

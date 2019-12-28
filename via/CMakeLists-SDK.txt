@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 2.8.11)
-set(MAJOR "1")
+cmake_minimum_required(VERSION 3.10.2)
+
+# Define GNU standard installation directories.
+include(GNUInstallDirs)
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(COMMON_COMPILE_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
@@ -19,7 +21,7 @@ file(COPY ${TEXTURES} DESTINATION ${CMAKE_BINARY_DIR}/via/images)
 
 
 if(WIN32)
-    set (LIBRARIES "vulkan-${MAJOR}")
+    set (LIBRARIES "vulkan-1")
 
     # For Windows, since 32-bit and 64-bit items can co-exist, we build each in its own build directory.
     # 32-bit target data goes in build32, and 64-bit target data goes into build.  So, include/link the
@@ -78,9 +80,31 @@ else()
     include_directories(${VK_INC_DIR})
 endif()
 
-add_executable(via via.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
-target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(via ${LIBRARIES})
+
 if(WIN32)
-    target_link_libraries(via version)
+add_definitions(-DVIA_WINDOWS_TARGET)
+add_executable(vkvia
+                  via.cpp
+                  via_system.hpp
+                  via_system.cpp
+                  via_system_windows.hpp
+                  via_system_windows.cpp
+                  ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+else()
+add_definitions(-DVIA_LINUX_TARGET)
+add_executable(vkvia
+                  via.cpp
+                  via_system.hpp
+                  via_system.cpp
+                  via_system_linux.hpp
+                  via_system_linux.cpp
+                  ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+endif()
+target_include_directories(vkvia PUBLIC ${JSONCPP_INCLUDE_DIR})
+target_link_libraries(vkvia ${LIBRARIES})
+if(WIN32)
+    target_link_libraries(vkvia version)
+endif()
+if(UNIX)
+    install(TARGETS vkvia DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

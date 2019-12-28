@@ -1,8 +1,5 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10.2)
 project(vktrace)
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
@@ -22,6 +19,7 @@ include_directories(
     ${SRC_DIR}/vktrace_trace
     ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
     ${CMAKE_BINARY_DIR}
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
     ${GENERATED_FILES_DIR}
 )
 
@@ -31,7 +29,7 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-add_dependencies(${PROJECT_NAME} generate_helper_files)
+add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     vktrace_common

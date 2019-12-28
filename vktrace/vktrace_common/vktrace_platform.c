@@ -126,9 +126,70 @@ vktrace_thread_id vktrace_platform_get_thread_id() {
 #endif
 }
 
+#if defined(ANDROID)
+const uint32_t MAX_BUFFER_SIZE = 255;
+static char android_env[MAX_BUFFER_SIZE] = {};
+char* AndroidGetEnv(const char* key) {
+    const char* command = "getprop ";
+    const size_t len_command = strlen(command);
+    const size_t len_key = strlen(key);
+    char* full_command = malloc(len_command + len_key + 1);
+    memcpy(full_command, command, len_command);
+    memcpy(full_command + len_command, key, len_key + 1);
+
+    FILE* pipe = NULL;
+    pipe = popen(full_command, "r");
+    if (pipe != NULL) {
+        fgets(android_env, MAX_BUFFER_SIZE, pipe);
+        pclose(pipe);
+    }
+
+    if (strlen(android_env) > 0) {
+        android_env[strcspn(android_env, "\r\n")] = '\0';
+        vktrace_LogAlways("%s: %s", full_command, android_env);
+        free(full_command);
+        return android_env;
+    }
+
+    free(full_command);
+    return NULL;
+}
+
+void AndroidSetEnv(const char* key, const char* val) {
+    const char* command = "setprop ";
+    const char* space = " ";
+    const char* quote = "\"";
+    const size_t len_command = strlen(command);
+    const size_t len_key = strlen(key);
+    const size_t len_space = strlen(space);
+    const size_t len_quote = strlen(quote);
+    const size_t len_val = strlen(val);
+    char* full_command = malloc(len_command + len_key + len_space + len_val + 1);
+    memcpy(full_command, command, len_command);
+    memcpy(full_command + len_command, key, len_key);
+    memcpy(full_command + len_command + len_key, space, len_space);
+    memcpy(full_command + len_command + len_key + len_space, quote, len_quote);
+    memcpy(full_command + len_command + len_key + len_space + len_quote, val, len_val);
+    memcpy(full_command + len_command + len_key + len_space + len_quote + len_val, quote, len_quote + 1);
+
+    FILE* pipe = NULL;
+    pipe = popen(full_command, "r");
+    if (pipe != NULL) {
+        vktrace_LogAlways("%s", full_command);
+        pclose(pipe);
+    }
+
+    free(full_command);
+}
+#endif
+
 char* vktrace_get_global_var(const char* name) {
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(ANDROID)
+    return AndroidGetEnv(name);
+#else
     return getenv(name);
+#endif
 #else
     // TODO: add code for reading from Windows registry
     // For now we just return the result from getenv
@@ -138,7 +199,11 @@ char* vktrace_get_global_var(const char* name) {
 
 void vktrace_set_global_var(const char* name, const char* val) {
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(ANDROID)
+    AndroidSetEnv(name, val);
+#else
     setenv(name, val, 1);
+#endif
 #else
     // TODO add code for writing to Windows registry
     // For now we just do _putenv_s
@@ -198,7 +263,7 @@ void* vktrace_platform_get_library_entrypoint(void* libHandle, const char* name)
 // we don't find the entrypoint, because cross-platform support
 // causes vkreplay to query the address of all api entrypoints,
 // even the wsi-specific ones.
-#ifdef WIN32
+#if defined(WIN32)
     FARPROC proc = GetProcAddress((HMODULE)libHandle, name);
 #else
     void* proc = dlsym(libHandle, name);
@@ -433,3 +498,29 @@ BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle,
 
     return TRUE;
 }
+
+#if defined(ANDROID)
+int vktrace_fseek(FILE* stream, int64_t offset, int whence) {
+    if (sizeof(void*) == 8) {
+        // use native fseek on 64 bit Android
+        return fseek(stream, offset, whence);
+    } else {
+        // disable buffering
+        setbuf(stream, NULL);
+        if (lseek64(fileno(stream), offset, whence) == -1) {
+            return -1;
+        }
+        return 0;
+    }
+}
+int64_t vktrace_ftell(FILE* stream) {
+    if (sizeof(void*) == 8) {
+        // use native ftell on 64 bit Android
+        return ftell(stream);
+    } else {
+        // disable buffering
+        setbuf(stream, NULL);
+        return lseek64(fileno(stream), 0L, SEEK_CUR);
+    }
+}
+#endif

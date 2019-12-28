@@ -1,17 +1,17 @@
 /*
-* Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016-2019 Advanced Micro Devices, Inc. All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 // OPT: Optimization by using page-guard for speed up capture
 //     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from
@@ -31,16 +31,16 @@ PageStatusArray::PageStatusArray(uint64_t pageCount) {
     ByteCount = (pageCount % PAGE_FLAG_AMOUNT_PER_BYTE) ? (pageCount / PAGE_FLAG_AMOUNT_PER_BYTE) + 1
                                                         : pageCount / PAGE_FLAG_AMOUNT_PER_BYTE;
 
-    pChangedArray[0] = new uint8_t[ByteCount];
+    pChangedArray[0] = new uint8_t[(size_t)ByteCount];
     assert(pChangedArray[0]);
 
-    pChangedArray[1] = new uint8_t[ByteCount];
+    pChangedArray[1] = new uint8_t[(size_t)ByteCount];
     assert(pChangedArray[1]);
 
-    pReadArray[0] = new uint8_t[ByteCount];
+    pReadArray[0] = new uint8_t[(size_t)ByteCount];
     assert(pReadArray[0]);
 
-    pReadArray[1] = new uint8_t[ByteCount];
+    pReadArray[1] = new uint8_t[(size_t)ByteCount];
     assert(pReadArray[1]);
 
     activeChangesArray = pChangedArray[0];
@@ -48,7 +48,7 @@ PageStatusArray::PageStatusArray(uint64_t pageCount) {
     activeReadArray = pReadArray[0];
     capturedReadArray = pReadArray[1];
 
-    firstTimeLoadArray = new uint8_t[ByteCount];
+    firstTimeLoadArray = new uint8_t[(size_t)ByteCount];
     assert(firstTimeLoadArray);
 
     clearAll();
@@ -77,23 +77,23 @@ void PageStatusArray::toggleReadArray() {
 }
 
 bool PageStatusArray::getBlockChangedArray(uint64_t index) {
-    return activeChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (activeChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockChangedArraySnapshot(uint64_t index) {
-    return capturedChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (capturedChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockReadArray(uint64_t index) {
-    return activeReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (activeReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockReadArraySnapshot(uint64_t index) {
-    return capturedReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (capturedReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockFirstTimeLoadArray(uint64_t index) {
-    return firstTimeLoadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (firstTimeLoadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 void PageStatusArray::setBlockChangedArray(uint64_t index, bool changed) {
@@ -141,9 +141,10 @@ void PageStatusArray::backupChangedArray() { toggleChangedArray(); }
 void PageStatusArray::backupReadArray() { toggleReadArray(); }
 
 void PageStatusArray::clearAll() {
-    memset(activeChangesArray, 0, ByteCount);
-    memset(capturedChangesArray, 0, ByteCount);
-    memset(activeReadArray, 0, ByteCount);
-    memset(capturedReadArray, 0, ByteCount);
-    memset(firstTimeLoadArray, 0, ByteCount);
+    memset(activeChangesArray, 0, (size_t)ByteCount);
+    memset(capturedChangesArray, 0, (size_t)ByteCount);
+    memset(activeReadArray, 0, (size_t)ByteCount);
+    memset(capturedReadArray, 0, (size_t)ByteCount);
+    memset(firstTimeLoadArray, 0, (size_t)ByteCount);
 }
+void PageStatusArray::clearActiveChangesArray() { memset(activeChangesArray, 0, (size_t)ByteCount); }

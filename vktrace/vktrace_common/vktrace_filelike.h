@@ -21,7 +21,7 @@
 
 #pragma once
 
-#ifdef WIN32
+#if defined(WIN32)
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #pragma comment(lib, "Ws2_32.lib")
@@ -37,9 +37,10 @@ typedef struct FileLike FileLike;
 typedef struct FileLike {
     enum { File, Socket } mMode;
     FILE* mFile;
-    size_t mFileLen;
+    uint64_t mFileLen;
     MessageStream* mMessageStream;
 } FileLike;
+#define FILELIKE_MODE_NAME(m) ((m) == File ? "File" : (m) == Socket ? "Socket" : "unknown")
 
 // For creating checkpoints (consistency checks) in the various streams we're interacting with.
 typedef struct Checkpoint {
@@ -47,7 +48,7 @@ typedef struct Checkpoint {
     size_t mTokenLength;
 } Checkpoint;
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -66,25 +67,25 @@ FileLike* vktrace_FileLike_create_file(FILE* fp);
 FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream);
 
 // read a size and then a buffer of that size
-size_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, size_t _len);
+uint64_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, uint64_t _len);
 
 // Normally, Read expects the size to live in the stream prefixing the data to be read.
 // With ReadRaw, no size is expected first, and the bytes are directly read.
-BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len);
+BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, uint64_t _len);
 
 // write _len and then the buffer of size _len
-void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len);
+void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, uint64_t _len);
 
 // Normally, Write outputs the _len to the stream first--with WriteRaw the bytes are simply written,
 // no size parameter first.
-BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len);
+BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, uint64_t _len);
 
 // Get the starting position for the next vktrace_FileLike_ReadRaw
-size_t vktrace_FileLike_GetCurrentPosition(FileLike* pFile);
+uint64_t vktrace_FileLike_GetCurrentPosition(FileLike* pFile);
 
 // Set the starting position for the next vktrace_FileLike_ReadRaw
-BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFile, size_t offset);
+BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFile, uint64_t offset);
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
