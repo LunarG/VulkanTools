@@ -34,8 +34,7 @@ Vcs-Browser: https://github.com/linuxturtle/VulkanTools
 Package: lunarg-vulkan-layers
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- libvulkan-dev (>=__VKAPIVERSION__),
- vulkan-validationlayers (>=__VKAPIVERSION__)
+ libvulkan-dev (>=__VKAPIVERSION__)
 Description: Extra vulkan development layers from LunarG
  This package contains extra development layers for Vulkan from LunarG.  These
  include Api_dump, screenshot, device_simulation, and vktrace layers.
@@ -44,7 +43,7 @@ Package: lunarg-vktrace
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libvulkan-dev (>=__VKAPIVERSION__),
- vulkan-validationlayers (>=__VKAPIVERSION__)
+ lunarg-vulkan-layers (>=__VKAPIVERSION__)
 Description: LunarG vulkan API capture and replay tools
  This package contains the vktrace and vkreplay tools, used to capture and
  replay vulkan API calls from an application.
