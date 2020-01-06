@@ -1476,6 +1476,70 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(VkDev
     return result;
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass2(VkDevice device,
+    const VkRenderPassCreateInfo2* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator,
+    VkRenderPass* pRenderPass) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateRenderPass2* pPacket = NULL;
+    // begin custom code (get_struct_chain_size)
+    uint32_t attachmentCount = (pCreateInfo != NULL && (pCreateInfo->pAttachments != NULL)) ? pCreateInfo->attachmentCount : 0;
+    uint32_t dependencyCount = (pCreateInfo != NULL && (pCreateInfo->pDependencies != NULL)) ? pCreateInfo->dependencyCount : 0;
+    uint32_t subpassCount = (pCreateInfo != NULL && (pCreateInfo->pSubpasses != NULL)) ? pCreateInfo->subpassCount : 0;
+    uint32_t correlatedViewMaskCount = (pCreateInfo != NULL && (pCreateInfo->pCorrelatedViewMasks != NULL)) ? pCreateInfo->correlatedViewMaskCount : 0;
+    CREATE_TRACE_PACKET(vkCreateRenderPass2,
+        get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkRenderPass));
+    // end custom code
+    result = mdd(device)->devTable.CreateRenderPass2(device, pCreateInfo, pAllocator, pRenderPass);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateRenderPass2(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkRenderPassCreateInfo2), pCreateInfo);
+    if (pCreateInfo) vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pCreateInfo, pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments),
+        attachmentCount * sizeof(VkAttachmentDescription2), pCreateInfo->pAttachments);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pDependencies),
+        dependencyCount * sizeof(VkSubpassDependency2), pCreateInfo->pDependencies);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses),
+        subpassCount * sizeof(VkSubpassDescription2), pCreateInfo->pSubpasses);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pCorrelatedViewMasks),
+        correlatedViewMaskCount * sizeof(uint32_t), pCreateInfo->pCorrelatedViewMasks);
+    for (uint32_t i = 0; i < pPacket->pCreateInfo->subpassCount; i++) {
+        VkSubpassDescription2* pSubpass = (VkSubpassDescription2*)&pPacket->pCreateInfo->pSubpasses[i];
+        const VkSubpassDescription2* pSp = &pCreateInfo->pSubpasses[i];
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pInputAttachments),
+            pSubpass->inputAttachmentCount * sizeof(VkAttachmentReference2), pSp->pInputAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pInputAttachments));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pColorAttachments),
+            pSubpass->colorAttachmentCount * sizeof(VkAttachmentReference2), pSp->pColorAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pColorAttachments));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pResolveAttachments),
+            pSubpass->colorAttachmentCount * sizeof(VkAttachmentReference2),
+            pSp->pResolveAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pResolveAttachments));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pDepthStencilAttachment), 1 * sizeof(VkAttachmentReference2),
+            pSp->pDepthStencilAttachment);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pDepthStencilAttachment));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pPreserveAttachments),
+            pSubpass->preserveAttachmentCount * sizeof(VkAttachmentReference2),
+            pSp->pPreserveAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pPreserveAttachments));
+    }
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pRenderPass), sizeof(VkRenderPass), pRenderPass);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pDependencies));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRenderPass));
+    FINISH_TRACE_PACKET(); // No trimming support for renderpass2
+    return result;
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
                                                                                              const char* pLayerName,
                                                                                              uint32_t* pPropertyCount,

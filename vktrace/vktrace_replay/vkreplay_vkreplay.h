@@ -223,6 +223,7 @@ class vkReplay {
     void manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier* pPacket);
     VkResult manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffer* pPacket);
     VkResult manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass* pPacket);
+    VkResult manually_replay_vkCreateRenderPass2(packet_vkCreateRenderPass2* pPacket);
     void manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass* pPacket);
     VkResult manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuffer* pPacket);
     VkResult manually_replay_vkAllocateCommandBuffers(packet_vkAllocateCommandBuffers* pPacket);
