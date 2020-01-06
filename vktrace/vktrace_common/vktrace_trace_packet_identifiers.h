@@ -371,6 +371,19 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetPhysicalDeviceDisplayPlaneProperties2KHR = 293,
     VKTRACE_TPI_VK_vkGetDisplayModeProperties2KHR = 294,
     VKTRACE_TPI_VK_vkGetDisplayPlaneCapabilities2KHR = 295,
+    VKTRACE_TPI_VK_vkCmdDrawIndirectCount = 296,
+    VKTRACE_TPI_VK_vkCmdDrawIndexedIndirectCount = 297,
+    VKTRACE_TPI_VK_vkCreateRenderPass2 = 298,
+    VKTRACE_TPI_VK_vkCmdBeginRenderPass2 = 299,
+    VKTRACE_TPI_VK_vkCmdNextSubpass2 =300,
+    VKTRACE_TPI_VK_vkCmdEndRenderPass2 = 301,
+    VKTRACE_TPI_VK_vkResetQueryPool = 302,
+    VKTRACE_TPI_VK_vkGetSemaphoreCounterValue = 303,
+    VKTRACE_TPI_VK_vkWaitSemaphores = 304,
+    VKTRACE_TPI_VK_vkSignalSemaphore = 305,
+    VKTRACE_TPI_VK_vkGetBufferDeviceAddress = 306,
+    VKTRACE_TPI_VK_vkGetBufferOpaqueCaptureAddress = 307,
+    VKTRACE_TPI_VK_vkGetDeviceMemoryOpaqueCaptureAddress = 308,
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1

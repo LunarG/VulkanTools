@@ -1847,6 +1847,23 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass 
     return replayResult;
 }
 
+VkResult vkReplay::manually_replay_vkCreateRenderPass2(packet_vkCreateRenderPass2 *pPacket) {
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
+    if (remappedDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkCreateRenderPass() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    VkRenderPass local_renderpass;
+    replayResult = m_vkDeviceFuncs.CreateRenderPass2(remappedDevice, pPacket->pCreateInfo, NULL, &local_renderpass);
+    if (replayResult == VK_SUCCESS) {
+        m_objMapper.add_to_renderpasss_map(*(pPacket->pRenderPass), local_renderpass);
+        replayRenderPassToDevice[local_renderpass] = remappedDevice;
+    }
+    return replayResult;
+}
+
 void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass *pPacket) {
     VkCommandBuffer remappedCommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
 

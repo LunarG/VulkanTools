@@ -93,6 +93,7 @@ __HOOKED_vkCreatePipelineCache
 __HOOKED_vkCreatePipelineLayout
 __HOOKED_vkCreateQueryPool
 __HOOKED_vkCreateRenderPass
+__HOOKED_vkCreateRenderPass2
 __HOOKED_vkCreateSampler
 __HOOKED_vkCreateSemaphore
 __HOOKED_vkCreateShaderModule
