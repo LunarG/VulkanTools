@@ -25,7 +25,7 @@ static bool g_is_wow64 = false;
 
 ViaSystemWindows::ViaSystemWindows() : ViaSystem() {
     _generate_unique_file = false;
-    _html_file = "";
+    _out_file = "";
     _directory_symbol = '\\';
 
     // Determine the user's home directory
@@ -59,25 +59,16 @@ ViaSystemWindows::ViaSystemWindows() : ViaSystem() {
     char temp_c_string[1024];
     int bytes = GetModuleFileName(NULL, temp_c_string, 1023);
     if (0 < bytes) {
-        std::string exe_location = temp_c_string;
-        _exe_path = exe_location.substr(0, exe_location.rfind(_directory_symbol));
-
         // Replace all Windows directory symbols with Linux versions for C++ calls
-        size_t index = 0;
-        while (true) {
-            index = _exe_path.find(_directory_symbol, index);
-            if (index == std::string::npos) {
-                break;
-            }
-            _exe_path.replace(index, 1, "/");
-            index++;
-        }
+        std::string to_cpp_string = temp_c_string;
+        to_cpp_string = to_cpp_string.substr(0, to_cpp_string.rfind(_directory_symbol));
+        _exe_path = ConvertPathFormat(to_cpp_string);
     } else {
         _exe_path = "";
     }
 
     if (0 != GetCurrentDirectoryA(1023, generic_string)) {
-        _cur_path = generic_string;
+        _cur_path = ConvertPathFormat(generic_string);
     } else {
         _cur_path = "";
     }
@@ -495,7 +486,9 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemEnvironmentInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     char generic_string[1024];
     std::string os_size;
+    std::string converted_path;
     DWORD ser_ver = 0;
+    int bytes;
 
     PrintBeginTable("Environment", 3);
 
@@ -663,46 +656,58 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemEnvironmentInfo() {
         goto out;
     }
 
-    if (0 != GetEnvironmentVariableA("SYSTEMROOT", generic_string, 1023)) {
+    bytes = GetEnvironmentVariableA("SYSTEMROOT", generic_string, 1023);
+    if (0 != bytes) {
+        converted_path = ConvertPathFormat(generic_string);
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("System Root");
-        PrintTableElement(generic_string);
+        PrintTableElement(converted_path);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("PROGRAMDATA", generic_string, 1023)) {
+    bytes = GetEnvironmentVariableA("PROGRAMDATA", generic_string, 1023);
+    if (0 != bytes) {
+        converted_path = ConvertPathFormat(generic_string);
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Program Data");
-        PrintTableElement(generic_string);
+        PrintTableElement(converted_path);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("PROGRAMFILES", generic_string, 1023)) {
+    bytes = GetEnvironmentVariableA("PROGRAMFILES", generic_string, 1023);
+    if (0 != bytes) {
+        converted_path = ConvertPathFormat(generic_string);
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Program Files");
-        PrintTableElement(generic_string);
+        PrintTableElement(converted_path);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("PROGRAMFILES(X86)", generic_string, 1023)) {
+    bytes = GetEnvironmentVariableA("PROGRAMFILES(X86)", generic_string, 1023);
+    if (0 != bytes) {
+        converted_path = ConvertPathFormat(generic_string);
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Program Files (x86)");
-        PrintTableElement(generic_string);
+        PrintTableElement(converted_path);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("TEMP", generic_string, 1023)) {
+    bytes = GetEnvironmentVariableA("TEMP", generic_string, 1023);
+    if (0 != bytes) {
+        converted_path = ConvertPathFormat(generic_string);
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("TEMP");
-        PrintTableElement(generic_string);
+        PrintTableElement(converted_path);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("TMP", generic_string, 1023)) {
+    bytes = GetEnvironmentVariableA("TMP", generic_string, 1023);
+    if (0 != bytes) {
+        converted_path = ConvertPathFormat(generic_string);
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("TMP");
-        PrintTableElement(generic_string);
+        PrintTableElement(converted_path);
         PrintEndTableRow();
     }
 out:
@@ -935,7 +940,7 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
         std::string driver_json_path = std::get<2>(cur_driver_json[i]);
         if (cur_reg_name != driver_json_name) {
             PrintBeginTableRow();
-            PrintTableElement(driver_json_name);
+            PrintTableElement(ConvertPathFormat(driver_json_name));
             PrintTableElement("");
             PrintTableElement("");
             PrintTableElement("");
@@ -943,7 +948,7 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
             cur_reg_name = driver_json_name;
         }
         PrintBeginTableRow();
-        PrintTableElement(driver_json_path, VIA_ALIGN_RIGHT);
+        PrintTableElement(ConvertPathFormat(driver_json_path), VIA_ALIGN_RIGHT);
         if (std::get<1>(cur_driver_json[i])) {
             PrintTableElement("Enabled");
         } else {
@@ -960,7 +965,7 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
             PrintTableElement("");
             PrintTableElement("");
             PrintTableElement("Error reading JSON file");
-            PrintTableElement(driver_json_path);
+            PrintTableElement(ConvertPathFormat(driver_json_path));
             PrintEndTableRow();
             continue;
         }
@@ -1021,7 +1026,7 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
         PrintTableElement("Library Path");
         if (!root["ICD"]["library_path"].isNull()) {
             std::string driver_name = root["ICD"]["library_path"].asString();
-            PrintTableElement(driver_name);
+            PrintTableElement(ConvertPathFormat(driver_name));
             PrintEndTableRow();
 
             if (DetermineJsonLibraryPath(driver_json_path.c_str(), driver_name.c_str(), full_driver_path)) {
@@ -1050,7 +1055,8 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
                     found_lib = true;
                 } else {
                     snprintf(generic_string, 1023, "Failed to find driver %s or %s referenced by JSON %s",
-                             root["ICD"]["library_path"].asString().c_str(), full_driver_path.c_str(), driver_json_path.c_str());
+                             ConvertPathFormat(root["ICD"]["library_path"].asString()).c_str(),
+                             ConvertPathFormat(full_driver_path).c_str(), ConvertPathFormat(driver_json_path).c_str());
                     PrintBeginTableRow();
                     PrintTableElement("");
                     PrintTableElement("");
@@ -1059,8 +1065,8 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
                     PrintEndTableRow();
                 }
             } else {
-                snprintf(generic_string, 1023, "Failed to find driver %s referenced by JSON %s", full_driver_path.c_str(),
-                         driver_json_path.c_str());
+                snprintf(generic_string, 1023, "Failed to find driver %s referenced by JSON %s",
+                         ConvertPathFormat(full_driver_path).c_str(), ConvertPathFormat(driver_json_path).c_str());
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("");
@@ -1213,7 +1219,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
 
             PrintBeginTableRow();
             PrintTableElement("VK_DRIVERS_PATH");
-            PrintTableElement(env_value);
+            PrintTableElement(ConvertPathFormat(env_value));
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
@@ -1231,7 +1237,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement(generic_string, VIA_ALIGN_CENTER);
-                PrintTableElement(cur_driver_path);
+                PrintTableElement(ConvertPathFormat(cur_driver_path));
                 PrintTableElement("");
                 PrintEndTableRow();
 
@@ -1389,7 +1395,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemLoaderInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("Runtimes In Registry");
-    PrintTableElement(g_uninstall_reg_path);
+    PrintTableElement(ConvertPathFormat(g_uninstall_reg_path));
     PrintTableElement("");
     PrintEndTableRow();
 
@@ -1410,7 +1416,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemLoaderInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("Runtimes in System Folder");
-    PrintTableElement(dll_prefix);
+    PrintTableElement(ConvertPathFormat(dll_prefix));
     PrintTableElement("");
     PrintEndTableRow();
 
@@ -1514,10 +1520,10 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemLoaderInfo() {
         }
 
         if (GetFileVersion(vulkan_loader_path, version_string)) {
-            PrintTableElement(vulkan_loader_path);
+            PrintTableElement(ConvertPathFormat(vulkan_loader_path));
             PrintTableElement(version_string);
         } else {
-            PrintTableElement(vulkan_loader_path);
+            PrintTableElement(ConvertPathFormat(vulkan_loader_path));
             PrintTableElement("");
         }
         found = true;
@@ -1547,7 +1553,7 @@ bool ViaSystemWindows::PrintSdkUninstallRegInfo(HKEY reg_folder, char *output_st
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement(count_string, VIA_ALIGN_RIGHT);
-        PrintTableElement(output_string);
+        PrintTableElement(ConvertPathFormat(output_string));
         PrintTableElement("");
         PrintEndTableRow();
     }
@@ -1572,7 +1578,7 @@ bool ViaSystemWindows::PrintExplicitLayersRegInfo(std::vector<std::tuple<std::st
 
         if (cur_registry_loc != std::get<0>(cur_layer_json[layer])) {
             PrintBeginTableRow();
-            PrintTableElement(std::get<0>(cur_layer_json[layer]));
+            PrintTableElement(ConvertPathFormat(std::get<0>(cur_layer_json[layer])));
             PrintTableElement("");
             PrintTableElement("");
             PrintTableElement("");
@@ -1583,10 +1589,10 @@ bool ViaSystemWindows::PrintExplicitLayersRegInfo(std::vector<std::tuple<std::st
         snprintf(temp_string, 1023, "[%d]", layer);
         PrintBeginTableRow();
         PrintTableElement(temp_string, VIA_ALIGN_RIGHT);
-        PrintTableElement(cur_layer_json_path.c_str());
+        PrintTableElement(ConvertPathFormat(cur_layer_json_path.c_str()));
 
         snprintf(temp_string, 1023, "0x%08x", std::get<1>(cur_layer_json[layer]));
-        PrintTableElement(temp_string);
+        PrintTableElement(ConvertPathFormat(temp_string));
         PrintTableElement("");
         PrintEndTableRow();
 
@@ -1635,7 +1641,7 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
 
         if (cur_registry_loc != std::get<0>(cur_layer_json[layer])) {
             PrintBeginTableRow();
-            PrintTableElement(std::get<0>(cur_layer_json[layer]));
+            PrintTableElement(ConvertPathFormat(std::get<0>(cur_layer_json[layer])));
             PrintTableElement("");
             PrintTableElement("");
             PrintTableElement("");
@@ -1646,7 +1652,7 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
         snprintf(temp_string, 1023, "[%d]", layer);
         PrintBeginTableRow();
         PrintTableElement(temp_string, VIA_ALIGN_RIGHT);
-        PrintTableElement(cur_layer_json_path.c_str());
+        PrintTableElement(ConvertPathFormat(cur_layer_json_path).c_str());
 
         snprintf(temp_string, 1023, "0x%08x", std::get<1>(cur_layer_json[layer]));
         PrintTableElement(temp_string);
@@ -1675,7 +1681,7 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
                 PrintTableElement("");
                 PrintEndTableRow();
             } else {
-                GenerateImplicitLayerJsonInfo(cur_layer_json_path.c_str(), root, override_paths);
+                GenerateImplicitLayerJsonInfo(ConvertPathFormat(cur_layer_json_path).c_str(), root, override_paths);
                 found = true;
             }
 
@@ -1726,7 +1732,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("SDKs Found In Registry");
-    PrintTableElement(g_uninstall_reg_path);
+    PrintTableElement(ConvertPathFormat(g_uninstall_reg_path));
     PrintTableElement("");
     PrintTableElement("");
     PrintEndTableRow();
@@ -1748,7 +1754,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
         PrintTableElement("VK_SDK_PATH");
         _found_sdk = true;
         _sdk_path = sdk_env_dir;
-        PrintTableElement(sdk_env_dir);
+        PrintTableElement(ConvertPathFormat(sdk_env_dir));
         PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
@@ -1757,7 +1763,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
         PrintTableElement("VULKAN_SDK");
         _found_sdk = true;
         _sdk_path = sdk_env_dir;
-        PrintTableElement(sdk_env_dir);
+        PrintTableElement(ConvertPathFormat(sdk_env_dir));
         PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
@@ -1772,7 +1778,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("SDK Explicit Layers");
-    PrintTableElement(generic_string);
+    PrintTableElement(ConvertPathFormat(generic_string));
     PrintTableElement("");
     PrintTableElement("");
     PrintEndTableRow();
@@ -2050,7 +2056,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSettingsFileInfo() {
 
         PrintBeginTableRow();
         PrintTableElement("VK_LAYER_SETTINGS_PATH");
-        PrintTableElement(generic_string);
+        PrintTableElement(ConvertPathFormat(generic_string));
         PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
@@ -2102,7 +2108,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSettingsFileInfo() {
             }
             full_registry_path += registry_locations[iter];
             PrintBeginTableRow();
-            PrintTableElement(full_registry_path, VIA_ALIGN_RIGHT);
+            PrintTableElement(ConvertPathFormat(full_registry_path), VIA_ALIGN_RIGHT);
             PrintTableElement("");
             PrintTableElement("");
             PrintTableElement("");

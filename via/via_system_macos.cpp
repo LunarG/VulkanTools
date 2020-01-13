@@ -273,6 +273,14 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemHardwareInfo() {
         PrintTableElement("Current Dir Disk Space");
         PrintTableElement("Free");
         if (fgets(generic_string, 1023, fp) != NULL) {
+            uint32_t i = 0;
+            while (generic_string[i] != '\0') {
+                if (generic_string[i] == '\n') {
+                    generic_string[i] = '\0';
+                    break;
+                }
+                i++;
+            }
             PrintTableElement(generic_string);
         } else {
             PrintTableElement("Failed to determine current directory disk space");
@@ -917,7 +925,6 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemLoaderInfo() {
                 PrintEndTableRow();
             }
         }
-        PrintEndTableRow();
     }
 
     PrintEndTable();

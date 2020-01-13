@@ -264,6 +264,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemHardwareInfo() {
             PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
+            PrintEndTableRow();
         } else if ((bytes_total >> 20) > 0x0ULL) {
             snprintf(generic_string, 1023, "%u MB", static_cast<uint32_t>(bytes_total >> 20));
             PrintBeginTableRow();
@@ -302,6 +303,14 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemHardwareInfo() {
         PrintTableElement("Current Dir Disk Space");
         PrintTableElement("Free");
         if (fgets(generic_string, 1023, fp) != NULL) {
+            uint32_t i = 0;
+            while (generic_string[i] != '\0') {
+                if (generic_string[i] == '\n') {
+                    generic_string[i] = '\0';
+                    break;
+                }
+                i++;
+            }
             PrintTableElement(generic_string);
         } else {
             PrintTableElement("Failed to determine current directory disk space");
@@ -998,7 +1007,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemLoaderInfo() {
             }
             pclose(pfp);
         }
-        PrintEndTableRow();
     }
 
     PrintEndTable();
