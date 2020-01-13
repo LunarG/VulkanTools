@@ -29,7 +29,7 @@
 
 ViaSystem::ViaSystem() {
     _generate_unique_file = false;
-    _html_file = "";
+    _out_file = "";
     _directory_symbol = '/';
     _home_path = "~/";
     _app_version = "Version 1.3";
@@ -39,6 +39,7 @@ bool ViaSystem::Init(int argc, char** argv) {
     char* output_path = nullptr;
     // Check and handle command-line arguments
     _run_cube_tests = true;
+    _out_file_format = VIA_HTML_FORMAT;
     if (argc > 1) {
         for (int iii = 1; iii < argc; iii++) {
             if (0 == strcmp("--unique_output", argv[iii])) {
@@ -48,6 +49,8 @@ bool ViaSystem::Init(int argc, char** argv) {
                 ++iii;
             } else if (0 == strcmp("--disable_cube_tests", argv[iii])) {
                 _run_cube_tests = false;
+            } else if (0 == strcmp("--vkconfig_output", argv[iii])) {
+                _out_file_format = VIA_VKCONFIG_FORMAT;
             } else {
                 std::cout << "Usage of " << argv[0] << ":" << std::endl
                           << "    " << argv[0]
@@ -89,20 +92,20 @@ bool ViaSystem::Init(int argc, char** argv) {
 
     // If the user wants a unique file, generate a file with the current
     // time and date incorporated into it.
-    _html_file = argv[0];
+    _out_file = argv[0];
     if (output_path != NULL) {
-        auto dir_pos = _html_file.rfind(_directory_symbol);
+        auto dir_pos = _out_file.rfind(_directory_symbol);
         if (dir_pos != std::string::npos) {
             // Erase everything before the last directory symbol
-            _html_file.erase(0, dir_pos + 1);
+            _out_file.erase(0, dir_pos + 1);
         }
     }
 #ifdef VIA_WINDOWS_TARGET
     // If it has an ending with a period, remove it.
-    auto period_pos = _html_file.rfind('.');
+    auto period_pos = _out_file.rfind('.');
     if (period_pos != std::string::npos) {
         // Erase everything after the last directory symbol
-        _html_file.erase(period_pos);
+        _out_file.erase(period_pos);
     }
 #endif
     if (_generate_unique_file) {
@@ -114,20 +117,24 @@ bool ViaSystem::Init(int argc, char** argv) {
             LogError("Couldn't generate unique HTML file name for output");
             return false;
         }
-        _html_file += time_date_filename;
+        _out_file += time_date_filename;
     } else {
-        _html_file += ".html";
+        if (_out_file_format == VIA_HTML_FORMAT) {
+            _out_file += ".html";
+        } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+            _out_file += ".json";
+        }
     }
 
     // Write the output file to the current executing directory, or, if
     // that fails, write it out to the user's home folder.
-    std::string full_html_path = file_path + _html_file;
-    _html_ofstream.open(full_html_path);
-    if (_html_ofstream.fail()) {
-        full_html_path = _home_path + _html_file;
-        _html_ofstream.open(full_html_path);
-        if (_html_ofstream.fail()) {
-            LogError("Failed creating HTML file in folder!");
+    std::string full_out_path = file_path + _out_file;
+    _out_ofstream.open(full_out_path);
+    if (_out_ofstream.fail()) {
+        full_out_path = _home_path + _out_file;
+        _out_ofstream.open(full_out_path);
+        if (_out_ofstream.fail()) {
+            LogError("Failed creating output file in folder!");
             return false;
         }
     }
@@ -176,18 +183,18 @@ print_results:
             vulkan_version_string += ".";
             vulkan_version_string += std::to_string(_vulkan_max_info.desired_api_version.minor);
             if (!_found_sdk) {
-                std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
+                std::cerr << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
                           << " instance/devices - However, No SDK Detected" << std::endl;
             } else if (!_ran_tests) {
                 if (_run_cube_tests) {
-                    std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
+                    std::cerr << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
                               << " instance/devices, SDK was found, but failed to run external tests" << std::endl;
                 } else {
-                    std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
+                    std::cerr << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
                               << " instance/devices, SDK was found, but external tests were disabled and not run" << std::endl;
                 }
             } else {
-                std::cout << "SUCCESS: Vulkan analysis completed properly using " << vulkan_version_string << std::endl;
+                std::cerr << "SUCCESS: Vulkan analysis completed properly using " << vulkan_version_string << std::endl;
             }
             break;
         }
@@ -236,7 +243,7 @@ print_results:
     return (results == VIA_SUCCESSFUL);
 }
 
-ViaSystem::~ViaSystem() { _html_ofstream.close(); }
+ViaSystem::~ViaSystem() { _out_ofstream.close(); }
 
 void ViaSystem::LogError(const std::string& error) { std::cerr << "VIA_ERROR:   " << error << std::endl; }
 
@@ -1016,9 +1023,8 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
     for (uint32_t vers_index = 0; vers_index < 2; ++vers_index) {
         VulkanInstanceInfo* vulkan_info;
 
-        PrintBeginTableRow();
-
         if (vers_index == 0) {
+            PrintBeginTableRow();
             vulkan_info = &_vulkan_1_0_info;
             PrintTableElement("vkCreateDevice [1.0]");
         } else {
@@ -1027,6 +1033,7 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
                 (vulkan_info->max_api_version.major == 1 && vulkan_info->max_api_version.minor == 0)) {
                 continue;
             }
+            PrintBeginTableRow();
             snprintf(generic_string, 1023, "vkCreateDevice [%d.%d]", vulkan_info->max_api_version.major,
                      vulkan_info->max_api_version.minor);
             PrintTableElement(generic_string);
@@ -1142,7 +1149,6 @@ void ViaSystem::GenerateCleanupInfo(void) {
     PrintTableElement("VIA_SUCCESSFUL");
     PrintTableElement("");
     PrintEndTableRow();
-    PrintBeginTableRow();
 
     if (VK_NULL_HANDLE != _vulkan_max_info.vk_instance &&
         (_vulkan_max_info.desired_api_version.major > 1 || _vulkan_max_info.desired_api_version.minor >= 1) &&
@@ -1212,170 +1218,253 @@ out:
     return res;
 }
 
+// Print methods
+
+void ViaSystem::StartOutput(const std::string& title) {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        StartOutputHTML(title);
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        StartOutputVkConfig(title);
+    }
+}
+
+// Close out writing to the file.
+void ViaSystem::EndOutput() {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        EndOutputHTML();
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        EndOutputVkConfig();
+    }
+}
+
+void ViaSystem::BeginSection(const std::string& section_str) {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        BeginSectionHTML(section_str);
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        BeginSectionVkConfig(section_str);
+    }
+}
+
+void ViaSystem::EndSection() {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        EndSectionHTML();
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        EndSectionVkConfig();
+    }
+}
+
+void ViaSystem::PrintStandardText(const std::string& text_str) {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        PrintStandardTextHTML(text_str);
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        PrintStandardTextVkConfig(text_str);
+    }
+}
+
+void ViaSystem::PrintBeginTable(const std::string& table_name, uint32_t num_cols) {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        PrintBeginTableHTML(table_name, num_cols);
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        PrintBeginTableVkConfig(table_name);
+    }
+}
+
+void ViaSystem::PrintBeginTableRow() {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        PrintBeginTableRowHTML();
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        PrintBeginTableRowVkConfig();
+    }
+}
+
+void ViaSystem::PrintTableElement(const std::string& element, ViaElementAlign align) {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        PrintTableElementHTML(element, align);
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        PrintTableElementVkConfig(element);
+    }
+}
+
+void ViaSystem::PrintEndTableRow() {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        PrintEndTableRowHTML();
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        PrintEndTableRowVkConfig();
+    }
+}
+
+void ViaSystem::PrintEndTable() {
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        PrintEndTableHTML();
+    } else if (_out_file_format == VIA_VKCONFIG_FORMAT) {
+        PrintEndTableVkConfig();
+    }
+}
+
 // HTML methods
 
 // Start writing to the HTML file by creating the appropriate
 // header information including the appropriate CSS and JavaScript
 // items.
-void ViaSystem::StartOutput(const std::string& title) {
-    _html_ofstream << "<!DOCTYPE html>" << std::endl;
-    _html_ofstream << "<HTML lang=\"en\" xml:lang=\"en\" "
-                      "xmlns=\"http://www.w3.org/1999/xhtml\">"
-                   << std::endl;
-    _html_ofstream << std::endl << "<HEAD>" << std::endl << "    <TITLE>" << title << "</TITLE>" << std::endl;
+void ViaSystem::StartOutputHTML(const std::string& title) {
+    _out_ofstream << "<!DOCTYPE html>" << std::endl;
+    _out_ofstream << "<HTML lang=\"en\" xml:lang=\"en\" "
+                     "xmlns=\"http://www.w3.org/1999/xhtml\">"
+                  << std::endl;
+    _out_ofstream << std::endl << "<HEAD>" << std::endl << "    <TITLE>" << title << "</TITLE>" << std::endl;
 
-    _html_ofstream << "    <META charset=\"UTF-8\">" << std::endl
-                   << "    <style media=\"screen\" type=\"text/css\">" << std::endl
-                   << "        html {"
-                   << std::endl
-                   // By defining the color first, this won't override the background image
-                   // (unless the images aren't there).
-                   << "            background-color: #0b1e48;"
-                   << std::endl
-                   // The following changes try to load the text image twice (locally, then
-                   // off the web) followed by the background image twice (locally, then
-                   // off the web).  The background color will only show if both background
-                   // image loads fail.  In this way, a user will see their local copy on
-                   // their machine, while a person they share it with will see the web
-                   // images (or the background color).
-                   << "            background-image: url(\"file:///" << _exe_path << "/images/lunarg_via.png\"), "
-                   << "url(\"https://vulkan.lunarg.com/img/lunarg_via.png\"), "
-                      "url(\"file:///"
-                   << _exe_path << "/images/bg-starfield.jpg\"), "
-                   << "url(\"https://vulkan.lunarg.com/img/bg-starfield.jpg\");" << std::endl
-                   << "            background-position: center top, center top, center, "
-                      "center;"
-                   << std::endl
-                   << "            -webkit-background-size: auto, auto, cover, cover;" << std::endl
-                   << "            -moz-background-size: auto, auto, cover, cover;" << std::endl
-                   << "            -o-background-size: auto, auto, cover, cover;" << std::endl
-                   << "            background-size: auto, auto, cover, cover;" << std::endl
-                   << "            background-attachment: scroll, scroll, fixed, fixed;" << std::endl
-                   << "            background-repeat: no-repeat, no-repeat, no-repeat, "
-                      "no-repeat;"
-                   << std::endl
-                   << "        }"
-                   << std::endl
-                   // h1.section is used for section headers, and h1.version is used to
-                   // print out the application version text (which shows up just under
-                   // the title).
-                   << "        h1.section {" << std::endl
-                   << "            font-family: sans-serif;" << std::endl
-                   << "            font-size: 35px;" << std::endl
-                   << "            color: #FFFFFF;" << std::endl
-                   << "        }" << std::endl
-                   << "        h1.version {" << std::endl
-                   << "            font-family: sans-serif;" << std::endl
-                   << "            font-size: 25px;" << std::endl
-                   << "            color: #FFFFFF;" << std::endl
-                   << "        }" << std::endl
-                   << "        h2.note {" << std::endl
-                   << "            font-family: sans-serif;" << std::endl
-                   << "            font-size: 22px;" << std::endl
-                   << "            color: #FFFFFF;" << std::endl
-                   << "        }" << std::endl
-                   << "        table {" << std::endl
-                   << "            min-width: 600px;" << std::endl
-                   << "            width: 70%;" << std::endl
-                   << "            border-collapse: collapse;" << std::endl
-                   << "            border-color: grey;" << std::endl
-                   << "            font-family: sans-serif;" << std::endl
-                   << "        }" << std::endl
-                   << "        td.header {" << std::endl
-                   << "            padding: 18px;" << std::endl
-                   << "            border: 1px solid #ccc;" << std::endl
-                   << "            font-size: 18px;" << std::endl
-                   << "            color: #fff;" << std::endl
-                   << "        }" << std::endl
-                   << "        td.odd {" << std::endl
-                   << "            padding: 10px;" << std::endl
-                   << "            border: 1px solid #ccc;" << std::endl
-                   << "            font-size: 16px;" << std::endl
-                   << "            color: rgb(255, 255, 255);" << std::endl
-                   << "        }" << std::endl
-                   << "        td.even {" << std::endl
-                   << "            padding: 10px;" << std::endl
-                   << "            border: 1px solid #ccc;" << std::endl
-                   << "            font-size: 16px;" << std::endl
-                   << "            color: rgb(220, 220, 220);" << std::endl
-                   << "        }" << std::endl
-                   << "        tr.header {" << std::endl
-                   << "            background-color: rgba(255,255,255,0.5);" << std::endl
-                   << "        }" << std::endl
-                   << "        tr.odd {" << std::endl
-                   << "            background-color: rgba(0,0,0,0.6);" << std::endl
-                   << "        }" << std::endl
-                   << "        tr.even {" << std::endl
-                   << "            background-color: rgba(0,0,0,0.7);" << std::endl
-                   << "        }" << std::endl
-                   << "    </style>" << std::endl
-                   << "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/"
-                   << "2.2.4/jquery.min.js\"></script>" << std::endl
-                   << "    <script type=\"text/javascript\">" << std::endl
-                   << "        $( document ).ready(function() {" << std::endl
-                   << "            $('table tr:not(.header)').hide();" << std::endl
-                   << "            $('.header').click(function() {" << std::endl
-                   << "                "
-                      "$(this).nextUntil('tr.header').slideToggle(300);"
-                   << std::endl
-                   << "            });" << std::endl
-                   << "        });" << std::endl
-                   << "    </script>" << std::endl
-                   << "</HEAD>" << std::endl
-                   << std::endl
-                   << "<BODY>" << std::endl
-                   << std::endl;
+    _out_ofstream << "    <META charset=\"UTF-8\">" << std::endl
+                  << "    <style media=\"screen\" type=\"text/css\">" << std::endl
+                  << "        html {"
+                  << std::endl
+                  // By defining the color first, this won't override the background image
+                  // (unless the images aren't there).
+                  << "            background-color: #0b1e48;"
+                  << std::endl
+                  // The following changes try to load the text image twice (locally, then
+                  // off the web) followed by the background image twice (locally, then
+                  // off the web).  The background color will only show if both background
+                  // image loads fail.  In this way, a user will see their local copy on
+                  // their machine, while a person they share it with will see the web
+                  // images (or the background color).
+                  << "            background-image: url(\"file:///" << _exe_path << "/images/lunarg_via.png\"), "
+                  << "url(\"https://vulkan.lunarg.com/img/lunarg_via.png\"), "
+                     "url(\"file:///"
+                  << _exe_path << "/images/bg-starfield.jpg\"), "
+                  << "url(\"https://vulkan.lunarg.com/img/bg-starfield.jpg\");" << std::endl
+                  << "            background-position: center top, center top, center, "
+                     "center;"
+                  << std::endl
+                  << "            -webkit-background-size: auto, auto, cover, cover;" << std::endl
+                  << "            -moz-background-size: auto, auto, cover, cover;" << std::endl
+                  << "            -o-background-size: auto, auto, cover, cover;" << std::endl
+                  << "            background-size: auto, auto, cover, cover;" << std::endl
+                  << "            background-attachment: scroll, scroll, fixed, fixed;" << std::endl
+                  << "            background-repeat: no-repeat, no-repeat, no-repeat, "
+                     "no-repeat;"
+                  << std::endl
+                  << "        }"
+                  << std::endl
+                  // h1.section is used for section headers, and h1.version is used to
+                  // print out the application version text (which shows up just under
+                  // the title).
+                  << "        h1.section {" << std::endl
+                  << "            font-family: sans-serif;" << std::endl
+                  << "            font-size: 35px;" << std::endl
+                  << "            color: #FFFFFF;" << std::endl
+                  << "        }" << std::endl
+                  << "        h1.version {" << std::endl
+                  << "            font-family: sans-serif;" << std::endl
+                  << "            font-size: 25px;" << std::endl
+                  << "            color: #FFFFFF;" << std::endl
+                  << "        }" << std::endl
+                  << "        h2.note {" << std::endl
+                  << "            font-family: sans-serif;" << std::endl
+                  << "            font-size: 22px;" << std::endl
+                  << "            color: #FFFFFF;" << std::endl
+                  << "        }" << std::endl
+                  << "        table {" << std::endl
+                  << "            min-width: 600px;" << std::endl
+                  << "            width: 70%;" << std::endl
+                  << "            border-collapse: collapse;" << std::endl
+                  << "            border-color: grey;" << std::endl
+                  << "            font-family: sans-serif;" << std::endl
+                  << "        }" << std::endl
+                  << "        td.header {" << std::endl
+                  << "            padding: 18px;" << std::endl
+                  << "            border: 1px solid #ccc;" << std::endl
+                  << "            font-size: 18px;" << std::endl
+                  << "            color: #fff;" << std::endl
+                  << "        }" << std::endl
+                  << "        td.odd {" << std::endl
+                  << "            padding: 10px;" << std::endl
+                  << "            border: 1px solid #ccc;" << std::endl
+                  << "            font-size: 16px;" << std::endl
+                  << "            color: rgb(255, 255, 255);" << std::endl
+                  << "        }" << std::endl
+                  << "        td.even {" << std::endl
+                  << "            padding: 10px;" << std::endl
+                  << "            border: 1px solid #ccc;" << std::endl
+                  << "            font-size: 16px;" << std::endl
+                  << "            color: rgb(220, 220, 220);" << std::endl
+                  << "        }" << std::endl
+                  << "        tr.header {" << std::endl
+                  << "            background-color: rgba(255,255,255,0.5);" << std::endl
+                  << "        }" << std::endl
+                  << "        tr.odd {" << std::endl
+                  << "            background-color: rgba(0,0,0,0.6);" << std::endl
+                  << "        }" << std::endl
+                  << "        tr.even {" << std::endl
+                  << "            background-color: rgba(0,0,0,0.7);" << std::endl
+                  << "        }" << std::endl
+                  << "    </style>" << std::endl
+                  << "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/"
+                  << "2.2.4/jquery.min.js\"></script>" << std::endl
+                  << "    <script type=\"text/javascript\">" << std::endl
+                  << "        $( document ).ready(function() {" << std::endl
+                  << "            $('table tr:not(.header)').hide();" << std::endl
+                  << "            $('.header').click(function() {" << std::endl
+                  << "                "
+                     "$(this).nextUntil('tr.header').slideToggle(300);"
+                  << std::endl
+                  << "            });" << std::endl
+                  << "        });" << std::endl
+                  << "    </script>" << std::endl
+                  << "</HEAD>" << std::endl
+                  << std::endl
+                  << "<BODY>" << std::endl
+                  << std::endl;
     // We need space from the top for the VIA texture
     for (uint32_t space = 0; space < 15; space++) {
-        _html_ofstream << "    <BR />" << std::endl;
+        _out_ofstream << "    <BR />" << std::endl;
     }
     // All the silly "&nbsp;" are to make sure the version lines up directly
     // under the  VIA portion of the log.
-    _html_ofstream << "    <H1 class=\"version\"><center>";
+    _out_ofstream << "    <H1 class=\"version\"><center>";
     for (uint32_t space = 0; space < 65; space++) {
-        _html_ofstream << "&nbsp;";
+        _out_ofstream << "&nbsp;";
     }
-    _html_ofstream << _app_version << "</center></h1>" << std::endl << "    <BR />" << std::endl;
+    _out_ofstream << _app_version << "</center></h1>" << std::endl << "    <BR />" << std::endl;
 
-    _html_ofstream << "<center><h2 class=\"note\">< NOTE: Click on section name to expand "
-                      "table ></h2></center>"
-                   << std::endl
-                   << "    <BR />" << std::endl;
+    _out_ofstream << "<center><h2 class=\"note\">< NOTE: Click on section name to expand "
+                     "table ></h2></center>"
+                  << std::endl
+                  << "    <BR />" << std::endl;
 }
 
 // Close out writing to the HTML file.
-void ViaSystem::EndOutput() { _html_ofstream << "</BODY>" << std::endl << std::endl << "</HTML>" << std::endl; }
+void ViaSystem::EndOutputHTML() { _out_ofstream << "</BODY>" << std::endl << std::endl << "</HTML>" << std::endl; }
 
-void ViaSystem::BeginSection(const std::string& section_str) {
-    _html_ofstream << "    <H1 class=\"section\"><center>" << section_str << "</center></h1>" << std::endl;
+void ViaSystem::BeginSectionHTML(const std::string& section_str) {
+    _out_ofstream << "    <H1 class=\"section\"><center>" << section_str << "</center></h1>" << std::endl;
 }
 
-void ViaSystem::EndSection() { _html_ofstream << "    <BR/>" << std::endl << "    <BR/>" << std::endl; }
+void ViaSystem::EndSectionHTML() { _out_ofstream << "    <BR/>" << std::endl << "    <BR/>" << std::endl; }
 
-void ViaSystem::PrintStandardText(const std::string& text_str) {
-    _html_ofstream << "    <H2><font color=\"White\">" << text_str << "</font></H2>" << std::endl;
+void ViaSystem::PrintStandardTextHTML(const std::string& text_str) {
+    _out_ofstream << "    <H2><font color=\"White\">" << text_str << "</font></H2>" << std::endl;
 }
 
-void ViaSystem::PrintBeginTable(const std::string& table_name, uint32_t num_cols) {
-    _html_ofstream << "    <table align=\"center\">" << std::endl
-                   << "        <tr class=\"header\">" << std::endl
-                   << "            <td colspan=\"" << num_cols << "\" class=\"header\">" << table_name << "</td>" << std::endl
-                   << "        </tr>" << std::endl;
+void ViaSystem::PrintBeginTableHTML(const std::string& table_name, uint32_t num_cols) {
+    _out_ofstream << "    <table align=\"center\">" << std::endl
+                  << "        <tr class=\"header\">" << std::endl
+                  << "            <td colspan=\"" << num_cols << "\" class=\"header\">" << table_name << "</td>" << std::endl
+                  << "        </tr>" << std::endl;
 
     _outputting_to_odd_row = true;
 }
 
-void ViaSystem::PrintBeginTableRow() {
+void ViaSystem::PrintBeginTableRowHTML() {
     std::string class_str = "";
     if (_outputting_to_odd_row) {
         class_str = " class=\"odd\"";
     } else {
         class_str = " class=\"even\"";
     }
-    _html_ofstream << "        <tr" << class_str << ">" << std::endl;
+    _out_ofstream << "        <tr" << class_str << ">" << std::endl;
 }
 
-void ViaSystem::PrintTableElement(const std::string& element, ViaElementAlign align) {
+void ViaSystem::PrintTableElementHTML(const std::string& element, ViaElementAlign align) {
     std::string align_str = "";
     std::string class_str = "";
     if (align == VIA_ALIGN_RIGHT) {
@@ -1388,15 +1477,67 @@ void ViaSystem::PrintTableElement(const std::string& element, ViaElementAlign al
     } else {
         class_str = " class=\"even\"";
     }
-    _html_ofstream << "            <td" << align_str << class_str << ">" << element << "</td>" << std::endl;
+    _out_ofstream << "            <td" << align_str << class_str << ">" << element << "</td>" << std::endl;
 }
 
-void ViaSystem::PrintEndTableRow() {
-    _html_ofstream << "        </tr>" << std::endl;
+void ViaSystem::PrintEndTableRowHTML() {
+    _out_ofstream << "        </tr>" << std::endl;
     _outputting_to_odd_row = !_outputting_to_odd_row;
 }
 
-void ViaSystem::PrintEndTable() { _html_ofstream << "    </table>" << std::endl; }
+void ViaSystem::PrintEndTableHTML() { _out_ofstream << "    </table>" << std::endl; }
+
+// VkConfig print methods
+
+void ViaSystem::StartOutputVkConfig(const std::string& title) {
+    _table_count = 0;
+    _standard_text_count = 0;
+    _out_ofstream << "{" << std::endl;
+}
+
+void ViaSystem::EndOutputVkConfig() { _out_ofstream << "\n}" << std::endl; }
+
+void ViaSystem::BeginSectionVkConfig(const std::string& section_str) { return; }
+
+void ViaSystem::EndSectionVkConfig() { return; }
+
+void ViaSystem::PrintStandardTextVkConfig(const std::string& text_str) {
+    if (_table_count > 0) {
+        _out_ofstream << "," << std::endl;
+    }
+    _out_ofstream << "\t\"" << _standard_text_count << "\": \"" << text_str << "\"";
+    _table_count++;
+    _standard_text_count++;
+}
+
+void ViaSystem::PrintBeginTableVkConfig(const std::string& table_name) {
+    _row_count = 0;
+    if (_table_count > 0) {
+        _out_ofstream << "," << std::endl;
+    }
+    _out_ofstream << "\t\"" << table_name << "\": {" << std::endl;
+    _table_count++;
+}
+void ViaSystem::PrintBeginTableRowVkConfig() {
+    _col_count = 0;
+    if (_row_count > 0) {
+        _out_ofstream << "," << std::endl;
+    }
+    _out_ofstream << "\t\t\"" << _row_count << "\": {" << std::endl;
+    _row_count++;
+}
+
+void ViaSystem::PrintTableElementVkConfig(const std::string& element) {
+    if (_col_count > 0) {
+        _out_ofstream << "," << std::endl;
+    }
+    _out_ofstream << "\t\t\t\"" << _col_count << "\": \"" << element << "\"";
+    _col_count++;
+}
+
+void ViaSystem::PrintEndTableRowVkConfig() { _out_ofstream << "\n\t\t}"; }
+
+void ViaSystem::PrintEndTableVkConfig() { _out_ofstream << "\n\t}"; }
 
 // Trim any whitespace preceeding or following the actual
 // content inside of a string.  The actual items labeled
@@ -1412,6 +1553,20 @@ std::string ViaSystem::TrimWhitespace(const std::string& str, const std::string&
     const auto strRange = strEnd - strBegin + 1;
 
     return str.substr(strBegin, strRange);
+}
+
+std::string ViaSystem::ConvertPathFormat(std::string str) {
+    size_t index = 0;
+    while (true) {
+        index = str.find(_directory_symbol, index);
+        if (index == std::string::npos) {
+            break;
+        }
+        str.replace(index, 1, "/");
+        index++;
+    }
+
+    return str;
 }
 
 void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
@@ -1577,7 +1732,7 @@ void ViaSystem::GenerateExplicitLayerJsonInfo(const char* layer_json_filename, J
             PrintTableElement("");
             PrintTableElement("");
             PrintTableElement("Library Path");
-            PrintTableElement(library_path.asString());
+            PrintTableElement(ConvertPathFormat(library_path.asString()));
             PrintEndTableRow();
 
             PrintFileVersionInfo(layer_json_filename, library_path.asString().c_str());

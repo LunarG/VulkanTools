@@ -72,7 +72,7 @@ class ViaSystem {
 
     enum ViaElementAlign { VIA_ALIGN_LEFT = 0, VIA_ALIGN_CENTER, VIA_ALIGN_RIGHT };
 
-    // HTML methods
+    // Print methods
     void StartOutput(const std::string& title);
     void EndOutput();
     void BeginSection(const std::string& section_str);
@@ -84,6 +84,30 @@ class ViaSystem {
     void PrintEndTableRow();
     void PrintEndTable();
 
+    // HTML methods
+    void StartOutputHTML(const std::string& title);
+    void EndOutputHTML();
+    void BeginSectionHTML(const std::string& section_str);
+    void EndSectionHTML();
+    void PrintStandardTextHTML(const std::string& text_str);
+    void PrintBeginTableHTML(const std::string& table_name, uint32_t num_cols);
+    void PrintBeginTableRowHTML();
+    void PrintTableElementHTML(const std::string& element, ViaElementAlign align = VIA_ALIGN_LEFT);
+    void PrintEndTableRowHTML();
+    void PrintEndTableHTML();
+
+    // VkConfig output methods
+    void StartOutputVkConfig(const std::string& title);
+    void EndOutputVkConfig();
+    void BeginSectionVkConfig(const std::string& section_str);
+    void EndSectionVkConfig();
+    void PrintStandardTextVkConfig(const std::string& text_str);
+    void PrintBeginTableVkConfig(const std::string& table_name);
+    void PrintBeginTableRowVkConfig();
+    void PrintTableElementVkConfig(const std::string& element);
+    void PrintEndTableRowVkConfig();
+    void PrintEndTableVkConfig();
+
     // Logging methods
     void LogError(const std::string& error);
     void LogWarning(const std::string& warning);
@@ -91,6 +115,7 @@ class ViaSystem {
 
     // Utility methods
     std::string TrimWhitespace(const std::string& str, const std::string& whitespace = " \t\n\r");
+    std::string ConvertPathFormat(std::string str);
     virtual std::string GetEnvironmentalVariableValue(const std::string& env_var) = 0;
     virtual bool ExpandPathWithEnvVar(std::string& path) = 0;
 
@@ -158,11 +183,14 @@ class ViaSystem {
     std::string _app_version;
     std::string _exe_path;
     std::string _cur_path;
-    std::string _html_file;
-    std::ofstream _html_ofstream;
+    std::string _out_file;
+    std::ofstream _out_ofstream;
 
     // Command Line Argument items
     bool _run_cube_tests;
+
+    enum ViaFileFormat { VIA_HTML_FORMAT = 0, VIA_VKCONFIG_FORMAT };
+    ViaFileFormat _out_file_format;
 
     // SDK items
     bool _found_sdk;
@@ -172,6 +200,10 @@ class ViaSystem {
 
     // Table-specific items
     bool _outputting_to_odd_row;
+    uint32_t _row_count;
+    uint32_t _col_count;
+    uint32_t _table_count;
+    uint32_t _standard_text_count;
 
     VulkanInstanceInfo _vulkan_1_0_info;
     VulkanInstanceInfo _vulkan_max_info;
