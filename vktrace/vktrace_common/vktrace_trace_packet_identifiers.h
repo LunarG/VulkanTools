@@ -375,7 +375,7 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkCmdDrawIndexedIndirectCount = 297,
     VKTRACE_TPI_VK_vkCreateRenderPass2 = 298,
     VKTRACE_TPI_VK_vkCmdBeginRenderPass2 = 299,
-    VKTRACE_TPI_VK_vkCmdNextSubpass2 =300,
+    VKTRACE_TPI_VK_vkCmdNextSubpass2 = 300,
     VKTRACE_TPI_VK_vkCmdEndRenderPass2 = 301,
     VKTRACE_TPI_VK_vkResetQueryPool = 302,
     VKTRACE_TPI_VK_vkGetSemaphoreCounterValue = 303,
