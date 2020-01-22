@@ -894,7 +894,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemExecutableInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("Vulkan API Version");
-    PrintTableElement("1.1." + std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION)));
+    PrintTableElement("1.2." + std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION)));
     PrintEndTableRow();
 
     PrintBeginTableRow();
