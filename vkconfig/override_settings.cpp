@@ -182,7 +182,7 @@ bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths,
     QJsonObject layer;
     layer.insert("name", QString("VK_LAYER_LUNARG_override"));
     layer.insert("type", QString("GLOBAL"));
-    layer.insert("api_version", "1.1." + QString::number(VK_HEADER_VERSION));
+    layer.insert("api_version", "1.2." + QString::number(VK_HEADER_VERSION));
     layer.insert("implementation_version", QString("1"));
     layer.insert("description", QString("LunarG Override Layer"));
     if (expiration >= 0) {
