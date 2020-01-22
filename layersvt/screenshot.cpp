@@ -1354,7 +1354,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SpecifyScreenshotFrames(const char *frameList) {
 
 static const VkLayerProperties global_layer = {
     "VK_LAYER_LUNARG_screenshot",
-    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
+    VK_MAKE_VERSION(1, 2, VK_HEADER_VERSION),
     1,
     "Layer: screenshot",
 };
