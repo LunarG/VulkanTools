@@ -49,6 +49,7 @@ before_install:
       brew install cmake || brew upgrade cmake
     fi
     cmake --version
+    clang-format -version
   # Install the appropriate Linux packages.
   - |
     if [[ "$TRAVIS_EVENT_TYPE" == "cron" ]]; then
@@ -138,7 +139,6 @@ script:
 notifications:
   email:
     recipients:
-      - david@lunarg.com
-      - cnorthrop@google.com
+      - bob@lunarg.com
     on_success: change
     on_failure: always
