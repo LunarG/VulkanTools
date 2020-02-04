@@ -1385,6 +1385,36 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     return pTable->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice physicalDevice, uint32_t *pToolCount,
+                                                                  VkPhysicalDeviceToolPropertiesEXT *pToolProperties) {
+    static const VkPhysicalDeviceToolPropertiesEXT screenshot_layer_tool_props = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
+        nullptr,
+        "Screenshot Layer",
+        "1",
+        VK_TOOL_PURPOSE_PROFILING_BIT_EXT | VK_TOOL_PURPOSE_TRACING_BIT_EXT | VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT_EXT,
+        "The VK_LAYER_LUNARG_screenshot layer records frames to image files.",
+        "VK_LAYER_LUNARG_screenshot"};
+
+    auto original_pToolProperties = pToolProperties;
+    if (pToolProperties != nullptr) {
+        *pToolProperties = screenshot_layer_tool_props;
+        pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
+        (*pToolCount)--;
+    }
+
+    VkLayerInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physicalDevice);
+    VkResult result = pInstanceTable->GetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
+
+    if (original_pToolProperties != nullptr) {
+        pToolProperties = original_pToolProperties;
+    }
+
+    (*pToolCount)++;
+
+    return result;
+}
+
 static PFN_vkVoidFunction intercept_core_instance_command(const char *name);
 
 static PFN_vkVoidFunction intercept_core_device_command(const char *name);
@@ -1437,7 +1467,8 @@ static PFN_vkVoidFunction intercept_core_instance_command(const char *name) {
         {"vkEnumerateInstanceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceLayerProperties)},
         {"vkEnumerateDeviceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceLayerProperties)},
         {"vkEnumerateInstanceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceExtensionProperties)},
-        {"vkEnumerateDeviceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceExtensionProperties)}};
+        {"vkEnumerateDeviceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceExtensionProperties)},
+        {"vkGetPhysicalDeviceToolPropertiesEXT", reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceToolPropertiesEXT)}};
 
     for (size_t i = 0; i < ARRAY_SIZE(core_instance_commands); i++) {
         if (!strcmp(core_instance_commands[i].name, name)) return core_instance_commands[i].proc;
