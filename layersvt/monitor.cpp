@@ -191,6 +191,36 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, 
     return result;
 }
 
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice physicalDevice, uint32_t *pToolCount,
+                                                                  VkPhysicalDeviceToolPropertiesEXT *pToolProperties) {
+    static const VkPhysicalDeviceToolPropertiesEXT monitor_layer_tool_props = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
+        nullptr,
+        "Monitor Layer",
+        "1",
+        VK_TOOL_PURPOSE_PROFILING_BIT_EXT | VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT_EXT,
+        "The VK_LAYER_LUNARG_monitor utility layer prints the real-time frames-per-second value to the application's title bar.",
+        "VK_LAYER_LUNARG_monitor"};
+
+    auto original_pToolProperties = pToolProperties;
+    if (pToolProperties != nullptr) {
+        *pToolProperties = monitor_layer_tool_props;
+        pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
+        (*pToolCount)--;
+    }
+
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(physicalDevice), layer_data_map);
+    VkResult result = my_data->instance_dispatch_table->GetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
+
+    if (original_pToolProperties != nullptr) {
+        pToolProperties = original_pToolProperties;
+    }
+
+    (*pToolCount)++;
+
+    return result;
+}
+
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance instance,
                                                                        const VkWin32SurfaceCreateInfoKHR *pCreateInfo,
@@ -262,6 +292,7 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     ADD_HOOK(vkCreateDevice);
     ADD_HOOK(vkDestroyInstance);
     ADD_HOOK(vkGetInstanceProcAddr);
+    ADD_HOOK(vkGetPhysicalDeviceToolPropertiesEXT);
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     ADD_HOOK(vkCreateWin32SurfaceKHR);
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
