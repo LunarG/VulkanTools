@@ -1482,6 +1482,40 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevic
     GetPhysicalDeviceFormatProperties(physicalDevice, format, &pFormatProperties->formatProperties);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice physicalDevice, uint32_t *pToolCount,
+                                                                  VkPhysicalDeviceToolPropertiesEXT *pToolProperties) {
+    std::stringstream version_stream;
+    version_stream << kVersionDevsimMajor << "." << kVersionDevsimMinor << "." << kVersionDevsimPatch;
+    std::string version_string(version_stream.str());
+
+    static VkPhysicalDeviceToolPropertiesEXT devsim_layer_tool_props = {};
+    devsim_layer_tool_props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT;
+    devsim_layer_tool_props.pNext = nullptr;
+    strcpy(devsim_layer_tool_props.name, "Device Simulation Layer");
+    strcpy(devsim_layer_tool_props.version, version_string.c_str());
+    devsim_layer_tool_props.purposes = VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT_EXT;
+    strcpy(devsim_layer_tool_props.description, "LunarG device simulation layer");
+    strcpy(devsim_layer_tool_props.layer, "VK_LAYER_LUNARG_device_simulation");
+
+    auto original_pToolProperties = pToolProperties;
+    if (pToolProperties != nullptr) {
+        *pToolProperties = devsim_layer_tool_props;
+        pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
+        (*pToolCount)--;
+    }
+
+    VkLayerInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physicalDevice);
+    VkResult result = pInstanceTable->GetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
+
+    if (original_pToolProperties != nullptr) {
+        pToolProperties = original_pToolProperties;
+    }
+
+    (*pToolCount)++;
+
+    return result;
+}
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *pName) {
 // Apply the DRY principle, see https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 #define GET_PROC_ADDR(func) \
@@ -1504,6 +1538,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     GET_PROC_ADDR(GetPhysicalDeviceQueueFamilyProperties2KHR);
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties);
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties2KHR);
+    GET_PROC_ADDR(GetPhysicalDeviceToolPropertiesEXT);
 #undef GET_PROC_ADDR
 
     if (!instance) {
