@@ -395,7 +395,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 
 // Autogen instance functions
 
-@foreach function where('{funcDispatchType}' == 'instance' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
+@foreach function where('{funcDispatchType}' == 'instance' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties','vkGetPhysicalDeviceToolPropertiesEXT'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
@@ -438,6 +438,37 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     dump_body_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice physicalDevice, uint32_t *pToolCount, VkPhysicalDeviceToolPropertiesEXT *pToolProperties)
+{{
+    dump_head_vkGetPhysicalDeviceToolPropertiesEXT(ApiDumpInstance::current(), physicalDevice, pToolCount, pToolProperties);
+    static const VkPhysicalDeviceToolPropertiesEXT api_dump_layer_tool_props = {{
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
+        nullptr,
+        "API Dump Layer",
+        "2",
+        VK_TOOL_PURPOSE_PROFILING_BIT_EXT | VK_TOOL_PURPOSE_TRACING_BIT_EXT,
+        "The VK_LAYER_LUNARG_api_dump utility layer prints API calls, parameters, and values to the identified output stream.",
+        "VK_LAYER_LUNARG_api_dump"}};
+
+    auto original_pToolProperties = pToolProperties;
+    if (pToolProperties != nullptr) {{
+        *pToolProperties = api_dump_layer_tool_props;
+        pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
+        (*pToolCount)--;
+    }}
+
+    VkLayerInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physicalDevice);
+    VkResult result = pInstanceTable->GetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
+
+    if (original_pToolProperties != nullptr) {{
+        pToolProperties = original_pToolProperties;
+    }}
+
+    (*pToolCount)++;
+    dump_body_vkGetPhysicalDeviceToolPropertiesEXT(ApiDumpInstance::current(), result, physicalDevice, pToolCount, pToolProperties);
+    return result;
+}}
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
 {{
