@@ -74,7 +74,7 @@ Step 4: Run CMake and build.
 
 3. Specify which layers to activate using environment variables.
 
-    `export VK\_INSTANCE\_LAYERS=VK\_LAYER\_LUNARG\_standard\_validation:VK\_LAYER\_LUNARG\_starter\_layer`
+    `export VK\_INSTANCE\_LAYERS=VK\_LAYER\_KHRONOS\_validation:VK\_LAYER\_LUNARG\_starter\_layer`
 
 
 ### Layer Factory Features
