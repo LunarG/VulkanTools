@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+
+    <qresource prefix="/">
+        <file>resourcefiles/lunarg_logo.png</file>
+        <file>resourcefiles/qt_logo.png</file>
+    </qresource>
+</RCC>

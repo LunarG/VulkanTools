@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1024</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1024</width>
+    <height>768</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Vulkan Layer Dashboard</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Profiles</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Profiles</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0" colspan="2">
+            <widget class="QListWidget" name="listWidgetStacks"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="pushButtonLaunch">
+             <property name="text">
+              <string>Launch Test Application with Profile</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pushButtonActivateProfile">
+             <property name="text">
+              <string>Set as Active</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="title">
+           <string>Profile-App Associations</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="1" column="2">
+            <widget class="QPushButton" name="pushButtonLaunchProfileApp">
+             <property name="text">
+              <string>Launch For Testing</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pushButtonAddAssociation">
+             <property name="text">
+              <string>Add New Association...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="3">
+            <widget class="QListWidget" name="listWidgetStackApps"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="pushButton">
+             <property name="text">
+              <string>Delete</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Editor</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="1" column="0" colspan="3">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>Layer Settings Editor</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>400</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Profile Tree</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0" colspan="2">
+            <widget class="QTreeWidget" name="treeWidgetStacks">
+             <column>
+              <property name="text">
+               <string notr="true">Custom Layer Profiles</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pushButtonRemoveProfile">
+             <property name="text">
+              <string>Remove</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="pushButtonEditProfile">
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Layer Conifguration</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0">
+           <property name="topMargin">
+            <number>10</number>
+           </property>
+           <item row="6" column="4">
+            <widget class="QPushButton" name="pushButtonCreateProfile">
+             <property name="text">
+              <string>Create Profile...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="5">
+            <widget class="QToolButton" name="toolButtonHideUnused">
+             <property name="text">
+              <string>H</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QToolButton" name="toolButtonDown">
+             <property name="text">
+              <string>v</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="2">
+            <widget class="QPushButton" name="pushButtonLaunchTest">
+             <property name="text">
+              <string>Test...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="3">
+            <widget class="QPushButton" name="pushButton_2">
+             <property name="text">
+              <string>Export Profile...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" rowspan="5" colspan="5">
+            <widget class="QTreeWidget" name="layerTree">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <column>
+              <property name="text">
+               <string notr="true">Layer Name</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QToolButton" name="toolButtonUp">
+             <property name="text">
+              <string>^</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QPushButton" name="pushButtonResetLayers">
+             <property name="text">
+              <string>Reset</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QPushButton" name="pushButton_3">
+             <property name="text">
+              <string>Custom Layer Paths...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1024</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Action</string>
+    </property>
+    <addaction name="actionHistory"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionVulkan_Info"/>
+    <addaction name="actionVulkan_Installation"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_Test_Application"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelp"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionHistory">
+   <property name="text">
+    <string>History...</string>
+   </property>
+  </action>
+  <action name="actionSave_Configuration_2">
+   <property name="text">
+    <string>Save Profile...</string>
+   </property>
+  </action>
+  <action name="actionExit_and_Keep">
+   <property name="text">
+    <string>Exit and Keep</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionVulkan_Info">
+   <property name="text">
+    <string>Vulkan Info</string>
+   </property>
+  </action>
+  <action name="actionVulkan_Installation">
+   <property name="text">
+    <string>Vulkan Installation Analysis</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About VkConfig</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>VkConfig Help</string>
+   </property>
+  </action>
+  <action name="actionSet_Test_Application">
+   <property name="text">
+    <string>Launch &amp;&amp; Monitor Application...</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
