@@ -38,10 +38,8 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
     QProcess *via = new QProcess(this);
 #ifdef __APPLE__
     via->setProgram("../../../vkvia");
- #endif
-
-#ifdef _WIN32
-    via->setProgram("vkvia.exe");
+#else
+    via->setProgram("./vkvia");
 #endif
     QString filePath = QDir::temp().path() + "/vkvia.json";
 
