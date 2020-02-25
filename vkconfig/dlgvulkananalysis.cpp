@@ -37,7 +37,7 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
 
     QProcess *via = new QProcess(this);
 #ifdef __APPLE__
-    via->setProgram("vkvia");
+    via->setProgram("../../../vkvia");
  #endif
 
 #ifdef _WIN32

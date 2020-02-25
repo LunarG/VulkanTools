@@ -43,13 +43,12 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     ui->setupUi(this);
 
     QProcess *vulkan_info = new QProcess(this);
-    vulkan_info->setProgram("vulkaninfo");
+    vulkan_info->setProgram("../../../vulkaninfo");
     QString filePath = QDir::temp().path() + "/vulkaninfo.json";
 
     QStringList args;
-    args << "--output_path" << filePath;
     args << "--vkconfig_output";
-
+    args << QDir::temp().path();
     vulkan_info->setArguments(args);
     vulkan_info->start();
     vulkan_info->waitForFinished();
