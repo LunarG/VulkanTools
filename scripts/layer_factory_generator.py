@@ -205,7 +205,7 @@ using std::unordered_map;
 static mutex_t global_lock;
 
 static const VkLayerProperties global_layer = {
-    "VK_LAYER_LUNARG_layer_factory", VK_LAYER_API_VERSION, 1, "LunarG Layer Factory Layer",
+    "VK_LAYER_LUNARG_layer_factory", VK_HEADER_VERSION_COMPLETE, 1, "LunarG Layer Factory Layer",
 };
 
 static const VkExtensionProperties instance_extensions[] = {{VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_REPORT_SPEC_VERSION}};
