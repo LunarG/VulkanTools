@@ -64,8 +64,11 @@ public	Q_SLOTS:
     void on_pushButtonSave_clicked();           // Save log to file
     void on_pushButtonClearLogFile_clicked();   // Clear the log file
     void on_lineEditCmdLine_editingFinished();  // User has changed command line
+    void on_lineEditWorkingDirectory_editingFinished(); // User has manually updated the working directory (we need this for mac app bundles)
+    void on_checkBoxStdout_clicked();                   // Monitor or not stdout
 
-    void standardOutputAvailable(void);         // Layeroutput is available
+    void standardOutputAvailable(void);         // stdout output is available
+    void errorOutputAvailable(void);            // Layeroutput is available
 
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
 

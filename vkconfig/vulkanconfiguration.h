@@ -34,6 +34,7 @@
 #define VKCONFIG_KEY_LAUNCHAPP_CWD  "launchAppCWD"
 #define VKCONFIG_KEY_LAUNCHAPP_ARGS "launchAppARGS"
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
+#define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 
 struct CProfileDef {
     QString         profileName;        // Name of the profile
@@ -60,6 +61,7 @@ public:
     QString qsLaunchApplicatinArgs;
     QString qsLaunchApplicationWorkingDir;
     QString qsLogFileWPath;
+    bool    bLogStdout;
 
 
     // Look for all installed layers

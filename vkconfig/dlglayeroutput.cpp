@@ -42,6 +42,7 @@ dlgLayerOutput::dlgLayerOutput(QWidget *parent) :
 
     // Get the singleton/model
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
+    ui->checkBoxStdout->setChecked(pVulkanConfig->bLogStdout);
 
     // We are never running the test app already when this dialog is created
     ui->labelRunStatus->setText(tr("Not Running"));
@@ -74,6 +75,9 @@ dlgLayerOutput::~dlgLayerOutput()
        disconnect(vulkan_app, SIGNAL(finished(int, QProcess::ExitStatus)),
                 this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
+       disconnect(vulkan_app, SIGNAL(readyReadStandardError()), this,
+                   SLOT(errorOutputAvailable()));
+
        disconnect(vulkan_app, SIGNAL(readyReadStandardOutput()), this,
                 SLOT(standardOutputAvailable()));
 
@@ -105,11 +109,11 @@ void dlgLayerOutput::on_pushButtonSetApp_clicked()
     {
     QString fileWildcard = ("Applications (*)");    // Linux default
 
-#ifdef TARGET_OS_OSX
+#ifdef __APPLE__
     fileWildcard = QString("Applications (*.app, *");
 #endif
 
-#ifdef TARGET_OS_WIN32
+#ifdef _WIN32
     fileWildcard = QString("Applications (*.exe)");
 #endif
 
@@ -150,6 +154,8 @@ void dlgLayerOutput::on_pushButtonWorkingDir_clicked()
     pVulkanConfig->qsLaunchApplicationWorkingDir =
         dialog.getExistingDirectory(this, tr("Select Working Directoryr"), pVulkanConfig->qsLaunchApplicationWPath);
 
+    ui->lineEditWorkingDirectory->setText(pVulkanConfig->qsLaunchApplicationWorkingDir);
+
     pVulkanConfig->SaveAppSettings();
     }
 
@@ -162,7 +168,11 @@ void dlgLayerOutput::on_lineEditCmdLine_editingFinished()
     pVulkanConfig->SaveAppSettings();
     }
 
-
+void dlgLayerOutput::on_lineEditWorkingDirectory_editingFinished(void)
+    {
+    pVulkanConfig->qsLaunchApplicationWorkingDir = ui->lineEditWorkingDirectory->text();
+    pVulkanConfig->SaveAppSettings();
+    }
 
 ///////////////////////////////////////////////////////////////////////////////////
 /// \brief dlgLayerOutput::on_pushButtonLaunchApp_clicked
@@ -180,11 +190,9 @@ void dlgLayerOutput::on_lineEditCmdLine_editingFinished()
 /// is also opened.
 void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
     {
-    // Are we already monitoring a running app?
+    // Are we already monitoring a running app? If so, terminate it
     if(vulkan_app != nullptr) {
-        QMessageBox msg;
-        msg.setText(tr("Test Application is already running."));
-        msg.exec();
+        vulkan_app->terminate();
         return;
         }
 
@@ -193,6 +201,9 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
     connect(vulkan_app, SIGNAL(readyReadStandardOutput()), this,
                  SLOT(standardOutputAvailable()));
 
+    connect(vulkan_app, SIGNAL(readyReadStandardError()), this,
+                SLOT(errorOutputAvailable()));
+
     connect(vulkan_app, SIGNAL(finished(int, QProcess::ExitStatus)),
                  this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
@@ -200,9 +211,12 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
      vulkan_app->setWorkingDirectory(pVulkanConfig->qsLaunchApplicationWorkingDir);
      vulkan_app->setArguments(QStringList() << pVulkanConfig->qsLaunchApplicatinArgs);
      vulkan_app->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
-     vulkan_app->setReadChannel(QProcess::StandardOutput);
+    // vulkan_app->setReadChannel(QProcess::StandardOutput);
+   //  vulkan_app->setReadChannel(QProcess::StandardError);
+     vulkan_app->setProcessChannelMode(QProcess::MergedChannels);
      vulkan_app->closeWriteChannel();
      ui->labelRunStatus->setText(tr("Running..."));
+     ui->pushButtonLaunchApp->setText(tr("Terminate App"));
 
      // No log file is set, just bail
      if(pVulkanConfig->qsLogFileWPath.isEmpty())
@@ -215,16 +229,17 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
          pLogFile = nullptr;
          }
 
-     // Star logging
+     // Start logging
      pLogFile = new QFile(pVulkanConfig->qsLogFileWPath);
-     if (!pLogFile->open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Append)) {
-        QMessageBox err;
-        err.setText(tr("Warning: Cannot open log file"));
-        err.exec();
-        delete pLogFile;
-        pLogFile = nullptr;
-        return;
-        }
+     if(!pVulkanConfig->qsLogFileWPath.isEmpty())
+         if (!pLogFile->open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Append)) {
+            QMessageBox err;
+            err.setText(tr("Warning: Cannot open log file"));
+            err.exec();
+            delete pLogFile;
+            pLogFile = nullptr;
+            return;
+            }
 
 
     // We are logging, let's add that we've launched a new application
@@ -257,18 +272,23 @@ void dlgLayerOutput::processClosed(int exitCode, QProcess::ExitStatus status)
     disconnect(vulkan_app, SIGNAL(finished(int, QProcess::ExitStatus)),
                 this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    disconnect(vulkan_app, SIGNAL(readyReadStandardOutput()), this,
-                                            SLOT(standardOutputAvailable()));
+    disconnect(vulkan_app, SIGNAL(readyReadStandardError()), this,
+                SLOT(errorOutputAvailable()));
 
-    delete vulkan_app;
-    vulkan_app = nullptr;
+    disconnect(vulkan_app, SIGNAL(readyReadStandardOutput()), this,
+                SLOT(standardOutputAvailable()));
+
     ui->labelRunStatus->setText(tr("Terminated"));
+    ui->pushButtonLaunchApp->setText(tr("Launch App"));
 
     if(pLogFile) {
         pLogFile->close();
         delete pLogFile;
         pLogFile = nullptr;
         }
+
+    delete vulkan_app;
+    vulkan_app = nullptr;
     }
 
 
@@ -328,6 +348,16 @@ void dlgLayerOutput::on_pushButtonSave_clicked()
     logFile.close();
     }
 
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief dlgLayerOutput::on_checkBoxStdout_clicked
+// Just toggle the flag. Logging of stdout can be turned on and off on the fly.
+void dlgLayerOutput::on_checkBoxStdout_clicked(void)
+    {
+    pVulkanConfig->bLogStdout = ui->checkBoxStdout->isChecked();
+    pVulkanConfig->SaveAppSettings();
+    }
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief dlgLayerOutput::standardOutputAvailable
 /// This signal get's raised whenever the spawned Vulkan appliction writes
@@ -336,8 +366,12 @@ void dlgLayerOutput::on_pushButtonSave_clicked()
 /// the string and append it to the text browser.
 /// If a log file is open, we also write the output to the log.
 void dlgLayerOutput::standardOutputAvailable(void)
-{
+    {
     if(vulkan_app == nullptr)
+        return;
+
+    // Nope, not interested, but thanks for playing
+    if(!pVulkanConfig->bLogStdout)
         return;
 
     QString inFromApp = vulkan_app->readAllStandardOutput();
@@ -346,7 +380,22 @@ void dlgLayerOutput::standardOutputAvailable(void)
     // Are we logging?
     if(pLogFile)
         pLogFile->write(inFromApp.toUtf8().constData(), inFromApp.length());
-}
+    }
+
+
+void dlgLayerOutput::errorOutputAvailable(void)
+    {
+    if(vulkan_app == nullptr)
+        return;
+
+    QString inFromApp = vulkan_app->readAllStandardError();
+    ui->textBrowser->append(inFromApp);
+
+    // Are we logging?
+    if(pLogFile)
+        pLogFile->write(inFromApp.toUtf8().constData(), inFromApp.length());
+    }
+
 
 ///////////////////////////////////////////////////////////////////////////
 /// \brief dlgLayerOutput::on_pushButtonClearLogFile_clicked

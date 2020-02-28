@@ -69,6 +69,7 @@ CVulkanConfiguration::CVulkanConfiguration()
     {
     implicitLayers.reserve(10);
     explicitLayers.reserve(10);
+    bLogStdout = false;
 
     CProfileDef *pProfile = new CProfileDef();
     pProfile->profileName = "No Profile Active";
@@ -114,6 +115,7 @@ void CVulkanConfiguration::LoadAppSettings(void)
     qsLaunchApplicatinArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
     qsLaunchApplicationWorkingDir = settings.value(VKCONFIG_KEY_LAUNCHAPP_CWD).toString();
     qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE).toString();
+    bLogStdout = settings.value(VKCONFIG_KEY_LOGSTDOUT).toBool();
     }
 
 
@@ -126,6 +128,7 @@ void CVulkanConfiguration::SaveAppSettings(void)
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, qsLaunchApplicatinArgs);
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP_CWD, qsLaunchApplicationWorkingDir);
     settings.setValue(VKCONFIG_KEY_LOGFILE, qsLogFileWPath);
+    settings.setValue(VKCONFIG_KEY_LOGSTDOUT, bLogStdout);
     }
 
 
@@ -187,7 +190,8 @@ void CVulkanConfiguration::LoadLayerConfiguration(void)
                 if(pLayerFile->readLayerFile(fileList[iFile].filePath(), type)) {
                     // Look for duplicates - Path name AND name must be the same TBD
                     for(int i = 0; i < explicitLayers.size(); i++)
-                        if(explicitLayers[i]->library_path == pLayerFile->library_path) {
+                        if(explicitLayers[i]->library_path == pLayerFile->library_path &&
+                                explicitLayers[i]->name == pLayerFile->name) {
                             delete pLayerFile;
                             pLayerFile = nullptr;
                             break;
@@ -202,7 +206,8 @@ void CVulkanConfiguration::LoadLayerConfiguration(void)
 
                     // Look for duplicates
                     for(int i = 0; i < implicitLayers.size(); i++)
-                        if(implicitLayers[i]->library_path == pLayerFile->library_path) {
+                        if(implicitLayers[i]->library_path == pLayerFile->library_path &&
+                                implicitLayers[i]->name == pLayerFile->name) {
                             delete pLayerFile;
                             pLayerFile = nullptr;
                             break;

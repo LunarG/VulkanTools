@@ -61,10 +61,30 @@
       <string>Vulkan Application Output</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="4" column="1">
+       <widget class="QPushButton" name="pushButtonWorkingDir">
+        <property name="text">
+         <string>Working Directory:</string>
+        </property>
+       </widget>
+      </item>
       <item row="4" column="2">
        <widget class="QLineEdit" name="lineEditWorkingDirectory">
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="pushButtonSetApp">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Set App...</string>
         </property>
        </widget>
       </item>
@@ -75,8 +95,18 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="2">
-       <widget class="QLineEdit" name="lineEditCmdLine"/>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButtonLaunchApp">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Launch App</string>
+        </property>
+       </widget>
       </item>
       <item row="3" column="2">
        <widget class="QLineEdit" name="labelLaunchApp">
@@ -96,38 +126,8 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="pushButtonLaunchApp">
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Launch App</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="pushButtonSetApp">
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Set App...</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QPushButton" name="pushButtonWorkingDir">
-        <property name="text">
-         <string>Working Directory:</string>
-        </property>
-       </widget>
+      <item row="5" column="2">
+       <widget class="QLineEdit" name="lineEditCmdLine"/>
       </item>
       <item row="5" column="1">
        <widget class="QLabel" name="label">
@@ -136,6 +136,13 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="checkBoxStdout">
+        <property name="text">
+         <string>Also log stdout</string>
         </property>
        </widget>
       </item>
