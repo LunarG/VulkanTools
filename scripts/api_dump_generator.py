@@ -1516,13 +1516,13 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
 
     @if({memPtrLevel} == 0)
         @if('{memName}' != 'pNext')
-    dump_json_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
+    dump_json_value<const {memBaseType}>(object.{memName}, NULL, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
         @end if 
         @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{
         dump_json_pNext_trampoline(object.{memName}, settings, indents + 1);
     }} else {{
-        dump_json_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
+        dump_json_value<const {memBaseType}>(object.{memName}, object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
     }}
         @end if
     @end if
@@ -1582,11 +1582,11 @@ std::ostream& dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceM
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
-    dump_json_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_json_uint32_t);
+    dump_json_value<const uint32_t>(object.memoryTypeCount, NULL, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_json_uint32_t);
     settings.stream() << ",\\n";
     dump_json_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_json_VkMemoryType);
     settings.stream() << ",\\n";
-    dump_json_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_json_uint32_t);
+    dump_json_value<const uint32_t>(object.memoryHeapCount, NULL, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_json_uint32_t);
     settings.stream() << ",\\n";
     dump_json_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_json_VkMemoryHeap);
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
@@ -1597,15 +1597,15 @@ std::ostream& dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGr
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
-    dump_json_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_json_VkStructureType);
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", indents + 1, dump_json_VkStructureType);
     settings.stream() << ",\\n";
-    dump_json_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_json_void);
+    dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", indents + 1, dump_json_void);
     settings.stream() << ",\\n";
-    dump_json_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_json_uint32_t);
+    dump_json_value<const uint32_t>(object.physicalDeviceCount, NULL, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_json_uint32_t);
     settings.stream() << ",\\n";
     dump_json_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_json_VkPhysicalDevice);
     settings.stream() << ",\\n";
-    dump_json_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_json_VkBool32);
+    dump_json_value<const VkBool32>(object.subsetAllocation, NULL, settings, "VkBool32", "subsetAllocation", indents + 1, dump_json_VkBool32);
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
     return settings.stream();
 }}
@@ -1621,7 +1621,7 @@ std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& 
     if (needChoiceComma) settings.stream() << ",\\n";
 
     @if({chcPtrLevel} == 0)
-    dump_json_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
+    dump_json_value<const {chcBaseType}>(object.{chcName}, NULL, settings, "{chcType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
     @end if
     @if({chcPtrLevel} == 1 and '{chcLength}' == 'None')
     dump_json_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
@@ -1707,11 +1707,11 @@ std::ostream& dump_json_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
 
         settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";
         settings.stream() << settings.indentation(3) << "[\\n";
-        
+
         @foreach parameter
         if (needParameterComma) settings.stream() << ",\\n";
         @if({prmPtrLevel} == 0)
-        dump_json_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
+        dump_json_value<const {prmBaseType}>({prmName}, NULL, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
         dump_json_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
@@ -1721,7 +1721,7 @@ std::ostream& dump_json_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
         @end if
         needParameterComma = true;
         @end parameter
-        
+
         settings.stream() << "\\n" << settings.indentation(3) << "]\\n";
     }}
     settings.stream() << settings.indentation(2) << "}}";
