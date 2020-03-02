@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     dlgabout.cpp \
     dlgcreateprofile.cpp \
+    dlgcustompaths.cpp \
     dlghistory.cpp \
     dlglayeroutput.cpp \
     dlgvulkananalysis.cpp \
@@ -31,6 +32,7 @@ SOURCES += \
 HEADERS += \
     dlgabout.h \
     dlgcreateprofile.h \
+    dlgcustompaths.h \
     dlghistory.h \
     dlglayeroutput.h \
     dlgvulkananalysis.h \
@@ -42,6 +44,7 @@ HEADERS += \
 FORMS += \
     dlgabout.ui \
     dlgcreateprofile.ui \
+    dlgcustompaths.ui \
     dlghistory.ui \
     dlglayeroutput.ui \
     dlgvulkananalysis.ui \

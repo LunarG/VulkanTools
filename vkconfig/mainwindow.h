@@ -71,6 +71,7 @@ public Q_SLOTS:
     void on_pushButtonAddAssociation_clicked();
     void on_checkBoxHideUnused_clicked();
     void on_pushButtonActivateProfile_clicked();
+    void on_pushButtonCustomPaths_clicked();
 
 private:
     Ui::MainWindow *ui;

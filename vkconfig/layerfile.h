@@ -1,8 +1,8 @@
 #ifndef CLAYERFILE_H
 #define CLAYERFILE_H
 /*
- * Copyright (c) 2018-2020 Valve Corporation
- * Copyright (c) 2018-2020 LunarG, Inc.
+ * Copyright (c) 2020 Valve Corporation
+ * Copyright (c) 2020 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 #include <QString>
 
 
-typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT } TLayerType;
+typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT, LAYER_TYPE_CUSTOM } TLayerType;
 
 class CLayerFile : public QObject, QJsonDocument
 {

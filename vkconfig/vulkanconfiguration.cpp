@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018-2020 Valve Corporation
- * Copyright (c) 2018-2020 LunarG, Inc.
+ * Copyright (c) 2020 Valve Corporation
+ * Copyright (c) 2020 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,11 @@
 #include <windows.h>
 #endif
 
-#include "vulkanconfiguration.h"
-
-
 #include <QDir>
 #include <QSettings>
+#include <QTextStream>
 
+#include "vulkanconfiguration.h"
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
@@ -45,7 +44,7 @@ const char *szSearchPaths[nSearchPaths] = {
         "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers" };
 #else
 const int nSearchPaths = 10;
-const char *szSearchPaths[nSearchPaths] = {
+const QString szSearchPaths[nSearchPaths] = {
         "/usr/local/etc/vulkan/explicit_layer.d",            // Not used on macOS, okay to just ignore
         "/usr/local/etc/vulkan/implicit_layer.d",            // Not used on macOS, okay to just ignore
         "/usr/local/share/vulkan/explicit_layer.d",
@@ -91,6 +90,8 @@ CVulkanConfiguration::CVulkanConfiguration()
     pProfile->profileName = "Best Practices and Validation";
     profileList.push_back(pProfile);
     nActiveProfile = 0;
+
+    loadAdditionalSearchPaths();
     }
 
 
@@ -130,6 +131,57 @@ void CVulkanConfiguration::SaveAppSettings(void)
     settings.setValue(VKCONFIG_KEY_LOGFILE, qsLogFileWPath);
     settings.setValue(VKCONFIG_KEY_LOGSTDOUT, bLogStdout);
     }
+
+
+/////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::loadAdditionalSearchPaths
+/// We may have additional paths where we want to search for layers.
+/// Load the list of paths here.
+void CVulkanConfiguration::loadAdditionalSearchPaths(void)
+    {
+    // If the file doesn't exist, then the count is zero...
+    nAdditionalSearchPathCount = 0;
+    QFile file(VKCONFIG_CUSTOM_LAYER_PATHS);
+    if(!file.open(QIODevice::ReadOnly))
+        return;
+
+
+    if(-1 == file.read((char *)&nAdditionalSearchPathCount, sizeof(uint32_t)))
+        return;
+
+    // Okay, there must be data...
+    QTextStream input(&file);
+    for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
+        additionalSearchPaths << input.readLine();
+
+    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    }
+
+
+/////////////////////////////////////////////////////////////////////////////
+/// \brief saveAdditionalSearchPaths
+/// We may have additional paths where we want to search for layers.
+/// Save the list of paths here.
+void CVulkanConfiguration::saveAdditionalSearchPaths(void)
+    {
+    if(nAdditionalSearchPathCount == 0)
+        return;
+
+    QFile file(VKCONFIG_CUSTOM_LAYER_PATHS);
+    if(!file.open(QIODevice::WriteOnly))
+        return;
+
+    if(-1 == file.write((char *)&nAdditionalSearchPathCount, sizeof(uint32_t)))
+        return;
+
+    // Okay, there must be data...
+    QTextStream output(&file);
+    for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
+        output << additionalSearchPaths[i];
+
+    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -173,52 +225,59 @@ void CVulkanConfiguration::LoadLayerConfiguration(void)
 #endif
 
 #ifndef _WIN32  // All the non-Windows layer locations
-    for(int i = 0; i < nSearchPaths; i++) {
+
+    // Standard layer paths
+    for(uint32_t i = 0; i < nSearchPaths; i++) {
         // Does the path exist
         QDir dir(szSearchPaths[i]);
         if(!dir.exists())
             continue;
 
-        // Path exists, let's loop through all the .json files
-        QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
-        for(int iFile = 0; iFile < fileList.size(); iFile++) {
-            // Is this file explicit or implicit?
-            CLayerFile *pLayerFile = new CLayerFile();
-            TLayerType type = (fileList[iFile].path().contains("implicit")) ? LAYER_TYPE_IMPLICIT : LAYER_TYPE_EXPLICIT;
+        TLayerType type = (szSearchPaths[i].contains("implicit")) ? LAYER_TYPE_IMPLICIT : LAYER_TYPE_EXPLICIT;
+        if(type == LAYER_TYPE_IMPLICIT)
+            loadLayersFromPath(szSearchPaths[i], implicitLayers, type);
+        else
+            loadLayersFromPath(szSearchPaths[i], explicitLayers, type);
+        }
 
-            if(type == LAYER_TYPE_EXPLICIT) {
-                if(pLayerFile->readLayerFile(fileList[iFile].filePath(), type)) {
-                    // Look for duplicates - Path name AND name must be the same TBD
-                    for(int i = 0; i < explicitLayers.size(); i++)
-                        if(explicitLayers[i]->library_path == pLayerFile->library_path &&
-                                explicitLayers[i]->name == pLayerFile->name) {
-                            delete pLayerFile;
-                            pLayerFile = nullptr;
-                            break;
-                            }
+    // Any custom paths?
+    for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
+        loadLayersFromPath(additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
-                    if(pLayerFile != nullptr)
-                        explicitLayers.push_back(pLayerFile);
+#endif
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::loadLayersFromPath
+/// \param szPath
+/// \param layerList
+/// Search a folder and load up all the layers found there.
+void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type)
+    {
+    // Does the path exist
+    QDir dir(qsPath);
+    if(!dir.exists())
+        return;
+
+    // Path exists, let's loop through all the .json files
+    QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
+    for(int iFile = 0; iFile < fileList.size(); iFile++) {
+        CLayerFile *pLayerFile = new CLayerFile();
+        if(pLayerFile->readLayerFile(fileList[iFile].filePath(), type)) {
+            // Look for duplicates - Path name AND name must be the same TBD
+            for(int i = 0; i < layerList.size(); i++)
+                if(layerList[i]->library_path == pLayerFile->library_path &&
+                        layerList[i]->name == pLayerFile->name) {
+                    delete pLayerFile;
+                    pLayerFile = nullptr;
+                    break;
                     }
-                 }
-            else {
-                if(pLayerFile->readLayerFile(fileList[iFile].filePath(), type)) {
 
-                    // Look for duplicates
-                    for(int i = 0; i < implicitLayers.size(); i++)
-                        if(implicitLayers[i]->library_path == pLayerFile->library_path &&
-                                implicitLayers[i]->name == pLayerFile->name) {
-                            delete pLayerFile;
-                            pLayerFile = nullptr;
-                            break;
-                            }
-
-                    if(pLayerFile != nullptr)
-                        implicitLayers.push_back(pLayerFile);
-                    }
+            if(pLayerFile != nullptr)
+                layerList.push_back(pLayerFile);
             }
         }
     }
-#endif
-}
+
 

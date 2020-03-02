@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018-2020 Valve Corporation
- * Copyright (c) 2018-2020 LunarG, Inc.
+ * Copyright (c) 2020 Valve Corporation
+ * Copyright (c) 2020 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,9 @@
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
 #define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 
+#define VKCONFIG_CUSTOM_LAYER_PATHS "./CustomPaths.dat"
+
+
 struct CProfileDef {
     QString         profileName;        // Name of the profile
     QStringList     layers;             // List of layers and their settings. This will need to be more than a QStringList (TBD)
@@ -68,10 +71,18 @@ public:
     void LoadLayerConfiguration(void);
     QVector <CLayerFile*>   implicitLayers;     // All detected implicit layers
     QVector <CLayerFile*>   explicitLayers;     // All detected explicit layers
-
+    QVector <CLayerFile*>   customLayers;       // Layers found in custom search paths
+    void loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
 
     QVector <CProfileDef *>  profileList;       // List and details about current profiles
     int nActiveProfile;
+
+    void loadAdditionalSearchPaths(void);
+    void saveAdditionalSearchPaths(void);
+    uint32_t nAdditionalSearchPathCount;
+    QStringList additionalSearchPaths;
+
+
 
 protected:
     CVulkanConfiguration();

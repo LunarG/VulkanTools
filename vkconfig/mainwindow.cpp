@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018-2020 Valve Corporation
- * Copyright (c) 2018-2020 LunarG, Inc.
+ * Copyright (c) 2020 Valve Corporation
+ * Copyright (c) 2020 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@
 #include "dlgvulkaninfo.h"
 #include "dlgcreateprofile.h"
 #include "dlghistory.h"
+#include "dlgcustompaths.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -248,7 +249,6 @@ void MainWindow::on_checkBoxHideUnused_clicked()
 
 void MainWindow::on_pushButtonActivateProfile_clicked()
     {
-
     QMessageBox msg;
     msg.setInformativeText(tr("Set this profile as the default for all Vulkan Applications?"));
     msg.setText(tr("Set default profile"));
@@ -260,6 +260,13 @@ void MainWindow::on_pushButtonActivateProfile_clicked()
     ui->listWidgetStacks->item(pVulkanConfig->nActiveProfile)->setBackground(Qt::white);
     pVulkanConfig->nActiveProfile = ui->listWidgetStacks->currentRow();
     ui->listWidgetStacks->item(pVulkanConfig->nActiveProfile)->setBackground(Qt::green);
+    }
+
+
+void MainWindow::on_pushButtonCustomPaths_clicked()
+    {
+    dlgCustomPaths dlg(this);
+    dlg.exec();
 
 
     }

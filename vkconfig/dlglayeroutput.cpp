@@ -152,7 +152,7 @@ void dlgLayerOutput::on_pushButtonWorkingDir_clicked()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
     pVulkanConfig->qsLaunchApplicationWorkingDir =
-        dialog.getExistingDirectory(this, tr("Select Working Directoryr"), pVulkanConfig->qsLaunchApplicationWPath);
+        dialog.getExistingDirectory(this, tr("Select Working Directory"), pVulkanConfig->qsLaunchApplicationWPath);
 
     ui->lineEditWorkingDirectory->setText(pVulkanConfig->qsLaunchApplicationWorkingDir);
 
