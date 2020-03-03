@@ -27,6 +27,7 @@ dlgCustomPaths::dlgCustomPaths(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlgCustomPaths)
     {
+    bPathsChanged = false;
     ui->setupUi(this);
 
     ui->treeWidget->headerItem()->setText(0,tr("Custom Search Paths & Layers"));
@@ -54,9 +55,17 @@ void dlgCustomPaths::repopulateTree(void)
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
+        QVector <CLayerFile*>   customLayers;
+        pVulkanConfig->loadLayersFromPath(pVulkanConfig->additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
+        for(int j = 0; j < customLayers.size(); j++) {
+            QTreeWidgetItem *pChild = new QTreeWidgetItem();
+            pChild->setText(0, customLayers[j]->name);
+            pItem->addChild(pChild);
+            }
 
-
+        // Free the dynamic memory, the rest passes out of scope
+        qDeleteAll(customLayers.begin(), customLayers.end());
         }
 
     }
@@ -77,8 +86,9 @@ void dlgCustomPaths::on_pushButtonAdd_clicked()
         ui->treeWidget->addTopLevelItem(pItem);
         pVulkanConfig->saveAdditionalSearchPaths();
 
-        // Update this list of layers available if any are found.
-        pVulkanConfig->loadLayersFromPath(customFolder, pVulkanConfig->customLayers, LAYER_TYPE_CUSTOM);
+        pVulkanConfig->reLoadLayerConfiguration();
+        bPathsChanged = true;
+        repopulateTree();
         }
     }
 
@@ -97,8 +107,10 @@ void dlgCustomPaths::on_treeWidget_itemSelectionChanged()
 /// Remove the selected custom search path
 void dlgCustomPaths::on_pushButtonRemove_clicked()
     {
-    // Which one is selected?
+    // Which one is selected? We need the top item too
     QTreeWidgetItem *pSelected = ui->treeWidget->currentItem();
+    while(pSelected->parent() != nullptr)
+        pSelected = pSelected->parent();
 
     // Confirm?
     QMessageBox msg;
@@ -121,4 +133,6 @@ void dlgCustomPaths::on_pushButtonRemove_clicked()
     // Update GUI and save
     repopulateTree();
     pVulkanConfig->saveAdditionalSearchPaths();
+    pVulkanConfig->reLoadLayerConfiguration();
+    bPathsChanged = true;
     }

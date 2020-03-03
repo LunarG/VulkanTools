@@ -68,7 +68,7 @@ public:
 
 
     // Look for all installed layers
-    void LoadLayerConfiguration(void);
+    void reLoadLayerConfiguration(void);
     QVector <CLayerFile*>   implicitLayers;     // All detected implicit layers
     QVector <CLayerFile*>   explicitLayers;     // All detected explicit layers
     QVector <CLayerFile*>   customLayers;       // Layers found in custom search paths
@@ -88,9 +88,9 @@ public:
 
 protected:
     CVulkanConfiguration();
-
     static CVulkanConfiguration*   pMe;
 
+    void clearLists(void);
 
 
 };

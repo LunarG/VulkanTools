@@ -35,17 +35,15 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-{
+    {
     ui->setupUi(this);
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     pVulkanConfig->LoadAppSettings();
-    pVulkanConfig->LoadLayerConfiguration();
 
-    loadAllFoundLayers(pVulkanConfig->explicitLayers);
-    loadAllFoundLayers(pVulkanConfig->implicitLayers);
-
+    pVulkanConfig->reLoadLayerConfiguration();
+    reloadLayersShown();
 
     ui->statusbar->showMessage("No layers active", 1000000);
 
@@ -98,15 +96,23 @@ MainWindow::MainWindow(QWidget *parent)
     pChild->setText(0, "LunarG: Standard Validation");
     pItem->addChild(pChild);
     */
-
-}
+    }
 
 MainWindow::~MainWindow()
-{
+    {
     qDeleteAll(layers.begin(), layers.end());
     layers.clear();
     delete ui;
-}
+    }
+
+
+void MainWindow::reloadLayersShown(void)
+    {
+    ui->layerTree->clear();
+    loadAllFoundLayers(pVulkanConfig->explicitLayers);
+    loadAllFoundLayers(pVulkanConfig->implicitLayers);
+    loadAllFoundLayers(pVulkanConfig->customLayers);
+    }
 
 
 /////////////////////////////////////////////////////
@@ -201,15 +207,25 @@ void MainWindow::loadAllFoundLayers(QVector <CLayerFile*> &layerFile)
 
        pLayer->pTreeItem->setText(0, layerFile[i]->name);
        pLayer->pTreeItem->setFlags(pLayer->pTreeItem->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
+       pLayer->pTreeItem->setTextAlignment(1, Qt::AlignCenter);
        pLayer->pTreeItem->setCheckState(1, Qt::Unchecked);
 
+       pLayer->pTreeItem->setTextAlignment(2, Qt::AlignCenter);
        if(layerFile[i]->layerType == LAYER_TYPE_EXPLICIT)
            pLayer->pTreeItem->setText(2, "No");
        else
         pLayer->pTreeItem->setText(2, "Yes");
 
+       pLayer->pTreeItem->setTextAlignment(3, Qt::AlignCenter);
        pLayer->pTreeItem->setCheckState(3, Qt::Unchecked);
        ui->layerTree->addTopLevelItem(pLayer->pTreeItem);
+
+       pLayer->pTreeItem->setTextAlignment(4, Qt::AlignCenter);
+       if(layerFile[i]->layerType == LAYER_TYPE_CUSTOM)
+           pLayer->pTreeItem->setText(4, "Yes");
+       else
+           pLayer->pTreeItem->setText(4, "No");
+
 
        QTreeWidgetItem *pChild = new QTreeWidgetItem();
        pChild->setText(0, layerFile[i]->description);
@@ -267,12 +283,17 @@ void MainWindow::on_pushButtonActivateProfile_clicked()
     }
 
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::on_pushButtonCustomPaths_clicked
+/// Allow addition or removal of custom layer paths. Afterwards reset the list
+/// of loaded layers, but only if something was changed.
 void MainWindow::on_pushButtonCustomPaths_clicked()
     {
     dlgCustomPaths dlg(this);
     dlg.exec();
 
-
+    if(dlg.bPathsChanged)
+        reloadLayersShown();
     }
 
 

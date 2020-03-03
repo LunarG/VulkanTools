@@ -99,12 +99,19 @@ CVulkanConfiguration::CVulkanConfiguration()
 
 CVulkanConfiguration::~CVulkanConfiguration()
     {
+    clearLists();
+    qDeleteAll(profileList.begin(), profileList.end());
+    profileList.clear();
+    }
+
+void CVulkanConfiguration::clearLists(void)
+    {
     qDeleteAll(implicitLayers.begin(), implicitLayers.end());
     implicitLayers.clear();
     qDeleteAll(explicitLayers.begin(), explicitLayers.end());
     explicitLayers.clear();
-    qDeleteAll(profileList.begin(), profileList.end());
-    profileList.clear();
+    qDeleteAll(customLayers.begin(), customLayers.end());
+    customLayers.clear();
     }
 
 
@@ -185,8 +192,13 @@ void CVulkanConfiguration::saveAdditionalSearchPaths(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-void CVulkanConfiguration::LoadLayerConfiguration(void)
+void CVulkanConfiguration::reLoadLayerConfiguration(void)
 {
+    // This is called initially, but also when custom search paths are set, so
+    // we need to clear out the old data and just do a clean refresh
+    clearLists();
+
+
 #ifdef _WIN32
     for(int i = 0; i < nSearchPaths; i++) {
         wchar_t keyName[128];
@@ -240,7 +252,7 @@ void CVulkanConfiguration::LoadLayerConfiguration(void)
             loadLayersFromPath(szSearchPaths[i], explicitLayers, type);
         }
 
-    // Any custom paths?
+    // Any custom paths? All layers from all paths are appended together here
     for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
         loadLayersFromPath(additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 

@@ -37,6 +37,8 @@ public:
     explicit dlgCustomPaths(QWidget *parent = nullptr);
     ~dlgCustomPaths();
 
+    bool        bPathsChanged;
+
 private:
     Ui::dlgCustomPaths *ui;
 
