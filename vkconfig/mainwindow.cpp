@@ -20,6 +20,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QMessageBox>
+#include <QFile>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -60,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++)
         ui->listWidgetStacks->addItem(pVulkanConfig->profileList[i]->profileName);
 
+    /*
     ui->listWidgetStacks->item(pVulkanConfig->nActiveProfile)->setBackground(Qt::green);
 
     QTreeWidgetItem *pItem = new QTreeWidgetItem();
@@ -95,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
     pChild = new QTreeWidgetItem();
     pChild->setText(0, "LunarG: Standard Validation");
     pItem->addChild(pChild);
+    */
 
 }
 
@@ -182,6 +185,7 @@ void MainWindow::loadAllFoundLayers(QVector <CLayerFile*> &layerFile)
     pHeader->setText(1, "Active");
     pHeader->setText(2, "Implicit?");
     pHeader->setText(3, "Disabled");
+    pHeader->setText(4, "Custom Paths?");
 
 
     QString out;
@@ -269,5 +273,63 @@ void MainWindow::on_pushButtonCustomPaths_clicked()
     dlg.exec();
 
 
+    }
+
+
+
+void MainWindow::on_pushButtonCreateProfile_clicked()
+    {
+    QJsonObject     rootProfiles;
+    QJsonObject     profiles;
+
+    QJsonArray array;
+    array.push_back(QJsonValue("VK_LAYER_LUNARG_override"));
+    array.push_back(QJsonValue("VK_SOMETHING_else"));
+    profiles.insert("My Profile", array);
+
+    QJsonArray array2;
+    array2.push_back(QJsonValue("VK_another layer"));
+    array2.push_back(QJsonValue("VK_unknown_layer"));
+    profiles.insert("Another silly name", array2);
+
+
+    //QString("VK_LAYER_LUNARG_override"));
+    //profile.insert("type", QString("GLOBAL"));
+
+
+
+    QJsonDocument   jsonDoc(profiles);
+
+/*
+    lunarg_api_dump.use_spaces = TRUE
+    lunarg_api_dump.no_addr = FALSE
+    lunarg_api_dump.name_size = 32
+    lunarg_api_dump.show_shader = FALSE
+    lunarg_api_dump.detailed = TRUE
+    lunarg_api_dump.flush = TRUE
+    lunarg_api_dump.file = FALSE
+    lunarg_api_dump.output_range = 0-0
+    lunarg_api_dump.log_filename = vk_apidump.txt
+    lunarg_api_dump.output_format = Text
+    lunarg_api_dump.show_timestamp = FALSE
+    lunarg_api_dump.show_types = TRUE
+    lunarg_api_dump.indent_size = 4
+    lunarg_api_dump.type_size = 0
+*/
+
+    /*
+     * # VK_LAYER_KHRONOS_validation
+khronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
+khronos_validation.log_filename = stdout
+khronos_validation.report_flags = warn,error,perf
+khronos_validation.disables =
+khronos_validation.enables =
+*/
+
+
+    QFile file("./Test.json");
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    file.write(jsonDoc.toJson());
+     file.close();
     }
 

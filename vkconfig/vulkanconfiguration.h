@@ -36,12 +36,12 @@
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
 #define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 
-#define VKCONFIG_CUSTOM_LAYER_PATHS "./CustomPaths.dat"
+#define VKCONFIG_CUSTOM_LAYER_PATHS "./CustomPaths.txt"
 
 
 struct CProfileDef {
-    QString         profileName;        // Name of the profile
-    QStringList     layers;             // List of layers and their settings. This will need to be more than a QStringList (TBD)
+    QString                  profileName;        // Name of the profile
+    QVector<CLayerFile*>     layers;             // List of layers and their settings.
 };
 
 
@@ -82,6 +82,8 @@ public:
     uint32_t nAdditionalSearchPathCount;
     QStringList additionalSearchPaths;
 
+    void loadProfiles(void);
+    void saveProfiles(void);
 
 
 protected:

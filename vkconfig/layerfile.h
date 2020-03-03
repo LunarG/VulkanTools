@@ -29,14 +29,27 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QString>
+#include <QVector>
+#include <QVariant>
 
 
 typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT, LAYER_TYPE_CUSTOM } TLayerType;
+
+typedef enum { LAYER_SETTINGS_STRING = 0, LAYER_SETTINGS_INT, LAYER_SETTINGS_FLOAT, LAYER_SETTINGS_BOOL } TLayerSettingsType;
+
+struct TLayerSettings {
+    QString                 settingsName;
+    QString                 settingsDesc;
+    TLayerSettingsType      settingsType;
+    QVariant                settingsValue;
+};
+
 
 class CLayerFile : public QObject, QJsonDocument
 {
     Q_OBJECT
 public:
+    // Standard pieces of a layer
     QString     file_format_version;
     QString     name;
     QString     type;
@@ -47,11 +60,17 @@ public:
 
     TLayerType  layerType;
 
+    // This layers settings. This will be used to build the editor
+    // as well as create settings files
+    QVector<TLayerSettings *>layerSettings;
+
 public:
     CLayerFile();
+    ~CLayerFile();
 
     // File based layers
     bool readLayerFile(QString qsFullPathToFile, TLayerType layerKind);
+    bool readLayerSettingsSchema(void);
 
 };
 

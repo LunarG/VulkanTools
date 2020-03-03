@@ -27,7 +27,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -118,6 +118,9 @@
            </item>
            <item row="4" column="5">
             <widget class="QToolButton" name="toolButtonHideUnused">
+             <property name="toolTip">
+              <string>Hide Unused Layers</string>
+             </property>
              <property name="text">
               <string>H</string>
              </property>
@@ -125,6 +128,9 @@
            </item>
            <item row="1" column="5">
             <widget class="QToolButton" name="toolButtonDown">
+             <property name="toolTip">
+              <string>Move Layer Down</string>
+             </property>
              <property name="text">
               <string>v</string>
              </property>
@@ -161,6 +167,9 @@
            </item>
            <item row="0" column="5">
             <widget class="QToolButton" name="toolButtonUp">
+             <property name="toolTip">
+              <string>Move Layer Up</string>
+             </property>
              <property name="text">
               <string>^</string>
              </property>

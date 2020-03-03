@@ -70,7 +70,7 @@ CVulkanConfiguration::CVulkanConfiguration()
     explicitLayers.reserve(10);
     bLogStdout = false;
 
-    CProfileDef *pProfile = new CProfileDef();
+/*    CProfileDef *pProfile = new CProfileDef();
     pProfile->profileName = "No Profile Active";
     profileList.push_back(pProfile);
 
@@ -89,7 +89,9 @@ CVulkanConfiguration::CVulkanConfiguration()
     pProfile = new CProfileDef;
     pProfile->profileName = "Best Practices and Validation";
     profileList.push_back(pProfile);
-    nActiveProfile = 0;
+*/
+    // Default, no active profile
+    nActiveProfile = -1;
 
     loadAdditionalSearchPaths();
     }
@@ -142,17 +144,18 @@ void CVulkanConfiguration::loadAdditionalSearchPaths(void)
     // If the file doesn't exist, then the count is zero...
     nAdditionalSearchPathCount = 0;
     QFile file(VKCONFIG_CUSTOM_LAYER_PATHS);
-    if(!file.open(QIODevice::ReadOnly))
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-
-    if(-1 == file.read((char *)&nAdditionalSearchPathCount, sizeof(uint32_t)))
-        return;
+    QTextStream stream(&file);
 
     // Okay, there must be data...
-    QTextStream input(&file);
-    for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
-        additionalSearchPaths << input.readLine();
+    nAdditionalSearchPathCount = 0;
+
+    while(!stream.atEnd()) {
+        additionalSearchPaths << stream.readLine();
+        nAdditionalSearchPathCount++;
+        }
 
     file.close();   // Just to be explicit, should close anyway when it goes out of scope
     }
@@ -168,16 +171,13 @@ void CVulkanConfiguration::saveAdditionalSearchPaths(void)
         return;
 
     QFile file(VKCONFIG_CUSTOM_LAYER_PATHS);
-    if(!file.open(QIODevice::WriteOnly))
-        return;
-
-    if(-1 == file.write((char *)&nAdditionalSearchPathCount, sizeof(uint32_t)))
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
     // Okay, there must be data...
     QTextStream output(&file);
     for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
-        output << additionalSearchPaths[i];
+        output << additionalSearchPaths[i] << "\n";
 
     file.close();   // Just to be explicit, should close anyway when it goes out of scope
     }
@@ -280,4 +280,21 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath, QVector<CLa
         }
     }
 
+
+
+void CVulkanConfiguration::loadProfiles(void)
+    {
+
+
+
+    }
+
+
+
+void CVulkanConfiguration::saveProfiles(void)
+    {
+
+
+
+    }
 

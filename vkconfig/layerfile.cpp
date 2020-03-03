@@ -33,6 +33,12 @@ CLayerFile::CLayerFile()
 
 }
 
+CLayerFile::~CLayerFile()
+    {
+    qDeleteAll(layerSettings.begin(), layerSettings.end());
+    layerSettings.clear();
+    }
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief CLayerFile::readLayerFile
 /// \param qsFullPathToFile - Fully qualified path to the layer json file.
@@ -104,8 +110,34 @@ bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
     jsonValue = layerObject.value("description");
     description = jsonValue.toString();
 
+    readLayerSettingsSchema();
+
     // The layer file is loaded
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////
+/// \brief CLayerFile::readLayerSettingsSchema
+/// \return
+/// TBD... this is the layers settings. Must be populated from somewhere,
+/// or queried directly from the layer DLL.
+bool CLayerFile::readLayerSettingsSchema(void)
+    {
+    TLayerSettings *pSettings = new TLayerSettings;
+    pSettings->settingsName = "Fake Setting";
+    pSettings->settingsDesc = "This is a fake layer setting, to be figured out later";
+    pSettings->settingsType = LAYER_SETTINGS_STRING;
+    pSettings->settingsValue = "Some Setting String";
+    layerSettings.push_back(pSettings);
+
+
+    pSettings = new TLayerSettings;
+    pSettings->settingsName = "ANOTHER Fake Setting";
+    pSettings->settingsDesc = "This is ANOTHER fake layer setting, to be figured out later";
+    pSettings->settingsType = LAYER_SETTINGS_STRING;
+    pSettings->settingsValue = "Some OTHER Setting String";
+    layerSettings.push_back(pSettings);
+
+    return true;
+    }
 
