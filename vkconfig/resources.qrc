@@ -4,5 +4,6 @@
     <qresource prefix="/">
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
+        <file>resourcefiles/layer_info.json</file>
     </qresource>
 </RCC>

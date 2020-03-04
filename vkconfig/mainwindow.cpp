@@ -297,6 +297,28 @@ void MainWindow::on_pushButtonCustomPaths_clicked()
     }
 
 
+void MainWindow::on_pushButtonResetLayers_clicked(void)
+    {
+    reloadLayersShown();
+    }
+
+
+/////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::on_layerTree_itemSelectionChanged
+/// Tree selection has been made. Display the appropriate editor at the bottom of the window
+void MainWindow::on_layerTree_itemSelectionChanged(void)
+    {
+    // Which one is selected? We need the top item too
+    QTreeWidgetItem *pSelected = ui->layerTree->currentItem();
+    while(pSelected->parent() != nullptr)
+        pSelected = pSelected->parent();
+
+    QString title = "Layer Settings Editor (";
+    title += pSelected->text(0);
+    title += ")";
+    ui->groupBoxEditor->setTitle(title);
+
+    }
 
 void MainWindow::on_pushButtonCreateProfile_clicked()
     {

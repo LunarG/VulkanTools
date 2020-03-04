@@ -71,9 +71,13 @@ public Q_SLOTS:
     void on_pushButtonLaunch_clicked();
     void on_pushButtonAddAssociation_clicked();
     void on_checkBoxHideUnused_clicked();
+    void on_pushButtonResetLayers_clicked();
     void on_pushButtonActivateProfile_clicked();
     void on_pushButtonCreateProfile_clicked();
     void on_pushButtonCustomPaths_clicked();
+
+    void on_layerTree_itemSelectionChanged();
+
 
 private:
     Ui::MainWindow *ui;
