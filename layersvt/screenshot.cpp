@@ -49,11 +49,14 @@ using namespace std;
 #include <android/log.h>
 #include <sys/system_properties.h>
 
-static char android_env[64] = {};
 const char *env_var_frames = "debug.vulkan.screenshot";
 const char *env_var_old = env_var_frames;
 const char *env_var_format = "debug.vulkan.screenshot.format";
 const char *env_var_dir = "debug.vulkan.screenshot.dir";
+static char property_frames[PROP_VALUE_MAX] = {};
+static char property_format[PROP_VALUE_MAX] = {};
+static char property_dir[PROP_VALUE_MAX] = {};
+static char property_unknown[PROP_VALUE_MAX] = {};
 #else  // Linux or Windows
 const char *env_var_old = "_VK_SCREENSHOT";
 const char *env_var_frames = "VK_SCREENSHOT_FRAMES";
@@ -66,30 +69,21 @@ const char *settings_option_format = "lunarg_screenshot.format";
 const char *settings_option_dir = "lunarg_screenshot.dir";
 
 #ifdef ANDROID
-char *android_exec(const char *cmd) {
-    FILE *pipe = popen(cmd, "r");
-    if (pipe != nullptr) {
-        fgets(android_env, 64, pipe);
-        pclose(pipe);
-    }
-
-    // Only if the value is set will we get a string back
-    if (strlen(android_env) > 0) {
-        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Vulkan screenshot layer capturing: %s", android_env);
-        // Do a right strip of " ", "\n", "\r", "\t" for the android_env string
-        string android_env_str(android_env);
-        android_env_str.erase(android_env_str.find_last_not_of(" \n\r\t") + 1);
-        snprintf(android_env, sizeof(android_env), "%s", android_env_str.c_str());
-        return android_env;
-    }
-
-    return nullptr;
-}
-
 char *android_getenv(const char *key) {
-    std::string command("getprop ");
-    command += key;
-    return android_exec(command.c_str());
+    char *rv;
+    if (strcmp(key, env_var_frames) == 0) {
+        rv = property_frames;
+    } else if (strcmp(key, env_var_format) == 0) {
+        rv = property_format;
+    } else if (strcmp(key, env_var_dir) == 0) {
+        rv = property_dir;
+    } else {
+        rv = property_unknown;
+    }
+    // the return value is the length of the value
+    (void)__system_property_get(key, rv);
+    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Vulkan screenshot layer property: %s=%s", key, rv);
+    return rv;
 }
 
 static inline char *local_getenv(const char *name) { return android_getenv(name); }

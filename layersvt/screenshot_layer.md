@@ -33,18 +33,18 @@ __Note:__ Environment variables take precedence over vk\_layer\_settings.txt opt
 
 ## Android
 
-Frame numbers can be specified with the debug.vulkan.screenshot property:
+Frame numbers can be specified with the `debug.vulkan.screenshot` property:
 
 ```
 adb shell setprop debug.vulkan.screenshot <framenumbers>
 ```
 
-The directory in which to create the image files can be specified with the debug.vulkan.dir property:
+The directory in which to create the image files can be specified with the `debug.vulkan.screenshot.dir` property:
 
 ```
-adb shell setprop debug.vulkan.dir <directory>
+adb shell setprop debug.vulkan.screenshot.dir <directory>
 ```
-If debug.vulkan.dir is not set or it is set to an empty string, the value of debug.vulkan.dir will default to "/sdcard/Android".
+If `debug.vulkan.screenshot.dir` is not set or it is set to an empty string, the value of `debug.vulkan.screenshot.dir` will default to "/sdcard/Android".
 
 For production builds, if the files are to be written to external storage, make sure your application is able to read and write external storage by adding the following to AndroidManifest.xml:
 
