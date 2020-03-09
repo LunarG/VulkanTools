@@ -49,7 +49,6 @@ using namespace std;
 #include <android/log.h>
 #include <sys/system_properties.h>
 
-static char android_env[64] = {};
 const char *env_var_frames = "debug.vulkan.screenshot";
 const char *env_var_old = env_var_frames;
 const char *env_var_format = "debug.vulkan.screenshot.format";
@@ -66,35 +65,23 @@ const char *settings_option_format = "lunarg_screenshot.format";
 const char *settings_option_dir = "lunarg_screenshot.dir";
 
 #ifdef ANDROID
-char *android_exec(const char *cmd) {
-    FILE *pipe = popen(cmd, "r");
-    if (pipe != nullptr) {
-        fgets(android_env, 64, pipe);
-        pclose(pipe);
-    }
 
-    // Only if the value is set will we get a string back
-    if (strlen(android_env) > 0) {
-        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Vulkan screenshot layer capturing: %s", android_env);
-        // Do a right strip of " ", "\n", "\r", "\t" for the android_env string
-        string android_env_str(android_env);
-        android_env_str.erase(android_env_str.find_last_not_of(" \n\r\t") + 1);
-        snprintf(android_env, sizeof(android_env), "%s", android_env_str.c_str());
-        return android_env;
-    }
+static std::map<std::string, std::string> android_env_map;
 
-    return nullptr;
+static char *local_getenv(const char *name) {
+    char env_val[PROP_VALUE_MAX];
+    char *rval = nullptr;
+    if (__system_property_get(name, env_val) > 0) {
+        android_env_map[std::string(name)] = std::string(env_val);
+        rval = const_cast<char *>(android_env_map[std::string(name)].c_str());
+        __android_log_print(ANDROID_LOG_INFO, "screenshot", "android local_getenv(\"%s\") returned \"%s\"", name, rval);
+    } else {
+        __android_log_print(ANDROID_LOG_INFO, "screenshot", "android local_getenv(\"%s\") returned nullptr", name);
+    }
+    return rval;
 }
 
-char *android_getenv(const char *key) {
-    std::string command("getprop ");
-    command += key;
-    return android_exec(command.c_str());
-}
-
-static inline char *local_getenv(const char *name) { return android_getenv(name); }
-
-static inline void local_free_getenv(const char *val) {}
+static void local_free_getenv(const char *val) { android_env_map.erase(std::string(val)); }
 
 #elif defined(__linux__)
 static inline char *local_getenv(const char *name) { return getenv(name); }
