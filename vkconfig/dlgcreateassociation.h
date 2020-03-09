@@ -1,5 +1,5 @@
-#ifndef DLGCREATEPROFILE_H
-#define DLGCREATEPROFILE_H
+#ifndef DLGCREATEASSOCIATION_H
+#define DLGCREATEASSOCIATION_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -18,30 +18,30 @@
  *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
-
 #include <QDialog>
-
 #include <vulkanconfiguration.h>
 
 namespace Ui {
-class dlgcreateprofile;
+class dlgCreateAssociation;
 }
 
-class dlgcreateprofile : public QDialog
+class dlgCreateAssociation : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit dlgcreateprofile(QWidget *parent = nullptr);
-    ~dlgcreateprofile();
+    explicit dlgCreateAssociation(QWidget *parent = nullptr, int nProfileIndex = 0);
+    ~dlgCreateAssociation();
 
 private:
-    Ui::dlgcreateprofile *ui;
+    Ui::dlgCreateAssociation *ui;
 
     CVulkanConfiguration    *pVulkanConfig;
+    int nCurrentProfile;
 
 public	Q_SLOTS:
-
+    void on_pushButtonAdd_clicked();        // Pick the application
+    void on_pushButtonRemove_clicked();     // Remove
 };
 
-#endif // DLGCREATEPROFILE_H
+#endif // DLGCREATEASSOCIATION_H

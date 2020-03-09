@@ -31,15 +31,6 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 
-// For the layer editor, we need a way to keep track of the layers
-// that are displayed, and associate them with an actual layer
-struct TLayerRepresentations {
-    const CLayerFile*   pLayerFileInfo;    // All the details abou the layer. We do not OWN this pointer...
-    bool                bDisabled;         // Do we want this layer disabled
-    bool                bUse;              // Do we want to use this layer
-    bool                bExplicit;         // true for explicit, false for implicit
-    QTreeWidgetItem*    pTreeItem;         // Address the layer item in the GUI
-};
 
 
 class MainWindow : public QMainWindow
@@ -50,14 +41,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void reloadLayersShown();
-
 protected:
     CVulkanConfiguration*    pVulkanConfig;
 
-    QVector <TLayerRepresentations*> layers;
-
-    void loadAllFoundLayers(QVector <CLayerFile*> &layerFile);
 
 public Q_SLOTS:
     void fileExit(bool bChecked);
@@ -67,16 +53,19 @@ public Q_SLOTS:
     void toolsVulkanInfo(bool bChecked);
     void toolsVulkanInstallation(bool bChecked);
     void toolsVulkanTestApp(bool bChecked);
+    void toolsSetCustomPaths(bool bChecked);
+    void on_pushButtonCustomPaths_clicked();    // Fired by menu even if no button
+    void on_pushButtonLaunch_clicked();         // Ditto
 
-    void on_pushButtonLaunch_clicked();
-    void on_pushButtonAddAssociation_clicked();
-    void on_checkBoxHideUnused_clicked();
-    void on_pushButtonResetLayers_clicked();
+    // New...
+    void on_pushButtonAppList_clicked(void);
+    void on_pushButtonEditProfile_clicked(void);
+
+
+    // TB Deprecated or addressed
     void on_pushButtonActivateProfile_clicked();
-    void on_pushButtonCreateProfile_clicked();
-    void on_pushButtonCustomPaths_clicked();
 
-    void on_layerTree_itemSelectionChanged();
+    void layerTree_itemClicked(QTreeWidgetItem *item, int column);
 
 
 private:

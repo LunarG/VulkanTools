@@ -139,7 +139,7 @@ void dlgLayerOutput::on_pushButtonSetApp_clicked()
         }
 
     // Save, just in case
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->saveAppSettings();
     }
 
 
@@ -156,7 +156,7 @@ void dlgLayerOutput::on_pushButtonWorkingDir_clicked()
 
     ui->lineEditWorkingDirectory->setText(pVulkanConfig->qsLaunchApplicationWorkingDir);
 
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->saveAppSettings();
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,13 +165,13 @@ void dlgLayerOutput::on_pushButtonWorkingDir_clicked()
 void dlgLayerOutput::on_lineEditCmdLine_editingFinished()
     {
     pVulkanConfig->qsLaunchApplicatinArgs = ui->lineEditCmdLine->text();
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->saveAppSettings();
     }
 
 void dlgLayerOutput::on_lineEditWorkingDirectory_editingFinished(void)
     {
     pVulkanConfig->qsLaunchApplicationWorkingDir = ui->lineEditWorkingDirectory->text();
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->saveAppSettings();
     }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -306,7 +306,7 @@ void dlgLayerOutput::on_pushButtonSetLogFile_clicked()
     else
         ui->labelLogFile->setText(pVulkanConfig->qsLogFileWPath);
 
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->saveAppSettings();
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -355,7 +355,7 @@ void dlgLayerOutput::on_pushButtonSave_clicked()
 void dlgLayerOutput::on_checkBoxStdout_clicked(void)
     {
     pVulkanConfig->bLogStdout = ui->checkBoxStdout->isChecked();
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->saveAppSettings();
     }
 
 ////////////////////////////////////////////////////////////////////////////////

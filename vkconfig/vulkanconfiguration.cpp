@@ -99,12 +99,12 @@ CVulkanConfiguration::CVulkanConfiguration()
 
 CVulkanConfiguration::~CVulkanConfiguration()
     {
-    clearLists();
+    clearLayerLists();
     qDeleteAll(profileList.begin(), profileList.end());
     profileList.clear();
     }
 
-void CVulkanConfiguration::clearLists(void)
+void CVulkanConfiguration::clearLayerLists(void)
     {
     qDeleteAll(implicitLayers.begin(), implicitLayers.end());
     implicitLayers.clear();
@@ -117,7 +117,7 @@ void CVulkanConfiguration::clearLists(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This is for the local application settings, not the system Vulkan settings
-void CVulkanConfiguration::LoadAppSettings(void)
+void CVulkanConfiguration::loadAppSettings(void)
     {
     // Load the launch app name from the last session
     QSettings settings;
@@ -131,7 +131,7 @@ void CVulkanConfiguration::LoadAppSettings(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This is for the local application settings, not the system Vulkan settings
-void CVulkanConfiguration::SaveAppSettings(void)
+void CVulkanConfiguration::saveAppSettings(void)
     {
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP, qsLaunchApplicationWPath);
@@ -196,7 +196,7 @@ void CVulkanConfiguration::reLoadLayerConfiguration(void)
 {
     // This is called initially, but also when custom search paths are set, so
     // we need to clear out the old data and just do a clean refresh
-    clearLists();
+    clearLayerLists();
 
 
 #ifdef _WIN32
@@ -257,6 +257,9 @@ void CVulkanConfiguration::reLoadLayerConfiguration(void)
         loadLayersFromPath(additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
 #endif
+
+    // Load and parse settings
+    loadLayerSettingsFromJson();
 }
 
 
@@ -293,18 +296,203 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath, QVector<CLa
     }
 
 
-
-void CVulkanConfiguration::loadProfiles(void)
+////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::loadLayerSettingsFromJson
+/// Just load the Json objects that contain some of the predefined layer
+/// settings.
+void CVulkanConfiguration::loadLayerSettingsFromJson(void)
     {
+    // Load the main object into the json document
+    QFile file(":/resourcefiles/layer_info.json");
+    file.open(QFile::ReadOnly);
+    QString data = file.readAll();
+    file.close();
 
+    QJsonDocument       jsonlayerInfoDoc;
+    jsonlayerInfoDoc = QJsonDocument::fromJson(data.toLocal8Bit());
+    if (!jsonlayerInfoDoc.isObject())
+            return;
 
+    // Isolate the Json object for each layer
+    QJsonObject docObject = jsonlayerInfoDoc.object();
+    QJsonValue layerOptionsValue = docObject.value("layer_options");
+    QJsonObject layersOptionsObject = layerOptionsValue.toObject();
 
+    // This is a list of layers for which we have user editable settings.
+    // there are nine as of this writing, but this code should accomodate
+    // if more are added at a later time.
+    // All the layers have been loaded, so we can look for matches
+    // and let the layers parse the json data to create their own list
+    // of settings.
+    layersWithSettings = layersOptionsObject.keys();
+    for(int i = 0; i < layersWithSettings.size(); i++) {    // For each setting
+        QJsonValue layerValue = layersOptionsObject.value(layersWithSettings[i]);
+        QJsonObject layerObject = layerValue.toObject();
+
+        // Search implicit layers
+        for(int j = 0; j < implicitLayers.size(); j++) {
+            if(implicitLayers[j]->name == layersWithSettings[i])
+                implicitLayers[j]->loadSettingsFromJson(layerObject);
+            }
+
+        // Search explicit layers (really?)
+        for(int j = 0; j < explicitLayers.size(); j++) {
+            if(explicitLayers[j]->name == layersWithSettings[i])
+                explicitLayers[j]->loadSettingsFromJson(layerObject);
+            }
+
+        // Search custom layers
+        for(int j = 0; j < customLayers.size(); j++) {
+            if(customLayers[j]->name == layersWithSettings[i])
+                customLayers[j]->loadSettingsFromJson(layerObject);
+            }
+        }
+
+//    QJsonValue layerGoogleThreading = layersOptionsObject.value("VK_LAYER_GOOGLE_threading");
+//    QJsonValue layerGoogleUniqueObjects = layersOptionsObject.value("VK_LAYER_GOOGLE_unique_objects");
+//    QJsonValue layerKhronosValidation = layersOptionsObject.value("VK_LAYER_KHRONOS_validation");
+//    etc. etc...
+    return;
     }
 
 
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::loadProfiles
+/// Load all the profiles
+void CVulkanConfiguration::loadProfiles(void)
+    {
+    // Read in the database
+    QFile file("./profile_list.json");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString jsonText = file.readAll();
+    file.close();
+
+    // Tease it apart
+    QJsonDocument jsonDoc;
+    QJsonParseError parseError;
+    jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
+    QJsonObject jsonTopObject = jsonDoc.object();
+
+    // Loop through the list, read in all the data
+    QStringList profileNames = jsonTopObject.keys();
+    for(int i = 0; i < profileNames.size(); i++) {
+        // Get the name of the profile
+        CProfileDef* profileDef = new CProfileDef;
+        profileDef->profileName = profileNames[i];
+
+        // Get the actual profile object
+        QJsonValue profile = jsonTopObject.value(profileNames[i]);
+        QJsonObject profileObject = profile.toObject();
+
+        // One of the read only ones?
+        profileDef->readOnly = profileObject.value("readonly").toBool();
+
+        // List of apps
+        QJsonValue apps = profileObject.value("apps");
+        QJsonArray appsArray = apps.toArray();
+        for(int j = 0; j < appsArray.size(); j++)
+            profileDef->appList << appsArray[j].toString();
+
+        // List of layers and settings
+//        QJsonValue layers = profileObject.value("layers");
+//        QJsonArray layersArray = layers.toArray();
+//        for(int j = 0; j < layersArray.size(); j++)
+//            profileDef->layers
+
+
+        profileList.push_back(profileDef);
+        }
+    }
+
+
+/*
+ * Performance Suite
+ * Rigourous Validation
+ * API Dump
+ * GPU Assisted Validation
+ * Video Capture
+ * Cross Thread Synchronization
+ * */
 void CVulkanConfiguration::saveProfiles(void)
     {
+    // Put together the list of profiles that are enabled
+//    QVector <CLayerFile*> layers;
+//    createProfileList(layers);
+
+//    if(layers.count() == 0) {
+//        QMessageBox msg;
+//        msg.setText(tr("Can't create profile."));
+//        msg.setInformativeText(tr("There are no selected layers"));
+//        msg.setStandardButtons(QMessageBox::Ok);
+//        msg.exec();
+//        return;
+//        }
+
+//        QJsonObject     profileList;
+
+
+//        QJsonObject     profile1;
+//        profile1.insert("Readonly", true);
+
+//        QJsonArray apps;
+//        apps.push_back("/Users/rwright/Desktop/stuff");
+//        apps.push_back("/User/rwright/Applicaitons/Lunartic");
+//        profile1.insert("Apps",apps);
+
+//        QJsonArray layers;
+//        layers.push_back("VK_LAYER1");
+//        layers.push_back("VK_LAYER_N");
+//        profile1.insert("Layers", layers);
+
+
+//        profileList.insert("Performance Suite", profile1);
+
+
+//        profileArray.push_back("API Usage Validation");
+
+
+
+ //       profileList.insert("Profiles", profileArray);
+
+
+
+
+
+
+ //       QJsonDocument   jsonDoc(profileList);
+
+
+    //    lunarg_api_dump.use_spaces = TRUE
+    //    lunarg_api_dump.no_addr = FALSE
+    //    lunarg_api_dump.name_size = 32
+    //    lunarg_api_dump.show_shader = FALSE
+    //    lunarg_api_dump.detailed = TRUE
+    //    lunarg_api_dump.flush = TRUE
+    //    lunarg_api_dump.file = FALSE
+    //    lunarg_api_dump.output_range = 0-0
+    //    lunarg_api_dump.log_filename = vk_apidump.txt
+    //    lunarg_api_dump.output_format = Text
+    //    lunarg_api_dump.show_timestamp = FALSE
+    //    lunarg_api_dump.show_types = TRUE
+    //    lunarg_api_dump.indent_size = 4
+    //    lunarg_api_dump.type_size = 0
+    //
+
+    //
+    // # VK_LAYER_KHRONOS_validation
+    //khronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
+    //khronos_validation.log_filename = stdout
+    //khronos_validation.report_flags = warn,error,perf
+    //khronos_validation.disables =
+    //khronos_validation.enables =
+    //
+
+
+//    QFile file("./profile_list.json");
+//    file.open(QIODevice::WriteOnly | QIODevice::Text);
+//    file.write(jsonDoc.toJson());
+//    file.close();
 
 
 

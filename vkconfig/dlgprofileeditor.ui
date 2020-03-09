@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dlgProfileEditor</class>
+ <widget class="QDialog" name="dlgProfileEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>745</width>
+    <height>727</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Profile Editor</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>670</y>
+     <width>621</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QTreeWidget" name="layerTree">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>30</y>
+     <width>701</width>
+     <height>220</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <column>
+    <property name="text">
+     <string notr="true">Layer Name</string>
+    </property>
+   </column>
+  </widget>
+  <widget class="QPushButton" name="pushButtonSaveProfileAs">
+   <property name="geometry">
+    <rect>
+     <x>513</x>
+     <y>610</y>
+     <width>156</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Save Profile As...</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonResetLayers">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>610</y>
+     <width>156</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Defaults</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>356</x>
+     <y>610</y>
+     <width>155</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Export Json</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonLaunchTest">
+   <property name="geometry">
+    <rect>
+     <x>198</x>
+     <y>610</y>
+     <width>156</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Test Environment</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="toolButtonDown">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>260</y>
+     <width>22</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Move Layer Down</string>
+   </property>
+   <property name="text">
+    <string>v</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="toolButtonUp">
+   <property name="geometry">
+    <rect>
+     <x>660</x>
+     <y>260</y>
+     <width>21</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Move Layer Up</string>
+   </property>
+   <property name="text">
+    <string>^</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxSettings">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>270</y>
+     <width>701</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Layer Settings</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>dlgProfileEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>dlgProfileEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

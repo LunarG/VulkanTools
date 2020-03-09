@@ -1,5 +1,5 @@
-#ifndef DLGCREATEPROFILE_H
-#define DLGCREATEPROFILE_H
+#ifndef CSETTINGSEDITOR_H
+#define CSETTINGSEDITOR_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,32 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * This class takes a pointer to a widget and a list of layer settings
+ * and creates a gui for displaying and editing those settings.
+ *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QDialog>
+#include <QWidget>
 
-#include <vulkanconfiguration.h>
+#include <layerfile.h>
 
-namespace Ui {
-class dlgcreateprofile;
-}
-
-class dlgcreateprofile : public QDialog
-{
-    Q_OBJECT
-
+class CSettingsEditor
+    {
 public:
-    explicit dlgcreateprofile(QWidget *parent = nullptr);
-    ~dlgcreateprofile();
+    CSettingsEditor();
 
-private:
-    Ui::dlgcreateprofile *ui;
+    // Creates controls and sets up any signals
+    void CreateGUI(QWidget *pDestination, QVector<TLayerSettings *>& layerSettings);
+    void CleanupGUI(void);                  // Clears all the controls
 
-    CVulkanConfiguration    *pVulkanConfig;
+protected:
+    QVector<QWidget *> prompts;
+    QVector<QWidget *> inputControls;
 
-public	Q_SLOTS:
+    };
 
-};
-
-#endif // DLGCREATEPROFILE_H
+#endif // CSETTINGSEDITOR_H

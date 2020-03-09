@@ -28,6 +28,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QJsonArray>
 #include <QString>
 #include <QVector>
 #include <QVariant>
@@ -35,14 +36,22 @@
 
 typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT, LAYER_TYPE_CUSTOM } TLayerType;
 
-typedef enum { LAYER_SETTINGS_STRING = 0, LAYER_SETTINGS_INT, LAYER_SETTINGS_FLOAT, LAYER_SETTINGS_BOOL } TLayerSettingsType;
+typedef enum { LAYER_SETTINGS_STRING = 0, LAYER_SETTINGS_FILE, LAYER_SETTINGS_INT, LAYER_SETTINGS_FLOAT, LAYER_SETTINGS_BOOL,
+                LAYER_SETTINGS_EXCLUSIVE_LIST, LAYER_SETTINGS_INCLUSIVE_LIST, LAYER_SETTINGS_RANGE_INT } TLayerSettingsType;
 
 struct TLayerSettings {
-    QString                 settingsName;
-    QString                 settingsDesc;
-    TLayerSettingsType      settingsType;
-    QVariant                settingsValue;
-};
+    QString                 settingsName;                   // Name of the setting the layer looks for (programatic variable name)
+    QString                 settingsPrompt;                 // Short name to prompt end user
+    QString                 settingsDesc;                   // Human version, describes the setting
+    TLayerSettingsType      settingsType;                   // The data type
+    QVariant                settingsMaxValue;               // For range based
+    QVariant                settingsMinValue;               // For range based
+    QStringList             settingsListExclusiveValue;     // List of exclusive items
+    QStringList             settingsListExclusivePrompt;    // List of exclusive item prompts
+    QStringList             settingsListInclusiveValue;     // List of non-exclusive items (more than one item can be selected)
+    QStringList             settingsListInclusivePrompt;    // List of non-exclusive item prompts (more than one item can be selected)
+    QString                 settingsValue;                  // Default value as a string
+    };
 
 
 class CLayerFile : public QObject, QJsonDocument
@@ -71,6 +80,8 @@ public:
     // File based layers
     bool readLayerFile(QString qsFullPathToFile, TLayerType layerKind);
     bool readLayerSettingsSchema(void);
+
+    void loadSettingsFromJson(QJsonObject& layerSettingsDescriptors);
 
 };
 

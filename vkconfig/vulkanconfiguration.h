@@ -40,8 +40,10 @@
 
 
 struct CProfileDef {
-    QString                  profileName;        // Name of the profile
-    QVector<CLayerFile*>     layers;             // List of layers and their settings.
+    QString                 profileName;        // Name of the profile
+    QVector<CLayerFile*>    layers;             // List of layers and their settings.
+    QStringList             appList;            // List of applications this profile applies to
+    bool                    readOnly;           // This profile cannot be changed
 };
 
 
@@ -58,8 +60,8 @@ public:
     ~CVulkanConfiguration();
 
     // Just local app settings
-    void LoadAppSettings(void);
-    void SaveAppSettings(void);
+    void loadAppSettings(void);
+    void saveAppSettings(void);
     QString qsLaunchApplicationWPath;
     QString qsLaunchApplicatinArgs;
     QString qsLaunchApplicationWorkingDir;
@@ -90,8 +92,10 @@ protected:
     CVulkanConfiguration();
     static CVulkanConfiguration*   pMe;
 
-    void clearLists(void);
+    QStringList         layersWithSettings;
 
+    void loadLayerSettingsFromJson(void);
+    void clearLayerLists(void);
 
 };
 

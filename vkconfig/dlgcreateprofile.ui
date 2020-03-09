@@ -7,17 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>438</width>
-    <height>263</height>
+    <height>369</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Create Application-Profile Association</string>
+   <string>Create This Profile</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>210</y>
+     <y>320</y>
      <width>351</width>
      <height>32</height>
     </rect>
@@ -29,29 +29,6 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>110</y>
-     <width>391</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Profile</string>
-   </property>
-   <widget class="QComboBox" name="comboBoxProfiles">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>30</y>
-      <width>351</width>
-      <height>32</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
@@ -62,29 +39,39 @@
     </rect>
    </property>
    <property name="title">
-    <string>Application Association</string>
+    <string>Profile Name</string>
    </property>
-   <widget class="QLineEdit" name="lineEditApplication">
+   <widget class="QLineEdit" name="lineEditProfileName">
     <property name="geometry">
      <rect>
       <x>20</x>
       <y>30</y>
-      <width>301</width>
+      <width>361</width>
       <height>21</height>
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonBrowse">
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>110</y>
+     <width>391</width>
+     <height>201</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Included Layers</string>
+   </property>
+   <widget class="QListWidget" name="listWidgetLayers">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>25</y>
-      <width>51</width>
-      <height>32</height>
+      <x>10</x>
+      <y>30</y>
+      <width>371</width>
+      <height>161</height>
      </rect>
-    </property>
-    <property name="text">
-     <string>...</string>
     </property>
    </widget>
   </widget>

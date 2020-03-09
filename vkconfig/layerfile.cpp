@@ -141,3 +141,105 @@ bool CLayerFile::readLayerSettingsSchema(void)
     return true;
     }
 
+
+////////////////////////////////////////////////////////////////////////////
+void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors)
+    {
+    // Okay, how many settings do we have?
+    QStringList settingsNames = layerSettingsDescriptors.keys();
+    printf("There are %d settings\n", settingsNames.size());
+
+
+    for(int i = 0; i < settingsNames.size(); i++) {
+        TLayerSettings *pLayerSettings = new TLayerSettings;
+        pLayerSettings->settingsName = settingsNames[i];
+
+        QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[i]);
+        QJsonObject settingObject = settingValue.toObject();
+
+        // The easy stuff...
+        QJsonValue value = settingObject.value("description");
+        pLayerSettings->settingsDesc = value.toString();
+
+        value = settingObject.value("name");
+        pLayerSettings->settingsPrompt = value.toString();
+
+        // This is either a single value, or a comma delimted set of strings
+        // selected from a nonexclusive list
+        value = settingObject.value("default");
+        if(value.isArray()) {
+            QJsonArray array = value.toArray();
+            for(int a = 0; a < array.size(); a++) {
+                pLayerSettings->settingsValue += array[a].toString();
+                if(a != array.size() -1)
+                    pLayerSettings->settingsValue += ",";
+            }
+
+        } else
+            pLayerSettings->settingsValue = value.toString();
+
+        ///////////////////////////////////////////////////////////////////////
+        // Everything from here down revolves around the data type
+        // Data types and values start getting a little more involved.
+        value = settingObject.value("type");
+
+        QString typeString = value.toString();
+        ///////////////////////////////////////////////// Exclusive Enums
+        if(typeString == QString("enum")) {
+            pLayerSettings->settingsType = LAYER_SETTINGS_EXCLUSIVE_LIST;
+
+            // Now we have a list of options, both the enum for the settings file, and the prompts
+            value = settingObject.value("options");
+            QJsonObject object = value.toObject();
+            QStringList keys, values;
+            keys = object.keys();
+            for(int v = 0; v < keys.size(); v++) {
+                pLayerSettings->settingsListExclusiveValue << keys[v];
+                pLayerSettings->settingsListExclusivePrompt << object.value(keys[v]).toString();
+                }
+
+            layerSettings.push_back(pLayerSettings);
+            continue;
+            }
+
+        /////////////////////////////////////////////////// Pick one or more from a list
+        if(typeString == QString("multi_enum")) {
+            pLayerSettings->settingsType = LAYER_SETTINGS_INCLUSIVE_LIST;
+
+            // Now we have a list of options, both the enum for the settings file, and the prompts
+            value = settingObject.value("options");
+            QJsonObject object = value.toObject();
+            QStringList keys, values;
+            keys = object.keys();
+            for(int v = 0; v < keys.size(); v++) {
+                pLayerSettings->settingsListInclusiveValue << keys[v];
+                pLayerSettings->settingsListInclusivePrompt << object.value(keys[v]).toString();
+                }
+
+            layerSettings.push_back(pLayerSettings);
+            continue;
+            }
+
+        ////////////////////////////////////////////////////// Select a file. Nice and simple
+        if(typeString == QString("save_file")) {
+            pLayerSettings->settingsType = LAYER_SETTINGS_FILE;
+            layerSettings.push_back(pLayerSettings);
+            continue;
+            }
+
+        ////////////////////////////////////////////////////// Bool, also nice and simple
+        if(typeString == QString("bool")) {
+            pLayerSettings->settingsType = LAYER_SETTINGS_BOOL;
+            layerSettings.push_back(pLayerSettings);
+            continue;
+            }
+
+        ////////////////////////////////////////////////////// Just a string please
+        if(typeString == QString("string"))
+            pLayerSettings->settingsType = LAYER_SETTINGS_STRING;
+
+
+        layerSettings.push_back(pLayerSettings);
+        }
+    }
+
