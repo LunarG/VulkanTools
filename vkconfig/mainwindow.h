@@ -21,7 +21,7 @@
 #include <QVector>
 
 #include <QMainWindow>
-#include <QTreeWidgetItem>
+#include <QListWidgetItem>
 
 #include <vulkanconfiguration.h>
 
@@ -54,18 +54,15 @@ public Q_SLOTS:
     void toolsVulkanInstallation(bool bChecked);
     void toolsVulkanTestApp(bool bChecked);
     void toolsSetCustomPaths(bool bChecked);
+
+    void profileItemChanged(QListWidgetItem *item);
+
     void on_pushButtonCustomPaths_clicked();    // Fired by menu even if no button
     void on_pushButtonLaunch_clicked();         // Ditto
 
-    // New...
     void on_pushButtonAppList_clicked(void);
     void on_pushButtonEditProfile_clicked(void);
 
-
-    // TB Deprecated or addressed
-    void on_pushButtonActivateProfile_clicked();
-
-    void layerTree_itemClicked(QTreeWidgetItem *item, int column);
 
 
 private:

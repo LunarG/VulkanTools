@@ -50,8 +50,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Load list of profiles
     ui->listWidgetProfiles->addItem("** No Layer Profile Active **");
-    for(int i = 0; i < pVulkanConfig->profileList.size(); i++)
+    ui->listWidgetProfiles->item(0)->setCheckState(Qt::Unchecked);
+    for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
         ui->listWidgetProfiles->addItem(pVulkanConfig->profileList[i]->profileName);
+        ui->listWidgetProfiles->item(i+1)->setCheckState(Qt::Unchecked);
+        }
+
+   // ui->listWidgetProfiles->item(0)->setCheckState(Qt::Checked);
+
+    connect(ui->listWidgetProfiles, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(profileItemChanged(QListWidgetItem*)));
 
 
     connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(fileExit(bool)));
@@ -145,7 +152,17 @@ void MainWindow::fileHistory(bool bChecked)
 /// Edit the list of apps tied to this profile
 void MainWindow::on_pushButtonAppList_clicked(void)
     {
-    dlgCreateAssociation dlg(this, ui->listWidgetProfiles->currentRow()-1);
+    int nSelection = ui->listWidgetProfiles->currentRow();
+    if(nSelection == -1 || nSelection == 0) {
+        QMessageBox msg;
+        msg.setInformativeText(tr("Select a specific profile to edit application list."));
+        msg.setText(tr("Edit profile"));
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.exec();
+        return;
+        }
+
+    dlgCreateAssociation dlg(this, nSelection-1);
     dlg.exec();
     }
 
@@ -155,36 +172,20 @@ void MainWindow::on_pushButtonAppList_clicked(void)
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEditProfile_clicked(void)
     {
+    int nSelection = ui->listWidgetProfiles->currentRow();
+    if(nSelection == -1 || nSelection == 0) {
+        QMessageBox msg;
+        msg.setInformativeText(tr("Select a specific profile to edit"));
+        msg.setText(tr("Edit profile"));
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.exec();
+        return;
+        }
+
     dlgProfileEditor dlg(this);
     dlg.exec();
 
     pVulkanConfig->saveProfiles();
-    }
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-void MainWindow::on_pushButtonActivateProfile_clicked()
-    {
-//    if(ui->listWidgetStacks->count() == 0)
-//        return;
-
-//    QMessageBox msg;
-//    msg.setInformativeText(tr("Set this profile as the default for all Vulkan Applications?"));
-//    msg.setText(tr("Set default profile"));
-//    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-//    msg.setDefaultButton(QMessageBox::Yes);
-//    if(msg.exec() == QMessageBox::No)
-//        return;
-
-
-//    pVulkanConfig->nActiveProfile = ui->listWidgetStacks->currentRow();
-//    ui->listWidgetStacks->item(pVulkanConfig->nActiveProfile)->setBackground(Qt::white);
-//    pVulkanConfig->nActiveProfile = ui->listWidgetStacks->currentRow();
-//    ui->listWidgetStacks->item(pVulkanConfig->nActiveProfile)->setBackground(Qt::green);
     }
 
 
@@ -205,29 +206,14 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::layerTree_itemClicked
-/// \param item
-/// \param column
-/// Something was enabled/disabled/etc.
-void MainWindow::layerTree_itemClicked(QTreeWidgetItem *item, int column)
+void MainWindow::profileItemChanged(QListWidgetItem *item)
     {
-    if(column == 1) { // Something made active
-//        QTreeWidgetItemWithLayer* pLayerRep = static_cast<QTreeWidgetItemWithLayer*>(item);
-//        pLayerRep->pLayerRepBackPointer->bUse = (Qt::Checked == item->checkState(column));
-//        printf("checked = %d\n",pLayerRep->pLayerRepBackPointer->bUse );
-
-
-
-
-        return;
-        }
-
-
-    if(column == 3) { // Something disabled
-
+    // If an item is checked, we need to uncheck all the other ones
+    if(item->checkState() == Qt::Checked)
+        {
 
 
         }
+
     }
 

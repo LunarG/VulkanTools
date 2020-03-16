@@ -1,0 +1,52 @@
+{
+    "Basic Validation": {
+        "VK_LAYER_LUNARG_api_dump": [
+            "file",
+            "flush"
+        ],
+        "VK_LAYER_LUNARG_core_validation": [
+            "Report Flags",
+            "log_filename"
+        ]
+    },
+    "Lightweight Validation": {
+        "VK_LAYER_LUNARG_api_dump": [
+            "file",
+            "flush"
+        ],
+        "VK_LAYER_LUNARG_core_validation": [
+            "Report Flags",
+            "log_filename"
+        ]
+    },
+    "Best Practices Validation": {
+        "VK_LAYER_LUNARG_api_dump": [
+            "file",
+            "flush"
+        ],
+        "VK_LAYER_LUNARG_core_validation": [
+            "Report Flags",
+            "log_filename"
+        ]
+    },
+    "Synchronization Validation": {
+        "VK_LAYER_LUNARG_api_dump": [
+            "file",
+            "flush"
+        ],
+        "VK_LAYER_LUNARG_core_validation": [
+            "Report Flags",
+            "log_filename"
+        ]
+    },    
+    "GPU-Assisted Validation": {
+        "VK_LAYER_LUNARG_api_dump": [
+            "file",
+            "flush"
+        ],
+        "VK_LAYER_LUNARG_core_validation": [
+            "Report Flags",
+            "log_filename"
+        ]
+    }
+}

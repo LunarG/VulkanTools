@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>493</width>
+    <width>491</width>
     <height>583</height>
    </rect>
   </property>
@@ -48,68 +48,13 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="groupBoxAppList">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>20</y>
-      <width>161</width>
-      <height>81</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Apply to specific apps</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <widget class="QPushButton" name="pushButtonAppList">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>30</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Edit List...</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QPushButton" name="pushButtonActivateProfile">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>120</y>
-      <width>151</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Set as Active Profile</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonEditProfile">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>150</y>
-      <width>151</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Edit Profile...</string>
-    </property>
-   </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>20</x>
       <y>300</y>
-      <width>441</width>
-      <height>221</height>
+      <width>451</width>
+      <height>241</height>
      </rect>
     </property>
     <property name="tabPosition">
@@ -119,20 +64,54 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideMiddle</enum>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="tab_3">
      <attribute name="title">
-      <string>Break Points</string>
+      <string>Profile Settings</string>
      </attribute>
     </widget>
-    <widget class="QWidget" name="tab_2">
-     <attribute name="title">
-      <string>Message Filters</string>
-     </attribute>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>20</y>
+      <width>151</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <widget class="QPushButton" name="pushButtonAppList">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>131</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>App List...</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonEditProfile">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>131</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Edit/Duplicate</string>
+     </property>
     </widget>
    </widget>
   </widget>
@@ -141,7 +120,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>493</width>
+     <width>491</width>
      <height>22</height>
     </rect>
    </property>
@@ -160,6 +139,7 @@
     <addaction name="actionVulkan_Info"/>
     <addaction name="actionVulkan_Installation"/>
     <addaction name="actionCustom_Layer_Paths"/>
+    <addaction name="actionCreate_Custom_Profile"/>
     <addaction name="separator"/>
     <addaction name="actionLog_API_Dump"/>
     <addaction name="actionSet_Test_Application"/>
@@ -229,6 +209,11 @@
   <action name="actionLog_API_Dump">
    <property name="text">
     <string>Log API Dump...</string>
+   </property>
+  </action>
+  <action name="actionCreate_Custom_Profile">
+   <property name="text">
+    <string>Create Custom Profile..</string>
    </property>
   </action>
  </widget>

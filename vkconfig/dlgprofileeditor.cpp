@@ -172,6 +172,5 @@ void dlgProfileEditor::on_layerTree_itemSelectionChanged(void)
     ui->groupBoxSettings->setTitle(title);
 
     settingsEditor.CreateGUI(ui->groupBoxSettings, pVulkanConfig->explicitLayers[0]->layerSettings);
-
     }
 
