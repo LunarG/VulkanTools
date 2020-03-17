@@ -1452,7 +1452,9 @@ std::ostream& dump_json_{enumName}({enumName} object, const ApiDumpSettings& set
 std::ostream& dump_json_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
 {{
     bool is_first = true;
-    settings.stream() << '"' << object << ' ';
+    settings.stream() << '"' << object;
+    if (object)
+        settings.stream() << ' ';
     @foreach option
         @if('{optMultiValue}' != 'None')
             if(object == {optValue})
