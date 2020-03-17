@@ -156,7 +156,7 @@ vkreplay -o <tracefile> -ds wayland
 
 The Vulkan validation layers may be enabled for trace replay.  Replaying a trace with layers activated provides many benefits.  Developers can take advantage of new validation capabilities as they are developed with older and existing trace files.
 
-To activate specific layers on a trace replay, set the `VK_INSTANCE_LAYERS` environment variable to a colon-separated list of layer names before replaying the trace. Refer to the [Vulkan Validation and Debugging Layers](./layers.md) guide for additional information on layers and how to configure layer output options.
+To activate specific layers on a trace replay, set the `VK_INSTANCE_LAYERS` environment variable to a colon-separated list of layer names before replaying the trace. Refer to the [Layers Overview and Configuration](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/LAYER_CONFIGURATION.md) guide for additional information on layers and how to configure layer output options.
 
 ## Persistently Mapped Buffers and vktrace
 
