@@ -29,7 +29,8 @@ LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_utils.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_format_utils.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/layers
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers \
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers/generated
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
 include $(BUILD_STATIC_LIBRARY)
@@ -43,6 +44,7 @@ LOCAL_SRC_FILES += $(LAYER_DIR)/include/api_dump.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers/generated \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
@@ -58,6 +60,7 @@ LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot_parsing.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers/generated \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
@@ -74,6 +77,7 @@ LOCAL_SRC_FILES += $(ANDROID_DIR)/third_party/jsoncpp/dist/jsoncpp.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(ANDROID_DIR)/third_party/jsoncpp/dist \
                     $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers/generated \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
@@ -109,6 +113,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/vktrace/include \
                     $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include/vulkan \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers/generated \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_common \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_layer \
@@ -151,6 +156,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/vktrace/include \
                     $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include/vulkan \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers/generated \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_common \
