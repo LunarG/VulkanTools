@@ -39,25 +39,6 @@ echo Entering Generated/Include Folder
 echo ********
 pushd generated\include
 
-echo Generating LVL header/source files
-echo ********
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_safe_struct.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_safe_struct.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_enum_string_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_object_types.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_dispatch_table_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% thread_check.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% parameter_validation.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_layer_dispatch_table.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_extension_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_typemap_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_chassis_dispatch.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_chassis_dispatch.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.h
-
 REM layer factory
 echo Generating VT layer factory header/source files
 echo ********

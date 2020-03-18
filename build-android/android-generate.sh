@@ -28,9 +28,6 @@ VT_SCRIPTS=../../../scripts
 REGISTRY_PATH=$dir/third_party/Vulkan-Headers/registry
 REGISTRY=${REGISTRY_PATH}/vk.xml
 
-# validation layers support files
-( cd generated/include; cp  $LVL_GENERATED/* .)
-
 # layer factory
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_factory.h )
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_factory.cpp )

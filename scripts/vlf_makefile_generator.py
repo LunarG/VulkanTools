@@ -84,6 +84,7 @@ if __name__ == '__main__':
             contents += 'LOCAL_C_INCLUDES += %s\n' % include_dir
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LAYER_DIR)/include\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/layers\n'
+            contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/layers/generated\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/layer_factory/%s\n' % factory_layer
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/loader\n'
             contents += 'LOCAL_STATIC_LIBRARIES += layer_utils\n'
