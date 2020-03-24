@@ -17,6 +17,9 @@
  * limitations under the License.
  *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ *
+ * A list of applicaitons can be maintained that when enabled
+ * the profile will only affect those in the list.
  */
 #include <QDialog>
 #include <vulkanconfiguration.h>
@@ -30,7 +33,7 @@ class dlgCreateAssociation : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlgCreateAssociation(QWidget *parent = nullptr, int nProfileIndex = 0);
+    explicit dlgCreateAssociation(QWidget *parent = nullptr);
     ~dlgCreateAssociation();
 
 private:

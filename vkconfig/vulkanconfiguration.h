@@ -37,6 +37,7 @@
 #define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 
 #define VKCONFIG_CUSTOM_LAYER_PATHS "./CustomPaths.txt"
+#define VKCONIFG_CUSTOM_APP_LIST    "./AppList.txt"
 
 
 struct CProfileDef {
@@ -86,6 +87,11 @@ public:
 
     void loadProfiles(void);
     void saveProfiles(void);
+
+    // The list of applications affected
+    QStringList appList;
+    void loadAppList(void);
+    void saveAppList(void);
 
 
 protected:

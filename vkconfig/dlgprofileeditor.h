@@ -23,7 +23,7 @@
 #include <QTreeWidgetItem>
 
 #include <vulkanconfiguration.h>
-#include <csettingseditor.h>
+#include <settingseditor.h>
 
 // For the layer editor, we need a way to keep track of the layers
 // that are displayed, and associate them with an actual layer
@@ -67,6 +67,7 @@ private:
 
 public Q_SLOTS:
     void on_pushButtonResetLayers_clicked();
+    void on_pushButtonLaunchTest_clicked();
     void on_layerTree_itemSelectionChanged();
 
 

@@ -17,7 +17,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    csettingseditor.cpp \
     dlgabout.cpp \
     dlgcreateassociation.cpp \
     dlgcreateprofile.cpp \
@@ -30,10 +29,10 @@ SOURCES += \
     layerfile.cpp \
     main.cpp \
     mainwindow.cpp \
+    settingseditor.cpp \
     vulkanconfiguration.cpp
 
 HEADERS += \
-    csettingseditor.h \
     dlgabout.h \
     dlgcreateassociation.h \
     dlgcreateprofile.h \
@@ -45,6 +44,7 @@ HEADERS += \
     dlgvulkaninfo.h \
     layerfile.h \
     mainwindow.h \
+    settingseditor.h \
     vulkanconfiguration.h
 
 FORMS += \

@@ -21,23 +21,16 @@
 #include "dlgcreateassociation.h"
 #include "ui_dlgcreateassociation.h"
 
-dlgCreateAssociation::dlgCreateAssociation(QWidget *parent, int nProfileIndex) :
+dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlgCreateAssociation)
     {
     ui->setupUi(this);
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    nCurrentProfile = nProfileIndex;
 
-    if(nProfileIndex >= 0) {
-        QString title = tr("Application List for ");
-        title += pVulkanConfig->profileList[nProfileIndex]->profileName;
-        ui->groupBox->setTitle(title);
-
-        for(int i = 0; i < pVulkanConfig->profileList[nProfileIndex]->appList.size(); i++)
-            ui->listWidget->addItem(pVulkanConfig->profileList[nProfileIndex]->appList[i]);
-        }
+    for(int i = 0; i < pVulkanConfig->appList.size(); i++)
+        ui->listWidget->addItem(pVulkanConfig->appList[i]);
     }
 
 dlgCreateAssociation::~dlgCreateAssociation()
@@ -62,7 +55,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
         tr("Select executable to pair with "), "/", fileWildcard);
 
     if(!appWithPath.isEmpty()) {
-        pVulkanConfig->profileList[nCurrentProfile]->appList << appWithPath;
+        pVulkanConfig->appList << appWithPath;
         ui->listWidget->addItem(appWithPath);
         }
     }

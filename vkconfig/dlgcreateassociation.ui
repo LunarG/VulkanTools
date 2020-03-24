@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>508</height>
+    <width>728</width>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Application List For This Pofile</string>
+   <string>Applications</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Application list for &lt;Profile Name&gt;</string>
+      <string>Application Filter List</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" colspan="2">

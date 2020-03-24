@@ -76,19 +76,6 @@
     <string>Defaults</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
-   <property name="geometry">
-    <rect>
-     <x>356</x>
-     <y>610</y>
-     <width>155</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Export Json</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButtonLaunchTest">
    <property name="geometry">
     <rect>
@@ -99,7 +86,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Test Environment</string>
+    <string>Test Environment...</string>
    </property>
   </widget>
   <widget class="QToolButton" name="toolButtonDown">
@@ -146,6 +133,35 @@
    <property name="title">
     <string>Layer Settings</string>
    </property>
+   <widget class="QScrollArea" name="scrollArea">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>681</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustToContents</enum>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>664</width>
+       <height>279</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <resources/>

@@ -19,7 +19,7 @@
 
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
-
+#include "dlglayeroutput.h"
 
 class QTreeWidgetItemWithLayer : public QTreeWidgetItem
     {
@@ -166,11 +166,26 @@ void dlgProfileEditor::on_layerTree_itemSelectionChanged(void)
     while(pSelected->parent() != nullptr)
         pSelected = pSelected->parent();
 
-    QString title = "Layer Settings fore (";
-    title += pSelected->text(0);
-    title += ")";
-    ui->groupBoxSettings->setTitle(title);
+    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pSelected);
+    //pLayerItem->pLayerRepBackPointer->pLayerFileInfo->layerSettings
+    if(pLayerItem == nullptr) return;
 
-    settingsEditor.CreateGUI(ui->groupBoxSettings, pVulkanConfig->explicitLayers[0]->layerSettings);
+
+    // Get the name of the selected layer
+    QString csLayer = pSelected->text(0);
+
+    settingsEditor.CleanupGUI();
+    settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayerRepBackPointer->pLayerFileInfo->layerSettings);
+
+    }
+
+
+//////////////////////////////////////////////////////////////////////////
+/// \brief dlgProfileEditor::on_pushButtonLaunchTest_clicked
+/// Test environment
+void dlgProfileEditor::on_pushButtonLaunchTest_clicked()
+    {
+    dlgLayerOutput dlg(this);
+    dlg.exec();
     }
 

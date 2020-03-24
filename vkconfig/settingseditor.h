@@ -22,7 +22,7 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QWidget>
+#include <QScrollArea>
 
 #include <layerfile.h>
 
@@ -32,12 +32,14 @@ public:
     CSettingsEditor();
 
     // Creates controls and sets up any signals
-    void CreateGUI(QWidget *pDestination, QVector<TLayerSettings *>& layerSettings);
+    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings);
     void CleanupGUI(void);                  // Clears all the controls
 
 protected:
     QVector<QWidget *> prompts;
     QVector<QWidget *> inputControls;
+
+    QWidget *pEditArea;
 
     };
 

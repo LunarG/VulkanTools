@@ -174,9 +174,6 @@ void CVulkanConfiguration::loadAdditionalSearchPaths(void)
 /// Save the list of paths here.
 void CVulkanConfiguration::saveAdditionalSearchPaths(void)
     {
-    if(nAdditionalSearchPathCount == 0)
-        return;
-
     QFile file(VKCONFIG_CUSTOM_LAYER_PATHS);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
@@ -189,6 +186,40 @@ void CVulkanConfiguration::saveAdditionalSearchPaths(void)
     file.close();   // Just to be explicit, should close anyway when it goes out of scope
     }
 
+
+///////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::loadAppList
+/// Load the custom application list
+void CVulkanConfiguration::loadAppList(void)
+    {
+    QFile file(VKCONIFG_CUSTOM_APP_LIST);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    QTextStream stream(&file);
+    while(!stream.atEnd())
+        appList << stream.readLine();
+
+    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    }
+
+
+//////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::saveAppList
+/// Save the custom applicaiton list
+void CVulkanConfiguration::saveAppList(void)
+    {
+    QFile file(VKCONIFG_CUSTOM_APP_LIST);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    // Okay, there must be data...
+    QTextStream output(&file);
+    for(int i = 0; i < appList.size(); i++)
+        output << appList[i] << "\n";
+
+    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    }
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -363,7 +394,7 @@ void CVulkanConfiguration::loadLayerSettingsFromJson(void)
 void CVulkanConfiguration::loadProfiles(void)
     {
     // Read in the database
-    QFile file("./profile_list.json");
+    QFile file(":/resourcefiles/presets_info.json");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QString jsonText = file.readAll();
     file.close();

@@ -79,8 +79,6 @@ public:
 
     // File based layers
     bool readLayerFile(QString qsFullPathToFile, TLayerType layerKind);
-    bool readLayerSettingsSchema(void);
-
     void loadSettingsFromJson(QJsonObject& layerSettingsDescriptors);
 
 };

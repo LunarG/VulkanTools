@@ -24,6 +24,7 @@
 #include <QListWidgetItem>
 
 #include <vulkanconfiguration.h>
+#include <settingseditor.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -43,7 +44,7 @@ public:
 
 protected:
     CVulkanConfiguration*    pVulkanConfig;
-
+    CSettingsEditor*         pSettingsEditor;
 
 public Q_SLOTS:
     void fileExit(bool bChecked);
@@ -56,6 +57,7 @@ public Q_SLOTS:
     void toolsSetCustomPaths(bool bChecked);
 
     void profileItemChanged(QListWidgetItem *item);
+    void currentProfileRowChanged(int row);
 
     void on_pushButtonCustomPaths_clicked();    // Fired by menu even if no button
     void on_pushButtonLaunch_clicked();         // Ditto

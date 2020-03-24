@@ -36,7 +36,6 @@
 
 
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -47,18 +46,20 @@ MainWindow::MainWindow(QWidget *parent)
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     pVulkanConfig->loadAppSettings();
     pVulkanConfig->loadProfiles();
+    pVulkanConfig->loadAppList();
+
+    pSettingsEditor = new CSettingsEditor();
 
     // Load list of profiles
-    ui->listWidgetProfiles->addItem("** No Layer Profile Active **");
-    ui->listWidgetProfiles->item(0)->setCheckState(Qt::Unchecked);
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
         ui->listWidgetProfiles->addItem(pVulkanConfig->profileList[i]->profileName);
-        ui->listWidgetProfiles->item(i+1)->setCheckState(Qt::Unchecked);
+        ui->listWidgetProfiles->item(i)->setCheckState(Qt::Unchecked);
         }
 
    // ui->listWidgetProfiles->item(0)->setCheckState(Qt::Checked);
 
     connect(ui->listWidgetProfiles, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(profileItemChanged(QListWidgetItem*)));
+    connect(ui->listWidgetProfiles, SIGNAL(currentRowChanged(int)), this, SLOT(currentProfileRowChanged(int)));
 
 
     connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(fileExit(bool)));
@@ -149,21 +150,12 @@ void MainWindow::fileHistory(bool bChecked)
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonAppList_clicked
-/// Edit the list of apps tied to this profile
+/// Edit the list of apps that can be filtered.
 void MainWindow::on_pushButtonAppList_clicked(void)
     {
-    int nSelection = ui->listWidgetProfiles->currentRow();
-    if(nSelection == -1 || nSelection == 0) {
-        QMessageBox msg;
-        msg.setInformativeText(tr("Select a specific profile to edit application list."));
-        msg.setText(tr("Edit profile"));
-        msg.setStandardButtons(QMessageBox::Ok);
-        msg.exec();
-        return;
-        }
-
-    dlgCreateAssociation dlg(this, nSelection-1);
+    dlgCreateAssociation dlg(this);
     dlg.exec();
+    pVulkanConfig->saveAppList();
     }
 
 
@@ -173,7 +165,7 @@ void MainWindow::on_pushButtonAppList_clicked(void)
 void MainWindow::on_pushButtonEditProfile_clicked(void)
     {
     int nSelection = ui->listWidgetProfiles->currentRow();
-    if(nSelection == -1 || nSelection == 0) {
+    if(nSelection == 0) {
         QMessageBox msg;
         msg.setInformativeText(tr("Select a specific profile to edit"));
         msg.setText(tr("Edit profile"));
@@ -214,6 +206,14 @@ void MainWindow::profileItemChanged(QListWidgetItem *item)
 
 
         }
-
     }
 
+
+
+void MainWindow::currentProfileRowChanged(int row)
+    {
+    // Display editor for profile
+ //   pSettingsEditor->CreateGUI(ui->tabWidget, pVulkanConfig->explicitLayers[row]->layerSettings);
+ //   ui->tabWidget->update();
+
+    }
