@@ -4590,54 +4590,9 @@ VkResult vkReplay::manually_replay_vkRegisterDisplayEventEXT(packet_vkRegisterDi
     return result;
 }
 
-VkResult vkReplay::manually_replay_vkCreateObjectTableNVX(packet_vkCreateObjectTableNVX *pPacket) {
+VkResult vkReplay::manually_replay_vkCreateIndirectCommandsLayoutNV(packet_vkCreateIndirectCommandsLayoutNV *pPacket) {
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-    VkObjectTableNVX local_pObjectTable;
-    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
-        vktrace_LogError("Error detected in CreateObjectTableNVX() due to invalid remapped VkDevice.");
-        return VK_ERROR_VALIDATION_FAILED_EXT;
-    }
-
-    // No need to remap pCreateINfo
-    // No need to remap pAllocator
-    // No need to remap pObjecTable
-
-    // Remap fields in pCreateInfo
-    *((VkObjectEntryTypeNVX **)&pPacket->pCreateInfo->pObjectEntryTypes) =
-        (VkObjectEntryTypeNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pObjectEntryTypes);
-    *((int32_t **)&pPacket->pCreateInfo->pObjectEntryCounts) =
-        (int32_t *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pObjectEntryCounts);
-    *((VkObjectEntryUsageFlagsNVX **)&pPacket->pCreateInfo->pObjectEntryUsageFlags) =
-        (VkObjectEntryUsageFlagsNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pObjectEntryUsageFlags);
-
-    auto result =
-        m_vkDeviceFuncs.CreateObjectTableNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pObjectTable);
-
-    if (result == VK_SUCCESS) {
-        m_objMapper.add_to_objecttablenvxs_map(*(pPacket->pObjectTable), local_pObjectTable);
-    }
-    return result;
-}
-
-void vkReplay::manually_replay_vkCmdProcessCommandsNVX(packet_vkCmdProcessCommandsNVX *pPacket) {
-    VkCommandBuffer remappedcommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
-    if (pPacket->commandBuffer != VK_NULL_HANDLE && remappedcommandBuffer == VK_NULL_HANDLE) {
-        vktrace_LogError("Error detected in CmdProcessCommandsNVX() due to invalid remapped VkCommandBuffer.");
-    }
-
-    // No need to remap pProcessCommandsInfo
-
-    // Remap fields in pProcessCommandsInfo
-    *((VkIndirectCommandsTokenNVX **)&pPacket->pProcessCommandsInfo->pIndirectCommandsTokens) =
-        (VkIndirectCommandsTokenNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pProcessCommandsInfo->pIndirectCommandsTokens);
-
-    m_vkDeviceFuncs.CmdProcessCommandsNVX(remappedcommandBuffer, pPacket->pProcessCommandsInfo);
-}
-
-
-VkResult vkReplay::manually_replay_vkCreateIndirectCommandsLayoutNVX(packet_vkCreateIndirectCommandsLayoutNVX *pPacket) {
-    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-    VkIndirectCommandsLayoutNVX local_pIndirectCommandsLayout;
+    VkIndirectCommandsLayoutNV local_pIndirectCommandsLayout;
 
     if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
         vktrace_LogError("Error detected in CreateObjectTableNVX() due to invalid remapped VkDevice.");
@@ -4648,14 +4603,15 @@ VkResult vkReplay::manually_replay_vkCreateIndirectCommandsLayoutNVX(packet_vkCr
     // No need to remap pAllocator
 
     // Remap fields in pCreateInfo
-    *((VkIndirectCommandsLayoutTokenNVX **)&pPacket->pCreateInfo->pTokens) =
-        (VkIndirectCommandsLayoutTokenNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pTokens);
+    *((VkIndirectCommandsLayoutTokenNV **)&pPacket->pCreateInfo->pTokens) =
+        (VkIndirectCommandsLayoutTokenNV *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header,
+                                                                                         (intptr_t)pPacket->pCreateInfo->pTokens);
 
-    auto result = m_vkDeviceFuncs.CreateIndirectCommandsLayoutNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator,
-                                                                  &local_pIndirectCommandsLayout);
+    auto result = m_vkDeviceFuncs.CreateIndirectCommandsLayoutNV(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator,
+                                                                 &local_pIndirectCommandsLayout);
 
     if (result == VK_SUCCESS) {
-        m_objMapper.add_to_indirectcommandslayoutnvxs_map(*(pPacket->pIndirectCommandsLayout), local_pIndirectCommandsLayout);
+        m_objMapper.add_to_indirectcommandslayoutnvs_map(*(pPacket->pIndirectCommandsLayout), local_pIndirectCommandsLayout);
     }
 
     return result;

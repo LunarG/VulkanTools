@@ -40,6 +40,8 @@ else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
 
+add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+
 add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
 add_custom_target( generate_api_h DEPENDS api_dump_text.h )
 add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )

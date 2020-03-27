@@ -7,6 +7,8 @@ project (VULKAN_TOOLS)
 set(API_NAME "Vulkan" CACHE STRING "API name")
 add_definitions(-DAPI_NAME="${API_NAME}")
 
+add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Define GNU standard installation directories.

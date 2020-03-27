@@ -219,7 +219,7 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
     def paramIsPointer(self, param):
         ispointer = False
         for elem in param:
-            if ((elem.tag is not 'type') and (elem.tail is not None)) and '*' in elem.tail:
+            if elem.tag == 'type' and elem.tail is not None and '*' in elem.tail:
                 ispointer = True
         return ispointer
     #
@@ -440,7 +440,11 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
                             struct_size_funcs += '            struct_size += vk_size_%s(&struct_ptr->%s[i]);\n' % (member.type.lower(), member.name)
                             struct_size_funcs += '        }\n'
                         else:
-                            struct_size_funcs += '        struct_size += vk_size_%s(struct_ptr->%s);\n' % (member.type.lower(), member.name)
+                            star = '';
+                            if member.name == 'ppGeometries':
+                                # Kludge for ppGeometries member, it needs to be dereferenced
+                                star = '*'
+                            struct_size_funcs += '        struct_size += vk_size_%s(%sstruct_ptr->%s);\n' % (member.type.lower(), star, member.name)
                     else:
                         if member.type == 'char':
                             # Deal with sizes of character strings
@@ -457,7 +461,11 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
                                 checked_type = member.type
                                 if checked_type == 'void':
                                     checked_type = 'void*'
-                                struct_size_funcs += '        struct_size += (struct_ptr->%s ) * sizeof(%s);\n' % (member.len, checked_type)
+                                if member.len[0].isdigit() or member.len[0].isupper():
+                                    # Kludge for length that is a number or a constant
+                                    struct_size_funcs += '        struct_size += ( %s ) * sizeof(%s);\n' % (member.len, checked_type)
+                                else:
+                                    struct_size_funcs += '        struct_size += (struct_ptr->%s ) * sizeof(%s);\n' % (member.len, checked_type)
             struct_size_funcs += '    }\n'
             struct_size_funcs += '    return struct_size;\n'
             struct_size_funcs += '}\n'

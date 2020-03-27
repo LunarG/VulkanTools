@@ -325,14 +325,6 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                     AddPointerWithCountToTracebuffer(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks,
                                                      disabledValidationCheckCount);
                     break;
-                case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NVX:
-                    AddPointerWithCountToTracebuffer(VkIndirectCommandsLayoutCreateInfoNVX, VkIndirectCommandsLayoutTokenNVX,
-                                                     pTokens, tokenCount);
-                    break;
-                case VK_STRUCTURE_TYPE_CMD_PROCESS_COMMANDS_INFO_NVX:
-                    AddPointerWithCountToTracebuffer(VkCmdProcessCommandsInfoNVX, VkIndirectCommandsTokenNVX,
-                                                     pIndirectCommandsTokens, indirectCommandsTokenCount);
-                    break;
                 case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT:
                     AddPointerWithCountToTracebuffer(VkDescriptorSetVariableDescriptorCountAllocateInfoEXT, uint32_t,
                                                      pDescriptorCounts, descriptorSetCount);
@@ -746,12 +738,6 @@ void vkreplay_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, voi
                 break;
             case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                 InterpretPointerInPNext(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks);
-                break;
-            case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NVX:
-                InterpretPointerInPNext(VkIndirectCommandsLayoutCreateInfoNVX, VkIndirectCommandsLayoutTokenNVX, pTokens);
-                break;
-            case VK_STRUCTURE_TYPE_CMD_PROCESS_COMMANDS_INFO_NVX:
-                InterpretPointerInPNext(VkCmdProcessCommandsInfoNVX, VkIndirectCommandsTokenNVX, pIndirectCommandsTokens);
                 break;
             case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
                 InterpretPointerInPNext(VkPipelineViewportWScalingStateCreateInfoNV, VkViewportWScalingNV, pViewportWScalings);

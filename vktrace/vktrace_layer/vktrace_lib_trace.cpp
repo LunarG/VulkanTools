@@ -4981,135 +4981,38 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
     return result;
 }
 
-VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(VkDevice device,
-                                                                               const VkObjectTableCreateInfoNVX* pCreateInfo,
-                                                                               const VkAllocationCallbacks* pAllocator,
-                                                                               VkObjectTableNVX* pObjectTable) {
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateIndirectCommandsLayoutNV(
+    VkDevice device, const VkIndirectCommandsLayoutCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator,
+    VkIndirectCommandsLayoutNV* pIndirectCommandsLayout) {
     trim::TraceLock<std::mutex> lock(g_mutex_trace);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
-    packet_vkCreateObjectTableNVX* pPacket = NULL;
-    size_t dataSize = 0;
-
-    // Determine the size of the packet and create it
-    if (pCreateInfo)
-    {
-        dataSize += get_struct_chain_size((void*)pCreateInfo);
-        dataSize += pCreateInfo->objectCount * sizeof(VkObjectEntryTypeNVX);
-        dataSize += pCreateInfo->objectCount * sizeof(uint32_t);
-        dataSize += pCreateInfo->objectCount * sizeof(VkObjectEntryUsageFlagsNVX);
-    }
-    dataSize += pAllocator ? sizeof(VkAllocationCallbacks) : 0;
-    dataSize += pObjectTable ? sizeof(VkObjectTableNVX) : 0;
-    CREATE_TRACE_PACKET(vkCreateObjectTableNVX, dataSize);
-
-    result = mdd(device)->devTable.CreateObjectTableNVX(device, pCreateInfo, pAllocator, pObjectTable);
-
-    vktrace_set_packet_entrypoint_end_time(pHeader);
-    pPacket = interpret_body_as_vkCreateObjectTableNVX(pHeader);
-    pPacket->device = device;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkObjectTableCreateInfoNVX), pCreateInfo);
-    if (pCreateInfo) vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pCreateInfo, pCreateInfo);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pObjectTable), sizeof(VkObjectTableNVX), pObjectTable);
-    if (pCreateInfo) {
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pObjectEntryTypes), pCreateInfo->objectCount * sizeof(VkObjectEntryTypeNVX), pCreateInfo->pObjectEntryTypes);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pObjectEntryCounts), pCreateInfo->objectCount * sizeof(int32_t), pCreateInfo->pObjectEntryCounts);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pObjectEntryUsageFlags), pCreateInfo->objectCount * sizeof(VkObjectEntryUsageFlagsNVX), pCreateInfo->pObjectEntryUsageFlags);
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pObjectEntryTypes));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pObjectEntryCounts));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pObjectEntryUsageFlags));
-    }
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pObjectTable));
-    pPacket->result = result;
-    if (!g_trimEnabled) {
-        FINISH_TRACE_PACKET();
-    } else {
-        vktrace_finalize_trace_packet(pHeader);
-        if (g_trimIsInTrim) {
-            trim::write_packet(pHeader);
-        } else {
-            vktrace_delete_trace_packet(&pHeader);
-        }
-    }
-    return result;
-}
-
-VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL
-__HOOKED_vkCmdProcessCommandsNVX(VkCommandBuffer commandBuffer, const VkCmdProcessCommandsInfoNVX* pProcessCommandsInfo) {
-    trim::TraceLock<std::mutex> lock(g_mutex_trace);
-    vktrace_trace_packet_header* pHeader;
-    packet_vkCmdProcessCommandsNVX* pPacket;
+    packet_vkCreateIndirectCommandsLayoutNV* pPacket = NULL;
     size_t datasize = 0;
 
     // Determine the size of the packet and create it
-    datasize = sizeof(VkCmdProcessCommandsInfoNVX) + sizeof(VkCommandBuffer);
-    if (pProcessCommandsInfo)
-    {
-        datasize += get_struct_chain_size((void*)pProcessCommandsInfo);
-        datasize += pProcessCommandsInfo->indirectCommandsTokenCount * sizeof(VkIndirectCommandsTokenNVX);
-    }
-    CREATE_TRACE_PACKET(vkCmdProcessCommandsNVX, datasize);
-
-    mdd(commandBuffer)->devTable.CmdProcessCommandsNVX(commandBuffer, pProcessCommandsInfo);
-
-    vktrace_set_packet_entrypoint_end_time(pHeader);
-
-    pPacket = interpret_body_as_vkCmdProcessCommandsNVX(pHeader);
-    pPacket->commandBuffer = commandBuffer;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProcessCommandsInfo), sizeof(VkCmdProcessCommandsInfoNVX), pProcessCommandsInfo);
-    if (pProcessCommandsInfo) {
-        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pProcessCommandsInfo, pProcessCommandsInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProcessCommandsInfo->pIndirectCommandsTokens),
-                                           pProcessCommandsInfo->indirectCommandsTokenCount * sizeof(VkIndirectCommandsTokenNVX), pProcessCommandsInfo->pIndirectCommandsTokens);
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pProcessCommandsInfo->pIndirectCommandsTokens));
-    }
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pProcessCommandsInfo));
-    if (!g_trimEnabled) {
-        FINISH_TRACE_PACKET();
-    } else {
-        vktrace_finalize_trace_packet(pHeader);
-        if (g_trimIsInTrim) {
-            trim::write_packet(pHeader);
-        } else {
-            vktrace_delete_trace_packet(&pHeader);
-        }
-    }
-}
-
-VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateIndirectCommandsLayoutNVX(
-    VkDevice device, const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo, const VkAllocationCallbacks* pAllocator,
-    VkIndirectCommandsLayoutNVX* pIndirectCommandsLayout) {
-    trim::TraceLock<std::mutex> lock(g_mutex_trace);
-    VkResult result;
-    vktrace_trace_packet_header* pHeader;
-    packet_vkCreateIndirectCommandsLayoutNVX* pPacket = NULL;
-    size_t datasize = 0;
-
-    // Determine the size of the packet and create it
-    datasize = get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkIndirectCommandsLayoutNVX);
+    datasize = get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkIndirectCommandsLayoutNV);
     if (pCreateInfo)
     {
-        datasize += pCreateInfo->tokenCount * sizeof(VkIndirectCommandsLayoutTokenNVX);
+        datasize += pCreateInfo->tokenCount * sizeof(VkIndirectCommandsLayoutTokenNV);
     }
-    CREATE_TRACE_PACKET(vkCreateIndirectCommandsLayoutNVX, datasize);
+    CREATE_TRACE_PACKET(vkCreateIndirectCommandsLayoutNV, datasize);
 
-    result = mdd(device)->devTable.CreateIndirectCommandsLayoutNVX(device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+    result = mdd(device)->devTable.CreateIndirectCommandsLayoutNV(device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
     vktrace_set_packet_entrypoint_end_time(pHeader);
-    pPacket = interpret_body_as_vkCreateIndirectCommandsLayoutNVX(pHeader);
+    pPacket = interpret_body_as_vkCreateIndirectCommandsLayoutNV(pHeader);
     pPacket->device = device;
 
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkIndirectCommandsLayoutCreateInfoNVX), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkIndirectCommandsLayoutCreateInfoNV),
+                                       pCreateInfo);
     if (pCreateInfo) vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pCreateInfo, pCreateInfo);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pIndirectCommandsLayout), sizeof(VkIndirectCommandsLayoutNVX), pIndirectCommandsLayout);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pIndirectCommandsLayout), sizeof(VkIndirectCommandsLayoutNV),
+                                       pIndirectCommandsLayout);
     if (pCreateInfo)
     {
         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pTokens),
-                                          pCreateInfo->tokenCount  * sizeof(VkIndirectCommandsLayoutTokenNVX),
-                                          pCreateInfo->pTokens);
+                                           pCreateInfo->tokenCount * sizeof(VkIndirectCommandsLayoutTokenNV), pCreateInfo->pTokens);
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pTokens));
     }
 
