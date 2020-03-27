@@ -32,7 +32,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers/generated
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
+LOCAL_CPPFLAGS += -DVK_ENABLE_BETA_EXTENSIONS -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
 include $(BUILD_STATIC_LIBRARY)
 
 # Pick up VLF layers
@@ -49,7 +49,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
+LOCAL_CPPFLAGS += -DVK_ENABLE_BETA_EXTENSIONS -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
@@ -65,7 +65,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
+LOCAL_CPPFLAGS += -DVK_ENABLE_BETA_EXTENSIONS -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
@@ -82,7 +82,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(ANDROID_DIR)/third_party/jsoncpp/dist \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions
+LOCAL_CPPFLAGS += -DVK_ENABLE_BETA_EXTENSIONS -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
@@ -126,9 +126,11 @@ LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-cons
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CPPFLAGS += -DPAGEGUARD_MEMCPY_USE_PPL_LIB
+LOCAL_CPPFLAGS += -DVK_ENABLE_BETA_EXTENSIONS
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_POSIX=1
 LOCAL_CFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CFLAGS += -DVK_ENABLE_BETA_EXTENSIONS
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
@@ -167,9 +169,11 @@ LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-cons
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR --include=$(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.h -fexceptions
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CPPFLAGS += -DPAGEGUARD_MEMCPY_USE_PPL_LIB
+LOCAL_CPPFLAGS += -DVK_ENABLE_BETA_EXTENSIONS
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_POSIX=1
 LOCAL_CFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CFLAGS += -DVK_ENABLE_BETA_EXTENSIONS
 LOCAL_LDLIBS    := -llog -landroid
 LOCAL_LDFLAGS   := -u ANativeActivity_onCreate
 include $(BUILD_SHARED_LIBRARY)

@@ -539,6 +539,33 @@ std::ostream& dump_text_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurface
 std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
+//============================= typedefs ==============================//
+
+// Functions for dumping typedef types that the codegen scripting can't handle
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+std::ostream& dump_text_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_text_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_text_VkAccelerationStructureTypeKHR(object, settings, indents);
+}}
+std::ostream& dump_text_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
+inline std::ostream& dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_text_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
+}}
+std::ostream& dump_text_VkAccelerationStructureMemoryRequirementsTypeKHR(VkAccelerationStructureMemoryRequirementsTypeKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_text_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_text_VkAccelerationStructureMemoryRequirementsTypeKHR(object, settings, indents);
+}}
+std::ostream& dump_text_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_text_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_text_VkAccelerationStructureKHR(object, settings, indents);
+}}
+#endif // VK_ENABLE_BETA_EXTENSIONS
+
+
 //======================== pNext Chain Implementation =======================//
 
 std::ostream& dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
@@ -720,13 +747,13 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
 
     @if({memPtrLevel} == 0)
         @if('{memName}' != 'pNext')
-    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});  // AET
         @end if 
         @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{
         dump_text_pNext_trampoline(object.{memName}, settings, indents + 1);
     }} else {{
-        dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+        dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions}); // BET
     }}
         @end if
     @end if
@@ -734,16 +761,21 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
-    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions}); // AQA
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+    @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
+    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions}); // BQA
+    @end if
+    @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
+    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions}); // BQB
+    @end if
     @end if
 
     @if('{sctName}' == 'VkShaderModuleCreateInfo')
     @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions}); // CQA
     else
         dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
@@ -766,9 +798,9 @@ std::ostream& dump_text_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurface
         settings.stream() << &object << ":\\n";
     else
         settings.stream() << "address:\\n";
-    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);
-    dump_text_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_text_void);
-    dump_text_value<const HMONITOR>(object.hmonitor, settings, "HMONITOR", "hmonitor", indents + 1, dump_text_HMONITOR);
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType); // CET
+    dump_text_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_text_void); // DET
+    dump_text_value<const HMONITOR>(object.hmonitor, settings, "HMONITOR", "hmonitor", indents + 1, dump_text_HMONITOR); // EET
     return settings.stream();
 }}
 #endif // VK_USE_PLATFORM_WIN32_KHR
@@ -781,10 +813,10 @@ std::ostream& dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceM
     else
         settings.stream() << "address:\\n";
 
-    dump_text_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_text_uint32_t);
-    dump_text_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_text_VkMemoryType);
-    dump_text_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_text_uint32_t);
-    dump_text_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_text_VkMemoryHeap);
+    dump_text_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_text_uint32_t); // FET
+    dump_text_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_text_VkMemoryType); // DQA
+    dump_text_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_text_uint32_t); // GET
+    dump_text_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_text_VkMemoryHeap); // EQA
     return settings.stream();
 }}
 
@@ -794,11 +826,11 @@ std::ostream& dump_text_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGr
         settings.stream() << &object << ":\\n";
     else
         settings.stream() << "address:\\n";
-    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);
-    dump_text_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_text_void);
-    dump_text_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_text_uint32_t);
-    dump_text_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_text_VkPhysicalDevice);
-    dump_text_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_text_VkBool32);
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType); // HET
+    dump_text_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_text_void); // IET
+    dump_text_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_text_uint32_t); // JET
+    dump_text_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_text_VkPhysicalDevice); // FQA
+    dump_text_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_text_VkBool32); // KET
     return settings.stream();
 }}
 
@@ -814,13 +846,13 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 
     @foreach choice
     @if({chcPtrLevel} == 0)
-    dump_text_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
+    dump_text_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID}); // LET
     @end if
     @if({chcPtrLevel} == 1 and '{chcLength}' == 'None')
     dump_text_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
     @end if
     @if({chcPtrLevel} == 1 and '{chcLength}' != 'None')
-    dump_text_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
+    dump_text_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_text_{chcTypeID}); // GQA
     @end if
     @end choice
     return settings.stream();
@@ -864,13 +896,13 @@ std::ostream& dump_text_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
     {{
         @foreach parameter
         @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
+        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions}); // MET
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
         dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
+        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions}); // HQA
         @end if
         @end parameter
     }}
@@ -879,9 +911,6 @@ std::ostream& dump_text_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
     return settings.stream();
 }}
 @end function
-
-//======================== pNext Chain Implementation =======================//
-
 
 """
 
@@ -931,6 +960,33 @@ std::ostream& dump_html_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurface
 @foreach union
 std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
+
+//============================= typedefs ==============================//
+
+// Functions for dumping typedef types that the codegen scripting can't handle
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+std::ostream& dump_html_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_html_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_html_VkAccelerationStructureTypeKHR(object, settings, indents);
+}}
+std::ostream& dump_html_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
+inline std::ostream& dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_html_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
+}}
+std::ostream& dump_html_VkAccelerationStructureMemoryRequirementsTypeKHR(VkAccelerationStructureMemoryRequirementsTypeKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_html_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_html_VkAccelerationStructureMemoryRequirementsTypeKHR(object, settings, indents);
+}}
+std::ostream& dump_html_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_html_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_html_VkAccelerationStructureKHR(object, settings, indents);
+}}
+#endif // VK_ENABLE_BETA_EXTENSIONS
+
 
 //======================== pNext Chain Implementation =======================//
 
@@ -1136,16 +1192,20 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     dump_html_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
-    dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
+    dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions}); // ZRR
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
+    @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
+    dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions}); // ZRS
     @end if
-
+    @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
+    dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions}); // ZRT
+    @end if
+    @end if
     @if('{sctName}' == 'VkShaderModuleCreateInfo')
     @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
+        dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions}); // ZRU
     else
         dump_html_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
@@ -1185,9 +1245,9 @@ std::ostream& dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceM
         settings.stream() << "address\\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType);
+    dump_html_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType); // ZRV
     dump_html_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap);
+    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap); // ZRW
     return settings.stream();
 }}
 
@@ -1202,7 +1262,7 @@ std::ostream& dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGr
     dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
     dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     dump_html_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_html_VkPhysicalDevice);
+    dump_html_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_html_VkPhysicalDevice); // ZRX
     dump_html_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_html_VkBool32);
     return settings.stream();
 }}
@@ -1227,7 +1287,7 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
     dump_html_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_html_{chcTypeID});
     @end if
     @if({chcPtrLevel} == 1 and '{chcLength}' != 'None')
-    dump_html_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_html_{chcTypeID});
+    dump_html_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_html_{chcTypeID}); // ZRY
     @end if
     @end choice
     return settings.stream();
@@ -1276,7 +1336,7 @@ std::ostream& dump_html_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
         dump_html_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_html_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
+        dump_html_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions}); // ZRZ
         @end if
         @end parameter
     }}
@@ -1333,6 +1393,33 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
 @foreach union
 std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
+
+//============================= typedefs ==============================//
+
+// Functions for dumping typedef types that the codegen scripting can't handle
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+std::ostream& dump_json_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_json_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_json_VkAccelerationStructureTypeKHR(object, settings, indents);
+}}
+std::ostream& dump_json_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
+inline std::ostream& dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_json_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
+}}
+std::ostream& dump_json_VkAccelerationStructureMemoryRequirementsTypeKHR(VkAccelerationStructureMemoryRequirementsTypeKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_json_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_json_VkAccelerationStructureMemoryRequirementsTypeKHR(object, settings, indents);
+}}
+std::ostream& dump_json_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_json_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_json_VkAccelerationStructureKHR(object, settings, indents);
+}}
+#endif // VK_ENABLE_BETA_EXTENSIONS
+
 
 //======================== pNext Chain Implementation =======================//
 
@@ -1534,16 +1621,20 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
     dump_json_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
-    dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
+    dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions}); // IQA
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
+    @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
+    dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions}); // JQA
     @end if
-
+    @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
+    dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions}); // JQA
+    @end if
+    @end if
     @if('{sctName}' == 'VkShaderModuleCreateInfo')
     @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions});
+        dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions}); // KQA
     else
         dump_json_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
@@ -1588,11 +1679,11 @@ std::ostream& dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceM
 
     dump_json_value<const uint32_t>(object.memoryTypeCount, NULL, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_json_uint32_t);
     settings.stream() << ",\\n";
-    dump_json_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_json_VkMemoryType);
+    dump_json_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_json_VkMemoryType); // LQA
     settings.stream() << ",\\n";
     dump_json_value<const uint32_t>(object.memoryHeapCount, NULL, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_json_uint32_t);
     settings.stream() << ",\\n";
-    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_json_VkMemoryHeap);
+    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_json_VkMemoryHeap); // MQA
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
     return settings.stream();
 }}
@@ -1607,7 +1698,7 @@ std::ostream& dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGr
     settings.stream() << ",\\n";
     dump_json_value<const uint32_t>(object.physicalDeviceCount, NULL, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_json_uint32_t);
     settings.stream() << ",\\n";
-    dump_json_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_json_VkPhysicalDevice);
+    dump_json_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_json_VkPhysicalDevice); // NQA
     settings.stream() << ",\\n";
     dump_json_value<const VkBool32>(object.subsetAllocation, NULL, settings, "VkBool32", "subsetAllocation", indents + 1, dump_json_VkBool32);
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
@@ -1631,7 +1722,7 @@ std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& 
     dump_json_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
     @end if
     @if({chcPtrLevel} == 1 and '{chcLength}' != 'None')
-    dump_json_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
+    dump_json_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 2, dump_json_{chcTypeID}); // OQA
     @end if
     needChoiceComma = true;
     @end choice
@@ -1721,7 +1812,7 @@ std::ostream& dump_json_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
         dump_json_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_json_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
+        dump_json_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions}); // PQA
         @end if
         needParameterComma = true;
         @end parameter
