@@ -382,6 +382,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcName}' == 'vkQueuePresentKHR')
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    ApiDumpInstance::current().outputMutex()->lock();
     dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
@@ -389,6 +390,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     dump_body_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
 
     ApiDumpInstance::current().nextFrame();
+    ApiDumpInstance::current().outputMutex()->unlock();
     return result;
 }}
 @end function
