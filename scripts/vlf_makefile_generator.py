@@ -76,6 +76,7 @@ if __name__ == '__main__':
             contents += 'include $(CLEAR_VARS)\n'
             contents += 'LOCAL_MODULE := VkLayer_%s\n' % factory_layer
             contents += 'LOCAL_SRC_FILES += $(LAYER_DIR)/include/layer_factory.cpp\n'
+            contents += 'LOCAL_SRC_FILES += $(LVL_DIR)/layers/xxhash.c\n'
             # Add *.cpp files (if any) to makefile dependencies
             for path, subdirs, files in os.walk(factory_layer):
                 for file in files:
