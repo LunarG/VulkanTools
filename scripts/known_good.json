@@ -59,7 +59,7 @@
       "sub_dir" : "Vulkan-ValidationLayers",
       "build_dir" : "Vulkan-ValidationLayers/build",
       "install_dir" : "Vulkan-ValidationLayers/build/install",
-      "commit" : "v1.2.135",
+      "commit" : "72347cb6e962c8c7a3e8d964649d8ff22ff53f0c",
       "deps" : [
         {
           "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
