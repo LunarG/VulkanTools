@@ -55,7 +55,6 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  vulkan-validationlayers (>=__VKAPIVERSION__)
 Description: LunarG Vulkan Installation Analyzer
  VIA is a tool that can:
- .
  1. Determine the state of Vulkan components on your system
  2. Validate that your Vulkan Loader and drivers are installed properly
  3. Capture your system state in a form that can be used as an attachment
