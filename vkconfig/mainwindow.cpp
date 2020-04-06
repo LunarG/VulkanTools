@@ -21,6 +21,8 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QFile>
+#include <QFrame>
+#include <unistd.h>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -35,6 +37,13 @@
 #include "dlgcustompaths.h"
 
 
+// This is the number of canned profiles. It is used to sepearate
+// the canned profiles from the user profiles in the list box, there
+// is even a "fake" profile used as a spacer in the vulkanconfiguration
+// object at this position. If we add more than 5 canned profiles,
+// this must be changed.
+#define CANNED_PROFILE_COUNT    5
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -45,22 +54,46 @@ MainWindow::MainWindow(QWidget *parent)
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     pVulkanConfig->loadAppSettings();
-    pVulkanConfig->loadProfiles();
+    if(!pVulkanConfig->loadSavedProfiles())
+        pVulkanConfig->loadDefaultProfiles();
     pVulkanConfig->loadAppList();
 
     pSettingsEditor = new CSettingsEditor();
 
     // Load list of profiles
+    ui->listWidgetProfiles->blockSignals(true);
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
-        ui->listWidgetProfiles->addItem(pVulkanConfig->profileList[i]->profileName);
-        ui->listWidgetProfiles->item(i)->setCheckState(Qt::Unchecked);
+        if(i == CANNED_PROFILE_COUNT) {
+            QFrame *line;
+            line = new QFrame(ui->listWidgetProfiles);
+            line->setFrameShape(QFrame::HLine);
+            line->setFrameShadow(QFrame::Sunken);
+            line->setFrameRect(QRect(90, 8, 10, 20));
+
+            QListWidgetItem *pItem = new QListWidgetItem(pVulkanConfig->profileList[CANNED_PROFILE_COUNT]->profileName, ui->listWidgetProfiles);
+            //pItem->setFlags(pItem->flags() & ~Qt::ItemIsSelectable);
+            pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
+
+            ui->listWidgetProfiles->addItem(pItem);
+            ui->listWidgetProfiles->setItemWidget(pItem, line);
+            }
+        else {
+            ui->listWidgetProfiles->addItem(pVulkanConfig->profileList[i]->profileName);
+            ui->listWidgetProfiles->item(i)->setCheckState(Qt::Unchecked);
+            }
         }
+    ui->listWidgetProfiles->blockSignals(false);
+
+ //   ui->listWidgetProfiles->setStyleSheet( "QListWidget::item[separator=""true""] { border-bottom: 1px solid black; }" );
+
+
+    //    ui->listWidgetProfiles->setProperty("separator", true);
 
    // ui->listWidgetProfiles->item(0)->setCheckState(Qt::Checked);
 
     connect(ui->listWidgetProfiles, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(profileItemChanged(QListWidgetItem*)));
     connect(ui->listWidgetProfiles, SIGNAL(currentRowChanged(int)), this, SLOT(currentProfileRowChanged(int)));
-
+    connect(ui->listWidgetProfiles, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProfileChanged()));
 
     connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(fileExit(bool)));
     connect(ui->actionHistory, SIGNAL(triggered(bool)), this, SLOT(fileHistory(bool)));
@@ -74,13 +107,17 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSet_Test_Application, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanTestApp(bool)));
 //    connect(ui->layerTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(layerTree_itemClicked(QTreeWidgetItem*, int)));
 
-//    for(int i = 0; i < pVulkanConfig->profileList.size(); i++)
-//        ui->listWidgetStacks->addItem(pVulkanConfig->profileList[i]->profileName);
 
-    /*
-    ui->listWidgetStacks->item(pVulkanConfig->nActiveProfile)->setBackground(Qt::green);
-
-    */
+    ///////////////////////////////////////////////
+    // Final check - if there are no apps, disable the profiles list
+    if(pVulkanConfig->appList.length() == 0) {
+        this->setWindowTitle("Vulkan Configurator (Warning, no app list specified)");
+        ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
+        }
+    else {
+        this->setWindowTitle("Vulkan Configurator");
+        ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
+        }
     }
 
 MainWindow::~MainWindow()
@@ -89,7 +126,18 @@ MainWindow::~MainWindow()
     }
 
 
-
+void MainWindow::checkAppListState(void)
+    {
+    // Final check - if there are no apps, disable the profiles list
+    if(pVulkanConfig->appList.length() == 0) {
+        this->setWindowTitle("Vulkan Configurator (Warning, no app list specified)");
+        ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
+        }
+    else {
+        this->setWindowTitle("Vulkan Configurator");
+        ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
+        }
+    }
 
 /////////////////////////////////////////////////////
 // Unused flag, just display the about Qt dialog
@@ -124,13 +172,11 @@ void MainWindow::toolsVulkanTestApp(bool bChecked)
 }
 
 void MainWindow::on_pushButtonLaunch_clicked()
-{
-
+    {
     dlgLayerOutput dlg(this);
     dlg.bAutoLaunch = true;
     dlg.exec();
-
-}
+    }
 
 
 void MainWindow::fileExit(bool bChecked)
@@ -156,6 +202,7 @@ void MainWindow::on_pushButtonAppList_clicked(void)
     dlgCreateAssociation dlg(this);
     dlg.exec();
     pVulkanConfig->saveAppList();
+    checkAppListState();
     }
 
 
@@ -167,17 +214,26 @@ void MainWindow::on_pushButtonEditProfile_clicked(void)
     int nSelection = ui->listWidgetProfiles->currentRow();
     if(nSelection == 0) {
         QMessageBox msg;
-        msg.setInformativeText(tr("Select a specific profile to edit"));
+        msg.setInformativeText(tr("Select a specific profile to clone."));
         msg.setText(tr("Edit profile"));
         msg.setStandardButtons(QMessageBox::Ok);
         msg.exec();
         return;
         }
 
-    dlgProfileEditor dlg(this);
+
+    dlgProfileEditor dlg(this, pVulkanConfig->profileList[nSelection]);
     dlg.exec();
 
     pVulkanConfig->saveProfiles();
+    }
+
+////////////////////////////////////////////////////////////////////////////////
+// Create a new blank profile
+void MainWindow::on_pushButtonNewProfile_clicked(void)
+    {
+    dlgProfileEditor dlg(this, nullptr);
+    dlg.exec();
     }
 
 
@@ -200,20 +256,64 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
 
 void MainWindow::profileItemChanged(QListWidgetItem *item)
     {
-    // If an item is checked, we need to uncheck all the other ones
+    // If an item is checked, well, a few things need to happen.
     if(item->checkState() == Qt::Checked)
         {
+        // First, can we check things?
+        if(pVulkanConfig->appList.length() == 0) { // Big nope
+            item->setCheckState(Qt::Unchecked);
+            QMessageBox warning;
+            warning.setInformativeText(tr("You cannot activate a profile with an empty applicaton list."));
+            warning.setText(tr("App list is empty"));
+            warning.setStandardButtons(QMessageBox::Ok);
+            warning.exec();
+            return;
+            }
+
+        // Okay, checks are mutually exclusive (but rado buttons are ugly)
+        // so only one profile can actually be checked
+        for(int i = 0; i < ui->listWidgetProfiles->count(); i++)
+            if(item != ui->listWidgetProfiles->item(i) && i != CANNED_PROFILE_COUNT)
+                ui->listWidgetProfiles->item(i)->setCheckState(Qt::Unchecked);
 
 
+
+        // MakeThisProfileCurrent();
+        return;
         }
+
+    // Well then, there is no current profile
+    // RemoveCurrentProfile();
     }
 
+
+///////////////////////////////////////////////////////////////////
+void MainWindow::selectedProfileChanged(void)
+    {
+    ui->pushButtonEditProfile->setEnabled(true);
+
+    int nRow = ui->listWidgetProfiles->currentRow();
+    if(nRow == CANNED_PROFILE_COUNT) {
+        // This can't be selected
+        ui->listWidgetProfiles->setCurrentRow(-1);
+        return;
+        }
+
+    pVulkanConfig->nActiveProfile = nRow;
+    CProfileDef* pProfile = pVulkanConfig->getActiveProfile();
+    if(pProfile->readOnly)
+        ui->pushButtonEditProfile->setText("Clone");
+    else
+        ui->pushButtonEditProfile->setText("Edit");
+    }
 
 
 void MainWindow::currentProfileRowChanged(int row)
     {
+
+
     // Display editor for profile
- //   pSettingsEditor->CreateGUI(ui->tabWidget, pVulkanConfig->explicitLayers[row]->layerSettings);
+   //   pSettingsEditor->CreateGUI(ui->tabWidget, pVulkanConfig->explicitLayers[row]->layerSettings);
  //   ui->tabWidget->update();
 
     }

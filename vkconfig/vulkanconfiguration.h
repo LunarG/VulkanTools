@@ -36,14 +36,13 @@
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
 #define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 
-#define VKCONFIG_CUSTOM_LAYER_PATHS "./CustomPaths.txt"
-#define VKCONIFG_CUSTOM_APP_LIST    "./AppList.txt"
-
+#define VKCONFIG_CUSTOM_LAYER_PATHS "/.local/share/vulkan/CustomPaths.txt"
+#define VKCONIFG_CUSTOM_APP_LIST    "/.local/share/vulkan/AppList.txt"
+#define VKCONFIG_PROFILE_LIST       "/.local/share/vulkan/ProfileList.json"
 
 struct CProfileDef {
     QString                 profileName;        // Name of the profile
     QVector<CLayerFile*>    layers;             // List of layers and their settings.
-    QStringList             appList;            // List of applications this profile applies to
     bool                    readOnly;           // This profile cannot be changed
 };
 
@@ -79,13 +78,21 @@ public:
 
     QVector <CProfileDef *>  profileList;       // List and details about current profiles
     int nActiveProfile;
+    CProfileDef* getActiveProfile(void) { if(nActiveProfile < 0) return nullptr;
+                                          return profileList[nActiveProfile]; }
 
     void loadAdditionalSearchPaths(void);
     void saveAdditionalSearchPaths(void);
     uint32_t nAdditionalSearchPathCount;
     QStringList additionalSearchPaths;
 
-    void loadProfiles(void);
+    // This is really only done once, to initialize the list
+    // of canned profiles.
+    void loadDefaultProfiles(void);
+
+    // This is our current list of profiles, both canned (with tweaks),
+    // and cloned, edited.
+    bool loadSavedProfiles(void);
     void saveProfiles(void);
 
     // The list of applications affected

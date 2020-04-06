@@ -25,14 +25,16 @@
 #include <vulkanconfiguration.h>
 #include <settingseditor.h>
 
+class QTreeWidgetItemWithLayer;
+
 // For the layer editor, we need a way to keep track of the layers
 // that are displayed, and associate them with an actual layer
 struct TLayerRepresentations {
-    CLayerFile*         pLayerFileInfo;    // All the details abou the layer. We do not OWN this pointer...
-    bool                bDisabled;         // Do we want this layer disabled
-    bool                bUse;              // Do we want to use this layer
-    bool                bExplicit;         // true for explicit, false for implicit
-    QTreeWidgetItem*    pTreeItem;         // Address the layer item in the GUI
+    CLayerFile*                     pLayerFileInfo;    // All the details abou the layer. We do not OWN this pointer...
+    bool                            bDisabled;         // Do we want this layer disabled
+    bool                            bUse;              // Do we want to use this layer
+    bool                            bExplicit;         // true for explicit, false for implicit
+    QTreeWidgetItemWithLayer*       pTreeItem;         // Address the layer item in the GUI
 };
 
 
@@ -45,7 +47,7 @@ class dlgProfileEditor : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlgProfileEditor(QWidget *parent = nullptr);
+    explicit dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit);
     ~dlgProfileEditor();
 
     QVector <TLayerRepresentations*> layers;

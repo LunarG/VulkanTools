@@ -40,11 +40,14 @@ private:
     Ui::dlgCreateAssociation *ui;
 
     CVulkanConfiguration    *pVulkanConfig;
-    int nCurrentProfile;
+
+    void GetExecutableFromAppBundle(QString& csPath);
 
 public	Q_SLOTS:
     void on_pushButtonAdd_clicked();        // Pick the application
     void on_pushButtonRemove_clicked();     // Remove
+    void selectedPathChanged(void);         // Used to enable remove button
+
 };
 
 #endif // DLGCREATEASSOCIATION_H

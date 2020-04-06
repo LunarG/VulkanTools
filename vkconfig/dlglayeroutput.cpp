@@ -211,8 +211,6 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
      vulkan_app->setWorkingDirectory(pVulkanConfig->qsLaunchApplicationWorkingDir);
      vulkan_app->setArguments(QStringList() << pVulkanConfig->qsLaunchApplicatinArgs);
      vulkan_app->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
-    // vulkan_app->setReadChannel(QProcess::StandardOutput);
-   //  vulkan_app->setReadChannel(QProcess::StandardError);
      vulkan_app->setProcessChannelMode(QProcess::MergedChannels);
      vulkan_app->closeWriteChannel();
      ui->labelRunStatus->setText(tr("Running..."));

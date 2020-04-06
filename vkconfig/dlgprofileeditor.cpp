@@ -29,11 +29,29 @@ class QTreeWidgetItemWithLayer : public QTreeWidgetItem
 
 
 
-dlgProfileEditor::dlgProfileEditor(QWidget *parent) :
+dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit) :
     QDialog(parent),
     ui(new Ui::dlgProfileEditor)
     {
     ui->setupUi(this);
+
+    if(pProfileToEdit == nullptr) {
+        setWindowTitle("Create New Profile");
+        ui->pushButtonSaveProfileAs->setText(tr("Save..."));
+        }
+    else {
+        QString title;
+        if(pProfileToEdit->readOnly) {
+            QString title = "Clone Profile (" + pProfileToEdit->profileName + ")";
+            setWindowTitle(title);
+            ui->pushButtonSaveProfileAs->setText(tr("Save profile as..."));
+            }
+        else {
+            QString title = "Edit Profile (" + pProfileToEdit->profileName + ")";
+            setWindowTitle(title);
+            ui->pushButtonSaveProfileAs->setText(tr("Save..."));
+            }
+        }
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     pVulkanConfig->reLoadLayerConfiguration();
@@ -95,7 +113,8 @@ void dlgProfileEditor::loadAllFoundLayers(QVector <CLayerFile*> &layerFile)
        pLayer->bUse = false;
        pLayer->bDisabled = false;
        pLayer->bExplicit = true;
-       pLayer->pTreeItem = new QTreeWidgetItem();
+       pLayer->pTreeItem = new QTreeWidgetItemWithLayer();
+       pLayer->pTreeItem->pLayerRepBackPointer = pLayer;
        layers.push_back(pLayer);
 
        pLayer->pTreeItem->setText(0, layerFile[i]->name);
@@ -113,7 +132,6 @@ void dlgProfileEditor::loadAllFoundLayers(QVector <CLayerFile*> &layerFile)
        pLayer->pTreeItem->setCheckState(3, Qt::Unchecked);
        ui->layerTree->addTopLevelItem(pLayer->pTreeItem);
 
-       pLayer->pTreeItem->setTextAlignment(4, Qt::AlignCenter);
        if(layerFile[i]->layerType == LAYER_TYPE_CUSTOM)
            pLayer->pTreeItem->setText(4, "Yes");
        else

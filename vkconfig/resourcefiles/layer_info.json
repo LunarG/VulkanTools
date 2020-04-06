@@ -78,7 +78,8 @@
                 "options": {
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "Enable GPU-Assisted Validation",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
-                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Enable Best Practices warning checks"
+                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Enable Best Practices warning checks",
+                    "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_EXT": "Enable Synchronization"
                 },
                 "default": []
             }

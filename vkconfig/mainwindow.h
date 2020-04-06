@@ -46,6 +46,14 @@ protected:
     CVulkanConfiguration*    pVulkanConfig;
     CSettingsEditor*         pSettingsEditor;
 
+
+    void checkAppListState(void);
+
+
+private:
+    Ui::MainWindow *ui;
+
+
 public Q_SLOTS:
     void fileExit(bool bChecked);
     void fileHistory(bool bChecked);
@@ -58,16 +66,14 @@ public Q_SLOTS:
 
     void profileItemChanged(QListWidgetItem *item);
     void currentProfileRowChanged(int row);
+    void selectedProfileChanged(void);
 
     void on_pushButtonCustomPaths_clicked();    // Fired by menu even if no button
     void on_pushButtonLaunch_clicked();         // Ditto
 
     void on_pushButtonAppList_clicked(void);
     void on_pushButtonEditProfile_clicked(void);
+    void on_pushButtonNewProfile_clicked(void);
 
-
-
-private:
-    Ui::MainWindow *ui;
 };
 

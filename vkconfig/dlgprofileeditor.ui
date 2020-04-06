@@ -163,6 +163,19 @@
     </widget>
    </widget>
   </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>255</y>
+     <width>141</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add Layers...</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

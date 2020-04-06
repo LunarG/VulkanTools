@@ -20,6 +20,10 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QRadioButton>
+#include <QPushButton>
+#include <QComboBox>
+#include <QStandardItemModel>
+
 #include "settingseditor.h"
 
 CSettingsEditor::CSettingsEditor()
@@ -33,10 +37,12 @@ CSettingsEditor::CSettingsEditor()
 void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings)
     {
     int nRowHeight = 24;
+    int nVerticalPad = 4;
     int nCurrRow = 15;
     int nLeftColumn = 26;
     int nSecondColumn = 150;
     int nThirdColumn = 225;
+    int nEditFieldWidth = 200;
 
     pEditArea = new QWidget();
     pEditArea->setMinimumSize(QSize(600, (nRowHeight * (layerSettings.size()+2))));
@@ -53,7 +59,6 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 //    hashTable.insert("multi_enum", LAYER_SETTINGS_INCLUSIVE_LIST);
 
     for(int i = 0; i < layerSettings.size(); i++) {
-
         // Prompt doesn't matter what the data type is
         QLabel *pPromptLabel = new QLabel(pEditArea);
         pPromptLabel->setText(layerSettings[i]->settingsPrompt);
@@ -67,7 +72,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
             case LAYER_SETTINGS_STRING:{
                 QLineEdit *pField = new QLineEdit(pEditArea);
                 pField->setText(layerSettings[i]->settingsValue);
-                pField->setGeometry(nSecondColumn, nCurrRow, 200, nRowHeight);
+                pField->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
                 pField->show();
                 inputControls.push_back(pField);
                 break;
@@ -88,6 +93,66 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 break;
                 }
 
+        case LAYER_SETTINGS_FILE: {
+                QLineEdit *pField = new QLineEdit(pEditArea);
+                pField->setText(layerSettings[i]->settingsValue);
+                pField->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
+                pField->show();
+                inputControls.push_back(pField);
+
+                QPushButton *pButton = new QPushButton(pEditArea);
+                pButton->setText("Browse...");
+                pButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, 100, nRowHeight+1);
+                pButton->show();
+                inputControls.push_back(pButton);
+                break;
+                }
+
+           case  LAYER_SETTINGS_EXCLUSIVE_LIST: {
+                QComboBox *pComboBox = new QComboBox(pEditArea);
+                pComboBox->setGeometry(nSecondColumn-5, nCurrRow, nEditFieldWidth, nRowHeight);
+
+                // Populate with the user readable values. The default needs to be found as well,
+                // so search for it while we popluate the control. The default stored is the actual
+                // value, not what is displayed to the user.
+                int nFoundDefault = -1;
+                for(int p = 0; p < layerSettings[i]->settingsListExclusivePrompt.size(); p++) {
+                    pComboBox->addItem(layerSettings[i]->settingsListExclusivePrompt[p]);
+                    if(layerSettings[i]->settingsValue == layerSettings[i]->settingsListExclusiveValue[p])
+                        nFoundDefault = p;
+                    }
+
+                pComboBox->setCurrentIndex(nFoundDefault);
+                pComboBox->show();
+                inputControls.push_back(pComboBox);
+                break;
+                }
+
+            case LAYER_SETTINGS_INCLUSIVE_LIST: {
+                QStandardItemModel *pSim = new QStandardItemModel(layerSettings[i]->settingsListInclusivePrompt.length(), 1, pEditArea);
+                for(int p = 0; p < layerSettings[i]->settingsListInclusivePrompt.length(); p++) {
+
+                    QStandardItem* item = new QStandardItem(layerSettings[i]->settingsListInclusivePrompt[p]);
+                    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsUserTristate);
+                    item->setData(Qt::Unchecked, Qt::CheckStateRole);
+                    item->setSelectable(true);
+
+                    pSim->setItem(p, 0, item);
+                    }
+
+                QComboBox *pComboBox = new QComboBox(pEditArea);
+                pComboBox->setModel(pSim);
+                pComboBox->setGeometry(nSecondColumn-5, nCurrRow, nEditFieldWidth, nRowHeight);
+                pComboBox->show();
+                inputControls.push_back(pComboBox);
+
+          //      pComboBox->addItem("<Nonne>");
+
+
+                break;
+                }
+
+
             default: {
                 QLabel *pLabel = new QLabel(pEditArea);
                 pLabel->setText(QString().sprintf("Unhandled setting type: %d", layerSettings[i]->settingsType));
@@ -98,13 +163,14 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
             }
 
         nCurrRow += nRowHeight;
+        nCurrRow += nVerticalPad;
         }
 
 
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// Okay, remove the controls, easy.
+// Okay, remove the control, disconnect any signals and free the memory up.
 void CSettingsEditor::CleanupGUI(void)
     {
     for(int i = 0; i < inputControls.size(); i++)

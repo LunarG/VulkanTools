@@ -148,9 +148,12 @@ void CVulkanConfiguration::saveAppSettings(void)
 /// Load the list of paths here.
 void CVulkanConfiguration::loadAdditionalSearchPaths(void)
     {
+    QDir home = QDir::home();
+    QString fileName = home.absolutePath() + VKCONFIG_CUSTOM_LAYER_PATHS;
+
     // If the file doesn't exist, then the count is zero...
     nAdditionalSearchPathCount = 0;
-    QFile file(VKCONFIG_CUSTOM_LAYER_PATHS);
+    QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
@@ -174,7 +177,10 @@ void CVulkanConfiguration::loadAdditionalSearchPaths(void)
 /// Save the list of paths here.
 void CVulkanConfiguration::saveAdditionalSearchPaths(void)
     {
-    QFile file(VKCONFIG_CUSTOM_LAYER_PATHS);
+    QDir home = QDir::home();
+    QString fileName = home.absolutePath() + VKCONFIG_CUSTOM_LAYER_PATHS;
+
+    QFile file(fileName);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
@@ -192,7 +198,10 @@ void CVulkanConfiguration::saveAdditionalSearchPaths(void)
 /// Load the custom application list
 void CVulkanConfiguration::loadAppList(void)
     {
-    QFile file(VKCONIFG_CUSTOM_APP_LIST);
+    QDir home = QDir::home();
+    QString fileName = home.absolutePath() + VKCONIFG_CUSTOM_APP_LIST;
+    QFile file(fileName);
+
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
@@ -209,7 +218,10 @@ void CVulkanConfiguration::loadAppList(void)
 /// Save the custom applicaiton list
 void CVulkanConfiguration::saveAppList(void)
     {
-    QFile file(VKCONIFG_CUSTOM_APP_LIST);
+    QDir home = QDir::home();
+    QString fileName = home.absolutePath() + VKCONIFG_CUSTOM_APP_LIST;
+    QFile file(fileName);
+
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
@@ -389,9 +401,10 @@ void CVulkanConfiguration::loadLayerSettingsFromJson(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::loadProfiles
-/// Load all the profiles
-void CVulkanConfiguration::loadProfiles(void)
+/// \brief CVulkanConfiguration::loadDefaultProfiles
+/// Load all the default profiles. This is done on first run, and
+/// all subsequent runs use the users local list of profiles.
+void CVulkanConfiguration::loadDefaultProfiles(void)
     {
     // Read in the database
     QFile file(":/resourcefiles/presets_info.json");
@@ -411,42 +424,85 @@ void CVulkanConfiguration::loadProfiles(void)
         // Get the name of the profile
         CProfileDef* profileDef = new CProfileDef;
         profileDef->profileName = profileNames[i];
+        profileDef->readOnly = true;
 
         // Get the actual profile object
         QJsonValue profile = jsonTopObject.value(profileNames[i]);
         QJsonObject profileObject = profile.toObject();
 
-        // One of the read only ones?
-        profileDef->readOnly = profileObject.value("readonly").toBool();
-
-        // List of apps
-        QJsonValue apps = profileObject.value("apps");
-        QJsonArray appsArray = apps.toArray();
-        for(int j = 0; j < appsArray.size(); j++)
-            profileDef->appList << appsArray[j].toString();
+        QStringList layerList = profileObject.keys();
 
         // List of layers and settings
-//        QJsonValue layers = profileObject.value("layers");
-//        QJsonArray layersArray = layers.toArray();
-//        for(int j = 0; j < layersArray.size(); j++)
-//            profileDef->layers
+        for(int nLayer = 0; nLayer < layerList.length(); nLayer++) {
 
+
+
+
+            }
 
         profileList.push_back(profileDef);
         }
+
+
+    // This is fake profile that is used as a spacer
+//    CProfileDef* myProfile = new CProfileDef;
+//    myProfile->profileName = "User Profiles";
+//    myProfile->readOnly = false;
+//    profileList.push_back(myProfile);
+
+    // Now load the user defined profiles
+//    myProfile = new CProfileDef;
+//    myProfile->profileName = "Starstone Standard Test Suite";
+//    myProfile->readOnly = false;
+//    profileList.push_back(myProfile);
     }
 
 
-/*
- * Performance Suite
- * Rigourous Validation
- * API Dump
- * GPU Assisted Validation
- * Video Capture
- * Cross Thread Synchronization
- * */
+/////////////////////////////////////////////////////////////////////////////////////////
+// This saves all of the profile definitions, along with which one is active
 void CVulkanConfiguration::saveProfiles(void)
     {
+    QJsonObject     allProfiles;        // This is the top object
+
+    // Top item is the name of the currently active profile
+    if(nActiveProfile == -1)
+        allProfiles.insert("Current Profile Name", "None");
+    else
+        allProfiles.insert("Current Profile Name", profileList[nActiveProfile]->profileName);
+
+    // Followed by an array of profiles
+    QJsonArray profileArray;
+
+    // Top loop through the profiles
+    for(int iProfile = 0; iProfile < profileList.size(); iProfile++) {
+        QJsonObject profile;
+        profile.insert("Name", profileList[iProfile]->profileName);
+        profile.insert("Read Only", profileList[iProfile]->readOnly);
+
+        // Now loop through the layers
+        QJsonArray layerArray;
+        for(int iLayer = 0; iLayer < profileList[iProfile]->layers.size(); iLayer++) {
+            QJsonObject layerObject;
+            // The order of the layers is LOST by the json parser, so we need to store the ranking so
+            // we can resort them on load.
+            layerObject.insert("Rank", QJsonValue(iLayer));
+            layerObject.insert("Name", profileList[iProfile]->layers[iLayer]->name);
+            layerObject.insert("type", profileList[iProfile]->layers[iLayer]->type);
+            layerObject.insert("layertype", profileList[iProfile]->layers[iLayer]->layerType);
+
+
+            layerArray.push_back(layerObject);
+            }
+        profile.insert("Layers", layerArray);
+        profileArray.push_back(profile);
+        }
+
+    allProfiles.insert("Profiles", profileArray);
+
+    //QJsonObject     activeProfile;
+    //activeProfile.insert("Current Profile", "None");
+
+
     // Put together the list of profiles that are enabled
 //    QVector <CLayerFile*> layers;
 //    createProfileList(layers);
@@ -491,7 +547,6 @@ void CVulkanConfiguration::saveProfiles(void)
 
 
 
- //       QJsonDocument   jsonDoc(profileList);
 
 
     //    lunarg_api_dump.use_spaces = TRUE
@@ -519,13 +574,27 @@ void CVulkanConfiguration::saveProfiles(void)
     //khronos_validation.enables =
     //
 
+    QJsonDocument   jsonDoc(allProfiles);
 
-//    QFile file("./profile_list.json");
-//    file.open(QIODevice::WriteOnly | QIODevice::Text);
-//    file.write(jsonDoc.toJson());
-//    file.close();
+    QDir home = QDir::home();
+    QString fileOut = home.absolutePath() + VKCONFIG_PROFILE_LIST;
+    QFile file(fileOut);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    file.write(jsonDoc.toJson());
+    file.close();
 
 
 
     }
+
+////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::loadSavedProfiles
+/// \return
+/// Load all saved profile definitions.
+bool CVulkanConfiguration::loadSavedProfiles(void)
+    {
+
+    return false;
+    }
+
 

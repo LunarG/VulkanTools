@@ -31,7 +31,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
-     <widget class="QGroupBox" name="groupBox_3">
+     <widget class="QGroupBox" name="groupBoxProfiles">
       <property name="title">
        <string>Profiles</string>
       </property>
@@ -63,7 +63,7 @@
       <widget class="QPushButton" name="pushButtonAppList">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>20</x>
          <y>30</y>
          <width>131</width>
          <height>32</height>
@@ -74,16 +74,48 @@
        </property>
       </widget>
       <widget class="QPushButton" name="pushButtonEditProfile">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>20</x>
          <y>60</y>
          <width>131</width>
          <height>32</height>
         </rect>
        </property>
        <property name="text">
-        <string>Edit/Duplicate</string>
+        <string>Clone...</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButtonNewProfile">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>90</y>
+         <width>131</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>New...</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>130</y>
+         <width>121</width>
+         <height>111</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
        </property>
       </widget>
      </widget>
@@ -102,9 +134,9 @@
       <property name="elideMode">
        <enum>Qt::ElideMiddle</enum>
       </property>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="tab1">
        <attribute name="title">
-        <string>Profile Settings</string>
+        <string>Fixed Profile Settings</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -124,84 +156,6 @@
              <height>202</height>
             </rect>
            </property>
-           <widget class="QLabel" name="label">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>20</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Profile specific Setting 1</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_2">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>50</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Profile specific Setting 2</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_3">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>80</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Profile specific Setting 3</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_4">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>110</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Profile specific Setting 4</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_5">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>140</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Profile specific Setting 5</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_6">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>170</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Profile specific Setting 6</string>
-            </property>
-           </widget>
           </widget>
          </widget>
         </item>
@@ -234,7 +188,6 @@
     <addaction name="actionVulkan_Info"/>
     <addaction name="actionVulkan_Installation"/>
     <addaction name="actionCustom_Layer_Paths"/>
-    <addaction name="actionCreate_Custom_Profile"/>
     <addaction name="separator"/>
     <addaction name="actionLog_API_Dump"/>
     <addaction name="actionSet_Test_Application"/>
@@ -312,6 +265,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
