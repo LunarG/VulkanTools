@@ -1048,7 +1048,8 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSdkInfo() {
     PrintTableElement("");
     PrintEndTableRow();
 
-    const std::vector<const char *> explicit_layer_path_suffixes{"/etc/explicit_layer.d", "/etc/vulkan/explicit_layer.d"};
+    const std::vector<const char *> explicit_layer_path_suffixes{"/etc/explicit_layer.d", "/etc/vulkan/explicit_layer.d",
+                                                                 "/share/explicit_layer.d", "/share/vulkan/explicit_layer.d"};
 
     for (auto &explicit_layer_path_suffix : explicit_layer_path_suffixes) {
         std::string explicit_layer_path = sdk_path + explicit_layer_path_suffix;
