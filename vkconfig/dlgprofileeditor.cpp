@@ -17,6 +17,7 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
+#include "profiledef.h"
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
 #include "dlglayeroutput.h"
@@ -41,22 +42,20 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         }
     else {
         QString title;
-        if(pProfileToEdit->readOnly) {
-            QString title = "Clone Profile (" + pProfileToEdit->profileName + ")";
+        if(pProfileToEdit->bContainsReadOnlyFields) {
+            QString title = "Clone Profile (" + pProfileToEdit->qsProfileName + ")";
             setWindowTitle(title);
             ui->pushButtonSaveProfileAs->setText(tr("Save profile as..."));
             }
         else {
-            QString title = "Edit Profile (" + pProfileToEdit->profileName + ")";
+            QString title = "Edit Profile (" + pProfileToEdit->qsProfileName + ")";
             setWindowTitle(title);
             ui->pushButtonSaveProfileAs->setText(tr("Save..."));
             }
         }
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    pVulkanConfig->reLoadLayerConfiguration();
-    reloadLayersShown();
-
+    reloadLayersShown(); // Nope... needs to mirror the current profile settings
     }
 
 dlgProfileEditor::~dlgProfileEditor()

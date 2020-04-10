@@ -44,9 +44,9 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
 
     QProcess *vulkan_info = new QProcess(this);
 #ifdef __APPLE__
-    vulkan_info->setProgram("../../../vulkaninfo");
+    vulkan_info->setProgram("vulkaninfo");
 #else
-    vulkan_info->setProgram("./vulkaninfo");
+    vulkan_info->setProgram("vulkaninfo");
 #endif
 
 

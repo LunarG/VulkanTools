@@ -27,7 +27,9 @@
 #include <QString>
 #include <QVector>
 
-#include "layerfile.h"
+#include <layerfile.h>
+#include "profiledef.h"
+
 
 // Saved settings for the application
 #define VKCONFIG_KEY_LAUNCHAPP      "launchApp"
@@ -40,11 +42,18 @@
 #define VKCONIFG_CUSTOM_APP_LIST    "/.local/share/vulkan/AppList.txt"
 #define VKCONFIG_PROFILE_LIST       "/.local/share/vulkan/ProfileList.json"
 
-struct CProfileDef {
-    QString                 profileName;        // Name of the profile
-    QVector<CLayerFile*>    layers;             // List of layers and their settings.
-    bool                    readOnly;           // This profile cannot be changed
+// This is a master list of layer settings. All the settings
+// for what layers can have user modified settings. It contains
+// the names of the layers and the properties of the settings.
+// THIS IS TO BE READ ONLY, as it is copied from frequently
+// to reset or initialize the a full layer definition for the
+// profiles.
+struct LayerSettingsDefaults {
+    QString                 layerName;                  // Name of layer
+    QVector<TLayerSettings *>defaultSettings;           // Default settings for this layer
 };
+
+
 
 
 class CVulkanConfiguration
@@ -68,47 +77,65 @@ public:
     QString qsLogFileWPath;
     bool    bLogStdout;
 
-
-    // Look for all installed layers
-    void reLoadLayerConfiguration(void);
-    QVector <CLayerFile*>   implicitLayers;     // All detected implicit layers
-    QVector <CLayerFile*>   explicitLayers;     // All detected explicit layers
-    QVector <CLayerFile*>   customLayers;       // Layers found in custom search paths
-    void loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
-
-    QVector <CProfileDef *>  profileList;       // List and details about current profiles
-    int nActiveProfile;
-    CProfileDef* getActiveProfile(void) { if(nActiveProfile < 0) return nullptr;
-                                          return profileList[nActiveProfile]; }
-
+    /////////////////////////////////////////////////////////////////////////
+    // Additional places to look for layers
     void loadAdditionalSearchPaths(void);
     void saveAdditionalSearchPaths(void);
     uint32_t nAdditionalSearchPathCount;
     QStringList additionalSearchPaths;
 
-    // This is really only done once, to initialize the list
-    // of canned profiles.
-    void loadDefaultProfiles(void);
-
-    // This is our current list of profiles, both canned (with tweaks),
-    // and cloned, edited.
-    bool loadSavedProfiles(void);
-    void saveProfiles(void);
-
+    /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
     QStringList appList;
     void loadAppList(void);
     void saveAppList(void);
 
 
+    ////////////////////////////////////////////////////////////////////////
+    // A readonly list of layer names with the associated settings
+    // and their default values. This is for reference by individual profile
+    // objects.
+    QVector <LayerSettingsDefaults *> defaultLayerSettings;
+    void loadDefaultLayerSettings(void);
+    const LayerSettingsDefaults* findSettingsFor(QString layerName);
+
+    ////////////////////////////////////////////////////////////////////////
+    // Look for all installed layers. This contains their path, version info, etc.
+    // but does not contain settings information. The default settings are stored
+    // in the above (defaultLayerSettings). The binding of a layer with it's
+    // particular settings is done in the profile (CProfileDef - in profile list).
+    QVector <CLayerFile*>   implicitLayers;     // All detected implicit layers
+    QVector <CLayerFile*>   explicitLayers;     // All detected explicit layers
+    QVector <CLayerFile*>   customLayers;       // Layers found in custom search paths
+    void findAllInstalledLayers(void);
+    void loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
+    const CLayerFile* findLayerNamed(QString qsLayerName);
+
+
+
+    QVector <CProfileDef *>  profileList;       // List and details about current profiles
+    CProfileDef*             pActiveProfile;
+    CProfileDef* LoadProfile(QString pathToProfile);     // Load .profile descriptor
+    void SaveProfile(CProfileDef *pProfile, QString pathToProfile);     // Write .profile descriptor
+
+    // Load all of the defined profiles, fixed and user alike
+    void loadProfiles(void);
+
+    // This is our current list of profiles, both canned (with tweaks),
+    // and cloned, edited.
+    void saveProfiles(void);
+
+
+
+
 protected:
     CVulkanConfiguration();
     static CVulkanConfiguration*   pMe;
 
-    QStringList         layersWithSettings;
 
-    void loadLayerSettingsFromJson(void);
     void clearLayerLists(void);
+
+
 
 };
 

@@ -29,6 +29,7 @@ SOURCES += \
     layerfile.cpp \
     main.cpp \
     mainwindow.cpp \
+    profiledef.cpp \
     settingseditor.cpp \
     vulkanconfiguration.cpp
 
@@ -44,6 +45,7 @@ HEADERS += \
     dlgvulkaninfo.h \
     layerfile.h \
     mainwindow.h \
+    profiledef.h \
     settingseditor.h \
     vulkanconfiguration.h
 

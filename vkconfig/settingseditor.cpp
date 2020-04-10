@@ -59,6 +59,10 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 //    hashTable.insert("multi_enum", LAYER_SETTINGS_INCLUSIVE_LIST);
 
     for(int i = 0; i < layerSettings.size(); i++) {
+        // Do not display read only settings.
+        if(layerSettings[i]->readOnly)
+            continue;
+
         // Prompt doesn't matter what the data type is
         QLabel *pPromptLabel = new QLabel(pEditArea);
         pPromptLabel->setText(layerSettings[i]->settingsPrompt);

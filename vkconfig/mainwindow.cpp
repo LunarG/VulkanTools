@@ -22,7 +22,10 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QFrame>
+#include <QVariant>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -35,14 +38,14 @@
 #include "dlghistory.h"
 #include "dlgprofileeditor.h"
 #include "dlgcustompaths.h"
+#include "profiledef.h"
 
+class CProfileListItem : public QListWidgetItem
+{
+public:
+    CProfileDef* pProfilePointer;
 
-// This is the number of canned profiles. It is used to sepearate
-// the canned profiles from the user profiles in the list box, there
-// is even a "fake" profile used as a spacer in the vulkanconfiguration
-// object at this position. If we add more than 5 canned profiles,
-// this must be changed.
-#define CANNED_PROFILE_COUNT    5
+};
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -50,39 +53,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     {
     ui->setupUi(this);
+    CANNED_PROFILE_COUNT = 0;
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    pVulkanConfig->loadAppSettings();
-    if(!pVulkanConfig->loadSavedProfiles())
-        pVulkanConfig->loadDefaultProfiles();
-    pVulkanConfig->loadAppList();
 
+    LoadProfileList();
+
+    // Why is this loaded now?
     pSettingsEditor = new CSettingsEditor();
-
-    // Load list of profiles
-    ui->listWidgetProfiles->blockSignals(true);
-    for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
-        if(i == CANNED_PROFILE_COUNT) {
-            QFrame *line;
-            line = new QFrame(ui->listWidgetProfiles);
-            line->setFrameShape(QFrame::HLine);
-            line->setFrameShadow(QFrame::Sunken);
-            line->setFrameRect(QRect(90, 8, 10, 20));
-
-            QListWidgetItem *pItem = new QListWidgetItem(pVulkanConfig->profileList[CANNED_PROFILE_COUNT]->profileName, ui->listWidgetProfiles);
-            //pItem->setFlags(pItem->flags() & ~Qt::ItemIsSelectable);
-            pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
-
-            ui->listWidgetProfiles->addItem(pItem);
-            ui->listWidgetProfiles->setItemWidget(pItem, line);
-            }
-        else {
-            ui->listWidgetProfiles->addItem(pVulkanConfig->profileList[i]->profileName);
-            ui->listWidgetProfiles->item(i)->setCheckState(Qt::Unchecked);
-            }
-        }
-    ui->listWidgetProfiles->blockSignals(false);
 
  //   ui->listWidgetProfiles->setStyleSheet( "QListWidget::item[separator=""true""] { border-bottom: 1px solid black; }" );
 
@@ -123,6 +102,60 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
     {
     delete ui;
+    }
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Load or refresh the list of profiles
+void MainWindow::LoadProfileList(void)
+    {
+    ui->listWidgetProfiles->clear();
+    ui->listWidgetProfiles->blockSignals(true);
+
+    // Add canned profiles first
+    int nItemCount = 0;
+    for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
+        if(!pVulkanConfig->profileList[i]->bContainsReadOnlyFields)
+            continue;
+
+        // Add to list
+        CProfileListItem *pItem = new CProfileListItem();
+        pItem->pProfilePointer = pVulkanConfig->profileList[i];
+        pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
+        pItem->setCheckState(Qt::Unchecked);
+        ui->listWidgetProfiles->addItem(pItem);
+        CANNED_PROFILE_COUNT++;
+        }
+
+    // Add the seperator
+    QFrame *line;
+    line = new QFrame(ui->listWidgetProfiles);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    line->setFrameRect(QRect(90, 8, 10, 20));
+
+    CProfileListItem *pItem = new CProfileListItem();
+    pItem->setText("User Defined");
+            //, ui->listWidgetProfiles);
+    pItem->pProfilePointer = nullptr;
+    pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
+    ui->listWidgetProfiles->addItem(pItem);
+    ui->listWidgetProfiles->setItemWidget(pItem, line);
+    nItemCount++;
+
+
+    for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
+        if(pVulkanConfig->profileList[i]->bContainsReadOnlyFields)
+            continue;
+
+        CProfileListItem *pItem = new CProfileListItem();
+        pItem->pProfilePointer = pVulkanConfig->profileList[i];
+        pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
+        pItem->setCheckState(Qt::Unchecked);
+        ui->listWidgetProfiles->addItem(pItem);
+        }
+
+    ui->listWidgetProfiles->blockSignals(false);
     }
 
 
@@ -212,7 +245,7 @@ void MainWindow::on_pushButtonAppList_clicked(void)
 void MainWindow::on_pushButtonEditProfile_clicked(void)
     {
     int nSelection = ui->listWidgetProfiles->currentRow();
-    if(nSelection == 0) {
+    if(nSelection == -1) {
         QMessageBox msg;
         msg.setInformativeText(tr("Select a specific profile to clone."));
         msg.setText(tr("Edit profile"));
@@ -222,10 +255,17 @@ void MainWindow::on_pushButtonEditProfile_clicked(void)
         }
 
 
-    dlgProfileEditor dlg(this, pVulkanConfig->profileList[nSelection]);
-    dlg.exec();
+    // Which profile is selected?
+    QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
+    if(pItem != nullptr) {
+        CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
+        if(pProfileItem != nullptr) {
+            dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
+            dlg.exec();
 
-    pVulkanConfig->saveProfiles();
+            pVulkanConfig->saveProfiles();
+            }
+        }
     }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -254,6 +294,8 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
     }
 
 
+///////////////////////////////////////////////////////////////////////////////
+// Check for activating a new profile
 void MainWindow::profileItemChanged(QListWidgetItem *item)
     {
     // If an item is checked, well, a few things need to happen.
@@ -270,48 +312,68 @@ void MainWindow::profileItemChanged(QListWidgetItem *item)
             return;
             }
 
-        // Okay, checks are mutually exclusive (but rado buttons are ugly)
-        // so only one profile can actually be checked
+        // Okay, checks are mutually exclusive (but rado buttons are ugly, so I went this way)
+        // Only one profile can actually be checked
         for(int i = 0; i < ui->listWidgetProfiles->count(); i++)
             if(item != ui->listWidgetProfiles->item(i) && i != CANNED_PROFILE_COUNT)
                 ui->listWidgetProfiles->item(i)->setCheckState(Qt::Unchecked);
 
 
+        CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(item);
+        if(pProfileItem != nullptr) { // Better to ignore than crash
+            pVulkanConfig->pActiveProfile = pProfileItem->pProfilePointer;
+ //           if(pVulkanConfig->pActiveProfile != nullptr) // Ditto...
+ //               pVulkanConfig->pActiveProfile->MakeMeTheCurrentProfile();
+            }
 
-        // MakeThisProfileCurrent();
         return;
         }
 
-    // Well then, there is no current profile
-    // RemoveCurrentProfile();
+    // No, I don't actually.
+    //printf("I need to do something here\n");
     }
 
 
-///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// The primary purpose here is to enable/disable/rename the edit/clone
+// button for the highlighted profile
 void MainWindow::selectedProfileChanged(void)
     {
-    ui->pushButtonEditProfile->setEnabled(true);
-
+    // We need the list item that was selected
     int nRow = ui->listWidgetProfiles->currentRow();
-    if(nRow == CANNED_PROFILE_COUNT) {
-        // This can't be selected
+    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+    if(pSelectedItem == nullptr) {
         ui->listWidgetProfiles->setCurrentRow(-1);
-        return;
+        ui->pushButtonEditProfile->setEnabled(false);
+        return; // This should never happen, but if they do, nothing is selected
         }
 
-    pVulkanConfig->nActiveProfile = nRow;
-    CProfileDef* pProfile = pVulkanConfig->getActiveProfile();
-    if(pProfile->readOnly)
+    ui->pushButtonEditProfile->setEnabled(true);
+
+
+    if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields)
         ui->pushButtonEditProfile->setText("Clone");
     else
         ui->pushButtonEditProfile->setText("Edit");
     }
 
-
+///////////////////////////////////////////////////////////////////////////////
+// A row has been selected. If there are editable items for the profile
+// display them in the lower panel.
 void MainWindow::currentProfileRowChanged(int row)
     {
+    // We need the list item that was selected
+    int nRow = ui->listWidgetProfiles->currentRow();
+    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+
+    // Only the canned profiles have read only settings
+    if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields) {
 
 
+
+        }
+
+    printf("Row %d selected\n", row);
     // Display editor for profile
    //   pSettingsEditor->CreateGUI(ui->tabWidget, pVulkanConfig->explicitLayers[row]->layerSettings);
  //   ui->tabWidget->update();

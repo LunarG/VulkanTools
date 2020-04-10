@@ -6,5 +6,10 @@
         <file>resourcefiles/qt_logo.png</file>
         <file>resourcefiles/layer_info.json</file>
         <file>resourcefiles/presets_info.json</file>
+        <file>resourcefiles/BasicValidation.profile</file>
+        <file>resourcefiles/BestPracticesValidation.profile</file>
+        <file>resourcefiles/GPU-AssistedValidation.profile</file>
+        <file>resourcefiles/LightweightValidation.profile</file>
+        <file>resourcefiles/SynchronizationValidation.profile</file>
     </qresource>
 </RCC>

@@ -86,7 +86,7 @@ void dlgCustomPaths::on_pushButtonAdd_clicked()
         ui->treeWidget->addTopLevelItem(pItem);
         pVulkanConfig->saveAdditionalSearchPaths();
 
-        pVulkanConfig->reLoadLayerConfiguration();
+        pVulkanConfig->findAllInstalledLayers();
         bPathsChanged = true;
         repopulateTree();
         }
@@ -133,6 +133,6 @@ void dlgCustomPaths::on_pushButtonRemove_clicked()
     // Update GUI and save
     repopulateTree();
     pVulkanConfig->saveAdditionalSearchPaths();
-    pVulkanConfig->reLoadLayerConfiguration();
+    pVulkanConfig->findAllInstalledLayers();
     bPathsChanged = true;
     }

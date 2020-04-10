@@ -117,7 +117,7 @@ bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
 
 
 ////////////////////////////////////////////////////////////////////////////
-void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors)
+void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers)
     {
     // Okay, how many settings do we have?
     QStringList settingsNames = layerSettingsDescriptors.keys();
@@ -125,6 +125,7 @@ void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors)
     for(int i = 0; i < settingsNames.size(); i++) {
         TLayerSettings *pLayerSettings = new TLayerSettings;
         pLayerSettings->settingsName = settingsNames[i];
+        pLayerSettings->readOnly = false;   // Default if no key is present
 
         QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[i]);
         QJsonObject settingObject = settingValue.toObject();
@@ -170,7 +171,7 @@ void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors)
                 pLayerSettings->settingsListExclusivePrompt << object.value(keys[v]).toString();
                 }
 
-            layerSettings.push_back(pLayerSettings);
+            layers.push_back(pLayerSettings);
             continue;
             }
 
@@ -188,21 +189,21 @@ void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors)
                 pLayerSettings->settingsListInclusivePrompt << object.value(keys[v]).toString();
                 }
 
-            layerSettings.push_back(pLayerSettings);
+            layers.push_back(pLayerSettings);
             continue;
             }
 
         ////////////////////////////////////////////////////// Select a file. Nice and simple
         if(typeString == QString("save_file")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_FILE;
-            layerSettings.push_back(pLayerSettings);
+            layers.push_back(pLayerSettings);
             continue;
             }
 
         ////////////////////////////////////////////////////// Bool, also nice and simple
         if(typeString == QString("bool")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_BOOL;
-            layerSettings.push_back(pLayerSettings);
+            layers.push_back(pLayerSettings);
             continue;
             }
 
@@ -211,7 +212,7 @@ void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors)
             pLayerSettings->settingsType = LAYER_SETTINGS_STRING;
 
 
-        layerSettings.push_back(pLayerSettings);
+        layers.push_back(pLayerSettings);
         }
     }
 

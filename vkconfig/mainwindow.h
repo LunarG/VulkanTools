@@ -48,10 +48,15 @@ protected:
 
 
     void checkAppListState(void);
+    void LoadProfileList(void);
 
 
 private:
     Ui::MainWindow *ui;
+
+    // This is the number of canned profiles. It is used to sepearate
+    // the canned profiles from the user profiles in the list box
+    int CANNED_PROFILE_COUNT;
 
 
 public Q_SLOTS:
