@@ -539,26 +539,39 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         QJsonObject layerObject = layerValue.toObject();
 
         // We have added the layer, but the layer has settings too
-        pProfile->bContainsReadOnlyFields = CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
+        pProfile->bContainsReadOnlyFields =
+                 CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
 
     return pProfile;
     }
 
 
-
+/////////////////////////////////////////////////////////////////////////////////////
 void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProfile)
     {
+    // Build the json document
 
+    // Create/delete existing file
 
+    // Write it out
 
     }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Set this as the current override profile
-void CVulkanConfiguration::SetCurrentProfile(CProfileDef *pProfile)
+// Set this as the current override profile. The profile definition passed in
+// is used to construct the override and settings files.
+// Passing in nullptr IS valid, and will clear the current profile
+// DO THIS NEXT RICHARD...
+void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     {
+    // Clear the profile?
+    if(pProfile == nullptr) {
+        // Delete a bunch of stuff
 
+
+        return;
+        }
 
 
 
