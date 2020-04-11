@@ -116,18 +116,13 @@ public:
     QVector <CProfileDef *>  profileList;       // List and details about current profiles
     CProfileDef*             pActiveProfile;
     CProfileDef* FindProfile(QString profileName);
-    CProfileDef* LoadProfile(QString pathToProfile);     // Load .profile descriptor
+    CProfileDef* LoadProfile(QString pathToProfile);        // Load .profile descriptor
+    void loadAllProfiles(void);                             // Load all the .profile files found
     void SaveProfile(CProfileDef *pProfile, QString pathToProfile);     // Write .profile descriptor
 
-    // Load all of the defined profiles, fixed and user alike
-    void loadAllProfiles(void);
 
-    // LEFT OUT ON PURPOSE. ALL PROFILES ARE SAVED WHEN EDITED SO THERE IS NO
-    // NEED TO SAVE ALL OF THEM.
-    // This is our current list of profiles, both canned (with tweaks),
-    // and cloned, edited.
-//    void saveProfiles(void);
-
+    // Set this as the current override profile
+    void SetCurrentProfile(CProfileDef *pProfile);
 
 
 

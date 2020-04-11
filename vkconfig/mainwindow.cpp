@@ -60,16 +60,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     LoadProfileList();
 
-    // Why is this loaded now?
-    pSettingsEditor = new CSettingsEditor();
-
- //   ui->listWidgetProfiles->setStyleSheet( "QListWidget::item[separator=""true""] { border-bottom: 1px solid black; }" );
-
-
-    //    ui->listWidgetProfiles->setProperty("separator", true);
-
-   // ui->listWidgetProfiles->item(0)->setCheckState(Qt::Checked);
-
     connect(ui->listWidgetProfiles, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(profileItemChanged(QListWidgetItem*)));
     connect(ui->listWidgetProfiles, SIGNAL(currentRowChanged(int)), this, SLOT(currentProfileRowChanged(int)));
     connect(ui->listWidgetProfiles, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProfileChanged()));
@@ -109,8 +99,8 @@ MainWindow::~MainWindow()
 // Load or refresh the list of profiles
 void MainWindow::LoadProfileList(void)
     {
-    ui->listWidgetProfiles->clear();
     ui->listWidgetProfiles->blockSignals(true);
+    ui->listWidgetProfiles->clear();
 
     // Add canned profiles first
     int nItemCount = 0;
@@ -346,32 +336,39 @@ void MainWindow::selectedProfileChanged(void)
         return; // This should never happen, but if they do, nothing is selected
         }
 
+    // Something is selected, so we need to enable the button
     ui->pushButtonEditProfile->setEnabled(true);
 
-
-    if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields)
+    // Label the button appropriately, but if a canned profile, we do need to
+    // setup the GUI
+    if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields) {
         ui->pushButtonEditProfile->setText("Clone");
-    else
+        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings);
+        }
+    else {
         ui->pushButtonEditProfile->setText("Edit");
+        settingsEditor.CleanupGUI();
+        }
     }
 
 ///////////////////////////////////////////////////////////////////////////////
 // A row has been selected. If there are editable items for the profile
 // display them in the lower panel.
+// WAIT... WHY DO I HAVE THIS?!?
 void MainWindow::currentProfileRowChanged(int row)
     {
     // We need the list item that was selected
-    int nRow = ui->listWidgetProfiles->currentRow();
-    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+//    int nRow = ui->listWidgetProfiles->currentRow();
+//    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
 
-    // Only the canned profiles have read only settings
-    if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields) {
+//    // Only the canned profiles have read only settings
+//    if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields) {
 
 
 
-        }
+//        }
 
-    printf("Row %d selected\n", row);
+//    printf("Row %d selected\n", row);
     // Display editor for profile
    //   pSettingsEditor->CreateGUI(ui->tabWidget, pVulkanConfig->explicitLayers[row]->layerSettings);
  //   ui->tabWidget->update();

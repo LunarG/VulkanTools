@@ -44,7 +44,7 @@ public:
 
 protected:
     CVulkanConfiguration*    pVulkanConfig;
-    CSettingsEditor*         pSettingsEditor;
+    CSettingsEditor          settingsEditor;
 
 
     void checkAppListState(void);

@@ -29,6 +29,8 @@
 CSettingsEditor::CSettingsEditor()
     {
     pEditArea = nullptr;
+    inputControls.reserve(100);
+    prompts.reserve(100);
     }
 
 
@@ -39,8 +41,8 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     int nRowHeight = 24;
     int nVerticalPad = 4;
     int nCurrRow = 15;
-    int nLeftColumn = 26;
-    int nSecondColumn = 150;
+    int nLeftColumn = 10;
+    int nSecondColumn = 115;
     int nThirdColumn = 225;
     int nEditFieldWidth = 200;
 
@@ -169,23 +171,16 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
         nCurrRow += nRowHeight;
         nCurrRow += nVerticalPad;
         }
-
-
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Okay, remove the control, disconnect any signals and free the memory up.
 void CSettingsEditor::CleanupGUI(void)
     {
-    for(int i = 0; i < inputControls.size(); i++)
-        delete inputControls[i];
-
-    for(int i = 0; i < prompts.size(); i++)
-        delete prompts[i];
-
-
+    // Don't delete the controls, they are parented by pEditArea
     inputControls.clear();
     prompts.clear();
+
     delete pEditArea;
     pEditArea = nullptr;
     }

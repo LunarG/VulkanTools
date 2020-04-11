@@ -546,11 +546,20 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     }
 
 
+
 void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProfile)
-{
+    {
 
 
 
-}
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+// Set this as the current override profile
+void CVulkanConfiguration::SetCurrentProfile(CProfileDef *pProfile)
+    {
 
 
+
+
+    }
