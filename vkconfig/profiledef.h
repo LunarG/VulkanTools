@@ -25,6 +25,7 @@
  *
  */
 #include <QString>
+#include <QStringList>
 
 #include <layerfile.h>
 
@@ -40,6 +41,8 @@ public:
 
     // A profile is nothing but a list of layers and their settings in truth
     QVector<CLayerFile *>layers;
+
+    QStringList     blacklistedLayers;          // Just the names of blacklisted layers
 
 };
 

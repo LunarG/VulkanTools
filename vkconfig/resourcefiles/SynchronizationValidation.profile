@@ -1,5 +1,6 @@
 {
     "Synchronization Validation": {
+    "blacklisted_layers": [],
     "layer_options": {
         "VK_LAYER_KHRONOS_validation": {
             "debug_action": {

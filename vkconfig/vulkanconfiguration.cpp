@@ -29,6 +29,8 @@
 #include <QSettings>
 #include <QTextStream>
 
+#include <vulkan/vulkan.h>
+
 #include <profiledef.h>
 #include "vulkanconfiguration.h"
 
@@ -59,7 +61,6 @@ const QString szSearchPaths[nSearchPaths] = {
 };
 #endif
 
-
 // Single pointer to singleton configuration object
 CVulkanConfiguration* CVulkanConfiguration::pMe = nullptr;
 
@@ -70,6 +71,15 @@ CVulkanConfiguration::CVulkanConfiguration()
     implicitLayers.reserve(10);
     explicitLayers.reserve(10);
     bLogStdout = false;
+    pActiveProfile = nullptr;
+
+    // Where is stuff
+    QDir home = QDir::home();
+    qsConfigFilesPath = home.path() + QString("/.local/share/vulkan/");
+    qsOverrideSettingsPath = qsConfigFilesPath + "settings.d/vk_layer_settings.txt";
+    qsOverrideJsonPath = qsConfigFilesPath + "implicit_layer.d/VkLayer_override.json";
+    qsCustomPathsListFile = qsConfigFilesPath + "CustomPaths.txt";
+    qsApplicationListFile = qsConfigFilesPath + "AppList.txt";
 
     // Load simple app settings, the additional search paths, and the
     // override app list.
@@ -136,12 +146,9 @@ void CVulkanConfiguration::saveAppSettings(void)
 /// Load the list of paths here.
 void CVulkanConfiguration::loadAdditionalSearchPaths(void)
     {
-    QDir home = QDir::home();
-    QString fileName = home.absolutePath() + VKCONFIG_CUSTOM_LAYER_PATHS;
-
     // If the file doesn't exist, then the count is zero...
     nAdditionalSearchPathCount = 0;
-    QFile file(fileName);
+    QFile file(qsCustomPathsListFile);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
@@ -165,10 +172,7 @@ void CVulkanConfiguration::loadAdditionalSearchPaths(void)
 /// Save the list of paths here.
 void CVulkanConfiguration::saveAdditionalSearchPaths(void)
     {
-    QDir home = QDir::home();
-    QString fileName = home.absolutePath() + VKCONFIG_CUSTOM_LAYER_PATHS;
-
-    QFile file(fileName);
+    QFile file(qsCustomPathsListFile);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
@@ -186,10 +190,7 @@ void CVulkanConfiguration::saveAdditionalSearchPaths(void)
 /// Load the custom application list
 void CVulkanConfiguration::loadAppList(void)
     {
-    QDir home = QDir::home();
-    QString fileName = home.absolutePath() + VKCONIFG_CUSTOM_APP_LIST;
-    QFile file(fileName);
-
+    QFile file(qsApplicationListFile);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
@@ -206,9 +207,7 @@ void CVulkanConfiguration::loadAppList(void)
 /// Save the custom applicaiton list
 void CVulkanConfiguration::saveAppList(void)
     {
-    QDir home = QDir::home();
-    QString fileName = home.absolutePath() + VKCONIFG_CUSTOM_APP_LIST;
-    QFile file(fileName);
+    QFile file(qsApplicationListFile);
 
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
@@ -517,6 +516,11 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     QJsonValue profileEntryValue = jsonTopObject.value(key[0]);
     QJsonObject profileEntryObject = profileEntryValue.toObject();
 
+    QJsonValue blackListValue = profileEntryObject.value("blacklisted_layers");
+    QJsonArray blackListArray = blackListValue.toArray();
+    for(int i = 0; i < blackListArray.size(); i++)
+        pProfile->blacklistedLayers << blackListArray[i].toString();
+
     QJsonValue optionsValue = profileEntryObject.value("layer_options");
 
 
@@ -562,17 +566,106 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProf
 // Set this as the current override profile. The profile definition passed in
 // is used to construct the override and settings files.
 // Passing in nullptr IS valid, and will clear the current profile
-// DO THIS NEXT RICHARD...
 void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     {
-    // Clear the profile?
+    pActiveProfile = pProfile;
+
+    // Clear the profile if null
     if(pProfile == nullptr) {
         // Delete a bunch of stuff
-
-
+        remove(qsOverrideSettingsPath.toUtf8().constData());
+        remove(qsOverrideJsonPath.toUtf8().constData());
         return;
         }
 
+    /////////////////////////////////////////////
+    // Now the fun starts, we need to write out the json file
+    // that describes the layers being employed and the settings file
 
+    /////////////////////////
+    // vk_layer_settings.txt
+    QFile file(qsOverrideSettingsPath);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream stream(&file);
 
+    // Loop through all the layers
+    for(int iLayer = 0; iLayer < pProfile->layers.size(); iLayer++) {
+        CLayerFile *pLayer = pProfile->layers[iLayer];
+        stream << endl;
+        stream << "# " << pLayer->name << endl;
+
+        for(int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
+            TLayerSettings *pSetting = pLayer->layerSettings[iSetting];
+            stream << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
+            }
+
+        }
+    file.close();
+
+    ////////////////////////
+    // VkLayer_override.json
+    QJsonArray json_paths;
+    for(int i = 0; i < additionalSearchPaths.size(); i++)
+        json_paths.append(additionalSearchPaths[i]);
+
+    QJsonArray json_layers;
+    for(int i = 0; i < pProfile->layers.size(); i++)
+        json_layers.append(pProfile->layers[i]->name);
+
+    QJsonArray json_blacklist;
+    for(int i = 0; i < pProfile->blacklistedLayers.size(); i++)
+        json_blacklist.append(pProfile->blacklistedLayers[i]);
+
+    QJsonArray json_applist;
+    for(const QString &appName : appList)
+        json_applist.append(appName);
+
+    QJsonObject disable;
+    disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
+
+    QJsonObject layer;
+    layer.insert("name", QString("VK_LAYER_LUNARG_override"));
+    layer.insert("type", QString("GLOBAL"));
+    layer.insert("api_version", "1.2." + QString::number(VK_HEADER_VERSION));
+    layer.insert("implementation_version", QString("1"));
+    layer.insert("description", QString("LunarG Override Layer"));
+    layer.insert("override_paths", json_paths);
+    layer.insert("component_layers", json_layers);
+    layer.insert("blacklisted_layers", json_blacklist);
+    layer.insert("disable_environment", disable);
+    layer.insert("application_list", json_applist);
+
+     QJsonObject root;
+     root.insert("file_format_version", QJsonValue(QString("1.1.2")));
+     root.insert("layer", layer);
+     QJsonDocument doc(root);
+
+    QFile jsonFile(qsOverrideJsonPath);
+    if(!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;     // TBD, should we report an error
+    jsonFile.write(doc.toJson());
+    jsonFile.close();
     }
+
+/*VkLayer_override.json
+{
+    "file_format_version": "1.1.2",
+    "layer": {
+        "api_version": "1.2.131",
+        "blacklisted_layers": [
+        ],
+        "component_layers": [
+            "VK_LAYER_KHRONOS_validation"
+        ],
+        "description": "LunarG Override Layer",
+        "disable_environment": {
+            "DISABLE_VK_LAYER_LUNARG_override": "1"
+        },
+        "implementation_version": "1",
+        "name": "VK_LAYER_LUNARG_override",
+        "override_paths": [
+        ],
+        "type": "GLOBAL"
+    }
+}
+*/

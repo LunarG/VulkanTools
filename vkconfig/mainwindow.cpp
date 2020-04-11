@@ -283,7 +283,8 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Check for activating a new profile
+// Check for activating a new profile. A new one may be checked or the
+// current one may be unchecked.
 void MainWindow::profileItemChanged(QListWidgetItem *item)
     {
     // If an item is checked, well, a few things need to happen.
@@ -308,17 +309,16 @@ void MainWindow::profileItemChanged(QListWidgetItem *item)
 
 
         CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(item);
-        if(pProfileItem != nullptr) { // Better to ignore than crash
-            pVulkanConfig->pActiveProfile = pProfileItem->pProfilePointer;
- //           if(pVulkanConfig->pActiveProfile != nullptr) // Ditto...
- //               pVulkanConfig->pActiveProfile->MakeMeTheCurrentProfile();
-            }
+        if(pProfileItem != nullptr) // Better to ignore than crash
+            pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
 
         return;
         }
 
-    // No, I don't actually.
-    //printf("I need to do something here\n");
+    // We enforce above that only one item can be checked, but what if we uncheck
+    // the only selected item? If so, we end up here and we need to remove the currently
+    // active profile
+    pVulkanConfig->SetCurrentActiveProfile(nullptr);
     }
 
 

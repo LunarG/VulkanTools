@@ -38,10 +38,6 @@
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
 #define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 
-#define VKCONFIG_CUSTOM_LAYER_PATHS "/.local/share/vulkan/CustomPaths.txt"
-#define VKCONIFG_CUSTOM_APP_LIST    "/.local/share/vulkan/AppList.txt"
-#define VKCONFIG_PROFILE_LIST       "/.local/share/vulkan/ProfileList.json"
-
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
 // the names of the layers and the properties of the settings.
@@ -114,7 +110,7 @@ public:
 
 
     QVector <CProfileDef *>  profileList;       // List and details about current profiles
-    CProfileDef*             pActiveProfile;
+
     CProfileDef* FindProfile(QString profileName);
     CProfileDef* LoadProfile(QString pathToProfile);        // Load .profile descriptor
     void loadAllProfiles(void);                             // Load all the .profile files found
@@ -122,18 +118,24 @@ public:
 
 
     // Set this as the current override profile
-    void SetCurrentProfile(CProfileDef *pProfile);
+    void SetCurrentActiveProfile(CProfileDef *pProfile);
 
 
 
 protected:
     CVulkanConfiguration();
-    static CVulkanConfiguration*   pMe;
+    static CVulkanConfiguration*    pMe;
 
+    // Currently active profile
+    CProfileDef*                    pActiveProfile;
 
     void clearLayerLists(void);
 
-
+    QString qsConfigFilesPath;          // Where config working files live
+    QString qsOverrideSettingsPath;     // Where settings go when profile is active
+    QString qsOverrideJsonPath;         // Where json goes when profile is active
+    QString qsCustomPathsListFile;      // Where is the list of custom paths
+    QString qsApplicationListFile;      // Where is the list of applicaitons
 
 };
 
