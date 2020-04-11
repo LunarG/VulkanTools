@@ -547,6 +547,9 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
                  CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
 
+    // Test...
+    SaveProfile(pProfile, "/Users/rwright/.local/share/vulkan/test.profile");
+
     return pProfile;
     }
 
@@ -555,10 +558,133 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProfile)
     {
     // Build the json document
+    QJsonArray blackList;
+    for(int i = 0; i < pProfile->blacklistedLayers.size(); i++)
+        blackList.append(pProfile->blacklistedLayers[i]);
 
-    // Create/delete existing file
+    QJsonObject layerList; // This list of layers
 
+    for(int iLayer = 0; iLayer < pProfile->layers.size(); iLayer++) {
+        CLayerFile *pLayer = pProfile->layers[iLayer];
+
+        QJsonObject jsonSettings;
+        for(int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
+            QJsonObject setting;
+            TLayerSettings *pSettingsDetails = pLayer->layerSettings[iSetting];
+
+            // Only write read only if it's true
+            if(pSettingsDetails->readOnly)
+                setting.insert("read only", "true");
+
+            setting.insert("name", pSettingsDetails->settingsPrompt);
+            setting.insert("description", pSettingsDetails->settingsDesc);
+
+
+            switch(pSettingsDetails->settingsType) {
+                case LAYER_SETTINGS_STRING:
+                    setting.insert("type:", "string");
+                    setting.insert("default", pSettingsDetails->settingsValue);
+                break;
+
+                case LAYER_SETTINGS_FILE:
+                    setting.insert("type:", "save_file");
+                    setting.insert("default", pSettingsDetails->settingsValue);
+                break;
+
+                case LAYER_SETTINGS_BOOL:
+                    setting.insert("type:", "bool");
+                    setting.insert("default", pSettingsDetails->settingsValue);
+                break;
+
+                case LAYER_SETTINGS_EXCLUSIVE_LIST: {
+                    setting.insert("type:", "enum");
+                    setting.insert("default", pSettingsDetails->settingsValue);
+
+                    QJsonObject options;
+                    for(int i = 0; i < pSettingsDetails->settingsListExclusivePrompt.size(); i++)
+                        options.insert( pSettingsDetails->settingsListExclusiveValue[i],
+                                        pSettingsDetails->settingsListExclusivePrompt[i]);
+                    setting.insert("options", options);
+                    }
+                break;
+
+            case LAYER_SETTINGS_INCLUSIVE_LIST: {
+                    setting.insert("type:", "multi_enum");
+                    QJsonObject options;
+                    for(int i = 0; i < pSettingsDetails->settingsListInclusivePrompt.size(); i++)
+                        options.insert( pSettingsDetails->settingsListInclusivePrompt[i],
+                                        pSettingsDetails->settingsListInclusivePrompt[i]);
+                    setting.insert("options", options);
+
+                    QJsonArray defaults;
+                    if(!pSettingsDetails->settingsValue.isEmpty()) {
+                        QStringList list = pSettingsDetails->settingsValue.split(",");
+                        for(int i = 0; i < list.size(); i++)
+                            defaults.append(list[i]);
+                        }
+
+                    setting.insert("default", defaults);
+                    }
+                break;
+
+                // There is a string field that is actually a complicted series of number or
+                // ranges of numbers. We should at some point add this to allow more error free editing of it.
+                case LAYER_SETTINGS_RANGE_INT:
+
+
+                break;
+
+                // We missed somethhing
+                default:
+                    setting.insert("type:", "unknown type");
+                    setting.insert("default", "unknown data");
+                }
+
+
+
+
+ /*          struct TLayerSettings {
+                **QString                 settingsName;                   // Name of the setting the layer looks for (programatic variable name)
+                **QString                 settingsPrompt;                 // Short name to prompt end user
+                **QString                 settingsDesc;                   // Human version, describes the setting
+
+                TLayerSettingsType      settingsType;                   // The data type
+                QVariant                settingsMaxValue;               // For range based
+                QVariant                settingsMinValue;               // For range based
+                QStringList             settingsListExclusiveValue;     // List of exclusive items
+                QStringList             settingsListExclusivePrompt;    // List of exclusive item prompts
+                QStringList             settingsListInclusiveValue;     // List of non-exclusive items (more than one item can be selected)
+                QStringList             settingsListInclusivePrompt;    // List of non-exclusive item prompts (more than one item can be selected)
+
+                **QString                 settingsValue;                  // Default value as a string
+                **bool                    readOnly;                       // Individual settings could be read only, in which case they are not
+*/
+
+            jsonSettings.insert(pSettingsDetails->settingsName, setting);
+            }
+
+        layerList.insert(pLayer->name, jsonSettings);
+        }
+
+
+
+    //////////////////////////////////////////////////////////
+    // Assemble the json
+    QJsonObject root;
+    QJsonObject json_profile;
+    json_profile.insert("blacklisted_layers", blackList);
+    json_profile.insert("layer_options", layerList);
+    root.insert(pProfile->qsProfileName, json_profile);
+    QJsonDocument doc(root);
+
+
+    ///////////////////////////////////////////////////////////
     // Write it out
+    QFile jsonFile(pathToProfile);
+    if(!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;     // TBD, should we report an error
+    jsonFile.write(doc.toJson());
+    jsonFile.close();
 
     }
 
@@ -633,7 +759,7 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     layer.insert("component_layers", json_layers);
     layer.insert("blacklisted_layers", json_blacklist);
     layer.insert("disable_environment", disable);
-    layer.insert("application_list", json_applist);
+    layer.insert("app_keys", json_applist);
 
      QJsonObject root;
      root.insert("file_format_version", QJsonValue(QString("1.1.2")));
@@ -647,25 +773,3 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     jsonFile.close();
     }
 
-/*VkLayer_override.json
-{
-    "file_format_version": "1.1.2",
-    "layer": {
-        "api_version": "1.2.131",
-        "blacklisted_layers": [
-        ],
-        "component_layers": [
-            "VK_LAYER_KHRONOS_validation"
-        ],
-        "description": "LunarG Override Layer",
-        "disable_environment": {
-            "DISABLE_VK_LAYER_LUNARG_override": "1"
-        },
-        "implementation_version": "1",
-        "name": "VK_LAYER_LUNARG_override",
-        "override_paths": [
-        ],
-        "type": "GLOBAL"
-    }
-}
-*/
