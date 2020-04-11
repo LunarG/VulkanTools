@@ -117,18 +117,26 @@ bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
 
 
 ////////////////////////////////////////////////////////////////////////////
-void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers)
+bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers)
     {
+    bool bHasReadOnly = false;
+
     // Okay, how many settings do we have?
     QStringList settingsNames = layerSettingsDescriptors.keys();
 
     for(int i = 0; i < settingsNames.size(); i++) {
         TLayerSettings *pLayerSettings = new TLayerSettings;
         pLayerSettings->settingsName = settingsNames[i];
-        pLayerSettings->readOnly = false;   // Default if no key is present
 
         QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[i]);
         QJsonObject settingObject = settingValue.toObject();
+
+        // This may or may not be present
+        QJsonValue readOnly = settingObject.value("read only");
+        pLayerSettings->readOnly = !readOnly.isUndefined();   // Default if no key is present
+        if(pLayerSettings->readOnly)                          // Any one readonly key toggles this
+            bHasReadOnly = true;
+
 
         // The easy stuff...
         QJsonValue value = settingObject.value("description");
@@ -214,5 +222,7 @@ void CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
 
         layers.push_back(pLayerSettings);
         }
+
+    return bHasReadOnly;
     }
 

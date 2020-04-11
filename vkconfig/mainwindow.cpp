@@ -262,8 +262,6 @@ void MainWindow::on_pushButtonEditProfile_clicked(void)
         if(pProfileItem != nullptr) {
             dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
             dlg.exec();
-
-            pVulkanConfig->saveProfiles();
             }
         }
     }

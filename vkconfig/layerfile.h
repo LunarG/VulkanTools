@@ -104,7 +104,7 @@ public:
     bool readLayerFile(QString qsFullPathToFile, TLayerType layerKind);
 
     // Utility, may move outside this class....
-    static void loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers);
+    static bool loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers);
 
 };
 

@@ -78,9 +78,7 @@ CVulkanConfiguration::CVulkanConfiguration()
     loadAppList();
     loadDefaultLayerSettings();    // findAllInstalledLayers uses the results of this.
     findAllInstalledLayers();
-
-
-    loadProfiles();
+    loadAllProfiles();
 
     // Default, no active profile
     pActiveProfile = nullptr;
@@ -323,13 +321,14 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath, QVector<CLa
 
             // We have a layer! See if we need to add the settings list to it, and then add it to our list
             if(pLayerFile != nullptr) {
-                // Does this layer have settings?
-                const LayerSettingsDefaults *pSettings = findSettingsFor(pLayerFile->name);
-                if(pSettings != nullptr)
-                    for(int i = 0; i < pSettings->defaultSettings.size(); i++) {
-                        TLayerSettings* pLayerSettings = new TLayerSettings();
-                        *pLayerSettings = *pSettings->defaultSettings[i];
-                        }
+//                // Does this layer have settings? // NO, don't do this... loaded from profile, or initialized in edit mode
+//                const LayerSettingsDefaults *pSettings = findSettingsFor(pLayerFile->name);
+//                if(pSettings != nullptr)
+//                    for(int i = 0; i < pSettings->defaultSettings.size(); i++) {
+//                        TLayerSettings* pLayerSettings = new TLayerSettings();
+//                        *pLayerSettings = *pSettings->defaultSettings[i];
+//                        pLayerFile->layerSettings.push_back(pLayerSettings);
+//                        }
 
                 layerList.push_back(pLayerFile);
                 }
@@ -353,14 +352,29 @@ const LayerSettingsDefaults* CVulkanConfiguration::findSettingsFor(QString layer
     }
 
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::FindProfile
+/// \param profileName
+/// \return
+/// Search the list of loaded profiles and return a pointer
+CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
+    {
+    for(int i = 0; i < profileList.size(); i++)
+        if(profileList[i]->qsProfileName == profileName)
+            return profileList[i];
+
+    return nullptr;
+    }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadProfiles
 /// Load all the  profiles. If the canned profiles don't exist,
 /// they are created from the embedded json files
-void CVulkanConfiguration::loadProfiles(void)
+void CVulkanConfiguration::loadAllProfiles(void)
     {
-    // Get a list of all files that end in .profile in the folder
+    // Get a list of all files that end in .profile in the folder where
+    // we store them. TBD... don't hard code this here.
     QString whereAreTheProfiles = QDir::homePath();
     whereAreTheProfiles += "/.local/share/vulkan";
     QDir dir(whereAreTheProfiles);
@@ -368,8 +382,7 @@ void CVulkanConfiguration::loadProfiles(void)
     dir.setNameFilters(QStringList() << "*.profile");
     QFileInfoList profileFiles = dir.entryInfoList();
 
-
-    // Loop through all the profiles found and list them
+    // Loop through all the profiles found and load them
     for(int iProfile = 0; iProfile < profileFiles.size(); iProfile++)
         {
         QFileInfo info = profileFiles.at(iProfile);
@@ -381,213 +394,27 @@ void CVulkanConfiguration::loadProfiles(void)
         }
 
     // All profile files found are loaded. Now, double check for the canned
-    // profiles and if they aren't already found, load them from the
-    // resource file.
+    // profiles and if they aren't already loaded, load them from the
+    // resource file. Array below is just the name of the profile and
+    // the embedded resource location if they are needed.
     const char *szCannedProfiles[10] = {
-    "Basic Validation",             ":/BasicValidation.profile",
-    "Best Practices Validation",    ":/BestPracticesValidation.profile",
-    "GPU-Assisted Validation",      ":/GPU-AssistedValidation",
-    "Synchronization Validation",   ":/LightweightValidation",
-    "Lightweight Validation",       ":/SynchronizationValidation"
+    "Basic Validation",             ":/resourcefiles/BasicValidation.profile",
+    "Best Practices Validation",    ":/resourcefiles/BestPracticesValidation.profile",
+    "GPU-Assisted Validation",      ":/resourcefiles/GPU-AssistedValidation.profile",
+    "Synchronization Validation",   ":/resourcefiles/SynchronizationValidation.profile",
+    "Lightweight Validation",       ":/resourcefiles/LightweightValidation.profile",
     };
 
-/*    int iFound;
-    for(int iLoaded = 0; iLoaded < profileList.length(); iLoaded++) { // For each already loaded profile
-        for(iFound = 0; iFound < 10; iFound+=2) {      // Look for this canned profile
-            if(profileList[iLoaded]->qsProfileName == QString(szCannedProfiles[iFound+1])) // Found it?
-                break;
-            }
-
-        // Did we find it?
-        if(iFound >= 10) { // Nope
-            CProfileDef *pProfile = new CProfileDef;
-            pProfile->LoadProfile(szCannedProfiles[iLoaded*2]);
-            profileList.push_back(pProfile);
+    // For each canned profile
+    for(int i = 0; i < 10; i+=2) {
+        // Search the list of loaded profiles
+        CProfileDef *pProfile = FindProfile(szCannedProfiles[i]);
+        if(pProfile == nullptr) {
+            pProfile = LoadProfile(szCannedProfiles[i+1]);
+            if(pProfile != nullptr)
+                profileList.push_back(pProfile);
             }
         }
-*/
-
-    /*
-    // Read in the database
-    QFile file(":/resourcefiles/presets_info.json");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString jsonText = file.readAll();
-    file.close();
-
-    // Tease it apart
-    QJsonDocument jsonDoc;
-    QJsonParseError parseError;
-    jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
-    QJsonObject jsonTopObject = jsonDoc.object();
-
-    // Loop through the list, read in all the data
-    QStringList profileNames = jsonTopObject.keys();
-    for(int i = 0; i < profileNames.size(); i++) {
-        // Get the name of the profile
-        CProfileDef* profileDef = new CProfileDef;
-        profileDef->profileName = profileNames[i];
-
-        // Get the actual profile object
-        QJsonValue profile = jsonTopObject.value(profileNames[i]);
-        QJsonObject profileObject = profile.toObject();
-
-        QStringList layerList = profileObject.keys();
-
-        // List of layers and settings
-        for(int nLayer = 0; nLayer < layerList.length(); nLayer++) {
-
-
-
-
-            }
-
-        profileList.push_back(profileDef);
-        }
-
-
-    // This is fake profile that is used as a spacer
-//    CProfileDef* myProfile = new CProfileDef;
-//    myProfile->profileName = "User Profiles";
-//    myProfile->readOnly = false;
-//    profileList.push_back(myProfile);
-
-    // Now load the user defined profiles
-//    myProfile = new CProfileDef;
-//    myProfile->profileName = "Starstone Standard Test Suite";
-//    myProfile->readOnly = false;
-//    profileList.push_back(myProfile);
-*/
-    }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// This saves all of the profile definitions, along with which one is active
-void CVulkanConfiguration::saveProfiles(void)
-    {
-    /*
-    QJsonObject     allProfiles;        // This is the top object
-
-    // Top item is the name of the currently active profile
-    if(nActiveProfile == -1)
-        allProfiles.insert("Current Profile Name", "None");
-    else
-        allProfiles.insert("Current Profile Name", profileList[nActiveProfile]->profileName);
-
-    // Followed by an array of profiles
-    QJsonArray profileArray;
-
-    // Top loop through the profiles
-    for(int iProfile = 0; iProfile < profileList.size(); iProfile++) {
-        QJsonObject profile;
-        profile.insert("Name", profileList[iProfile]->profileName);
-        profile.insert("Read Only", profileList[iProfile]->readOnly);
-
-        // Now loop through the layers
-        QJsonArray layerArray;
-        for(int iLayer = 0; iLayer < profileList[iProfile]->layers.size(); iLayer++) {
-            QJsonObject layerObject;
-            // The order of the layers is LOST by the json parser, so we need to store the ranking so
-            // we can resort them on load.
-            layerObject.insert("Rank", QJsonValue(iLayer));
-            layerObject.insert("Name", profileList[iProfile]->layers[iLayer]->name);
-            layerObject.insert("type", profileList[iProfile]->layers[iLayer]->type);
-            layerObject.insert("layertype", profileList[iProfile]->layers[iLayer]->layerType);
-
-
-            layerArray.push_back(layerObject);
-            }
-        profile.insert("Layers", layerArray);
-        profileArray.push_back(profile);
-        }
-
-    allProfiles.insert("Profiles", profileArray);
-
-    //QJsonObject     activeProfile;
-    //activeProfile.insert("Current Profile", "None");
-
-
-    // Put together the list of profiles that are enabled
-//    QVector <CLayerFile*> layers;
-//    createProfileList(layers);
-
-//    if(layers.count() == 0) {
-//        QMessageBox msg;
-//        msg.setText(tr("Can't create profile."));
-//        msg.setInformativeText(tr("There are no selected layers"));
-//        msg.setStandardButtons(QMessageBox::Ok);
-//        msg.exec();
-//        return;
-//        }
-
-//        QJsonObject     profileList;
-
-
-//        QJsonObject     profile1;
-//        profile1.insert("Readonly", true);
-
-//        QJsonArray apps;
-//        apps.push_back("/Users/rwright/Desktop/stuff");
-//        apps.push_back("/User/rwright/Applicaitons/Lunartic");
-//        profile1.insert("Apps",apps);
-
-//        QJsonArray layers;
-//        layers.push_back("VK_LAYER1");
-//        layers.push_back("VK_LAYER_N");
-//        profile1.insert("Layers", layers);
-
-
-//        profileList.insert("Performance Suite", profile1);
-
-
-//        profileArray.push_back("API Usage Validation");
-
-
-
- //       profileList.insert("Profiles", profileArray);
-
-
-
-
-
-
-
-
-    //    lunarg_api_dump.use_spaces = TRUE
-    //    lunarg_api_dump.no_addr = FALSE
-    //    lunarg_api_dump.name_size = 32
-    //    lunarg_api_dump.show_shader = FALSE
-    //    lunarg_api_dump.detailed = TRUE
-    //    lunarg_api_dump.flush = TRUE
-    //    lunarg_api_dump.file = FALSE
-    //    lunarg_api_dump.output_range = 0-0
-    //    lunarg_api_dump.log_filename = vk_apidump.txt
-    //    lunarg_api_dump.output_format = Text
-    //    lunarg_api_dump.show_timestamp = FALSE
-    //    lunarg_api_dump.show_types = TRUE
-    //    lunarg_api_dump.indent_size = 4
-    //    lunarg_api_dump.type_size = 0
-    //
-
-    //
-    // # VK_LAYER_KHRONOS_validation
-    //khronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
-    //khronos_validation.log_filename = stdout
-    //khronos_validation.report_flags = warn,error,perf
-    //khronos_validation.disables =
-    //khronos_validation.enables =
-    //
-
-    QJsonDocument   jsonDoc(allProfiles);
-
-    QDir home = QDir::home();
-    QString fileOut = home.absolutePath() + VKCONFIG_PROFILE_LIST;
-    QFile file(fileOut);
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
-    file.write(jsonDoc.toJson());
-    file.close();
-
-*/
-
     }
 
 
@@ -677,21 +504,28 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     QJsonParseError parseError;
     jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
 
-    //if(parseError.error == )
+    if(parseError.error != QJsonParseError::NoError)
+        return nullptr;
 
+    // Allocate a new profile container
     CProfileDef *pProfile = new CProfileDef();
 
     QJsonObject jsonTopObject = jsonDoc.object();
     QStringList key = jsonTopObject.keys();
     pProfile->qsProfileName = key[0];
 
-    QJsonValue layerValues = jsonTopObject.value(key[0]);
-    QJsonObject layerObjects = layerValues.toObject();
+    QJsonValue profileEntryValue = jsonTopObject.value(key[0]);
+    QJsonObject profileEntryObject = profileEntryValue.toObject();
+
+    QJsonValue optionsValue = profileEntryObject.value("layer_options");
+
+
+    QJsonObject layerObjects = optionsValue.toObject();
     QStringList layerList = layerObjects.keys();
 
-    // Build the list of layers
+    // Build the list of layers with their settings
     for(int iLayer = 0; iLayer < layerList.length(); iLayer++) {
-        // Find this in our lookup of layers
+        // Find this in our lookup of layers. This get's the layer and it's location/information
         const CLayerFile *pLayer = findLayerNamed(layerList[iLayer]);
         if(pLayer == nullptr)           // If not found, we have a layer missing....
             continue;
@@ -701,30 +535,12 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         pLayer->CopyLayer(pProfileLayer);
         pProfile->layers.push_back(pProfileLayer);
 
-        // Layer settings have all just been copied with their default values
+        QJsonValue layerValue = layerObjects.value(layerList[iLayer]);
+        QJsonObject layerObject = layerValue.toObject();
 
-
-        // Found the layer name, it has info we need, and a list of settings
-        // and their defaults. Copy all of this into the layer
-
-        // Now we need to go through the list of "overrides", both read only and user editable
-        // and replace the settings with the ones specified for this layer.
-
-        // Now, we have a profile, the list of layers, and all the settings for those layers
-
-        // Go somewhere else and write that to the override.json stuff to make it active.
-
-
-        QJsonValue layer = layerObjects.value(layerList[iLayer]);
-        QJsonObject layerObject = layer.toObject();
-        QStringList sections = layerObject.keys();
-        if(sections[0] == QString("Read Only"))
-            pProfile->bContainsReadOnlyFields = true;
-
-        // TBD, READ IN ALL THE STUFF...
+        // We have added the layer, but the layer has settings too
+        pProfile->bContainsReadOnlyFields = CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
-
-
 
     return pProfile;
     }
