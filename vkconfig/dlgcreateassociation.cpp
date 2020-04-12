@@ -22,26 +22,7 @@
 #include "dlgcreateassociation.h"
 #include "ui_dlgcreateassociation.h"
 
-//////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::dlgCreateAssociation)
-    {
-    ui->setupUi(this);
 
-    pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-
-    for(int i = 0; i < pVulkanConfig->appList.size(); i++)
-        ui->listWidget->addItem(pVulkanConfig->appList[i]);
-
-    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectedPathChanged()));
-    }
-
-///////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::~dlgCreateAssociation()
-    {
-    delete ui;
-    }
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,8 +33,9 @@ dlgCreateAssociation::~dlgCreateAssociation()
 /// you find in the /MacOS folder is the executable.
 /// The initial path is the folder where info.plist resides, and the
 /// path is completed to the executable upon completion.
-void dlgCreateAssociation::GetExecutableFromAppBundle(QString& csPath)
+void GetExecutableFromAppBundle(QString& csPath)
     {
+    csPath += "/Contents/";
     QString pListFile = csPath + "Info.plist";
     QFile file(pListFile);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -92,6 +74,29 @@ void dlgCreateAssociation::GetExecutableFromAppBundle(QString& csPath)
     file.close();
     }
 
+//////////////////////////////////////////////////////////////////////////////
+dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::dlgCreateAssociation)
+    {
+    ui->setupUi(this);
+
+    pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
+
+    for(int i = 0; i < pVulkanConfig->appList.size(); i++)
+        ui->listWidget->addItem(pVulkanConfig->appList[i]);
+
+    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectedPathChanged()));
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+dlgCreateAssociation::~dlgCreateAssociation()
+    {
+    delete ui;
+    }
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCreateAssociation::on_pushButtonAdd_clicked
 /// Browse for and select an executable file to add to the list.
@@ -117,7 +122,6 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
         // If the later, we need to drill down to the actuall applicaiton
         if(appWithPath.right(4) == QString(".app")) {
             // Start by drilling down
-            appWithPath += "/Contents/";
             GetExecutableFromAppBundle(appWithPath);
             }
 

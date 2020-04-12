@@ -37,6 +37,7 @@
 #define VKCONFIG_KEY_LAUNCHAPP_ARGS "launchAppARGS"
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
 #define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
+#define VKCONFIG_KEY_ACTIVEPROFILE  "activeProfile"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -119,6 +120,7 @@ public:
 
     // Set this as the current override profile
     void SetCurrentActiveProfile(CProfileDef *pProfile);
+    const CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
 
 
 

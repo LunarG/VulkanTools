@@ -26,6 +26,7 @@
 
 #include "dlglayeroutput.h"
 #include "ui_dlglayeroutput.h"
+#include "dlgcreateassociation.h"   //void GetExecutableFromAppBundle(QString& csPath);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,6 +137,14 @@ void dlgLayerOutput::on_pushButtonSetApp_clicked()
             }
 
         ui->lineEditWorkingDirectory->setText(pVulkanConfig->qsLaunchApplicationWorkingDir);
+
+        // If this is macOS, drill down to the actual applicaton, if a bundle was specified
+#ifdef __APPLE__
+        if(pVulkanConfig->qsLaunchApplicationWPath.right(4) == QString(".app"))
+            GetExecutableFromAppBundle(pVulkanConfig->qsLaunchApplicationWPath);
+
+        ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
+#endif
         }
 
     // Save, just in case

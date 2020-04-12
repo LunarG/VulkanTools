@@ -90,8 +90,21 @@ CVulkanConfiguration::CVulkanConfiguration()
     findAllInstalledLayers();
     loadAllProfiles();
 
-    // Default, no active profile
+    ///////////////////////////////////////////
+    // Which profile is currently active?
+    // The name of the active profile
+    QSettings settings;
     pActiveProfile = nullptr;
+    QString qsActiveProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+    for(int i = 0; i < profileList.size(); i++)
+        if(profileList[i]->qsProfileName == qsActiveProfile) {
+            pActiveProfile = profileList[i];
+            break;
+            }
+
+    // This will reset or clear the current profile if the files have been
+    // manually manipulated
+    SetCurrentActiveProfile(pActiveProfile);
     }
 
 
@@ -695,12 +708,15 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProf
 void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     {
     pActiveProfile = pProfile;
+    QString profileName;
+    QSettings settings;
 
     // Clear the profile if null
     if(pProfile == nullptr) {
         // Delete a bunch of stuff
         remove(qsOverrideSettingsPath.toUtf8().constData());
         remove(qsOverrideJsonPath.toUtf8().constData());
+        settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "");
         return;
         }
 
@@ -771,5 +787,7 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         return;     // TBD, should we report an error
     jsonFile.write(doc.toJson());
     jsonFile.close();
+
+    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pActiveProfile->qsProfileName);
     }
 

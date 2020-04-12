@@ -112,7 +112,12 @@ void MainWindow::LoadProfileList(void)
         CProfileListItem *pItem = new CProfileListItem();
         pItem->pProfilePointer = pVulkanConfig->profileList[i];
         pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
-        pItem->setCheckState(Qt::Unchecked);
+
+        if(pVulkanConfig->GetCurrentActiveProfile() == pItem->pProfilePointer)
+            pItem->setCheckState(Qt::Checked);
+        else
+            pItem->setCheckState(Qt::Unchecked);
+
         ui->listWidgetProfiles->addItem(pItem);
         CANNED_PROFILE_COUNT++;
         }
@@ -141,7 +146,12 @@ void MainWindow::LoadProfileList(void)
         CProfileListItem *pItem = new CProfileListItem();
         pItem->pProfilePointer = pVulkanConfig->profileList[i];
         pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
-        pItem->setCheckState(Qt::Unchecked);
+
+        if(pVulkanConfig->GetCurrentActiveProfile() == pItem->pProfilePointer)
+            pItem->setCheckState(Qt::Checked);
+        else
+            pItem->setCheckState(Qt::Unchecked);
+
         ui->listWidgetProfiles->addItem(pItem);
         }
 

@@ -24,6 +24,10 @@
 #include <QDialog>
 #include <vulkanconfiguration.h>
 
+
+void GetExecutableFromAppBundle(QString& csPath);
+
+
 namespace Ui {
 class dlgCreateAssociation;
 }
@@ -40,8 +44,6 @@ private:
     Ui::dlgCreateAssociation *ui;
 
     CVulkanConfiguration    *pVulkanConfig;
-
-    void GetExecutableFromAppBundle(QString& csPath);
 
 public	Q_SLOTS:
     void on_pushButtonAdd_clicked();        // Pick the application
