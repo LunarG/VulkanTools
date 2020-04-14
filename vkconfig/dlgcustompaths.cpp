@@ -49,7 +49,7 @@ void dlgCustomPaths::repopulateTree(void)
     ui->treeWidget->clear();
 
     // Populate the tree
-    for(uint32_t i = 0; i < pVulkanConfig->nAdditionalSearchPathCount; i++ ) {
+    for(uint32_t i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++ ) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, pVulkanConfig->additionalSearchPaths[i]);
         ui->treeWidget->addTopLevelItem(pItem);
@@ -80,7 +80,6 @@ void dlgCustomPaths::on_pushButtonAdd_clicked()
 
     if(!customFolder.isEmpty()) {
         pVulkanConfig->additionalSearchPaths.append(customFolder);
-        pVulkanConfig->nAdditionalSearchPathCount++;
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, customFolder);
         ui->treeWidget->addTopLevelItem(pItem);
@@ -122,10 +121,9 @@ void dlgCustomPaths::on_pushButtonRemove_clicked()
         return;
 
     // Now actually remove it.
-    for(uint32_t i = 0; i < pVulkanConfig->nAdditionalSearchPathCount; i++) {
+    for(int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
         if(pVulkanConfig->additionalSearchPaths[i] == pSelected->text(0)) {
             pVulkanConfig->additionalSearchPaths.removeAt(i);
-            pVulkanConfig->nAdditionalSearchPathCount--;
             break;
             }
         }

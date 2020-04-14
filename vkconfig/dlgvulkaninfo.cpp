@@ -50,16 +50,18 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
 #endif
 
 
-    QString filePath = QDir::temp().path() + "/vulkaninfo.json";
+//    QString filePath = QDir::temp().path() + "./vulkaninfo.json";
 
     QStringList args;
-    args << "--vkconfig_output";
-    args << QDir::temp().path();
+    args << "--json";
+    args << ">>";
+    args << "vulkaninfo.json";
     vulkan_info->setArguments(args);
     vulkan_info->start();
     vulkan_info->waitForFinished();
+    QProcess::ProcessError err = vulkan_info->error();
 
-    QFile file(filePath);
+    QFile file("./vulkaninfo.json");
      if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
          QMessageBox msgBox;
          msgBox.setText("Could not open vkconfig_output.json");

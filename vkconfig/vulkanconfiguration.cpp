@@ -34,11 +34,29 @@
 #include <profiledef.h>
 #include "vulkanconfiguration.h"
 
+
+//////////////////////////////////////////////////////////////////////////////
+// Constructor does all the work.
+CPathFinder::CPathFinder(const QString& qsPath)
+    {
+#ifdef _WIN32
+    QSettings files(qsPath, QSettings::NativeFormat);
+    fileList = files.allKeys();
+#else
+    QDir dir(qsPath);
+    QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
+
+    for(int iFile = 0; iFile < fileList.size(); iFile++)
+        fileList << fileList[iFile].filePath();
+#endif
+    }
+
+
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
 #ifdef _WIN32
 const int nSearchPaths = 6;
-const char *szSearchPaths[nSearchPaths] = {
+const QString szSearchPaths[nSearchPaths] = {
         "HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers",
         "HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers",
         "HKEY_CURRENT_USER\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers",
@@ -74,13 +92,21 @@ CVulkanConfiguration::CVulkanConfiguration()
     pActiveProfile = nullptr;
 
     // Where is stuff
+#ifdef _WIN32
+    // Assemble the path name where the overide .json file goes
+    QDir tempPath = QDir::temp();
+    if (!tempPath.cd("VulkanLayerManager")) {
+        tempPath.mkpath("VulkanLayerManager");
+        tempPath.cd("VulkanLayerManager");
+        }
+    qsOverrideJsonPath = QDir::toNativeSeparators(tempPath.absoluteFilePath("VkLayer_override.json"));
+    qsOverrideSettingsPath = QDir::toNativeSeparators(tempPath.absoluteFilePath("vk_layer_settings.txt"));
+#else
     QDir home = QDir::home();
-    qsConfigFilesPath = home.path() + QString("/.local/share/vulkan/");
+    qsConfigFilesPath = home.path() + QString("/.local/share/vulkan/");     // TBD, where do profiles go if not here...
     qsOverrideSettingsPath = qsConfigFilesPath + "settings.d/vk_layer_settings.txt";
     qsOverrideJsonPath = qsConfigFilesPath + "implicit_layer.d/VkLayer_override.json";
-    qsCustomPathsListFile = qsConfigFilesPath + "CustomPaths.txt";
-    qsApplicationListFile = qsConfigFilesPath + "AppList.txt";
-
+#endif
     // Load simple app settings, the additional search paths, and the
     // override app list.
     loadAppSettings();
@@ -159,23 +185,8 @@ void CVulkanConfiguration::saveAppSettings(void)
 /// Load the list of paths here.
 void CVulkanConfiguration::loadAdditionalSearchPaths(void)
     {
-    // If the file doesn't exist, then the count is zero...
-    nAdditionalSearchPathCount = 0;
-    QFile file(qsCustomPathsListFile);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    QTextStream stream(&file);
-
-    // Okay, there must be data...
-    nAdditionalSearchPathCount = 0;
-
-    while(!stream.atEnd()) {
-        additionalSearchPaths << stream.readLine();
-        nAdditionalSearchPathCount++;
-        }
-
-    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    QSettings searchPaths;
+    additionalSearchPaths = searchPaths.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList();
     }
 
 
@@ -185,16 +196,8 @@ void CVulkanConfiguration::loadAdditionalSearchPaths(void)
 /// Save the list of paths here.
 void CVulkanConfiguration::saveAdditionalSearchPaths(void)
     {
-    QFile file(qsCustomPathsListFile);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-
-    // Okay, there must be data...
-    QTextStream output(&file);
-    for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
-        output << additionalSearchPaths[i] << "\n";
-
-    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    QSettings searchPaths;
+    searchPaths.setValue(VKCONFIG_KEY_CUSTOM_PATHS, additionalSearchPaths);
     }
 
 
@@ -203,15 +206,8 @@ void CVulkanConfiguration::saveAdditionalSearchPaths(void)
 /// Load the custom application list
 void CVulkanConfiguration::loadAppList(void)
     {
-    QFile file(qsApplicationListFile);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    QTextStream stream(&file);
-    while(!stream.atEnd())
-        appList << stream.readLine();
-
-    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    QSettings appPaths;
+    appList = appPaths.value(VKCONFIG_KEY_APPLIST).toStringList();
     }
 
 
@@ -220,76 +216,22 @@ void CVulkanConfiguration::loadAppList(void)
 /// Save the custom applicaiton list
 void CVulkanConfiguration::saveAppList(void)
     {
-    QFile file(qsApplicationListFile);
-
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-
-    // Okay, there must be data...
-    QTextStream output(&file);
-    for(int i = 0; i < appList.size(); i++)
-        output << appList[i] << "\n";
-
-    file.close();   // Just to be explicit, should close anyway when it goes out of scope
+    QSettings appPaths;
+    appPaths.setValue(VKCONFIG_KEY_APPLIST, appList);
     }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Find all installed layers on the system.
 void CVulkanConfiguration::findAllInstalledLayers(void)
-{
+    {
     // This is called initially, but also when custom search paths are set, so
     // we need to clear out the old data and just do a clean refresh
     clearLayerLists();
 
-
-#ifdef _WIN32
-    for(int i = 0; i < nSearchPaths; i++) {
-        wchar_t keyName[128];
-        memset(keyName, 0, 128*sizeof(wchar_t));
-        QString qsFullRegistryPath =   "SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers";//  szSearchPaths[i];
-        qsFullRegistryPath.toWCharArray(keyName);
-        HKEY hKey;
-
-    LONG lRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName, 0, KEY_READ, &hKey);
-    bool bExistsAndSuccess (lRes == ERROR_SUCCESS);
-    bool bDoesNotExistsSpecifically (lRes == ERROR_FILE_NOT_FOUND);
-
-    std::wstring strValueOfBinDir;
-    std::wstring strKeyDefaultValue;
-
-    //    strValue = strDefaultValue;
- /*   WCHAR szBuffer[512];
-    DWORD dwBufferSize = sizeof(szBuffer);
-    ULONG nError;
-    nError = RegQueryValueExW(hKey, strValueName.c_str(), 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
-    if (ERROR_SUCCESS == nError)
-    {
-        strValue = szBuffer;
-    }
-    */
-//    GetStringRegKey(hKey, L"BinDir", strValueOfBinDir, L"bad");
-//    GetStringRegKey(hKey, L"", strKeyDefaultValue, L"bad");
-
-
- //       CLayerFile* pLayerFile = new CLayerFile();
- //       pLayerFile->readLayerKeys(szSearchPaths[i], LAYER_TYPE_EXPLICIT);
-
-    }
-
-
-#endif
-
-#ifndef _WIN32  // All the non-Windows layer locations
-
     // Standard layer paths
     for(uint32_t i = 0; i < nSearchPaths; i++) {
-        // Does the path exist
-        QDir dir(szSearchPaths[i]);
-        if(!dir.exists())
-            continue;
-
-        TLayerType type = (szSearchPaths[i].contains("implicit")) ? LAYER_TYPE_IMPLICIT : LAYER_TYPE_EXPLICIT;
+        TLayerType type = (szSearchPaths[i].contains("implicit", Qt::CaseInsensitive)) ? LAYER_TYPE_IMPLICIT : LAYER_TYPE_EXPLICIT;
         if(type == LAYER_TYPE_IMPLICIT)
             loadLayersFromPath(szSearchPaths[i], implicitLayers, type);
         else
@@ -297,12 +239,9 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
         }
 
     // Any custom paths? All layers from all paths are appended together here
-    for(uint32_t i = 0; i < nAdditionalSearchPathCount; i++)
+    for(int i = 0; i < additionalSearchPaths.size(); i++)
         loadLayersFromPath(additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
-
-#endif
-
-}
+    }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,16 +251,13 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
 /// Search a folder and load up all the layers found there.
 void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type)
     {
-    // Does the path exist
-    QDir dir(qsPath);
-    if(!dir.exists())
+    CPathFinder fileList(qsPath);
+    if(fileList.FileCount() == 0)
         return;
 
-    // Path exists, let's loop through all the .json files
-    QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
-    for(int iFile = 0; iFile < fileList.size(); iFile++) {
+    for(int iFile = 0; iFile < fileList.FileCount(); iFile++) {
         CLayerFile *pLayerFile = new CLayerFile();
-        if(pLayerFile->readLayerFile(fileList[iFile].filePath(), type)) {
+        if(pLayerFile->readLayerFile(fileList.GetFileName(iFile), type)) {
             // Look for duplicates - Path name AND name must be the same TBD
             for(int i = 0; i < layerList.size(); i++)
                 if(layerList[i]->library_path == pLayerFile->library_path &&
@@ -717,6 +653,15 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         remove(qsOverrideSettingsPath.toUtf8().constData());
         remove(qsOverrideJsonPath.toUtf8().constData());
         settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "");
+
+
+        // On Windows only, we need clear these values from the registry
+ #ifdef _WIN32
+        QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
+        registry.remove(qsOverrideJsonPath);
+        QSettings overrideSettings("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\Settings", QSettings::NativeFormat);
+        overrideSettings.remove(qsOverrideSettingsPath);
+ #endif
         return;
         }
 
@@ -740,7 +685,6 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
             TLayerSettings *pSetting = pLayer->layerSettings[iSetting];
             stream << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
             }
-
         }
     file.close();
 
@@ -789,5 +733,13 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     jsonFile.close();
 
     settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pActiveProfile->qsProfileName);
+
+    // On Windows only, we need to write these values to the registry
+#ifdef _WIN32
+    QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
+    registry.setValue(qsOverrideJsonPath, 0);
+    QSettings overrideSettings("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\Settings", QSettings::NativeFormat);
+    overrideSettings.setValue(qsOverrideSettingsPath, 0);
+#endif
     }
 

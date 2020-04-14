@@ -26,9 +26,33 @@
 
 #include <QString>
 #include <QVector>
+#include <QSettings>
+#include <QDir>
 
 #include <layerfile.h>
 #include "profiledef.h"
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief The CPathFinder class
+/// Going back and forth between the Windows registry and looking for files
+/// in specific folders is just a mess. This class consolidates all that into
+/// one single abstraction that knows whether to look in the registry or in
+/// a folder with QDir.
+/// This is a little weird because generally QSettings is for going back
+/// and forth between the Registry or .ini files. Here, I'm going from
+/// the registry to directory entries.
+class CPathFinder
+{
+public:
+    CPathFinder(const QString& qsPath);
+    int FileCount(void) { return fileList.size(); }
+    QString GetFileName(int iIndex) { return fileList[iIndex]; }
+protected:
+    QStringList fileList;
+};
+
+
 
 
 // Saved settings for the application
@@ -38,6 +62,8 @@
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
 #define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 #define VKCONFIG_KEY_ACTIVEPROFILE  "activeProfile"
+#define VKCONFIG_KEY_APPLIST        "applicationList"
+#define VKCONFIG_KEY_CUSTOM_PATHS   "customPaths"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -78,7 +104,6 @@ public:
     // Additional places to look for layers
     void loadAdditionalSearchPaths(void);
     void saveAdditionalSearchPaths(void);
-    uint32_t nAdditionalSearchPathCount;
     QStringList additionalSearchPaths;
 
     /////////////////////////////////////////////////////////////////////////
@@ -136,9 +161,6 @@ protected:
     QString qsConfigFilesPath;          // Where config working files live
     QString qsOverrideSettingsPath;     // Where settings go when profile is active
     QString qsOverrideJsonPath;         // Where json goes when profile is active
-    QString qsCustomPathsListFile;      // Where is the list of custom paths
-    QString qsApplicationListFile;      // Where is the list of applicaitons
-
 };
 
 #endif // CVULKANCONFIGURATION_H
