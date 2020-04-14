@@ -1,12 +1,10 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
-
+<RCC>
     <qresource prefix="/">
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
         <file>resourcefiles/layer_info.json</file>
         <file>resourcefiles/presets_info.json</file>
-        <file>resourcefiles/BasicValidation.profile</file>
+        <file>resourcefiles/StandardValidation.profile</file>
         <file>resourcefiles/BestPracticesValidation.profile</file>
         <file>resourcefiles/GPU-AssistedValidation.profile</file>
         <file>resourcefiles/LightweightValidation.profile</file>

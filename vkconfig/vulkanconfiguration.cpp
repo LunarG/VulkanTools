@@ -357,7 +357,7 @@ void CVulkanConfiguration::loadAllProfiles(void)
     // resource file. Array below is just the name of the profile and
     // the embedded resource location if they are needed.
     const char *szCannedProfiles[10] = {
-    "Basic Validation",             ":/resourcefiles/BasicValidation.profile",
+    "Standard Validation",          ":/resourcefiles/StandardValidation.profile",
     "Best Practices Validation",    ":/resourcefiles/BestPracticesValidation.profile",
     "GPU-Assisted Validation",      ":/resourcefiles/GPU-AssistedValidation.profile",
     "Synchronization Validation",   ":/resourcefiles/SynchronizationValidation.profile",

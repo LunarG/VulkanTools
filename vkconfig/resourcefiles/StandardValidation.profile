@@ -1,5 +1,5 @@
 {
-        "Basic Validation": {
+        "Standard Validation": {
                 "blacklisted_layers": [],
                 "layer_options": {
                         "VK_LAYER_KHRONOS_validation": {
