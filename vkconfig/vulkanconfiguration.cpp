@@ -101,11 +101,13 @@ CVulkanConfiguration::CVulkanConfiguration()
         }
     qsOverrideJsonPath = QDir::toNativeSeparators(tempPath.absoluteFilePath("VkLayer_override.json"));
     qsOverrideSettingsPath = QDir::toNativeSeparators(tempPath.absoluteFilePath("vk_layer_settings.txt"));
+
+    qsProfileFilesPath = home.path() + QString("/AppData/LunarG");
 #else
     QDir home = QDir::home();
-    qsConfigFilesPath = home.path() + QString("/.local/share/vulkan/");     // TBD, where do profiles go if not here...
-    qsOverrideSettingsPath = qsConfigFilesPath + "settings.d/vk_layer_settings.txt";
-    qsOverrideJsonPath = qsConfigFilesPath + "implicit_layer.d/VkLayer_override.json";
+    qsProfileFilesPath = home.path() + QString("/.local/share/vulkan/");     // TBD, where do profiles go if not here...
+    qsOverrideSettingsPath = qsProfileFilesPath + "settings.d/vk_layer_settings.txt";
+    qsOverrideJsonPath = qsProfileFilesPath + "implicit_layer.d/VkLayer_override.json";
 #endif
     // Load simple app settings, the additional search paths, and the
     // override app list.
@@ -323,9 +325,7 @@ void CVulkanConfiguration::loadAllProfiles(void)
     {
     // Get a list of all files that end in .profile in the folder where
     // we store them. TBD... don't hard code this here.
-    QString whereAreTheProfiles = QDir::homePath();
-    whereAreTheProfiles += "/.local/share/vulkan";
-    QDir dir(whereAreTheProfiles);
+    QDir dir(qsProfileFilesPath);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.profile");
     QFileInfoList profileFiles = dir.entryInfoList();
@@ -497,7 +497,8 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         }
 
     // Test...
-    SaveProfile(pProfile, "/Users/rwright/.local/share/vulkan/test.profile");
+    QString test = qsProfileFilesPath + "/test.profile";
+    SaveProfile(pProfile, test);
 
     return pProfile;
     }

@@ -158,7 +158,7 @@ protected:
 
     void clearLayerLists(void);
 
-    QString qsConfigFilesPath;          // Where config working files live
+    QString qsProfileFilesPath;         // Where config working files live
     QString qsOverrideSettingsPath;     // Where settings go when profile is active
     QString qsOverrideJsonPath;         // Where json goes when profile is active
 };
