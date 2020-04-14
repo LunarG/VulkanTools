@@ -44,10 +44,10 @@ CPathFinder::CPathFinder(const QString& qsPath)
     fileList = files.allKeys();
 #else
     QDir dir(qsPath);
-    QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
+    QFileInfoList fileInfoList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
 
-    for(int iFile = 0; iFile < fileList.size(); iFile++)
-        fileList << fileList[iFile].filePath();
+    for(int iFile = 0; iFile < fileInfoList.size(); iFile++)
+        fileList << fileInfoList[iFile].filePath();
 #endif
     }
 
@@ -64,7 +64,7 @@ const QString szSearchPaths[nSearchPaths] = {
         "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
         "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers" };
 #else
-const int nSearchPaths = 10;
+const int nSearchPaths = 8;
 const QString szSearchPaths[nSearchPaths] = {
         "/usr/local/etc/vulkan/explicit_layer.d",            // Not used on macOS, okay to just ignore
         "/usr/local/etc/vulkan/implicit_layer.d",            // Not used on macOS, okay to just ignore
@@ -74,8 +74,8 @@ const QString szSearchPaths[nSearchPaths] = {
         "/etc/vulkan/implicit_layer.d",
         "/usr/share/vulkan/explicit_layer.d",
         "/usr/share/vulkan/implicit_layer.d",
-        "$HOME/.local/share/vulkan/explicit_layer.d",
-        "$HOME/.local/share/vulkan/implicit_layer.d"
+//        "$HOME/.local/share/vulkan/explicit_layer.d",
+//        "$HOME/.local/share/vulkan/implicit_layer.d"
 };
 #endif
 
