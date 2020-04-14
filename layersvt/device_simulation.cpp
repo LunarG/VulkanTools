@@ -478,7 +478,8 @@ class PhysicalDeviceData {
     static PhysicalDeviceData &Create(VkPhysicalDevice pd, VkInstance instance) {
         assert(pd != VK_NULL_HANDLE);
         assert(instance != VK_NULL_HANDLE);
-        assert(!Find(pd));  // Verify this instance does not already exist.
+        assert(!Find(pd));                        // Verify this instance does not already exist.
+        assert(global_lock.try_lock() == false);  // Verify mutex is already locked before modifying map_
         const auto result = map_.emplace(pd, PhysicalDeviceData(instance));
         assert(result.second);  // true=insertion, false=replacement
         auto iter = result.first;
@@ -486,6 +487,13 @@ class PhysicalDeviceData {
         assert(Find(pd) == pdd);  // Verify we get the same instance we just inserted.
         DebugPrintf("PhysicalDeviceData::Create()\n");
         return *pdd;
+    }
+
+    static void Destroy(const VkPhysicalDevice pd) {
+        assert(Find(pd));
+        assert(global_lock.try_lock() == false);  // Verify mutex is already locked before modifying map_
+        map_.erase(pd);
+        DebugPrintf("PhysicalDeviceData::Destroy()\n");
     }
 
     // Find a PDD from our map, or nullptr if doesn't exist.
@@ -1291,13 +1299,24 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     DebugPrintf("DestroyInstance\n");
 
-    std::lock_guard<std::mutex> lock(global_lock);
+    if (instance) {
+        std::lock_guard<std::mutex> lock(global_lock);
 
-    {
-        const auto dt = instance_dispatch_table(instance);
-        dt->DestroyInstance(instance, pAllocator);
+        {
+            const auto dt = instance_dispatch_table(instance);
+
+            std::vector<VkPhysicalDevice> physical_devices;
+            VkResult err = EnumerateAll<VkPhysicalDevice>(&physical_devices, [&](uint32_t *count, VkPhysicalDevice *results) {
+                return dt->EnumeratePhysicalDevices(instance, count, results);
+            });
+            assert(!err);
+            if (!err)
+                for (const auto pd : physical_devices) PhysicalDeviceData::Destroy(pd);
+
+            dt->DestroyInstance(instance, pAllocator);
+        }
+        destroy_instance_dispatch_table(get_dispatch_key(instance));
     }
-    destroy_instance_dispatch_table(get_dispatch_key(instance));
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties *pProperties) {
