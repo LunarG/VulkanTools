@@ -41,12 +41,12 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
 #else
     via->setProgram("vkvia");
 #endif
-    QString filePath = QDir::temp().path() + "/vkvia.json";
+    QString filePath = QDir::temp().path() + "./vkvia.json";
 
     QStringList args;
     args << "--output_path" << QDir::temp().path();
-    args << "--disable_cube_tests";
     args << "--vkconfig_output";
+    args << "--disable_cube_tests";
     via->setArguments(args);
     via->start();
     via->waitForFinished();

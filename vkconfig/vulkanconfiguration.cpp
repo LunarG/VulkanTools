@@ -102,7 +102,18 @@ CVulkanConfiguration::CVulkanConfiguration()
     qsOverrideJsonPath = QDir::toNativeSeparators(tempPath.absoluteFilePath("VkLayer_override.json"));
     qsOverrideSettingsPath = QDir::toNativeSeparators(tempPath.absoluteFilePath("vk_layer_settings.txt"));
 
-    qsProfileFilesPath = home.path() + QString("/AppData/LunarG");
+    QDir home = QDir::home();
+    qsProfileFilesPath = home.path() + QString("/AppData/Local/");
+    if(!home.cd("LunarG")) {
+        home.mkpath("LunarG");
+        home.cd("LunarG");
+        }
+
+    if(!home.cd("vkconfig"))
+        home.mkpath("vkconfig");
+
+    qsProfileFilesPath += "/LunarG/vkconfig";
+
 #else
     QDir home = QDir::home();
     qsProfileFilesPath = home.path() + QString("/.local/share/vulkan/");     // TBD, where do profiles go if not here...
@@ -495,10 +506,6 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         pProfile->bContainsReadOnlyFields =
                  CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
-
-    // Test...
-    QString test = qsProfileFilesPath + "/test.profile";
-    SaveProfile(pProfile, test);
 
     return pProfile;
     }
