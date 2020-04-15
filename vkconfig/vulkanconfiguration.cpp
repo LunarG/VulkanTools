@@ -483,7 +483,6 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
     QJsonValue optionsValue = profileEntryObject.value("layer_options");
 
-
     QJsonObject layerObjects = optionsValue.toObject();
     QStringList layerList = layerObjects.keys();
 
@@ -596,26 +595,6 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProf
                     setting.insert("type:", "unknown type");
                     setting.insert("default", "unknown data");
                 }
-
-
-
-
- /*          struct TLayerSettings {
-                **QString                 settingsName;                   // Name of the setting the layer looks for (programatic variable name)
-                **QString                 settingsPrompt;                 // Short name to prompt end user
-                **QString                 settingsDesc;                   // Human version, describes the setting
-
-                TLayerSettingsType      settingsType;                   // The data type
-                QVariant                settingsMaxValue;               // For range based
-                QVariant                settingsMinValue;               // For range based
-                QStringList             settingsListExclusiveValue;     // List of exclusive items
-                QStringList             settingsListExclusivePrompt;    // List of exclusive item prompts
-                QStringList             settingsListInclusiveValue;     // List of non-exclusive items (more than one item can be selected)
-                QStringList             settingsListInclusivePrompt;    // List of non-exclusive item prompts (more than one item can be selected)
-
-                **QString                 settingsValue;                  // Default value as a string
-                **bool                    readOnly;                       // Individual settings could be read only, in which case they are not
-*/
 
             jsonSettings.insert(pSettingsDetails->settingsName, setting);
             }

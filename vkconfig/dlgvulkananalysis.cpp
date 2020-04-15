@@ -54,7 +54,7 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
          QMessageBox msgBox;
-         msgBox.setText("Could not open vkvia.json");
+         msgBox.setText(tr("Error creating output file"));
          msgBox.exec();
          return;
         }

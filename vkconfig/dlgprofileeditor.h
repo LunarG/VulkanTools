@@ -22,6 +22,7 @@
 #include <QDialog>
 #include <QTreeWidgetItem>
 
+#include "profiledef.h"
 #include <vulkanconfiguration.h>
 #include <settingseditor.h>
 
@@ -58,7 +59,8 @@ public:
     // Get a list of profiles from the GUI editor
     void createProfileList(QVector <CLayerFile*> &layerFiles);
 
-    void reloadLayersShown();
+    // Load all found layers and set their settings to the default
+    void refreshLayers();
 
 
 private:
@@ -67,11 +69,15 @@ private:
     CVulkanConfiguration*    pVulkanConfig;
     CSettingsEditor          settingsEditor;
 
+    CProfileDef             *pThisProfile;
+
+    QVector <CLayerFile *>   layerList;
+
 public Q_SLOTS:
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonLaunchTest_clicked();
     void on_layerTree_itemSelectionChanged();
-
+    void on_pushButtonAddLayers_clicked();
 
 };
 

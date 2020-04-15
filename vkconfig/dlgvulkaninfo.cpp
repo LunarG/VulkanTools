@@ -44,26 +44,26 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
 
     QProcess *vulkan_info = new QProcess(this);
 #ifdef __APPLE__
-    vulkan_info->setProgram("vulkaninfo");
+    vulkan_info->setProgram("vulkaninfoSDK");
 #else
-    vulkan_info->setProgram("vulkaninfo");
+    vulkan_info->setProgram("vulkaninfoSDK");
 #endif
 
 
-    QString filePath = QDir::temp().path() + "/vulkaninfo.json";
+    QString filePath = QDir::temp().path();
 
     QStringList args;
-    args << "--json";
-    args << ">>";
+    args << "--vkconfig_output";
     args << filePath;
     vulkan_info->setArguments(args);
     vulkan_info->start();
     vulkan_info->waitForFinished();
 
+     filePath += "/vulkaninfo.json";
     QFile file(filePath);
      if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
          QMessageBox msgBox;
-         msgBox.setText("Could not open vkconfig_output.json");
+         msgBox.setText(tr("Error creating output file."));
          msgBox.exec();
          return;
      }

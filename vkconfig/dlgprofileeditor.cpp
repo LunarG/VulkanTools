@@ -17,18 +17,17 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include "profiledef.h"
+
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
 #include "dlglayeroutput.h"
+#include "dlgcustompaths.h"
 
 class QTreeWidgetItemWithLayer : public QTreeWidgetItem
     {
     public:
         TLayerRepresentations *pLayerRepBackPointer;
     };
-
-
 
 dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit) :
     QDialog(parent),
@@ -55,7 +54,17 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         }
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    reloadLayersShown(); // Nope... needs to mirror the current profile settings
+
+    QTreeWidgetItem *pHeader = ui->layerTree->headerItem();
+
+    pHeader->setText(0, "Layer Name");
+    pHeader->setText(1, "Active");
+    pHeader->setText(2, "Implicit?");
+    pHeader->setText(3, "Disabled");
+    pHeader->setText(4, "Custom Path?");
+
+
+    refreshLayers(); // Load all available layers
     }
 
 dlgProfileEditor::~dlgProfileEditor()
@@ -66,12 +75,55 @@ dlgProfileEditor::~dlgProfileEditor()
     delete ui;
     }
 
-void dlgProfileEditor::reloadLayersShown(void)
+void dlgProfileEditor::on_pushButtonAddLayers_clicked()
     {
+    dlgCustomPaths dlg(this);
+    dlg.exec();
+    }
+
+//////////////////////////////////////////////////////////////////////////////
+/// \brief dlgProfileEditor::refreshLayers
+/// Load all the available layers and initialize their settings
+void dlgProfileEditor::refreshLayers(void)
+    {
+    // Clear out the old
     ui->layerTree->clear();
-    loadAllFoundLayers(pVulkanConfig->explicitLayers);
-    loadAllFoundLayers(pVulkanConfig->implicitLayers);
-    loadAllFoundLayers(pVulkanConfig->customLayers);
+    qDeleteAll(layerList.begin(), layerList.end());
+    layerList.clear();
+
+    ////////////////////////////////////////////////////////
+    // Collect all the layers we have
+    for(int i = 0; i < pVulkanConfig->explicitLayers.size(); i++) {
+        CLayerFile *pLayer = new CLayerFile();
+        pVulkanConfig->explicitLayers[i]->CopyLayer(pLayer);
+        layerList.push_back(pLayer);
+        }
+
+    for(int i = 0; i < pVulkanConfig->implicitLayers.size(); i++) {
+        CLayerFile *pLayer = new CLayerFile();
+        pVulkanConfig->implicitLayers[i]->CopyLayer(pLayer);
+        layerList.push_back(pLayer);
+        }
+
+    for(int i = 0; i < pVulkanConfig->customLayers.size(); i++) {
+        CLayerFile *pLayer = new CLayerFile();
+        pVulkanConfig->customLayers[i]->CopyLayer(pLayer);
+        layerList.push_back(pLayer);
+        }
+
+    // Get the default settings
+    for(int i = 0; i < layerList.size(); i++) {
+        const LayerSettingsDefaults *pSettings = pVulkanConfig->findSettingsFor(layerList[i]->name);
+        if(pSettings != nullptr) {
+            for(int j = 0; j < pSettings->defaultSettings.size(); j++) {
+                TLayerSettings *pLayerSettings = new TLayerSettings();
+                *pLayerSettings = *pSettings->defaultSettings[j];   // Assignment does work for this
+                layerList[i]->layerSettings.push_back(pLayerSettings);
+            }
+        }
+    }
+
+    loadAllFoundLayers(layerList);
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,20 +140,13 @@ void dlgProfileEditor::createProfileList(QVector <CLayerFile*> &layerFiles)
 
 void dlgProfileEditor::on_pushButtonResetLayers_clicked(void)
     {
-    reloadLayersShown();
+    refreshLayers();
     }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 void dlgProfileEditor::loadAllFoundLayers(QVector <CLayerFile*> &layerFile)
     {
-    QTreeWidgetItem *pHeader = ui->layerTree->headerItem();
-
-    pHeader->setText(0, "Layer Name");
-    pHeader->setText(1, "Active");
-    pHeader->setText(2, "Implicit?");
-    pHeader->setText(3, "Disabled");
-    pHeader->setText(4, "Custom Paths?");
 
 
     QString out;
@@ -167,7 +212,6 @@ void dlgProfileEditor::loadAllFoundLayers(QVector <CLayerFile*> &layerFile)
        pLayer->pTreeItem->addChild(pChild);
        }
 
-
     ui->layerTree->resizeColumnToContents(0);
     ui->layerTree->resizeColumnToContents(1);
     ui->layerTree->resizeColumnToContents(2);
@@ -193,7 +237,6 @@ void dlgProfileEditor::on_layerTree_itemSelectionChanged(void)
 
     settingsEditor.CleanupGUI();
     settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayerRepBackPointer->pLayerFileInfo->layerSettings);
-
     }
 
 
