@@ -527,13 +527,8 @@ TEXT_CODEGEN = """
 
 #include "api_dump.h"
 
-@foreach struct where('{sctName}' != 'VkSurfaceFullScreenExclusiveWin32InfoEXT')
+@foreach struct
 std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars});
-@end struct
-@foreach struct where('{sctName}' == 'VkSurfaceFullScreenExclusiveWin32InfoEXT')
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-std::ostream& dump_text_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurfaceFullScreenExclusiveWin32InfoEXT& object, const ApiDumpSettings& settings, int indents);
-#endif // VK_USE_PLATFORM_WIN32_KHR
 @end struct
 @foreach union
 std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
@@ -732,7 +727,7 @@ inline std::ostream& dump_text_{pfnName}({pfnName} object, const ApiDumpSettings
 
 //========================== Struct Implementations =========================//
 
-@foreach struct where('{sctName}' not in ['VkSurfaceFullScreenExclusiveWin32InfoEXT', 'VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties'])
+@foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties'])
 std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     if(settings.showAddress())
@@ -788,22 +783,6 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     @end member
     return settings.stream();
 }}
-@end struct
-
-@foreach struct where('{sctName}' == 'VkSurfaceFullScreenExclusiveWin32InfoEXT')
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-std::ostream& dump_text_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurfaceFullScreenExclusiveWin32InfoEXT& object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        settings.stream() << &object << ":\\n";
-    else
-        settings.stream() << "address:\\n";
-    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType); // CET
-    dump_text_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_text_void); // DET
-    dump_text_value<const HMONITOR>(object.hmonitor, settings, "HMONITOR", "hmonitor", indents + 1, dump_text_HMONITOR); // EET
-    return settings.stream();
-}}
-#endif // VK_USE_PLATFORM_WIN32_KHR
 @end struct
 
 std::ostream& dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
@@ -949,13 +928,8 @@ HTML_CODEGEN = """
 
 #include "api_dump.h"
 
-@foreach struct where('{sctName}' != 'VkSurfaceFullScreenExclusiveWin32InfoEXT')
+@foreach struct
 std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars});
-@end struct
-@foreach struct where('{sctName}' == 'VkSurfaceFullScreenExclusiveWin32InfoEXT')
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-std::ostream& dump_html_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurfaceFullScreenExclusiveWin32InfoEXT& object, const ApiDumpSettings& settings, int indents);
-#endif // VK_USE_PLATFORM_WIN32_KHR
 @end struct
 @foreach union
 std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
@@ -1161,7 +1135,7 @@ inline std::ostream& dump_html_{pfnName}({pfnName} object, const ApiDumpSettings
 
 //========================== Struct Implementations =========================//
 
-@foreach struct where('{sctName}' not in ['VkSurfaceFullScreenExclusiveWin32InfoEXT', 'VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
+@foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
 std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     settings.stream() << "<div class=\'val\'>";
@@ -1219,22 +1193,6 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     return settings.stream();
 }}
 @end struct
-
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-std::ostream& dump_html_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurfaceFullScreenExclusiveWin32InfoEXT& object, const ApiDumpSettings& settings, int indents)
-{{
-    settings.stream() << "<div class='val'>";
-    if(settings.showAddress())
-        settings.stream() << &object << "\\n";
-    else
-        settings.stream() << "address\\n";
-    settings.stream() << "</div></summary>";
-    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
-    dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
-    dump_html_value<const HMONITOR>(object.hmonitor, settings, "HMONITOR", "hmonitor", indents + 1, dump_html_HMONITOR);
-    return settings.stream();
-}}
-#endif // VK_USE_PLATFORM_WIN32_KHR
 
 std::ostream& dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
 {{
@@ -1382,13 +1340,7 @@ JSON_CODEGEN = """
 #include "api_dump.h"
 
 @foreach struct
-@if('{sctName}'=='VkSurfaceFullScreenExclusiveWin32InfoEXT')
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-@end if
 std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars});
-@if('{sctName}'=='VkSurfaceFullScreenExclusiveWin32InfoEXT')
-#endif
-@end if
 @end struct
 @foreach union
 std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
@@ -1591,9 +1543,6 @@ inline std::ostream& dump_json_{pfnName}({pfnName} object, const ApiDumpSettings
 //========================== Struct Implementations =========================//
 
 @foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
-@if('{sctName}'=='VkSurfaceFullScreenExclusiveWin32InfoEXT')
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-@end if
 std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
@@ -1656,9 +1605,6 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
     return settings.stream();
 }}
-@if('{sctName}'=='VkSurfaceFullScreenExclusiveWin32InfoEXT')
-#endif
-@end if
 @end struct
 
 bool is_struct(const char *t)
