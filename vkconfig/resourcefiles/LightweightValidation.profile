@@ -1,5 +1,6 @@
 {
     "Lightweight Validation": {
+    "description" : "This profile does lightweight validation, Lobo is supposed to send me a good description.",
     "blacklisted_layers": [],
     "layer_options": {
         "VK_LAYER_KHRONOS_validation": {

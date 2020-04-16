@@ -257,12 +257,15 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
     }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadLayersFromPath
 /// \param szPath
 /// \param layerList
-/// Search a folder and load up all the layers found there.
-void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type)
+/// Search a folder and load up all the layers found there. This does NOT
+/// load the default settings for each layer. This is just a master list of
+/// settings to be copied from, and referenced.
+void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
+                               QVector<CLayerFile *>& layerList, TLayerType type)
     {
     CPathFinder fileList(qsPath);
     if(fileList.FileCount() == 0)
@@ -281,18 +284,8 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath, QVector<CLa
                     }
 
             // We have a layer! See if we need to add the settings list to it, and then add it to our list
-            if(pLayerFile != nullptr) {
-//                // Does this layer have settings? // NO, don't do this... loaded from profile, or initialized in edit mode
-//                const LayerSettingsDefaults *pSettings = findSettingsFor(pLayerFile->name);
-//                if(pSettings != nullptr)
-//                    for(int i = 0; i < pSettings->defaultSettings.size(); i++) {
-//                        TLayerSettings* pLayerSettings = new TLayerSettings();
-//                        *pLayerSettings = *pSettings->defaultSettings[i];
-//                        pLayerFile->layerSettings.push_back(pLayerSettings);
-//                        }
-
+            if(pLayerFile != nullptr)
                 layerList.push_back(pLayerFile);
-                }
             }
         }
     }
@@ -482,6 +475,9 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     for(int i = 0; i < blackListArray.size(); i++)
         pProfile->blacklistedLayers << blackListArray[i].toString();
 
+    QJsonValue description = profileEntryObject.value("description");
+    pProfile->qsDescription = description.toString();
+
     QJsonValue optionsValue = profileEntryObject.value("layer_options");
 
     QJsonObject layerObjects = optionsValue.toObject();
@@ -497,6 +493,8 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         // Make a copy add it to this layer
         CLayerFile *pProfileLayer = new CLayerFile();
         pLayer->CopyLayer(pProfileLayer);
+        pProfileLayer->bActive = true;
+        pProfileLayer->nRank = iLayer; ////////// NOOOO.... json sorts, and can't turn it off. Need to put this as a field in the json TBD
         pProfile->layers.push_back(pProfileLayer);
 
         QJsonValue layerValue = layerObjects.value(layerList[iLayer]);
@@ -610,6 +608,7 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
     QJsonObject root;
     QJsonObject json_profile;
     json_profile.insert("blacklisted_layers", blackList);
+    json_profile.insert("description", pProfile->qsDescription);
     json_profile.insert("layer_options", layerList);
     root.insert(pProfile->qsProfileName, json_profile);
     QJsonDocument doc(root);
@@ -626,7 +625,53 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
         return;     // TBD, should we report an error
     jsonFile.write(doc.toJson());
     jsonFile.close();
+    }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::CreateEmptyProfile
+/// \return
+/// Create an empty profile definition that contains all available layers.
+CProfileDef* CVulkanConfiguration::CreateEmptyProfile()
+    {
+    CProfileDef* pNewProfile = new CProfileDef();
+    pNewProfile->bContainsReadOnlyFields = false;
+
+    CLayerFile *pTempLayer;
+
+    // Add implicit layers
+    for(int i = 0; i < implicitLayers.size(); i++) {
+        pTempLayer = new CLayerFile();
+        implicitLayers[i]->CopyLayer(pTempLayer);
+        pNewProfile->layers.push_back(pTempLayer);
+        }
+
+    // Add explicit layers
+    for(int i = 0; i < explicitLayers.size(); i++) {
+        pTempLayer = new CLayerFile();
+        explicitLayers[i]->CopyLayer(pTempLayer);
+        pNewProfile->layers.push_back(pTempLayer);
+        }
+
+    // Add Custom layers
+    for(int i = 0; i < customLayers.size(); i++) {
+        pTempLayer = new CLayerFile();
+        customLayers[i]->CopyLayer(pTempLayer);
+        pNewProfile->layers.push_back(pTempLayer);
+        }
+
+    // Now grab settings defaults
+    // Yeah, I know. "Holy crap Richard, think you have enough indirection in there..."
+    for(int i = 0; i < pNewProfile->layers.size(); i++) {
+        const LayerSettingsDefaults *pDefaults = findSettingsFor(pNewProfile->layers[i]->name);
+        if(pDefaults != nullptr) { // We have some!
+            for(int s = 0; s < pDefaults->defaultSettings.size(); s++) {
+                TLayerSettings *pSetting = new TLayerSettings();
+                *pSetting = *pDefaults->defaultSettings[s];
+                pNewProfile->layers[i]->layerSettings.push_back(pSetting);
+                }
+            }
+        }
+    return pNewProfile;
     }
 
 ///////////////////////////////////////////////////////////////////////////////

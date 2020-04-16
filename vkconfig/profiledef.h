@@ -38,6 +38,7 @@ public:
     bool            bContainsReadOnlyFields;    // These are the canned profiles. User defined have none
     QString         qsProfileName;              // User readable display of the profile name (may contain spaces)
     QString         qsFileName;                 // Root file name without path (by convention, no spaces and .profile suffix)
+    QString         qsDescription;              // A friendly description of what this profile does
 
     // A profile is nothing but a list of layers and their settings in truth
     QVector<CLayerFile *>layers;

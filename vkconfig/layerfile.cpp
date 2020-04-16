@@ -29,9 +29,11 @@
 
 
 CLayerFile::CLayerFile()
-{
-
-}
+    {
+    bActive = false;
+    bDisabled = false;
+    nRank = 0;
+    }
 
 CLayerFile::~CLayerFile()
     {

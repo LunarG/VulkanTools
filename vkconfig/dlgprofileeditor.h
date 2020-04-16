@@ -53,14 +53,11 @@ public:
 
     QVector <TLayerRepresentations*> layers;
 
-    // Load all layers found in all search folders
-    void loadAllFoundLayers(QVector <CLayerFile*> &layerFile);
-
     // Get a list of profiles from the GUI editor
     void createProfileList(QVector <CLayerFile*> &layerFiles);
 
-    // Load all found layers and set their settings to the default
-    void refreshLayers();
+    // Load all layers into the list box
+    void resetLayerDisplay();
 
 
 private:
@@ -71,12 +68,13 @@ private:
 
     CProfileDef             *pThisProfile;
 
-    QVector <CLayerFile *>   layerList;
-
 public Q_SLOTS:
+    void layerItemChanged(QTreeWidgetItem *item, int nColumn);
+
+    void currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
+
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonLaunchTest_clicked();
-    void on_layerTree_itemSelectionChanged();
     void on_pushButtonAddLayers_clicked();
 
 };

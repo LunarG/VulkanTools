@@ -47,7 +47,6 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     int nCurrRow = 15;
     int nLeftColumn = 10;
     int nSecondColumn = 115;
-    int nThirdColumn = 225;
     int nEditFieldWidth = 200;
 
     pEditArea = new QWidget();
@@ -83,6 +82,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 QLineEdit *pField = new QLineEdit(pEditArea);
                 pField->setText(layerSettings[iSetting]->settingsValue);
                 pField->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
+                pField->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pField->show();
                 inputControls.push_back(pField);
                 linkedSetting.push_back(layerSettings[iSetting]);
@@ -90,17 +90,29 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 }
 
             case LAYER_SETTINGS_BOOL: {
-                QRadioButton *pTrue = new QRadioButton(pEditArea);
+                QWidget *pContainer = new QWidget(pEditArea);
+                pContainer->setGeometry(nSecondColumn, nCurrRow, 250, nRowHeight);
+
+                QRadioButton *pTrue = new QRadioButton(pContainer);
                 pTrue->setText("True");
-                pTrue->setGeometry(nSecondColumn, nCurrRow, 100, nRowHeight);
+                pTrue->setGeometry(0, 0, 100, nRowHeight);
+                pTrue->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pTrue->show();
                 inputControls.push_back(pTrue);
                 linkedSetting.push_back(layerSettings[iSetting]);
 
-                QRadioButton *pFalse = new QRadioButton(pEditArea);
+                QRadioButton *pFalse = new QRadioButton(pContainer);
                 pFalse->setText("False");
-                pFalse->setGeometry(nThirdColumn, nCurrRow, 100, nRowHeight);
+                pFalse->setGeometry(60, 0, 100, nRowHeight);
+                pFalse->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pFalse->show();
+
+                if(layerSettings[iSetting]->settingsValue == QString("true"))
+                    pTrue->setChecked(true);
+                else
+                    pFalse->setChecked(true);
+
+                pContainer->show();
                 inputControls.push_back(pFalse);
                 linkedSetting.push_back(layerSettings[iSetting]);
                 break;
@@ -110,6 +122,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 pButtonBuddy = new QLineEdit(pEditArea);
                 pButtonBuddy->setText(layerSettings[iSetting]->settingsValue);
                 pButtonBuddy->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
+                pButtonBuddy->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pButtonBuddy->show();
                 inputControls.push_back(pButtonBuddy);
                 linkedSetting.push_back(layerSettings[iSetting]);
@@ -140,6 +153,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                     }
 
                 pComboBox->setCurrentIndex(nFoundDefault);
+                pComboBox->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pComboBox->show();
                 inputControls.push_back(pComboBox);
                 linkedSetting.push_back(layerSettings[iSetting]);
@@ -164,6 +178,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 
                 int nElementHeight = /*pListBox->sizeHintForRow(0)*/ nRowHeight * layerSettings[iSetting]->settingsListInclusiveValue.length();
                 pListBox->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nElementHeight);
+                pListBox->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pListBox->show();
 
                 inputControls.push_back(pListBox);
@@ -177,6 +192,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 QLabel *pLabel = new QLabel(pEditArea);
                 pLabel->setText(QString().sprintf("Unhandled setting type: %d", layerSettings[iSetting]->settingsType));
                 pLabel->setGeometry(nSecondColumn, nCurrRow, 200, nRowHeight);
+                pLabel->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pLabel->show();
                 prompts.push_back(pLabel);
                 }
@@ -273,7 +289,19 @@ bool CSettingsEditor::CollectSettings()
                 }
             break;
 
-            case LAYER_SETTINGS_BOOL:
+            case LAYER_SETTINGS_BOOL: { // True or false
+                QRadioButton *pTrueButton = dynamic_cast<QRadioButton *>(inputControls[iSetting]);
+                Q_ASSERT(pTrueButton != nullptr);
+                QString curVal = (pTrueButton->isChecked()) ? QString("true") : QString("false");
+
+                if(curVal != linkedSetting[iSetting]->settingsValue) {
+                    linkedSetting[iSetting]->settingsValue = curVal;
+                    bDirty = true;
+                    }
+                iSetting++; // Two controls, skip the second redundant one
+                }
+            break;
+
             default: // Integer range, TBD...
             break;
             }

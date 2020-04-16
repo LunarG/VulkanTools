@@ -54,7 +54,7 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
          QMessageBox msgBox;
-         msgBox.setText(tr("Error creating output file"));
+         msgBox.setText(tr("Error running vkvia. Is your SDK up to date and installed properly?"));
          msgBox.exec();
          return;
         }

@@ -55,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent)
     LoadProfileList();
 
     connect(ui->listWidgetProfiles, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(profileItemChanged(QListWidgetItem*)));
-    connect(ui->listWidgetProfiles, SIGNAL(currentRowChanged(int)), this, SLOT(currentProfileRowChanged(int)));
     connect(ui->listWidgetProfiles, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProfileChanged()));
 
     connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(fileExit(bool)));
@@ -96,6 +95,11 @@ void MainWindow::LoadProfileList(void)
     ui->listWidgetProfiles->blockSignals(true);
     ui->listWidgetProfiles->clear();
 
+    // Default profiles need the VK_LAYER_KHRONOS_validation layer.
+    // If it's not found, we need to disable it.
+    bool bSDKAvailable = (nullptr != pVulkanConfig->findLayerNamed("VK_LAYER_KHRONOS_validation"));
+
+
     // Add canned profiles first
     int nItemCount = 0;
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
@@ -111,6 +115,9 @@ void MainWindow::LoadProfileList(void)
             pItem->setCheckState(Qt::Checked);
         else
             pItem->setCheckState(Qt::Unchecked);
+
+        if(!bSDKAvailable)
+           pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
 
         ui->listWidgetProfiles->addItem(pItem);
         CANNED_PROFILE_COUNT++;
@@ -395,27 +402,3 @@ void MainWindow::applyNewSettingsNow()
         }
     }
 
-///////////////////////////////////////////////////////////////////////////////
-// A row has been selected. If there are editable items for the profile
-// display them in the lower panel.
-// WAIT... WHY DO I HAVE THIS?!?
-void MainWindow::currentProfileRowChanged(int row)
-    {
-    (void) row; // annoying warning ;-)
-    // We need the list item that was selected
-//    int nRow = ui->listWidgetProfiles->currentRow();
-//    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
-
-//    // Only the canned profiles have read only settings
-//    if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields) {
-
-
-
-//        }
-
-//    printf("Row %d selected\n", row);
-    // Display editor for profile
-   //   pSettingsEditor->CreateGUI(ui->tabWidget, pVulkanConfig->explicitLayers[row]->layerSettings);
- //   ui->tabWidget->update();
-
-    }

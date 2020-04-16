@@ -57,7 +57,7 @@ struct TLayerSettings {
     };
 
 
-class CLayerFile : public QObject, QJsonDocument
+class CLayerFile : public QObject
 {
     Q_OBJECT
 public:
@@ -76,6 +76,11 @@ public:
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
     QVector<TLayerSettings *>layerSettings;
+
+
+    bool        bActive;            // When used in a profile, is this one active?
+    bool        bDisabled;          // When used in a profile, is this one disabled?
+    int         nRank;              // When used in a profile, what is the rank? (0 being first layer)
 
 public:
     CLayerFile();

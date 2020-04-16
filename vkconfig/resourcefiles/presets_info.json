@@ -1,4 +1,5 @@
 {
+    "Comment": "This is being kept for now for historical reasons. It is not used, but was originaly intended to describe the fixed profiles",
     "Basic Validation": {
         "VK_LAYER_KHRONOS_validation": {
             "Read Only": {

@@ -1,7 +1,6 @@
 {
 "Best Practices Validation" : {
-"description" : "This profile does best practices, blah blah blah... etc. etc. etc.",
-"url" : "https://lunar.oooo",
+"description" : "This profile does best practices, Lobo is supposed to send me a good description.",
 "blacklisted_layers": [],
 "layer_options": {
     "VK_LAYER_KHRONOS_validation": {

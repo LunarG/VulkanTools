@@ -71,7 +71,8 @@ protected:
 // THIS IS TO BE READ ONLY, as it is copied from frequently
 // to reset or initialize the a full layer definition for the
 // profiles.
-struct LayerSettingsDefaults {
+class LayerSettingsDefaults {
+public:
     QString                 layerName;                  // Name of layer
     QVector<TLayerSettings *>defaultSettings;           // Default settings for this layer
 };
@@ -137,11 +138,11 @@ public:
 
     QVector <CProfileDef *>  profileList;       // List and details about current profiles
 
+    CProfileDef* CreateEmptyProfile(void);
     CProfileDef* FindProfile(QString profileName);
     CProfileDef* LoadProfile(QString pathToProfile);        // Load .profile descriptor
     void loadAllProfiles(void);                             // Load all the .profile files found
     void SaveProfile(CProfileDef *pProfile);     // Write .profile descriptor
-
 
     // Set this as the current override profile
     void SetCurrentActiveProfile(CProfileDef *pProfile);

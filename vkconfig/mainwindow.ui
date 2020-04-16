@@ -192,13 +192,6 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>Action</string>
-    </property>
-    <addaction name="separator"/>
-    <addaction name="actionExit"/>
-   </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
@@ -218,7 +211,6 @@
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuFile"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>

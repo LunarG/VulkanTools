@@ -77,7 +77,6 @@ public Q_SLOTS:
     void toolsSetCustomPaths(bool bChecked);
 
     void profileItemChanged(QListWidgetItem *item);
-    void currentProfileRowChanged(int row);
     void selectedProfileChanged(void);
 
     void on_pushButtonCustomPaths_clicked();    // Fired by menu even if no button
