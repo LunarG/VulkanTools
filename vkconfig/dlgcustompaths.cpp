@@ -49,7 +49,7 @@ void dlgCustomPaths::repopulateTree(void)
     ui->treeWidget->clear();
 
     // Populate the tree
-    for(uint32_t i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++ ) {
+    for(int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++ ) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, pVulkanConfig->additionalSearchPaths[i]);
         ui->treeWidget->addTopLevelItem(pItem);

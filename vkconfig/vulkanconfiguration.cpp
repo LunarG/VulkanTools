@@ -112,7 +112,7 @@ CVulkanConfiguration::CVulkanConfiguration()
     if(!home.cd("vkconfig"))
         home.mkpath("vkconfig");
 
-    qsProfileFilesPath += "/LunarG/vkconfig";
+    qsProfileFilesPath += "LunarG/vkconfig";
 
 #else
     QDir home = QDir::home();
@@ -347,7 +347,7 @@ void CVulkanConfiguration::loadAllProfiles(void)
         QFileInfo info = profileFiles.at(iProfile);
         CProfileDef *pProfile = LoadProfile(info.absoluteFilePath());
         if(pProfile != nullptr) {
-            pProfile->qsFileName = info.baseName(); // Easier than parsing it myself ;-)
+            pProfile->qsFileName = info.fileName(); // Easier than parsing it myself ;-)
             profileList.push_back(pProfile);
             }
         }
@@ -468,6 +468,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
     // Allocate a new profile container
     CProfileDef *pProfile = new CProfileDef();
+    pProfile->qsFileName = QFileInfo(pathToProfile).fileName();
 
     QJsonObject jsonTopObject = jsonDoc.object();
     QStringList key = jsonTopObject.keys();
@@ -511,7 +512,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProfile)
+void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
     {
     // Build the json document
     QJsonArray blackList;
@@ -538,22 +539,22 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProf
 
             switch(pSettingsDetails->settingsType) {
                 case LAYER_SETTINGS_STRING:
-                    setting.insert("type:", "string");
+                    setting.insert("type", "string");
                     setting.insert("default", pSettingsDetails->settingsValue);
                 break;
 
                 case LAYER_SETTINGS_FILE:
-                    setting.insert("type:", "save_file");
+                    setting.insert("type", "save_file");
                     setting.insert("default", pSettingsDetails->settingsValue);
                 break;
 
                 case LAYER_SETTINGS_BOOL:
-                    setting.insert("type:", "bool");
+                    setting.insert("type", "bool");
                     setting.insert("default", pSettingsDetails->settingsValue);
                 break;
 
                 case LAYER_SETTINGS_EXCLUSIVE_LIST: {
-                    setting.insert("type:", "enum");
+                    setting.insert("type", "enum");
                     setting.insert("default", pSettingsDetails->settingsValue);
 
                     QJsonObject options;
@@ -565,10 +566,10 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProf
                 break;
 
             case LAYER_SETTINGS_INCLUSIVE_LIST: {
-                    setting.insert("type:", "multi_enum");
+                    setting.insert("type", "multi_enum");
                     QJsonObject options;
                     for(int i = 0; i < pSettingsDetails->settingsListInclusivePrompt.size(); i++)
-                        options.insert( pSettingsDetails->settingsListInclusivePrompt[i],
+                        options.insert( pSettingsDetails->settingsListInclusiveValue[i],
                                         pSettingsDetails->settingsListInclusivePrompt[i]);
                     setting.insert("options", options);
 
@@ -592,7 +593,7 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProf
 
                 // We missed somethhing
                 default:
-                    setting.insert("type:", "unknown type");
+                    setting.insert("type", "unknown type");
                     setting.insert("default", "unknown data");
                 }
 
@@ -616,6 +617,10 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile, QString pathToProf
 
     ///////////////////////////////////////////////////////////
     // Write it out
+    QString pathToProfile = qsProfileFilesPath;
+    pathToProfile += "/";
+    pathToProfile += pProfile->qsFileName;
+
     QFile jsonFile(pathToProfile);
     if(!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text))
         return;     // TBD, should we report an error

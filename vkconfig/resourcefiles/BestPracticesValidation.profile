@@ -31,8 +31,8 @@
             },
             "default": [
                 "error",
-                "warn",
-                "perf"
+                "perf",
+                "warn"
             ]
         },
         "log_filename": {

@@ -22,13 +22,17 @@
 #include <QRadioButton>
 #include <QPushButton>
 #include <QComboBox>
+#include <QListWidget>
+#include <QListWidgetItem>
 #include <QStandardItemModel>
+#include <QFileDialog>
 
 #include "settingseditor.h"
 
 CSettingsEditor::CSettingsEditor()
     {
     pEditArea = nullptr;
+    pApplyButton = nullptr;
     inputControls.reserve(100);
     prompts.reserve(100);
     }
@@ -36,10 +40,10 @@ CSettingsEditor::CSettingsEditor()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Creates controls and sets up any signals
-void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings)
+void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bApplyButton)
     {
     int nRowHeight = 24;
-    int nVerticalPad = 4;
+    int nVerticalPad = 10;
     int nCurrRow = 15;
     int nLeftColumn = 10;
     int nSecondColumn = 115;
@@ -47,7 +51,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     int nEditFieldWidth = 200;
 
     pEditArea = new QWidget();
-    pEditArea->setMinimumSize(QSize(600, (nRowHeight * (layerSettings.size()+2))));
+    pEditArea->setMinimumSize(QSize(450, 1024)); //(nRowHeight * (layerSettings.size()+2))));
     pDestination->setWidget(pEditArea);
     pEditArea->show();
 
@@ -60,27 +64,28 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 //    hashTable.insert("enum", LAYER_SETTINGS_EXCLUSIVE_LIST);
 //    hashTable.insert("multi_enum", LAYER_SETTINGS_INCLUSIVE_LIST);
 
-    for(int i = 0; i < layerSettings.size(); i++) {
+    for(int iSetting = 0; iSetting < layerSettings.size(); iSetting++) {
         // Do not display read only settings.
-        if(layerSettings[i]->readOnly)
+        if(layerSettings[iSetting]->readOnly)
             continue;
 
         // Prompt doesn't matter what the data type is
         QLabel *pPromptLabel = new QLabel(pEditArea);
-        pPromptLabel->setText(layerSettings[i]->settingsPrompt);
-        pPromptLabel->setToolTip(layerSettings[i]->settingsDesc);
+        pPromptLabel->setText(layerSettings[iSetting]->settingsPrompt);
+        pPromptLabel->setToolTip(layerSettings[iSetting]->settingsDesc);
         pPromptLabel->setGeometry(nLeftColumn, nCurrRow, nSecondColumn, nRowHeight);
         pPromptLabel->show();
         prompts.push_back(pPromptLabel);
 
-        switch(layerSettings[i]->settingsType)
+        switch(layerSettings[iSetting]->settingsType)
             {
             case LAYER_SETTINGS_STRING:{
                 QLineEdit *pField = new QLineEdit(pEditArea);
-                pField->setText(layerSettings[i]->settingsValue);
+                pField->setText(layerSettings[iSetting]->settingsValue);
                 pField->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
                 pField->show();
                 inputControls.push_back(pField);
+                linkedSetting.push_back(layerSettings[iSetting]);
                 break;
                 }
 
@@ -90,78 +95,87 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 pTrue->setGeometry(nSecondColumn, nCurrRow, 100, nRowHeight);
                 pTrue->show();
                 inputControls.push_back(pTrue);
+                linkedSetting.push_back(layerSettings[iSetting]);
 
                 QRadioButton *pFalse = new QRadioButton(pEditArea);
                 pFalse->setText("False");
                 pFalse->setGeometry(nThirdColumn, nCurrRow, 100, nRowHeight);
                 pFalse->show();
                 inputControls.push_back(pFalse);
+                linkedSetting.push_back(layerSettings[iSetting]);
                 break;
                 }
 
         case LAYER_SETTINGS_FILE: {
-                QLineEdit *pField = new QLineEdit(pEditArea);
-                pField->setText(layerSettings[i]->settingsValue);
-                pField->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
-                pField->show();
-                inputControls.push_back(pField);
+                pButtonBuddy = new QLineEdit(pEditArea);
+                pButtonBuddy->setText(layerSettings[iSetting]->settingsValue);
+                pButtonBuddy->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
+                pButtonBuddy->show();
+                inputControls.push_back(pButtonBuddy);
+                linkedSetting.push_back(layerSettings[iSetting]);
 
-                QPushButton *pButton = new QPushButton(pEditArea);
-                pButton->setText("Browse...");
-                pButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, 100, nRowHeight+1);
-                pButton->show();
-                inputControls.push_back(pButton);
+                pBrowseButton = new QPushButton(pEditArea);
+                pBrowseButton->setText("Browse...");
+                pBrowseButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, 100, nRowHeight+1);
+                connect(pBrowseButton, SIGNAL(pressed()), this, SLOT(browseButtonPressed()));
+                pBrowseButton->show();
+                inputControls.push_back(pBrowseButton);
+                linkedSetting.push_back(layerSettings[iSetting]);
                 break;
                 }
 
            case  LAYER_SETTINGS_EXCLUSIVE_LIST: {
                 QComboBox *pComboBox = new QComboBox(pEditArea);
-                pComboBox->setGeometry(nSecondColumn-5, nCurrRow, nEditFieldWidth, nRowHeight);
+                pComboBox->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
 
                 // Populate with the user readable values. The default needs to be found as well,
                 // so search for it while we popluate the control. The default stored is the actual
                 // value, not what is displayed to the user.
-                int nFoundDefault = -1;
-                for(int p = 0; p < layerSettings[i]->settingsListExclusivePrompt.size(); p++) {
-                    pComboBox->addItem(layerSettings[i]->settingsListExclusivePrompt[p]);
-                    if(layerSettings[i]->settingsValue == layerSettings[i]->settingsListExclusiveValue[p])
-                        nFoundDefault = p;
+                int nFoundDefault = 0;
+                pComboBox->addItem("<None>");
+                for(int p = 0; p < layerSettings[iSetting]->settingsListExclusivePrompt.size(); p++) {
+                    pComboBox->addItem(layerSettings[iSetting]->settingsListExclusivePrompt[p]);
+                    if(layerSettings[iSetting]->settingsValue == layerSettings[iSetting]->settingsListExclusiveValue[p])
+                        nFoundDefault = p+1;
                     }
 
                 pComboBox->setCurrentIndex(nFoundDefault);
                 pComboBox->show();
                 inputControls.push_back(pComboBox);
+                linkedSetting.push_back(layerSettings[iSetting]);
                 break;
                 }
 
-            case LAYER_SETTINGS_INCLUSIVE_LIST: {
-                QStandardItemModel *pSim = new QStandardItemModel(layerSettings[i]->settingsListInclusivePrompt.length(), 1, pEditArea);
-                for(int p = 0; p < layerSettings[i]->settingsListInclusivePrompt.length(); p++) {
+            case LAYER_SETTINGS_INCLUSIVE_LIST: {   // List widget with checkboxes
+                QListWidget *pListBox = new QListWidget(pEditArea);
 
-                    QStandardItem* item = new QStandardItem(layerSettings[i]->settingsListInclusivePrompt[p]);
-                    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsUserTristate);
-                    item->setData(Qt::Unchecked, Qt::CheckStateRole);
-                    item->setSelectable(true);
+                for(int i = 0; i < layerSettings[iSetting]->settingsListInclusiveValue.length(); i++) {
+                    QListWidgetItem *pItem = new QListWidgetItem();
+                    pItem->setText(layerSettings[iSetting]->settingsListInclusivePrompt[i]);
 
-                    pSim->setItem(p, 0, item);
+                    // If this item is in the list, check it
+                    if(layerSettings[iSetting]->settingsValue.contains(layerSettings[iSetting]->settingsListInclusiveValue[i]))
+                        pItem->setCheckState(Qt::Checked);
+                    else
+                        pItem->setCheckState(Qt::Unchecked);
+
+                    pListBox->addItem(pItem);
                     }
 
-                QComboBox *pComboBox = new QComboBox(pEditArea);
-                pComboBox->setModel(pSim);
-                pComboBox->setGeometry(nSecondColumn-5, nCurrRow, nEditFieldWidth, nRowHeight);
-                pComboBox->show();
-                inputControls.push_back(pComboBox);
+                int nElementHeight = /*pListBox->sizeHintForRow(0)*/ nRowHeight * layerSettings[iSetting]->settingsListInclusiveValue.length();
+                pListBox->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nElementHeight);
+                pListBox->show();
 
-          //      pComboBox->addItem("<Nonne>");
-
-
+                inputControls.push_back(pListBox);
+                linkedSetting.push_back(layerSettings[iSetting]);
+                nCurrRow += nElementHeight;
                 break;
                 }
 
 
             default: {
                 QLabel *pLabel = new QLabel(pEditArea);
-                pLabel->setText(QString().sprintf("Unhandled setting type: %d", layerSettings[i]->settingsType));
+                pLabel->setText(QString().sprintf("Unhandled setting type: %d", layerSettings[iSetting]->settingsType));
                 pLabel->setGeometry(nSecondColumn, nCurrRow, 200, nRowHeight);
                 pLabel->show();
                 prompts.push_back(pLabel);
@@ -171,17 +185,130 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
         nCurrRow += nRowHeight;
         nCurrRow += nVerticalPad;
         }
+
+    if(bApplyButton) {
+        pApplyButton = new QPushButton(pEditArea);
+        pApplyButton->setText(tr("Apply Now"));
+        pApplyButton->setGeometry(nLeftColumn, nCurrRow, nEditFieldWidth, nRowHeight);
+        pApplyButton->show();
+        }
     }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief CSettingsEditor::CollectSettings
+/// \return
+/// Harvest the values from the edit controls and move them to the stored
+/// pointers to the settings data. Returns false if no settings were actually
+/// changed.
+bool CSettingsEditor::CollectSettings()
+    {
+    bool bDirty = false;    // Any single field change flips this
+
+    // Step through all the edit controls and settings in parallel
+    for(int iSetting = 0; iSetting < linkedSetting.size(); iSetting++)
+        {
+        switch(linkedSetting[iSetting]->settingsType)
+            {
+            case LAYER_SETTINGS_STRING: { // These are all edit controls
+                QLineEdit *pEdit = dynamic_cast<QLineEdit*>(inputControls[iSetting]);
+                Q_ASSERT(pEdit != nullptr);
+
+                if(linkedSetting[iSetting]->settingsValue != pEdit->text()) {
+                    linkedSetting[iSetting]->settingsValue = pEdit->text();
+                    bDirty = true;
+                   }
+                }
+            break;
+
+            case LAYER_SETTINGS_FILE: { // Edit control followed by a button
+                QLineEdit *pEdit = dynamic_cast<QLineEdit *>(inputControls[iSetting]);
+                Q_ASSERT(pEdit != nullptr);
+
+                if(linkedSetting[iSetting]->settingsValue != pEdit->text()) {
+                    linkedSetting[iSetting]->settingsValue = pEdit->text();
+                    bDirty = true;
+                   }
+                iSetting++; // Skip the button control which is next
+                }
+            break;
+
+            case LAYER_SETTINGS_EXCLUSIVE_LIST: {  // Combobox. One selection
+                QComboBox *pCombo = dynamic_cast<QComboBox *>(inputControls[iSetting]);
+                Q_ASSERT(pCombo != nullptr);
+                int nSelected = pCombo->currentIndex();
+                QString newValue;
+                if(nSelected == 0)
+                    newValue = "";
+                else
+                    newValue = linkedSetting[iSetting]->settingsListExclusiveValue[nSelected-1];
+
+                if(linkedSetting[iSetting]->settingsValue != newValue) {
+                    linkedSetting[iSetting]->settingsValue = newValue;
+                    bDirty = true;
+                    }
+                }
+            break;
+
+
+            case LAYER_SETTINGS_INCLUSIVE_LIST:     // Listwidget with checked items
+                {
+                QListWidget *pList = dynamic_cast<QListWidget *>(inputControls[iSetting]);
+                Q_ASSERT(pList != nullptr);
+                QString newSetting;
+                for(int i = 0; i < pList->count(); i++) {
+                    QListWidgetItem *pItem = pList->item(i);
+                    if(pItem->checkState() == Qt::Checked) { // Add the item
+                        if(!newSetting.isEmpty())
+                            newSetting += ",";
+
+                        newSetting += linkedSetting[iSetting]->settingsListInclusiveValue[i];
+                        }
+                    }
+
+                if(newSetting != linkedSetting[iSetting]->settingsValue) {
+                    linkedSetting[iSetting]->settingsValue = newSetting;
+                    bDirty = true;
+                    }
+                }
+            break;
+
+            case LAYER_SETTINGS_BOOL:
+            default: // Integer range, TBD...
+            break;
+            }
+        }
+
+
+    return bDirty;
+    }
+
+///////////////////////////////////////////////////////////////////////////////
 // Okay, remove the control, disconnect any signals and free the memory up.
 void CSettingsEditor::CleanupGUI(void)
     {
     // Don't delete the controls, they are parented by pEditArea
     inputControls.clear();
     prompts.clear();
+    linkedSetting.clear();
 
     delete pEditArea;
     pEditArea = nullptr;
+    pApplyButton = nullptr;
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief CSettingsEditor::browseButtonPressed
+/// A field (there is only one currently) that allows browsing has been pressed.
+/// Allow the user to set a file, and pop that into the associated
+/// edit field.
+void CSettingsEditor::browseButtonPressed()
+    {
+    QString file = QFileDialog::getSaveFileName(pEditArea,
+        tr("Auto Save Output To..."),
+        ".", tr("Log text(*.txt)"));
+
+    if(!file.isEmpty())
+        pButtonBuddy->setText(file);
     }
 

@@ -40,13 +40,6 @@
 #include "dlgcustompaths.h"
 #include "profiledef.h"
 
-class CProfileListItem : public QListWidgetItem
-{
-public:
-    CProfileDef* pProfilePointer;
-
-};
-
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -54,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
     ui->setupUi(this);
     CANNED_PROFILE_COUNT = 0;
+    pLastSelectedProfileItem = nullptr;
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
@@ -337,9 +331,22 @@ void MainWindow::profileItemChanged(QListWidgetItem *item)
 // button for the highlighted profile
 void MainWindow::selectedProfileChanged(void)
     {
+    // We have changed settings? Were there any edits to the last one?
+    if(settingsEditor.CollectSettings() == true)
+        if(pLastSelectedProfileItem != nullptr) {
+            // Write changes to the profile
+            pVulkanConfig->SaveProfile(pLastSelectedProfileItem->pProfilePointer);
+
+            // Oh yeah... if we have changed the current profile, we need to also update
+            // the overrid settings.
+            if(pVulkanConfig->GetCurrentActiveProfile() == pLastSelectedProfileItem->pProfilePointer)
+                pVulkanConfig->SetCurrentActiveProfile(pLastSelectedProfileItem->pProfilePointer);
+            }
+
     // We need the list item that was selected
     int nRow = ui->listWidgetProfiles->currentRow();
     CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+    pLastSelectedProfileItem = pSelectedItem;
     if(pSelectedItem == nullptr) {
         ui->listWidgetProfiles->setCurrentRow(-1);
         ui->pushButtonEditProfile->setEnabled(false);
@@ -353,11 +360,38 @@ void MainWindow::selectedProfileChanged(void)
     // setup the GUI
     if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields) {
         ui->pushButtonEditProfile->setText("Clone");
-        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings);
+        settingsEditor.CleanupGUI();
+        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
+        connect(settingsEditor.pApplyButton, SIGNAL(pressed()), this, SLOT(applyNewSettingsNow()));
         }
     else {
         ui->pushButtonEditProfile->setText("Edit");
         settingsEditor.CleanupGUI();
+        }
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::applyNewSettingsNow
+/// Apply now button in settings editor has been clicked. This is slightly
+/// different from when we move off of an item because insteado updating the
+/// last selected profile, we are updating the currently active profile
+void MainWindow::applyNewSettingsNow()
+    {
+    int nRow = ui->listWidgetProfiles->currentRow();
+    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+    Q_ASSERT(pSelectedItem != nullptr);
+
+    // We have changed settings? Were there any edits to the last one? If no
+    // changes, I don't care that you clicked the button, no soup for you
+    // (no changes written)
+    if(settingsEditor.CollectSettings() == true) {
+        // Write changes to the profile
+        pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
+
+        // Oh yeah... if we have changed the current profile, we need to also update
+        // the overrid settings.
+        if(pVulkanConfig->GetCurrentActiveProfile() == pSelectedItem->pProfilePointer)
+            pVulkanConfig->SetCurrentActiveProfile(pSelectedItem->pProfilePointer); // Resets
         }
     }
 
@@ -367,6 +401,7 @@ void MainWindow::selectedProfileChanged(void)
 // WAIT... WHY DO I HAVE THIS?!?
 void MainWindow::currentProfileRowChanged(int row)
     {
+    (void) row; // annoying warning ;-)
     // We need the list item that was selected
 //    int nRow = ui->listWidgetProfiles->currentRow();
 //    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));

@@ -22,24 +22,48 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QScrollArea>
 
+#include <QScrollArea>
+#include <QLineEdit>
+#include <QPushButton>
 #include <layerfile.h>
 
-class CSettingsEditor
+class CSettingsEditor : public QObject
     {
+    Q_OBJECT
+
 public:
     CSettingsEditor();
 
     // Creates controls and sets up any signals
-    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings);
-    void CleanupGUI(void);                  // Clears all the controls
+    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bApplyButton = false);
+    void CleanupGUI(void);                  // Clears all the controls and deletes edit area
+    bool CollectSettings(void);             // Transfer controls to layerSettings.
+                                            // Returns false if no settings were changed
+    QPushButton   *pApplyButton;            // Button pressed to apply settings now
 
 protected:
-    QVector<QWidget *> prompts;
+    // Every edit control has one of these
+    QVector<QWidget *> prompts;             // Just QLabels...
+
+    // Actual edit controls, there may be more than one control per settings
+    // entry, and so settings fields may have duplicates as these two mirror
+    // each other exactly.
     QVector<QWidget *> inputControls;
+    QVector<TLayerSettings *> linkedSetting;
 
     QWidget *pEditArea;
+
+    ///////////////////////////////////////////////////////////////////
+    // This might not be a good idea... but I think it's okay. There
+    // is only ever one button and one edit field that goes with it.
+    // This could be more general and I have an idea how to make it
+    // work, but for now this is cheap and cheerful and will work.
+    QLineEdit     *pButtonBuddy;
+    QPushButton   *pBrowseButton;
+
+public Q_SLOTS:
+    void browseButtonPressed(void);
 
     };
 

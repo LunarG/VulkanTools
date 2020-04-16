@@ -140,7 +140,7 @@ public:
     CProfileDef* FindProfile(QString profileName);
     CProfileDef* LoadProfile(QString pathToProfile);        // Load .profile descriptor
     void loadAllProfiles(void);                             // Load all the .profile files found
-    void SaveProfile(CProfileDef *pProfile, QString pathToProfile);     // Write .profile descriptor
+    void SaveProfile(CProfileDef *pProfile);     // Write .profile descriptor
 
 
     // Set this as the current override profile

@@ -31,7 +31,15 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-
+//////////////////////////////////////////////////
+/// \brief The CProfileListItem class
+/// This just allows me to associate a specific profile definition
+/// with a list widget item.
+class CProfileListItem : public QListWidgetItem
+{
+public:
+    CProfileDef* pProfilePointer;
+};
 
 
 class MainWindow : public QMainWindow
@@ -46,10 +54,8 @@ protected:
     CVulkanConfiguration*    pVulkanConfig;
     CSettingsEditor          settingsEditor;
 
-
     void checkAppListState(void);
     void LoadProfileList(void);
-
 
 private:
     Ui::MainWindow *ui;
@@ -58,6 +64,7 @@ private:
     // the canned profiles from the user profiles in the list box
     int CANNED_PROFILE_COUNT;
 
+    CProfileListItem    *pLastSelectedProfileItem;
 
 public Q_SLOTS:
     void fileExit(bool bChecked);
@@ -79,6 +86,8 @@ public Q_SLOTS:
     void on_pushButtonAppList_clicked(void);
     void on_pushButtonEditProfile_clicked(void);
     void on_pushButtonNewProfile_clicked(void);
+
+    void applyNewSettingsNow(void);
 
 };
 
