@@ -94,6 +94,8 @@ void MainWindow::LoadProfileList(void)
     {
     ui->listWidgetProfiles->blockSignals(true);
     ui->listWidgetProfiles->clear();
+    ui->pushButtonRemove->setEnabled(false); // Nothing is selected
+    ui->pushButtonEditProfile->setEnabled(false);
 
     // Default profiles need the VK_LAYER_KHRONOS_validation layer.
     // If it's not found, we need to disable it.
@@ -288,6 +290,39 @@ void MainWindow::on_pushButtonCustomPaths_clicked()
     dlg.exec();
     }
 
+
+//////////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::on_pushButtonRemoved_clicked
+/// Remove the currently selected user defined profile.
+void MainWindow::on_pushButtonRemove_clicked()
+    {
+    int nSelection = ui->listWidgetProfiles->currentRow();
+    Q_ASSERT(nSelection != -1);
+
+    // Which profile is selected?
+    QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
+    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
+    Q_ASSERT(pProfileItem != nullptr);
+
+    QMessageBox warning;
+    warning.setInformativeText(tr("Are you sure you want to delete this profile?"));
+    warning.setText(pProfileItem->pProfilePointer->qsProfileName);
+    warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    warning.setDefaultButton(QMessageBox::No);
+    if(QMessageBox::No == warning.exec())
+        return; // No harm, no foul
+
+    // Delete the file
+    QString completePath = pVulkanConfig->getProfilePath();
+    completePath += "/";
+    completePath += pProfileItem->pProfilePointer->qsFileName;
+    remove(completePath.toUtf8().constData());
+
+    // Reload profiles
+    pVulkanConfig->loadAllProfiles();
+    this->LoadProfileList();
+    }
+
 void MainWindow::toolsSetCustomPaths(bool bChecked)
     {
     (void)bChecked;
@@ -359,6 +394,7 @@ void MainWindow::selectedProfileChanged(void)
     if(pSelectedItem == nullptr) {
         ui->listWidgetProfiles->setCurrentRow(-1);
         ui->pushButtonEditProfile->setEnabled(false);
+        ui->pushButtonRemove->setEnabled(false);    // Only the ones you can edit can be deleted
         return; // This should never happen, but if they do, nothing is selected
         }
 
@@ -368,13 +404,15 @@ void MainWindow::selectedProfileChanged(void)
     // Label the button appropriately, but if a canned profile, we do need to
     // setup the GUI
     if(pSelectedItem->pProfilePointer->bContainsReadOnlyFields) {
-        ui->pushButtonEditProfile->setText("Clone");
+        ui->pushButtonEditProfile->setText("Clone Profile");
+        ui->pushButtonRemove->setEnabled(false);
         settingsEditor.CleanupGUI();
         settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
         connect(settingsEditor.pApplyButton, SIGNAL(pressed()), this, SLOT(applyNewSettingsNow()));
         }
     else {
-        ui->pushButtonEditProfile->setText("Edit");
+        ui->pushButtonEditProfile->setText("Edit Profile");
+        ui->pushButtonRemove->setEnabled(true);    // Only the ones you can edit can be deleted
         settingsEditor.CleanupGUI();
         }
     }

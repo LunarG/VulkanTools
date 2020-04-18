@@ -47,11 +47,11 @@
                 "description": "Setting an option here will disable areas of validation",
                 "type": "multi_enum",
                 "options": {
-                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Disable thread safety checks",
-                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Disable stateless parameter checks",
-                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Disable object lifetime validation",
-                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Disable core validation checks",
-                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Disable handle wrapping"
+                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Object lifetime validation",
+                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core validation checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping"
                 },
                 "default": [
                     "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
@@ -66,10 +66,10 @@
                 "description": "Setting an option here will enable specialized areas of validation",
                 "type": "multi_enum",
                 "options": {
-                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "Enable GPU-Assisted Validation",
+                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
-                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Enable Best Practices warning checks",
-                    "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_EXT": "Enable Synchronization"
+                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
+                    "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_EXT": "Synchronization"
                 },
                 "default": ["VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_EXT"]
             }

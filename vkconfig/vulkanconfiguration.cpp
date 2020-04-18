@@ -322,6 +322,10 @@ CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
 /// they are created from the embedded json files
 void CVulkanConfiguration::loadAllProfiles(void)
     {
+    // This might be called to refresh the list...
+    qDeleteAll(profileList.begin(), profileList.end());
+    profileList.clear();
+
     // Get a list of all files that end in .profile in the folder where
     // we store them. TBD... don't hard code this here.
     QDir dir(qsProfileFilesPath);
