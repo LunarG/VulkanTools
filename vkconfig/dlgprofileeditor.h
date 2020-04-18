@@ -26,18 +26,6 @@
 #include <vulkanconfiguration.h>
 #include <settingseditor.h>
 
-class QTreeWidgetItemWithLayer;
-
-// For the layer editor, we need a way to keep track of the layers
-// that are displayed, and associate them with an actual layer
-struct TLayerRepresentations {
-    CLayerFile*                     pLayerFileInfo;    // All the details abou the layer. We do not OWN this pointer...
-    bool                            bDisabled;         // Do we want this layer disabled
-    bool                            bUse;              // Do we want to use this layer
-    bool                            bExplicit;         // true for explicit, false for implicit
-    QTreeWidgetItemWithLayer*       pTreeItem;         // Address the layer item in the GUI
-};
-
 
 namespace Ui {
 class dlgProfileEditor;
@@ -51,13 +39,9 @@ public:
     explicit dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit);
     ~dlgProfileEditor();
 
-    QVector <TLayerRepresentations*> layers;
-
-    // Get a list of profiles from the GUI editor
-    void createProfileList(QVector <CLayerFile*> &layerFiles);
-
     // Load all layers into the list box
-    void resetLayerDisplay();
+    void LoadLayerDisplay(int nSelection = -1);
+
 
 
 private:
@@ -69,6 +53,8 @@ private:
     CProfileDef             *pThisProfile;
 
 public Q_SLOTS:
+    virtual void accept() override;
+
     void layerItemChanged(QTreeWidgetItem *item, int nColumn);
 
     void currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
@@ -76,8 +62,9 @@ public Q_SLOTS:
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonLaunchTest_clicked();
     void on_pushButtonAddLayers_clicked();
-    void on_saveProfile();
 
+    void on_toolButtonUp_clicked();
+    void on_toolButtonDown_clicked();
 };
 
 #endif // DLGPROFILEEDITOR_H

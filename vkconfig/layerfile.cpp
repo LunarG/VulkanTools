@@ -65,6 +65,9 @@ bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
      QString jsonText = file.readAll();
      file.close();
 
+     if(layerKind == LAYER_TYPE_CUSTOM)
+         qsCustomLayerPath = qsFullPathToFile;
+
      //////////////////////////////////////////////////////
      // Convert the text to a JSON document & validate it.
      // It does need to be a valid json formatted file.
@@ -126,11 +129,14 @@ bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
     // Okay, how many settings do we have?
     QStringList settingsNames = layerSettingsDescriptors.keys();
 
-    for(int i = 0; i < settingsNames.size(); i++) {
-        TLayerSettings *pLayerSettings = new TLayerSettings;
-        pLayerSettings->settingsName = settingsNames[i];
+    for(int iSetting = 0; iSetting < settingsNames.size(); iSetting++) {
+        if(settingsNames[iSetting] == QString("layer_rank"))
+            continue;
 
-        QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[i]);
+        TLayerSettings *pLayerSettings = new TLayerSettings;
+        pLayerSettings->settingsName = settingsNames[iSetting];
+
+        QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[iSetting]);
         QJsonObject settingObject = settingValue.toObject();
 
         // This may or may not be present
@@ -138,7 +144,6 @@ bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
         pLayerSettings->readOnly = !readOnly.isUndefined();   // Default if no key is present
         if(pLayerSettings->readOnly)                          // Any one readonly key toggles this
             bHasReadOnly = true;
-
 
         // The easy stuff...
         QJsonValue value = settingObject.value("description");

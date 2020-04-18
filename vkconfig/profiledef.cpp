@@ -33,7 +33,6 @@
 CProfileDef::CProfileDef()
     {
     bContainsReadOnlyFields = false;
-
     }
 
 CProfileDef::~CProfileDef()
@@ -42,4 +41,69 @@ CProfileDef::~CProfileDef()
     layers.clear();
     }
 
+///////////////////////////////////////////////////////////
+// Find the layer if it exists.
+CLayerFile* CProfileDef::findLayer(QString qsLayerName)
+    {
+    for(int i = 0; i < layers.size(); i++)
+        if(layers[i]->name == qsLayerName)
+            return layers[i];
 
+    return nullptr;
+    }
+
+////////////////////////////////////////////////////////////
+// Copy a profile so we can mess with it.
+CProfileDef* CProfileDef::duplicateProfile(void)
+    {
+    CProfileDef *pDuplicate = new CProfileDef;
+    pDuplicate->bContainsReadOnlyFields = bContainsReadOnlyFields;
+    pDuplicate->qsProfileName = qsProfileName;
+    pDuplicate->qsFileName = qsFileName;
+    pDuplicate->qsDescription = qsDescription;
+
+    for(int i = 0; i < layers.size(); i++) {
+        CLayerFile* pLayer = new CLayerFile;
+        layers[i]->CopyLayer(pLayer);
+        pDuplicate->layers.push_back(pLayer);
+        }
+
+    return pDuplicate;
+    }
+
+
+///////////////////////////////////////////////////////////
+/// \brief CProfileDef::CollapseProfile
+/// Remove unused layers and build the list of
+/// black listed layers.
+void CProfileDef::CollapseProfile()
+    {
+    blacklistedLayers.clear();
+
+    // Look for black listed layers, add them to the
+    // string list of names, but remove them from
+    // the list of layers
+    int iCurrent = 0;
+    int nNewRank = 0;
+    while(iCurrent < layers.size())
+        {
+        // Remove this layer?
+        if(layers[iCurrent]->bDisabled) {
+            blacklistedLayers << layers[iCurrent]->name;
+            layers.removeAt(iCurrent);
+            continue;
+            }
+
+        // If the layer is not active, also remove it
+        // Important to do black list test FIRST
+        if(!layers[iCurrent]->bActive) {
+            layers.removeAt(iCurrent);
+            continue;
+            }
+
+        // We are keeping this layer, reset it's rank
+        layers[iCurrent]->nRank = nNewRank++;
+
+        iCurrent++;
+        }
+    }

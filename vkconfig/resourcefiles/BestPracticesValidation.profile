@@ -4,6 +4,7 @@
 "blacklisted_layers": [],
 "layer_options": {
     "VK_LAYER_KHRONOS_validation": {
+        "layer_rank": 0,
         "debug_action": {
             "name": "Debug Action",
             "description": "This indicates what action is to be taken when a layer wants to report information",

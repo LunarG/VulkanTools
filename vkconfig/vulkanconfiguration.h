@@ -121,15 +121,15 @@ public:
     QVector <LayerSettingsDefaults *> defaultLayerSettings;
     void loadDefaultLayerSettings(void);
     const LayerSettingsDefaults* findSettingsFor(QString layerName);
+    void LoadDefaultSettings(CLayerFile* pBlankLayer);
 
     ////////////////////////////////////////////////////////////////////////
     // Look for all installed layers. This contains their path, version info, etc.
     // but does not contain settings information. The default settings are stored
     // in the above (defaultLayerSettings). The binding of a layer with it's
     // particular settings is done in the profile (CProfileDef - in profile list).
-    QVector <CLayerFile*>   implicitLayers;     // All detected implicit layers
-    QVector <CLayerFile*>   explicitLayers;     // All detected explicit layers
-    QVector <CLayerFile*>   customLayers;       // Layers found in custom search paths
+    // This includes all found implicit, explicit, or layers found in custom folders
+    QVector <CLayerFile*>   allLayers;          // All the found layers, lumped together
     void findAllInstalledLayers(void);
     void loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
     const CLayerFile* findLayerNamed(QString qsLayerName);

@@ -86,8 +86,7 @@ CVulkanConfiguration* CVulkanConfiguration::pMe = nullptr;
 
 CVulkanConfiguration::CVulkanConfiguration()
     {
-    implicitLayers.reserve(10);
-    explicitLayers.reserve(10);
+    allLayers.reserve(10);
     bLogStdout = false;
     pActiveProfile = nullptr;
 
@@ -156,12 +155,8 @@ CVulkanConfiguration::~CVulkanConfiguration()
 
 void CVulkanConfiguration::clearLayerLists(void)
     {
-    qDeleteAll(implicitLayers.begin(), implicitLayers.end());
-    implicitLayers.clear();
-    qDeleteAll(explicitLayers.begin(), explicitLayers.end());
-    explicitLayers.clear();
-    qDeleteAll(customLayers.begin(), customLayers.end());
-    customLayers.clear();
+    qDeleteAll(allLayers.begin(), allLayers.end());
+    allLayers.clear();
     }
 
 
@@ -246,14 +241,14 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
     for(uint32_t i = 0; i < nSearchPaths; i++) {
         TLayerType type = (szSearchPaths[i].contains("implicit", Qt::CaseInsensitive)) ? LAYER_TYPE_IMPLICIT : LAYER_TYPE_EXPLICIT;
         if(type == LAYER_TYPE_IMPLICIT)
-            loadLayersFromPath(szSearchPaths[i], implicitLayers, type);
+            loadLayersFromPath(szSearchPaths[i], allLayers, type);
         else
-            loadLayersFromPath(szSearchPaths[i], explicitLayers, type);
+            loadLayersFromPath(szSearchPaths[i], allLayers, type);
         }
 
     // Any custom paths? All layers from all paths are appended together here
     for(int i = 0; i < additionalSearchPaths.size(); i++)
-        loadLayersFromPath(additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
+        loadLayersFromPath(additionalSearchPaths[i], allLayers, LAYER_TYPE_CUSTOM);
     }
 
 
@@ -423,19 +418,9 @@ void CVulkanConfiguration::loadDefaultLayerSettings(void)
 const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName)
     {
     // Search implicit layers
-    for(int i = 0; i < implicitLayers.size(); i++)
-        if(qsLayerName == implicitLayers[i]->name)
-            return implicitLayers[i];
-
-    // Search explicit layers
-    for(int i = 0; i < explicitLayers.size(); i++)
-        if(qsLayerName == explicitLayers[i]->name)
-            return explicitLayers[i];
-
-    // Search custom layers
-    for(int i = 0; i < customLayers.size(); i++)
-        if(qsLayerName == customLayers[i]->name)
-            return customLayers[i];
+    for(int i = 0; i < allLayers.size(); i++)
+        if(qsLayerName == allLayers[i]->name)
+            return allLayers[i];
 
     return nullptr;
     }
@@ -493,17 +478,30 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         // Make a copy add it to this layer
         CLayerFile *pProfileLayer = new CLayerFile();
         pLayer->CopyLayer(pProfileLayer);
-        pProfileLayer->bActive = true;
-        pProfileLayer->nRank = iLayer; ////////// NOOOO.... json sorts, and can't turn it off. Need to put this as a field in the json TBD
         pProfile->layers.push_back(pProfileLayer);
 
         QJsonValue layerValue = layerObjects.value(layerList[iLayer]);
         QJsonObject layerObject = layerValue.toObject();
 
+        QJsonValue layerRank = layerObject.value("layer_rank");
+        pProfileLayer->nRank = layerRank.toInt();
+        pProfileLayer->bActive = true;      // Always because it's present in the file
+
         // We have added the layer, but the layer has settings too
         pProfile->bContainsReadOnlyFields =
                  CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
+
+    // We need to sort the layers by their rank. The json sorts alphebetically and we
+    // need to undo it.... A bubble quick sort is fine, it's a small list
+    if(pProfile->layers.size() > 1)
+        for(int i = 0; i < pProfile->layers.size()-1; i++)
+            for(int j = i+1; j < pProfile->layers.size(); j++)
+                if(pProfile->layers[i]->nRank > pProfile->layers[j]->nRank) {
+                    CLayerFile *pTemp = pProfile->layers[i];
+                    pProfile->layers[i] = pProfile->layers[j];
+                    pProfile->layers[j] = pTemp;
+                    }
 
     return pProfile;
     }
@@ -523,6 +521,11 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
         CLayerFile *pLayer = pProfile->layers[iLayer];
 
         QJsonObject jsonSettings;
+
+        // Rank goes in here with settings
+        jsonSettings.insert("layer_rank", pLayer->nRank);
+
+        // Loop through the actual settings
         for(int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
             QJsonObject setting;
             TLayerSettings *pSettingsDetails = pLayer->layerSettings[iSetting];
@@ -631,47 +634,48 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
 /// \brief CVulkanConfiguration::CreateEmptyProfile
 /// \return
 /// Create an empty profile definition that contains all available layers.
+/// All settings are the default, and the layer order is just the order at
+/// which they have come.
 CProfileDef* CVulkanConfiguration::CreateEmptyProfile()
     {
     CProfileDef* pNewProfile = new CProfileDef();
     pNewProfile->bContainsReadOnlyFields = false;
 
     CLayerFile *pTempLayer;
+    int nRank = 0;
 
-    // Add implicit layers
-    for(int i = 0; i < implicitLayers.size(); i++) {
+    // Add layers
+    for(int i = 0; i < allLayers.size(); i++) {
         pTempLayer = new CLayerFile();
-        implicitLayers[i]->CopyLayer(pTempLayer);
-        pNewProfile->layers.push_back(pTempLayer);
-        }
-
-    // Add explicit layers
-    for(int i = 0; i < explicitLayers.size(); i++) {
-        pTempLayer = new CLayerFile();
-        explicitLayers[i]->CopyLayer(pTempLayer);
-        pNewProfile->layers.push_back(pTempLayer);
-        }
-
-    // Add Custom layers
-    for(int i = 0; i < customLayers.size(); i++) {
-        pTempLayer = new CLayerFile();
-        customLayers[i]->CopyLayer(pTempLayer);
+        allLayers[i]->CopyLayer(pTempLayer);
+        pTempLayer->nRank = nRank++;
         pNewProfile->layers.push_back(pTempLayer);
         }
 
     // Now grab settings defaults
-    // Yeah, I know. "Holy crap Richard, think you have enough indirection in there..."
-    for(int i = 0; i < pNewProfile->layers.size(); i++) {
-        const LayerSettingsDefaults *pDefaults = findSettingsFor(pNewProfile->layers[i]->name);
-        if(pDefaults != nullptr) { // We have some!
-            for(int s = 0; s < pDefaults->defaultSettings.size(); s++) {
-                TLayerSettings *pSetting = new TLayerSettings();
-                *pSetting = *pDefaults->defaultSettings[s];
-                pNewProfile->layers[i]->layerSettings.push_back(pSetting);
-                }
-            }
-        }
+    for(int i = 0; i < pNewProfile->layers.size(); i++)
+        LoadDefaultSettings(pNewProfile->layers[i]);
+
     return pNewProfile;
+    }
+
+//////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::LoadDefaultSettings
+/// \param pBlankLayer
+/// Load the default settings into an empty layer file container
+void CVulkanConfiguration::LoadDefaultSettings(CLayerFile* pBlankLayer)
+    {
+    const LayerSettingsDefaults *pDefaults = findSettingsFor(pBlankLayer->name);
+
+    if(pDefaults == nullptr)  // Did we find any?
+        return;
+
+    // Create and pop them in....
+    for(int s = 0; s < pDefaults->defaultSettings.size(); s++) {
+        TLayerSettings *pSetting = new TLayerSettings();
+        *pSetting = *pDefaults->defaultSettings[s];
+        pBlankLayer->layerSettings.push_back(pSetting);
+        }
     }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>747</height>
+    <height>685</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>745</width>
-    <height>747</height>
+    <height>685</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>745</width>
-    <height>747</height>
+    <height>685</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -28,9 +28,9 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>700</y>
-     <width>621</width>
+     <x>250</x>
+     <y>640</y>
+     <width>461</width>
      <height>32</height>
     </rect>
    </property>
@@ -62,19 +62,6 @@
     </property>
    </column>
   </widget>
-  <widget class="QPushButton" name="pushButtonSaveProfileAs">
-   <property name="geometry">
-    <rect>
-     <x>550</x>
-     <y>630</y>
-     <width>156</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Save Profile As...</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButtonResetLayers">
    <property name="geometry">
     <rect>
@@ -85,14 +72,14 @@
     </rect>
    </property>
    <property name="text">
-    <string>Clear to defaults</string>
+    <string>Reset to Defaults</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButtonLaunchTest">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>630</y>
+     <x>30</x>
+     <y>640</y>
      <width>156</width>
      <height>32</height>
     </rect>
@@ -105,7 +92,7 @@
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>260</y>
+     <y>265</y>
      <width>22</width>
      <height>22</height>
     </rect>
@@ -121,7 +108,7 @@
    <property name="geometry">
     <rect>
      <x>660</x>
-     <y>260</y>
+     <y>265</y>
      <width>21</width>
      <height>22</height>
     </rect>

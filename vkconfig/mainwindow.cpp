@@ -263,6 +263,7 @@ void MainWindow::on_pushButtonEditProfile_clicked(void)
         if(pProfileItem != nullptr) {
             dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
             dlg.exec();
+            LoadProfileList();  // Force a reload
             }
         }
     }
@@ -273,6 +274,7 @@ void MainWindow::on_pushButtonNewProfile_clicked(void)
     {
     dlgProfileEditor dlg(this, nullptr);
     dlg.exec();
+    LoadProfileList();  // force a reload
     }
 
 

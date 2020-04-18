@@ -70,6 +70,8 @@ public:
     QString     implementation_version;
     QString     description;
 
+    QString     qsCustomLayerPath; // Only used by custom layer paths
+
     TLayerType  layerType;
 
     // This layers settings. This will be used to build the editor
@@ -97,6 +99,10 @@ public:
         destinationLayer->implementation_version = implementation_version;
         destinationLayer->description = description;
         destinationLayer->layerType = layerType;
+        destinationLayer->bActive = bActive;
+        destinationLayer->nRank = nRank;
+        destinationLayer->bDisabled = bDisabled;
+        destinationLayer->qsCustomLayerPath = qsCustomLayerPath;
 
         for(int i = 0; i < layerSettings.length(); i++) {
             TLayerSettings *pSettings = new TLayerSettings();

@@ -43,7 +43,13 @@ public:
     // A profile is nothing but a list of layers and their settings in truth
     QVector<CLayerFile *>layers;
 
-    QStringList     blacklistedLayers;          // Just the names of blacklisted layers
+    QStringList     blacklistedLayers;                  // Just the names of blacklisted layers
+
+    CLayerFile*     findLayer(QString qsLayerName);     // Find the layer if it exists
+
+    CProfileDef     *duplicateProfile(void);            // Copy a profile so we can mess with it
+
+    void            CollapseProfile(void);              // Remove unused layers and settings, set blacklist
 
 };
 
