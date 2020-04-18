@@ -38,4 +38,12 @@ dlgcreateprofile::~dlgcreateprofile()
     delete ui;
 }
 
-
+//////////////////////////////////////////////////////////////////
+/// \brief dlgcreateprofile::clickedSave
+/// When the user clicks save, put the values in easy to get
+/// to public variables.
+void dlgcreateprofile::clickedSave()
+    {
+    profileName = ui->lineEditProfileName->text();
+    profileDescription = ui->textEditDescription->toPlainText();
+    }

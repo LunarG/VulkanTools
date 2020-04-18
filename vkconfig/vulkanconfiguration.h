@@ -148,7 +148,7 @@ public:
     void SetCurrentActiveProfile(CProfileDef *pProfile);
     const CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
 
-
+    QString getProfilePath(void) { return qsProfileFilesPath; }
 
 protected:
     CVulkanConfiguration();

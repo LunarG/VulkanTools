@@ -35,13 +35,16 @@ public:
     explicit dlgcreateprofile(QWidget *parent = nullptr);
     ~dlgcreateprofile();
 
+    QString profileName;
+    QString profileDescription;
+
 private:
     Ui::dlgcreateprofile *ui;
 
     CVulkanConfiguration    *pVulkanConfig;
 
 public	Q_SLOTS:
-
+    void clickedSave(void);
 };
 
 #endif // DLGCREATEPROFILE_H

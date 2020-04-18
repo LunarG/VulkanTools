@@ -17,11 +17,13 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
+#include <QMessageBox>
 
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
 #include "dlglayeroutput.h"
 #include "dlgcustompaths.h"
+#include "dlgcreateprofile.h"
 
 class QTreeWidgetItemWithLayer : public QTreeWidgetItem
     {
@@ -255,31 +257,6 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayerRepBackPointer->pLayerFileInfo->layerSettings);
     }
 
-/////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::on_layerTree_itemSelectionChanged
-/// Tree selection has been made. Display the appropriate editor at the bottom of the window
-/*void dlgProfileEditor::on_layerTree_itemSelectionChanged(void)
-    {
-    // Which one is selected? We need the top item too
-    QTreeWidgetItem *pSelected = ui->layerTree->currentItem();
-    while(pSelected->parent() != nullptr)
-        pSelected = pSelected->parent();
-
-    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pSelected);
-    //pLayerItem->pLayerRepBackPointer->pLayerFileInfo->layerSettings
-    if(pLayerItem == nullptr) return;
-
-
-    // Get the name of the selected layer
-    QString qsTitle = "Layer Settings (" + pSelected->text(0);
-    qsTitle += ")";
-    ui->groupBoxSettings->setTitle(qsTitle);
-
-    settingsEditor.CleanupGUI();
-    settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayerRepBackPointer->pLayerFileInfo->layerSettings);
-    }
-*/
-
 
 ///////////////////////////////////////////////////////////////////////////
 /// \brief dlgProfileEditor::layerItemChanged
@@ -318,3 +295,29 @@ void dlgProfileEditor::layerItemChanged(QTreeWidgetItem *item, int nColumn)
     }
 
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief dlgProfileEditor::on_pushButtonSaveProfileAs_clicked
+/// We are either saving an exisitng profile, or creating a new one.
+void dlgProfileEditor::on_pushButtonSaveProfileAs_clicked()
+    {
+    // Get the path where the profiles are saved
+    QString savePath = pVulkanConfig->getProfilePath();
+
+    // If we are editing a profile, just save it and be done.
+    if(!pThisProfile->qsFileName.isEmpty()) {
+        savePath += pThisProfile->qsFileName;
+        pVulkanConfig->SaveProfile(pThisProfile);
+        return;
+        }
+
+    // Creating a user defined profile. A bit more work.
+    dlgcreateprofile dlg(this);
+    if(QDialog::Accepted != dlg.exec())
+        return;
+
+    pThisProfile->qsProfileName = dlg.profileName;
+    pThisProfile->qsDescription = dlg.profileDescription;
+    pThisProfile->qsFileName = dlg.profileName + ".profile";
+    savePath += pThisProfile->qsFileName;
+    pVulkanConfig->SaveProfile(pThisProfile);
+    }
