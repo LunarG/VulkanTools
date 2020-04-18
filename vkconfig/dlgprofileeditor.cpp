@@ -70,6 +70,8 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
             setWindowTitle(title);
             ui->pushButtonSaveProfileAs->setText(tr("Save profile as..."));
             pThisProfile = pVulkanConfig->CreateEmptyProfile();
+            pThisProfile->qsProfileName = pProfileToEdit->qsProfileName;
+            pThisProfile->qsFileName = pProfileToEdit->qsFileName;
 
             // Replace the first layer with the one we are cloning
             // I could assume it's the first layer... but that seems fragile
@@ -95,16 +97,18 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         }
 
     QTreeWidgetItem *pHeader = ui->layerTree->headerItem();
-    pHeader->setText(0, "Layer Name");
-    pHeader->setText(1, "Active");
+    pHeader->setText(0, "Available Layers");
+    pHeader->setText(1, "Use");
     pHeader->setText(2, "Implicit?");
-    pHeader->setText(3, "Disabled");
+    pHeader->setText(3, "Blacklist");
     pHeader->setText(4, "Custom Path?");
 
     connect(ui->layerTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this,
                 SLOT(currentLayerChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 
     connect(ui->layerTree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(layerItemChanged(QTreeWidgetItem*, int)));
+
+    connect(this, SIGNAL(accepted()), this, SLOT(on_saveProfile()));
 
     resetLayerDisplay(); // Load all available layers
     }
@@ -298,14 +302,14 @@ void dlgProfileEditor::layerItemChanged(QTreeWidgetItem *item, int nColumn)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgProfileEditor::on_pushButtonSaveProfileAs_clicked
 /// We are either saving an exisitng profile, or creating a new one.
-void dlgProfileEditor::on_pushButtonSaveProfileAs_clicked()
+void dlgProfileEditor::on_saveProfile()
     {
     // Get the path where the profiles are saved
     QString savePath = pVulkanConfig->getProfilePath();
 
     // If we are editing a profile, just save it and be done.
     if(!pThisProfile->qsFileName.isEmpty()) {
-        savePath += pThisProfile->qsFileName;
+        savePath += "/" + pThisProfile->qsFileName;
         pVulkanConfig->SaveProfile(pThisProfile);
         return;
         }

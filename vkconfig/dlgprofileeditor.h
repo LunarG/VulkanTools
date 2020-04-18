@@ -76,7 +76,7 @@ public Q_SLOTS:
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonLaunchTest_clicked();
     void on_pushButtonAddLayers_clicked();
-    void on_pushButtonSaveProfileAs_clicked();
+    void on_saveProfile();
 
 };
 

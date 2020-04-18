@@ -27,11 +27,11 @@
 dlgcreateprofile::dlgcreateprofile(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlgcreateprofile)
-{
+    {
     ui->setupUi(this);
 
-
-}
+    connect(this, SIGNAL(accepted()), this, SLOT(clickedSave()));
+    }
 
 dlgcreateprofile::~dlgcreateprofile()
 {

@@ -10,6 +10,12 @@
     <height>747</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>745</width>
+    <height>747</height>
+   </size>
+  </property>
   <property name="maximumSize">
    <size>
     <width>745</width>
@@ -32,7 +38,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
    </property>
   </widget>
   <widget class="QTreeWidget" name="layerTree">
@@ -173,7 +179,7 @@
    <property name="geometry">
     <rect>
      <x>500</x>
-     <y>255</y>
+     <y>260</y>
      <width>141</width>
      <height>32</height>
     </rect>

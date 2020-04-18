@@ -76,6 +76,10 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>lineEditProfileName</tabstop>
+  <tabstop>textEditDescription</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
