@@ -29,6 +29,7 @@ dlgcreateprofile::dlgcreateprofile(QWidget *parent) :
     ui(new Ui::dlgcreateprofile)
     {
     ui->setupUi(this);
+    ui->lineEditProfileName->setFocus();
 
     connect(this, SIGNAL(accepted()), this, SLOT(clickedSave()));
     }
