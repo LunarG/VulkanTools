@@ -46,8 +46,9 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     int nVerticalPad = 10;
     int nCurrRow = 15;
     int nLeftColumn = 10;
-    int nSecondColumn = 90;
+    int nSecondColumn = 125;
     int nEditFieldWidth = 220;
+    int nButtonHeight = 26;
 
     pEditArea = new QWidget();
     pEditArea->setMinimumSize(QSize(450, 1024)); //(nRowHeight * (layerSettings.size()+2))));
@@ -129,7 +130,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 
                 pBrowseButton = new QPushButton(pEditArea);
                 pBrowseButton->setText("Browse...");
-                pBrowseButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, 100, nRowHeight+1);
+                pBrowseButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, 100, nButtonHeight);
                 connect(pBrowseButton, SIGNAL(pressed()), this, SLOT(browseButtonPressed()));
                 pBrowseButton->show();
                 inputControls.push_back(pBrowseButton);
@@ -205,7 +206,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     if(bApplyButton) {
         pApplyButton = new QPushButton(pEditArea);
         pApplyButton->setText(tr("Apply Now"));
-        pApplyButton->setGeometry(nLeftColumn, nCurrRow, nEditFieldWidth, nRowHeight);
+        pApplyButton->setGeometry(nLeftColumn, nCurrRow, nEditFieldWidth, nButtonHeight);
         pApplyButton->show();
         }
     }

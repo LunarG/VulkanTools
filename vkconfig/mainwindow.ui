@@ -68,8 +68,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>458</width>
-             <height>269</height>
+             <width>448</width>
+             <height>252</height>
             </rect>
            </property>
           </widget>
@@ -130,7 +130,7 @@
          <x>20</x>
          <y>80</y>
          <width>131</width>
-         <height>24</height>
+         <height>26</height>
         </rect>
        </property>
        <property name="text">
@@ -143,7 +143,7 @@
          <x>20</x>
          <y>20</y>
          <width>131</width>
-         <height>24</height>
+         <height>26</height>
         </rect>
        </property>
        <property name="text">
@@ -175,7 +175,7 @@
          <x>20</x>
          <y>50</y>
          <width>131</width>
-         <height>24</height>
+         <height>26</height>
         </rect>
        </property>
        <property name="text">
@@ -188,13 +188,18 @@
          <x>20</x>
          <y>190</y>
          <width>131</width>
-         <height>23</height>
+         <height>26</height>
         </rect>
        </property>
        <property name="text">
         <string>App List</string>
        </property>
       </widget>
+      <zorder>label</zorder>
+      <zorder>pushButtonEditProfile</zorder>
+      <zorder>pushButtonNewProfile</zorder>
+      <zorder>pushButtonRemove</zorder>
+      <zorder>pushButtonAppList</zorder>
      </widget>
     </item>
    </layout>
@@ -205,7 +210,7 @@
      <x>0</x>
      <y>0</y>
      <width>519</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">

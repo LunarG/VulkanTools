@@ -131,7 +131,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
 
     connect(ui->layerTree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(layerItemChanged(QTreeWidgetItem*, int)));
 
-    LoadLayerDisplay(); // Load/Reload the layer editor
+    LoadLayerDisplay(0); // Load/Reload the layer editor
     }
 
 dlgProfileEditor::~dlgProfileEditor()
@@ -178,13 +178,13 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
 
        // Let me know if it's an implicit layer
        pItem->setTextAlignment(3, Qt::AlignCenter);
-       if(pItem->pLayer->type == LAYER_TYPE_EXPLICIT)
+       if(pItem->pLayer->layerType == LAYER_TYPE_EXPLICIT)
            pItem->setText(3, "No");
        else
            pItem->setText(3, "Yes");
 
        // Is it a custom layer? If so, where is it from...
-       if(pItem->pLayer->type == LAYER_TYPE_CUSTOM)
+       if(pItem->pLayer->layerType == LAYER_TYPE_CUSTOM)
            pItem->setText(4, pItem->pLayer->qsCustomLayerPath);
        else
            pItem->setText(4, "SDK Supplied");
@@ -269,17 +269,14 @@ void dlgProfileEditor::on_pushButtonLaunchTest_clicked()
 /// The currently selected layer has changed.
 void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
     {
-    // If something was previously selected, update
-    // the settings data for it's layer.
-    if(pPrevious != nullptr)
-        settingsEditor.CollectSettings();
+    // These are always safe to call
+    settingsEditor.CollectSettings();
+    settingsEditor.CleanupGUI();
 
     // New settings
     QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pCurrent);
     if(pLayerItem == nullptr) {
         ui->groupBoxSettings->setTitle(tr("Layer Settings"));
-        settingsEditor.CollectSettings();   // Collect any changes
-        settingsEditor.CleanupGUI();
         return;
         }
 
@@ -287,8 +284,6 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     QString qsTitle = "Layer Settings (" + pCurrent->text(0);
     qsTitle += ")";
     ui->groupBoxSettings->setTitle(qsTitle);
-
-    settingsEditor.CleanupGUI();
     settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings);
     }
 

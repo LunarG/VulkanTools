@@ -52,6 +52,7 @@ private:
 
     CProfileDef             *pThisProfile;
 
+
 public Q_SLOTS:
     virtual void accept() override;
 
