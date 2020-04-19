@@ -43,6 +43,9 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
 #endif
     QString filePath = QDir::temp().path() + "/vkvia.json";
 
+    // Remove the old one
+    remove(filePath.toUtf8().constData());
+
     QStringList args;
     args << "--output_path" << QDir::temp().path();
     args << "--vkconfig_output";

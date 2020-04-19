@@ -43,10 +43,10 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     ui->setupUi(this);
 
     QProcess *vulkan_info = new QProcess(this);
-#ifdef __APPLE__
+#ifdef _WIN32
     vulkan_info->setProgram("vulkaninfoSDK");
 #else
-    vulkan_info->setProgram("vulkaninfoSDK");
+    vulkan_info->setProgram("vulkaninfo");
 #endif
 
 
@@ -55,11 +55,17 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     QStringList args;
     args << "--vkconfig_output";
     args << filePath;
+
+    // Wait... make sure we don't pick up the old one!
+    filePath += "/vulkaninfo.json";
+    remove(filePath.toUtf8().constData());
+
+    // Lock and load...
     vulkan_info->setArguments(args);
     vulkan_info->start();
     vulkan_info->waitForFinished();
 
-     filePath += "/vulkaninfo.json";
+    // Check for the output file
     QFile file(filePath);
      if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
          QMessageBox msgBox;
