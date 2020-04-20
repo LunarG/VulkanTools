@@ -378,10 +378,13 @@ void MainWindow::profileItemChanged(QListWidgetItem *item)
         return;
         }
 
+    ///////////////////////////////////////////////////////////////////////////////////////
     // We enforce above that only one item can be checked, but what if we uncheck
     // the only selected item? If so, we end up here and we need to remove the currently
-    // active profile
+    // active profile, and re-enable the editor.
     pVulkanConfig->SetCurrentActiveProfile(nullptr);
+    ui->tabWidget->setEnabled(true);
+    ui->pushButtonEditProfile->setEnabled(true);
     }
 
 
