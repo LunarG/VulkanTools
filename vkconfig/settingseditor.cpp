@@ -32,7 +32,6 @@
 CSettingsEditor::CSettingsEditor()
     {
     pEditArea = nullptr;
-    pApplyButton = nullptr;
     inputControls.reserve(100);
     prompts.reserve(100);
     }
@@ -40,7 +39,7 @@ CSettingsEditor::CSettingsEditor()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Creates controls and sets up any signals
-void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bApplyButton)
+void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings)
     {
     int nRowHeight = 24;
     int nVerticalPad = 10;
@@ -55,14 +54,22 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     pDestination->setWidget(pEditArea);
     pEditArea->show();
 
-//    typedef enum { LAYER_SETTINGS_STRING = 0, LAYER_SETTINGS_FILE, LAYER_SETTINGS_INT, LAYER_SETTINGS_FLOAT, LAYER_SETTINGS_BOOL,
-//                    LAYER_SETTINGS_EXCLUSIVE_LIST, LAYER_SETTINGS_INCLUSIVE_LIST, LAYER_SETTINGS_RANGE_INT } TLayerSettingsType;
+    // Real-time compute some spacing items
+    QFontMetrics fm = pEditArea->fontMetrics();
 
-//    hashTable.insert("string", LAYER_SETTINGS_STRING);
-//    hashTable.insert("save_file", LAYER_SETTINGS_FILE);
-//    hashTable.insert("bool", LAYER_SETTINGS_BOOL);
-//    hashTable.insert("enum", LAYER_SETTINGS_EXCLUSIVE_LIST);
-//    hashTable.insert("multi_enum", LAYER_SETTINGS_INCLUSIVE_LIST);
+//    nRowHeight = fm.height() * 3;
+
+    // Get widest prompt row to determine where the second column goes
+    nSecondColumn = 0;
+    for(int i = 0; i < layerSettings.size(); i++) {
+        int w = fm.horizontalAdvance(layerSettings[i]->settingsPrompt);
+        if(w > nSecondColumn)
+            nSecondColumn = w;
+        }
+
+    nSecondColumn += nLeftColumn;
+    nSecondColumn += 8;
+
 
     for(int iSetting = 0; iSetting < layerSettings.size(); iSetting++) {
         // Do not display read only settings.
@@ -177,7 +184,12 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                     pListBox->addItem(pItem);
                     }
 
-                int nElementHeight = /*pListBox->sizeHintForRow(0)*/ nRowHeight * layerSettings[iSetting]->settingsListInclusiveValue.length();
+                int nElementHeight;
+                if(layerSettings[iSetting]->settingsListExclusiveValue.length() < 4)
+                    nElementHeight = fm.height() * (layerSettings[iSetting]->settingsListInclusiveValue.length()+3);
+                else
+                    nElementHeight = fm.height() * (layerSettings[iSetting]->settingsListInclusiveValue.length()+2);
+
                 pListBox->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nElementHeight);
                 pListBox->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pListBox->show();
@@ -201,13 +213,6 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 
         nCurrRow += nRowHeight;
         nCurrRow += nVerticalPad;
-        }
-
-    if(bApplyButton) {
-        pApplyButton = new QPushButton(pEditArea);
-        pApplyButton->setText(tr("Apply Now"));
-        pApplyButton->setGeometry(nLeftColumn, nCurrRow, nEditFieldWidth, nButtonHeight);
-        pApplyButton->show();
         }
     }
 
@@ -323,7 +328,6 @@ void CSettingsEditor::CleanupGUI(void)
 
     delete pEditArea;
     pEditArea = nullptr;
-    pApplyButton = nullptr;
     }
 
 ///////////////////////////////////////////////////////////////////////////////

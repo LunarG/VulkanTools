@@ -112,6 +112,7 @@ void MainWindow::LoadProfileList(void)
         CProfileListItem *pItem = new CProfileListItem();
         pItem->pProfilePointer = pVulkanConfig->profileList[i];
         pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
+        pItem->setToolTip(pVulkanConfig->profileList[i]->qsDescription);
 
         if(pVulkanConfig->GetCurrentActiveProfile() == pItem->pProfilePointer)
             pItem->setCheckState(Qt::Checked);
@@ -149,6 +150,7 @@ void MainWindow::LoadProfileList(void)
         CProfileListItem *pItem = new CProfileListItem();
         pItem->pProfilePointer = pVulkanConfig->profileList[i];
         pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
+        pItem->setToolTip((pVulkanConfig->profileList[i]->qsDescription));
 
         if(pVulkanConfig->GetCurrentActiveProfile() == pItem->pProfilePointer)
             pItem->setCheckState(Qt::Checked);
@@ -335,6 +337,10 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
 // current one may be unchecked.
 void MainWindow::profileItemChanged(QListWidgetItem *item)
     {
+    // Get the currently selected item
+    int nRow = ui->listWidgetProfiles->currentRow();
+    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+
     // If an item is checked, well, a few things need to happen.
     if(item->checkState() == Qt::Checked)
         {
@@ -359,6 +365,15 @@ void MainWindow::profileItemChanged(QListWidgetItem *item)
         CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(item);
         if(pProfileItem != nullptr) // Better to ignore than crash
             pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
+
+        // If the currently selected item was also just checked... we need to
+        // disable edting
+        if(pSelectedItem->pProfilePointer == pProfileItem->pProfilePointer) {
+            ui->tabWidget->setEnabled(false);
+
+            if(!pProfileItem->pProfilePointer->bContainsReadOnlyFields)
+                ui->pushButtonEditProfile->setEnabled(false);
+            }
 
         return;
         }
@@ -398,8 +413,22 @@ void MainWindow::selectedProfileChanged(void)
         return; // This should never happen, but if they do, nothing is selected
         }
 
+    // Wait... if this is the currently active profile, we do not allow editing,
+    // But still show the settings
+    if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
+        if(!pSelectedItem->pProfilePointer->bContainsReadOnlyFields)
+            ui->pushButtonEditProfile->setEnabled(false);
+
+        ui->tabWidget->setEnabled(false);
+        settingsEditor.CleanupGUI();
+        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings);
+        return;
+        }
+
+
     // Something is selected, so we need to enable the button
     ui->pushButtonEditProfile->setEnabled(true);
+    ui->tabWidget->setEnabled(true);
 
     // Label the button appropriately, but if a canned profile, we do need to
     // setup the GUI
@@ -407,8 +436,7 @@ void MainWindow::selectedProfileChanged(void)
         ui->pushButtonEditProfile->setText("Clone Profile");
         ui->pushButtonRemove->setEnabled(false);
         settingsEditor.CleanupGUI();
-        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
-        connect(settingsEditor.pApplyButton, SIGNAL(pressed()), this, SLOT(applyNewSettingsNow()));
+        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings);
         }
     else {
         ui->pushButtonEditProfile->setText("Edit Profile");
@@ -417,28 +445,4 @@ void MainWindow::selectedProfileChanged(void)
         }
     }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::applyNewSettingsNow
-/// Apply now button in settings editor has been clicked. This is slightly
-/// different from when we move off of an item because insteado updating the
-/// last selected profile, we are updating the currently active profile
-void MainWindow::applyNewSettingsNow()
-    {
-    int nRow = ui->listWidgetProfiles->currentRow();
-    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
-    Q_ASSERT(pSelectedItem != nullptr);
-
-    // We have changed settings? Were there any edits to the last one? If no
-    // changes, I don't care that you clicked the button, no soup for you
-    // (no changes written)
-    if(settingsEditor.CollectSettings() == true) {
-        // Write changes to the profile
-        pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
-
-        // Oh yeah... if we have changed the current profile, we need to also update
-        // the overrid settings.
-        if(pVulkanConfig->GetCurrentActiveProfile() == pSelectedItem->pProfilePointer)
-            pVulkanConfig->SetCurrentActiveProfile(pSelectedItem->pProfilePointer); // Resets
-        }
-    }
 

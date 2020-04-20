@@ -36,11 +36,10 @@ public:
     CSettingsEditor();
 
     // Creates controls and sets up any signals
-    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bApplyButton = false);
+    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings);
     void CleanupGUI(void);                  // Clears all the controls and deletes edit area
     bool CollectSettings(void);             // Transfer controls to layerSettings.
                                             // Returns false if no settings were changed
-    QPushButton   *pApplyButton;            // Button pressed to apply settings now
 
 protected:
     // Every edit control has one of these
