@@ -192,7 +192,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>App List</string>
+        <string>Edit App List</string>
        </property>
       </widget>
       <zorder>label</zorder>

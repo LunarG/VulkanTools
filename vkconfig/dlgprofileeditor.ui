@@ -85,7 +85,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Test Working Profile...</string>
+    <string>Test Configuration...</string>
    </property>
   </widget>
   <widget class="QToolButton" name="toolButtonDown">
@@ -155,7 +155,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>662</width>
+       <width>664</width>
        <height>279</height>
       </rect>
      </property>

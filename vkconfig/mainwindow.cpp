@@ -368,12 +368,13 @@ void MainWindow::profileItemChanged(QListWidgetItem *item)
 
         // If the currently selected item was also just checked... we need to
         // disable edting
-        if(pSelectedItem->pProfilePointer == pProfileItem->pProfilePointer) {
-            ui->tabWidget->setEnabled(false);
+        if(pSelectedItem != nullptr)
+            if(pSelectedItem->pProfilePointer == pProfileItem->pProfilePointer) {
+                ui->tabWidget->setEnabled(false);
 
-            if(!pProfileItem->pProfilePointer->bContainsReadOnlyFields)
-                ui->pushButtonEditProfile->setEnabled(false);
-            }
+                if(!pProfileItem->pProfilePointer->bContainsReadOnlyFields)
+                    ui->pushButtonEditProfile->setEnabled(false);
+                }
 
         return;
         }
