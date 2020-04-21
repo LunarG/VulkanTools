@@ -352,7 +352,6 @@ void CVulkanConfiguration::loadAllProfiles(void)
     "Standard Validation",          ":/resourcefiles/StandardValidation.profile",
     "Best Practices Validation",    ":/resourcefiles/BestPracticesValidation.profile",
     "GPU-Assisted Validation",      ":/resourcefiles/GPU-AssistedValidation.profile",
-    "Synchronization Validation",   ":/resourcefiles/SynchronizationValidation.profile",
     "Lightweight Validation",       ":/resourcefiles/LightweightValidation.profile",
     };
 
@@ -726,9 +725,14 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         stream << endl;
         stream << "# " << pLayer->name << endl;
 
+
+        QString shortLayerName = pLayer->name.remove("VK_LAYER_");
+        QString lcLayerName = shortLayerName.toLower();
+
+
         for(int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
             TLayerSettings *pSetting = pLayer->layerSettings[iSetting];
-            stream << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
+            stream << lcLayerName << "." << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
             }
         }
     file.close();
@@ -736,8 +740,9 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     ////////////////////////
     // VkLayer_override.json
     QJsonArray json_paths;
-    for(int i = 0; i < additionalSearchPaths.size(); i++)
-        json_paths.append(additionalSearchPaths[i]);
+    // TBD - Only if they are used!
+//    for(int i = 0; i < additionalSearchPaths.size(); i++)
+//        json_paths.append(additionalSearchPaths[i]);
 
     QJsonArray json_layers;
     for(int i = 0; i < pProfile->layers.size(); i++)

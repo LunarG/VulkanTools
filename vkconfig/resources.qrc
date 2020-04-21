@@ -8,6 +8,5 @@
         <file>resourcefiles/BestPracticesValidation.profile</file>
         <file>resourcefiles/GPU-AssistedValidation.profile</file>
         <file>resourcefiles/LightweightValidation.profile</file>
-        <file>resourcefiles/SynchronizationValidation.profile</file>
     </qresource>
 </RCC>
