@@ -37,7 +37,7 @@ const QString cTREEITEM_STATECHANGES("State changes");
 const QString cTREEITEM_RENDER("Render");
 
 class glvdebug_apiCallTreeItem {
-   public:
+  public:
     // Constructor for the root node
     glvdebug_apiCallTreeItem(int columnCount, glvdebug_QApiCallTreeModel *pModel);
 
@@ -77,10 +77,10 @@ class glvdebug_apiCallTreeItem {
     // bool isFrame() const;
     // bool isRoot() const;
 
-   private:
+  private:
     //    void setColumnData(QVariant data, int column);
 
-   private:
+  private:
     QList<glvdebug_apiCallTreeItem *> m_childItems;
     QVariant *m_columnData;
     int m_columnCount;

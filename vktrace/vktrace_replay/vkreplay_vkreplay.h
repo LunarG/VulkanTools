@@ -106,7 +106,7 @@ extern "C" {
 extern vkreplayer_settings* g_pReplaySettings;
 
 class vkReplay {
-   public:
+  public:
     ~vkReplay();
     vkReplay(vkreplayer_settings* pReplaySettings, vktrace_trace_file_header* pFileHeader,
              vktrace_replay::ReplayDisplayImp* display);
@@ -126,7 +126,7 @@ class vkReplay {
     void reset_frame_number(int frameNumber) { m_frameNumber = frameNumber > 0 ? frameNumber : 0; }
     void interpret_pnext_handles(void* struct_ptr);
 
-   private:
+  private:
     void init_funcs(void* handle);
     void* m_libHandle;
     VkLayerInstanceDispatchTable m_vkFuncs;

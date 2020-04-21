@@ -31,7 +31,7 @@ Q_DECLARE_METATYPE(vktrace_SettingGroup)
 class vktraceviewer_QSettingsDialog : public QDialog {
     Q_OBJECT
 
-   public:
+  public:
     vktraceviewer_QSettingsDialog(QWidget* parent = 0);
     ~vktraceviewer_QSettingsDialog();
 
@@ -39,7 +39,7 @@ class vktraceviewer_QSettingsDialog : public QDialog {
 
     void save();
 
-   private:
+  private:
     vktrace_SettingGroup* m_pSettingGroups;
     unsigned int m_numSettingGroups;
 
@@ -48,11 +48,11 @@ class vktraceviewer_QSettingsDialog : public QDialog {
     virtual void resizeEvent(QResizeEvent* pEvent);
     void removeTabs();
 
-   signals:
+  signals:
     void SaveSettings(vktrace_SettingGroup* pUpdatedSettingGroups, unsigned int numGroups);
     void Resized(unsigned int width, unsigned int height);
 
-   private slots:
+  private slots:
     void acceptCB();
     void cancelCB();
 

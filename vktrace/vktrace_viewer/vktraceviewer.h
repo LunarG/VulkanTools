@@ -56,7 +56,7 @@ class vktraceviewer : public QMainWindow, public vktraceviewer_view {
 
     enum Prompt_Result { vktraceviewer_prompt_error = -1, vktraceviewer_prompt_cancelled = 0, vktraceviewer_prompt_success = 1 };
 
-   public:
+  public:
     explicit vktraceviewer(QWidget* parent = 0);
     ~vktraceviewer();
 
@@ -82,18 +82,18 @@ class vktraceviewer : public QMainWindow, public vktraceviewer_view {
     virtual void on_replay_state_changed(bool bReplayInProgress);
     virtual unsigned long long get_current_packet_index();
 
-   protected:
+  protected:
     // re-implemented from QMainWindow
     virtual void moveEvent(QMoveEvent* pEvent);
     virtual void closeEvent(QCloseEvent* pEvent);
     virtual void resizeEvent(QResizeEvent* pEvent);
 
-   signals:
+  signals:
     void LoadTraceFile(const QString& filename);
 
-   public slots:
+  public slots:
 
-   private slots:
+  private slots:
     void on_action_Open_triggered();
     void on_action_Close_triggered();
     void on_actionE_xit_triggered();
@@ -125,7 +125,7 @@ class vktraceviewer : public QMainWindow, public vktraceviewer_view {
 
     void on_hyperlinkClicked(const QUrl& link);
 
-   private:
+  private:
     Ui::vktraceviewer* ui;
     QWidget* m_pTraceStatsTab;
     QGridLayout* m_pTraceStatsTabLayout;

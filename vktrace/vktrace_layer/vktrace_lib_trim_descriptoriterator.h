@@ -52,7 +52,7 @@ typedef union descriptorInfo {
 } DescriptorInfo;
 
 class DescriptorIterator {
-   public:
+  public:
     using value_type = DescriptorInfo;
     using difference_type = int;
     using pointer = DescriptorInfo *;
@@ -87,7 +87,7 @@ class DescriptorIterator {
 
     uint32_t GetCurrentBindingIndex();
 
-   private:
+  private:
     // The target descriptorset trim tracking info.
     ObjectInfo::_ObjectInfo::_DescriptorSet *descriptorset_;
 

@@ -29,29 +29,27 @@
 
 #include "layer_manifest.h"
 
-class SettingsWidget
-{
-public:
+class SettingsWidget {
+  public:
     virtual void setValue(const QString &value) = 0;
 };
 
-class BoolSelectWidget : public QWidget, public SettingsWidget
-{
+class BoolSelectWidget : public QWidget, public SettingsWidget {
     Q_OBJECT
 
-public:
+  public:
     BoolSelectWidget(const LayerOption &option, QWidget *parent = NULL);
     virtual void setValue(const QString &value) override;
     inline LayerValue value() const { return value_info; }
 
-signals:
+  signals:
     void valueChanged(const LayerValue &value);
 
-private slots:
+  private slots:
     void setFalse(bool checked);
     void setTrue(bool checked);
 
-private:
+  private:
     LayerOption option;
     LayerValue value_info;
 
@@ -59,42 +57,40 @@ private:
     QRadioButton *false_button;
 };
 
-class EnumSelectWidget : public QComboBox
-{
+class EnumSelectWidget : public QComboBox {
     Q_OBJECT
 
-public:
+  public:
     EnumSelectWidget(const LayerOption &option, QWidget *parent = NULL);
     inline LayerValue value() const { return value_info; }
 
-signals:
+  signals:
     void valueChanged(const LayerValue &value);
 
-private slots:
+  private slots:
     void selectIndex(int index);
 
-private:
+  private:
     LayerOption option;
     LayerValue value_info;
     QList<QString> keys;
 };
 
-class MultiEnumSelectWidget : public QComboBox
-{
+class MultiEnumSelectWidget : public QComboBox {
     Q_OBJECT
 
-public:
+  public:
     MultiEnumSelectWidget(const LayerOption &option, QWidget *parent = NULL);
     virtual void showPopup() override;
     inline LayerValue value() const { return value_info; }
 
-signals:
+  signals:
     void valueChanged(const LayerValue &value);
 
-private slots:
+  private slots:
     void changeItem(QAction *action);
 
-private:
+  private:
     void updateText();
 
     LayerOption option;
@@ -102,71 +98,68 @@ private:
     QMenu *popup_menu;
 };
 
-class FileSelectWidget : public QWidget
-{
+class FileSelectWidget : public QWidget {
     Q_OBJECT
 
-public:
+  public:
     FileSelectWidget(const LayerOption &option, QWidget *parent = NULL);
     inline LayerValue value() const { return value_info; }
 
-signals:
+  signals:
     void valueChanged(const LayerValue &value);
 
-private slots:
+  private slots:
     void selectFile();
     void setText(const QString &text);
 
-private:
+  private:
     LayerOption option;
     LayerValue value_info;
     QLineEdit *line_edit;
 };
 
-class StringSelectWidget : public QLineEdit
-{
+class StringSelectWidget : public QLineEdit {
     Q_OBJECT
 
-public:
+  public:
     StringSelectWidget(const LayerOption &option, QWidget *parent = NULL);
     inline LayerValue value() const { return value_info; }
 
-signals:
+  signals:
     void valueChanged(const LayerValue &value);
 
-private slots:
+  private slots:
     void setValue(const QString &text);
 
-private:
+  private:
     LayerOption option;
     LayerValue value_info;
 };
 
-class LayerSettingsWidget : public QGroupBox
-{
+class LayerSettingsWidget : public QGroupBox {
     Q_OBJECT
 
-public:
+  public:
     LayerSettingsWidget(QWidget *parent = NULL);
     void setSettingsValues(const QHash<QString, QHash<QString, QString>> &values);
     inline QHash<QString, QHash<QString, LayerValue>> settings() { return layer_settings; }
 
-signals:
+  signals:
     void settingsChanged(const QHash<QString, QHash<QString, LayerValue>> &settings);
 
-public slots:
-    void updateAvailableLayers(const QList<LayerManifest>& enabled_layers, const QList<LayerManifest>& disabled_layers);
+  public slots:
+    void updateAvailableLayers(const QList<LayerManifest> &enabled_layers, const QList<LayerManifest> &disabled_layers);
 
-private slots:
+  private slots:
     void changeValue(const LayerValue &value);
     void updateLayers();
 
-private:
+  private:
     QHash<QString, QHash<QString, LayerValue>> layer_settings;
     QList<LayerManifest> enabled_layers;
     QList<LayerManifest> disabled_layers;
 
-    QHash<QString, QHash<QString, SettingsWidget*>> settings_widgets;
+    QHash<QString, QHash<QString, SettingsWidget *>> settings_widgets;
     QCheckBox *enabled_only_box;
     QToolBox *tool_box;
 };

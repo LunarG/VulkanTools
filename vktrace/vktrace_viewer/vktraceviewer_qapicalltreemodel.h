@@ -34,7 +34,7 @@ class glvdebug_apiCallItem;
 class glvdebug_QApiCallTreeModel : public QAbstractItemModel {
     Q_OBJECT
 
-   public:
+  public:
     glvdebug_QApiCallTreeModel(int columnCount, QObject *parent = 0);
     ~glvdebug_QApiCallTreeModel();
 
@@ -76,11 +76,11 @@ class glvdebug_QApiCallTreeModel : public QAbstractItemModel {
     // glvdebug_apiCallTreeItem *find_call_number(unsigned int callNumber);
     // glvdebug_apiCallTreeItem *find_frame_number(unsigned int frameNumber);
 
-   signals:
+  signals:
 
-   public slots:
+  public slots:
 
-   private:
+  private:
     // gl_entrypoint_id_t itemApiCallId(glvdebug_apiCallTreeItem *apiCall) const;
     // gl_entrypoint_id_t lastItemApiCallId() const;
 
@@ -90,7 +90,7 @@ class glvdebug_QApiCallTreeModel : public QAbstractItemModel {
     // bool processEndNestedEntrypoint(gl_entrypoint_id_t id);
     // bool processFrameBufferWriteEntrypoint(gl_entrypoint_id_t id);
 
-   private:
+  private:
     int m_columnCount;
     glvdebug_apiCallTreeItem *m_rootItem;
     QLinkedList<glvdebug_apiCallTreeItem *> m_itemList;

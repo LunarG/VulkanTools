@@ -33,7 +33,7 @@ static const int BLOCK_FLAG_ARRAY_READ = 2;
 static const int BLOCK_FLAG_ARRAY_READ_SNAPSHOT = 3;
 
 typedef class PageStatusArray {
-   public:
+  public:
     PageStatusArray(uint64_t pageCount);
     ~PageStatusArray();
 
@@ -55,7 +55,7 @@ typedef class PageStatusArray {
     void clearAll();
     void clearActiveChangesArray();
 
-   private:
+  private:
     const static uint64_t PAGE_FLAG_AMOUNT_PER_BYTE;
     const static uint64_t PAGE_NUMBER_FROM_BIT_SHIFT;
     uint64_t ByteCount;

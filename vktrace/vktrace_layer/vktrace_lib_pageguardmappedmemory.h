@@ -33,7 +33,7 @@
 typedef class PageGuardMappedMemory {
     friend class PageGuardCapture;
 
-   private:
+  private:
     VkDevice MappedDevice;
     VkDeviceMemory MappedMemory;
     VkDeviceSize MappedOffset;
@@ -47,7 +47,7 @@ typedef class PageGuardMappedMemory {
 
     VkDeviceSize PageGuardSize;  /// size for one block
 
-   protected:
+  protected:
     PageStatusArray *pPageStatus;
     bool BlockConflictError;  /// record if any block has been read by host and also write by host
     VkDeviceSize PageSizeLeft;
@@ -55,7 +55,7 @@ typedef class PageGuardMappedMemory {
                                          /// mapped memory (returned to target title) located.
     uint64_t PageGuardAmount;
 
-   public:
+  public:
     PageGuardMappedMemory();
     ~PageGuardMappedMemory();
 

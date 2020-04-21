@@ -27,7 +27,7 @@ class vogleditor_frameItem;
 
 class vogleditor_groupItem  //: public vogleditor_snapshotItem
 {
-   public:
+  public:
     vogleditor_groupItem(vogleditor_frameItem *pFrameItem) : m_pParentFrame(pFrameItem) {}
 
     ~vogleditor_groupItem() { m_apiCallList.clear(); }
@@ -72,7 +72,7 @@ class vogleditor_groupItem  //: public vogleditor_snapshotItem
     //    return endTime() - startTime();
     //}
 
-   private:
+  private:
     vogleditor_frameItem *m_pParentFrame;
     QList<glvdebug_apiCallItem *> m_apiCallList;
 };

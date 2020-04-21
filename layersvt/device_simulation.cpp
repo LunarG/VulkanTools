@@ -473,7 +473,7 @@ bool IsFormatSupported(const VkFormatProperties &props) {
 // PhysicalDeviceData : creates and manages the simulated device configurations //////////////////////////////////////////////////
 
 class PhysicalDeviceData {
-   public:
+  public:
     // Create a new PDD element during vkCreateInstance(), and preserve in map, indexed by physical_device.
     static PhysicalDeviceData &Create(VkPhysicalDevice pd, VkInstance instance) {
         assert(pd != VK_NULL_HANDLE);
@@ -511,7 +511,7 @@ class PhysicalDeviceData {
     ArrayOfVkFormatProperties arrayof_format_properties_;
     ArrayOfVkLayerProperties arrayof_layer_properties_;
 
-   private:
+  private:
     PhysicalDeviceData() = delete;
     PhysicalDeviceData &operator=(const PhysicalDeviceData &) = delete;
     PhysicalDeviceData(VkInstance instance) : instance_(instance) {
@@ -531,7 +531,7 @@ PhysicalDeviceData::Map PhysicalDeviceData::map_;
 // Loader for DevSim JSON configuration files ////////////////////////////////////////////////////////////////////////////////////
 
 class JsonLoader {
-   public:
+  public:
     JsonLoader(PhysicalDeviceData &pdd) : pdd_(pdd) {}
     JsonLoader() = delete;
     JsonLoader(const JsonLoader &) = delete;
@@ -541,7 +541,7 @@ class JsonLoader {
     bool LoadFiles(const char *filename_list);
     bool LoadFile(const char *filename);
 
-   private:
+  private:
     enum class SchemaId {
         kUnknown = 0,
         kDevsim100,

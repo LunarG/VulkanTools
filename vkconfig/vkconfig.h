@@ -32,28 +32,27 @@
 #include "layer_settings_widget.h"
 #include "override_settings.h"
 
-class LayerManager : public QMainWindow
-{
+class LayerManager : public QMainWindow {
     Q_OBJECT
 
-public:
+  public:
     LayerManager();
 
-protected:
+  protected:
     void closeEvent(QCloseEvent *event) override;
 
-private slots:
+  private slots:
     void clear();
-    void notify(const QString& message);
+    void notify(const QString &message);
     void restore();
     void saveAll();
     void tabChanged(int index);
     void timerUpdate();
     void about();
 
-private:
+  private:
 #if !defined(NO_HTML)
-    QWidget* showHtml(QProcess *process, const QString &name, const QString &html_file);
+    QWidget *showHtml(QProcess *process, const QString &name, const QString &html_file);
 #endif
 
     QSettings settings;

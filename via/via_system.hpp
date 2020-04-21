@@ -32,7 +32,7 @@
 #endif
 
 class ViaSystem {
-   public:
+  public:
     ViaSystem();
     virtual ~ViaSystem();
 
@@ -61,7 +61,7 @@ class ViaSystem {
         VIA_TEST_FAILED = -60,
     };
 
-   protected:
+  protected:
     struct OverrideExpiration {
         uint16_t year;
         uint8_t month;

@@ -2,7 +2,7 @@
 // Warning: Do not include directly
 
 class objMemory {
-   public:
+  public:
     objMemory() : m_numAllocations(0), m_pMemReqs(NULL) {}
     ~objMemory() { free(m_pMemReqs); }
     void setCount(const uint32_t num) { m_numAllocations = num; }
@@ -21,13 +21,13 @@ class objMemory {
         }
     }
 
-   private:
+  private:
     uint32_t m_numAllocations;
     VkMemoryRequirements *m_pMemReqs;
 };
 
 class gpuMemory {
-   public:
+  public:
     gpuMemory() : m_pendingAlloc(false) { m_allocInfo.allocationSize = 0; }
     ~gpuMemory() {}
     // memory mapping functions for app writes into mapped memory
@@ -136,7 +136,7 @@ class gpuMemory {
 
     uint64_t getMemoryMapSize() { return (!m_mapRange.empty()) ? m_mapRange.back().size : 0; }
 
-   private:
+  private:
     bool m_pendingAlloc;
     struct MapRange {
         bool pending;
@@ -164,7 +164,7 @@ typedef struct _devicememoryObj {
 } devicememoryObj;
 
 class vkReplayObjMapper {
-   public:
+  public:
     vkReplayObjMapper() {}
     ~vkReplayObjMapper() {}
 

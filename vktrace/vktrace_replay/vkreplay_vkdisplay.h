@@ -41,7 +41,7 @@ int GetDisplayImplementation(const char *displayServer, vktrace_replay::ReplayDi
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_XCB_KHR)
 
 class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
-   public:
+  public:
     vkDisplayXcb();
     ~vkDisplayXcb();
     int init(const unsigned int gpu_idx) override;
@@ -56,10 +56,10 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
     void set_window_handle(void *pHandle) override;
 
     xcb_window_t get_window_handle() { return m_XcbWindow; }
-    xcb_connection_t* get_connection_handle() { return m_pXcbConnection; }
-    xcb_screen_t* get_screen_handle() { return m_pXcbScreen; }
+    xcb_connection_t *get_connection_handle() { return m_pXcbConnection; }
+    xcb_screen_t *get_screen_handle() { return m_pXcbScreen; }
 
-   private:
+  private:
     VkResult init_vk(const unsigned int gpu_idx);
     VkIcdSurfaceXcb m_surface;
     xcb_connection_t *m_pXcbConnection;
@@ -91,7 +91,7 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_WAYLAND_KHR)
 
 class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
-   public:
+  public:
     vkDisplayWayland();
     ~vkDisplayWayland();
     int init(const unsigned int gpu_idx) override;
@@ -107,7 +107,7 @@ class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
 
     wl_display *get_display_handle() { return m_display; }
 
-   private:
+  private:
     VkIcdSurfaceWayland m_surface;
     struct wl_display *m_display;
     struct wl_registry *m_registry;
@@ -175,7 +175,7 @@ class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
 
 #if defined(PLATFORM_LINUX) && defined(ANDROID)
 class vkDisplayAndroid : public vktrace_replay::ReplayDisplayImp {
-   public:
+  public:
     vkDisplayAndroid(struct android_app *app);
     ~vkDisplayAndroid();
     int init(const unsigned int gpu_idx) override;
@@ -191,7 +191,7 @@ class vkDisplayAndroid : public vktrace_replay::ReplayDisplayImp {
 
     ANativeWindow *get_window_handle() { return m_window; }
 
-   private:
+  private:
     VkIcdSurfaceAndroid m_surface;
     ANativeWindow *m_window;
     struct android_app *m_android_app;
@@ -217,7 +217,7 @@ class vkDisplayAndroid : public vktrace_replay::ReplayDisplayImp {
 
 #if defined(WIN32)
 class vkDisplayWin32 : public vktrace_replay::ReplayDisplayImp {
-   public:
+  public:
     vkDisplayWin32();
     ~vkDisplayWin32();
     int init(const unsigned int gpu_idx) override;
@@ -234,7 +234,7 @@ class vkDisplayWin32 : public vktrace_replay::ReplayDisplayImp {
     HWND get_window_handle() { return m_windowHandle; }
     HINSTANCE get_connection_handle() { return m_connection; }
 
-   private:
+  private:
     VkIcdSurfaceWin32 m_surface;
     HWND m_windowHandle;
     HINSTANCE m_connection;
@@ -255,7 +255,7 @@ class vkDisplayWin32 : public vktrace_replay::ReplayDisplayImp {
     VK_PHYSICAL_GPU m_gpus[VK_MAX_PHYSICAL_GPUS];
     VK_PHYSICAL_GPU_PROPERTIES m_gpuProps[VK_MAX_PHYSICAL_GPUS];
 #endif
-    std::vector<char*> m_extensions;
+    std::vector<char *> m_extensions;
     bool m_pause = false;
     bool m_quit = false;
 };

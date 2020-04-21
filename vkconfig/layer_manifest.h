@@ -41,7 +41,7 @@ inline LayerType LayerEnum(const QString &type) { return type == "Explicit" ? La
 inline QString LayerString(LayerType type) { return type == LayerType::Explicit ? "Explicit" : "Implicit"; };
 
 class LayerManifest {
-   public:
+  public:
     QString PrettyName() const;
     inline bool operator<(const LayerManifest &that) const { return name < that.name; }
 
@@ -55,7 +55,7 @@ class LayerManifest {
     QString description;
     LayerType type;
 
-   private:
+  private:
     LayerManifest() = default;
 
     static QHash<QString, QString> LoadLayerAuthors(const QString &file_path);
@@ -63,7 +63,7 @@ class LayerManifest {
     static void LoadLayerObject(const QJsonObject &layer_object, LayerType type, const QFileInfo &file,
                                 QList<LayerManifest> *manifest_list);
 #if defined(_WIN32)
-    static QList<LayerManifest> LoadDeviceRegistry(DEVINST id, const QString& entry, LayerType type);
+    static QList<LayerManifest> LoadDeviceRegistry(DEVINST id, const QString &entry, LayerType type);
 #endif
 };
 
@@ -77,7 +77,7 @@ enum class LayerOptionType {
 };
 
 class LayerOption {
-   public:
+  public:
     inline bool operator<(const LayerOption &that) const { return pretty_name < that.pretty_name; }
 
     static QList<LayerOption> LoadOptions(const LayerManifest &manifest);
@@ -90,14 +90,14 @@ class LayerOption {
     QSet<QString> default_values;
     QHash<QString, QString> enum_options;
 
-   private:
+  private:
     LayerOption() = default;
 
     static QJsonObject LoadOptionJson(const QString &file_path);
 };
 
 class LayerValue {
-   public:
+  public:
     QString layer_name;
     QString name;
     LayerOptionType type;

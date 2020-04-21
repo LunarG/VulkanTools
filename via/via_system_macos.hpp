@@ -25,12 +25,12 @@
 #include "via_system.hpp"
 
 class ViaSystemMacOS : public ViaSystem {
-   public:
+  public:
     ViaSystemMacOS();
 
     ViaResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name, bool print_header = true);
 
-   protected:
+  protected:
     virtual int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) override;
     virtual ViaResults PrintSystemEnvironmentInfo();
     virtual ViaResults PrintSystemHardwareInfo();
@@ -45,7 +45,7 @@ class ViaSystemMacOS : public ViaSystem {
     virtual std::string GetEnvironmentalVariableValue(const std::string &env_var);
     virtual bool ExpandPathWithEnvVar(std::string &path);
 
-   private:
+  private:
     bool ReadDriverJson(std::string cur_driver_json, bool &found_lib);
     ViaResults PrintExplicitLayersInFolder(const std::string &id, std::string &folder_loc);
 };

@@ -26,44 +26,37 @@
 
 #include "layer_manifest.h"
 
-class LayerLocationsWidget : public QGroupBox
-{
+class LayerLocationsWidget : public QGroupBox {
     Q_OBJECT
 
-public:
+  public:
     LayerLocationsWidget(QWidget *parent = NULL);
 
-    inline const QList<QPair<QString, LayerType>>& customLayerPaths() const {
-        return custom_layer_locations;
-    }
+    inline const QList<QPair<QString, LayerType>> &customLayerPaths() const { return custom_layer_locations; }
 
     inline void setCustomLayerPaths(const QList<QPair<QString, LayerType>> &paths) {
         custom_layer_locations = paths;
         emit pathsChanged(currentLayerPaths(), custom_path_box->isChecked());
     }
 
-    inline void setUseCustomLayerPaths(bool enabled) {
-        custom_path_box->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
-    }
+    inline void setUseCustomLayerPaths(bool enabled) { custom_path_box->setCheckState(enabled ? Qt::Checked : Qt::Unchecked); }
 
-    inline bool useCustomLayerPaths() {
-        return custom_path_box->isChecked();
-    }
+    inline bool useCustomLayerPaths() { return custom_path_box->isChecked(); }
 
-signals:
+  signals:
     void pathsChanged(const QList<QPair<QString, LayerType>> &path_list, bool is_custom);
 
-private slots:
+  private slots:
     void addLayerPath();
     void clearLayerPaths();
     void removeSelectedLayerPath();
     void searchPath();
     void selectCustomLayerPaths(int state);
 
-private:
+  private:
     void loadLayerPaths();
 
-    inline QList<QPair<QString, LayerType>>& currentLayerPaths() {
+    inline QList<QPair<QString, LayerType>> &currentLayerPaths() {
         return custom_path_box->isChecked() ? custom_layer_locations : default_layer_locations;
     }
 

@@ -34,7 +34,7 @@
 
 class vktraceviewer_QReplayWidget : public QWidget {
     Q_OBJECT
-   public:
+  public:
     explicit vktraceviewer_QReplayWidget(vktraceviewer_QReplayWorker* pWorker, QWidget* parent = 0)
         : QWidget(parent), m_pWorker(pWorker) {
         QVBoxLayout* pLayout = new QVBoxLayout(this);
@@ -119,7 +119,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
 
     QWidget* GetReplayWindow() const { return m_pReplayWindow; }
 
-   signals:
+  signals:
     void PlayButtonClicked();
     void StepButtonClicked();
     void PauseButtonClicked();
@@ -137,7 +137,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
     void OutputMessage(VktraceLogLevel level, const QString& msg);
     void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& msg);
 
-   private slots:
+  private slots:
 
     void slotReplayStarted() {
         m_pPlayButton->setEnabled(false);
@@ -198,7 +198,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         emit OutputMessage(level, packetIndex, msg);
     }
 
-   public slots:
+  public slots:
     void onPlayButtonClicked() { emit PlayButtonClicked(); }
 
     void onStepButtonClicked() { emit StepButtonClicked(); }
@@ -218,7 +218,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
 
     void onDetachCheckBoxClicked(bool checked) { emit DetachCheckBoxClicked(checked); }
 
-   private:
+  private:
     vktraceviewer_QReplayWorker* m_pWorker;
     QWidget* m_pReplayWindow;
     QToolBar* m_pToolBar;

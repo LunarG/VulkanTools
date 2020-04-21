@@ -36,7 +36,7 @@ struct GroupInfo {
 
 class vktraceviewer_QGroupThreadsProxyModel : public QAbstractProxyModel {
     Q_OBJECT
-   public:
+  public:
     vktraceviewer_QGroupThreadsProxyModel(QObject *parent = 0) : QAbstractProxyModel(parent) { buildGroups(NULL); }
 
     virtual ~vktraceviewer_QGroupThreadsProxyModel() {}
@@ -149,7 +149,7 @@ class vktraceviewer_QGroupThreadsProxyModel : public QAbstractProxyModel {
     }
 
     //---------------------------------------------------------------------------------------------
-   private:
+  private:
     QMap<uint32_t, int> m_uniqueThreadIdMapToColumn;
 
     // Each entry in the list corresponds to a packet index;

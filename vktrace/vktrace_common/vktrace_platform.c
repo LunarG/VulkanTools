@@ -416,10 +416,10 @@ void vktrace_create_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
     pthread_mutexattr_t thread_mutexattr_t;
     if (pthread_mutexattr_init(&thread_mutexattr_t) == 0) {
 #if defined(PTHREAD_MUTEX_RECURSIVE_NP)
-	// If the non-portable version is available, continue to use it
+        // If the non-portable version is available, continue to use it
         pthread_mutexattr_settype(&thread_mutexattr_t, PTHREAD_MUTEX_RECURSIVE_NP);
 #else
-	// Otherwise use the more standard version
+        // Otherwise use the more standard version
         pthread_mutexattr_settype(&thread_mutexattr_t, PTHREAD_MUTEX_RECURSIVE);
 #endif
         pthread_mutex_init(pCriticalSection, &thread_mutexattr_t);

@@ -49,9 +49,9 @@ static inline char *vktrace_layer_getenv(const char *name) {
 
 static inline void vktrace_layer_free_getenv(const char *val) { free((void *)val); }
 #else
-static inline char* vktrace_layer_getenv(const char* name) { return getenv(name); }
+static inline char *vktrace_layer_getenv(const char *name) { return getenv(name); }
 
-static inline void vktrace_layer_free_getenv(const char* val) {}
+static inline void vktrace_layer_free_getenv(const char *val) {}
 #endif
 
 VKTRACER_EXIT TrapExit(void) { vktrace_LogVerbose("vktrace_lib TrapExit."); }

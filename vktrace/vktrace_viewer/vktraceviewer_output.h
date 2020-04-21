@@ -31,7 +31,7 @@ extern "C" {
 class QTextEdit;
 
 class vktraceviewer_output {
-   public:
+  public:
     vktraceviewer_output();
     ~vktraceviewer_output();
 
@@ -41,7 +41,7 @@ class vktraceviewer_output {
     void warning(uint64_t packetIndex, const QString& warning);
     void error(uint64_t packetIndex, const QString& error);
 
-   private:
+  private:
     QString convertToHtml(QString message);
     void moveCursorToEnd();
     QTextBrowser* m_pTextEdit;

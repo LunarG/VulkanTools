@@ -29,22 +29,20 @@
 
 #include "layer_manifest.h"
 
-enum class DurationUnit
-{
+enum class DurationUnit {
     Minute,
     Hour,
     Day,
     None,
 };
 
-class ActiveLayersWidget : public QGroupBox
-{
+class ActiveLayersWidget : public QGroupBox {
     Q_OBJECT
 
-public:
+  public:
     ActiveLayersWidget(QWidget *parent = NULL);
     inline const QList<LayerManifest> &disabledLayers() const { return disabled_layers; }
-    inline const QList<LayerManifest>& enabledLayers() const { return enabled_layers; }
+    inline const QList<LayerManifest> &enabledLayers() const { return enabled_layers; }
     int expiration() const;
     DurationUnit expirationUnit() const;
     void setDisabledLayers(const QList<QString> &layers);
@@ -52,28 +50,28 @@ public:
     void setExpiration(int seconds, DurationUnit unit);
     bool shouldClearOnClose();
 
-signals:
+  signals:
     void enabledLayersUpdated(const QList<LayerManifest> &enabled_layers, const QList<LayerManifest> &disabled_layers);
 
-public slots:
- void clearDisabledLayers();
- void clearEnabledLayers();
- void setExpirationEnabled(const QString &text);
- void updateAvailableLayers(const QList<QPair<QString, LayerType>> &path_list, bool is_custom);
+  public slots:
+    void clearDisabledLayers();
+    void clearEnabledLayers();
+    void setExpirationEnabled(const QString &text);
+    void updateAvailableLayers(const QList<QPair<QString, LayerType>> &path_list, bool is_custom);
 
-private slots:
- void disableSelectedExplicitLayer();
- void disableSelectedImplicitLayer();
- void enableSelectedExplicitLayer();
- void enableSelectedImplicitLayer();
- void moveSelectedLayerDown();
- void moveSelectedLayerUp();
- void refreshAvailableLayers();
- void removeDisabledLayer();
- void removeEnabledLayer();
- void toggleExpiration(int state);
+  private slots:
+    void disableSelectedExplicitLayer();
+    void disableSelectedImplicitLayer();
+    void enableSelectedExplicitLayer();
+    void enableSelectedImplicitLayer();
+    void moveSelectedLayerDown();
+    void moveSelectedLayerUp();
+    void refreshAvailableLayers();
+    void removeDisabledLayer();
+    void removeEnabledLayer();
+    void toggleExpiration(int state);
 
-private:
+  private:
     QHash<LayerType, QIcon> layer_icons;
     QList<QPair<QString, LayerType>> layer_paths;
     bool custom_paths;
@@ -84,7 +82,7 @@ private:
     QComboBox *expiration_units;
 
     QListWidget *enabled_layer_list;
-    QHash<LayerType, QListWidget*> layer_lists;
+    QHash<LayerType, QListWidget *> layer_lists;
     QListWidget *disabled_layer_list;
 
     QList<LayerManifest> enabled_layers;
