@@ -33,10 +33,9 @@
 #include "dlglayeroutput.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
-#include "dlgcreateprofile.h"
+#include "dlgprofileeditor.h"
 #include "dlgcreateassociation.h"
 #include "dlghistory.h"
-#include "dlgprofileeditor.h"
 #include "dlgcustompaths.h"
 #include "profiledef.h"
 
@@ -107,7 +106,7 @@ void MainWindow::LoadProfileList(void)
     // Add canned profiles first
     int nItemCount = 0;
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
-        if(!pVulkanConfig->profileList[i]->bContainsKhronosOutput)
+        if(!pVulkanConfig->profileList[i]->bFixedProfile)
             continue;
 
         // Add to list
@@ -141,7 +140,7 @@ void MainWindow::LoadProfileList(void)
 
 
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
-        if(pVulkanConfig->profileList[i]->bContainsKhronosOutput)
+        if(pVulkanConfig->profileList[i]->bFixedProfile)
             continue;
 
         CProfileListItem *pItem = new CProfileListItem();
@@ -432,7 +431,7 @@ void MainWindow::selectedProfileChanged(void)
                 pVulkanConfig->SetCurrentActiveProfile(pLastSelectedProfileItem->pProfilePointer);
             }
 
-    // We need the list item that WAS selected
+    // We need the list item that was selected
     int nRow = ui->listWidgetProfiles->currentRow();
     Q_ASSERT(-1);
     CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
@@ -450,7 +449,7 @@ void MainWindow::selectedProfileChanged(void)
     // Wait... if this is the currently active profile, we do not allow editing,
     // But still show the settings
     if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
-        if(pSelectedItem->pProfilePointer->bContainsKhronosOutput) {
+        if(pSelectedItem->pProfilePointer->bFixedProfile) {
             ui->pushButtonEdit->setEnabled(false);
             ui->pushButtonRemove->setEnabled(false);
             }

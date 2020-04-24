@@ -42,6 +42,7 @@ HEADERS += \
     dlgcustompaths.h \
     dlghistory.h \
     dlglayeroutput.h \
+    dlgprofileeditor.h \
     dlgvulkananalysis.h \
     dlgvulkaninfo.h \
     layerfile.h \

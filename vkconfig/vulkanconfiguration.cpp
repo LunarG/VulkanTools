@@ -495,8 +495,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         pProfileLayer->bActive = true;      // Always because it's present in the file
 
         // We have added the layer, but the layer has settings too
-        pProfile->bContainsKhronosOutput =
-                 CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
+        pProfile->bContainsKhronosOutput = CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
 
     // We need to sort the layers by their rank. The json sorts alphebetically and we
@@ -541,7 +540,7 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
             // the other layers, or tempt someone to see it in the .json and set
             // it to true.
             if(pSettingsDetails->commonKhronosEdit)
-                setting.insert("commonEdit", "true");
+                setting.insert("common edit", "true");
 
             setting.insert("name", pSettingsDetails->settingsPrompt);
             setting.insert("description", pSettingsDetails->settingsDesc);
@@ -648,7 +647,6 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
 CProfileDef* CVulkanConfiguration::CreateEmptyProfile()
     {
     CProfileDef* pNewProfile = new CProfileDef();
-    pNewProfile->bContainsKhronosOutput = false;
 
     CLayerFile *pTempLayer;
     int nRank = 0;

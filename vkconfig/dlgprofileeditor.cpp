@@ -24,7 +24,6 @@
 #include "ui_dlgprofileeditor.h"
 #include "dlglayeroutput.h"
 #include "dlgcustompaths.h"
-#include "dlgcreateprofile.h"
 
 
 // We need a way when we get a tree widget item out, to know
@@ -268,6 +267,7 @@ void dlgProfileEditor::on_pushButtonLaunchTest_clicked()
 /// The currently selected layer has changed.
 void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
     {
+    (void)pPrevious;
     // These are always safe to call
     settingsEditor.CollectSettings();
     settingsEditor.CleanupGUI();
@@ -342,16 +342,11 @@ void dlgProfileEditor::accept()
         return;
         }
 
-    // Creating a user defined profile. A bit more work.
-    dlgcreateprofile dlg(this);
-    if(QDialog::Accepted != dlg.exec()) // If we cancel, just return
-        return;
-
-    pThisProfile->qsProfileName = dlg.profileName;
-    pThisProfile->qsDescription = dlg.profileDescription;
+    pThisProfile->qsProfileName = ui->lineEditName->text();
+    pThisProfile->qsDescription = ui->lineEditDesc->text();
 
     // Name must not be blank
-    if(dlg.profileName.isEmpty()) {
+    if(pThisProfile->qsProfileName.isEmpty()) {
         QMessageBox msg;
         msg.setInformativeText(tr("Profile must have a name."));
         msg.setText(tr("Name your new profile"));
@@ -363,7 +358,7 @@ void dlgProfileEditor::accept()
     // Collapse the profile and remove unused layers
     pThisProfile->CollapseProfile();
 
-    pThisProfile->qsFileName = dlg.profileName + ".profile";
+    pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
     savePath += pThisProfile->qsFileName;
     pVulkanConfig->SaveProfile(pThisProfile);
     pVulkanConfig->profileList.push_back(pThisProfile);
