@@ -38,8 +38,10 @@ CSettingsEditor::CSettingsEditor()
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// Creates controls and sets up any signals
-void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings)
+// Creates controls and sets up any signals.
+// If bSharedOnly is true, then only show the khronos common edit fields.
+// If bSharedOnly is false, then show everything BUT the khronos common edit fields.
+void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bSharedOnly)
     {
     int nRowHeight = 24;
     int nVerticalPad = 10;
@@ -70,10 +72,14 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     nSecondColumn += nLeftColumn;
     nSecondColumn += 8;
 
-
+    // Loop through all the settings
     for(int iSetting = 0; iSetting < layerSettings.size(); iSetting++) {
-        // Do not display read only settings.
-        if(layerSettings[iSetting]->readOnly)
+        // Okay, we needto know if we only want the shared settings
+        // or not. Skip them otherwise
+        if(layerSettings[iSetting]->commonKhronosEdit && !bSharedOnly)
+            continue;
+
+         if(!layerSettings[iSetting]->commonKhronosEdit && bSharedOnly)
             continue;
 
         // Prompt doesn't matter what the data type is

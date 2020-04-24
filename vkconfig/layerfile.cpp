@@ -124,7 +124,7 @@ bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
 ////////////////////////////////////////////////////////////////////////////
 bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers)
     {
-    bool bHasReadOnly = false;
+    bool bHasKhronos = false;
 
     // Okay, how many settings do we have?
     QStringList settingsNames = layerSettingsDescriptors.keys();
@@ -139,11 +139,13 @@ bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
         QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[iSetting]);
         QJsonObject settingObject = settingValue.toObject();
 
-        // This may or may not be present
-        QJsonValue readOnly = settingObject.value("read only");
-        pLayerSettings->readOnly = !readOnly.isUndefined();   // Default if no key is present
-        if(pLayerSettings->readOnly)                          // Any one readonly key toggles this
-            bHasReadOnly = true;
+        // This may or may not be present, it is false by default
+        QJsonValue commonEdit = settingObject.value("common edit");
+        if(pLayerSettings->commonKhronosEdit != commonEdit.isUndefined())  // Default if no key is present
+            pLayerSettings->commonKhronosEdit = commonEdit.toBool();
+
+        if(pLayerSettings->commonKhronosEdit)
+            bHasKhronos = true;
 
         // The easy stuff...
         QJsonValue value = settingObject.value("description");
@@ -230,6 +232,6 @@ bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
         layers.push_back(pLayerSettings);
         }
 
-    return bHasReadOnly;
+    return bHasKhronos;
     }
 

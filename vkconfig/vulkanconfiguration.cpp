@@ -128,18 +128,6 @@ CVulkanConfiguration::CVulkanConfiguration()
     findAllInstalledLayers();
     loadAllProfiles();
 
-    ///////////////////////////////////////////
-    // Which profile is currently active?
-    // The name of the active profile
-    QSettings settings;
-    pActiveProfile = nullptr;
-    QString qsActiveProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
-    for(int i = 0; i < profileList.size(); i++)
-        if(profileList[i]->qsProfileName == qsActiveProfile) {
-            pActiveProfile = profileList[i];
-            break;
-            }
-
     // This will reset or clear the current profile if the files have been
     // manually manipulated
     SetCurrentActiveProfile(pActiveProfile);
@@ -325,12 +313,13 @@ void CVulkanConfiguration::loadAllProfiles(void)
     // This might be called to refresh the list...
     qDeleteAll(profileList.begin(), profileList.end());
     profileList.clear();
+    pActiveProfile = nullptr;
 
-    // Get a list of all files that end in .profile in the folder where
+    // Get a list of all files that end in .json in the folder where
     // we store them. TBD... don't hard code this here.
     QDir dir(qsProfileFilesPath);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.profile");
+    dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList profileFiles = dir.entryInfoList();
 
     // Loop through all the profiles found and load them
@@ -349,10 +338,10 @@ void CVulkanConfiguration::loadAllProfiles(void)
     // resource file. Array below is just the name of the profile and
     // the embedded resource location if they are needed.
     const char *szCannedProfiles[10] = {
-    "Standard Validation",          ":/resourcefiles/StandardValidation.profile",
-    "Best Practices Validation",    ":/resourcefiles/BestPracticesValidation.profile",
-    "GPU-Assisted Validation",      ":/resourcefiles/GPU-AssistedValidation.profile",
-    "Lightweight Validation",       ":/resourcefiles/LightweightValidation.profile",
+    "Standard Validation",          ":/resourcefiles/StandardValidation.json",
+    "Best Practices Validation",    ":/resourcefiles/BestPracticesValidation.json",
+    "GPU-Assisted Validation",      ":/resourcefiles/GPU-AssistedValidation.json",
+    "Lightweight Validation",       ":/resourcefiles/LightweightValidation.json",
     };
 
     // For each canned profile
@@ -365,6 +354,17 @@ void CVulkanConfiguration::loadAllProfiles(void)
                 profileList.push_back(pProfile);
             }
         }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Which of these profiles is currently active?
+    QSettings settings;
+    pActiveProfile = nullptr;
+    QString qsActiveProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+    for(int i = 0; i < profileList.size(); i++)
+        if(profileList[i]->qsProfileName == qsActiveProfile) {
+            pActiveProfile = profileList[i];
+            break;
+            }
     }
 
 
@@ -466,6 +466,10 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     QJsonValue description = profileEntryObject.value("description");
     pProfile->qsDescription = description.toString();
 
+    QJsonValue fixed = profileEntryObject.value("fixed_profile");
+    if(!fixed.isNull())
+        pProfile->bFixedProfile = fixed.toBool();
+
     QJsonValue optionsValue = profileEntryObject.value("layer_options");
 
     QJsonObject layerObjects = optionsValue.toObject();
@@ -491,7 +495,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         pProfileLayer->bActive = true;      // Always because it's present in the file
 
         // We have added the layer, but the layer has settings too
-        pProfile->bContainsReadOnlyFields =
+        pProfile->bContainsKhronosOutput =
                  CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
 
@@ -533,13 +537,14 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
             QJsonObject setting;
             TLayerSettings *pSettingsDetails = pLayer->layerSettings[iSetting];
 
-            // Only write read only if it's true
-            if(pSettingsDetails->readOnly)
-                setting.insert("read only", "true");
+            // Only write if it's true, we don't want to clutter up
+            // the other layers, or tempt someone to see it in the .json and set
+            // it to true.
+            if(pSettingsDetails->commonKhronosEdit)
+                setting.insert("commonEdit", "true");
 
             setting.insert("name", pSettingsDetails->settingsPrompt);
             setting.insert("description", pSettingsDetails->settingsDesc);
-
 
             switch(pSettingsDetails->settingsType) {
                 case LAYER_SETTINGS_STRING:
@@ -615,6 +620,7 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
     QJsonObject json_profile;
     json_profile.insert("blacklisted_layers", blackList);
     json_profile.insert("description", pProfile->qsDescription);
+    json_profile.insert("fixed_profile", pProfile->bFixedProfile);
     json_profile.insert("layer_options", layerList);
     root.insert(pProfile->qsProfileName, json_profile);
     QJsonDocument doc(root);
@@ -642,7 +648,7 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
 CProfileDef* CVulkanConfiguration::CreateEmptyProfile()
     {
     CProfileDef* pNewProfile = new CProfileDef();
-    pNewProfile->bContainsReadOnlyFields = false;
+    pNewProfile->bContainsKhronosOutput = false;
 
     CLayerFile *pTempLayer;
     int nRank = 0;
@@ -740,7 +746,7 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     ////////////////////////
     // VkLayer_override.json
     QJsonArray json_paths;
-    // TBD - Only if they are used!
+    // The paths are only used if a layer is used in the user path.
 //    for(int i = 0; i < additionalSearchPaths.size(); i++)
 //        json_paths.append(additionalSearchPaths[i]);
 

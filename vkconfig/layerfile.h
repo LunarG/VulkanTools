@@ -52,8 +52,7 @@ struct TLayerSettings {
     QStringList             settingsListInclusiveValue;     // List of non-exclusive items (more than one item can be selected)
     QStringList             settingsListInclusivePrompt;    // List of non-exclusive item prompts (more than one item can be selected)
     QString                 settingsValue;                  // Default value as a string
-    bool                    readOnly;                       // Individual settings could be read only, in which case they are not
-                                                            // shown in the editor.
+    bool                    commonKhronosEdit;              // This setting is displayed only on the front panel.
     };
 
 

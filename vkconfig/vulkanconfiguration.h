@@ -53,7 +53,7 @@ protected:
 };
 
 
-
+#define VKCONFIG_NAME       "Vulkan Configurator"
 
 // Saved settings for the application
 #define VKCONFIG_KEY_LAUNCHAPP      "launchApp"
@@ -146,7 +146,7 @@ public:
 
     // Set this as the current override profile
     void SetCurrentActiveProfile(CProfileDef *pProfile);
-    const CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
+    CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
 
     QString getProfilePath(void) { return qsProfileFilesPath; }
 

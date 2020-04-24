@@ -57,6 +57,8 @@ protected:
     void checkAppListState(void);
     void LoadProfileList(void);
 
+    void ChangeActiveProfile(CProfileDef *pNewProfile);
+
 private:
     Ui::MainWindow *ui;
 
@@ -76,15 +78,17 @@ public Q_SLOTS:
     void toolsVulkanTestApp(bool bChecked);
     void toolsSetCustomPaths(bool bChecked);
 
-    void profileItemChanged(QListWidgetItem *item);
     void selectedProfileChanged(void);
 
-    void on_pushButtonCustomPaths_clicked();    // Fired by menu even if no button
+    void addCustomPaths();    // Fired by menu even if no button
     void on_pushButtonLaunch_clicked();         // Ditto
 
     void on_pushButtonAppList_clicked(void);
-    void on_pushButtonEditProfile_clicked(void);
+    void on_pushButtonEdit_clicked(void);
+    void on_pushButtonClone_clicked();
     void on_pushButtonNewProfile_clicked(void);
     void on_pushButtonRemove_clicked(void);
+    void on_pushButtonDisable_clicked(void);
+    void on_pushButtonActivate_clicked(void);
 };
 

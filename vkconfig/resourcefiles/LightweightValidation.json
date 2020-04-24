@@ -1,11 +1,13 @@
 {
-    "GPU-Assisted Validation": {
-    "description" : "This profile does GPU-Assisted Validation, Lobo is supposed to send me a good description.",
+    "Lightweight Validation": {
+    "fixed_profile" : true,
+    "description" : "This profile does lightweight validation, Lobo is supposed to send me a good description.",
     "blacklisted_layers": [],
     "layer_options": {
         "VK_LAYER_KHRONOS_validation": {
             "layer_rank": 0,
             "debug_action": {
+                "common edit": true,
                 "name": "Debug Action",
                 "description": "This indicates what action is to be taken when a layer wants to report information",
                 "type": "enum",
@@ -19,6 +21,7 @@
                 "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
             },
             "report_flags": {
+                "common edit": true,
                 "name": "Report Flags",
                 "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
                 "type": "multi_enum",
@@ -36,13 +39,14 @@
                 ]
             },
             "log_filename": {
+                "common edit": true,
                 "name": "Log Filename",
                 "description": "Specifies the output filename",
                 "type": "save_file",
                 "default": "stdout"
             },
             "disables": {
-                "read only": "true",
+                "common edit": "false",
                 "name": "Disables",
                 "description": "Setting an option here will disable areas of validation",
                 "type": "multi_enum",
@@ -53,16 +57,12 @@
                     "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core validation checks",
                     "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping"
                 },
-                "default": [
-                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
-                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
-                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT",
-                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
-                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
-                    ]
+                "default": ["VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"]
             },
             "enables": {
-                "read only": "true",
+                "common edit": true,
                 "name": "Enables",
                 "description": "Setting an option here will enable specialized areas of validation",
                 "type": "multi_enum",
@@ -71,17 +71,11 @@
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
                     "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks"
                 },
-                "default": ["VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT"]
+                "default": []
             }
         }
     }
-} }
 
-
-
-
-
-
-
-
+    }
+}
 

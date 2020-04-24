@@ -49,7 +49,6 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     vulkan_info->setProgram("/Developer/vulkansdk/macos/bin/vulkaninfo");
 #endif
 
-
     QString filePath = QDir::temp().path();
 
     QStringList args;
@@ -62,24 +61,9 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
 
     // Lock and load...
     vulkan_info->setArguments(args);
-
-    QProcessEnvironment env = vulkan_info->processEnvironment();
-    if(env.isEmpty())
-            printf("Enviornment is empty\n");
-
-
-    char *var = getenv("PATH");
-    printf("variable = %s\n", var);
-
-//    var = getenv("$TEST");
-//    printf("test = %s\n", var);
-
-//    var = getenv("VK_ICD_FILENAMES");
-//    printf("icd = %s\n", var);
-
-
     vulkan_info->start();
     vulkan_info->waitForFinished();
+
     QProcess::ProcessError error = vulkan_info->error();
     printf("Error code: %d\n", error);
 
@@ -87,12 +71,7 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     QFile file(filePath);
      if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
          QMessageBox msgBox;
-         msgBox.setText(QString(var));
-
-
-
-
-         //msgBox.setText(tr("Error running vulkaninfo. Is your SDK up to date and installed properly?"));
+         msgBox.setText(tr("Error running vulkaninfo. Is your SDK up to date and installed properly?"));
          msgBox.exec();
          return;
      }

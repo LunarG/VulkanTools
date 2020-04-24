@@ -35,7 +35,8 @@ public:
     CProfileDef();
     ~CProfileDef();
 
-    bool            bContainsReadOnlyFields;    // These are the canned profiles. User defined have none
+    bool            bFixedProfile;              // One of the fixed system profiles
+    bool            bContainsKhronosOutput;     // This profile has the Khronos output fields
     QString         qsProfileName;              // User readable display of the profile name (may contain spaces)
     QString         qsFileName;                 // Root file name without path (by convention, no spaces and .profile suffix)
     QString         qsDescription;              // A friendly description of what this profile does

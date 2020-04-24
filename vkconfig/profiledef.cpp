@@ -32,7 +32,8 @@
 
 CProfileDef::CProfileDef()
     {
-    bContainsReadOnlyFields = false;
+    bContainsKhronosOutput = false;
+    bFixedProfile = false;
     }
 
 CProfileDef::~CProfileDef()
@@ -57,10 +58,11 @@ CLayerFile* CProfileDef::findLayer(QString qsLayerName)
 CProfileDef* CProfileDef::duplicateProfile(void)
     {
     CProfileDef *pDuplicate = new CProfileDef;
-    pDuplicate->bContainsReadOnlyFields = bContainsReadOnlyFields;
+    pDuplicate->bContainsKhronosOutput = bContainsKhronosOutput;
     pDuplicate->qsProfileName = qsProfileName;
     pDuplicate->qsFileName = qsFileName;
     pDuplicate->qsDescription = qsDescription;
+    // Do not copy ->bFixedProfile
 
     for(int i = 0; i < layers.size(); i++) {
         CLayerFile* pLayer = new CLayerFile;

@@ -23,7 +23,6 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 SOURCES += \
     dlgabout.cpp \
     dlgcreateassociation.cpp \
-    dlgcreateprofile.cpp \
     dlgcustompaths.cpp \
     dlghistory.cpp \
     dlglayeroutput.cpp \
@@ -40,11 +39,9 @@ SOURCES += \
 HEADERS += \
     dlgabout.h \
     dlgcreateassociation.h \
-    dlgcreateprofile.h \
     dlgcustompaths.h \
     dlghistory.h \
     dlglayeroutput.h \
-    dlgprofileeditor.h \
     dlgvulkananalysis.h \
     dlgvulkaninfo.h \
     layerfile.h \

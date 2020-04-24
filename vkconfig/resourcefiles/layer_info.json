@@ -1,28 +1,8 @@
 {
-    "layer_authors": {
-        "LUNARG": {
-            "name": "LunarG",
-            "logo": "lunarg_small.png"
-        },
-        "GOOGLE": {
-            "name": "Google"
-        },
-        "KHRONOS": {
-            "name": "Khronos"
-        },
-        "NV": {
-            "name": "Nvidia"
-        },
-        "RENDERDOC": {
-            "name": "RenderDoc"
-        },
-        "VALVE": {
-            "name": "Valve"
-        }
-    },
     "layer_options": {
         "VK_LAYER_KHRONOS_validation": {
             "debug_action": {
+                "common edit": true,
                 "name": "Debug Action",
                 "description": "This indicates what action is to be taken when a layer wants to report information",
                 "type": "enum",
@@ -36,6 +16,7 @@
                 "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
             },
             "report_flags": {
+                "common edit": true,
                 "name": "Report Flags",
                 "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
                 "type": "multi_enum",
@@ -53,6 +34,7 @@
                 ]
             },
             "log_filename": {
+                "common edit": true,
                 "name": "Log Filename",
                 "description": "Specifies the output filename",
                 "type": "save_file",

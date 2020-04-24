@@ -18,6 +18,7 @@
  */
 
 #include <QMessageBox>
+#include <QComboBox>
 
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
@@ -32,24 +33,26 @@
 class QTreeWidgetItemWithLayer : public QTreeWidgetItem
     {
     public:
-        CLayerFile *pLayer;
+        CLayerFile  *pLayer;
     };
 
+#define     LAYER_APP_CONTROLLED    0
+#define     LAYER_FORCED_ON         1
+#define     LAYER_FORCED_OFF        2
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgProfileEditor::dlgProfileEditor
 /// \param parent
 /// \param pProfileToEdit
 /// Edit a profile. There are three cases of profiles passed in through pProfileToEdit.
-/// Case 1: A blank profile with no layers activated and all layer settings set to their
+/// Case 1: New Profile: A blank profile with no layers activated and all layer settings set to their
 ///         defaults.
 ///         The file name is blank. User must save the profile.
-/// Case 2: An exisitng profile that contains specifically activated layers and
+/// Case 2: Edit: An exisitng profile that contains specifically activated layers and
 ///         contains settings that have already been specified and previously saved.
 ///         The file name is not blank. User can save or abandon the changes.
-/// Case 3: A canned profile was "cloned". It contains all the availabe layers, but
-///         only the Khronos validation layer is active. All the settings are copied
-///         over, but stripped of their read only flags.
+/// Case 3: Clone: Same as edit, but the name of the profile is cleared, and if it was
+///         a fixed profile, that flag is cleared.
 ///         The file name is blank. User must save the profile.
 ///////////////////////////////////////////////////////////////////////////////
 dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit) :
@@ -60,8 +63,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
 
     // We never edit a profile directly, we only edit a copy of it.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    setWindowTitle("Create New Profile");
-
+    setWindowTitle("Creating New Profile");
 
     // Case 1: New profile (easiest case)
     if(pProfileToEdit == nullptr)
@@ -70,20 +72,12 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         // We are editing an exisitng profile. Make a copy of it
         pThisProfile = pProfileToEdit->duplicateProfile();
 
-        // IF this was a canned profile, the first layer has read only settings
-        // since we copied the profile, we need to reset these to editable,
+        // IF this was a fixed profile, clear that setting
         // AND we need to clear the name since we are making a copy
-        if(pThisProfile->bContainsReadOnlyFields) {
-            pThisProfile->bContainsReadOnlyFields = false;
+        if(pProfileToEdit->bFixedProfile) {
             pThisProfile->qsFileName = "";
             pThisProfile->qsProfileName = "";
-            for(int i = 0; i < pThisProfile->layers[0]->layerSettings.size(); i++)
-                pThisProfile->layers[0]->layerSettings[i]->readOnly = false;
-            }
-        else // Editing an exisitng profile
-            {
-            QString title = "Clone Profile (" + pProfileToEdit->qsProfileName + ")";
-            setWindowTitle(title);
+            pThisProfile->qsDescription = "";
             }
 
         // We now have a profile ready for editing, but only the layers that
@@ -118,18 +112,20 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
             }
         }
 
+    ui->lineEditName->setText(pThisProfile->qsProfileName);
+    ui->lineEditDesc->setText(pThisProfile->qsDescription);
 
     QTreeWidgetItem *pHeader = ui->layerTree->headerItem();
-    pHeader->setText(0, "Available Layers");
-    pHeader->setText(1, "Use");
-    pHeader->setText(2, "Blacklist");
-    pHeader->setText(3, "Implicit?");
-    pHeader->setText(4, "Custom Path?");
+    ui->layerTree->setHeaderHidden(true);
+//    pHeader->setText(0, "Layers");
+    pHeader->setText(1, "App Controlled");
+//    pHeader->setText(2, "Blacklist");
+//    pHeader->setText(3, "Implicit?");
+//    pHeader->setText(4, "Custom Path?");
+    pHeader->setFirstColumnSpanned(true);
 
     connect(ui->layerTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this,
                 SLOT(currentLayerChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
-
-    connect(ui->layerTree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(layerItemChanged(QTreeWidgetItem*, int)));
 
     LoadLayerDisplay(0); // Load/Reload the layer editor
     }
@@ -159,40 +155,42 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        QTreeWidgetItemWithLayer *pItem = new QTreeWidgetItemWithLayer();
        pItem->pLayer = pThisProfile->layers[iLayer];
 
-       pItem->setText(0, pItem->pLayer->name);
-       pItem->setFlags(pItem->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
+       QString decoratedName = pItem->pLayer->name;
+       if(pItem->pLayer->layerType == LAYER_TYPE_IMPLICIT)
+           decoratedName += tr(" (Implicit)");
 
-       // Active or not?
-       pItem->setTextAlignment(1, Qt::AlignCenter);
-       if(pItem->pLayer->bActive)
-           pItem->setCheckState(1, Qt::Checked);
-       else
-           pItem->setCheckState(1, Qt::Unchecked);
-
-       // Black listed?
-       pItem->setTextAlignment(2, Qt::AlignCenter);
-       if(pItem->pLayer->bDisabled)
-           pItem->setCheckState(2, Qt::Checked);
-       else
-           pItem->setCheckState(2, Qt::Unchecked);
-
-       // Let me know if it's an implicit layer
-       pItem->setTextAlignment(3, Qt::AlignCenter);
-       if(pItem->pLayer->layerType == LAYER_TYPE_EXPLICIT)
-           pItem->setText(3, "No");
-       else
-           pItem->setText(3, "Yes");
-
-       // Is it a custom layer? If so, where is it from...
-       if(pItem->pLayer->layerType == LAYER_TYPE_CUSTOM)
-           pItem->setText(4, pItem->pLayer->qsCustomLayerPath);
-       else
-           pItem->setText(4, "SDK Supplied");
+       pItem->setText(0, decoratedName);
+       pItem->setFlags(pItem->flags() | Qt::ItemIsSelectable);
 
        // Add the top level item
        ui->layerTree->addTopLevelItem(pItem);
        if(iLayer == nSelection)
            ui->layerTree->setCurrentItem(pItem);
+
+       QComboBox *pUse = new QComboBox();
+       ui->layerTree->setItemWidget(pItem, 1, pUse);
+       pUse->addItem("App Controlled");
+       pUse->addItem("Force On");
+       pUse->addItem("Force Off");
+
+       if(pItem->pLayer->bActive)
+           pUse->setCurrentIndex(1);
+
+       if(pItem->pLayer->bDisabled)
+           pUse->setCurrentIndex(2);
+
+       connect(pUse, SIGNAL(currentIndexChanged(int)), this, SLOT(layerUseChanged(int)));
+
+
+       // Active or not?
+/*
+ *
+       // Is it a custom layer? If so, where is it from...
+       if(pItem->pLayer->layerType == LAYER_TYPE_CUSTOM)
+           pItem->setText(4, pItem->pLayer->qsCustomLayerPath);
+       else
+           pItem->setText(4, "SDK Supplied");
+*/
 
        ///////////////////////////////////////////////////
        // Now for the children, which is just supplimental
@@ -233,9 +231,10 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
 
     ui->layerTree->resizeColumnToContents(0);
     ui->layerTree->resizeColumnToContents(1);
-    ui->layerTree->resizeColumnToContents(2);
-    ui->layerTree->resizeColumnToContents(3);
-    ui->layerTree->resizeColumnToContents(4);
+    ui->layerTree->setColumnWidth(1, 75);
+//    ui->layerTree->resizeColumnToContents(2);
+//    ui->layerTree->resizeColumnToContents(3);
+//    ui->layerTree->resizeColumnToContents(4);
     }
 
 
@@ -284,45 +283,40 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     QString qsTitle = "Layer Settings (" + pCurrent->text(0);
     qsTitle += ")";
     ui->groupBoxSettings->setTitle(qsTitle);
-    settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings);
+    settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, false);
     }
 
 
 ///////////////////////////////////////////////////////////////////////////
-/// \brief dlgProfileEditor::layerItemChanged
+/// \brief dlgProfileEditor::layerUseChanged
 /// \param item
-/// Something has been checked or unchecked on the tree
-void dlgProfileEditor::layerItemChanged(QTreeWidgetItem *item, int nColumn)
+/// use, don't use, black list...
+void dlgProfileEditor::layerUseChanged(int nSelection)
     {
-    // Get the layer this is pointing to
-    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(item);
-    if(pLayerItem == nullptr) return;
+    // Combo box changed. We first need to know which tree item was selected.
+    // Fortunatly, changing the combo box also changes the selected item.
+
+    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(ui->layerTree->currentItem());
+    Q_ASSERT(pLayerItem != nullptr);
+
     CLayerFile *pLayer = pLayerItem->pLayer;
+    Q_ASSERT(pLayer != nullptr);
 
-    // Column 2 disables/blacklists the layer
-    if(nColumn == 2) {
-        if(item->checkState(nColumn) == Qt::Checked) {
-            pLayer->bDisabled = true;
+    // Okay, easy now, just set the flags appropriately
+    switch(nSelection) {
+        case LAYER_APP_CONTROLLED:
             pLayer->bActive = false;
-            item->setCheckState(1, Qt::Unchecked);
-            return;
-            }
-        else {
             pLayer->bDisabled = false;
-            return;
-            }
-        }
+        break;
 
-    // Is it active?
-    if(nColumn == 1) {
-        if(item->checkState(nColumn) == Qt::Checked) {
-            pLayer->bDisabled = false;
-            item->setCheckState(2, Qt::Unchecked);
+        case LAYER_FORCED_ON:
             pLayer->bActive = true;
-            return;
-            }
-        else
+            pLayer->bDisabled = false;
+        break;
+
+        case LAYER_FORCED_OFF:
             pLayer->bActive = false;
+            pLayer->bDisabled = true;
         }
     }
 
