@@ -115,13 +115,13 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
     ui->lineEditDesc->setText(pThisProfile->qsDescription);
 
     QTreeWidgetItem *pHeader = ui->layerTree->headerItem();
-    ui->layerTree->setHeaderHidden(true);
-//    pHeader->setText(0, "Layers");
-    pHeader->setText(1, "App Controlled");
+
+    pHeader->setText(0, "Layers");
+    pHeader->setText(1, "Usage");
 //    pHeader->setText(2, "Blacklist");
 //    pHeader->setText(3, "Implicit?");
 //    pHeader->setText(4, "Custom Path?");
-    pHeader->setFirstColumnSpanned(true);
+//    pHeader->setFirstColumnSpanned(true);
 
     connect(ui->layerTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this,
                 SLOT(currentLayerChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
@@ -157,6 +157,9 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        QString decoratedName = pItem->pLayer->name;
        if(pItem->pLayer->layerType == LAYER_TYPE_IMPLICIT)
            decoratedName += tr(" (Implicit)");
+
+       if(pItem->pLayer->layerType == LAYER_TYPE_CUSTOM)
+           decoratedName += tr(" (Custom)");
 
        pItem->setText(0, decoratedName);
        pItem->setFlags(pItem->flags() | Qt::ItemIsSelectable);
@@ -223,6 +226,12 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
 
        pChild = new QTreeWidgetItem();
        outText.sprintf("File format: %s", pThisProfile->layers[iLayer]->file_format_version.toUtf8().constData());
+       pChild->setText(0, outText);
+       pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
+       pItem->addChild(pChild);
+
+       pChild = new QTreeWidgetItem();
+       outText.sprintf("Full Path: %s", pThisProfile->layers[iLayer]->qsLayerPath.toUtf8().constData());
        pChild->setText(0, outText);
        pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
        pItem->addChild(pChild);
@@ -332,15 +341,6 @@ void dlgProfileEditor::accept()
 
     // Collect any remaining GUI edits
     settingsEditor.CollectSettings();
-
-    // If we are editing a profile, just save it and be done.
-    if(!pThisProfile->qsFileName.isEmpty()) {
-        savePath += "/" + pThisProfile->qsFileName;
-        pThisProfile->CollapseProfile();
-        pVulkanConfig->SaveProfile(pThisProfile);
-        QDialog::accept();
-        return;
-        }
 
     pThisProfile->qsProfileName = ui->lineEditName->text();
     pThisProfile->qsDescription = ui->lineEditDesc->text();

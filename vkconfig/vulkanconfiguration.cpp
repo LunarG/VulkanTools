@@ -703,7 +703,6 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         remove(qsOverrideJsonPath.toUtf8().constData());
         settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "");
 
-
         // On Windows only, we need clear these values from the registry
  #ifdef _WIN32
         QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
@@ -745,10 +744,34 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
 
     ////////////////////////
     // VkLayer_override.json
+
+    ///////////////////////////////////////////////////////////////////////
+    // The paths are tricky... if no custom layers are being used, then
+    // this is left empty. If any custom paths are used, then we need to make
+    // sure if some of the standard layers are also selected that they
+    // can also be found. So, we add their paths as well to the list
     QJsonArray json_paths;
-    // The paths are only used if a layer is used in the user path.
-//    for(int i = 0; i < additionalSearchPaths.size(); i++)
-//        json_paths.append(additionalSearchPaths[i]);
+
+    // See if any of the included layers are custom?
+    bool bHaveCustom = false;
+    for(int i = 0; i < pProfile->layers.size(); i++)
+        if(pProfile->layers[i]->type == LAYER_TYPE_CUSTOM)
+            bHaveCustom = true;
+
+    // Only if we have custom paths...
+    if(bHaveCustom) {
+        // Don't use the additional search paths list, only use the paths
+        // used by the layers themsevles
+        for(int i = 0; i < pProfile->layers.size(); i++) {
+            // Extract just the path
+            QFileInfo file(pProfile->layers[i]->qsLayerPath);
+            QString qsPath = QDir().toNativeSeparators(file.absolutePath());
+
+            // Okay, add to the list
+            json_paths.append(qsPath);
+            }
+        }
+
 
     QJsonArray json_layers;
     for(int i = 0; i < pProfile->layers.size(); i++)

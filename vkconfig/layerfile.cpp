@@ -65,8 +65,7 @@ bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
      QString jsonText = file.readAll();
      file.close();
 
-     if(layerKind == LAYER_TYPE_CUSTOM)
-         qsCustomLayerPath = qsFullPathToFile;
+     qsLayerPath = qsFullPathToFile;
 
      //////////////////////////////////////////////////////
      // Convert the text to a JSON document & validate it.

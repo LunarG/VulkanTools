@@ -64,13 +64,12 @@ public:
     QString     file_format_version;
     QString     name;
     QString     type;
-    QString     library_path;
+    QString     library_path;               // This is a relative path, straight out of the json
     QString     api_version;
     QString     implementation_version;
     QString     description;
 
-    QString     qsCustomLayerPath; // Only used by custom layer paths
-
+    QString     qsLayerPath;                // Actual path to the folder that contains the layer
     TLayerType  layerType;
 
     // This layers settings. This will be used to build the editor
@@ -101,7 +100,7 @@ public:
         destinationLayer->bActive = bActive;
         destinationLayer->nRank = nRank;
         destinationLayer->bDisabled = bDisabled;
-        destinationLayer->qsCustomLayerPath = qsCustomLayerPath;
+        destinationLayer->qsLayerPath = qsLayerPath;
 
         for(int i = 0; i < layerSettings.length(); i++) {
             TLayerSettings *pSettings = new TLayerSettings();

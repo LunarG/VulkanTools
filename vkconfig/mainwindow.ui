@@ -37,7 +37,7 @@
       </property>
       <widget class="QWidget" name="tab_config">
        <attribute name="title">
-        <string>Vulkan Layers Configuration</string>
+        <string>Preset Configurations</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
@@ -100,7 +100,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Disable</string>
+              <string>Deactivate</string>
              </property>
             </widget>
            </item>
@@ -129,7 +129,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>Preset Configurations</string>
+           <string>Vulkan Layer Configurations</string>
           </property>
           <layout class="QGridLayout" name="gridLayout">
            <item row="1" column="1" colspan="2">
