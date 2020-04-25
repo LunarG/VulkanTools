@@ -348,8 +348,8 @@ void dlgProfileEditor::accept()
     // Name must not be blank
     if(pThisProfile->qsProfileName.isEmpty()) {
         QMessageBox msg;
-        msg.setInformativeText(tr("Profile must have a name."));
-        msg.setText(tr("Name your new profile"));
+        msg.setInformativeText(tr("Configuration must have a name."));
+        msg.setText(tr("Name your new config!"));
         msg.setStandardButtons(QMessageBox::Ok);
         msg.exec();
         return;
@@ -357,6 +357,18 @@ void dlgProfileEditor::accept()
 
     // Collapse the profile and remove unused layers
     pThisProfile->CollapseProfile();
+
+    // Wa-wa-wait... no profiles without any layers buster
+    if(pThisProfile->layers.size() == 0)
+        {
+        QMessageBox msg;
+        msg.setInformativeText(tr("You cannot have a named configuration without any layers."));
+        msg.setText(tr("Add some layers!"));
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.exec();
+        return;
+        }
+
 
     pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
     savePath += pThisProfile->qsFileName;

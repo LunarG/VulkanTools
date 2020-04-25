@@ -129,7 +129,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>Vulkan Layer Configurations</string>
+           <string>Preset Configurations</string>
           </property>
           <layout class="QGridLayout" name="gridLayout">
            <item row="1" column="1" colspan="2">

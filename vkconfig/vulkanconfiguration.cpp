@@ -494,8 +494,9 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         pProfileLayer->nRank = layerRank.toInt();
         pProfileLayer->bActive = true;      // Always because it's present in the file
 
-        // We have added the layer, but the layer has settings too
-        pProfile->bContainsKhronosOutput = CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
+        // If any layer has the Khronos layer, add it here.
+        if(true == CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings))
+            pProfile->bContainsKhronosOutput = true;
         }
 
     // We need to sort the layers by their rank. The json sorts alphebetically and we
@@ -540,7 +541,7 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
             // the other layers, or tempt someone to see it in the .json and set
             // it to true.
             if(pSettingsDetails->commonKhronosEdit)
-                setting.insert("common edit", "true");
+                setting.insert("common_edit", true);
 
             setting.insert("name", pSettingsDetails->settingsPrompt);
             setting.insert("description", pSettingsDetails->settingsDesc);
@@ -730,7 +731,8 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         stream << "# " << pLayer->name << endl;
 
 
-        QString shortLayerName = pLayer->name.remove("VK_LAYER_");
+        QString shortLayerName = pLayer->name;
+        shortLayerName.remove("VK_LAYER_");
         QString lcLayerName = shortLayerName.toLower();
 
 

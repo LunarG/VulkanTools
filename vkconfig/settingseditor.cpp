@@ -76,9 +76,11 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     for(int iSetting = 0; iSetting < layerSettings.size(); iSetting++) {
         // Okay, we needto know if we only want the shared settings
         // or not. Skip them otherwise
-        if(layerSettings[iSetting]->commonKhronosEdit && !bSharedOnly)
+        // This works from the editor, when bSharedOnly is false
+        if((layerSettings[iSetting]->commonKhronosEdit && !bSharedOnly))
             continue;
 
+        // On main screen, bSharedOnly is true
          if(!layerSettings[iSetting]->commonKhronosEdit && bSharedOnly)
             continue;
 

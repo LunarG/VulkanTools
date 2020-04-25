@@ -140,9 +140,11 @@ bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
         QJsonObject settingObject = settingValue.toObject();
 
         // This may or may not be present, it is false by default
-        QJsonValue commonEdit = settingObject.value("common edit");
-        if(pLayerSettings->commonKhronosEdit != commonEdit.isUndefined())  // Default if no key is present
-            pLayerSettings->commonKhronosEdit = commonEdit.toBool();
+        QJsonValue commonEdit = settingObject.value("common_edit");
+        if(commonEdit.isUndefined())  // Default if no key is present
+            pLayerSettings->commonKhronosEdit = false; // DNE - force to false
+        else
+             pLayerSettings->commonKhronosEdit = commonEdit.toBool();
 
         if(pLayerSettings->commonKhronosEdit)
             bHasKhronos = true;

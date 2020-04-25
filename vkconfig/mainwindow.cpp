@@ -92,6 +92,7 @@ MainWindow::~MainWindow()
 // Load or refresh the list of profiles
 void MainWindow::LoadProfileList(void)
     {
+    settingsEditor.CleanupGUI(); // Cleanup from last time, just in case
     ui->listWidgetProfiles->blockSignals(true);
     ui->listWidgetProfiles->clear();
     ui->pushButtonRemove->setEnabled(false); // Nothing is selected
@@ -246,6 +247,9 @@ void MainWindow::on_pushButtonClone_clicked()
     int nSelection = ui->listWidgetProfiles->currentRow();
     Q_ASSERT(nSelection >= 0);
 
+    // I may have made edits
+    settingsEditor.CollectSettings();
+
     // Which profile is selected?
     QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
     if(pItem != nullptr) {
@@ -253,6 +257,7 @@ void MainWindow::on_pushButtonClone_clicked()
         if(pProfileItem != nullptr) {
             dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
             dlg.exec();
+            pVulkanConfig->loadAllProfiles(); // Reset
             LoadProfileList();  // Force a reload
             }
         }
@@ -267,6 +272,10 @@ void MainWindow::on_pushButtonEdit_clicked(void)
     int nSelection = ui->listWidgetProfiles->currentRow();
     Q_ASSERT(nSelection >= 0);
 
+    // I may have made edits
+    settingsEditor.CollectSettings();
+
+
     // Which profile is selected?
     QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
     if(pItem != nullptr) {
@@ -274,6 +283,7 @@ void MainWindow::on_pushButtonEdit_clicked(void)
         if(pProfileItem != nullptr) {
             dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
             dlg.exec();
+            pVulkanConfig->loadAllProfiles(); // Reset
             LoadProfileList();  // Force a reload
             }
         }
@@ -455,7 +465,7 @@ void MainWindow::selectedProfileChanged(void)
             }
 
         ui->pushButtonClone->setEnabled(true);
-        ui->groupBoxEditor->setEnabled(true);
+        ui->groupBoxEditor->setEnabled(false);
         QString title = tr("Khronos Ouput Settings");
         title += " - ";
         title += pSelectedItem->pProfilePointer->qsProfileName;
@@ -479,12 +489,14 @@ void MainWindow::selectedProfileChanged(void)
     ui->groupBoxEditor->setTitle(title);
 
 
+    if(pSelectedItem->pProfilePointer->bFixedProfile) {
+        ui->pushButtonRemove->setEnabled(false);
+        ui->pushButtonEdit->setEnabled(false);
+        }
 
     // Label the button appropriately, but if a canned profile, we do need to
     // setup the GUI
     if(pSelectedItem->pProfilePointer->bContainsKhronosOutput) {
-        ui->pushButtonRemove->setEnabled(false);
-        ui->pushButtonEdit->setEnabled(false);
         settingsEditor.CleanupGUI();
         settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
         }
