@@ -46,10 +46,11 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     int nRowHeight = 24;
     int nVerticalPad = 10;
     int nCurrRow = 15;
-    int nLeftColumn = 10;
+    int nLeftColumn = 6;
     int nSecondColumn = 125;
-    int nEditFieldWidth = 220;
+    int nEditFieldWidth = 180;
     int nButtonHeight = 26;
+    int nButtonWidth = 76;
 
     pEditArea = new QWidget();
     pEditArea->setMinimumSize(QSize(450, 1024)); //(nRowHeight * (layerSettings.size()+2))));
@@ -145,7 +146,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 
                 pBrowseButton = new QPushButton(pEditArea);
                 pBrowseButton->setText("Browse...");
-                pBrowseButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, 100, nButtonHeight);
+                pBrowseButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, nButtonWidth, nButtonHeight);
                 connect(pBrowseButton, SIGNAL(pressed()), this, SLOT(browseButtonPressed()));
                 pBrowseButton->show();
                 inputControls.push_back(pBrowseButton);

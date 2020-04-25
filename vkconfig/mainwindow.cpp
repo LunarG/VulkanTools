@@ -70,16 +70,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     ///////////////////////////////////////////////
-    // Final check - if there are no apps, disable the profiles list
-    if(pVulkanConfig->appList.length() == 0) {
-        QString title = tr(VKCONFIG_NAME);
-        title += "(Warning, no app list specified)";
-        this->setWindowTitle(title);
-        ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
-        }
-    else {
-        ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
-        }
+    checkAppListState();
+//    // Final check - if there are no apps, disable the profiles list
+//    if(pVulkanConfig->appList.length() == 0) {
+//        QString title = tr(VKCONFIG_NAME);
+//        title += "(Warning, no app list specified)";
+//        this->setWindowTitle(title);
+//        ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
+//        }
+//    else {
+//        ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
+//        }
     }
 
 MainWindow::~MainWindow()
@@ -163,12 +164,32 @@ void MainWindow::checkAppListState(void)
     {
     // Final check - if there are no apps, disable the profiles list
     if(pVulkanConfig->appList.length() == 0) {
-        this->setWindowTitle("Vulkan Configurator (Warning, no app list specified)");
+        this->setWindowTitle("Vulkan Control Panel (Warning, no app list specified)");
         ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
+        ui->groupBoxEditor->setTitle(tr("Getting Started"));
+        ui->labelGetStarted->setHidden(false);
+        ui->labelGetStarted->setText("Welcome to LunarG Vulkan Configurator. This tool allows configuring the Vulkan "
+                                     "Layers to do Vulkan Applicaton Validation, helping to detect application issues.\n\n"
+                                     "To start, click on \"Edit List...\" and add the applications you want to configure "
+                                     "layers for.");
+        ui->groupBoxProfiles->setEnabled(false);
         }
-    else {
-        this->setWindowTitle("Vulkan Configurator");
+    else { // There are apps, but nothing may be selected
+        ui->groupBoxProfiles->setEnabled(false);
+        this->setWindowTitle(VKCONFIG_NAME);
         ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
+
+        if(ui->listWidgetProfiles->currentItem() == nullptr) {
+            ui->groupBoxEditor->setTitle(tr("Getting Started"));
+            ui->groupBoxProfiles->setEnabled(true);
+            ui->labelGetStarted->setHidden(false);
+            ui->labelGetStarted->setText("- Select a \"Configuration\" and \"Activate\" to start "
+                                         "applying Vulkan Layers to the selected Vulkan applications.\n\n"
+                                         "- All layer configurations can be disabled using the \"Deactivate\" button.");
+            }
+        else {
+            ui->labelGetStarted->setHidden(true);
+            }
         }
     }
 

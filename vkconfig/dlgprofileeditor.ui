@@ -23,13 +23,13 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Profile Editor</string>
+   <string>Vulkan Control Panel</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>710</y>
+     <y>720</y>
      <width>461</width>
      <height>32</height>
     </rect>
@@ -46,8 +46,8 @@
     <rect>
      <x>30</x>
      <y>710</y>
-     <width>156</width>
-     <height>32</height>
+     <width>141</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
@@ -59,7 +59,7 @@
     <rect>
      <x>20</x>
      <y>380</y>
-     <width>701</width>
+     <width>451</width>
      <height>321</height>
     </rect>
    </property>
@@ -71,7 +71,7 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>681</width>
+      <width>421</width>
       <height>281</height>
      </rect>
     </property>
@@ -89,7 +89,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>662</width>
+       <width>402</width>
        <height>279</height>
       </rect>
      </property>
@@ -166,8 +166,8 @@
    <widget class="QToolButton" name="toolButtonDown">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>100</y>
+      <x>490</x>
+      <y>110</y>
       <width>22</width>
       <height>22</height>
      </rect>
@@ -182,7 +182,7 @@
    <widget class="QPushButton" name="pushButtonResetLayers">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>520</x>
       <y>250</y>
       <width>156</width>
       <height>32</height>
@@ -195,8 +195,8 @@
    <widget class="QToolButton" name="toolButtonUp">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>70</y>
+      <x>490</x>
+      <y>80</y>
       <width>21</width>
       <height>22</height>
      </rect>
@@ -212,8 +212,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>15</y>
-      <width>521</width>
+      <y>20</y>
+      <width>471</width>
       <height>220</height>
      </rect>
     </property>
@@ -222,6 +222,15 @@
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="headerHidden">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonAddLayers">
@@ -237,6 +246,32 @@
      <string>Use Custom Layers...</string>
     </property>
    </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>20</y>
+      <width>151</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Layer Properties</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>380</y>
+     <width>231</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Setting Description</string>
+   </property>
   </widget>
  </widget>
  <tabstops>

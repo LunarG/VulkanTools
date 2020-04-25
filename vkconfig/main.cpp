@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
-    QCoreApplication::setApplicationName("VkConfig2");
+    QCoreApplication::setApplicationName("VkConfig");
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 

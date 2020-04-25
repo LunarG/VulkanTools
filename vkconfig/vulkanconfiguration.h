@@ -53,7 +53,7 @@ protected:
 };
 
 
-#define VKCONFIG_NAME       "Vulkan Configurator"
+#define VKCONFIG_NAME       "Vulkan Control Panel"
 
 // Saved settings for the application
 #define VKCONFIG_KEY_LAUNCHAPP      "launchApp"

@@ -19,6 +19,7 @@
 
 #include <QMessageBox>
 #include <QComboBox>
+#include <QStyle>
 
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
@@ -148,6 +149,11 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
     // Clear out the old
     ui->layerTree->clear();
 
+    // We need some infor for sizing the column with the combo box
+    QFontMetrics fm = ui->layerTree->fontMetrics();
+    int comboWidth = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 1.6);
+    int comboHeight = fm.size(Qt::TextSingleLine, "App Controlled").height() * 1.6;
+
     // Loop through the layers. They are expected to be in order
     for(int iLayer = 0; iLayer < pThisProfile->layers.size(); iLayer++)
        {
@@ -163,14 +169,36 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
 
        pItem->setText(0, decoratedName);
        pItem->setFlags(pItem->flags() | Qt::ItemIsSelectable);
+       pItem->setText(1, "App Controlled"); // Fake out for width of column
 
        // Add the top level item
        ui->layerTree->addTopLevelItem(pItem);
        if(iLayer == nSelection)
            ui->layerTree->setCurrentItem(pItem);
 
+       // Add a combo box. Default has gray background which looks hidious
        QComboBox *pUse = new QComboBox();
+
+       const char *style =
+//               "QComboBox { background-color: white;"
+//                           "down-arrow {"
+//                                 "width:0px;"
+//                                 "height:0px;"
+//                               "}}";
+
+
+                          // "}"
+                           "QComboBox::down-arrow {"
+                                 "width:0px;"
+                                 "height:0px;"
+                                 "padding-right:0px;"
+                               "}";
+
+
+//      pUse->setStyleSheet(style);
        ui->layerTree->setItemWidget(pItem, 1, pUse);
+       pItem->setSizeHint(1, QSize(comboWidth, comboHeight));
+
        pUse->addItem("App Controlled");
        pUse->addItem("Force On");
        pUse->addItem("Force Off");
@@ -183,16 +211,6 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
 
        connect(pUse, SIGNAL(currentIndexChanged(int)), this, SLOT(layerUseChanged(int)));
 
-
-       // Active or not?
-/*
- *
-       // Is it a custom layer? If so, where is it from...
-       if(pItem->pLayer->layerType == LAYER_TYPE_CUSTOM)
-           pItem->setText(4, pItem->pLayer->qsCustomLayerPath);
-       else
-           pItem->setText(4, "SDK Supplied");
-*/
 
        ///////////////////////////////////////////////////
        // Now for the children, which is just supplimental
@@ -231,18 +249,13 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        pItem->addChild(pChild);
 
        pChild = new QTreeWidgetItem();
-       outText.sprintf("Full Path: %s", pThisProfile->layers[iLayer]->qsLayerPath.toUtf8().constData());
-       pChild->setText(0, outText);
+       pChild->setText(0, pThisProfile->layers[iLayer]->qsLayerPath);
        pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
        pItem->addChild(pChild);
        }
 
-    ui->layerTree->resizeColumnToContents(0);
-    ui->layerTree->resizeColumnToContents(1);
-    ui->layerTree->setColumnWidth(1, 75);
-//    ui->layerTree->resizeColumnToContents(2);
-//    ui->layerTree->resizeColumnToContents(3);
-//    ui->layerTree->resizeColumnToContents(4);
+    int width = ui->layerTree->width() - comboWidth;
+    ui->layerTree->setColumnWidth(0, width);
     }
 
 
