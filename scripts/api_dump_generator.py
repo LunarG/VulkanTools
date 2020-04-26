@@ -844,12 +844,18 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 std::ostream& dump_text_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
-    if(settings.showTimestamp()) {{
-        settings.stream() << ", Time " << dump_inst.current_time_since_start().count() << " us:\\n";
-    }} else {{
-        settings.stream() << ":\\n";
+    if (settings.showThreadAndFrame()) {{
+        settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
+    }}
+    if(settings.showTimestamp() && settings.showThreadAndFrame()) {{
+        settings.stream() << ", ";
+    }}
+    if (settings.showTimestamp()) {{
+        settings.stream() << "Time " << dump_inst.current_time_since_start().count() << " us";
     }} 
+    if (settings.showTimestamp() || settings.showThreadAndFrame()) {{
+        settings.stream() << ":\\n";
+    }}
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}";
 
     return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
@@ -1258,8 +1264,9 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
 std::ostream& dump_html_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
-
-    settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
+    if (settings.showThreadAndFrame()){{
+        settings.stream() << "<div class='thd'>Thread: " << dump_inst.threadID() << "</div>";
+    }}
     if(settings.showTimestamp())
         settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
@@ -1709,7 +1716,9 @@ std::ostream& dump_json_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
     settings.stream() << settings.indentation(3) << "\\\"name\\\" : \\\"{funcName}\\\",\\n";
 
     // Display thread info
-    settings.stream() << settings.indentation(3) << "\\\"thread\\\" : \\\"Thread " << dump_inst.threadID() << "\\\",\\n";
+    if (settings.showThreadAndFrame()){{
+        settings.stream() << settings.indentation(3) << "\\\"thread\\\" : \\\"Thread " << dump_inst.threadID() << "\\\",\\n";
+    }}
 
     // Display elapsed time
     if(settings.showTimestamp()) {{
