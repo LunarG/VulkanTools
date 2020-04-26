@@ -303,6 +303,7 @@ class ApiDumpSettings {
         type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
         use_spaces = readBoolOption("lunarg_api_dump.use_spaces", true);
         show_shader = readBoolOption("lunarg_api_dump.show_shader", false);
+        show_thread_and_frame = readBoolOption("lunarg_api_dump.show_thread_and_frame", true);
 
         std::string cond_range_string;
         env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_OUTPUT_RANGE);
@@ -452,8 +453,13 @@ class ApiDumpSettings {
                 if (frame_count > 0) {
                     if (condFrameOutput.isFrameInRange(frame_count - 1)) stream() << "</details>";
                 }
-                if (condFrameOutput.isFrameInRange(frame_count))
-                    stream() << "<details class='frm'><summary>Frame " << frame_count << "</summary>";
+                if (condFrameOutput.isFrameInRange(frame_count)) {
+                    stream() << "<details class='frm'><summary>Frame ";
+                    if (show_thread_and_frame) {
+                        stream() << frame_count;
+                    }
+                    stream() << "</summary>";
+                }
                 break;
 
             case (ApiDumpFormat::Json):
@@ -467,7 +473,10 @@ class ApiDumpSettings {
                     } else {
                         stream() << ",\n";
                     }
-                    stream() << "{\n" << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
+                    stream() << "{\n";
+                    if (show_thread_and_frame) {
+                        stream() << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
+                    }
                     stream() << indentation(1) << "\"apiCalls\" :\n";
                     stream() << indentation(1) << "[\n";
                 }
@@ -530,6 +539,8 @@ class ApiDumpSettings {
     inline bool showType() const { return show_type; }
 
     inline bool showTimestamp() const { return show_timestamp; }
+
+    inline bool showThreadAndFrame() const { return show_thread_and_frame; }
 
     inline std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
 
@@ -643,6 +654,7 @@ class ApiDumpSettings {
     int type_size;
     bool use_spaces;
     bool show_shader;
+    bool show_thread_and_frame;
 
     bool use_conditional_output = false;
     ConditionalFrameOutput condFrameOutput;
@@ -1005,8 +1017,7 @@ inline std::ostream &dump_text_cstring(const char *object, const ApiDumpSettings
 }
 
 inline std::ostream &dump_text_void(const void *object, const ApiDumpSettings &settings, int indents) {
-    if (object == NULL)
-        return settings.stream() << "NULL";
+    if (object == NULL) return settings.stream() << "NULL";
     OutputAddress(settings, object, false);
     return settings.stream();
 }
