@@ -65,7 +65,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     // Get widest prompt row to determine where the second column goes
     nSecondColumn = 0;
     for(int i = 0; i < layerSettings.size(); i++) {
-        int w = fm.horizontalAdvance(layerSettings[i]->settingsPrompt);
+        int w = fm.size(Qt::TextSingleLine, layerSettings[i]->settingsPrompt).width();
         if(w > nSecondColumn)
             nSecondColumn = w;
         }
