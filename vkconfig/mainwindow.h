@@ -22,7 +22,7 @@
 
 #include <QMainWindow>
 #include <QListWidgetItem>
-
+#include <QLabel>
 #include <vulkanconfiguration.h>
 #include <settingseditor.h>
 
@@ -67,6 +67,8 @@ private:
     int CANNED_PROFILE_COUNT;
 
     CProfileListItem    *pLastSelectedProfileItem;
+
+    void setGetStartedText(const char *szText);
 
 public Q_SLOTS:
     void fileExit(bool bChecked);

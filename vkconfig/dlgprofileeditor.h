@@ -21,6 +21,8 @@
 
 #include <QDialog>
 #include <QTreeWidgetItem>
+#include <QResizeEvent>
+#include <QShowEvent>
 
 #include "profiledef.h"
 #include <vulkanconfiguration.h>
@@ -52,6 +54,8 @@ private:
 
     CProfileDef             *pThisProfile;
 
+    virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void showEvent(QShowEvent *) override;
 
 public Q_SLOTS:
     virtual void accept() override;

@@ -40,6 +40,16 @@
 #include "profiledef.h"
 
 
+static const char *szWelcomeText = "\nWelcome to LunarG Vulkan Configurator. This tool allows configuring the Vulkan "
+                                   "Layers to do Vulkan Applicaton Validation, helping to detect application issues.\n\n"
+                                   "To start, click on \"Edit List...\" and add the applications you want to configure "
+                                   "layers for.";
+
+static const char *szStartText = "\n- Select a \"Configuration\" and \"Activate\" to start "
+                                 "applying Vulkan Layers to the selected Vulkan applications.\n\n"
+                                 "- All layer configurations can be disabled using the \"Deactivate\" button.";
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -50,6 +60,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
+
+    ///////////////////////////////////////////////
+    checkAppListState();
+    if(pVulkanConfig->appList.size() == 0)
+        pVulkanConfig->SetCurrentActiveProfile(nullptr); // Just to be sure
 
     LoadProfileList();
 
@@ -67,20 +82,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Activate should always be off because nothing is selected on startup ever
     ui->pushButtonActivate->setEnabled(false);
-
-
-    ///////////////////////////////////////////////
-    checkAppListState();
-//    // Final check - if there are no apps, disable the profiles list
-//    if(pVulkanConfig->appList.length() == 0) {
-//        QString title = tr(VKCONFIG_NAME);
-//        title += "(Warning, no app list specified)";
-//        this->setWindowTitle(title);
-//        ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
-//        }
-//    else {
-//        ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
-//        }
     }
 
 MainWindow::~MainWindow()
@@ -160,6 +161,29 @@ void MainWindow::LoadProfileList(void)
     }
 
 
+/////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::setGetStartedText
+/// \param szText
+/// Set hint text
+void MainWindow::setGetStartedText(const char *szText)
+    {
+    // Create the label, just so that it fills the scroll area
+    // this automatically gets deleted whenever the scroll area gets reset
+    QLabel*             pLabelGetStarted;
+    pLabelGetStarted = new QLabel(ui->scrollArea);
+    QSize size = ui->scrollArea->size();
+    size.setWidth(size.width() - 10);
+    size.setHeight(size.height() - 10);
+    pLabelGetStarted->setAlignment(Qt::AlignTop);
+    pLabelGetStarted->setWordWrap(true);
+    pLabelGetStarted->setMinimumSize(size);
+    pLabelGetStarted->setMargin(8);
+    ui->scrollArea->setWidget(pLabelGetStarted);
+    pLabelGetStarted->show();
+    pLabelGetStarted->setText(szText);
+    }
+
+
 void MainWindow::checkAppListState(void)
     {
     // Final check - if there are no apps, disable the profiles list
@@ -167,28 +191,25 @@ void MainWindow::checkAppListState(void)
         this->setWindowTitle("Vulkan Control Panel (Warning, no app list specified)");
         ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
         ui->groupBoxEditor->setTitle(tr("Getting Started"));
-        ui->labelGetStarted->setHidden(false);
-        ui->labelGetStarted->setText("Welcome to LunarG Vulkan Configurator. This tool allows configuring the Vulkan "
-                                     "Layers to do Vulkan Applicaton Validation, helping to detect application issues.\n\n"
-                                     "To start, click on \"Edit List...\" and add the applications you want to configure "
-                                     "layers for.");
         ui->groupBoxProfiles->setEnabled(false);
+        settingsEditor.CleanupGUI();    // Just in case
+        setGetStartedText(szWelcomeText);
         }
-    else { // There are apps, but nothing may be selected
-        ui->groupBoxProfiles->setEnabled(false);
+    else { // There are apps
         this->setWindowTitle(VKCONFIG_NAME);
         ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
 
-        if(ui->listWidgetProfiles->currentItem() == nullptr) {
+        // But was one of them selected?
+        int nSelected = ui->listWidgetProfiles->currentRow();
+        if(nSelected == -1) {
+            ui->groupBoxProfiles->setEnabled(false);
             ui->groupBoxEditor->setTitle(tr("Getting Started"));
             ui->groupBoxProfiles->setEnabled(true);
-            ui->labelGetStarted->setHidden(false);
-            ui->labelGetStarted->setText("- Select a \"Configuration\" and \"Activate\" to start "
-                                         "applying Vulkan Layers to the selected Vulkan applications.\n\n"
-                                         "- All layer configurations can be disabled using the \"Deactivate\" button.");
+            setGetStartedText(szStartText);
             }
         else {
-            ui->labelGetStarted->setHidden(true);
+            // An item was selected and active
+            ui->groupBoxProfiles->setEnabled(true);
             }
         }
     }
@@ -256,6 +277,13 @@ void MainWindow::on_pushButtonAppList_clicked(void)
     dlgCreateAssociation dlg(this);
     dlg.exec();
     pVulkanConfig->saveAppList();
+
+    // If we come back and there are no apps in the app list, don't leave any holes
+    if(pVulkanConfig->appList.size() == 0 && pVulkanConfig->GetCurrentActiveProfile() != nullptr) {
+        pVulkanConfig->SetCurrentActiveProfile(nullptr);
+        LoadProfileList();
+        }
+
     checkAppListState();
     }
 
@@ -282,6 +310,7 @@ void MainWindow::on_pushButtonClone_clicked()
             LoadProfileList();  // Force a reload
             }
         }
+    checkAppListState();
     }
 
 
@@ -308,6 +337,7 @@ void MainWindow::on_pushButtonEdit_clicked(void)
             LoadProfileList();  // Force a reload
             }
         }
+    checkAppListState();
     }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -317,6 +347,7 @@ void MainWindow::on_pushButtonNewProfile_clicked(void)
     dlgProfileEditor dlg(this, nullptr);
     dlg.exec();
     LoadProfileList();  // force a reload
+    checkAppListState();
     }
 
 
@@ -361,6 +392,7 @@ void MainWindow::on_pushButtonRemove_clicked()
     // Reload profiles
     pVulkanConfig->loadAllProfiles();
     this->LoadProfileList();
+    checkAppListState();
     }
 
 void MainWindow::toolsSetCustomPaths(bool bChecked)
@@ -501,6 +533,7 @@ void MainWindow::selectedProfileChanged(void)
     // Something is selected, so we need to enable the button
     ui->pushButtonEdit->setEnabled(true);
     ui->pushButtonClone->setEnabled(true);
+    ui->pushButtonRemove->setEnabled(true);
     ui->pushButtonActivate->setEnabled(true);
 
     ui->groupBoxEditor->setEnabled(true);

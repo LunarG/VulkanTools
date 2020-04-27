@@ -141,6 +141,7 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked()
     dlg.exec();
     }
 
+
 //////////////////////////////////////////////////////////////////////////////
 /// \brief dlgProfileEditor::refreshLayers
 /// Load all the available layers and initialize their settings
@@ -217,7 +218,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        // information. These are NOT QTreeWidgetItemWithLayer
        // because they don't link back to a layer, you have to
        // go up the tree
-
+/*
        QTreeWidgetItem *pChild = new QTreeWidgetItem();
        pChild->setText(0, pThisProfile->layers[iLayer]->description);
        pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
@@ -252,12 +253,30 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        pChild->setText(0, pThisProfile->layers[iLayer]->qsLayerPath);
        pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
        pItem->addChild(pChild);
+*/
        }
 
+    resizeEvent(nullptr);
+//    int width = ui->layerTree->width() - comboWidth;
+//    ui->layerTree->setColumnWidth(0, width);
+    }
+
+// The only way to catch the resize from the layouts
+// (which is screwing up the spacing with the combo boxes)
+void dlgProfileEditor::showEvent(QShowEvent *event)
+    {
+    (void)event;
+    resizeEvent(nullptr);
+    }
+
+void dlgProfileEditor::resizeEvent(QResizeEvent *event)
+    {
+    (void)event;
+    QFontMetrics fm = ui->layerTree->fontMetrics();
+    int comboWidth = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 1.6);
     int width = ui->layerTree->width() - comboWidth;
     ui->layerTree->setColumnWidth(0, width);
     }
-
 
 //////////////////////////////////////////////////////////////////////////////
 /// \brief dlgProfileEditor::on_pushButtonResetLayers_clicked
@@ -298,6 +317,7 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pCurrent);
     if(pLayerItem == nullptr) {
         ui->groupBoxSettings->setTitle(tr("Layer Settings"));
+        ui->labelLayerDetails->setText("");
         return;
         }
 
@@ -306,6 +326,37 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     qsTitle += ")";
     ui->groupBoxSettings->setTitle(qsTitle);
     settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, false);
+
+    // Populate the side label
+    QString detailsText = pLayerItem->pLayer->description;
+    detailsText += "\n";
+    switch(pLayerItem->pLayer->layerType) {
+        case LAYER_TYPE_EXPLICIT:
+        detailsText += "Explicit Layer\n";
+        break;
+        case LAYER_TYPE_IMPLICIT:
+        detailsText += "Implicit Layer\n";
+        break;
+        case LAYER_TYPE_CUSTOM:
+        detailsText += "Custom Layer Path\n";
+        break;
+        }
+
+    detailsText += pLayerItem->pLayer->library_path;
+    detailsText += "\n";
+
+    detailsText += "API Version: ";
+    detailsText += pLayerItem->pLayer->api_version;
+    detailsText += "\n";
+
+    detailsText += "Implementation Version: ";
+    detailsText += pLayerItem->pLayer->implementation_version;
+    detailsText += "\n";
+
+    detailsText += "File format: ";
+    detailsText += pLayerItem->pLayer->file_format_version;
+
+    ui->labelLayerDetails->setText(detailsText);
     }
 
 

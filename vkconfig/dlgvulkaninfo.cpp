@@ -46,7 +46,7 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
 #ifdef _WIN32
     vulkan_info->setProgram("vulkaninfoSDK");
 #else
-    vulkan_info->setProgram("/Developer/vulkansdk/macos/bin/vulkaninfo");
+    vulkan_info->setProgram("vulkaninfo");
 #endif
 
     QString filePath = QDir::temp().path();
