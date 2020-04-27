@@ -64,7 +64,7 @@ FORMS += \
     mainwindow.ui
 
 TRANSLATIONS += \
-    vkconfig2_en_US.ts
+    vkconfig_en_US.ts
 
 
 win32: {
