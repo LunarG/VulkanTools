@@ -22,6 +22,7 @@
 #include "ui_dlgvulkaninfo.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <QProcess>
 #include <QFile>
@@ -54,6 +55,9 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     QStringList args;
     args << "--vkconfig_output";
     args << filePath;
+
+    char *path = getenv("PATH");
+    printf("Path: %s\n", path);
 
     // Wait... make sure we don't pick up the old one!
     filePath += "/vulkaninfo.json";

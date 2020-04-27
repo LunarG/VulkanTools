@@ -7,13 +7,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-        <string>vkconfig.sh</string>
+	<string>vkconfig.sh</string>
 	<key>CFBundleGetInfoString</key>
 	<string>VkConfig</string>
 	<key>CFBundleIconFile</key>
 	<string>LunarGIcon.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.lunarg.vkconfig2</string>
+	<string>com.lunarg.vkconfig</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
