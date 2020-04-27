@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>484</width>
+    <width>572</width>
     <height>595</height>
    </rect>
   </property>
@@ -286,8 +286,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>420</width>
-                <height>176</height>
+                <width>470</width>
+                <height>149</height>
                </rect>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_3"/>
@@ -318,8 +318,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>484</width>
-     <height>21</height>
+     <width>572</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">

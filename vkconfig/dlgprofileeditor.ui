@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
+    <width>880</width>
     <height>672</height>
    </rect>
   </property>
@@ -28,16 +28,22 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
-       <width>225</width>
+       <width>250</width>
        <height>50</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>225</width>
-       <height>50</height>
+       <width>1000</width>
+       <height>1000</height>
       </size>
      </property>
      <property name="sizeIncrement">
@@ -67,7 +73,7 @@
     <widget class="QGroupBox" name="groupBox_2">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>1</horstretch>
+       <horstretch>2</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
@@ -146,7 +152,7 @@
          <item>
           <widget class="QLabel" name="labelLayerDetails">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="font">
             <font>
@@ -184,7 +190,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>120</width>
+          <width>1000</width>
           <height>16777215</height>
          </size>
         </property>
@@ -197,7 +203,7 @@
        <widget class="QPushButton" name="pushButtonAddLayers">
         <property name="maximumSize">
          <size>
-          <width>120</width>
+          <width>1000</width>
           <height>16777215</height>
          </size>
         </property>
@@ -245,6 +251,11 @@
         <property name="headerHidden">
          <bool>true</bool>
         </property>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
@@ -289,8 +300,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>552</width>
-           <height>175</height>
+           <width>809</width>
+           <height>156</height>
           </rect>
          </property>
         </widget>

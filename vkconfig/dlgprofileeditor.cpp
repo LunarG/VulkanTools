@@ -139,6 +139,7 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked()
     {
     dlgCustomPaths dlg(this);
     dlg.exec();
+    LoadLayerDisplay();
     }
 
 
