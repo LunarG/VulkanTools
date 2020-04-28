@@ -54,7 +54,6 @@ HEADERS += \
 FORMS += \
     dlgabout.ui \
     dlgcreateassociation.ui \
-    dlgcreateprofile.ui \
     dlgcustompaths.ui \
     dlghistory.ui \
     dlglayeroutput.ui \

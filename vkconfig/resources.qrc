@@ -4,9 +4,9 @@
         <file>resourcefiles/qt_logo.png</file>
         <file>resourcefiles/layer_info.json</file>
         <file>resourcefiles/presets_info.json</file>
-        <file>resourcefiles/StandardValidation.json</file>
-        <file>resourcefiles/BestPracticesValidation.json</file>
-        <file>resourcefiles/GPU-AssistedValidation.json</file>
-        <file>resourcefiles/LightweightValidation.json</file>
+        <file>resourcefiles/Standard Validation.json</file>
+        <file>resourcefiles/Best Practices Validation.json</file>
+        <file>resourcefiles/GPU-Assisted Validation.json</file>
+        <file>resourcefiles/Reduced Overhead Validation.json</file>
     </qresource>
 </RCC>

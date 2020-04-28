@@ -66,19 +66,25 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
     setWindowTitle("Creating New Profile");
 
     // Case 1: New profile (easiest case)
-    if(pProfileToEdit == nullptr)
+    if(pProfileToEdit == nullptr) {
         pThisProfile = pVulkanConfig->CreateEmptyProfile();
+        setWindowTitle(tr("Create new layer configuration"));
+        }
     else {
+        QString title;
+
         // We are editing an exisitng profile. Make a copy of it
         pThisProfile = pProfileToEdit->duplicateProfile();
 
         // IF this was a fixed profile, clear that setting
-        // AND we need to clear the name since we are making a copy
+        // AND we need to modify the name since we are making a copy
         if(pProfileToEdit->bFixedProfile) {
             pThisProfile->qsFileName = "";
-            pThisProfile->qsProfileName = "";
-            pThisProfile->qsDescription = "";
+            pThisProfile->qsProfileName += " (Duplicate)";
+            title = tr("Save Duplicate Configuration");
             }
+        else
+            title = tr("Edit existing configuration");
 
         // We now have a profile ready for editing, but only the layers that
         // are actually used are attached. Now, we need to add the remaining layers
@@ -86,6 +92,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         // Loop through all the available layers. If the layer is not use for the profile
         // attach it for editing.
         addMissingLayers(pThisProfile);
+        setWindowTitle(title);
         }
 
     ui->lineEditName->setText(pThisProfile->qsProfileName);
@@ -95,11 +102,8 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
 
     pHeader->setText(0, "Layers");
     pHeader->setText(1, "Usage");
-//    pHeader->setText(2, "Blacklist");
-//    pHeader->setText(3, "Implicit?");
-//    pHeader->setText(4, "Custom Path?");
-//    pHeader->setFirstColumnSpanned(true);
 
+    connect(ui->lineEditName, SIGNAL(textChanged(const QString&)), this, SLOT(profileNameChanged(const QString&)));
     connect(ui->layerTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this,
                 SLOT(currentLayerChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 
@@ -148,6 +152,24 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked()
     dlg.exec();
     addMissingLayers(pThisProfile);
     LoadLayerDisplay();
+    }
+
+
+//////////////////////////////////////////////////////////////////////////
+/// \brief dlgProfileEditor::profileNameChanged
+/// \param qsName
+/// Monitor the name of the profile and do not allow saving
+/// of a profile with the same name.
+void dlgProfileEditor::profileNameChanged(const QString& qsName)
+    {
+    // Compare the edit field with the list of canned profile names
+    for(int i = 0; i < 10; i+=2)
+        if(szCannedProfiles[i] == qsName) {
+            ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(false);
+            return;
+            }
+
+    ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(true);
     }
 
 

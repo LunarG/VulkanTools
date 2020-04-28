@@ -334,18 +334,11 @@ void CVulkanConfiguration::loadAllProfiles(void)
             }
         }
 
+    //////////////////////////////////////////////////////////////////////////
     // All profile files found are loaded. Now, double check for the canned
     // profiles and if they aren't already loaded, load them from the
     // resource file. Array below is just the name of the profile and
     // the embedded resource location if they are needed.
-    const char *szCannedProfiles[10] = {
-    "Standard Validation",          ":/resourcefiles/StandardValidation.json",
-    "Best Practices Validation",    ":/resourcefiles/BestPracticesValidation.json",
-    "GPU-Assisted Validation",      ":/resourcefiles/GPU-AssistedValidation.json",
-    "Lightweight Validation",       ":/resourcefiles/LightweightValidation.json",
-    };
-
-    // For each canned profile
     for(int i = 0; i < 10; i+=2) {
         // Search the list of loaded profiles
         CProfileDef *pProfile = FindProfile(szCannedProfiles[i]);

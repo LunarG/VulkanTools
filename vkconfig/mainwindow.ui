@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>572</width>
-    <height>595</height>
+    <width>460</width>
+    <height>585</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -31,284 +31,238 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
-       <number>0</number>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>2</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <widget class="QWidget" name="tab_config">
-       <attribute name="title">
-        <string>Preset Configurations</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>2</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+      <property name="title">
+       <string>Vulkan Application Scope</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="pushButtonAppList">
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Edit List...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonLaunch">
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Launch...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonDisable">
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Deactivate</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QGroupBox" name="groupBoxProfiles">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Vulkan Layer Configurations</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="2" column="1">
+        <widget class="QPushButton" name="pushButtonRemove">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>76</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>98</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Remove</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButtonEdit">
+         <property name="minimumSize">
+          <size>
+           <width>76</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>98</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Edit...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButtonNewProfile">
+         <property name="minimumSize">
+          <size>
+           <width>76</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>98</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>New...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" rowspan="5">
+        <widget class="QListWidget" name="listWidgetProfiles">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="showDropIndicator" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="dragEnabled">
+          <bool>false</bool>
+         </property>
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::NoDragDrop</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="pushButtonActivate">
+         <property name="minimumSize">
+          <size>
+           <width>76</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>98</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Activate</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
+     <widget class="QGroupBox" name="groupBoxEditor">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Khronos Output Settings</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>420</width>
+            <height>210</height>
+           </rect>
           </property>
-          <property name="title">
-           <string>Vulkan Application Scope</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QPushButton" name="pushButtonAppList">
-             <property name="minimumSize">
-              <size>
-               <width>75</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Edit List...</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonLaunch">
-             <property name="minimumSize">
-              <size>
-               <width>75</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Launch...</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonDisable">
-             <property name="minimumSize">
-              <size>
-               <width>75</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Deactivate</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QHBoxLayout" name="horizontalLayout_3"/>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QGroupBox" name="groupBoxProfiles">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Vulkan Layer Configurations</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0" rowspan="6">
-            <widget class="QListWidget" name="listWidgetProfiles">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-               <horstretch>1</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="showDropIndicator" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="dragEnabled">
-              <bool>false</bool>
-             </property>
-             <property name="dragDropMode">
-              <enum>QAbstractItemView::NoDragDrop</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QPushButton" name="pushButtonRemove">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>76</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>98</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Remove</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="pushButtonEdit">
-             <property name="minimumSize">
-              <size>
-               <width>76</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>98</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Edit...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QPushButton" name="pushButtonClone">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>76</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>98</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Clone...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="pushButtonNewProfile">
-             <property name="minimumSize">
-              <size>
-               <width>76</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>98</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>New...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QPushButton" name="pushButtonActivate">
-             <property name="minimumSize">
-              <size>
-               <width>76</width>
-               <height>26</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>98</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Activate</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QGroupBox" name="groupBoxEditor">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>200</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Khronos Output Settings</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QScrollArea" name="scrollArea">
-             <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarAsNeeded</enum>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::AdjustToContents</enum>
-             </property>
-             <property name="widgetResizable">
-              <bool>true</bool>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-             <widget class="QWidget" name="scrollAreaWidgetContents">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>470</width>
-                <height>149</height>
-               </rect>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_3"/>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_vulkaninfo">
-       <attribute name="title">
-        <string>Vulkan Info</string>
-       </attribute>
-      </widget>
-      <widget class="QWidget" name="tab_vkvia">
-       <attribute name="title">
-        <string>Vulkan Installation Analysis</string>
-       </attribute>
-      </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -318,8 +272,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>572</width>
-     <height>22</height>
+     <width>460</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">

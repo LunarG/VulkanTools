@@ -87,7 +87,6 @@ public Q_SLOTS:
 
     void on_pushButtonAppList_clicked(void);
     void on_pushButtonEdit_clicked(void);
-    void on_pushButtonClone_clicked();
     void on_pushButtonNewProfile_clicked(void);
     void on_pushButtonRemove_clicked(void);
     void on_pushButtonDisable_clicked(void);

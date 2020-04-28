@@ -33,6 +33,16 @@
 #include "profiledef.h"
 
 
+//////////////////////////////////////////////////////////////////////////
+// Canned/fixed profiles
+static const char *szCannedProfiles[10] = {
+"Standard Validation",          ":/resourcefiles/Standard Validation.json",
+"Best Practices Validation",    ":/resourcefiles/Best Practices Validation.json",
+"GPU-Assisted Validation",      ":/resourcefiles/GPU-Assisted Validation.json",
+"Reduced Overhead Validation",  ":/resourcefiles/Reduced Overhead Validation.json",
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CPathFinder class
 /// Going back and forth between the Windows registry and looking for files

@@ -99,7 +99,6 @@ void MainWindow::LoadProfileList(void)
     ui->listWidgetProfiles->clear();
     ui->pushButtonRemove->setEnabled(false); // Nothing is selected
     ui->pushButtonEdit->setEnabled(false);
-    ui->pushButtonClone->setEnabled(false);
 
     // Default profiles need the VK_LAYER_KHRONOS_validation layer.
     // If it's not found, we need to disable it.
@@ -288,32 +287,6 @@ void MainWindow::on_pushButtonAppList_clicked(void)
     }
 
 
-////////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::on_pushbuttonClone_clicked
-/// Any selected profile can be cloned
-void MainWindow::on_pushButtonClone_clicked()
-    {
-    int nSelection = ui->listWidgetProfiles->currentRow();
-    Q_ASSERT(nSelection >= 0);
-
-    // I may have made edits
-    settingsEditor.CollectSettings();
-
-    // Which profile is selected?
-    QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
-    if(pItem != nullptr) {
-        CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
-        if(pProfileItem != nullptr) {
-            dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
-            dlg.exec();
-            pVulkanConfig->loadAllProfiles(); // Reset
-            LoadProfileList();  // Force a reload
-            }
-        }
-    checkAppListState();
-    }
-
-
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonEditProfile_clicked
 /// Just resave the list anytime we go into the editor
@@ -324,7 +297,6 @@ void MainWindow::on_pushButtonEdit_clicked(void)
 
     // I may have made edits
     settingsEditor.CollectSettings();
-
 
     // Which profile is selected?
     QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
@@ -501,24 +473,21 @@ void MainWindow::selectedProfileChanged(void)
     pLastSelectedProfileItem = pSelectedItem;
     if(pSelectedItem == nullptr) {
         ui->listWidgetProfiles->setCurrentRow(-1);
-        ui->pushButtonEdit->setEnabled(false);
-        ui->pushButtonClone->setEnabled(false);
+        ui->pushButtonEdit->setEnabled(true);
         ui->pushButtonRemove->setEnabled(false);    // Only the ones you can edit can be deleted
         ui->groupBoxEditor->setEnabled(false);
         ui->groupBoxEditor->setTitle(tr("Khronos Ouput Settings"));
         return; // This should never happen, but if they do, nothing is selected
         }
 
-    // Wait... if this is the currently active profile, we do not allow editing,
-    // But still show the settings
+    // This is the currently active profile, editing is a clone, but this is transparent here
     if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
         if(pSelectedItem->pProfilePointer->bFixedProfile) {
             ui->pushButtonEdit->setEnabled(false);
             ui->pushButtonRemove->setEnabled(false);
             }
 
-        ui->pushButtonClone->setEnabled(true);
-        ui->groupBoxEditor->setEnabled(false);
+        ui->groupBoxEditor->setEnabled(true);
         QString title = tr("Khronos Ouput Settings");
         title += " - ";
         title += pSelectedItem->pProfilePointer->qsProfileName;
@@ -532,7 +501,6 @@ void MainWindow::selectedProfileChanged(void)
 
     // Something is selected, so we need to enable the button
     ui->pushButtonEdit->setEnabled(true);
-    ui->pushButtonClone->setEnabled(true);
     ui->pushButtonRemove->setEnabled(true);
     ui->pushButtonActivate->setEnabled(true);
 
@@ -543,10 +511,8 @@ void MainWindow::selectedProfileChanged(void)
     ui->groupBoxEditor->setTitle(title);
 
 
-    if(pSelectedItem->pProfilePointer->bFixedProfile) {
+    if(pSelectedItem->pProfilePointer->bFixedProfile)
         ui->pushButtonRemove->setEnabled(false);
-        ui->pushButtonEdit->setEnabled(false);
-        }
 
     // Label the button appropriately, but if a canned profile, we do need to
     // setup the GUI
