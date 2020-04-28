@@ -419,7 +419,7 @@ void CVulkanConfiguration::loadDefaultLayerSettings(void)
 /// To do a full match, not only the layer name, but the layer path/location
 /// must also be a match. It IS possible to have two layers with the same name
 /// as long as they are in different locations.
-const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName, char* location)
+const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName, const char* location)
     {
     // Search just by name
     if(location == nullptr) {
@@ -431,10 +431,9 @@ const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName, char
         }
 
     // Match both
-    if(location == nullptr)
-        for(int i = 0; i < allLayers.size(); i++)
-            if(qsLayerName == allLayers[i]->name && QString(location) == allLayers[i]->qsLayerPath)
-                return allLayers[i];
+    for(int i = 0; i < allLayers.size(); i++)
+        if(qsLayerName == allLayers[i]->name && QString(location) == allLayers[i]->qsLayerPath)
+            return allLayers[i];
 
     return nullptr;
     }
@@ -488,22 +487,40 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
     // Build the list of layers with their settings
     for(int iLayer = 0; iLayer < layerList.length(); iLayer++) {
-        // Find this in our lookup of layers. This get's the layer and it's location/information
-        const CLayerFile *pLayer = findLayerNamed(layerList[iLayer]);
-        if(pLayer == nullptr)           // If not found, we have a layer missing....
-            continue;
+        const CLayerFile *pLayer = nullptr;
+        QJsonValue layerValue = layerObjects.value(layerList[iLayer]);
+        QJsonObject layerObject = layerValue.toObject();
+
+        // To match the layer we need not just the name, but the path
+        // If the path doesn't exist, assume it's from the standard layer locations
+        // Get the path of this layer
+        QJsonValue layerPathValue = layerObject.value("layer_path");
+        QString layerPath = layerPathValue.toString();
+        if(layerPath.isEmpty()) { // No layer path exists
+            // Find this in our lookup of layers. The standard layers are listed first
+            pLayer = findLayerNamed(layerList[iLayer]);
+            if(pLayer == nullptr)           // If not found, we have a layer missing....
+                continue;
+            }
+        else {
+            // We have a layer path, find the exact match
+            pLayer = findLayerNamed(layerList[iLayer], layerPath.toUtf8().constData());
+            if(pLayer == nullptr)
+                continue;   // We still can't find the layer
+            }
+
 
         // Make a copy add it to this layer
         CLayerFile *pProfileLayer = new CLayerFile();
         pLayer->CopyLayer(pProfileLayer);
         pProfile->layers.push_back(pProfileLayer);
 
-        QJsonValue layerValue = layerObjects.value(layerList[iLayer]);
-        QJsonObject layerObject = layerValue.toObject();
 
         QJsonValue layerRank = layerObject.value("layer_rank");
         pProfileLayer->nRank = layerRank.toInt();
         pProfileLayer->bActive = true;      // Always because it's present in the file
+
+
 
         // If any layer has the Khronos layer, add it here.
         if(true == CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings))
@@ -542,6 +559,9 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
 
         // Rank goes in here with settings
         jsonSettings.insert("layer_rank", pLayer->nRank);
+
+        // We also need the path to the layer
+        jsonSettings.insert("layer_path", pLayer->qsLayerPath);
 
         // Loop through the actual settings
         for(int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {

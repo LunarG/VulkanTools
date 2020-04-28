@@ -69,7 +69,7 @@ public:
     QString     implementation_version;
     QString     description;
 
-    QString     qsLayerPath;                // Actual path to the folder that contains the layer
+    QString     qsLayerPath;                // Actual path to the folder that contains the layer (this is important!)
     TLayerType  layerType;
 
     // This layers settings. This will be used to build the editor

@@ -68,7 +68,8 @@ TRANSLATIONS += \
 
 win32: {
   LIBS += Advapi32.lib
-  }
+  RC_ICONS = resourcefiles/vulkan.ico
+}
 
 macx: {
 CONFIG += file_copies

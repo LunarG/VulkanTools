@@ -146,7 +146,7 @@ public:
     QVector <CLayerFile*>   allLayers;          // All the found layers, lumped together
     void findAllInstalledLayers(void);
     void loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
-    const CLayerFile* findLayerNamed(QString qsLayerName, char* location = nullptr);
+    const CLayerFile* findLayerNamed(QString qsLayerName, const char* location = nullptr);
 
 
 
