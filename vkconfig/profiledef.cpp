@@ -44,10 +44,10 @@ CProfileDef::~CProfileDef()
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
-CLayerFile* CProfileDef::findLayer(QString qsLayerName)
+CLayerFile* CProfileDef::findLayer(QString qsLayerName, QString qsFullPath)
     {
     for(int i = 0; i < layers.size(); i++)
-        if(layers[i]->name == qsLayerName)
+        if(layers[i]->name == qsLayerName && layers[i]->qsLayerPath == qsFullPath)
             return layers[i];
 
     return nullptr;

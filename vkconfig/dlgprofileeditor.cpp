@@ -85,31 +85,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         // in their default states
         // Loop through all the available layers. If the layer is not use for the profile
         // attach it for editing.
-        int nRank = pThisProfile->layers.size();    // Next rank starts here
-        for(int iAvailable = 0; iAvailable < pVulkanConfig->allLayers.size(); iAvailable++) {
-            CLayerFile *pLayerThatMightBeMissing = pVulkanConfig->allLayers[iAvailable];
-
-            // Look for through all layers
-            CLayerFile *pAreYouAlreadyThere = pThisProfile->findLayer(pLayerThatMightBeMissing->name);
-            if(pAreYouAlreadyThere != nullptr) // It's in the list already
-                continue;
-
-            // Nope, add it to the end
-            CLayerFile *pNextLayer = new CLayerFile();
-            pLayerThatMightBeMissing->CopyLayer(pNextLayer);
-
-            // Add default settings to the layer...
-            pVulkanConfig->LoadDefaultSettings(pNextLayer);
-
-            pNextLayer->nRank = nRank++;
-            pNextLayer->bActive = false;    // Layers read from file are already active
-
-            // Check the blacklist
-            if(pThisProfile->blacklistedLayers.contains(pNextLayer->name))
-                pNextLayer->bDisabled = true;
-
-            pThisProfile->layers.push_back(pNextLayer);
-            }
+        addMissingLayers(pThisProfile);
         }
 
     ui->lineEditName->setText(pThisProfile->qsProfileName);
@@ -130,6 +106,37 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
     LoadLayerDisplay(0); // Load/Reload the layer editor
     }
 
+void dlgProfileEditor::addMissingLayers(CProfileDef *pProfile)
+    {
+    int nRank = pProfile->layers.size();    // Next rank starts here
+    for(int iAvailable = 0; iAvailable < pVulkanConfig->allLayers.size(); iAvailable++) {
+        CLayerFile *pLayerThatMightBeMissing = pVulkanConfig->allLayers[iAvailable];
+
+        // Look for through all layers
+        CLayerFile *pAreYouAlreadyThere = pProfile->findLayer(pLayerThatMightBeMissing->name, pLayerThatMightBeMissing->qsLayerPath);
+        if(pAreYouAlreadyThere != nullptr) // It's in the list already
+            continue;
+
+        // Nope, add it to the end
+        CLayerFile *pNextLayer = new CLayerFile();
+        pLayerThatMightBeMissing->CopyLayer(pNextLayer);
+
+        // Add default settings to the layer...
+        pVulkanConfig->LoadDefaultSettings(pNextLayer);
+
+        pNextLayer->nRank = nRank++;
+        pNextLayer->bActive = false;    // Layers read from file are already active
+
+        // Check the blacklist
+        if(pProfile->blacklistedLayers.contains(pNextLayer->name))
+            pNextLayer->bDisabled = true;
+
+        pProfile->layers.push_back(pNextLayer);
+        }
+    }
+
+
+
 dlgProfileEditor::~dlgProfileEditor()
     {
     delete ui;
@@ -139,6 +146,7 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked()
     {
     dlgCustomPaths dlg(this);
     dlg.exec();
+    addMissingLayers(pThisProfile);
     LoadLayerDisplay();
     }
 

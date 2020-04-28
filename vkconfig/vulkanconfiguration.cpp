@@ -37,18 +37,19 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work.
-CPathFinder::CPathFinder(const QString& qsPath)
+CPathFinder::CPathFinder(const QString& qsPath, bool bForceFileSystem)
     {
-#ifdef _WIN32
-    QSettings files(qsPath, QSettings::NativeFormat);
-    fileList = files.allKeys();
-#else
-    QDir dir(qsPath);
-    QFileInfoList fileInfoList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
+    if(!bForceFileSystem) {
+        QSettings files(qsPath, QSettings::NativeFormat);
+        fileList = files.allKeys();
+        }
+    else {
+        QDir dir(qsPath);
+        QFileInfoList fileInfoList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
 
-    for(int iFile = 0; iFile < fileInfoList.size(); iFile++)
-        fileList << fileInfoList[iFile].filePath();
-#endif
+        for(int iFile = 0; iFile < fileInfoList.size(); iFile++)
+            fileList << fileInfoList[iFile].filePath();
+        }
     }
 
 
@@ -250,7 +251,7 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
 void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
                                QVector<CLayerFile *>& layerList, TLayerType type)
     {
-    CPathFinder fileList(qsPath);
+    CPathFinder fileList(qsPath, (type == LAYER_TYPE_CUSTOM));
     if(fileList.FileCount() == 0)
         return;
 
@@ -418,12 +419,29 @@ void CVulkanConfiguration::loadDefaultLayerSettings(void)
 
 
 //////////////////////////////////////////////////////////////////////////////
-const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName)
+/// \brief CVulkanConfiguration::findLayerNamed
+/// \param qsLayerName
+/// \param location
+/// \return
+/// To do a full match, not only the layer name, but the layer path/location
+/// must also be a match. It IS possible to have two layers with the same name
+/// as long as they are in different locations.
+const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName, char* location)
     {
-    // Search implicit layers
-    for(int i = 0; i < allLayers.size(); i++)
-        if(qsLayerName == allLayers[i]->name)
-            return allLayers[i];
+    // Search just by name
+    if(location == nullptr) {
+        for(int i = 0; i < allLayers.size(); i++)
+            if(qsLayerName == allLayers[i]->name)
+                return allLayers[i];
+
+        return nullptr; // Not found
+        }
+
+    // Match both
+    if(location == nullptr)
+        for(int i = 0; i < allLayers.size(); i++)
+            if(qsLayerName == allLayers[i]->name && QString(location) == allLayers[i]->qsLayerPath)
+                return allLayers[i];
 
     return nullptr;
     }

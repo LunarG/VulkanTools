@@ -45,7 +45,11 @@
 class CPathFinder
 {
 public:
-    CPathFinder(const QString& qsPath);
+#ifdef _WIN32
+    CPathFinder(const QString& qsPath, bool bForceFileSystem = false);
+#else
+    CPathFinder(const QString& qsPath, bool bForceFileSystem = true);
+#endif
     int FileCount(void) { return fileList.size(); }
     QString GetFileName(int iIndex) { return fileList[iIndex]; }
 protected:
@@ -132,7 +136,7 @@ public:
     QVector <CLayerFile*>   allLayers;          // All the found layers, lumped together
     void findAllInstalledLayers(void);
     void loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
-    const CLayerFile* findLayerNamed(QString qsLayerName);
+    const CLayerFile* findLayerNamed(QString qsLayerName, char* location = nullptr);
 
 
 

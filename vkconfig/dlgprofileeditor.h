@@ -57,6 +57,8 @@ private:
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;
 
+    void addMissingLayers(CProfileDef *pProfile);
+
 public Q_SLOTS:
     virtual void accept() override;
 
