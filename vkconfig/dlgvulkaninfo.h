@@ -42,8 +42,10 @@ public:
     void BuildDevices(QJsonValue& jsonValue, QTreeWidgetItem *pRoot);
     void TraverseGenericProperties(QJsonValue& parentJson, QTreeWidgetItem *pParentTreeItem);
 
+    void RunTool(void);
 
 private:
+
     Ui::dlgVulkanInfo *ui;
 };
 

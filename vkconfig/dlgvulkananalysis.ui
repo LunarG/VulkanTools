@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
      <property name="spacing">
       <number>1</number>
      </property>
@@ -42,8 +42,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -73,8 +73,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -98,8 +98,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -123,8 +123,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -132,7 +132,7 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QTableWidget" name="vkDriverInfo">
+              <widget class="QTableWidget" name="vkDriverInfoTable">
                <attribute name="horizontalHeaderVisible">
                 <bool>false</bool>
                </attribute>
@@ -148,8 +148,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -173,8 +173,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -198,8 +198,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -223,8 +223,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -248,8 +248,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>349</height>
+              <width>708</width>
+              <height>465</height>
              </rect>
             </property>
             <attribute name="label">
@@ -287,8 +287,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>670</width>
-              <height>519</height>
+              <width>708</width>
+              <height>600</height>
              </rect>
             </property>
             <attribute name="label">
@@ -312,8 +312,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>95</height>
+              <width>89</width>
+              <height>89</height>
              </rect>
             </property>
             <attribute name="label">
@@ -337,8 +337,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>95</height>
+              <width>89</width>
+              <height>89</height>
              </rect>
             </property>
             <attribute name="label">
@@ -362,8 +362,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>95</height>
+              <width>89</width>
+              <height>89</height>
              </rect>
             </property>
             <attribute name="label">
@@ -405,53 +405,10 @@
        </widget>
       </widget>
      </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Close</set>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>dlgVulkanAnalysis</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>dlgVulkanAnalysis</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -41,6 +41,12 @@ public:
     bool CollectSettings(void);             // Transfer controls to layerSettings.
                                             // Returns false if no settings were changed
 
+    // Allow disabling and re-enabling all the edit controls
+//    void SetEnabled(bool bEnable) {
+//        for(int i = 0; i < inputControls.size(); i++)
+//            inputControls[i]->setEnabled(bEnable);
+//        }
+
 protected:
     // Every edit control has one of these
     QVector<QWidget *> prompts;             // Just QLabels...

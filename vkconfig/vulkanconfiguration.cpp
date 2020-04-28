@@ -496,6 +496,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         // Get the path of this layer
         QJsonValue layerPathValue = layerObject.value("layer_path");
         QString layerPath = layerPathValue.toString();
+
         if(layerPath.isEmpty()) { // No layer path exists
             // Find this in our lookup of layers. The standard layers are listed first
             pLayer = findLayerNamed(layerList[iLayer]);
@@ -515,11 +516,9 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         pLayer->CopyLayer(pProfileLayer);
         pProfile->layers.push_back(pProfileLayer);
 
-
         QJsonValue layerRank = layerObject.value("layer_rank");
         pProfileLayer->nRank = layerRank.toInt();
         pProfileLayer->bActive = true;      // Always because it's present in the file
-
 
 
         // If any layer has the Khronos layer, add it here.
@@ -786,13 +785,16 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     // See if any of the included layers are custom?
     bool bHaveCustom = false;
     for(int i = 0; i < pProfile->layers.size(); i++)
-        if(pProfile->layers[i]->type == LAYER_TYPE_CUSTOM)
+        if(pProfile->layers[i]->layerType == LAYER_TYPE_CUSTOM)
             bHaveCustom = true;
 
     // Only if we have custom paths...
     if(bHaveCustom) {
         // Don't use the additional search paths list, only use the paths
-        // used by the layers themsevles
+        // used by the layers themsevles. All the paths are included so
+        // we can use standard SDK layers and custom layers at the same time.
+        // The order of the search paths should match the order of the layers
+        // in the profile.
         for(int i = 0; i < pProfile->layers.size(); i++) {
             // Extract just the path
             QFileInfo file(pProfile->layers[i]->qsLayerPath);

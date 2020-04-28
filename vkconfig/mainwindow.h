@@ -25,6 +25,8 @@
 #include <QLabel>
 #include <vulkanconfiguration.h>
 #include <settingseditor.h>
+#include "dlgvulkananalysis.h"
+#include "dlgvulkaninfo.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -59,6 +61,9 @@ protected:
 
     void ChangeActiveProfile(CProfileDef *pNewProfile);
 
+    dlgVulkanAnalysis *pVKVia;
+    dlgVulkanInfo     *pVulkanInfo;
+
 private:
     Ui::MainWindow *ui;
 
@@ -68,7 +73,8 @@ private:
 
     CProfileListItem    *pLastSelectedProfileItem;
 
-    void setGetStartedText(const char *szText);
+    void updateGetStartedStatus(const char *szText);
+    void updateActivateButtonState(void);
 
 public Q_SLOTS:
     void fileExit(bool bChecked);

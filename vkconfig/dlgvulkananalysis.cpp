@@ -31,9 +31,31 @@
 dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlgVulkanAnalysis)
-{
+    {
     ui->setupUi(this);
+    }
 
+dlgVulkanAnalysis::~dlgVulkanAnalysis()
+    {
+    delete ui;
+    }
+
+
+void dlgVulkanAnalysis::RunTool(void)
+    {
+    ui->envTable->clear();
+    ui->cleanupTable->clear();
+    ui->hardwareTable->clear();
+    ui->instanceTable->clear();
+    ui->lunarGSDKTable->clear();
+    ui->executableTable->clear();
+    ui->vkRuntimesTable->clear();
+    ui->externalTestsTable->clear();
+    ui->layerSettingsTable->clear();
+    ui->explicitLayersTable->clear();
+    ui->implicitLayersTable->clear();
+    ui->logicalDevicesTable->clear();
+    ui->physicalDevicesTable->clear();
 
     QProcess *via = new QProcess(this);
 #ifdef __APPLE__
@@ -103,7 +125,7 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
 
     QJsonValue vkDriverInfo = jsonObject.value(QString(tr("Vulkan Driver Info")));
     QJsonObject vkDriverObject = vkDriverInfo.toObject();
-    loadTable(vkDriverObject, ui->vkDriverInfo);
+    loadTable(vkDriverObject, ui->vkDriverInfoTable);
 
     QJsonValue vkRunTimeValue = jsonObject.value(QString(tr("Vulkan Runtimes")));
     QJsonObject vkRunTimeObject = vkRunTimeValue.toObject();
@@ -155,12 +177,8 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
         ui->externalTestsTable->setItem(0, 0, pItem);
     }
 
-}
-
-dlgVulkanAnalysis::~dlgVulkanAnalysis()
-{
-    delete ui;
-}
+    show();
+    }
 
 
 void dlgVulkanAnalysis::loadTable(QJsonObject& jsonParent, QTableWidget* pTable)

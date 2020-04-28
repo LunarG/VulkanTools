@@ -129,8 +129,16 @@ bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
     QStringList settingsNames = layerSettingsDescriptors.keys();
 
     for(int iSetting = 0; iSetting < settingsNames.size(); iSetting++) {
+        // The layer rank may or may not be here, but it is not a
+        // user setting.
         if(settingsNames[iSetting] == QString("layer_rank"))
             continue;
+
+        // Layer path is in this JSON, do not add it as a setting,
+        // it is also not a user editable setting.
+        if(settingsNames[iSetting] == QString("layer_path"))
+            continue;
+
 
         TLayerSettings *pLayerSettings = new TLayerSettings;
         pLayerSettings->settingsName = settingsNames[iSetting];

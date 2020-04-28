@@ -450,6 +450,25 @@ void dlgProfileEditor::accept()
         return;
         }
 
+
+    //////////////////////////////////////
+    // Warn about blacklisting implicit layers
+    bool bWarn = false;
+    for(int i = 0; i < pThisProfile->layers.size(); i++)
+        if(pThisProfile->layers[i]->bDisabled && pThisProfile->layers[i]->layerType == LAYER_TYPE_IMPLICIT) {
+            bWarn = true;
+            break;
+            }
+
+    if(bWarn) {
+        QMessageBox warning;
+        warning.setInformativeText(tr("You are saving a configuration that disables an implicit layer. Disabling an implicit layer may cause undefined behavior."));
+        warning.setText(tr("Disable an implicit layer?"));
+        warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        if(warning.exec() == QMessageBox::No)
+            return;
+        }
+
     // Collapse the profile and remove unused layers
     pThisProfile->CollapseProfile();
 
@@ -463,7 +482,6 @@ void dlgProfileEditor::accept()
         msg.exec();
         return;
         }
-
 
     pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
     savePath += pThisProfile->qsFileName;

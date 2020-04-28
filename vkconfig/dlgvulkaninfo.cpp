@@ -40,8 +40,18 @@
 dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlgVulkanInfo)
-{
+    {
     ui->setupUi(this);
+    }
+
+dlgVulkanInfo::~dlgVulkanInfo()
+    {
+    delete ui;
+    }
+
+void dlgVulkanInfo::RunTool(void)
+    {
+    ui->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
 #ifdef _WIN32
@@ -138,14 +148,8 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) :
     pParentNode->setText(0, "Device Properties and Extensions");
     BuildDevices(rootObject, pParentNode);
 
-
-}
-
-dlgVulkanInfo::~dlgVulkanInfo()
-{
-    delete ui;
-}
-
+    show();
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////
 /// \brief TraverseGenericProperties

@@ -41,12 +41,11 @@ public:
     explicit dlgVulkanAnalysis(QWidget *parent = nullptr);
     ~dlgVulkanAnalysis();
 
-    void loadTable(QJsonObject& jsonParent, QTableWidget* pTable);
-
-
-
+    void RunTool(void);
 
 private:
+    void loadTable(QJsonObject& jsonParent, QTableWidget* pTable);
+
     Ui::dlgVulkanAnalysis *ui;
 };
 

@@ -50,6 +50,11 @@ static const char *szStartText = "\n- Select a \"Configuration\" and \"Activate\
                                  "- All layer configurations can be disabled using the \"Deactivate\" button.";
 
 
+#define         ACTIVATE_TEXT   "Activate"
+#define         DEACTIVATE_TEXT "Deactivate"
+
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -57,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     CANNED_PROFILE_COUNT = 0;
     pLastSelectedProfileItem = nullptr;
+    pVKVia = nullptr;
+    pVulkanInfo = nullptr;
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
@@ -78,10 +85,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
     connect(ui->actionSet_Test_Application, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanTestApp(bool)));
-//    connect(ui->layerTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(layerTree_itemClicked(QTreeWidgetItem*, int)));
 
     // Activate should always be off because nothing is selected on startup ever
-    ui->pushButtonActivate->setEnabled(false);
+    updateActivateButtonState();
     }
 
 MainWindow::~MainWindow()
@@ -164,7 +170,7 @@ void MainWindow::LoadProfileList(void)
 /// \brief MainWindow::setGetStartedText
 /// \param szText
 /// Set hint text
-void MainWindow::setGetStartedText(const char *szText)
+void MainWindow::updateGetStartedStatus(const char *szText)
     {
     // Create the label, just so that it fills the scroll area
     // this automatically gets deleted whenever the scroll area gets reset
@@ -192,7 +198,7 @@ void MainWindow::checkAppListState(void)
         ui->groupBoxEditor->setTitle(tr("Getting Started"));
         ui->groupBoxProfiles->setEnabled(false);
         settingsEditor.CleanupGUI();    // Just in case
-        setGetStartedText(szWelcomeText);
+        updateGetStartedStatus(szWelcomeText);
         }
     else { // There are apps
         this->setWindowTitle(VKCONFIG_NAME);
@@ -204,7 +210,7 @@ void MainWindow::checkAppListState(void)
             ui->groupBoxProfiles->setEnabled(false);
             ui->groupBoxEditor->setTitle(tr("Getting Started"));
             ui->groupBoxProfiles->setEnabled(true);
-            setGetStartedText(szStartText);
+            updateGetStartedStatus(szStartText);
             }
         else {
             // An item was selected and active
@@ -223,19 +229,34 @@ void MainWindow::aboutVkConfig(bool bChecked)
 
 }
 
-
+//////////////////////////////////////////////////////////
+/// \brief MainWindow::toolsVulkanInfo
+/// \param bChecked
+/// Create the VulkanInfo dialog if it doesn't already
+/// exits & show it.
 void MainWindow::toolsVulkanInfo(bool bChecked)
-{
+    {
     (void)bChecked;
-    dlgVulkanInfo dlg(this);
-    dlg.exec();
-}
+
+    if(pVulkanInfo == nullptr)
+        pVulkanInfo = new dlgVulkanInfo(this);
+
+    pVulkanInfo->RunTool();
+    }
+
+//////////////////////////////////////////////////////////
+/// \brief MainWindow::toolsVulkanInstallation
+/// \param bChecked
+/// Create the VulkanTools dialog if it doesn't already
+/// exist & show it.
 void MainWindow::toolsVulkanInstallation(bool bChecked)
-{
+    {
     (void)bChecked;
-    dlgVulkanAnalysis dlg(this);
-    dlg.exec();
-}
+    if(pVKVia == nullptr)
+        pVKVia = new dlgVulkanAnalysis(this);
+
+    pVKVia->RunTool();
+    }
 
 
 void MainWindow::toolsVulkanTestApp(bool bChecked)
@@ -380,9 +401,6 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
 /// Update "decorations": window caption, (Active) status in list
 void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
     {
-    // Was there a last profile?
-//    const CProfileDef *pLastProfile = pVulkanConfig->GetCurrentActiveProfile();
-
     // Loop through all the items
     for(int i = 0; i < ui->listWidgetProfiles->count(); i++) {
         CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(i));
@@ -404,8 +422,6 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
 
     // A profile is active, make it so...
     if(pNewProfile != nullptr) {
-        ui->pushButtonActivate->setEnabled(false);
-        ui->pushButtonDisable->setEnabled(true);
         QString title = pNewProfile->qsProfileName;
         title += " - ";
         title += tr(VKCONFIG_NAME);
@@ -413,12 +429,10 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
         }
     else { // No profile is currently active
         setWindowTitle(tr(VKCONFIG_NAME));
-        ui->pushButtonDisable->setEnabled(false);
 
         // Only enable the activeate button if something is selected that can
         // be activated
-        ui->pushButtonActivate->setEnabled(ui->listWidgetProfiles->currentItem() != nullptr);
-        ui->groupBoxEditor->setEnabled(true); // Turn this back on iff it was off
+//        settingsEditor.SetEnabled(true);
         }
 
     // Actually set/disable the profile
@@ -431,7 +445,7 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
 void MainWindow::on_pushButtonDisable_clicked()
     {
     ChangeActiveProfile(nullptr);
-    ui->groupBoxEditor->setEnabled(true);
+//    settingsEditor.SetEnabled(true);
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -443,10 +457,29 @@ void MainWindow::on_pushButtonActivate_clicked()
     int nRow = ui->listWidgetProfiles->currentRow();
     settingsEditor.CollectSettings();
     CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
-    Q_ASSERT(pSelectedItem != nullptr);
-    ChangeActiveProfile(pSelectedItem->pProfilePointer);
 
-    ui->groupBoxEditor->setEnabled(false); // You can't edit me...
+    // If something is active, we are deactivating it
+    if(pVulkanConfig->GetCurrentActiveProfile() != nullptr) {
+        pVulkanConfig->SetCurrentActiveProfile(nullptr);
+
+        // Keep the current row selection if one was set
+        int nSel = ui->listWidgetProfiles->currentRow();
+        LoadProfileList(); // Reload to clear activate status
+        if(nSel == -1)
+            updateGetStartedStatus(szStartText);
+        else {
+            ui->listWidgetProfiles->setCurrentRow(nSel);
+            selectedProfileChanged();
+            }
+        }
+    else
+        { // We are activating a profile
+        Q_ASSERT(pSelectedItem->pProfilePointer != nullptr);
+        ChangeActiveProfile(pSelectedItem->pProfilePointer);
+        }
+
+    updateActivateButtonState();
+//    settingsEditor.SetEnabled(false);
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -454,6 +487,8 @@ void MainWindow::on_pushButtonActivate_clicked()
 // button for the highlighted profile
 void MainWindow::selectedProfileChanged(void)
     {
+    updateActivateButtonState();
+
     // We have changed settings? Were there any edits to the last one?
     if(settingsEditor.CollectSettings() == true)
         if(pLastSelectedProfileItem != nullptr) {
@@ -475,7 +510,7 @@ void MainWindow::selectedProfileChanged(void)
         ui->listWidgetProfiles->setCurrentRow(-1);
         ui->pushButtonEdit->setEnabled(true);
         ui->pushButtonRemove->setEnabled(false);    // Only the ones you can edit can be deleted
-        ui->groupBoxEditor->setEnabled(false);
+//        settingsEditor.SetEnabled(false);
         ui->groupBoxEditor->setTitle(tr("Khronos Ouput Settings"));
         return; // This should never happen, but if they do, nothing is selected
         }
@@ -487,7 +522,6 @@ void MainWindow::selectedProfileChanged(void)
             ui->pushButtonRemove->setEnabled(false);
             }
 
-        ui->groupBoxEditor->setEnabled(true);
         QString title = tr("Khronos Ouput Settings");
         title += " - ";
         title += pSelectedItem->pProfilePointer->qsProfileName;
@@ -496,15 +530,16 @@ void MainWindow::selectedProfileChanged(void)
         settingsEditor.CleanupGUI();
         if(pSelectedItem->pProfilePointer->layers.size() > 0)
             settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
+
+//        settingsEditor.SetEnabled(!pSelectedItem->pProfilePointer->bFixedProfile);
         return;
         }
 
     // Something is selected, so we need to enable the button
     ui->pushButtonEdit->setEnabled(true);
     ui->pushButtonRemove->setEnabled(true);
-    ui->pushButtonActivate->setEnabled(true);
 
-    ui->groupBoxEditor->setEnabled(true);
+//    settingsEditor.SetEnabled(true);
     QString title = tr("Khronos Ouput Settings");
     title += " - ";
     title += pSelectedItem->pProfilePointer->qsProfileName;
@@ -526,4 +561,29 @@ void MainWindow::selectedProfileChanged(void)
         }
     }
 
+
+//////////////////////////////////////////////////////////////
+// Should be easy enough
+void MainWindow::updateActivateButtonState(void)
+    {
+    // Capture the original style sheet so disabled doesn't look weird
+    static QString originalStyle = ui->pushButtonActivate->styleSheet();
+
+    // Nothing is active. Text says Activate
+    // Might be disabled, might not.
+    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
+        ui->pushButtonActivate->setText(tr(ACTIVATE_TEXT));
+        ui->pushButtonActivate->setStyleSheet(originalStyle);
+
+        if(ui->listWidgetProfiles->currentRow() == -1)
+            ui->pushButtonActivate->setEnabled(false);
+        else
+            ui->pushButtonActivate->setEnabled(true);
+        }
+    else {
+        // This is always enabled, so we are okay with an abbreviated style sheet
+        ui->pushButtonActivate->setStyleSheet("QPushButton { color: red;}");
+        ui->pushButtonActivate->setText(tr(DEACTIVATE_TEXT));
+        }
+    }
 
