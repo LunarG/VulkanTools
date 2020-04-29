@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>475</width>
-    <height>585</height>
+    <width>580</width>
+    <height>629</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -241,8 +241,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>435</width>
-            <height>210</height>
+            <width>524</width>
+            <height>230</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3"/>
@@ -259,8 +259,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>475</width>
-     <height>21</height>
+     <width>580</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">

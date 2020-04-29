@@ -251,7 +251,13 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
 void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
                                QVector<CLayerFile *>& layerList, TLayerType type)
     {
+    // On Windows custom files are in the file system. On non Windows all layers are
+    // searched this way
+#ifdef _WIN32
     CPathFinder fileList(qsPath, (type == LAYER_TYPE_CUSTOM));
+#else
+    CPathFinder fileList(qsPath, true);
+#endif
     if(fileList.FileCount() == 0)
         return;
 
