@@ -23,11 +23,12 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QLabel>
-#include <vulkanconfiguration.h>
-#include <settingseditor.h>
+
+#include "vulkanconfiguration.h"
+#include "settingseditor.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
-
+#include "dlglayeroutput.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -63,6 +64,7 @@ protected:
 
     dlgVulkanAnalysis *pVKVia;
     dlgVulkanInfo     *pVulkanInfo;
+    dlgLayerOutput    *pTestEnv;
 
 private:
     Ui::MainWindow *ui;
@@ -88,8 +90,7 @@ public Q_SLOTS:
 
     void selectedProfileChanged(void);
 
-    void addCustomPaths();    // Fired by menu even if no button
-    void on_pushButtonLaunch_clicked();         // Ditto
+    void addCustomPaths();    // Fired by menu
 
     void on_pushButtonAppList_clicked(void);
     void on_pushButtonEdit_clicked(void);

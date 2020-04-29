@@ -35,6 +35,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 // Canned/fixed profiles
+// Compiler warning says this is not used... it is.
+// Don't beleive me? Go ahead... delete it... ;)
 static const char *szCannedProfiles[10] = {
 "Standard Validation",          ":/resourcefiles/Standard Validation.json",
 "Best Practices Validation",    ":/resourcefiles/Best Practices Validation.json",
@@ -74,7 +76,6 @@ protected:
 #define VKCONFIG_KEY_LAUNCHAPP_CWD  "launchAppCWD"
 #define VKCONFIG_KEY_LAUNCHAPP_ARGS "launchAppARGS"
 #define VKCONFIG_KEY_LOGFILE        "logFileName"
-#define VKCONFIG_KEY_LOGSTDOUT      "logStdout"
 #define VKCONFIG_KEY_ACTIVEPROFILE  "activeProfile"
 #define VKCONFIG_KEY_APPLIST        "applicationList"
 #define VKCONFIG_KEY_CUSTOM_PATHS   "customPaths"
@@ -113,7 +114,6 @@ public:
     QString qsLaunchApplicatinArgs;
     QString qsLaunchApplicationWorkingDir;
     QString qsLogFileWPath;
-    bool    bLogStdout;
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
@@ -151,6 +151,14 @@ public:
 
 
     QVector <CProfileDef *>  profileList;       // List and details about current profiles
+
+    // We need to push and pop a temporary environment.
+    // The stack is only one deep...
+    CProfileDef*             pSavedProfile;
+
+    void pushProfile(CProfileDef *pNew);
+    void popProfile(void);
+
 
     CProfileDef* CreateEmptyProfile(void);
     CProfileDef* FindProfile(QString profileName);

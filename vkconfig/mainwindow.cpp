@@ -30,7 +30,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dlgabout.h"
-#include "dlglayeroutput.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
 #include "dlgprofileeditor.h"
@@ -64,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
     pLastSelectedProfileItem = nullptr;
     pVKVia = nullptr;
     pVulkanInfo = nullptr;
+    pTestEnv = nullptr;
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
@@ -92,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
     {
+    delete pTestEnv;
     delete ui;
     }
 
@@ -260,25 +261,22 @@ void MainWindow::toolsVulkanInstallation(bool bChecked)
 
 
 void MainWindow::toolsVulkanTestApp(bool bChecked)
-{
-    (void)bChecked;
-    dlgLayerOutput dlg(this);
-    dlg.exec();
-}
-
-void MainWindow::on_pushButtonLaunch_clicked()
     {
-    dlgLayerOutput dlg(this);
-    dlg.bAutoLaunch = true;
-    dlg.exec();
+    (void)bChecked;
+    if(pTestEnv == nullptr)
+        pTestEnv = new dlgLayerOutput(nullptr);
+
+    pTestEnv->show();
+    pTestEnv->raise();
+    pTestEnv->setFocus();
     }
 
 
 void MainWindow::fileExit(bool bChecked)
-{
+    {
     (void)bChecked;
     close();
-}
+    }
 
 
 void MainWindow::fileHistory(bool bChecked)
@@ -488,6 +486,7 @@ void MainWindow::on_pushButtonActivate_clicked()
 void MainWindow::selectedProfileChanged(void)
     {
     updateActivateButtonState();
+    ui->pushButtonEdit->setEnabled(true);   // All profiles can be edited
 
     // We have changed settings? Were there any edits to the last one?
     if(settingsEditor.CollectSettings() == true)
@@ -517,10 +516,7 @@ void MainWindow::selectedProfileChanged(void)
 
     // This is the currently active profile, editing is a clone, but this is transparent here
     if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
-        if(pSelectedItem->pProfilePointer->bFixedProfile) {
-            ui->pushButtonEdit->setEnabled(false);
-            ui->pushButtonRemove->setEnabled(false);
-            }
+        ui->pushButtonRemove->setEnabled(!pSelectedItem->pProfilePointer->bFixedProfile);
 
         QString title = tr("Khronos Ouput Settings");
         title += " - ";
@@ -531,12 +527,10 @@ void MainWindow::selectedProfileChanged(void)
         if(pSelectedItem->pProfilePointer->layers.size() > 0)
             settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
 
-//        settingsEditor.SetEnabled(!pSelectedItem->pProfilePointer->bFixedProfile);
         return;
         }
 
     // Something is selected, so we need to enable the button
-    ui->pushButtonEdit->setEnabled(true);
     ui->pushButtonRemove->setEnabled(true);
 
 //    settingsEditor.SetEnabled(true);

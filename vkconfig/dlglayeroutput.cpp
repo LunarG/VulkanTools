@@ -32,18 +32,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgLayerOutput::dlgLayerOutput
 /// \param parent
-dlgLayerOutput::dlgLayerOutput(QWidget *parent) :
+dlgLayerOutput::dlgLayerOutput(QWidget *parent, bool bTempEnv) :
     QDialog(parent),
     ui(new Ui::dlgLayerOutput)
     {
     ui->setupUi(this);
     vulkan_app = nullptr;
     pLogFile = nullptr;
-    bAutoLaunch = false;
+    bTempEnvironment = bTempEnv;
 
     // Get the singleton/model
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    ui->checkBoxStdout->setChecked(pVulkanConfig->bLogStdout);
 
     // We are never running the test app already when this dialog is created
     ui->labelRunStatus->setText(tr("Not Running"));
@@ -94,8 +93,8 @@ dlgLayerOutput::~dlgLayerOutput()
 void dlgLayerOutput::showEvent(QShowEvent *event)
     {
     (void)event;
-    if(bAutoLaunch)
-        on_pushButtonLaunchApp_clicked();
+    if(bTempEnvironment)
+        this->setWindowTitle("Test Environment - Temporary Configuration");
 
     event->accept();
     }
@@ -202,6 +201,17 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
     // Are we already monitoring a running app? If so, terminate it
     if(vulkan_app != nullptr) {
         vulkan_app->terminate();
+        return;
+        }
+
+    if(pVulkanConfig->qsLaunchApplicationWPath.isEmpty()) {
+        QMessageBox msg;
+        msg.setInformativeText(tr("No test application has been specified."));
+        msg.setText(tr("No Application Set"));
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.exec();
+
+
         return;
         }
 
@@ -356,15 +366,6 @@ void dlgLayerOutput::on_pushButtonSave_clicked()
     }
 
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgLayerOutput::on_checkBoxStdout_clicked
-// Just toggle the flag. Logging of stdout can be turned on and off on the fly.
-void dlgLayerOutput::on_checkBoxStdout_clicked(void)
-    {
-    pVulkanConfig->bLogStdout = ui->checkBoxStdout->isChecked();
-    pVulkanConfig->saveAppSettings();
-    }
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief dlgLayerOutput::standardOutputAvailable
 /// This signal get's raised whenever the spawned Vulkan appliction writes
@@ -375,10 +376,6 @@ void dlgLayerOutput::on_checkBoxStdout_clicked(void)
 void dlgLayerOutput::standardOutputAvailable(void)
     {
     if(vulkan_app == nullptr)
-        return;
-
-    // Nope, not interested, but thanks for playing
-    if(!pVulkanConfig->bLogStdout)
         return;
 
     QString inFromApp = vulkan_app->readAllStandardOutput();

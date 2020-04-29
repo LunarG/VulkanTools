@@ -35,6 +35,59 @@
 #include "vulkanconfiguration.h"
 
 
+///////////////////////////////////////////////////////////////////////////
+// I totally just stole this from Stack Overflow.
+#define MKPTR(p1,p2) ((DWORD_PTR)(p1) + (DWORD_PTR)(p2))
+
+typedef enum _pe_architecture {
+    PE_ARCHITECTURE_UNKNOWN = 0x0000,
+    PE_ARCHITECTURE_ANYCPU  = 0x0001,
+    PE_ARCHITECTURE_X86     = 0x010B,
+    PE_ARCHITECTURE_x64     = 0x020B
+} PE_ARCHITECTURE;
+
+LPVOID GetOffsetFromRva(IMAGE_DOS_HEADER *pDos, IMAGE_NT_HEADERS *pNt, DWORD rva) {
+    IMAGE_SECTION_HEADER *pSecHd = IMAGE_FIRST_SECTION(pNt);
+    for(unsigned long i = 0; i < pNt->FileHeader.NumberOfSections; ++i, ++pSecHd) {
+        // Lookup which section contains this RVA so we can translate the VA to a file offset
+        if (rva >= pSecHd->VirtualAddress && rva < (pSecHd->VirtualAddress + pSecHd->Misc.VirtualSize)) {
+            DWORD delta = pSecHd->VirtualAddress - pSecHd->PointerToRawData;
+            return (LPVOID)MKPTR(pDos, rva - delta);
+        }
+    }
+    return NULL;
+}
+
+PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
+    // Parse and validate the DOS header
+    IMAGE_DOS_HEADER *pDosHd = (IMAGE_DOS_HEADER*)pImageBase;
+    if (IsBadReadPtr(pDosHd, sizeof(pDosHd->e_magic)) || pDosHd->e_magic != IMAGE_DOS_SIGNATURE)
+        return PE_ARCHITECTURE_UNKNOWN;
+
+    // Parse and validate the NT header
+    IMAGE_NT_HEADERS *pNtHd = (IMAGE_NT_HEADERS*)MKPTR(pDosHd, pDosHd->e_lfanew);
+    if (IsBadReadPtr(pNtHd, sizeof(pNtHd->Signature)) || pNtHd->Signature != IMAGE_NT_SIGNATURE)
+        return PE_ARCHITECTURE_UNKNOWN;
+
+    // First, naive, check based on the 'Magic' number in the Optional Header.
+    PE_ARCHITECTURE architecture = (PE_ARCHITECTURE)pNtHd->OptionalHeader.Magic;
+
+    // If the architecture is x86, there is still a possibility that the image is 'AnyCPU'
+    if (architecture == PE_ARCHITECTURE_X86) {
+        IMAGE_DATA_DIRECTORY comDirectory = pNtHd->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR];
+        if (comDirectory.Size) {
+            IMAGE_COR20_HEADER *pClrHd = (IMAGE_COR20_HEADER*)GetOffsetFromRva(pDosHd, pNtHd, comDirectory.VirtualAddress);
+            // Check to see if the CLR header contains the 32BITONLY flag, if not then the image is actually AnyCpu
+            if ((pClrHd->Flags & COMIMAGE_FLAGS_32BITREQUIRED) == 0)
+                architecture = PE_ARCHITECTURE_ANYCPU;
+        }
+    }
+
+    return architecture;
+}
+///////// End Stack Overflow
+//////////////////////////////////////////////////////////////////////////////
+
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work.
 CPathFinder::CPathFinder(const QString& qsPath, bool bForceFileSystem)
@@ -88,8 +141,8 @@ CVulkanConfiguration* CVulkanConfiguration::pMe = nullptr;
 CVulkanConfiguration::CVulkanConfiguration()
     {
     allLayers.reserve(10);
-    bLogStdout = false;
     pActiveProfile = nullptr;
+    pSavedProfile = nullptr;
 
     // Where is stuff
 #ifdef _WIN32
@@ -159,7 +212,6 @@ void CVulkanConfiguration::loadAppSettings(void)
     qsLaunchApplicatinArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
     qsLaunchApplicationWorkingDir = settings.value(VKCONFIG_KEY_LAUNCHAPP_CWD).toString();
     qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE).toString();
-    bLogStdout = settings.value(VKCONFIG_KEY_LOGSTDOUT).toBool();
     }
 
 
@@ -172,7 +224,6 @@ void CVulkanConfiguration::saveAppSettings(void)
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, qsLaunchApplicatinArgs);
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP_CWD, qsLaunchApplicationWorkingDir);
     settings.setValue(VKCONFIG_KEY_LOGFILE, qsLogFileWPath);
-    settings.setValue(VKCONFIG_KEY_LOGSTDOUT, bLogStdout);
     }
 
 
@@ -859,5 +910,41 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     QSettings overrideSettings("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\Settings", QSettings::NativeFormat);
     overrideSettings.setValue(qsOverrideSettingsPath, 0);
 #endif
+    }
+
+///////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::pushProfile
+/// \param pNew
+/// Make a temporary copy of this profile and activate it.
+/// Any layer output settings need to be set to stderr
+void CVulkanConfiguration::pushProfile(CProfileDef *pNew) {
+        // Copy the working profile
+        pSavedProfile = pActiveProfile;
+        CProfileDef *pCopy = pNew->duplicateProfile();
+        pCopy->CollapseProfile();
+
+        for(int iLayer = 0; iLayer < pCopy->layers.size(); iLayer++) // For each layer
+            for(int iSetting = 0; iSetting < pCopy->layers[iLayer]->layerSettings.size(); iSetting++) {
+                // Change to stdout if not already so it will get captured.
+                if(pCopy->layers[iLayer]->layerSettings[iSetting]->settingsName == QString("log_filename"))
+                    pCopy->layers[iLayer]->layerSettings[iSetting]->settingsValue = QString("stdout");
+
+                // API Dump also has this setting
+                if(pCopy->layers[iLayer]->layerSettings[iSetting]->settingsName == QString("file"))
+                    pCopy->layers[iLayer]->layerSettings[iSetting]->settingsValue = QString("false");
+
+            }
+
+        SetCurrentActiveProfile(pCopy);
+        }
+
+
+/////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::popProfile
+/// Restore the original working profile
+void CVulkanConfiguration::popProfile(void) {
+    delete GetCurrentActiveProfile();
+    SetCurrentActiveProfile(pSavedProfile);
+    pSavedProfile = nullptr;
     }
 

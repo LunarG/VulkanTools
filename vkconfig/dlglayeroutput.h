@@ -38,10 +38,10 @@ class dlgLayerOutput : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlgLayerOutput(QWidget *parent = nullptr);
+    explicit dlgLayerOutput(QWidget *parent, bool bTempEnv = false);
     ~dlgLayerOutput();
 
-    bool bAutoLaunch;
+    bool bTempEnvironment;
 
 private:
     Ui::dlgLayerOutput *ui;
@@ -65,7 +65,6 @@ public	Q_SLOTS:
     void on_pushButtonClearLogFile_clicked();   // Clear the log file
     void on_lineEditCmdLine_editingFinished();  // User has changed command line
     void on_lineEditWorkingDirectory_editingFinished(); // User has manually updated the working directory (we need this for mac app bundles)
-    void on_checkBoxStdout_clicked();                   // Monitor or not stdout
 
     void standardOutputAvailable(void);         // stdout output is available
     void errorOutputAvailable(void);            // Layeroutput is available

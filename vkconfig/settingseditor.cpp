@@ -34,6 +34,8 @@ CSettingsEditor::CSettingsEditor()
     pEditArea = nullptr;
     inputControls.reserve(100);
     prompts.reserve(100);
+    bEnabled = true;
+    pEnabledPrompt = nullptr;
     }
 
 
@@ -57,10 +59,21 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     pDestination->setWidget(pEditArea);
     pEditArea->show();
 
+
+    // Some layers just don't have any settings...
+    if(layerSettings.size() == 0) {
+        QLabel *pPromptLabel = new QLabel(pEditArea);
+        pPromptLabel->setText(tr("There are no user settings available for this layer."));
+        pPromptLabel->setGeometry(6, 6, 300, 30);
+        pPromptLabel->setWordWrap(true);
+        pPromptLabel->show();
+        prompts.push_back(pPromptLabel);
+        return;
+        }
+
+
     // Real-time compute some spacing items
     QFontMetrics fm = pEditArea->fontMetrics();
-
-//    nRowHeight = fm.height() * 3;
 
     // Get widest prompt row to determine where the second column goes
     nSecondColumn = 0;
@@ -337,6 +350,7 @@ void CSettingsEditor::CleanupGUI(void)
 
     delete pEditArea;
     pEditArea = nullptr;
+    pEnabledPrompt = nullptr; // deleted with above parent)
     }
 
 ///////////////////////////////////////////////////////////////////////////////

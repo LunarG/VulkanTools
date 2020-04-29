@@ -211,7 +211,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        // Add a combo box. Default has gray background which looks hidious
        QComboBox *pUse = new QComboBox();
 
-       const char *style =
+//       const char *style =
 //               "QComboBox { background-color: white;"
 //                           "down-arrow {"
 //                                 "width:0px;"
@@ -238,7 +238,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        if(pItem->pLayer->bActive)
            pUse->setCurrentIndex(1);
 
-       if(pItem->pLayer->bDisabled)
+        if(pItem->pLayer->bDisabled)
            pUse->setCurrentIndex(2);
 
        connect(pUse, SIGNAL(currentIndexChanged(int)), this, SLOT(layerUseChanged(int)));
@@ -251,7 +251,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        // go up the tree
 /*
        QTreeWidgetItem *pChild = new QTreeWidgetItem();
-       pChild->setText(0, pThisProfile->layers[iLayer]->description);
+       pChild->setText(0, pThisProfile->layers[iLayer]->qsLayerPath);
        pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
        pItem->addChild(pChild);
 
@@ -328,8 +328,15 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked(void)
 /// Test environment
 void dlgProfileEditor::on_pushButtonLaunchTest_clicked()
     {
+    // Push the current working environment on the stack
+    pVulkanConfig->pushProfile(pThisProfile);
+
     dlgLayerOutput dlg(this);
+    dlg.bTempEnvironment = true;
     dlg.exec();
+
+    // Pop the current working environmetn off the stack
+    pVulkanConfig->popProfile();
     }
 
 /////////////////////////////////////////////////////////////////////
@@ -358,23 +365,27 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     ui->groupBoxSettings->setTitle(qsTitle);
     settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, false);
 
+    // Is this layer Force on?
+    settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
+
+    /////////////////////////////////////////////////////////////////////
     // Populate the side label
     QString detailsText = pLayerItem->pLayer->description;
     detailsText += "\n";
     switch(pLayerItem->pLayer->layerType) {
         case LAYER_TYPE_EXPLICIT:
-        detailsText += "Explicit Layer\n";
+        detailsText += "(Explicit Layer)\n\n";
         break;
         case LAYER_TYPE_IMPLICIT:
-        detailsText += "Implicit Layer\n";
+        detailsText += "(Implicit Layer)\n\n";
         break;
         case LAYER_TYPE_CUSTOM:
-        detailsText += "Custom Layer Path\n";
+        detailsText += "(Custom Layer Path)\n\n";
         break;
         }
 
     detailsText += pLayerItem->pLayer->library_path;
-    detailsText += "\n";
+    detailsText += "\n\n";
 
     detailsText += "API Version: ";
     detailsText += pLayerItem->pLayer->api_version;
@@ -382,10 +393,14 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
 
     detailsText += "Implementation Version: ";
     detailsText += pLayerItem->pLayer->implementation_version;
-    detailsText += "\n";
+    detailsText += "\n\n";
 
     detailsText += "File format: ";
     detailsText += pLayerItem->pLayer->file_format_version;
+    detailsText += "\n\n";
+
+    detailsText += "Full path: ";
+    detailsText += pLayerItem->pLayer->qsLayerPath;
 
     ui->labelLayerDetails->setText(detailsText);
     }
@@ -411,16 +426,19 @@ void dlgProfileEditor::layerUseChanged(int nSelection)
         case LAYER_APP_CONTROLLED:
             pLayer->bActive = false;
             pLayer->bDisabled = false;
+            settingsEditor.SetEnabled(false);
         break;
 
         case LAYER_FORCED_ON:
             pLayer->bActive = true;
             pLayer->bDisabled = false;
+            settingsEditor.SetEnabled(true);
         break;
 
         case LAYER_FORCED_OFF:
             pLayer->bActive = false;
             pLayer->bDisabled = true;
+            settingsEditor.SetEnabled(false);
         }
     }
 
@@ -473,15 +491,15 @@ void dlgProfileEditor::accept()
     pThisProfile->CollapseProfile();
 
     // Wa-wa-wait... no profiles without any layers buster
-    if(pThisProfile->layers.size() == 0)
-        {
-        QMessageBox msg;
-        msg.setInformativeText(tr("You cannot have a named configuration without any layers."));
-        msg.setText(tr("Add some layers!"));
-        msg.setStandardButtons(QMessageBox::Ok);
-        msg.exec();
-        return;
-        }
+//    if(pThisProfile->layers.size() == 0)
+//        {
+//        QMessageBox msg;
+//        msg.setInformativeText(tr("You cannot have a named configuration without any layers."));
+//        msg.setText(tr("Add some layers!"));
+//        msg.setStandardButtons(QMessageBox::Ok);
+//        msg.exec();
+//        return;
+//        }
 
     pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
     savePath += pThisProfile->qsFileName;
