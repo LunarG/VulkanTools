@@ -48,7 +48,6 @@ static const char *szStartText = "\n- Select a \"Configuration\" and \"Activate\
                                  "applying Vulkan Layers to the selected Vulkan applications.\n\n"
                                  "- All layer configurations can be disabled using the \"Deactivate\" button.";
 
-
 #define         ACTIVATE_TEXT   "Activate"
 #define         DEACTIVATE_TEXT "Deactivate"
 
@@ -543,7 +542,8 @@ void MainWindow::selectedProfileChanged(void)
 
         settingsEditor.CleanupGUI();
         if(pSelectedItem->pProfilePointer->layers.size() > 0)
-            settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
+            settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true,
+                        pSelectedItem->pProfilePointer->qsDescription);
 
         return;
         }
@@ -565,11 +565,14 @@ void MainWindow::selectedProfileChanged(void)
     // setup the GUI
     if(pSelectedItem->pProfilePointer->bContainsKhronosOutput) {
         settingsEditor.CleanupGUI();
-        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true);
+        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true,
+                pSelectedItem->pProfilePointer->qsDescription);
         }
     else {
         ui->pushButtonRemove->setEnabled(true);    // Only the ones you can edit can be deleted
         settingsEditor.CleanupGUI();
+        QVector <TLayerSettings *> dummy;
+        settingsEditor.CreateGUI(ui->scrollArea, dummy, true, pSelectedItem->pProfilePointer->qsDescription);
         }
     }
 

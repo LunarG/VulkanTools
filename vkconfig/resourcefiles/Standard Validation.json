@@ -1,7 +1,7 @@
 {
     "Standard Validation": {
     "fixed_profile" : true,
-    "description" : "This profile does Standard Validation, Lobo is supposed to send me a good description.",
+    "description" : "This configuration is a good default validation setting and should serve most needs most of the time.",
             "blacklisted_layers": [],
             "layer_options": {
                     "VK_LAYER_KHRONOS_validation": {

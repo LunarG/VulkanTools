@@ -43,11 +43,11 @@ CSettingsEditor::CSettingsEditor()
 // Creates controls and sets up any signals.
 // If bSharedOnly is true, then only show the khronos common edit fields.
 // If bSharedOnly is false, then show everything BUT the khronos common edit fields.
-void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bSharedOnly)
+void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bSharedOnly, QString qsMessage)
     {
     int nRowHeight = 24;
     int nVerticalPad = 10;
-    int nCurrRow = 15;
+    int nCurrRow = 55;          // Where do we start
     int nLeftColumn = 6;
     int nSecondColumn = 125;
     int nEditFieldWidth = 180;
@@ -59,18 +59,22 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     pDestination->setWidget(pEditArea);
     pEditArea->show();
 
+    QLabel *pPromptLabel = new QLabel(pEditArea);
+
+    if(layerSettings.size() == 0)
+        qsMessage += "\n\nThere are no user settings available for this layer.";
+
+    pPromptLabel->setText(qsMessage);
+    pPromptLabel->setGeometry(6, 8, 400, 50);
+    pPromptLabel->setWordWrap(true);
+    pPromptLabel->setAlignment(Qt::AlignTop);
+    pPromptLabel->show();
+    prompts.push_back(pPromptLabel);
+
 
     // Some layers just don't have any settings...
-    if(layerSettings.size() == 0) {
-        QLabel *pPromptLabel = new QLabel(pEditArea);
-        pPromptLabel->setText(tr("There are no user settings available for this layer."));
-        pPromptLabel->setGeometry(6, 6, 300, 30);
-        pPromptLabel->setWordWrap(true);
-        pPromptLabel->show();
-        prompts.push_back(pPromptLabel);
+    if(layerSettings.size() == 0)
         return;
-        }
-
 
     // Real-time compute some spacing items
     QFontMetrics fm = pEditArea->fontMetrics();

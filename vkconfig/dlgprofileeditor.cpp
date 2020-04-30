@@ -446,7 +446,8 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     QString qsTitle = "Layer Settings (" + pCurrent->text(0);
     qsTitle += ")";
     ui->groupBoxSettings->setTitle(qsTitle);
-    settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, false);
+    settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, false,
+                             "Settings Editor");
 
     // Is this layer Force on?
     settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);

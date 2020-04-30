@@ -1,7 +1,7 @@
 {
-    "GPU-Assisted Validation": {
+    "Shader Based Validation": {
     "fixed_profile" : true,
-    "description" : "This profile does GPU-Assisted Validation, Lobo is supposed to send me a good description.",
+    "description" : "Provides easy access to gpu-assisted validation tools and debug-printf functionality.",
     "blacklisted_layers": [],
     "layer_options": {
         "VK_LAYER_KHRONOS_validation": {

@@ -62,6 +62,7 @@ CProfileDef* CProfileDef::duplicateProfile(void)
     pDuplicate->qsProfileName = qsProfileName;
     pDuplicate->qsFileName = qsFileName;
     pDuplicate->qsDescription = qsDescription;
+    pDuplicate->blacklistedLayers = blacklistedLayers;
     // Do not copy ->bFixedProfile
 
     for(int i = 0; i < layers.size(); i++) {

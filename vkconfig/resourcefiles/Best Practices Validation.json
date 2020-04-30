@@ -1,7 +1,7 @@
 {
 "Best Practices Validation" : {
 "fixed_profile" : true,
-"description" : "This profile does best practices, Lobo is supposed to send me a good description.",
+"description" : "This configuration provides access to the Vulkan Best Practices check. Provides warnings about potential API misuse.",
 "blacklisted_layers": [],
 "layer_options": {
     "VK_LAYER_KHRONOS_validation": {
