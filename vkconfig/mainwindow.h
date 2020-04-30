@@ -86,6 +86,7 @@ public Q_SLOTS:
     void toolsVulkanInfo(bool bChecked);
     void toolsVulkanInstallation(bool bChecked);
     void toolsVulkanTestApp(bool bChecked);
+    void toolsVulkanAPIDump(bool bChecked);
     void toolsSetCustomPaths(bool bChecked);
 
     void selectedProfileChanged(void);

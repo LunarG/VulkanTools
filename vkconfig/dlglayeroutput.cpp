@@ -40,6 +40,7 @@ dlgLayerOutput::dlgLayerOutput(QWidget *parent, bool bTempEnv) :
     vulkan_app = nullptr;
     pLogFile = nullptr;
     bTempEnvironment = bTempEnv;
+    bAPIDump = false;
 
     // Get the singleton/model
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
@@ -92,11 +93,15 @@ dlgLayerOutput::~dlgLayerOutput()
 // launch the app right away.
 void dlgLayerOutput::showEvent(QShowEvent *event)
     {
-    (void)event;
-    if(bTempEnvironment)
-        this->setWindowTitle("Test Environment - Temporary Configuration");
-
     event->accept();
+
+    if(bTempEnvironment) {
+        this->setWindowTitle("Test Environment - Temporary Configuration");
+        return;
+        }
+
+    if(bAPIDump)
+        setWindowTitle("Quick & Dirty API dump");
     }
 
 

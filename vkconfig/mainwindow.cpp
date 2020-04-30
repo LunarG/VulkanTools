@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
     connect(ui->actionSet_Test_Application, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanTestApp(bool)));
+    connect(ui->actionLog_API_Dump, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanAPIDump(bool)));
 
     // Activate should always be off because nothing is selected on startup ever
     updateActivateButtonState();
@@ -259,7 +260,7 @@ void MainWindow::toolsVulkanInstallation(bool bChecked)
     pVKVia->RunTool();
     }
 
-
+/////////////////////////////////////////////////////////////
 void MainWindow::toolsVulkanTestApp(bool bChecked)
     {
     (void)bChecked;
@@ -272,6 +273,23 @@ void MainWindow::toolsVulkanTestApp(bool bChecked)
     }
 
 
+//////////////////////////////////////////////////////////////
+void MainWindow::toolsVulkanAPIDump(bool bChecked)
+    {
+    (void)bChecked;
+
+    dlgLayerOutput apiDump(this);
+
+    CProfileDef *pAPIDump = pVulkanConfig->LoadProfile(":/resourcefiles/API Dump.json");
+    pVulkanConfig->pushProfile(pAPIDump);
+    apiDump.bAPIDump = true;
+
+    apiDump.exec();
+    pVulkanConfig->popProfile();
+    }
+
+
+//////////////////////////////////////////////////////////////
 void MainWindow::fileExit(bool bChecked)
     {
     (void)bChecked;

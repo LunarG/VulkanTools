@@ -107,7 +107,7 @@
       <item row="0" column="0">
        <widget class="QPushButton" name="toolButtonUp">
         <property name="text">
-         <string>^ Move Selected Layer Up Closer to Application ^</string>
+         <string>^ Move Selected Layer Up in Layer Stack (Closer to Application) ^</string>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -204,7 +204,7 @@
       <item row="5" column="0">
        <widget class="QPushButton" name="toolButtonDown">
         <property name="text">
-         <string>v Move Selected Layer Down Closer to Driver Side v</string>
+         <string>v Move Selected Layer Down in Layer Stack (Closer to Driver Side) v</string>
         </property>
        </widget>
       </item>

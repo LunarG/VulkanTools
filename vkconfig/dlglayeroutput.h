@@ -42,6 +42,7 @@ public:
     ~dlgLayerOutput();
 
     bool bTempEnvironment;
+    bool bAPIDump;
 
 private:
     Ui::dlgLayerOutput *ui;

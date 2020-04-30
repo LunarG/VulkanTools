@@ -1,0 +1,100 @@
+{
+    "API dump": {
+        "blacklisted_layers": [
+        ],
+        "description": "API Dump cheap and cheerful",
+        "fixed_profile": false,
+        "layer_options": {
+            "VK_LAYER_LUNARG_api_dump": {
+                "detailed": {
+                    "default": "true",
+                    "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
+                    "name": "Detailed Output",
+                    "type": "bool"
+                },
+                "file": {
+                    "default": "false",
+                    "description": "Setting this to true indicates that output should be written to file instead of stdout",
+                    "name": "Output to File",
+                    "type": "bool"
+                },
+                "flush": {
+                    "default": "true",
+                    "description": "Setting this to true causes IO to be flushed after each API call that is written",
+                    "name": "Flush",
+                    "type": "bool"
+                },
+                "indent_size": {
+                    "default": "4",
+                    "description": "Specifies the number of spaces that a tab is equal to",
+                    "name": "Indent Size",
+                    "type": "string"
+                },
+                "layer_path": "D:/VulkanSDK/1.2.135.0/Bin/VkLayer_api_dump.json",
+                "layer_rank": 0,
+                "log_filename": {
+                    "default": "stdout",
+                    "description": "Specifies the file to dump to when output files are enabled",
+                    "name": "Log Filename",
+                    "type": "save_file"
+                },
+                "name_size": {
+                    "default": "32",
+                    "description": "The number of characters the name of a variable should consume, assuming more are not required",
+                    "name": "Name Size",
+                    "type": "string"
+                },
+                "no_addr": {
+                    "default": "false",
+                    "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
+                    "name": "Hide Addresses",
+                    "type": "bool"
+                },
+                "output_format": {
+                    "default": "",
+                    "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
+                    "name": "Output Format",
+                    "options": {
+                    },
+                    "type": "enum"
+                },
+                "output_range": {
+                    "default": "0-0",
+                    "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                    "name": "Output Range",
+                    "type": "string"
+                },
+                "show_shader": {
+                    "default": "true",
+                    "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
+                    "name": "Show Shader",
+                    "type": "bool"
+                },
+                "show_timestamp": {
+                    "default": "true",
+                    "description": "Show the timestamp of function calls since start in microseconds",
+                    "name": "Show Timestamp",
+                    "type": "bool"
+                },
+                "show_types": {
+                    "default": "true",
+                    "description": "Setting this to true causes types to be dumped in addition to values",
+                    "name": "Show Types",
+                    "type": "bool"
+                },
+                "type_size": {
+                    "default": "0",
+                    "description": "The number of characters the name of a type should consume, assuming more are not required",
+                    "name": "Type Size",
+                    "type": "string"
+                },
+                "use_spaces": {
+                    "default": "true",
+                    "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                    "name": "Use Spaces",
+                    "type": "bool"
+                }
+            }
+        }
+    }
+}
