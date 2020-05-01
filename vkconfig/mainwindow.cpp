@@ -279,7 +279,7 @@ void MainWindow::toolsVulkanAPIDump(bool bChecked)
 
     dlgLayerOutput apiDump(this);
 
-    CProfileDef *pAPIDump = pVulkanConfig->LoadProfile(":/resourcefiles/API Dump.json");
+    CProfileDef *pAPIDump = pVulkanConfig->LoadProfile(":/resourcefiles/API dump.json");
     pVulkanConfig->pushProfile(pAPIDump);
     apiDump.bAPIDump = true;
 
