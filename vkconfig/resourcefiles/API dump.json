@@ -30,7 +30,6 @@
                     "name": "Indent Size",
                     "type": "string"
                 },
-                "layer_path": "D:/VulkanSDK/1.2.135.0/Bin/VkLayer_api_dump.json",
                 "layer_rank": 0,
                 "log_filename": {
                     "default": "stdout",
