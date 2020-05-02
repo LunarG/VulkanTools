@@ -430,7 +430,6 @@ const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName, cons
     if(location == nullptr) {
         for(int i = 0; i < allLayers.size(); i++)
             if(qsLayerName == allLayers[i]->name) {
-                printf("Hey I found one! %x\n", allLayers[i]);
                 return allLayers[i];
                 }
 
@@ -515,11 +514,9 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
             // exist, allow just the name to match
             // (this fixes the problem with the API dump tool)
             // WAIT? Why both checking for path then?
-//            pLayer = findLayerNamed(layerList[iLayer], layerPath.toUtf8().constData());
-//            if(pLayer == nullptr) {
-                pLayer == findLayerNamed(layerList[iLayer], nullptr);
-                if(pLayer == nullptr)
-                    continue;   // We still can't find the layer
+            pLayer = findLayerNamed(layerList[iLayer], layerPath.toUtf8().constData());
+            if(pLayer == nullptr)
+                continue;   // We still can't find the layer
             }
 
 

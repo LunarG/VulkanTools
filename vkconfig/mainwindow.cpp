@@ -531,7 +531,7 @@ void MainWindow::selectedProfileChanged(void)
         return; // This should never happen, but if they do, nothing is selected
         }
 
-    // This is the currently active profile, editing is a clone, but this is transparent here
+    // This is the currently active profile
     if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
         ui->pushButtonRemove->setEnabled(!pSelectedItem->pProfilePointer->bFixedProfile);
 

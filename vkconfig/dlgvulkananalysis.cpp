@@ -59,10 +59,11 @@ void dlgVulkanAnalysis::RunTool(void)
 
     QProcess *via = new QProcess(this);
 #ifdef __APPLE__
-    via->setProgram("vkvia");
+    via->setProgram("/usr/local/bin/vkvia");
 #else
     via->setProgram("vkvia");
-#endif
+#endif    
+
     QString filePath = QDir::temp().path() + "/vkvia.json";
 
     // Remove the old one

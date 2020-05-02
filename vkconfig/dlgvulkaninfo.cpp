@@ -56,19 +56,42 @@ void dlgVulkanInfo::RunTool(void)
     QProcess *vulkan_info = new QProcess(this);
 #ifdef _WIN32
     vulkan_info->setProgram("vulkaninfoSDK");
-#else
+#endif
+
+#ifdef __linux__
     vulkan_info->setProgram("vulkaninfo");
 #endif
 
+#ifdef __APPLE__
+    vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
+#endif
     QString filePath = QDir::temp().path();
 
     QStringList args;
     args << "--vkconfig_output";
     args << filePath;
 
-    char *path = getenv("PATH");
-    printf("Path: %s\n", path);
+#ifdef __APPLE__
+//    char *path = getenv("PATH");
+//    printf("Path: %s\n", path);
 
+////    QStringList oldEnv = vulkan_info->environment();
+
+//    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+//    QString newPath = QString(path);
+//    newPath += ":/usr/local/bin";
+
+//    QStringList oldEnv = env.toStringList();
+//    env.insert("PATH", newPath);
+//    env.insert("VULKAN_SDK", "/Developer/vulkansdk/macOS");
+//    env.insert("VK_LAYER_PATH", "/share/vulkan/explicit_layer.d");
+//    env.insert("VK_ICD_FILENAMES", "/Developer/vulkansdk/macOS/share/vulkan/icd.d/MoltenVK_icd.json");
+//    vulkan_info->setProcessEnvironment(env);
+//    oldEnv = env.toStringList();
+
+
+#endif
     // Wait... make sure we don't pick up the old one!
     filePath += "/vulkaninfo.json";
     remove(filePath.toUtf8().constData());
@@ -84,11 +107,11 @@ void dlgVulkanInfo::RunTool(void)
     // Check for the output file
     QFile file(filePath);
      if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-         QMessageBox msgBox;
-         msgBox.setText(tr("Error running vulkaninfo. Is your SDK up to date and installed properly?"));
-         msgBox.exec();
-         return;
-     }
+        QMessageBox msgBox;
+        msgBox.setText(tr("Error running vulkaninfo. Is your SDK up to date and installed properly?"));
+        msgBox.exec();
+        return;
+        }
 
      QString jsonText = file.readAll();
      file.close();

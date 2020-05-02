@@ -52,7 +52,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     int nSecondColumn = 125;
     int nEditFieldWidth = 180;
     int nButtonHeight = 26;
-    int nButtonWidth = 76;
+    int nButtonWidth = 98;
 
     pEditArea = new QWidget();
     pEditArea->setMinimumSize(QSize(400, 1024)); //(nRowHeight * (layerSettings.size()+2))));

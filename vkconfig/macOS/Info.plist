@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>vkconfig.sh</string>
+        <string>vkconfig</string>
 	<key>CFBundleGetInfoString</key>
 	<string>VkConfig</string>
 	<key>CFBundleIconFile</key>
