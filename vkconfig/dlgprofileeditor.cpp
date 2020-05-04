@@ -447,7 +447,7 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     qsTitle += ")";
     ui->groupBoxSettings->setTitle(qsTitle);
     settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, false,
-                             "Settings Editor");
+                             "");
 
     // Is this layer Force on?
     settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
@@ -542,7 +542,30 @@ void dlgProfileEditor::accept()
     pThisProfile->qsProfileName = ui->lineEditName->text();
     pThisProfile->qsDescription = ui->lineEditDesc->text();
 
-    // Name must not be blank
+
+    // Hard Fail: Cannot use two layers with the same name
+    bool bSameName = false;
+    for(int i = 0; i < pThisProfile->layers.size()-1; i++)
+        for(int j = i+1; j < pThisProfile->layers.size(); j++)
+            // Layers active OR blacklisted cannot appear more than once
+            if((pThisProfile->layers[i]->bActive || pThisProfile->layers[i]->bDisabled) &&
+               (pThisProfile->layers[j]->bActive || pThisProfile->layers[j]->bDisabled))
+                if(pThisProfile->layers[i]->name == pThisProfile->layers[j]->name) {
+                    bSameName = true;
+                    break;
+                    }
+
+    if(bSameName)
+        {
+        QMessageBox msg;
+        msg.setInformativeText(tr("You cannot use two layers with the same name."));
+        msg.setText(tr("Invalid Configuration!"));
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.exec();
+        return;
+        }
+
+    // Hard Fail: Name must not be blank
     if(pThisProfile->qsProfileName.isEmpty()) {
         QMessageBox msg;
         msg.setInformativeText(tr("Configuration must have a name."));

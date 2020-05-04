@@ -61,8 +61,13 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 
     QLabel *pPromptLabel = new QLabel(pEditArea);
 
-    if(layerSettings.size() == 0)
-        qsMessage += "\n\nThere are no user settings available for this layer.";
+    if(layerSettings.size() == 0) {
+
+        if(!qsMessage.isEmpty())
+            qsMessage += "\n\n";
+
+        qsMessage += "There are no user settings available for this layer.";
+        }
 
     pPromptLabel->setText(qsMessage);
     pPromptLabel->setGeometry(6, 8, 400, 50);
@@ -75,6 +80,10 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     // Some layers just don't have any settings...
     if(layerSettings.size() == 0)
         return;
+
+    // We have settings, but no message. Backup a little bit
+    if(qsMessage.isEmpty())
+        nCurrRow = 8;
 
     // Real-time compute some spacing items
     QFontMetrics fm = pEditArea->fontMetrics();

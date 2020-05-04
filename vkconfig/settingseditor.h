@@ -63,8 +63,9 @@ public:
                 pEnabledPrompt = new QLabel(pEditArea);
 
             pEnabledPrompt->setText(tr("Layer must be enabled (Force On) to allow editing of settings."));
-            pEnabledPrompt->setGeometry(6,6, 300, 30);
+            pEnabledPrompt->setGeometry(6, 8, 300, 30);
             pEnabledPrompt->setWordWrap(true);
+            pEnabledPrompt->setAlignment(Qt::AlignTop);
             pEnabledPrompt->show();
             }
         else { // Remove prompt

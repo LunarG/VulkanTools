@@ -44,9 +44,22 @@ static const char *szWelcomeText = "\nWelcome to LunarG Vulkan Configurator. Thi
                                    "To start, click on \"Edit List...\" and add the applications you want to configure "
                                    "layers for.";
 
-static const char *szStartText = "\n- Select a \"Configuration\" and \"Activate\" to start "
-                                 "applying Vulkan Layers to the selected Vulkan applications.\n\n"
-                                 "- All layer configurations can be disabled using the \"Deactivate\" button.";
+static const char *szStartText = "- Select a \"Configuration\" and \"Activate\" to start "
+                                 "applying Vulkan Layers to the selected Vulkan application list.\n\n"
+                                 "-Activated Configurations will remain active after closing the Vulkan Configurator.\n\n"
+                                 "-Vulkan Configurator effects are fully discarded using the \"Deactivate\" button.\n\n"
+                                 "-An activated layer configuration and its settings will be taken into account only when restarting the application.";
+
+// Yes, for some reason when I use the font, I have to manually add the breaks.
+// Probably because it doesn't normally use the CSS, but once used, you have to use it.
+
+// And you broke something because now when you deactivate, it still shows the gui editor
+
+static const char *szStartTextRed = "<font color='red'>\n- Select a \"Configuration\" and \"Activate\" to start "
+                                 "applying Vulkan Layers to the selected Vulkan application list.\n\n"
+                                 "<br><br>-Activated Configurations will remain active after closing the Vulkan Configurator.\n\n</br></br>"
+                                 "<br><br>-Vulkan Configurator effects are fully discarded using the \"Deactivate\" button.\n\n</br></br>"
+                                 "<br><br>-An activated layer configuration and its settings will be taken into account only when restarting the application.</br></br>";
 
 #define         ACTIVATE_TEXT   "Activate"
 #define         DEACTIVATE_TEXT "Deactivate"
@@ -171,7 +184,7 @@ void MainWindow::LoadProfileList(void)
 /// \brief MainWindow::setGetStartedText
 /// \param szText
 /// Set hint text
-void MainWindow::updateGetStartedStatus(const char *szText)
+void MainWindow::updateGetStartedStatus(QString qsText)
     {
     // Create the label, just so that it fills the scroll area
     // this automatically gets deleted whenever the scroll area gets reset
@@ -186,7 +199,7 @@ void MainWindow::updateGetStartedStatus(const char *szText)
     pLabelGetStarted->setMargin(8);
     ui->scrollArea->setWidget(pLabelGetStarted);
     pLabelGetStarted->show();
-    pLabelGetStarted->setText(szText);
+    pLabelGetStarted->setText(qsText);
     }
 
 
@@ -209,9 +222,14 @@ void MainWindow::checkAppListState(void)
         int nSelected = ui->listWidgetProfiles->currentRow();
         if(nSelected == -1) {
             ui->groupBoxProfiles->setEnabled(false);
-            ui->groupBoxEditor->setTitle(tr("Getting Started"));
+            ui->groupBoxEditor->setTitle(tr("Using Vulkan Configurations"));
             ui->groupBoxProfiles->setEnabled(true);
-            updateGetStartedStatus(szStartText);
+
+            if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
+                updateGetStartedStatus(szStartTextRed);
+                }
+            else
+                updateGetStartedStatus(szStartText);
             }
         else {
             // An item was selected and active
@@ -443,7 +461,8 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
         setWindowTitle(title);
         }
     else { // No profile is currently active
-        setWindowTitle(tr(VKCONFIG_NAME));
+        QString qsTitle = VKCONFIG_NAME + tr(" - (NO ACTIVE LAYER OVERRIDES!)");
+        setWindowTitle(qsTitle);
 
         // Only enable the activeate button if something is selected that can
         // be activated
@@ -478,12 +497,12 @@ void MainWindow::on_pushButtonActivate_clicked()
         pVulkanConfig->SetCurrentActiveProfile(nullptr);
 
         // Keep the current row selection if one was set
-        int nSel = ui->listWidgetProfiles->currentRow();
         LoadProfileList(); // Reload to clear activate status
-        if(nSel == -1)
-            updateGetStartedStatus(szStartText);
+        if(nRow == -1) {
+            updateGetStartedStatus(szStartTextRed);
+            }
         else {
-            ui->listWidgetProfiles->setCurrentRow(nSel);
+            ui->listWidgetProfiles->setCurrentRow(nRow);
             selectedProfileChanged();
             }
         }

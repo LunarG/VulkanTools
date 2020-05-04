@@ -62,6 +62,7 @@
                     "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
                     "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT",
                     "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT",
                     "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
                     ]
             },
@@ -75,7 +76,9 @@
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
                     "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks"
                 },
-                "default": ["VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT"]
+                "default": ["VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT",
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
+                            ]
             }
         }
     }

@@ -57,7 +57,7 @@
                                             "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core validation checks",
                                             "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping"
                                     },
-                                    "default": ["VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"]
+                                    "default": []
                             },
                             "enables": {
                                     "common_edit": true,

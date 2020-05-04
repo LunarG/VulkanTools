@@ -75,7 +75,7 @@ private:
 
     CProfileListItem    *pLastSelectedProfileItem;
 
-    void updateGetStartedStatus(const char *szText);
+    void updateGetStartedStatus(QString qsText);
     void updateActivateButtonState(void);
 
 public Q_SLOTS:
