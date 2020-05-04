@@ -19,6 +19,7 @@
  * as the "model" of the system.
  *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ *  * Author: Lenny Komow <lenny@lunarg.com> (Win32 device registry trapsing).
  */
 
 #include <QDir>

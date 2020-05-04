@@ -240,6 +240,7 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked()
     {
     dlgCustomPaths dlg(this);
     dlg.exec();
+    pThisProfile->CollapseProfile();
     addMissingLayers(pThisProfile);
     LoadLayerDisplay();
     }
