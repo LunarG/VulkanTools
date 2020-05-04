@@ -52,9 +52,6 @@ static const char *szStartText = "- Select a \"Configuration\" and \"Activate\" 
 
 // Yes, for some reason when I use the font, I have to manually add the breaks.
 // Probably because it doesn't normally use the CSS, but once used, you have to use it.
-
-// And you broke something because now when you deactivate, it still shows the gui editor
-
 static const char *szStartTextRed = "<font color='red'>\n- Select a \"Configuration\" and \"Activate\" to start "
                                  "applying Vulkan Layers to the selected Vulkan application list.\n\n"
                                  "<br><br>-Activated Configurations will remain active after closing the Vulkan Configurator.\n\n</br></br>"
