@@ -66,7 +66,7 @@ const QString szSearchPaths[nSearchPaths] = {
         "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
         "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers" };
 #else
-const int nSearchPaths = 8;
+const int nSearchPaths = 10;
 const QString szSearchPaths[nSearchPaths] = {
         "/usr/local/etc/vulkan/explicit_layer.d",            // Not used on macOS, okay to just ignore
         "/usr/local/etc/vulkan/implicit_layer.d",            // Not used on macOS, okay to just ignore
@@ -76,8 +76,8 @@ const QString szSearchPaths[nSearchPaths] = {
         "/etc/vulkan/implicit_layer.d",
         "/usr/share/vulkan/explicit_layer.d",
         "/usr/share/vulkan/implicit_layer.d",
-//        "$HOME/.local/share/vulkan/explicit_layer.d",
-//        "$HOME/.local/share/vulkan/implicit_layer.d"
+        ".local/share/vulkan/explicit_layer.d",
+        ".local/share/vulkan/implicit_layer.d"
 };
 #endif
 
@@ -255,7 +255,15 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
 #ifdef _WIN32
     CPathFinder fileList(qsPath, (type == LAYER_TYPE_CUSTOM));
 #else
-    CPathFinder fileList(qsPath, true);
+    // On Linux/Mac, we also need the home folder
+    QString searchPath = qsPath;
+    if(qsPath[0] == '.') {
+        searchPath = QDir().homePath();
+        searchPath += "/";
+        searchPath += qsPath;
+        }
+
+      CPathFinder fileList(searchPath, true);
 #endif
     if(fileList.FileCount() == 0)
         return;
