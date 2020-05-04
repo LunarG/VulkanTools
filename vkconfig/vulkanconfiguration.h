@@ -20,9 +20,15 @@
  *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
-
 #ifndef CVULKANCONFIGURATION_H
 #define CVULKANCONFIGURATION_H
+
+#ifdef _WIN32
+#include <windows.h>
+#include <winreg.h>
+#include <Cfgmgr32.h>
+#define WIN_BUFFER_SIZE 1024
+#endif
 
 #include <QString>
 #include <QVector>
@@ -184,6 +190,11 @@ protected:
     QString qsProfileFilesPath;         // Where config working files live
     QString qsOverrideSettingsPath;     // Where settings go when profile is active
     QString qsOverrideJsonPath;         // Where json goes when profile is active
+
+#ifdef WIN32
+    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type);
+    void LoadRegistryLayers(const QString &path, QVector<CLayerFile *>& layerList, TLayerType type);
+#endif
 };
 
 #endif // CVULKANCONFIGURATION_H

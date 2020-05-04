@@ -68,6 +68,7 @@ TRANSLATIONS += \
 
 win32: {
   LIBS += Advapi32.lib
+  LIBS += Cfgmgr32.lib
   RC_ICONS = resourcefiles/vulkan.ico
 }
 

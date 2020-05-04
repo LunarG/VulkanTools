@@ -286,6 +286,11 @@ void MainWindow::toolsVulkanTestApp(bool bChecked)
     pTestEnv->setFocus();
     }
 
+void MainWindow::on_pushButtonLaunch_clicked(void)
+    {
+    toolsVulkanTestApp(false);
+    }
+
 
 //////////////////////////////////////////////////////////////
 void MainWindow::toolsVulkanAPIDump(bool bChecked)

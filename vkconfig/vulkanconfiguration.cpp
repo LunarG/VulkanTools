@@ -21,10 +21,6 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include <QDir>
 #include <QSettings>
 #include <QTextStream>
@@ -37,7 +33,8 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-// Constructor does all the work.
+// Constructor does all the work. Abstracts away instances where we might
+// be searching a disk path, or a registry path.
 CPathFinder::CPathFinder(const QString& qsPath, bool bForceFileSystem)
     {
     if(!bForceFileSystem) {
@@ -59,12 +56,12 @@ CPathFinder::CPathFinder(const QString& qsPath, bool bForceFileSystem)
 #ifdef _WIN32
 const int nSearchPaths = 6;
 const QString szSearchPaths[nSearchPaths] = {
-        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers",
-        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers",
-        "HKEY_CURRENT_USER\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers",
-        "HKEY_CURRENT_USER\\SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers",
-        "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
-        "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers" };
+        "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
+        "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
+        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
+        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers",
+        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
+        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers" };
 #else
 const int nSearchPaths = 10;
 const QString szSearchPaths[nSearchPaths] = {
@@ -79,11 +76,11 @@ const QString szSearchPaths[nSearchPaths] = {
         ".local/share/vulkan/explicit_layer.d",
         ".local/share/vulkan/implicit_layer.d"
 };
-#endif
+#endif // QDir().homePath() + "./local...." do this inline?
+
 
 // Single pointer to singleton configuration object
 CVulkanConfiguration* CVulkanConfiguration::pMe = nullptr;
-
 
 
 CVulkanConfiguration::CVulkanConfiguration()
@@ -148,6 +145,122 @@ void CVulkanConfiguration::clearLayerLists(void)
     qDeleteAll(allLayers.begin(), allLayers.end());
     allLayers.clear();
     }
+
+
+void CVulkanConfiguration::LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type) {
+    HKEY key;
+    if(CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS)
+        return;
+
+    DWORD path_size;
+    if (RegQueryValueEx(key, (LPCWSTR)entry.utf16(), nullptr, nullptr, nullptr, &path_size) != ERROR_SUCCESS) {
+        RegCloseKey(key);
+        return;
+        }
+
+    DWORD data_type;
+    wchar_t *path = new wchar_t[path_size];
+    if (RegQueryValueEx(key, (LPCWSTR)entry.utf16(), nullptr, &data_type, (LPBYTE)path, &path_size) != ERROR_SUCCESS) {
+        delete[] path;
+        RegCloseKey(key);
+        return;
+        }
+
+    if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
+        for (wchar_t* curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
+            CLayerFile *pLayerFile = new CLayerFile();
+            if(pLayerFile->readLayerFile(QString::fromWCharArray(curr_filename), type))
+            layerList.push_back(pLayerFile);
+            if (data_type == REG_SZ) {
+                break;
+            }
+        }
+    }
+
+    delete[] path;
+    RegCloseKey(key);
+}
+
+////////////////////////////////////////////////////////////////
+/// This is for Windows only
+void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLayerFile *>& layerList, TLayerType type) {
+
+    QString root_string = path.section('\\', 0, 0);
+    static QHash<QString, HKEY> root_keys = {
+        {"HKEY_CLASSES_ROOT", HKEY_CLASSES_ROOT},
+        {"HKEY_CURRENT_CONFIG", HKEY_CURRENT_CONFIG},
+        {"HKEY_CURRENT_USER", HKEY_CURRENT_USER},
+        {"HKEY_LOCAL_MACHINE", HKEY_LOCAL_MACHINE},
+        {"HKEY_USERS", HKEY_USERS},
+    };
+
+    HKEY root = HKEY_CURRENT_USER;
+    for (auto label : root_keys.keys()) {
+        if (label == root_string) {
+            root = root_keys[label];
+            break;
+            }
+        }
+
+    static const QString DISPLAY_GUID = "{4d36e968-e325-11ce-bfc1-08002be10318}";
+    static const QString SOFTWARE_COMPONENT_GUID = "{5c4c3332-344d-483c-8739-259e934c9cc8}";
+    static const ULONG FLAGS = CM_GETIDLIST_FILTER_CLASS | CM_GETIDLIST_FILTER_PRESENT;
+
+    ULONG device_names_size;
+    wchar_t *device_names = nullptr;
+    do {
+        CM_Get_Device_ID_List_Size(&device_names_size, (LPCWSTR)DISPLAY_GUID.utf16(), FLAGS);
+        if (device_names != nullptr) {
+            delete[] device_names;
+        }
+        device_names = new wchar_t[device_names_size];
+    }  while (CM_Get_Device_ID_List((LPCWSTR)DISPLAY_GUID.utf16(), device_names, device_names_size, FLAGS) == CR_BUFFER_SMALL);
+
+    if (device_names != nullptr) {
+        QString entry;
+        // This has already been set by now
+        if (path.endsWith("VulkanExplicitLayers")) {
+            entry = "VulkanExplicitLayers";
+            type = LAYER_TYPE_EXPLICIT;
+        } else if (path.endsWith("VulkanImplicitLayers")) {
+            entry = "VulkanImplicitLayers";
+            type = LAYER_TYPE_IMPLICIT;
+        }
+
+        for (wchar_t *device_name = device_names; device_name[0] != '\0'; device_name += wcslen(device_name) + 1) {
+            DEVINST device_id;
+            if (CM_Locate_DevNode(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL) != CR_SUCCESS) {
+                continue;
+            }
+            LoadDeviceRegistry(device_id, entry, layerList, type);
+
+            DEVINST child_id;
+            if (CM_Get_Child(&child_id, device_id, 0) != CR_SUCCESS) {
+                continue;
+            }
+            do {
+                wchar_t child_buffer[MAX_DEVICE_ID_LEN];
+                CM_Get_Device_ID(child_id, child_buffer, MAX_DEVICE_ID_LEN, 0);
+
+                wchar_t child_guid[MAX_GUID_STRING_LEN + 2];
+                ULONG child_guid_size = sizeof(child_guid);
+                if (CM_Get_DevNode_Registry_Property(child_id, CM_DRP_CLASSGUID, nullptr, &child_guid, &child_guid_size, 0) != CR_SUCCESS) {
+                    continue;
+                }
+                if (wcscmp(child_guid, (LPCWSTR)SOFTWARE_COMPONENT_GUID.utf16()) == 0) {
+                    LoadDeviceRegistry(child_id, entry, layerList, type);
+                    break;
+                 }
+            } while(CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
+        }
+    }
+
+    if(device_names != nullptr) {
+        delete[] device_names;
+    }
+}
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -253,6 +366,11 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
     // On Windows custom files are in the file system. On non Windows all layers are
     // searched this way
 #ifdef _WIN32
+    if(qsPath.contains("...")) {
+        LoadRegistryLayers(qsPath, layerList, type);
+        return;
+        }
+
     CPathFinder fileList(qsPath, (type == LAYER_TYPE_CUSTOM));
 #else
     // On Linux/Mac, we also need the home folder

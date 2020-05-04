@@ -99,5 +99,6 @@ public Q_SLOTS:
     void on_pushButtonRemove_clicked(void);
     void on_pushButtonDisable_clicked(void);
     void on_pushButtonActivate_clicked(void);
+    void on_pushButtonLaunch_clicked(void);
 };
 
