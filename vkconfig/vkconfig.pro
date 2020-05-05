@@ -76,10 +76,10 @@ win32: {
 }
 
 macx: {
-CONFIG += file_copies
-COPIES += shellScript
-shellScript.files = $$files(macOS/vkconfig.sh)
-shellScript.path = $$OUT_PWD/VkConfig.app/Contents/MacOS
+#CONFIG += file_copies
+#COPIES += shellScript
+#shellScript.files = $$files(macOS/vkconfig.sh)
+#shellScript.path = $$OUT_PWD/VkConfig.app/Contents/MacOS
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 
