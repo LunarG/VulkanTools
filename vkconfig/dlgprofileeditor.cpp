@@ -333,42 +333,6 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        // information. These are NOT QTreeWidgetItemWithLayer
        // because they don't link back to a layer, you have to
        // go up the tree
-/*
-       QTreeWidgetItem *pChild = new QTreeWidgetItem();
-       pChild->setText(0, pThisProfile->layers[iLayer]->qsLayerPath);
-       pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
-       pItem->addChild(pChild);
-
-       pChild = new QTreeWidgetItem();
-       QString outText;
-       outText.sprintf("Path: %s", pThisProfile->layers[iLayer]->library_path.toUtf8().constData());
-       pChild->setText(0, outText);
-       pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
-       pItem->addChild(pChild);
-
-       pChild = new QTreeWidgetItem();
-       outText.sprintf("API Version: %s", pThisProfile->layers[iLayer]->api_version.toUtf8().constData());
-       pChild->setText(0, outText);
-       pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
-       pItem->addChild(pChild);
-
-       pChild = new QTreeWidgetItem();
-       outText.sprintf("Implementation Version: %s", pThisProfile->layers[iLayer]->implementation_version.toUtf8().constData());
-       pChild->setText(0, outText);
-       pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
-       pItem->addChild(pChild);
-
-       pChild = new QTreeWidgetItem();
-       outText.sprintf("File format: %s", pThisProfile->layers[iLayer]->file_format_version.toUtf8().constData());
-       pChild->setText(0, outText);
-       pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
-       pItem->addChild(pChild);
-
-       pChild = new QTreeWidgetItem();
-       pChild->setText(0, pThisProfile->layers[iLayer]->qsLayerPath);
-       pChild->setFlags(pChild->flags() & ~Qt::ItemIsSelectable);
-       pItem->addChild(pChild);
-*/
        }
 
     resizeEvent(nullptr);

@@ -202,14 +202,14 @@ void dlgVulkanInfo::TraverseGenericProperties(QJsonValue& parentJson, QTreeWidge
                 }
 
             QTreeWidgetItem *pItem = new QTreeWidgetItem();
-            pItem->setText(0, QString().sprintf("%s = %s", fields[field].toUtf8().constData(), fieldValue.toVariant().toString().toUtf8().constData()));
+            pItem->setText(0, QString().asprintf("%s = %s", fields[field].toUtf8().constData(), fieldValue.toVariant().toString().toUtf8().constData()));
             pParentTreeItem->addChild(pItem);
             }
         else {
             // Add array list
             QJsonArray jsonArray = fieldValue.toArray();
             QTreeWidgetItem *pArrayParent = new QTreeWidgetItem();
-            pArrayParent->setText(0, QString().sprintf("%s: count = %d", fields[field].toUtf8().constData(), jsonArray.size()));
+            pArrayParent->setText(0, QString().asprintf("%s: count = %d", fields[field].toUtf8().constData(), jsonArray.size()));
             pParentTreeItem->addChild(pArrayParent);
 
             // The array is just a list of values. No children.
@@ -270,7 +270,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue& jsonValue, QTreeWidgetItem *pRoot)
     int layersCount = layersObject.size();
 
     QString output = "Layers : count = ";
-    output += QString().sprintf("%d", layersCount);
+    output += QString().asprintf("%d", layersCount);
 
     pRoot->setText(0, output);
     ui->treeWidget->addTopLevelItem(pRoot);
@@ -294,7 +294,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue& jsonValue, QTreeWidgetItem *pRoot)
        QJsonValue layerExtensions = layerObject.value("Layer Extensions");
        QJsonObject layerExtensionsObject = layerExtensions.toObject();
        int nExtCount = layerExtensionsObject.size();
-       output.sprintf("Layer Extensions: count = %d", nExtCount);
+       output.asprintf("Layer Extensions: count = %d", nExtCount);
        QTreeWidgetItem *pExtItem = new QTreeWidgetItem();
        pExtItem->setText(0, output);
        pLayer->addChild(pExtItem);
@@ -306,7 +306,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue& jsonValue, QTreeWidgetItem *pRoot)
         QJsonObject devicesObject = devicesValue.toObject();
         int devCount = devicesObject.size();
         QTreeWidgetItem *pDeviceItem = new QTreeWidgetItem();
-        pDeviceItem->setText(0, QString().sprintf("Devices: count = %d", devCount));
+        pDeviceItem->setText(0, QString().asprintf("Devices: count = %d", devCount));
         pLayer->addChild(pDeviceItem);
         QStringList devicesList = devicesObject.keys();
         for(int dev = 0; dev < devCount; dev++) {
@@ -325,7 +325,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue& jsonValue, QTreeWidgetItem *pRoot)
             QJsonValue devExtVal = gpuObject.value("Layer-Device Extensions");
             QJsonObject devExtObj = devExtVal.toObject();
             int extCount = devExtObj.size();
-            output.sprintf("Layer-Device Extensions: count = %d", extCount);
+            output.asprintf("Layer-Device Extensions: count = %d", extCount);
             QTreeWidgetItem *pNext = new QTreeWidgetItem();
             pNext->setText(0, output);
             pDeviceItem->addChild(pNext);

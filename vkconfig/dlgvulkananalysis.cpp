@@ -200,11 +200,11 @@ void dlgVulkanAnalysis::loadTable(QJsonObject& jsonParent, QTableWidget* pTable)
 
     // Now just iterate and fill in the cells
     for(int row = 0; row < nHowManyRows; row++) {
-        rowValue = jsonParent.value(QString().sprintf("%d", row));
+        rowValue = jsonParent.value(QString().asprintf("%d", row));
         rowObject = rowValue.toObject();
 
         for(int col = 0; col < nHowManyCols; col++) {
-            QJsonValue colValue = rowObject.value(QString().sprintf("%d", col));
+            QJsonValue colValue = rowObject.value(QString().asprintf("%d", col));
             QString text = colValue.toString();
             QTableWidgetItem *pItem = new QTableWidgetItem;
             pItem->setText(text);

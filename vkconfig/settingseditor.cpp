@@ -238,7 +238,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
 
             default: {
                 QLabel *pLabel = new QLabel(pEditArea);
-                pLabel->setText(QString().sprintf("Unhandled setting type: %d", layerSettings[iSetting]->settingsType));
+                pLabel->setText(QString().asprintf("Unhandled setting type: %d", layerSettings[iSetting]->settingsType));
                 pLabel->setGeometry(nSecondColumn, nCurrRow, 200, nRowHeight);
                 pLabel->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pLabel->show();
