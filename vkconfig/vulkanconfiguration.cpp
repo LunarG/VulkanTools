@@ -147,7 +147,7 @@ void CVulkanConfiguration::clearLayerLists(void)
     allLayers.clear();
     }
 
-
+#ifdef _WIN32
 void CVulkanConfiguration::LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type) {
     HKEY key;
     if(CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS)
@@ -260,7 +260,7 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
         delete[] device_names;
     }
 }
-
+#endif
 
 
 
