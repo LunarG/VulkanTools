@@ -363,6 +363,7 @@ void MainWindow::on_pushButtonEdit_clicked(void)
             dlg.exec();
             pVulkanConfig->loadAllProfiles(); // Reset
             LoadProfileList();  // Force a reload
+            ui->pushButtonActivate->setEnabled(false);
             }
         }
     checkAppListState();
@@ -376,6 +377,7 @@ void MainWindow::on_pushButtonNewProfile_clicked(void)
     dlg.exec();
     LoadProfileList();  // force a reload
     checkAppListState();
+    ui->pushButtonActivate->setEnabled(false);
     }
 
 

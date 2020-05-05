@@ -104,7 +104,8 @@ bool isDLL32Bit(QString qsFileAndPath)
     // Not gonna lie, just guessed 1024 and it was enough.
     // This is the minimum page size on any OS (I might be wrong,
     // it could be 4096), so going lower is not really helpful.
-    void *pHeader = file.map(0, 1024, QFileDevice::NoOptions);
+    // Changed to 4096 on a whim; looking for crashing bug I can't debug
+    void *pHeader = file.map(0, 4096, QFileDevice::NoOptions);
 
     PE_ARCHITECTURE arch = GetImageArchitecture(pHeader);
 
