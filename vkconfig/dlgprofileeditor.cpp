@@ -107,6 +107,10 @@ bool isDLL32Bit(QString qsFileAndPath)
     // Changed to 4096 on a whim; looking for crashing bug I can't debug
     void *pHeader = file.map(0, 4096, QFileDevice::NoOptions);
 
+    // Another punt as we may not be able to map the file
+    if(pHeader == nullptr)
+        return false;
+
     PE_ARCHITECTURE arch = GetImageArchitecture(pHeader);
 
     file.unmap((uchar *)pHeader);
