@@ -29,6 +29,7 @@ SOURCES += \
     dlgprofileeditor.cpp \
     dlgvulkananalysis.cpp \
     dlgvulkaninfo.cpp \
+    khronossettings.cpp \
     layerfile.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     dlgprofileeditor.h \
     dlgvulkananalysis.h \
     dlgvulkaninfo.h \
+    khronossettings.h \
     layerfile.h \
     mainwindow.h \
     profiledef.h \
@@ -60,6 +62,7 @@ FORMS += \
     dlgprofileeditor.ui \
     dlgvulkananalysis.ui \
     dlgvulkaninfo.ui \
+    khronossettings.ui \
     mainwindow.ui
 
 TRANSLATIONS += \

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
-    <height>629</height>
+    <width>634</width>
+    <height>607</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -187,12 +187,37 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>540</width>
-            <height>254</height>
+            <width>388</width>
+            <height>232</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3"/>
          </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Settings Description</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="labelSettingsDescription">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -259,7 +284,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>580</width>
+     <width>634</width>
      <height>21</height>
     </rect>
    </property>
