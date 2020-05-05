@@ -140,7 +140,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 pContainer->setGeometry(nSecondColumn, nCurrRow, 250, nRowHeight);
 
                 QRadioButton *pTrue = new QRadioButton(pContainer);
-                pTrue->setText("true");
+                pTrue->setText("True");
                 pTrue->setGeometry(0, 0, 100, nRowHeight);
                 pTrue->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pTrue->show();
@@ -153,7 +153,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 pFalse->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pFalse->show();
 
-                if(layerSettings[iSetting]->settingsValue == QString("True"))
+                if(layerSettings[iSetting]->settingsValue == QString("true"))
                     pTrue->setChecked(true);
                 else
                     pFalse->setChecked(true);
