@@ -103,8 +103,8 @@ protected:
     QLabel      *pEnabledPrompt;
 
 public Q_SLOTS:
-    void browseButtonPressed(void);
-
+    void browseFileButtonPressed(void);
+    void browseFolderButtonPressed(void);
     };
 
 #endif // CSETTINGSEDITOR_H

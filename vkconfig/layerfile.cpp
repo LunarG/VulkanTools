@@ -226,9 +226,24 @@ bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
             continue;
             }
 
-        ////////////////////////////////////////////////////// Bool, also nice and simple
+        ////////////////////////////////////////////////////// Folder to put screen shots in
+        if(typeString == QString("save_folder")) {
+            pLayerSettings->settingsType = LAYER_SETTINGS_SAVE_FOLDER;
+            layers.push_back(pLayerSettings);
+            continue;
+            }
+
+        ////////////////////////////////////////////////////// Bool, also nice and simple ("true"/"false")
         if(typeString == QString("bool")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_BOOL;
+            layers.push_back(pLayerSettings);
+            continue;
+            }
+
+
+        //////////////////////////////////////////////////// Bool, but written out as 0 or 1
+        if(typeString == QString("bool_numeric")) {
+            pLayerSettings->settingsType = LAYER_SETTINGS_BOOL_NUMERIC;
             layers.push_back(pLayerSettings);
             continue;
             }

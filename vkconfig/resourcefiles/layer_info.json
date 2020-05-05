@@ -174,7 +174,7 @@
             "dir": {
                 "name": "Directory",
                 "description": "This can be set to specify the directory in which to create the screenshot files.",
-                "type": "string",
+                "type": "save_folder",
                 "default": ""
             },
             "format": {
@@ -198,19 +198,19 @@
             "filename": {
                 "name": "Filename",
                 "description": "Name of one or more configuration file(s) to load.",
-                "type": "string",
+                "type": "save_file",
                 "default": ""
             },
             "debug_enable": {
                 "name": "Debug Enable",
-                "description": "A non-zero integer enables debug message output.",
-                "type": "string",
+                "description": "Enables debug message output.",
+                "type": "bool_numeric",
                 "default": "0"
             },
             "exit_on_error": {
                 "name": "Exit On Error",
-                "description": "A non-zero integer enables exit-on-error.",
-                "type": "string",
+                "description": "Enables exit-on-error.",
+                "type": "bool_numeric",
                 "default": "0"
             }
         }

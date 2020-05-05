@@ -26,6 +26,7 @@
 #include <QListWidgetItem>
 #include <QStandardItemModel>
 #include <QFileDialog>
+#include <QHoverEvent>
 
 #include "settingseditor.h"
 
@@ -132,6 +133,8 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 break;
                 }
 
+            // These look and appear the same up front
+            case LAYER_SETTINGS_BOOL_NUMERIC:
             case LAYER_SETTINGS_BOOL: {
                 QWidget *pContainer = new QWidget(pEditArea);
                 pContainer->setGeometry(nSecondColumn, nCurrRow, 250, nRowHeight);
@@ -161,7 +164,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 break;
                 }
 
-        case LAYER_SETTINGS_FILE: {
+            case LAYER_SETTINGS_FILE: {
                 pButtonBuddy = new QLineEdit(pEditArea);
                 pButtonBuddy->setText(layerSettings[iSetting]->settingsValue);
                 pButtonBuddy->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
@@ -173,12 +176,36 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 pBrowseButton = new QPushButton(pEditArea);
                 pBrowseButton->setText("Browse...");
                 pBrowseButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, nButtonWidth, nButtonHeight);
-                connect(pBrowseButton, SIGNAL(pressed()), this, SLOT(browseButtonPressed()));
+                connect(pBrowseButton, SIGNAL(pressed()), this, SLOT(browseFileButtonPressed()));
                 pBrowseButton->show();
                 inputControls.push_back(pBrowseButton);
                 linkedSetting.push_back(layerSettings[iSetting]);
                 break;
                 }
+
+
+
+            case LAYER_SETTINGS_SAVE_FOLDER: {
+                pButtonBuddy = new QLineEdit(pEditArea);
+                pButtonBuddy->setText(layerSettings[iSetting]->settingsValue);
+                pButtonBuddy->setGeometry(nSecondColumn, nCurrRow, nEditFieldWidth, nRowHeight);
+                pButtonBuddy->setToolTip(layerSettings[iSetting]->settingsDesc);
+                pButtonBuddy->show();
+                inputControls.push_back(pButtonBuddy);
+                linkedSetting.push_back(layerSettings[iSetting]);
+
+                pBrowseButton = new QPushButton(pEditArea);
+                pBrowseButton->setText("Browse...");
+                pBrowseButton->setGeometry(nSecondColumn + nEditFieldWidth + 16, nCurrRow-2, nButtonWidth, nButtonHeight);
+                connect(pBrowseButton, SIGNAL(pressed()), this, SLOT(browseFolderButtonPressed()));
+                pBrowseButton->show();
+                inputControls.push_back(pBrowseButton);
+                linkedSetting.push_back(layerSettings[iSetting]);
+                break;
+                }
+
+
+
 
            case  LAYER_SETTINGS_EXCLUSIVE_LIST: {
                 QComboBox *pComboBox = new QComboBox(pEditArea);
@@ -278,6 +305,7 @@ bool CSettingsEditor::CollectSettings()
                 }
             break;
 
+            case LAYER_SETTINGS_SAVE_FOLDER:
             case LAYER_SETTINGS_FILE: { // Edit control followed by a button
                 QLineEdit *pEdit = dynamic_cast<QLineEdit *>(inputControls[iSetting]);
                 Q_ASSERT(pEdit != nullptr);
@@ -330,10 +358,17 @@ bool CSettingsEditor::CollectSettings()
                 }
             break;
 
+            // Almost the same...
+            case LAYER_SETTINGS_BOOL_NUMERIC:
             case LAYER_SETTINGS_BOOL: { // True or false
                 QRadioButton *pTrueButton = dynamic_cast<QRadioButton *>(inputControls[iSetting]);
                 Q_ASSERT(pTrueButton != nullptr);
-                QString curVal = (pTrueButton->isChecked()) ? QString("true") : QString("false");
+                QString curVal;
+                if(linkedSetting[iSetting]->settingsType == LAYER_SETTINGS_BOOL)
+                    curVal = (pTrueButton->isChecked()) ? QString("true") : QString("false");
+                else
+                    curVal = (pTrueButton->isChecked()) ? QString("1") : QString("0");
+
 
                 if(curVal != linkedSetting[iSetting]->settingsValue) {
                     linkedSetting[iSetting]->settingsValue = curVal;
@@ -367,17 +402,23 @@ void CSettingsEditor::CleanupGUI(void)
     }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CSettingsEditor::browseButtonPressed
+/// \brief CSettingsEditor::browseFileButtonPressed
 /// A field (there is only one currently) that allows browsing has been pressed.
 /// Allow the user to set a file, and pop that into the associated
 /// edit field.
-void CSettingsEditor::browseButtonPressed()
+void CSettingsEditor::browseFileButtonPressed()
     {
     QString file = QFileDialog::getSaveFileName(pEditArea,
-        tr("Auto Save Output To..."),
-        ".", tr("Log text(*.txt)"));
+        tr("Select File"),
+        ".");
 
     if(!file.isEmpty())
         pButtonBuddy->setText(file);
     }
 
+void CSettingsEditor::browseFolderButtonPressed()
+    {
+    QString folder = QFileDialog::getExistingDirectory(pEditArea, tr("Select Folder"));
+    if(!folder.isEmpty())
+        pButtonBuddy->setText(folder);
+    }
