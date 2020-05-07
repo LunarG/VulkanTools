@@ -119,8 +119,7 @@ void MainWindow::LoadProfileList(void)
 
     // Default profiles need the VK_LAYER_KHRONOS_validation layer.
     // If it's not found, we need to disable it.
-    bool bSDKAvailable = (nullptr != pVulkanConfig->findLayerNamed("VK_LAYER_KHRONOS_validation"));
-
+    bool bKhronosAvailable = (nullptr != pVulkanConfig->findLayerNamed("VK_LAYER_KHRONOS_validation"));
 
     // Add canned profiles first
     int nItemCount = 0;
@@ -134,7 +133,7 @@ void MainWindow::LoadProfileList(void)
         pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
         pItem->setToolTip(pVulkanConfig->profileList[i]->qsDescription);
 
-        if(!bSDKAvailable)
+        if(!bKhronosAvailable)
            pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
 
         ui->listWidgetProfiles->addItem(pItem);

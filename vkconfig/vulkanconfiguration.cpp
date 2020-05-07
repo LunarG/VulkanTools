@@ -115,6 +115,33 @@ CVulkanConfiguration::CVulkanConfiguration()
     qsProfileFilesPath = QDir::toNativeSeparators(qsProfileFilesPath);
 #else
     QDir home = QDir::home();
+    if(!home.cd(".local")) {
+        home.mkpath(".local");
+        home.cd(".local");
+        }
+
+    if(!home.cd("share")) {
+        home.mkpath("share");
+        home.cd("share");
+        }
+
+    if(!home.cd("vulkan")) {
+        home.mkpath("vulkan");
+        home.cd("vulkan");
+        }
+
+    if(!home.cd("settings.d")) {
+        home.mkpath("settings.d");
+        home.cd("settings.d");
+        }
+
+    home.cd("..");
+    if(!home.cd("implicit_layer.d")) {
+        home.mkpath("implicit_layer.d");
+        home.cd("implicit_layer.d");
+        }
+
+    home = QDir::home();
     qsProfileFilesPath = home.path() + QString("/.local/share/vulkan/");     // TBD, where do profiles go if not here...
     qsOverrideSettingsPath = qsProfileFilesPath + "settings.d/vk_layer_settings.txt";
     qsOverrideJsonPath = qsProfileFilesPath + "implicit_layer.d/VkLayer_override.json";
@@ -391,13 +418,14 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
         CLayerFile *pLayerFile = new CLayerFile();
         if(pLayerFile->readLayerFile(fileList.GetFileName(iFile), type)) {
             // Look for duplicates - Path name AND name must be the same TBD
-            for(int i = 0; i < layerList.size(); i++)
-                if(layerList[i]->library_path == pLayerFile->library_path &&
-                        layerList[i]->name == pLayerFile->name) {
-                    delete pLayerFile;
-                    pLayerFile = nullptr;
-                    break;
-                    }
+            // nope, we are going to allow duplicates
+//            for(int i = 0; i < layerList.size(); i++)
+//                if(layerList[i]->library_path == pLayerFile->library_path &&
+//                        layerList[i]->name == pLayerFile->name) {
+//                    delete pLayerFile;
+//                    pLayerFile = nullptr;
+//                    break;
+//                    }
 
             // We have a layer! See if we need to add the settings list to it, and then add it to our list
             if(pLayerFile != nullptr)
