@@ -39,6 +39,36 @@ CSettingsEditor::CSettingsEditor()
     pEnabledPrompt = nullptr;
     }
 
+void CSettingsEditor::SetEnabled(bool bEnable) {
+    bEnabled = bEnable;
+
+    // Wait... if there are no settings, just return, otherwise we hide
+    // the prompt that tells the user that there are no settings.
+    if(inputControls.size() == 0)
+        return;
+
+    for(int i = 0; i < inputControls.size(); i++)
+        inputControls[i]->setHidden(!bEnabled);
+
+    // No, these may not be the same size as above
+    for(int i = 0; i < prompts.size(); i++)
+        prompts[i]->setHidden(!bEnabled);
+
+    if(!bEnabled)  {  // Show the prompt
+        if(pEnabledPrompt == nullptr)
+            pEnabledPrompt = new QLabel(pEditArea);
+
+        pEnabledPrompt->setText(tr("Layer must be enabled (Force On) to allow editing of settings."));
+        pEnabledPrompt->setGeometry(6, 8, 300, 30);
+        pEnabledPrompt->setWordWrap(true);
+        pEnabledPrompt->setAlignment(Qt::AlignTop);
+        pEnabledPrompt->show();
+        }
+    else { // Remove prompt
+        delete pEnabledPrompt;
+        pEnabledPrompt = nullptr;
+        }
+    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Creates controls and sets up any signals.

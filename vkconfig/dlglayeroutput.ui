@@ -17,7 +17,7 @@
    <item row="2" column="1">
     <widget class="QPushButton" name="pushButtonClearLogFile">
      <property name="text">
-      <string>Clear log file</string>
+      <string>Empty log file</string>
      </property>
     </widget>
    </item>
