@@ -65,7 +65,13 @@ KhronosSettings::KhronosSettings(QWidget *parent,  QVector<TLayerSettings *>& la
             }
         }
 
-    //
+    // GPU specific?
+
+
+    // Messages
+
+
+    // ARM specific
 
 
 

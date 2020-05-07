@@ -69,7 +69,6 @@
                     "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
                     "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT",
                     "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
-                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT",
                     "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
                     ]
             },
@@ -85,7 +84,7 @@
                 "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
                 "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM specific validation"
                 },
-                "default": ["VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT",
+                "default": ["VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT",
                             "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
                             ]
             }
