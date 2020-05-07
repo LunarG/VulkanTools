@@ -39,16 +39,19 @@ public:
     explicit KhronosSettings(QWidget *parent,  QVector<TLayerSettings *>& layerSettings, QString qsText);
     ~KhronosSettings();
 
+    bool CollectSettings(void);
 private:
     Ui::KhronosSettings *ui;
 
     QVector<TLayerSettings *> linkedSetting;
-
+    bool                      bGPU;
 
 
  public Q_SLOTS:
 
     void on_pushButtonBrowse_clicked(void);
+    void on_radioButtonDebug_clicked(void);
+    void on_radioButtonGPU_clicked(void);
 
 };
 

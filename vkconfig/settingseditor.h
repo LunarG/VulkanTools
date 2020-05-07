@@ -27,7 +27,9 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
+
 #include <layerfile.h>
+#include <khronossettings.h>
 
 class CSettingsEditor : public QObject
     {
@@ -37,7 +39,7 @@ public:
     CSettingsEditor();
 
     // Creates controls and sets up any signals
-    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bSharedOnly, QString qsMessage);
+    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bKhronosEditor, QString qsMessage);
     void CleanupGUI(void);                  // Clears all the controls and deletes edit area
     bool CollectSettings(void);             // Transfer controls to layerSettings.
                                             // Returns false if no settings were changed
@@ -55,7 +57,8 @@ protected:
     QVector<QWidget *> inputControls;
     QVector<TLayerSettings *> linkedSetting;
 
-    QWidget *pEditArea;
+    QWidget         *pEditArea;
+    KhronosSettings *pKhronosEditor;
 
     ///////////////////////////////////////////////////////////////////
     // This might not be a good idea... but I think it's okay. There

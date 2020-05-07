@@ -204,7 +204,7 @@ void MainWindow::checkAppListState(void)
     {
     // Final check - if there are no apps, disable the profiles list
     if(pVulkanConfig->appList.length() == 0) {
-        this->setWindowTitle("Vulkan Control Panel (Warning, no app list specified)");
+        this->setWindowTitle("Vulkan Configurator (Warning, no app list specified)");
         ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
         ui->groupBoxEditor->setTitle(tr("Getting Started"));
         ui->groupBoxProfiles->setEnabled(false);
@@ -602,7 +602,7 @@ void MainWindow::selectedProfileChanged(void)
         ui->pushButtonRemove->setEnabled(true);    // Only the ones you can edit can be deleted
         settingsEditor.CleanupGUI();
         QVector <TLayerSettings *> dummy;
-        settingsEditor.CreateGUI(ui->scrollArea, dummy, true, pSelectedItem->pProfilePointer->qsDescription);
+        settingsEditor.CreateGUI(ui->scrollArea, dummy, false, pSelectedItem->pProfilePointer->qsDescription);
         }
     }
 

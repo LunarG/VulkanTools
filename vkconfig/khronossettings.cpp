@@ -24,6 +24,40 @@
 #include "khronossettings.h"
 #include "ui_khronossettings.h"
 
+
+
+///////////////////////////////////////////////////////////////////////////////
+// delimted string is a comma delimited string. If value is found remove it
+QString RemoveString(QString delimitedString, QString value)
+    {
+    // Well, it's not there now is it...
+    if(!delimitedString.contains(value))
+        return delimitedString;
+
+    QStringList list = delimitedString.split(",");
+    for(int i = 0; i < list.size(); i++)
+        if(list[i] == value) {
+            list.removeAt(i);
+            break;
+            }
+
+    return list.join(",");
+    }
+
+/////////////////////////////////////////////////////////////////////////////////
+// Pretty simple, add to list if it's not already in it
+void AddString(QString delimitedString, QString value)
+    {
+    // Do I have anything to do?
+    if(delimitedString.contains(value)) // Nope
+        return;
+
+    delimitedString += ",";
+    delimitedString += value;
+    }
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief KhronosSettings::KhronosSettings
 /// \param parent       - Scroll area on the front dialog
@@ -34,6 +68,7 @@ KhronosSettings::KhronosSettings(QWidget *parent,  QVector<TLayerSettings *>& la
     ui(new Ui::KhronosSettings)
     {
     ui->setupUi(this);
+    bGPU = false;
 
     // Populate the controls appropriately
     ui->labelText->setText(qsText);
@@ -60,29 +95,87 @@ KhronosSettings::KhronosSettings(QWidget *parent,  QVector<TLayerSettings *>& la
     // Look for the log file name
     for(int i = 0; i < layerSettings.size(); i++) {
         if(layerSettings[i]->settingsName == QString("log_filename")) {
+            linkedSetting.push_back(layerSettings[i]);
             ui->lineEditLogFile->setText(layerSettings[i]->settingsValue);
             break;
             }
         }
 
-    // GPU specific?
+    // GPU specific? Auto detect it's presense
+    for(int i = 0; i < layerSettings.size(); i++) {
+        if(layerSettings[i]->settingsName == QString("enables")) {
+            linkedSetting.push_back(layerSettings[i]);
+
+            if(!(layerSettings[i]->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
+                 layerSettings[i]->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT"))) {
+                ui->groupBoxGPU->setVisible(false);
+                bGPU = false;
+                break;
+                }
+
+            bGPU = true;
+
+            // We are either GPU or debugprintf
+            if(layerSettings[i]->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
+                ui->radioButtonDebug->setChecked(true);
+                ui->checkReserve->setCheckState(Qt::Unchecked);
+                ui->checkReserve->setEnabled(false);
+                }
+            else { // GPU assisted
+                ui->radioButtonGPU->setChecked(true);
+                ui->checkReserve->setEnabled(true);
+                ui->checkReserve->setChecked(layerSettings[i]->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"));
+                }
+
+            break;
+            }
+        }
 
 
     // Messages
+    for(int i = 0; i < layerSettings.size(); i++) {
+        if(layerSettings[i]->settingsName == QString("report_flags")) {
+            linkedSetting.push_back(layerSettings[i]);
+            ui->checkWarning->setChecked(layerSettings[i]->settingsValue.contains("warn"));
+            ui->checkInfo->setChecked(layerSettings[i]->settingsValue.contains("info"));
+            ui->checkDebug->setChecked(layerSettings[i]->settingsValue.contains("debug"));
+            ui->checkError->setChecked(layerSettings[i]->settingsValue.contains("error"));
+            ui->checkPerformance->setChecked(layerSettings[i]->settingsValue.contains("perf"));
+            break;
+            }
+        }
 
+    // ARM specific - We need a flag for this
+    for(int i = 0; i < layerSettings.size(); i++)
+        if(layerSettings[i]->settingsName == QString("enables")) {
+            if(!layerSettings[i]->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT")) {
+                ui->checkARM->setVisible(false);
+                break;
+                }
 
-    // ARM specific
-
-
-
-    ui->lineEditLogFile->setText("stdout");
-
+            //linkedSetting.push_back(layerSettings[i]); // This is already in the list
+            ui->checkARM->setChecked(layerSettings[i]->settingsValue.contains("VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM"));
+            break;
+            }
     }
 
 KhronosSettings::~KhronosSettings()
-{
+    {
     delete ui;
-}
+    }
+
+
+void KhronosSettings::on_radioButtonDebug_clicked(void)
+    {
+    ui->checkReserve->setChecked(false);
+    ui->checkReserve->setEnabled(false);
+    }
+
+
+void KhronosSettings::on_radioButtonGPU_clicked(void)
+    {
+    ui->checkReserve->setEnabled(true);
+    }
 
 
 ////////////////////////////////////////////////////////////////
@@ -95,4 +188,69 @@ void KhronosSettings::on_pushButtonBrowse_clicked(void)
 
     if(!file.isEmpty())
         ui->lineEditLogFile->setText(file);
+    }
+
+
+////////////////////////////////////////////////////////////////
+/// \brief KhronosSettings::CollectSettings
+/// Okay, get the settings
+bool KhronosSettings::CollectSettings(void)
+    {
+    // Debug action
+    int nSel = ui->comboAction->currentIndex();
+    if(nSel == 0)
+        linkedSetting[0]->settingsValue = ""; // None
+    else
+        linkedSetting[0]->settingsValue = linkedSetting[0]->settingsListExclusiveValue[nSel -1];
+
+    // Log file name
+    linkedSetting[1]->settingsValue = ui->lineEditLogFile->text();
+
+    // GPU
+    if(bGPU) {
+        if(ui->radioButtonGPU->isChecked()) {
+            AddString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
+            RemoveString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
+            if(ui->checkReserve)
+                AddString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
+            else
+                RemoveString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
+            }
+        else {  // Debug Printf
+            RemoveString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
+            AddString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
+            RemoveString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
+            }
+        }
+
+    // Messages
+    QStringList messages;
+    if(ui->checkInfo->isChecked())
+        messages << "info";
+
+    if(ui->checkError->isChecked())
+        messages << "error";
+
+    if(ui->checkWarning->isChecked())
+        messages << "warn";
+
+    if(ui->checkDebug->isChecked())
+        messages << "debug";
+
+    if(ui->checkPerformance->isChecked())
+        messages << "perf";
+
+    linkedSetting[3]->settingsValue = messages.join(",");
+
+    // ARM setting
+    // (this is the same setting slot as the GPU stuff)
+    if(ui->checkARM->isChecked())
+       // Make sure arm is included
+        // We can tack it onto the end because we know it also contains VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT
+        AddString(linkedSetting[2]->settingsValue, "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM");
+    else
+        // Make sure arm is not included
+        RemoveString(linkedSetting[2]->settingsValue, "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM");
+
+    return true;
     }

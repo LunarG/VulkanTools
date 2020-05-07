@@ -84,7 +84,7 @@
                 "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
                 "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM specific validation"
                 },
-                "default": ["VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT",
+                "default": ["VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
                             "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
                             ]
             }

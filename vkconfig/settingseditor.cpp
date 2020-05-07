@@ -33,6 +33,7 @@
 CSettingsEditor::CSettingsEditor()
     {
     pEditArea = nullptr;
+    pKhronosEditor = nullptr;
     inputControls.reserve(100);
     prompts.reserve(100);
     bEnabled = true;
@@ -72,10 +73,21 @@ void CSettingsEditor::SetEnabled(bool bEnable) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Creates controls and sets up any signals.
-// If bSharedOnly is true, then only show the khronos common edit fields.
-// If bSharedOnly is false, then show everything BUT the khronos common edit fields.
-void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bSharedOnly, QString qsMessage)
+// If bKhronosEditor is true, then only show the khronos common edit fields.
+// If bKhronosEditor is false, then show everything BUT the khronos common edit fields.
+void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bKhronosEditor, QString qsMessage)
     {
+    // Khronos common editor has a whole different interface
+    if(bKhronosEditor) {
+        if(pKhronosEditor) delete pKhronosEditor;
+        pKhronosEditor = new KhronosSettings(nullptr, layerSettings, qsMessage);
+        //pKhronosEditor->setMinimumSize(QSize(400, 1024)); //(nRowHeight * (layerSettings.size()+2))));
+        pDestination->setWidget(pKhronosEditor);
+        pKhronosEditor->show();
+        return;
+        }
+
+
     int nRowHeight = 24;
     int nVerticalPad = 10;
     int nCurrRow = 55;          // Where do we start
@@ -134,12 +146,12 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
     for(int iSetting = 0; iSetting < layerSettings.size(); iSetting++) {
         // Okay, we needto know if we only want the shared settings
         // or not. Skip them otherwise
-        // This works from the editor, when bSharedOnly is false
-        if((layerSettings[iSetting]->commonKhronosEdit && !bSharedOnly))
+        // This works from the editor, when bKhronosEditor is false
+        if((layerSettings[iSetting]->commonKhronosEdit && !bKhronosEditor))
             continue;
 
-        // On main screen, bSharedOnly is true
-         if(!layerSettings[iSetting]->commonKhronosEdit && bSharedOnly)
+        // On main screen, bKhronosEditor is true
+         if(!layerSettings[iSetting]->commonKhronosEdit && bKhronosEditor)
             continue;
 
         // Prompt doesn't matter what the data type is
@@ -319,6 +331,11 @@ bool CSettingsEditor::CollectSettings()
     {
     bool bDirty = false;    // Any single field change flips this
 
+    if(pKhronosEditor) {
+        bDirty = pKhronosEditor->CollectSettings();
+        return bDirty;
+        }
+
     // Step through all the edit controls and settings in parallel
     for(int iSetting = 0; iSetting < linkedSetting.size(); iSetting++)
         {
@@ -421,6 +438,11 @@ bool CSettingsEditor::CollectSettings()
 // Okay, remove the control, disconnect any signals and free the memory up.
 void CSettingsEditor::CleanupGUI(void)
     {
+    if(pKhronosEditor) {
+        delete pKhronosEditor;
+        pKhronosEditor = nullptr;
+        }
+
     // Don't delete the controls, they are parented by pEditArea
     inputControls.clear();
     prompts.clear();
