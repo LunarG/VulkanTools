@@ -127,6 +127,8 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
 
         pVulkanConfig->appList << appWithPath;
         ui->listWidget->addItem(appWithPath);
+        pVulkanConfig->saveAppList();
+        pVulkanConfig->RefreshProfile();
         }
     }
 
@@ -145,6 +147,9 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void)
 
     if(ui->listWidget->currentRow() == -1)
         ui->pushButtonRemove->setEnabled(false);
+
+    pVulkanConfig->saveAppList();
+    pVulkanConfig->RefreshProfile();
     }
 
 ///////////////////////////////////////////////////////////////////////////////

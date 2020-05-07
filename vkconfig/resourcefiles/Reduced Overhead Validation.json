@@ -73,7 +73,7 @@
                             "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET"]
             },
             "enables": {
-                "common_edit": true,
+                "common_edit": false,
                 "name": "Enables",
                 "description": "Setting an option here will enable specialized areas of validation",
                 "type": "multi_enum",

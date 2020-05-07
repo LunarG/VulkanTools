@@ -170,11 +170,15 @@ public:
     CProfileDef* FindProfile(QString profileName);
     CProfileDef* LoadProfile(QString pathToProfile);        // Load .profile descriptor
     void loadAllProfiles(void);                             // Load all the .profile files found
-    void SaveProfile(CProfileDef *pProfile);     // Write .profile descriptor
+    void SaveProfile(CProfileDef *pProfile);                // Write .profile descriptor
 
     // Set this as the current override profile
     void SetCurrentActiveProfile(CProfileDef *pProfile);
     CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
+    void RefreshProfile(void) {
+                if(pActiveProfile)
+                    SetCurrentActiveProfile(pActiveProfile);
+                }
 
     QString getProfilePath(void) { return qsProfileFilesPath; }
 

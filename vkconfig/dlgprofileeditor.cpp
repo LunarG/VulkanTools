@@ -68,17 +68,6 @@ PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
     // First, naive, check based on the 'Magic' number in the Optional Header.
     PE_ARCHITECTURE architecture = (PE_ARCHITECTURE)pNtHd->OptionalHeader.Magic;
 
-    // If the architecture is x86, there is still a possibility that the image is 'AnyCPU'
-    if (architecture == PE_ARCHITECTURE_X86) {
-        IMAGE_DATA_DIRECTORY comDirectory = pNtHd->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR];
-        if (comDirectory.Size) {
-            IMAGE_COR20_HEADER *pClrHd = (IMAGE_COR20_HEADER*)GetOffsetFromRva(pDosHd, pNtHd, comDirectory.VirtualAddress);
-            // Check to see if the CLR header contains the 32BITONLY flag, if not then the image is actually AnyCpu
-            if ((pClrHd->Flags & COMIMAGE_FLAGS_32BITREQUIRED) == 0)
-                architecture = PE_ARCHITECTURE_ANYCPU;
-        }
-    }
-
     return architecture;
 }
 
@@ -105,7 +94,7 @@ bool isDLL32Bit(QString qsFileAndPath)
     // This is the minimum page size on any OS (I might be wrong,
     // it could be 4096), so going lower is not really helpful.
     // Changed to 4096 on a whim; looking for crashing bug I can't debug
-    void *pHeader = file.map(0, 4096, QFileDevice::NoOptions);
+    void *pHeader = file.map(0, 4096, QFileDevice::MapPrivateOption);
 
     // Another punt as we may not be able to map the file
     if(pHeader == nullptr)
@@ -175,7 +164,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         // AND we need to modify the name since we are making a copy
         if(pProfileToEdit->bFixedProfile) {
             pThisProfile->qsFileName = "";
-            pThisProfile->qsProfileName += " (Duplicate)";
+            pThisProfile->qsProfileName += "-Duplicate";
             title = tr("Save Duplicate Configuration");
             }
         else
@@ -503,9 +492,6 @@ void dlgProfileEditor::layerUseChanged(int nSelection)
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept()
     {
-    // Get the path where the profiles are saved
-    QString savePath = pVulkanConfig->getProfilePath();
-
     // Collect any remaining GUI edits
     settingsEditor.CollectSettings();
 
@@ -564,22 +550,24 @@ void dlgProfileEditor::accept()
             return;
         }
 
-    // Collapse the profile and remove unused layers
-    pThisProfile->CollapseProfile();
-
-    // Wa-wa-wait... no profiles without any layers buster
-//    if(pThisProfile->layers.size() == 0)
-//        {
-//        QMessageBox msg;
-//        msg.setInformativeText(tr("You cannot have a named configuration without any layers."));
-//        msg.setText(tr("Add some layers!"));
-//        msg.setStandardButtons(QMessageBox::Ok);
-//        msg.exec();
-//        return;
-//        }
-
+    // Prepare... get fully qualified file name, and double check if overwriting
     pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
-    savePath += pThisProfile->qsFileName;
+    QString savePath = pVulkanConfig->getProfilePath();
+    savePath += "/" + pThisProfile->qsFileName;
+
+    if(QDir().exists(savePath)) {
+        QMessageBox warning;
+        warning.setInformativeText(tr("Are you sure you want to overwrite this configuration?"));
+        warning.setText(pThisProfile->qsProfileName);
+        warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        warning.setDefaultButton(QMessageBox::No);
+        if(QMessageBox::No == warning.exec())
+            return; // No harm, no foul
+        }
+
+
+    // Collapse the profile and remove unused layers and write
+    pThisProfile->CollapseProfile();
     pVulkanConfig->SaveProfile(pThisProfile);
     pVulkanConfig->profileList.push_back(pThisProfile);
     QDialog::accept();

@@ -112,7 +112,7 @@ CVulkanConfiguration::CVulkanConfiguration()
         home.mkpath("vkconfig");
 
     qsProfileFilesPath += "LunarG/vkconfig";
-
+    qsProfileFilesPath = QDir::toNativeSeparators(qsProfileFilesPath);
 #else
     QDir home = QDir::home();
     qsProfileFilesPath = home.path() + QString("/.local/share/vulkan/");     // TBD, where do profiles go if not here...
@@ -870,6 +870,7 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "");
 
         // On Windows only, we need clear these values from the registry
+        // This works without any Win32 specific functions for the registry
  #ifdef _WIN32
         QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
         registry.remove(qsOverrideJsonPath);
@@ -951,8 +952,9 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         json_blacklist.append(pProfile->blacklistedLayers[i]);
 
     QJsonArray json_applist;
-    for(const QString &appName : appList)
-        json_applist.append(appName);
+    for(const QString &appName : appList) {
+        json_applist.append(QDir::toNativeSeparators(appName));
+        }
 
     QJsonObject disable;
     disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
@@ -984,10 +986,64 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
 
     // On Windows only, we need to write these values to the registry
 #ifdef _WIN32
-    QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
+/*    QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
     registry.setValue(qsOverrideJsonPath, 0);
     QSettings overrideSettings("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\Settings", QSettings::NativeFormat);
-    overrideSettings.setValue(qsOverrideSettingsPath, 0);
+    //overrideSettings.setValue(qsOverrideSettingsPath, QVariant()::DWORD(0));
+*/
+
+    HKEY key;
+    REGSAM access =  KEY_WRITE;
+    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    if (err != ERROR_SUCCESS)
+        return;
+
+
+    QString file_path;
+    DWORD value_count;
+    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
+    // I don't think we need this - Richard
+//    for (DWORD i = 0; i < value_count; ++i) {
+//        TCHAR buffer[WIN_BUFFER_SIZE];
+//        DWORD buff_size = WIN_BUFFER_SIZE;
+//        DWORD type, value, value_size = sizeof(value);
+//        RegEnumValue(key, i, buffer, &buff_size, NULL, &type, (BYTE*) &value, &value_size);
+
+//        if (type == REG_DWORD && value == 0)
+//            break;
+//        }
+
+//    if (file_path.isEmpty() && create_path) {
+//        QDir dir = QDir::temp();
+//        if (!dir.cd("VulkanLayerManager")) {
+//            dir.mkpath("VulkanLayerManager");
+//            dir.cd("VulkanLayerManager");
+//        }
+//        file_path = QDir::toNativeSeparators(dir.absoluteFilePath("VkLayer_override.json"));
+//        QByteArray file_path_bytes = file_path.toLocal8Bit();
+        DWORD value = 0;
+        RegSetValueEx(key, (LPCWSTR)qsOverrideJsonPath.utf16(), 0, REG_DWORD, (BYTE*) &value, sizeof(value));
+
+    RegCloseKey(key);
+
+
+
+
+    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
+                                 access, NULL, &key, NULL);
+    if (err != ERROR_SUCCESS)
+        return;
+
+    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
+    for (DWORD i = 0; i < value_count; ++i) {
+        TCHAR buffer[WIN_BUFFER_SIZE];
+        DWORD buff_size = WIN_BUFFER_SIZE;
+        DWORD type, value, value_size = sizeof(value);
+        RegEnumValue(key, i, buffer, &buff_size, NULL, &type, (BYTE *)&value, &value_size);
+        RegSetValueEx(key, (LPCWSTR)qsOverrideSettingsPath.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    }
+
+    RegCloseKey(key);
 #endif
     }
 

@@ -425,6 +425,11 @@ void MainWindow::on_pushButtonRemove_clicked()
     pVulkanConfig->loadAllProfiles();
     this->LoadProfileList();
     checkAppListState();
+
+    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
+        ui->pushButtonActivate->setText(tr("Activate"));
+        ui->pushButtonActivate->setEnabled(false);
+        }
     }
 
 void MainWindow::toolsSetCustomPaths(bool bChecked)
