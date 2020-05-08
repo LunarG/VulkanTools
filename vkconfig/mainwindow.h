@@ -62,6 +62,8 @@ protected:
 
     void ChangeActiveProfile(CProfileDef *pNewProfile);
 
+    virtual void closeEvent(QCloseEvent *event) override;
+
     dlgVulkanAnalysis *pVKVia;
     dlgVulkanInfo     *pVulkanInfo;
     dlgLayerOutput    *pTestEnv;
@@ -97,7 +99,6 @@ public Q_SLOTS:
     void on_pushButtonEdit_clicked(void);
     void on_pushButtonNewProfile_clicked(void);
     void on_pushButtonRemove_clicked(void);
-    void on_pushButtonDisable_clicked(void);
     void on_pushButtonActivate_clicked(void);
     void on_pushButtonLaunch_clicked(void);
 };

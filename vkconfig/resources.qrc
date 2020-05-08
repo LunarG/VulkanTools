@@ -6,8 +6,8 @@
         <file>resourcefiles/presets_info.json</file>
         <file>resourcefiles/Standard Validation.json</file>
         <file>resourcefiles/Best Practices Validation.json</file>
-        <file>resourcefiles/GPU-Assisted Validation.json</file>
-        <file>resourcefiles/Reduced Overhead Validation.json</file>
+        <file>resourcefiles/Shader Based Validation.json</file>
+        <file>resourcefiles/Low Overhead Validation.json</file>
         <file>resourcefiles/API dump.json</file>
     </qresource>
 </RCC>

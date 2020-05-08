@@ -311,9 +311,33 @@ void MainWindow::toolsVulkanAPIDump(bool bChecked)
 void MainWindow::fileExit(bool bChecked)
     {
     (void)bChecked;
+
+    int nRow = ui->listWidgetProfiles->currentRow();
+    if(nRow != -1) {
+        CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+
+        // Make sure we capture any changes.
+        if(settingsEditor.CollectSettings())
+            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
+        }
+
     close();
     }
 
+
+void MainWindow::closeEvent(QCloseEvent *event)
+    {
+    int nRow = ui->listWidgetProfiles->currentRow();
+    if(nRow != -1) {
+        CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+
+        // Make sure we capture any changes.
+        if(settingsEditor.CollectSettings())
+            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
+        }
+
+    event->accept();
+    }
 
 void MainWindow::fileHistory(bool bChecked)
 {
@@ -350,14 +374,14 @@ void MainWindow::on_pushButtonEdit_clicked(void)
     int nSelection = ui->listWidgetProfiles->currentRow();
     Q_ASSERT(nSelection >= 0);
 
-    // I may have made edits
-    settingsEditor.CollectSettings();
-
     // Which profile is selected?
     QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
     if(pItem != nullptr) {
         CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
         if(pProfileItem != nullptr) {
+            // Save current state before we go in
+            if(settingsEditor.CollectSettings())
+                pVulkanConfig->SaveProfile(pProfileItem->pProfilePointer);
             dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
             dlg.exec();
             pVulkanConfig->loadAllProfiles(); // Reset
@@ -483,14 +507,6 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
     pVulkanConfig->SetCurrentActiveProfile(pNewProfile);
     }
 
-//////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::on_pushButtonDisable_clicked
-/// Disable the currently active profile
-void MainWindow::on_pushButtonDisable_clicked()
-    {
-    ChangeActiveProfile(nullptr);
-//    settingsEditor.SetEnabled(true);
-    }
 
 //////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonActivate_clicked
@@ -499,8 +515,11 @@ void MainWindow::on_pushButtonActivate_clicked()
     {
     // Get the current profile and activate it
     int nRow = ui->listWidgetProfiles->currentRow();
-    settingsEditor.CollectSettings();
     CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+
+    // Make sure we capture any changes.
+    if(settingsEditor.CollectSettings())
+        pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
 
     // If something is active, we are deactivating it
     if(pVulkanConfig->GetCurrentActiveProfile() != nullptr) {
