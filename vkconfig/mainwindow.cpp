@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent)
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
 
     ///////////////////////////////////////////////
-    checkAppListState();
+    CheckAppListState();
     if(pVulkanConfig->appList.size() == 0)
         pVulkanConfig->SetCurrentActiveProfile(nullptr); // Just to be sure
 
@@ -119,7 +119,7 @@ void MainWindow::LoadProfileList(void)
 
     // Default profiles need the VK_LAYER_KHRONOS_validation layer.
     // If it's not found, we need to disable it.
-    bool bKhronosAvailable = (nullptr != pVulkanConfig->findLayerNamed("VK_LAYER_KHRONOS_validation"));
+    bool bKhronosAvailable = (nullptr != pVulkanConfig->FindLayerNamed("VK_LAYER_KHRONOS_validation"));
 
     // Add canned profiles first
     int nItemCount = 0;
@@ -199,7 +199,7 @@ void MainWindow::updateGetStartedStatus(QString qsText)
     }
 
 
-void MainWindow::checkAppListState(void)
+void MainWindow::CheckAppListState(void)
     {
     // Final check - if there are no apps, disable the profiles list
     if(pVulkanConfig->appList.length() == 0) {
@@ -354,7 +354,7 @@ void MainWindow::on_pushButtonAppList_clicked(void)
     {
     dlgCreateAssociation dlg(this);
     dlg.exec();
-    pVulkanConfig->saveAppList();
+    pVulkanConfig->SaveAppList();
 
     // If we come back and there are no apps in the app list, don't leave any holes
     if(pVulkanConfig->appList.size() == 0 && pVulkanConfig->GetCurrentActiveProfile() != nullptr) {
@@ -362,7 +362,7 @@ void MainWindow::on_pushButtonAppList_clicked(void)
         LoadProfileList();
         }
 
-    checkAppListState();
+    CheckAppListState();
     }
 
 
@@ -384,13 +384,13 @@ void MainWindow::on_pushButtonEdit_clicked(void)
                 pVulkanConfig->SaveProfile(pProfileItem->pProfilePointer);
             dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
             dlg.exec();
-            pVulkanConfig->loadAllProfiles(); // Reset
+            pVulkanConfig->LoadAllProfiles(); // Reset
             LoadProfileList();  // Force a reload
             if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
                 ui->pushButtonActivate->setEnabled(false);
             }
         }
-    checkAppListState();
+    CheckAppListState();
     }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -400,7 +400,7 @@ void MainWindow::on_pushButtonNewProfile_clicked(void)
     dlgProfileEditor dlg(this, nullptr);
     dlg.exec();
     LoadProfileList();  // force a reload
-    checkAppListState();
+    CheckAppListState();
     if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
         ui->pushButtonActivate->setEnabled(false);
     }
@@ -439,15 +439,15 @@ void MainWindow::on_pushButtonRemove_clicked()
         return; // No harm, no foul
 
     // Delete the file
-    QString completePath = pVulkanConfig->getProfilePath();
+    QString completePath = pVulkanConfig->GetProfilePath();
     completePath += "/";
     completePath += pProfileItem->pProfilePointer->qsFileName;
     remove(completePath.toUtf8().constData());
 
     // Reload profiles
-    pVulkanConfig->loadAllProfiles();
+    pVulkanConfig->LoadAllProfiles();
     this->LoadProfileList();
-    checkAppListState();
+    CheckAppListState();
 
     if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
         ui->pushButtonActivate->setText(tr("Activate"));
@@ -590,7 +590,7 @@ void MainWindow::selectedProfileChanged(void)
 
         settingsEditor.CleanupGUI();
         if(pSelectedItem->pProfilePointer->layers.size() > 0)
-            settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true,
+            settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, EDITOR_TYPE_KHRONOS,
                         pSelectedItem->pProfilePointer->qsDescription);
 
         return;
@@ -613,14 +613,14 @@ void MainWindow::selectedProfileChanged(void)
     // setup the GUI
     if(pSelectedItem->pProfilePointer->bContainsKhronosOutput) {
         settingsEditor.CleanupGUI();
-        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, true,
+        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, EDITOR_TYPE_KHRONOS,
                 pSelectedItem->pProfilePointer->qsDescription);
         }
     else {
         ui->pushButtonRemove->setEnabled(true);    // Only the ones you can edit can be deleted
         settingsEditor.CleanupGUI();
         QVector <TLayerSettings *> dummy;
-        settingsEditor.CreateGUI(ui->scrollArea, dummy, false, pSelectedItem->pProfilePointer->qsDescription);
+        settingsEditor.CreateGUI(ui->scrollArea, dummy, EDITOR_TYPE_GENERAL, pSelectedItem->pProfilePointer->qsDescription);
         }
     }
 

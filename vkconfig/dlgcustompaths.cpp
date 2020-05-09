@@ -34,7 +34,7 @@ dlgCustomPaths::dlgCustomPaths(QWidget *parent) :
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
 
-    repopulateTree();
+    RepopulateTree();
     }
 
 dlgCustomPaths::~dlgCustomPaths()
@@ -44,7 +44,7 @@ dlgCustomPaths::~dlgCustomPaths()
 
 
 
-void dlgCustomPaths::repopulateTree(void)
+void dlgCustomPaths::RepopulateTree(void)
     {
     ui->treeWidget->clear();
 
@@ -56,7 +56,7 @@ void dlgCustomPaths::repopulateTree(void)
 
         // Look for layers that are in this folder. If any are found, add them to the tree
         QVector <CLayerFile*>   customLayers;
-        pVulkanConfig->loadLayersFromPath(pVulkanConfig->additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
+        pVulkanConfig->LoadLayersFromPath(pVulkanConfig->additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
         for(int j = 0; j < customLayers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
@@ -83,11 +83,11 @@ void dlgCustomPaths::on_pushButtonAdd_clicked()
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, customFolder);
         ui->treeWidget->addTopLevelItem(pItem);
-        pVulkanConfig->saveAdditionalSearchPaths();
+        pVulkanConfig->SaveAdditionalSearchPaths();
 
-        pVulkanConfig->findAllInstalledLayers();
+        pVulkanConfig->FindAllInstalledLayers();
         bPathsChanged = true;
-        repopulateTree();
+        RepopulateTree();
         }
     }
 
@@ -129,8 +129,8 @@ void dlgCustomPaths::on_pushButtonRemove_clicked()
         }
 
     // Update GUI and save
-    repopulateTree();
-    pVulkanConfig->saveAdditionalSearchPaths();
-    pVulkanConfig->findAllInstalledLayers();
+    RepopulateTree();
+    pVulkanConfig->SaveAdditionalSearchPaths();
+    pVulkanConfig->FindAllInstalledLayers();
     bPathsChanged = true;
     }

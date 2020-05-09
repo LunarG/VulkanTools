@@ -25,39 +25,6 @@
 #include "ui_khronossettings.h"
 
 
-
-///////////////////////////////////////////////////////////////////////////////
-// delimted string is a comma delimited string. If value is found remove it
-QString RemoveString(QString delimitedString, QString value)
-    {
-    // Well, it's not there now is it...
-    if(!delimitedString.contains(value))
-        return delimitedString;
-
-    QStringList list = delimitedString.split(",");
-    for(int i = 0; i < list.size(); i++)
-        if(list[i] == value) {
-            list.removeAt(i);
-            break;
-            }
-
-    return list.join(",");
-    }
-
-/////////////////////////////////////////////////////////////////////////////////
-// Pretty simple, add to list if it's not already in it
-void AddString(QString delimitedString, QString value)
-    {
-    // Do I have anything to do?
-    if(delimitedString.contains(value)) // Nope
-        return;
-
-    delimitedString += ",";
-    delimitedString += value;
-    }
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief KhronosSettings::KhronosSettings
 /// \param parent       - Scroll area on the front dialog

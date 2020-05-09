@@ -57,7 +57,7 @@ protected:
     CVulkanConfiguration*    pVulkanConfig;
     CSettingsEditor          settingsEditor;
 
-    void checkAppListState(void);
+    void CheckAppListState(void);
     void LoadProfileList(void);
 
     void ChangeActiveProfile(CProfileDef *pNewProfile);

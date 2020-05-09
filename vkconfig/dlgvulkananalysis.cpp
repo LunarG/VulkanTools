@@ -114,59 +114,59 @@ void dlgVulkanAnalysis::RunTool(void)
     // Get the extensions object and process it's members
     QJsonValue environmentValue = jsonObject.value(QString(tr("Environment")));
     QJsonObject environmentObject = environmentValue.toObject();
-    loadTable(environmentObject, ui->envTable);
+    LoadTable(environmentObject, ui->envTable);
 
     QJsonValue hardwareValue = jsonObject.value(QString(tr("Hardware")));
     QJsonObject hardwareObject = hardwareValue.toObject();
-    loadTable(hardwareObject, ui->hardwareTable);
+    LoadTable(hardwareObject, ui->hardwareTable);
 
     QJsonValue executableValue = jsonObject.value(QString(tr("Executable Info")));
     QJsonObject executableObject = executableValue.toObject();
-    loadTable(executableObject, ui->executableTable);
+    LoadTable(executableObject, ui->executableTable);
 
     QJsonValue vkDriverInfo = jsonObject.value(QString(tr("Vulkan Driver Info")));
     QJsonObject vkDriverObject = vkDriverInfo.toObject();
-    loadTable(vkDriverObject, ui->vkDriverInfoTable);
+    LoadTable(vkDriverObject, ui->vkDriverInfoTable);
 
     QJsonValue vkRunTimeValue = jsonObject.value(QString(tr("Vulkan Runtimes")));
     QJsonObject vkRunTimeObject = vkRunTimeValue.toObject();
-    loadTable(vkRunTimeObject, ui->vkRuntimesTable);
+    LoadTable(vkRunTimeObject, ui->vkRuntimesTable);
 
     QJsonValue lunarGSDKValue = jsonObject.value(QString(tr("LunarG Vulkan SDKs")));
     QJsonObject lunarGSDKObject = lunarGSDKValue.toObject();
-    loadTable(lunarGSDKObject, ui->lunarGSDKTable);
+    LoadTable(lunarGSDKObject, ui->lunarGSDKTable);
 
     QJsonValue vkImplicitValue = jsonObject.value(QString(tr("Vulkan Implicit Layers")));
     QJsonObject vkImplicitObject = vkImplicitValue.toObject();
-    loadTable(vkImplicitObject, ui->implicitLayersTable);
+    LoadTable(vkImplicitObject, ui->implicitLayersTable);
 
     QJsonValue vkExplicitValue = jsonObject.value(QString(tr("Vulkan Explicit Layers")));
     QJsonObject vkExplicitObject = vkExplicitValue.toObject();
-    loadTable(vkExplicitObject, ui->explicitLayersTable);
+    LoadTable(vkExplicitObject, ui->explicitLayersTable);
 
     QJsonValue vkLayerSettingsValue = jsonObject.value(QString(tr("Vulkan Layer Settings File")));
     QJsonObject vkLayerSettingsObject = vkLayerSettingsValue.toObject();
-    loadTable(vkLayerSettingsObject, ui->layerSettingsTable);
+    LoadTable(vkLayerSettingsObject, ui->layerSettingsTable);
 
     /////////////////////////// Vulkan API Calls
     QJsonValue instanceValue = jsonObject.value(QString(tr("Instance")));
     QJsonObject instanceObject = instanceValue.toObject();
-    loadTable(instanceObject, ui->instanceTable);
+    LoadTable(instanceObject, ui->instanceTable);
 
     QJsonObject devicesObject = jsonObject.value(QString(tr("Physical Devices"))).toObject();
-    loadTable(devicesObject, ui->physicalDevicesTable);
+    LoadTable(devicesObject, ui->physicalDevicesTable);
 
     QJsonObject logicalObject = jsonObject.value(QString(tr("Logical Devices"))).toObject();
-    loadTable(logicalObject, ui->logicalDevicesTable);
+    LoadTable(logicalObject, ui->logicalDevicesTable);
 
     QJsonObject cleanupObject = jsonObject.value(QString(tr("Cleanup"))).toObject();
-    loadTable(cleanupObject, ui->cleanupTable);
+    LoadTable(cleanupObject, ui->cleanupTable);
 
     /////////////////////////////////// External Tests
     QJsonValue cubeValue = jsonObject.value(QString(tr("Cube"))).toObject();
     QJsonObject cubeObject = cubeValue.toObject();
     if(!cubeObject.isEmpty())
-        loadTable(cubeObject, ui->externalTestsTable);
+        LoadTable(cubeObject, ui->externalTestsTable);
     else
     {
         ui->externalTestsTable->setRowCount(1);
@@ -182,7 +182,7 @@ void dlgVulkanAnalysis::RunTool(void)
     }
 
 
-void dlgVulkanAnalysis::loadTable(QJsonObject& jsonParent, QTableWidget* pTable)
+void dlgVulkanAnalysis::LoadTable(QJsonObject& jsonParent, QTableWidget* pTable)
     {
     // How many items does this object contain?
     int nHowManyRows = jsonParent.size();

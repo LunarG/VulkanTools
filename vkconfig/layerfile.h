@@ -55,6 +55,9 @@ struct TLayerSettings {
     bool                    commonKhronosEdit;              // This setting is displayed only on the front panel.
     };
 
+QString RemoveString(QString delimitedString, QString value);
+void AddString(QString delimitedString, QString value);
+
 
 class CLayerFile : public QObject
 {
@@ -110,10 +113,10 @@ public:
         }
 
     // File based layers
-    bool readLayerFile(QString qsFullPathToFile, TLayerType layerKind);
+    bool ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind);
 
     // Utility, may move outside this class....
-    static bool loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers);
+    static bool LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers);
 
 };
 

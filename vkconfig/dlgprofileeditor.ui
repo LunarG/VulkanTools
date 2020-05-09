@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>880</width>
+    <width>757</width>
     <height>750</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
     <widget class="QGroupBox" name="groupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>1</horstretch>
+       <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
@@ -306,8 +306,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>809</width>
-           <height>228</height>
+           <width>700</width>
+           <height>253</height>
           </rect>
          </property>
         </widget>

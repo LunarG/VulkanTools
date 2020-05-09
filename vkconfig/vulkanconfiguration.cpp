@@ -148,12 +148,12 @@ CVulkanConfiguration::CVulkanConfiguration()
 #endif
     // Load simple app settings, the additional search paths, and the
     // override app list.
-    loadAppSettings();
-    loadAdditionalSearchPaths();
-    loadAppList();
-    loadDefaultLayerSettings();    // findAllInstalledLayers uses the results of this.
-    findAllInstalledLayers();
-    loadAllProfiles();
+    LoadAppSettings();
+    LoadAdditionalSearchPaths();
+    LoadAppList();
+    LoadDefaultLayerSettings();    // findAllInstalledLayers uses the results of this.
+    FindAllInstalledLayers();
+    LoadAllProfiles();
 
     // This will reset or clear the current profile if the files have been
     // manually manipulated
@@ -197,7 +197,7 @@ void CVulkanConfiguration::LoadDeviceRegistry(DEVINST id, const QString& entry, 
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
         for (wchar_t* curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
             CLayerFile *pLayerFile = new CLayerFile();
-            if(pLayerFile->readLayerFile(QString::fromWCharArray(curr_filename), type))
+            if(pLayerFile->ReadLayerFile(QString::fromWCharArray(curr_filename), type))
             layerList.push_back(pLayerFile);
             if (data_type == REG_SZ) {
                 break;
@@ -293,7 +293,7 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This is for the local application settings, not the system Vulkan settings
-void CVulkanConfiguration::loadAppSettings(void)
+void CVulkanConfiguration::LoadAppSettings(void)
     {
     // Load the launch app name from the last session
     QSettings settings;
@@ -306,7 +306,7 @@ void CVulkanConfiguration::loadAppSettings(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This is for the local application settings, not the system Vulkan settings
-void CVulkanConfiguration::saveAppSettings(void)
+void CVulkanConfiguration::SaveAppSettings(void)
     {
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP, qsLaunchApplicationWPath);
@@ -320,7 +320,7 @@ void CVulkanConfiguration::saveAppSettings(void)
 /// \brief CVulkanConfiguration::loadAdditionalSearchPaths
 /// We may have additional paths where we want to search for layers.
 /// Load the list of paths here.
-void CVulkanConfiguration::loadAdditionalSearchPaths(void)
+void CVulkanConfiguration::LoadAdditionalSearchPaths(void)
     {
     QSettings searchPaths;
     additionalSearchPaths = searchPaths.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList();
@@ -331,7 +331,7 @@ void CVulkanConfiguration::loadAdditionalSearchPaths(void)
 /// \brief saveAdditionalSearchPaths
 /// We may have additional paths where we want to search for layers.
 /// Save the list of paths here.
-void CVulkanConfiguration::saveAdditionalSearchPaths(void)
+void CVulkanConfiguration::SaveAdditionalSearchPaths(void)
     {
     QSettings searchPaths;
     searchPaths.setValue(VKCONFIG_KEY_CUSTOM_PATHS, additionalSearchPaths);
@@ -341,7 +341,7 @@ void CVulkanConfiguration::saveAdditionalSearchPaths(void)
 ///////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadAppList
 /// Load the custom application list
-void CVulkanConfiguration::loadAppList(void)
+void CVulkanConfiguration::LoadAppList(void)
     {
     QSettings appPaths;
     appList = appPaths.value(VKCONFIG_KEY_APPLIST).toStringList();
@@ -351,7 +351,7 @@ void CVulkanConfiguration::loadAppList(void)
 //////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::saveAppList
 /// Save the custom applicaiton list
-void CVulkanConfiguration::saveAppList(void)
+void CVulkanConfiguration::SaveAppList(void)
     {
     QSettings appPaths;
     appPaths.setValue(VKCONFIG_KEY_APPLIST, appList);
@@ -360,7 +360,7 @@ void CVulkanConfiguration::saveAppList(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Find all installed layers on the system.
-void CVulkanConfiguration::findAllInstalledLayers(void)
+void CVulkanConfiguration::FindAllInstalledLayers(void)
     {
     // This is called initially, but also when custom search paths are set, so
     // we need to clear out the old data and just do a clean refresh
@@ -370,14 +370,14 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
     for(uint32_t i = 0; i < nSearchPaths; i++) {
         TLayerType type = (szSearchPaths[i].contains("implicit", Qt::CaseInsensitive)) ? LAYER_TYPE_IMPLICIT : LAYER_TYPE_EXPLICIT;
         if(type == LAYER_TYPE_IMPLICIT)
-            loadLayersFromPath(szSearchPaths[i], allLayers, type);
+            LoadLayersFromPath(szSearchPaths[i], allLayers, type);
         else
-            loadLayersFromPath(szSearchPaths[i], allLayers, type);
+            LoadLayersFromPath(szSearchPaths[i], allLayers, type);
         }
 
     // Any custom paths? All layers from all paths are appended together here
     for(int i = 0; i < additionalSearchPaths.size(); i++)
-        loadLayersFromPath(additionalSearchPaths[i], allLayers, LAYER_TYPE_CUSTOM);
+        LoadLayersFromPath(additionalSearchPaths[i], allLayers, LAYER_TYPE_CUSTOM);
     }
 
 
@@ -388,7 +388,7 @@ void CVulkanConfiguration::findAllInstalledLayers(void)
 /// Search a folder and load up all the layers found there. This does NOT
 /// load the default settings for each layer. This is just a master list of
 /// settings to be copied from, and referenced.
-void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
+void CVulkanConfiguration::LoadLayersFromPath(const QString &qsPath,
                                QVector<CLayerFile *>& layerList, TLayerType type)
     {
     // On Windows custom files are in the file system. On non Windows all layers are
@@ -416,7 +416,7 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
 
     for(int iFile = 0; iFile < fileList.FileCount(); iFile++) {
         CLayerFile *pLayerFile = new CLayerFile();
-        if(pLayerFile->readLayerFile(fileList.GetFileName(iFile), type)) {
+        if(pLayerFile->ReadLayerFile(fileList.GetFileName(iFile), type)) {
             // Look for duplicates - Path name AND name must be the same TBD
             // nope, we are going to allow duplicates
 //            for(int i = 0; i < layerList.size(); i++)
@@ -440,7 +440,7 @@ void CVulkanConfiguration::loadLayersFromPath(const QString &qsPath,
 /// \param layerName
 /// \return
 /// Find the settings for this named layer. If none found, return nullptr
-const LayerSettingsDefaults* CVulkanConfiguration::findSettingsFor(QString layerName)
+const LayerSettingsDefaults* CVulkanConfiguration::FindSettingsFor(QString layerName)
     {
     for(int i = 0; i < defaultLayerSettings.size(); i++)
         if(layerName == defaultLayerSettings[i]->layerName)
@@ -469,7 +469,7 @@ CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
 /// \brief CVulkanConfiguration::loadProfiles
 /// Load all the  profiles. If the canned profiles don't exist,
 /// they are created from the embedded json files
-void CVulkanConfiguration::loadAllProfiles(void)
+void CVulkanConfiguration::LoadAllProfiles(void)
     {
     // This might be called to refresh the list...
     qDeleteAll(profileList.begin(), profileList.end());
@@ -527,7 +527,7 @@ void CVulkanConfiguration::loadAllProfiles(void)
 // This function loads the (currently four) sets of profile settings into
 // the defaults. These are all stored in layer_info.json
 // 4/8/2020
-void CVulkanConfiguration::loadDefaultLayerSettings(void)
+void CVulkanConfiguration::LoadDefaultLayerSettings(void)
     {
     // Load the main object into the json document
     QFile file(":/resourcefiles/layer_info.json");
@@ -563,7 +563,7 @@ void CVulkanConfiguration::loadDefaultLayerSettings(void)
         QJsonValue layerValue = layersOptionsObject.value(layersWithSettings[i]);
         QJsonObject layerObject = layerValue.toObject();
 
-        CLayerFile::loadSettingsFromJson(layerObject, pDefaults->defaultSettings);
+        CLayerFile::LoadSettingsFromJson(layerObject, pDefaults->defaultSettings);
 
         // Add to my list of layer settings
         defaultLayerSettings.push_back(pDefaults);
@@ -579,7 +579,7 @@ void CVulkanConfiguration::loadDefaultLayerSettings(void)
 /// To do a full match, not only the layer name, but the layer path/location
 /// must also be a match. It IS possible to have two layers with the same name
 /// as long as they are in different locations.
-const CLayerFile* CVulkanConfiguration::findLayerNamed(QString qsLayerName, const char* location)
+const CLayerFile* CVulkanConfiguration::FindLayerNamed(QString qsLayerName, const char* location)
     {
     // Search just by name
     if(location == nullptr) {
@@ -660,7 +660,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
         if(layerPath.isEmpty()) { // No layer path exists
             // Find this in our lookup of layers. The standard layers are listed first
-            pLayer = findLayerNamed(layerList[iLayer]);
+            pLayer = FindLayerNamed(layerList[iLayer]);
             if(pLayer == nullptr)           // If not found, we have a layer missing....
                 continue;
             }
@@ -669,7 +669,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
             // exist, allow just the name to match
             // (this fixes the problem with the API dump tool)
             // WAIT? Why both checking for path then?
-            pLayer = findLayerNamed(layerList[iLayer], layerPath.toUtf8().constData());
+            pLayer = FindLayerNamed(layerList[iLayer], layerPath.toUtf8().constData());
             if(pLayer == nullptr)
                 continue;   // We still can't find the layer
             }
@@ -686,7 +686,7 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
 
         // If any layer has the Khronos layer, add it here.
-        if(true == CLayerFile::loadSettingsFromJson(layerObject, pProfileLayer->layerSettings))
+        if(true == CLayerFile::LoadSettingsFromJson(layerObject, pProfileLayer->layerSettings))
             pProfile->bContainsKhronosOutput = true;
         }
 
@@ -867,7 +867,7 @@ CProfileDef* CVulkanConfiguration::CreateEmptyProfile()
 /// Load the default settings into an empty layer file container
 void CVulkanConfiguration::LoadDefaultSettings(CLayerFile* pBlankLayer)
     {
-    const LayerSettingsDefaults *pDefaults = findSettingsFor(pBlankLayer->name);
+    const LayerSettingsDefaults *pDefaults = FindSettingsFor(pBlankLayer->name);
 
     if(pDefaults == nullptr)  // Did we find any?
         return;
@@ -1083,7 +1083,7 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
 void CVulkanConfiguration::pushProfile(CProfileDef *pNew) {
         // Copy the working profile
         pSavedProfile = pActiveProfile;
-        CProfileDef *pCopy = pNew->duplicateProfile();
+        CProfileDef *pCopy = pNew->DuplicateProfile();
         pCopy->CollapseProfile();
 
         for(int iLayer = 0; iLayer < pCopy->layers.size(); iLayer++) // For each layer

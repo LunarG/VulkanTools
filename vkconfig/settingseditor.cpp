@@ -34,19 +34,20 @@ CSettingsEditor::CSettingsEditor()
     {
     pEditArea = nullptr;
     pKhronosEditor = nullptr;
+    pKhronosEditorAdvanced = nullptr;
     inputControls.reserve(100);
     prompts.reserve(100);
     bEnabled = true;
     pEnabledPrompt = nullptr;
     }
 
+///////////////////////////////////////////////////////////
+/// \brief CSettingsEditor::SetEnabled
+/// \param bEnable
+/// This never get's called on the front panel, only
+/// on the back advanced panel.
 void CSettingsEditor::SetEnabled(bool bEnable) {
     bEnabled = bEnable;
-
-    // Wait... if there are no settings, just return, otherwise we hide
-    // the prompt that tells the user that there are no settings.
-    if(inputControls.size() == 0)
-        return;
 
     for(int i = 0; i < inputControls.size(); i++)
         inputControls[i]->setHidden(!bEnabled);
@@ -56,8 +57,13 @@ void CSettingsEditor::SetEnabled(bool bEnable) {
         prompts[i]->setHidden(!bEnabled);
 
     if(!bEnabled)  {  // Show the prompt
+        if(pKhronosEditorAdvanced) {
+            pKhronosEditorAdvanced->SetEnabled(false);
+            return;
+            }
+
         if(pEnabledPrompt == nullptr)
-            pEnabledPrompt = new QLabel(pEditArea);
+            pEnabledPrompt = new QLabel(pEditArea); // Um... this is null when pKhronosEditorAdvanced is created.
 
         pEnabledPrompt->setText(tr("Layer must be enabled (Force On) to allow editing of settings."));
         pEnabledPrompt->setGeometry(6, 8, 300, 30);
@@ -68,6 +74,9 @@ void CSettingsEditor::SetEnabled(bool bEnable) {
     else { // Remove prompt
         delete pEnabledPrompt;
         pEnabledPrompt = nullptr;
+
+        if(pKhronosEditorAdvanced)
+            pKhronosEditorAdvanced->SetEnabled(true);
         }
     }
 
@@ -75,15 +84,26 @@ void CSettingsEditor::SetEnabled(bool bEnable) {
 // Creates controls and sets up any signals.
 // If bKhronosEditor is true, then only show the khronos common edit fields.
 // If bKhronosEditor is false, then show everything BUT the khronos common edit fields.
-void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bKhronosEditor, QString qsMessage)
+void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, int editorType, QString qsMessage)
     {
+    pScrollArea = pDestination;
+
     // Khronos common editor has a whole different interface
-    if(bKhronosEditor) {
+    if(editorType == EDITOR_TYPE_KHRONOS) {
         if(pKhronosEditor) delete pKhronosEditor;
         pKhronosEditor = new KhronosSettings(nullptr, layerSettings, qsMessage);
         //pKhronosEditor->setMinimumSize(QSize(400, 1024)); //(nRowHeight * (layerSettings.size()+2))));
         pDestination->setWidget(pKhronosEditor);
         pKhronosEditor->show();
+        return;
+        }
+
+    // Advanced Khronos editor
+    if(editorType == EDITOR_TYPE_kHRONOS_ADVANCED) {
+        if(pKhronosEditorAdvanced) delete pKhronosEditorAdvanced;
+        pKhronosEditorAdvanced = new KhronosSettingsAdvanced(nullptr, layerSettings, qsMessage);
+        pDestination->setWidget(pKhronosEditorAdvanced);
+        pKhronosEditorAdvanced->show();
         return;
         }
 
@@ -147,11 +167,11 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
         // Okay, we needto know if we only want the shared settings
         // or not. Skip them otherwise
         // This works from the editor, when bKhronosEditor is false
-        if((layerSettings[iSetting]->commonKhronosEdit && !bKhronosEditor))
+        if((layerSettings[iSetting]->commonKhronosEdit && (editorType == EDITOR_TYPE_GENERAL)))
             continue;
 
         // On main screen, bKhronosEditor is true
-         if(!layerSettings[iSetting]->commonKhronosEdit && bKhronosEditor)
+         if(!layerSettings[iSetting]->commonKhronosEdit && (editorType != EDITOR_TYPE_GENERAL))
             continue;
 
         // Prompt doesn't matter what the data type is
@@ -331,8 +351,15 @@ bool CSettingsEditor::CollectSettings()
     {
     bool bDirty = false;    // Any single field change flips this
 
+    // Front panel Khronos settings
     if(pKhronosEditor) {
         bDirty = pKhronosEditor->CollectSettings();
+        return bDirty;
+        }
+
+    // Advanced Khronos settings
+    if(pKhronosEditorAdvanced) {
+        bDirty = pKhronosEditorAdvanced->CollectSettings();
         return bDirty;
         }
 
@@ -441,6 +468,11 @@ void CSettingsEditor::CleanupGUI(void)
     if(pKhronosEditor) {
         delete pKhronosEditor;
         pKhronosEditor = nullptr;
+        }
+
+    if(pKhronosEditorAdvanced) {
+        delete pKhronosEditorAdvanced;
+        pKhronosEditorAdvanced = nullptr;
         }
 
     // Don't delete the controls, they are parented by pEditArea

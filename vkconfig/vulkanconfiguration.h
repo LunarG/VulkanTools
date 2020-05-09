@@ -114,8 +114,8 @@ public:
     ~CVulkanConfiguration();
 
     // Just local app settings
-    void loadAppSettings(void);
-    void saveAppSettings(void);
+    void LoadAppSettings(void);
+    void SaveAppSettings(void);
     QString qsLaunchApplicationWPath;
     QString qsLaunchApplicatinArgs;
     QString qsLaunchApplicationWorkingDir;
@@ -123,15 +123,15 @@ public:
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
-    void loadAdditionalSearchPaths(void);
-    void saveAdditionalSearchPaths(void);
+    void LoadAdditionalSearchPaths(void);
+    void SaveAdditionalSearchPaths(void);
     QStringList additionalSearchPaths;
 
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
     QStringList appList;
-    void loadAppList(void);
-    void saveAppList(void);
+    void LoadAppList(void);
+    void SaveAppList(void);
 
 
     ////////////////////////////////////////////////////////////////////////
@@ -139,8 +139,8 @@ public:
     // and their default values. This is for reference by individual profile
     // objects.
     QVector <LayerSettingsDefaults *> defaultLayerSettings;
-    void loadDefaultLayerSettings(void);
-    const LayerSettingsDefaults* findSettingsFor(QString layerName);
+    void LoadDefaultLayerSettings(void);
+    const LayerSettingsDefaults* FindSettingsFor(QString layerName);
     void LoadDefaultSettings(CLayerFile* pBlankLayer);
 
     ////////////////////////////////////////////////////////////////////////
@@ -150,9 +150,9 @@ public:
     // particular settings is done in the profile (CProfileDef - in profile list).
     // This includes all found implicit, explicit, or layers found in custom folders
     QVector <CLayerFile*>   allLayers;          // All the found layers, lumped together
-    void findAllInstalledLayers(void);
-    void loadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
-    const CLayerFile* findLayerNamed(QString qsLayerName, const char* location = nullptr);
+    void FindAllInstalledLayers(void);
+    void LoadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
+    const CLayerFile* FindLayerNamed(QString qsLayerName, const char* location = nullptr);
 
 
 
@@ -169,7 +169,7 @@ public:
     CProfileDef* CreateEmptyProfile(void);
     CProfileDef* FindProfile(QString profileName);
     CProfileDef* LoadProfile(QString pathToProfile);        // Load .profile descriptor
-    void loadAllProfiles(void);                             // Load all the .profile files found
+    void LoadAllProfiles(void);                             // Load all the .profile files found
     void SaveProfile(CProfileDef *pProfile);                // Write .profile descriptor
 
     // Set this as the current override profile
@@ -180,7 +180,7 @@ public:
                     SetCurrentActiveProfile(pActiveProfile);
                 }
 
-    QString getProfilePath(void) { return qsProfileFilesPath; }
+    QString GetProfilePath(void) { return qsProfileFilesPath; }
 
 protected:
     CVulkanConfiguration();

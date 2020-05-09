@@ -28,6 +28,39 @@
 #include <QMessageBox>
 
 
+////////// A couple of utility functions for building/modifying enable/disable lists
+
+///////////////////////////////////////////////////////////////////////////////
+// delimted string is a comma delimited string. If value is found remove it
+QString RemoveString(QString delimitedString, QString value)
+    {
+    // Well, it's not there now is it...
+    if(!delimitedString.contains(value))
+        return delimitedString;
+
+    QStringList list = delimitedString.split(",");
+    for(int i = 0; i < list.size(); i++)
+        if(list[i] == value) {
+            list.removeAt(i);
+            break;
+            }
+
+    return list.join(",");
+    }
+
+/////////////////////////////////////////////////////////////////////////////////
+// Pretty simple, add to list if it's not already in it
+void AddString(QString delimitedString, QString value)
+    {
+    // Do I have anything to do?
+    if(delimitedString.contains(value)) // Nope
+        return;
+
+    delimitedString += ",";
+    delimitedString += value;
+    }
+
+
 CLayerFile::CLayerFile()
     {
     bActive = false;
@@ -47,7 +80,7 @@ CLayerFile::~CLayerFile()
 /// \return true on success, false on failure.
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
-bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
+bool CLayerFile::ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind)
 {
     layerType = layerKind;           // Set layer type, no way to know this from the json file
 
@@ -121,7 +154,7 @@ bool CLayerFile::readLayerFile(QString qsFullPathToFile, TLayerType layerKind)
 
 
 ////////////////////////////////////////////////////////////////////////////
-bool CLayerFile::loadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers)
+bool CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers)
     {
     bool bHasKhronos = false;
 

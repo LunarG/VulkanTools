@@ -158,7 +158,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         QString title;
 
         // We are editing an exisitng profile. Make a copy of it
-        pThisProfile = pProfileToEdit->duplicateProfile();
+        pThisProfile = pProfileToEdit->DuplicateProfile();
 
         // IF this was a fixed profile, clear that setting
         // AND we need to modify the name since we are making a copy
@@ -201,7 +201,7 @@ void dlgProfileEditor::addMissingLayers(CProfileDef *pProfile)
         CLayerFile *pLayerThatMightBeMissing = pVulkanConfig->allLayers[iAvailable];
 
         // Look for through all layers
-        CLayerFile *pAreYouAlreadyThere = pProfile->findLayer(pLayerThatMightBeMissing->name, pLayerThatMightBeMissing->qsLayerPath);
+        CLayerFile *pAreYouAlreadyThere = pProfile->FindLayer(pLayerThatMightBeMissing->name, pLayerThatMightBeMissing->qsLayerPath);
         if(pAreYouAlreadyThere != nullptr) // It's in the list already
             continue;
 
@@ -405,8 +405,10 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     QString qsTitle = "Layer Settings (" + pCurrent->text(0);
     qsTitle += ")";
     ui->groupBoxSettings->setTitle(qsTitle);
-    settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, false,
-                             "");
+    if(pLayerItem->pLayer->name == QString("VK_LAYER_KHRONOS_validation"))
+        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_kHRONOS_ADVANCED, "");
+    else
+        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_GENERAL, "");
 
     // Is this layer Force on?
     settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
@@ -552,7 +554,7 @@ void dlgProfileEditor::accept()
 
     // Prepare... get fully qualified file name, and double check if overwriting
     pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
-    QString savePath = pVulkanConfig->getProfilePath();
+    QString savePath = pVulkanConfig->GetProfilePath();
     savePath += "/" + pThisProfile->qsFileName;
 
     if(QDir().exists(savePath)) {

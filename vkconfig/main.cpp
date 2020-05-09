@@ -17,12 +17,12 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include "mainwindow.h"
-
 #include <QApplication>
 
+#include "mainwindow.h"
+
 int main(int argc, char *argv[])
-{
+    {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
     QCoreApplication::setApplicationName("VkConfig");
@@ -42,4 +42,4 @@ int main(int argc, char *argv[])
 
     delete pModel; // Cleanup everything when app terminates
     return nRet;
-}
+    }

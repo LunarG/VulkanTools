@@ -30,6 +30,11 @@
 
 #include <layerfile.h>
 #include <khronossettings.h>
+#include <khronossettingsadvanced.h>
+
+#define     EDITOR_TYPE_GENERAL             0
+#define     EDITOR_TYPE_KHRONOS             1
+#define     EDITOR_TYPE_kHRONOS_ADVANCED    2
 
 class CSettingsEditor : public QObject
     {
@@ -39,7 +44,7 @@ public:
     CSettingsEditor();
 
     // Creates controls and sets up any signals
-    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, bool bKhronosEditor, QString qsMessage);
+    void CreateGUI(QScrollArea *pDestination, QVector<TLayerSettings *>& layerSettings, int editorType, QString qsMessage);
     void CleanupGUI(void);                  // Clears all the controls and deletes edit area
     bool CollectSettings(void);             // Transfer controls to layerSettings.
                                             // Returns false if no settings were changed
@@ -57,8 +62,10 @@ protected:
     QVector<QWidget *> inputControls;
     QVector<TLayerSettings *> linkedSetting;
 
-    QWidget         *pEditArea;
-    KhronosSettings *pKhronosEditor;
+    QWidget                 *pEditArea;
+    KhronosSettings         *pKhronosEditor;
+    KhronosSettingsAdvanced *pKhronosEditorAdvanced;
+
 
     ///////////////////////////////////////////////////////////////////
     // This might not be a good idea... but I think it's okay. There
@@ -73,6 +80,8 @@ protected:
     // is not enabled.
     bool        bEnabled;
     QLabel      *pEnabledPrompt;
+
+    QScrollArea *pScrollArea;
 
 public Q_SLOTS:
     void browseFileButtonPressed(void);

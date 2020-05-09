@@ -44,7 +44,7 @@ CProfileDef::~CProfileDef()
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
-CLayerFile* CProfileDef::findLayer(QString qsLayerName, QString qsFullPath)
+CLayerFile* CProfileDef::FindLayer(QString qsLayerName, QString qsFullPath)
     {
     for(int i = 0; i < layers.size(); i++)
         if(layers[i]->name == qsLayerName && layers[i]->qsLayerPath == qsFullPath)
@@ -55,7 +55,7 @@ CLayerFile* CProfileDef::findLayer(QString qsLayerName, QString qsFullPath)
 
 ////////////////////////////////////////////////////////////
 // Copy a profile so we can mess with it.
-CProfileDef* CProfileDef::duplicateProfile(void)
+CProfileDef* CProfileDef::DuplicateProfile(void)
     {
     CProfileDef *pDuplicate = new CProfileDef;
     pDuplicate->bContainsKhronosOutput = bContainsKhronosOutput;

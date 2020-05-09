@@ -46,9 +46,9 @@ public:
 
     QStringList     blacklistedLayers;                  // Just the names of blacklisted layers
 
-    CLayerFile*     findLayer(QString qsLayerName, QString qsFullPath);     // Find the layer if it exists
+    CLayerFile*     FindLayer(QString qsLayerName, QString qsFullPath);     // Find the layer if it exists
 
-    CProfileDef     *duplicateProfile(void);            // Copy a profile so we can mess with it
+    CProfileDef     *DuplicateProfile(void);            // Copy a profile so we can mess with it
 
     void            CollapseProfile(void);              // Remove unused layers and settings, set blacklist
 

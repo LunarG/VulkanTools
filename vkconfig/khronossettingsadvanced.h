@@ -1,5 +1,6 @@
-#ifndef DLGCUSTOMPATHS_H
-#define DLGCUSTOMPATHS_H
+#ifndef KHRONOSSETTINGSADVANCED_H
+#define KHRONOSSETTINGSADVANCED_H
+
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -17,39 +18,40 @@
  * limitations under the License.
  *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ *
+ * Khronos layer advanced settings dialog.
+ *
  */
 
+#include <QWidget>
+#include <QTreeWidgetItem>
 
-
-#include <QDialog>
-
-#include <vulkanconfiguration.h>
+#include <layerfile.h>
 
 namespace Ui {
-class dlgCustomPaths;
+class KhronosSettingsAdvanced;
 }
 
-class dlgCustomPaths : public QDialog
+class KhronosSettingsAdvanced : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit dlgCustomPaths(QWidget *parent = nullptr);
-    ~dlgCustomPaths();
+    explicit KhronosSettingsAdvanced(QWidget *parent,  QVector<TLayerSettings *>& layerSettings, QString qsText);
+    ~KhronosSettingsAdvanced();
 
-    bool        bPathsChanged;
+    bool CollectSettings(void);
+    void SetEnabled(bool bEnabled);
 
 private:
-    Ui::dlgCustomPaths *ui;
-
-    CVulkanConfiguration *pVulkanConfig;
-
-    void RepopulateTree(void);
+    Ui::KhronosSettingsAdvanced *ui;
+    QTreeWidgetItem *pCoreChecksParent;
 
 public Q_SLOTS:
-    void on_pushButtonAdd_clicked();
-    void on_pushButtonRemove_clicked();
-    void on_treeWidget_itemSelectionChanged();
+
+    void itemChanged(QTreeWidgetItem *pItem, int nColumn);
+    void gpuToggled(bool toggle);
+    void printfToggled(bool toggle);
 };
 
-#endif // DLGCUSTOMPATHS_H
+#endif // KHRONOSSETTINGSADVANCED_H

@@ -44,7 +44,7 @@ public:
     void RunTool(void);
 
 private:
-    void loadTable(QJsonObject& jsonParent, QTableWidget* pTable);
+    void LoadTable(QJsonObject& jsonParent, QTableWidget* pTable);
 
     Ui::dlgVulkanAnalysis *ui;
 };
