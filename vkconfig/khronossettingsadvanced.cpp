@@ -31,12 +31,12 @@ struct TREE_SETTING { QString prompt;
 
 
 
-static TREE_SETTING coreChecks[6] = { { "Disable Image Layout Validation", "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", nullptr},
-                       {"Disable Command Buffer State", "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE", nullptr},
-                       {"Disable Object in Use", "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE", nullptr},
-                       {"Disable Query Validation", "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION", nullptr},
-                       {"Disable Idle Descriptor Set", "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET", nullptr},
-                       {"Disable Push Constant Range", "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE", nullptr}};
+static TREE_SETTING coreChecks[6] = { { "Image Layout Validation", "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", nullptr},
+                       {"Command Buffer State", "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE", nullptr},
+                       {"Object in Use", "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE", nullptr},
+                       {"Query Validation", "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION", nullptr},
+                       {"Idle Descriptor Set", "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET", nullptr},
+                       {"Push Constant Range", "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE", nullptr}};
 
 
 static TREE_SETTING miscDisables[5] = { { "Thread Safety Checks", "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT", nullptr},
@@ -85,7 +85,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     /// If this is off, everyone below is disabled
     bool bCoreValidation = !pDisables->settingsValue.contains("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
     pCoreChecksParent = new QTreeWidgetItem();
-    pCoreChecksParent->setText(0, "Disable Core Validation Checks");
+    pCoreChecksParent->setText(0, "Core Validation Checks");
     pCoreChecksParent->setCheckState(0, (bCoreValidation) ? Qt::Checked : Qt::Unchecked);
     ui->treeWidget->addTopLevelItem(pCoreChecksParent);
 
@@ -95,10 +95,10 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
         pChild = new QTreeWidgetItem();
         pChild->setText(0, coreChecks[i].prompt);
         if(pDisables->settingsValue.contains(coreChecks[i].token) || bCoreValidation)
-            pChild->setCheckState(0, Qt::Unchecked);
-        else
             pChild->setCheckState(0, Qt::Checked);
-        if(bCoreValidation)
+        else
+            pChild->setCheckState(0, Qt::Unchecked);
+        if(!bCoreValidation)
             pChild->setFlags(pChild->flags() & ~Qt::ItemIsEnabled);
         pCoreChecksParent->addChild(pChild);
         coreChecks[i].pItem = pChild;
