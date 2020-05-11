@@ -589,7 +589,7 @@ void MainWindow::selectedProfileChanged(void)
         ui->groupBoxEditor->setTitle(title);
 
         settingsEditor.CleanupGUI();
-        if(pSelectedItem->pProfilePointer->layers.size() > 0)
+        if(pSelectedItem->pProfilePointer->layers.size() > 0 && pSelectedItem->pProfilePointer->bContainsKhronosOutput)
             settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, EDITOR_TYPE_KHRONOS,
                         pSelectedItem->pProfilePointer->qsDescription);
 
