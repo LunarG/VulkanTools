@@ -86,6 +86,9 @@ bool isDLL32Bit(QString qsFileAndPath)
 #ifndef _WIN32
     return false;
 #else
+    if(qsFileAndPath.isEmpty())
+        return false;
+
     QFile file(qsFileAndPath);
     if(!file.open(QIODevice::ReadOnly))
         return false; // punt...

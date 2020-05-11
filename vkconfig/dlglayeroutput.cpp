@@ -50,7 +50,7 @@ dlgLayerOutput::dlgLayerOutput(QWidget *parent, bool bTempEnv) :
 
     // Load up the GUI
     if(pVulkanConfig->qsLaunchApplicationWPath.isEmpty())
-        ui->labelLaunchApp->setText(tr("Luanch app not set"));
+        ui->labelLaunchApp->setText(tr("Launch app not set"));
     else
         ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
 
@@ -126,7 +126,7 @@ void dlgLayerOutput::on_pushButtonSetApp_clicked()
         tr("Select executable to monitor"), "/", fileWildcard);
 
     if(pVulkanConfig->qsLaunchApplicationWPath.isEmpty())
-        ui->labelLaunchApp->setText(tr("Luanch app not set"));
+        ui->labelLaunchApp->setText(tr("Launch app not set"));
     else {
         ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
 

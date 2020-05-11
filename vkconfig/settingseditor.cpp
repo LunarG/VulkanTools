@@ -215,7 +215,7 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
                 pFalse->setToolTip(layerSettings[iSetting]->settingsDesc);
                 pFalse->show();
 
-                if(layerSettings[iSetting]->settingsValue == QString("true"))
+                if(layerSettings[iSetting]->settingsValue == QString("TRUE"))
                     pTrue->setChecked(true);
                 else
                     pFalse->setChecked(true);
@@ -442,7 +442,7 @@ bool CSettingsEditor::CollectSettings()
                 Q_ASSERT(pTrueButton != nullptr);
                 QString curVal;
                 if(linkedSetting[iSetting]->settingsType == LAYER_SETTINGS_BOOL)
-                    curVal = (pTrueButton->isChecked()) ? QString("true") : QString("false");
+                    curVal = (pTrueButton->isChecked()) ? QString("TRUE") : QString("FALSE");
                 else
                     curVal = (pTrueButton->isChecked()) ? QString("1") : QString("0");
 

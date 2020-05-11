@@ -91,19 +91,19 @@
                 "name": "Detailed Output",
                 "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
                 "type": "bool",
-                "default": "true"
+                "default": "TRUE"
             },
             "no_addr": {
                 "name": "Hide Addresses",
                 "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
                 "type": "bool",
-                "default": "false"
+                "default": "FALSE"
             },
             "file": {
                 "name": "Output to File",
                 "description": "Setting this to true indicates that output should be written to file instead of stdout",
                 "type": "bool",
-                "default": "false"
+                "default": "FALSE"
             },
             "log_filename": {
                 "name": "Log Filename",
@@ -115,7 +115,7 @@
                 "name": "Flush",
                 "description": "Setting this to true causes IO to be flushed after each API call that is written",
                 "type": "bool",
-                "default": "true"
+                "default": "TRUE"
             },
             "indent_size": {
                 "name": "Indent Size",
@@ -127,7 +127,7 @@
                 "name": "Show Types",
                 "description": "Setting this to true causes types to be dumped in addition to values",
                 "type": "bool",
-                "default": "true"
+                "default": "TRUE"
             },
             "name_size": {
                 "name": "Name Size",
@@ -145,19 +145,19 @@
                 "name": "Use Spaces",
                 "description": "Setting this to true causes all tab characters to be replaced with spaces",
                 "type": "bool",
-                "default": "true"
+                "default": "TRUE"
             },
             "show_timestamp": {
                 "name": "Show Timestamp",
                 "description": "Show the timestamp of function calls since start in microseconds",
                 "type": "bool",
-                "default": "false"
+                "default": "FALSE"
             },
             "show_shader": {
                 "name": "Show Shader",
                 "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
                 "type": "bool",
-                "default": "false"
+                "default": "FALSE"
             },
             "output_range": {
                 "name": "Output Range",

@@ -679,6 +679,9 @@ const CLayerFile* CVulkanConfiguration::FindLayerNamed(QString qsLayerName, cons
 CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     {
     // Just load the name for now, and if it's read only
+    if(pathToProfile.isEmpty())
+        return nullptr;
+
     QFile file(pathToProfile);
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QString jsonText = file.readAll();
@@ -1040,7 +1043,6 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
             json_paths.append(qsPath);
             }
         }
-
 
     QJsonArray json_layers;
     for(int i = 0; i < pProfile->layers.size(); i++)

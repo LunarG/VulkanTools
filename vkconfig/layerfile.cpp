@@ -88,6 +88,9 @@ bool CLayerFile::ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind)
 
     // Open the file, should be text. Read it into a
     // temporary string.
+    if(qsFullPathToFile.isEmpty())
+        return false;
+
     QFile file(qsFullPathToFile);
      if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
          return false;
