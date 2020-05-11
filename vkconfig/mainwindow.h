@@ -29,6 +29,7 @@
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
 #include "dlglayeroutput.h"
+#include "dlghelp.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -67,6 +68,7 @@ protected:
     dlgVulkanAnalysis *pVKVia;
     dlgVulkanInfo     *pVulkanInfo;
     dlgLayerOutput    *pTestEnv;
+    dlgHelp           *pDlgHelp;
 
 private:
     Ui::MainWindow *ui;
@@ -90,6 +92,7 @@ public Q_SLOTS:
     void toolsVulkanTestApp(bool bChecked);
     void toolsVulkanAPIDump(bool bChecked);
     void toolsSetCustomPaths(bool bChecked);
+    void helpShowHelp(bool bChecked);
 
     void selectedProfileChanged(void);
 

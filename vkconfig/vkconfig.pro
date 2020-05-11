@@ -24,6 +24,7 @@ SOURCES += \
     dlgabout.cpp \
     dlgcreateassociation.cpp \
     dlgcustompaths.cpp \
+    dlghelp.cpp \
     dlghistory.cpp \
     dlglayeroutput.cpp \
     dlgprofileeditor.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
     dlgabout.h \
     dlgcreateassociation.h \
     dlgcustompaths.h \
+    dlghelp.h \
     dlghistory.h \
     dlglayeroutput.h \
     dlgprofileeditor.h \
@@ -59,6 +61,7 @@ FORMS += \
     dlgabout.ui \
     dlgcreateassociation.ui \
     dlgcustompaths.ui \
+    dlghelp.ui \
     dlghistory.ui \
     dlglayeroutput.ui \
     dlgprofileeditor.ui \

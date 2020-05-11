@@ -198,6 +198,10 @@ protected:
 #ifdef WIN32
     void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type);
     void LoadRegistryLayers(const QString &path, QVector<CLayerFile *>& layerList, TLayerType type);
+
+    void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
+    void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
+
 #endif
 };
 

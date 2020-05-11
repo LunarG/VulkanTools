@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     pVKVia = nullptr;
     pVulkanInfo = nullptr;
     pTestEnv = nullptr;
+    pDlgHelp = nullptr;
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
@@ -89,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionHistory, SIGNAL(triggered(bool)), this, SLOT(fileHistory(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(aboutVkConfig(bool)));
     connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
+    connect(ui->actionHelp, SIGNAL(triggered(bool)), this, SLOT(helpShowHelp(bool)));
 
     connect(ui->actionCustom_Layer_Paths, SIGNAL(triggered(bool)), this, SLOT(toolsSetCustomPaths(bool)));
 
@@ -324,6 +326,18 @@ void MainWindow::fileExit(bool bChecked)
     close();
     }
 
+////////////////////////////////////////////////////////////////
+/// \brief MainWindow::helpShowHelp
+/// \param bChecked
+/// Show help, which is just a rich text file
+void MainWindow::helpShowHelp(bool bChecked)
+    {
+    (void)bChecked;
+    if(pDlgHelp == nullptr)
+        pDlgHelp = new dlgHelp(nullptr);
+
+    pDlgHelp->show();
+    }
 
 void MainWindow::closeEvent(QCloseEvent *event)
     {

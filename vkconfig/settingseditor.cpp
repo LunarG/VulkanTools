@@ -386,6 +386,9 @@ bool CSettingsEditor::CollectSettings()
 
                 if(linkedSetting[iSetting]->settingsValue != pEdit->text()) {
                     linkedSetting[iSetting]->settingsValue = pEdit->text();
+                    // Make sure we don't have any forward slashes on Windows
+                    linkedSetting[iSetting]->settingsValue = QDir::toNativeSeparators(linkedSetting[iSetting]->settingsValue);
+
                     bDirty = true;
                    }
                 iSetting++; // Skip the button control which is next

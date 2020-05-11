@@ -60,7 +60,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     ui->labelHideMessage->setVisible(true);
 
     // Find the enables
-    TLayerSettings *pEnables = nullptr;
+    pEnables = nullptr;
     for(int i = 0; i < layerSettings.size(); i++)
         if(layerSettings[i]->settingsName == QString("enables")) {
             pEnables = layerSettings[i];
@@ -69,7 +69,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     Q_ASSERT(pEnables != nullptr);
 
     // Find the disables
-    TLayerSettings *pDisables = nullptr;
+    pDisables = nullptr;
     for(int i = 0; i < layerSettings.size(); i++)
         if(layerSettings[i]->settingsName == QString("disables")) {
             pDisables = layerSettings[i];
@@ -94,10 +94,10 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     for(int i = 0; i < 6; i++) {
         pChild = new QTreeWidgetItem();
         pChild->setText(0, coreChecks[i].prompt);
-        if(pDisables->settingsValue.contains(coreChecks[i].token) || bCoreValidation)
-            pChild->setCheckState(0, Qt::Checked);
-        else
+        if(pDisables->settingsValue.contains(coreChecks[i].token))
             pChild->setCheckState(0, Qt::Unchecked);
+        else
+            pChild->setCheckState(0, Qt::Checked);
         if(!bCoreValidation)
             pChild->setFlags(pChild->flags() & ~Qt::ItemIsEnabled);
         pCoreChecksParent->addChild(pChild);
@@ -162,7 +162,6 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
     connect(ui->radioButtonGPU, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
     connect(ui->radioButtonDebug, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
-
     }
 
 KhronosSettingsAdvanced::~KhronosSettingsAdvanced()
@@ -207,8 +206,10 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
     if(pItem == pCoreChecksParent) {
         // If checked, enable all below it.
         if(pItem->checkState(0) == Qt::Checked) {
-            for(int i = 0; i < 6; i++)
+            for(int i = 0; i < 6; i++) {
                 coreChecks[i].pItem->setFlags(coreChecks[i].pItem->flags() | Qt::ItemIsEnabled);
+                coreChecks[i].pItem->setCheckState(0, Qt::Checked);
+                }
             } else {     // If unchecked both clear, and disable all below it
                 for(int i = 0; i < 6; i++) {
                  coreChecks[i].pItem->setFlags(coreChecks[i].pItem->flags() & ~Qt::ItemIsEnabled);
@@ -269,10 +270,16 @@ bool KhronosSettingsAdvanced::CollectSettings(void)
             }
 
     // Core checks. These are actually disables
-    if(pCoreChecksParent->checkState(0) == Qt::Checked)
+    if(pCoreChecksParent->checkState(0) == Qt::Checked) {
         for(int i = 0; i < 6; i++)
             if(coreChecks[i].pItem->checkState(0) != Qt::Checked)
                 AddString(disables, coreChecks[i].token);
+        }
+    else
+        AddString(disables, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+
+    pDisables->settingsValue = disables;
+    pEnables->settingsValue = enables;
 
     return true;
     }

@@ -175,6 +175,13 @@ void CVulkanConfiguration::clearLayerLists(void)
     }
 
 #ifdef _WIN32
+///////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::LoadDeviceRegistry
+/// \param id
+/// \param entry
+/// \param layerList
+/// \param type
+/// Look for device specific layers
 void CVulkanConfiguration::LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type) {
     HKEY key;
     if(CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS)
@@ -210,7 +217,8 @@ void CVulkanConfiguration::LoadDeviceRegistry(DEVINST id, const QString& entry, 
 }
 
 ////////////////////////////////////////////////////////////////
-/// This is for Windows only
+/// This is for Windows only. It looks for device specific layers in
+/// the Windows registry.
 void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLayerFile *>& layerList, TLayerType type) {
 
     QString root_string = path.section('\\', 0, 0);
@@ -287,6 +295,72 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
         delete[] device_names;
     }
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::AddRegistryEntriesForLayers
+/// \param qsJSONFile
+/// \param qsSettingsFile
+/// On Windows the overide json file and settings file are not used unless the path to those
+/// files are stored in the registry.
+void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile)
+    {
+    // Layer override json file
+    HKEY key;
+    REGSAM access =  KEY_WRITE;
+    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    if (err != ERROR_SUCCESS)
+        return;
+
+    QString file_path;
+    DWORD value_count;
+    DWORD value = 0;
+    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
+    RegSetValueEx(key, (LPCWSTR)qsJSONFile.utf16(), 0, REG_DWORD, (BYTE*) &value, sizeof(value));
+    RegCloseKey(key);
+
+
+    // Layer settings file
+    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
+                                 access, NULL, &key, NULL);
+    if (err != ERROR_SUCCESS)
+        return;
+
+    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
+    RegSetValueEx(key, (LPCWSTR)qsSettingsFile.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    RegCloseKey(key);
+    }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief CVulkanConfiguration::AddRegistryEntriesForLayers
+/// \param qsJSONFile
+/// \param qsSettingsFile
+/// On Windows the overide json file and settings file are not used unless the path to those
+/// files are stored in the registry.
+void CVulkanConfiguration::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile)
+    {
+    // Layer override json file
+    HKEY key;
+    REGSAM access =  KEY_WRITE;
+    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    if (err != ERROR_SUCCESS)
+        return;
+
+    RegDeleteValue(key, (LPCWSTR)qsJSONFile.utf16());
+    RegCloseKey(key);
+
+
+    // Layer settings file
+    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
+                                 access, NULL, &key, NULL);
+    if (err != ERROR_SUCCESS)
+        return;
+
+    RegDeleteValue(key, (LPCWSTR)qsSettingsFile.utf16());
+    RegCloseKey(key);
+    }
+
 #endif
 
 
@@ -900,10 +974,7 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         // On Windows only, we need clear these values from the registry
         // This works without any Win32 specific functions for the registry
  #ifdef _WIN32
-        QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
-        registry.remove(qsOverrideJsonPath);
-        QSettings overrideSettings("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\Settings", QSettings::NativeFormat);
-        overrideSettings.remove(qsOverrideSettingsPath);
+        RemoveRegistryEntriesForLayers(qsOverrideJsonPath, qsOverrideSettingsPath); // Clear out the registry settings
  #endif
         return;
         }
@@ -1014,64 +1085,14 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
 
     // On Windows only, we need to write these values to the registry
 #ifdef _WIN32
+    // I'm leaving this here as a warning... the Qt wrappers WILL NOT allow the file path seperators in a key
+    // so you MUST use the native API to override this policy.
 /*    QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
     registry.setValue(qsOverrideJsonPath, 0);
     QSettings overrideSettings("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\Settings", QSettings::NativeFormat);
     //overrideSettings.setValue(qsOverrideSettingsPath, QVariant()::DWORD(0));
 */
-
-    HKEY key;
-    REGSAM access =  KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
-    if (err != ERROR_SUCCESS)
-        return;
-
-
-    QString file_path;
-    DWORD value_count;
-    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    // I don't think we need this - Richard
-//    for (DWORD i = 0; i < value_count; ++i) {
-//        TCHAR buffer[WIN_BUFFER_SIZE];
-//        DWORD buff_size = WIN_BUFFER_SIZE;
-//        DWORD type, value, value_size = sizeof(value);
-//        RegEnumValue(key, i, buffer, &buff_size, NULL, &type, (BYTE*) &value, &value_size);
-
-//        if (type == REG_DWORD && value == 0)
-//            break;
-//        }
-
-//    if (file_path.isEmpty() && create_path) {
-//        QDir dir = QDir::temp();
-//        if (!dir.cd("VulkanLayerManager")) {
-//            dir.mkpath("VulkanLayerManager");
-//            dir.cd("VulkanLayerManager");
-//        }
-//        file_path = QDir::toNativeSeparators(dir.absoluteFilePath("VkLayer_override.json"));
-//        QByteArray file_path_bytes = file_path.toLocal8Bit();
-        DWORD value = 0;
-        RegSetValueEx(key, (LPCWSTR)qsOverrideJsonPath.utf16(), 0, REG_DWORD, (BYTE*) &value, sizeof(value));
-
-    RegCloseKey(key);
-
-
-
-
-    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
-                                 access, NULL, &key, NULL);
-    if (err != ERROR_SUCCESS)
-        return;
-
-    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    for (DWORD i = 0; i < value_count; ++i) {
-        TCHAR buffer[WIN_BUFFER_SIZE];
-        DWORD buff_size = WIN_BUFFER_SIZE;
-        DWORD type, value, value_size = sizeof(value);
-        RegEnumValue(key, i, buffer, &buff_size, NULL, &type, (BYTE *)&value, &value_size);
-        RegSetValueEx(key, (LPCWSTR)qsOverrideSettingsPath.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
-    }
-
-    RegCloseKey(key);
+    AddRegistryEntriesForLayers(qsOverrideJsonPath, qsOverrideSettingsPath);
 #endif
     }
 

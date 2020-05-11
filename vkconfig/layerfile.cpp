@@ -32,7 +32,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // delimted string is a comma delimited string. If value is found remove it
-QString RemoveString(QString delimitedString, QString value)
+QString RemoveString(QString& delimitedString, QString value)
     {
     // Well, it's not there now is it...
     if(!delimitedString.contains(value))
@@ -50,13 +50,15 @@ QString RemoveString(QString delimitedString, QString value)
 
 /////////////////////////////////////////////////////////////////////////////////
 // Pretty simple, add to list if it's not already in it
-void AddString(QString delimitedString, QString value)
+void AddString(QString& delimitedString, QString value)
     {
     // Do I have anything to do?
     if(delimitedString.contains(value)) // Nope
         return;
 
-    delimitedString += ",";
+    if(!delimitedString.isEmpty())
+        delimitedString += ",";
+
     delimitedString += value;
     }
 

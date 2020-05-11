@@ -55,8 +55,8 @@ struct TLayerSettings {
     bool                    commonKhronosEdit;              // This setting is displayed only on the front panel.
     };
 
-QString RemoveString(QString delimitedString, QString value);
-void AddString(QString delimitedString, QString value);
+QString RemoveString(QString& delimitedString, QString value);
+void AddString(QString& delimitedString, QString value);
 
 
 class CLayerFile : public QObject

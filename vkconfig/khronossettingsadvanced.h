@@ -47,6 +47,9 @@ private:
     Ui::KhronosSettingsAdvanced *ui;
     QTreeWidgetItem *pCoreChecksParent;
 
+    TLayerSettings *pDisables;
+    TLayerSettings *pEnables;
+
 public Q_SLOTS:
 
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);
