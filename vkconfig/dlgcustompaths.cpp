@@ -83,9 +83,10 @@ void dlgCustomPaths::on_pushButtonAdd_clicked()
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, customFolder);
         ui->treeWidget->addTopLevelItem(pItem);
-        pVulkanConfig->SaveAdditionalSearchPaths();
 
+        pVulkanConfig->SaveAdditionalSearchPaths();
         pVulkanConfig->FindAllInstalledLayers();
+        pVulkanConfig->LoadAllProfiles();
         bPathsChanged = true;
         RepopulateTree();
         }
@@ -132,5 +133,6 @@ void dlgCustomPaths::on_pushButtonRemove_clicked()
     RepopulateTree();
     pVulkanConfig->SaveAdditionalSearchPaths();
     pVulkanConfig->FindAllInstalledLayers();
+    pVulkanConfig->LoadAllProfiles();
     bPathsChanged = true;
     }

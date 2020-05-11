@@ -428,6 +428,7 @@ void MainWindow::addCustomPaths()
     {
     dlgCustomPaths dlg(this);
     dlg.exec();
+    LoadProfileList();  // Force a reload
     }
 
 
@@ -460,7 +461,7 @@ void MainWindow::on_pushButtonRemove_clicked()
 
     // Reload profiles
     pVulkanConfig->LoadAllProfiles();
-    this->LoadProfileList();
+    LoadProfileList();
     CheckAppListState();
 
     if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
@@ -473,6 +474,7 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
     {
     (void)bChecked;
     addCustomPaths();
+    LoadProfileList();  // Force a reload
     }
 
 
