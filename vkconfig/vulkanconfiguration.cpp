@@ -491,15 +491,14 @@ void CVulkanConfiguration::LoadLayersFromPath(const QString &qsPath,
     for(int iFile = 0; iFile < fileList.FileCount(); iFile++) {
         CLayerFile *pLayerFile = new CLayerFile();
         if(pLayerFile->ReadLayerFile(fileList.GetFileName(iFile), type)) {
-            // Look for duplicates - Path name AND name must be the same TBD
-            // nope, we are going to allow duplicates
-//            for(int i = 0; i < layerList.size(); i++)
-//                if(layerList[i]->library_path == pLayerFile->library_path &&
-//                        layerList[i]->name == pLayerFile->name) {
-//                    delete pLayerFile;
-//                    pLayerFile = nullptr;
-//                    break;
-//                    }
+
+            // Do not load VK_LAYER_LUNARG_override
+            for(int i = 0; i < layerList.size(); i++)
+                if(QString("VK_LAYER_LUNARG_override") == pLayerFile->name) {
+                    delete pLayerFile;
+                    pLayerFile = nullptr;
+                    break;
+                    }
 
             // We have a layer! See if we need to add the settings list to it, and then add it to our list
             if(pLayerFile != nullptr)
@@ -761,10 +760,8 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
         pProfileLayer->nRank = layerRank.toInt();
         pProfileLayer->bActive = true;      // Always because it's present in the file
 
-
-        // If any layer has the Khronos layer, add it here.
-        if(true == CLayerFile::LoadSettingsFromJson(layerObject, pProfileLayer->layerSettings))
-            pProfile->bContainsKhronosOutput = true;
+        // Load the layer
+        CLayerFile::LoadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
         }
 
     // We need to sort the layers by their rank. The json sorts alphebetically and we

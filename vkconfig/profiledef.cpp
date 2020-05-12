@@ -32,7 +32,6 @@
 
 CProfileDef::CProfileDef()
     {
-    bContainsKhronosOutput = false;
     bFixedProfile = false;
     }
 
@@ -80,7 +79,6 @@ CLayerFile* CProfileDef::GetKhronosLayer(void)
 CProfileDef* CProfileDef::DuplicateProfile(void)
     {
     CProfileDef *pDuplicate = new CProfileDef;
-    pDuplicate->bContainsKhronosOutput = bContainsKhronosOutput;
     pDuplicate->qsProfileName = qsProfileName;
     pDuplicate->qsFileName = qsFileName;
     pDuplicate->qsDescription = qsDescription;
