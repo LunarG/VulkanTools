@@ -46,13 +46,13 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>275</width>
        <height>100</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>260</width>
+       <width>300</width>
        <height>100</height>
       </size>
      </property>
@@ -93,12 +93,12 @@
        <rect>
         <x>30</x>
         <y>70</y>
-        <width>221</width>
+        <width>241</width>
         <height>17</height>
        </rect>
       </property>
       <property name="text">
-       <string>Reserve a Desciptor Set Binding</string>
+       <string>Reserve Desciptor Set Binding</string>
       </property>
      </widget>
     </widget>
