@@ -66,7 +66,7 @@ void CSettingsEditor::SetEnabled(bool bEnable) {
             pEnabledPrompt = new QLabel(pEditArea); // Um... this is null when pKhronosEditorAdvanced is created.
 
         pEnabledPrompt->setText(tr("Layer must be enabled (Force On) to allow editing of settings."));
-        pEnabledPrompt->setGeometry(6, 8, 300, 30);
+        pEnabledPrompt->setGeometry(6, 8, 500, 30);
         pEnabledPrompt->setWordWrap(true);
         pEnabledPrompt->setAlignment(Qt::AlignTop);
         pEnabledPrompt->show();
