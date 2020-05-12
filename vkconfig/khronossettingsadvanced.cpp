@@ -98,8 +98,10 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
             pChild->setCheckState(0, Qt::Unchecked);
         else
             pChild->setCheckState(0, Qt::Checked);
+
         if(!bCoreValidation)
             pChild->setFlags(pChild->flags() & ~Qt::ItemIsEnabled);
+
         pCoreChecksParent->addChild(pChild);
         coreChecks[i].pItem = pChild;
         }
@@ -269,13 +271,13 @@ bool KhronosSettingsAdvanced::CollectSettings(void)
             AddString(disables, miscDisables[i].token);
             }
 
-    // Core checks. These are actually disables
+    // Core checks. If unchecked, then individual ones might still be checked
     if(pCoreChecksParent->checkState(0) == Qt::Checked) {
         for(int i = 0; i < 6; i++)
-            if(coreChecks[i].pItem->checkState(0) != Qt::Checked)
+            if(coreChecks[i].pItem->checkState(0) == Qt::Unchecked)
                 AddString(disables, coreChecks[i].token);
         }
-    else
+    else //Not checked, turn them all off
         AddString(disables, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
 
     pDisables->settingsValue = disables;

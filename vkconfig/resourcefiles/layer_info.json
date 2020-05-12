@@ -80,11 +80,11 @@
                 "name": "Output Format",
                 "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
                 "type": "enum",
-                "options": [
-                    "Text",
-                    "Html",
-                    "Json"
-                ],
+                "options": {
+                    "Text": "Text",
+                    "Html": "Html",
+                    "Json": "Json"
+                },
                 "default": "Text"
             },
             "detailed": {
