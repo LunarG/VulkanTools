@@ -609,7 +609,7 @@ void MainWindow::selectedProfileChanged(void)
 
         settingsEditor.CleanupGUI();
         Q_ASSERT(pKhronos != nullptr);
-        if(pSelectedItem->pProfilePointer->layers.size() > 0 && pSelectedItem->pProfilePointer->bContainsKhronosOutput)
+        if(pKhronos != nullptr)
             settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
                         pSelectedItem->pProfilePointer->qsDescription);
 
@@ -619,7 +619,6 @@ void MainWindow::selectedProfileChanged(void)
     // Something is selected, so we need to enable the button
     ui->pushButtonRemove->setEnabled(true);
 
-//    settingsEditor.SetEnabled(true);
     QString title = tr("Khronos Ouput Settings");
     title += " - ";
     title += pSelectedItem->pProfilePointer->qsProfileName;
@@ -631,7 +630,7 @@ void MainWindow::selectedProfileChanged(void)
 
     // Label the button appropriately, but if a canned profile, we do need to
     // setup the GUI
-    if(pSelectedItem->pProfilePointer->bContainsKhronosOutput) {
+    if(pKhronos != nullptr) {
         settingsEditor.CleanupGUI();
         Q_ASSERT(pKhronos != nullptr);
         settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,

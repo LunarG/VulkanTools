@@ -31,18 +31,18 @@ struct TREE_SETTING { QString prompt;
 
 
 
-static TREE_SETTING coreChecks[6] = { { "Image Layout Validation", "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", nullptr},
+static TREE_SETTING coreChecks[7] = { { "Image Layout Validation", "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", nullptr},
                        {"Command Buffer State", "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE", nullptr},
                        {"Object in Use", "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE", nullptr},
                        {"Query Validation", "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION", nullptr},
                        {"Idle Descriptor Set", "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET", nullptr},
+                       {"Shader Validation Checks", "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT", nullptr},
                        {"Push Constant Range", "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE", nullptr}};
 
 
-static TREE_SETTING miscDisables[5] = { { "Thread Safety Checks", "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT", nullptr},
+static TREE_SETTING miscDisables[4] = { { "Thread Safety Checks", "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT", nullptr},
                                {"Handle Wrapping", "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT", nullptr},
                                {"Object Lifetime Validation", "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT", nullptr},
-                               {"Shader Validation Checks", "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT", nullptr},
                                {"Stateless Parameter Checks", "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT", nullptr}};
 
 
@@ -91,7 +91,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
 
 
     QTreeWidgetItem *pChild;
-    for(int i = 0; i < 6; i++) {
+    for(int i = 0; i < 7; i++) {
         pChild = new QTreeWidgetItem();
         pChild->setText(0, coreChecks[i].prompt);
         if(pDisables->settingsValue.contains(coreChecks[i].token))
@@ -135,7 +135,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
 
     ///////////////////////////////////////////////////////////////
     // Miscellaneous disables
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i <4; i++) {
         pItem = new QTreeWidgetItem();
         pItem->setText(0, miscDisables[i].prompt);
         if(pDisables->settingsValue.contains(miscDisables[i].token))
@@ -208,12 +208,12 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
     if(pItem == pCoreChecksParent) {
         // If checked, enable all below it.
         if(pItem->checkState(0) == Qt::Checked) {
-            for(int i = 0; i < 6; i++) {
+            for(int i = 0; i < 7; i++) {
                 coreChecks[i].pItem->setFlags(coreChecks[i].pItem->flags() | Qt::ItemIsEnabled);
                 coreChecks[i].pItem->setCheckState(0, Qt::Checked);
                 }
             } else {     // If unchecked both clear, and disable all below it
-                for(int i = 0; i < 6; i++) {
+                for(int i = 0; i < 7; i++) {
                  coreChecks[i].pItem->setFlags(coreChecks[i].pItem->flags() & ~Qt::ItemIsEnabled);
                  coreChecks[i].pItem->setCheckState(0, Qt::Unchecked);
                  }
@@ -266,14 +266,14 @@ bool KhronosSettingsAdvanced::CollectSettings(void)
     // Everything else is a disable. Remember, these are backwards
     // because they are exposed to the end user as an enable.
     // If they are NOT checked, we add them to disables
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 4; i++) {
         if(miscDisables[i].pItem->checkState(0) != Qt::Checked)
             AddString(disables, miscDisables[i].token);
             }
 
     // Core checks. If unchecked, then individual ones might still be checked
     if(pCoreChecksParent->checkState(0) == Qt::Checked) {
-        for(int i = 0; i < 6; i++)
+        for(int i = 0; i < 7; i++)
             if(coreChecks[i].pItem->checkState(0) == Qt::Unchecked)
                 AddString(disables, coreChecks[i].token);
         }
