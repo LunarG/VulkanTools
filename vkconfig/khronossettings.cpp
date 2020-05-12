@@ -76,6 +76,10 @@ KhronosSettings::KhronosSettings(QWidget *parent,  QVector<TLayerSettings *>& la
             if(!(layerSettings[i]->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
                  layerSettings[i]->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT"))) {
                 ui->groupBoxGPU->setVisible(false);
+                ui->verticalSpacer_2->changeSize(0, 0);
+                ui->verticalSpacer_2->invalidate();
+                ui->verticalSpacer_3->changeSize(0, 10);
+                ui->verticalSpacer_3->invalidate();
                 bGPU = false;
                 break;
                 }
@@ -165,6 +169,7 @@ bool KhronosSettings::CollectSettings(void)
     {
     // Debug action
     int nSel = ui->comboAction->currentIndex();
+    Q_ASSERT(nSel != -1);
     if(nSel == 0)
         linkedSetting[0]->settingsValue = ""; // None
     else

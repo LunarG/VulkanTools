@@ -53,6 +53,28 @@ CLayerFile* CProfileDef::FindLayer(QString qsLayerName, QString qsFullPath)
     return nullptr;
     }
 
+///////////////////////////////////////////////////////////
+// Find the layer if it exists. Only care about the name
+CLayerFile* CProfileDef::FindLayerNamed(QString qsLayerName)
+    {
+    for(int i = 0; i < layers.size(); i++)
+        if(layers[i]->name == qsLayerName)
+            return layers[i];
+
+    return nullptr;
+    }
+
+
+
+///////////////////////////////////////////////////////////
+// Convienience function
+// Retrieve the Khronos validation layer if it is included
+CLayerFile* CProfileDef::GetKhronosLayer(void)
+    {
+    return FindLayerNamed("VK_LAYER_KHRONOS_validation");
+    }
+
+
 ////////////////////////////////////////////////////////////
 // Copy a profile so we can mess with it.
 CProfileDef* CProfileDef::DuplicateProfile(void)

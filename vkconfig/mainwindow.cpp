@@ -590,10 +590,13 @@ void MainWindow::selectedProfileChanged(void)
         ui->listWidgetProfiles->setCurrentRow(-1);
         ui->pushButtonEdit->setEnabled(true);
         ui->pushButtonRemove->setEnabled(false);    // Only the ones you can edit can be deleted
-//        settingsEditor.SetEnabled(false);
         ui->groupBoxEditor->setTitle(tr("Khronos Ouput Settings"));
         return; // This should never happen, but if they do, nothing is selected
         }
+
+
+    // We might need the Khronos layer
+    CLayerFile* pKhronos = pSelectedItem->pProfilePointer->GetKhronosLayer();
 
     // This is the currently active profile
     if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
@@ -605,8 +608,9 @@ void MainWindow::selectedProfileChanged(void)
         ui->groupBoxEditor->setTitle(title);
 
         settingsEditor.CleanupGUI();
+        Q_ASSERT(pKhronos != nullptr);
         if(pSelectedItem->pProfilePointer->layers.size() > 0 && pSelectedItem->pProfilePointer->bContainsKhronosOutput)
-            settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, EDITOR_TYPE_KHRONOS,
+            settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
                         pSelectedItem->pProfilePointer->qsDescription);
 
         return;
@@ -629,7 +633,8 @@ void MainWindow::selectedProfileChanged(void)
     // setup the GUI
     if(pSelectedItem->pProfilePointer->bContainsKhronosOutput) {
         settingsEditor.CleanupGUI();
-        settingsEditor.CreateGUI(ui->scrollArea, pSelectedItem->pProfilePointer->layers[0]->layerSettings, EDITOR_TYPE_KHRONOS,
+        Q_ASSERT(pKhronos != nullptr);
+        settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
                 pSelectedItem->pProfilePointer->qsDescription);
         }
     else {

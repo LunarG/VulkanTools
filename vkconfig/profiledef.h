@@ -47,11 +47,13 @@ public:
     QStringList     blacklistedLayers;                  // Just the names of blacklisted layers
 
     CLayerFile*     FindLayer(QString qsLayerName, QString qsFullPath);     // Find the layer if it exists
+    CLayerFile*     FindLayerNamed(QString qsLayerName);                    // Find the layer if it exists, only care about the name
 
     CProfileDef     *DuplicateProfile(void);            // Copy a profile so we can mess with it
 
     void            CollapseProfile(void);              // Remove unused layers and settings, set blacklist
 
+    CLayerFile      *GetKhronosLayer(void);             // Retrieve the Khronos validation layer if it is included
 };
 
 #endif // CPROFILEDEF_H
