@@ -9,7 +9,7 @@
 [3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
-Copyright &copy; 2015-2019 LunarG, Inc.
+Copyright &copy; 2015-2020 LunarG, Inc.
 
 # Vulkan Configurator (vkconfig)
 
