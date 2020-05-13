@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
     if(!bShowMe) {
         dlgBetaMessage beta(nullptr);
         beta.exec();
+
+        if(beta.bDontShow)
+            settings.setValue("VK_CONFIG_BETA_MESSAGE", true);
         }
 
     w.show();
