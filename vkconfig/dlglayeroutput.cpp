@@ -37,6 +37,8 @@ dlgLayerOutput::dlgLayerOutput(QWidget *parent, bool bTempEnv) :
     ui(new Ui::dlgLayerOutput)
     {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     vulkan_app = nullptr;
     pLogFile = nullptr;
     bTempEnvironment = bTempEnv;
