@@ -24,6 +24,7 @@ linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
     dlgabout.cpp \
+    dlgbetamessage.cpp \
     dlgcreateassociation.cpp \
     dlgcustompaths.cpp \
     dlghelp.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
 
 HEADERS += \
     dlgabout.h \
+    dlgbetamessage.h \
     dlgcreateassociation.h \
     dlgcustompaths.h \
     dlghelp.h \
@@ -61,6 +63,7 @@ HEADERS += \
 
 FORMS += \
     dlgabout.ui \
+    dlgbetamessage.ui \
     dlgcreateassociation.ui \
     dlgcustompaths.ui \
     dlghelp.ui \

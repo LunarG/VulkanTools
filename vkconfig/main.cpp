@@ -18,8 +18,10 @@
  */
 
 #include <QApplication>
+#include <QSettings>
 
 #include "mainwindow.h"
+#include "dlgbetamessage.h"
 
 int main(int argc, char *argv[])
     {
@@ -29,7 +31,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
     // Get and initialize the application model, which is essentially the Vulkan
     // configuration of the system.
@@ -37,8 +39,16 @@ int main(int argc, char *argv[])
 
     // The main GUI is driven here
     MainWindow w;
+
+    QSettings settings;
+    bool bShowMe = settings.value("VK_CONFIG_BETA_MESSAGE").toBool();
+    if(!bShowMe) {
+        dlgBetaMessage beta(nullptr);
+        beta.exec();
+        }
+
     w.show();
-    int nRet =  a.exec();
+    int nRet =  app.exec();
 
     delete pModel; // Cleanup everything when app terminates
     return nRet;
