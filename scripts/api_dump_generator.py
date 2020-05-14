@@ -618,11 +618,27 @@ inline std::ostream& dump_text_{etyName}({etyName} object, const ApiDumpSettings
 
 //========================= Basetype Implementations ========================//
 
-@foreach basetype
+@foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
 inline std::ostream& dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
     return settings.stream() << object;
 }}
+@end basetype
+@foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+inline std::ostream& dump_text_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << object;
+}}
+#endif
+@end basetype
+@foreach basetype where('{baseName}' in ['CAMetalLayer'])
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+inline std::ostream& dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << object;
+}}
+#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -1023,11 +1039,27 @@ inline std::ostream& dump_html_{etyName}({etyName} object, const ApiDumpSettings
 
 //========================= Basetype Implementations ========================//
 
-@foreach basetype
+@foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
 inline std::ostream& dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
     return settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }}
+@end basetype
+@foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+inline std::ostream& dump_html_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << "<div class='val'>" << object << "</div></summary>";
+}}
+#endif
+@end basetype
+@foreach basetype where('{baseName}' in ['CAMetalLayer'])
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+inline std::ostream& dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << "<div class='val'>" << object << "</div></summary>";
+}}
+#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -1438,11 +1470,27 @@ inline std::ostream& dump_json_{etyName}({etyName} object, const ApiDumpSettings
 
 //========================= Basetype Implementations ========================//
 
-@foreach basetype
+@foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
 inline std::ostream& dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
     return settings.stream() << "\\"" << object << "\\"";
 }}
+@end basetype
+@foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+inline std::ostream& dump_json_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << "\\"" << object << "\\"";
+}}
+#endif
+@end basetype
+@foreach basetype where('{baseName}' in ['CAMetalLayer'])
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+inline std::ostream& dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << "\\"" << object << "\\"";
+}}
+#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -1775,8 +1823,6 @@ std::ostream& dump_json_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
 
 POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer']
 
-DEFINE_TYPES = ['ANativeWindow', 'AHardwareBuffer']
-
 TRACKED_STATE = {
     'vkAllocateCommandBuffers':
         'if(result == VK_SUCCESS)\n' +
@@ -1984,8 +2030,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         # Find all of the extensions that use the system types
         self.sysTypes = set()
         for node in self.registry.reg.find('types').findall('type'):
-            if node.get('category') is None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform' or \
-                (node.find('name') is not None and node.find('name').text in DEFINE_TYPES): #Handle system types that are '#define'd in spec
+            if node.get('category') is None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform':
                 for extension in self.extTypes:
                     for structName in self.extTypes[extension].vktypes:
                         for struct in self.structs:
@@ -2433,11 +2478,12 @@ class VulkanEnum:
                 if ('dir' in child.keys()):
                     childValue = -childValue
                
-            # Check for duplicates, TODO: Maybe solve up a level
+            # Check for duplicates
             duplicate = False
             for o in self.options:
                 if o.values()['optName'] == childName:
                     duplicate = True
+                    break
             if duplicate:
                 continue
 
@@ -2446,6 +2492,14 @@ class VulkanEnum:
         for ext in extensions:
             if self.name in ext.enumValues:
                 childName, childValue = ext.enumValues[self.name]
+                duplicate = False
+                # Check for duplicates
+                for o in self.options:
+                    if o.values()['optName'] == childName:
+                        duplicate = True
+                        break
+                if duplicate:
+                    continue
                 self.options.append(VulkanEnum.Option(childName, childValue, None, None))
 
     def values(self):

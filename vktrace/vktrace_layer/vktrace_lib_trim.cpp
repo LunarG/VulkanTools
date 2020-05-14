@@ -3459,7 +3459,7 @@ void recreate_command_pools(StateTracker &stateTracker) {
         vktrace_delete_trace_packet_no_lock(&(poolObj->second.ObjectInfo.CommandPool.pCreatePacket));
 
         // Now allocate command buffers that were allocated on this pool
-        for (int32_t level = VK_COMMAND_BUFFER_LEVEL_BEGIN_RANGE; level <= VK_COMMAND_BUFFER_LEVEL_END_RANGE; level++) {
+        for (int32_t level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; level <= VK_COMMAND_BUFFER_LEVEL_SECONDARY; level++) {
             VkCommandBufferAllocateInfo allocateInfo;
             allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             allocateInfo.pNext = NULL;
@@ -5438,7 +5438,7 @@ void add_destroy_device_object_packets(VkDevice device) {
          obj++) {
         if (obj->second.belongsToDevice == device) {
             // free the command buffers
-            for (int32_t level = VK_COMMAND_BUFFER_LEVEL_BEGIN_RANGE; level < VK_COMMAND_BUFFER_LEVEL_END_RANGE; level++) {
+            for (int32_t level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; level < VK_COMMAND_BUFFER_LEVEL_SECONDARY; level++) {
                 uint32_t commandBufferCount = obj->second.ObjectInfo.CommandPool.numCommandBuffersAllocated[level];
                 if (commandBufferCount > 0) {
                     uint64_t vktrace_begin_time = vktrace_get_time();
