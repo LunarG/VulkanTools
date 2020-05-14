@@ -112,7 +112,7 @@ typedef struct _Trim_ObjectInfo {
         struct _CommandPool {  // VkCommandPool
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
-            uint32_t numCommandBuffersAllocated[VK_COMMAND_BUFFER_LEVEL_RANGE_SIZE];
+            uint32_t numCommandBuffersAllocated[VK_COMMAND_BUFFER_LEVEL_SECONDARY - VK_COMMAND_BUFFER_LEVEL_PRIMARY + 1];
             uint32_t queueFamilyIndex;
         } CommandPool;
         struct _SwapchainKHR {  // VkSwapchainKHR

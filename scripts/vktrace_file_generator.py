@@ -406,6 +406,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             info = self.getTypeNameTuple(member)
             type = info[0]
             name = info[1]
+            if name == '':
+                # param is inside <implicitexternsyncparams>, skip it
+                continue
             cdecl = self.makeCParamDecl(member, 0)
             # Check for parameter name in lens set
             iscount = True if name in lens else False
