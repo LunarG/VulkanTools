@@ -27,7 +27,6 @@ dlgBetaMessage::dlgBetaMessage(QWidget *parent) :
     ui(new Ui::dlgBetaMessage)
     {
     ui->setupUi(this);
-    ui->frame->setStyleSheet("background-color: rgb(0, 0, 0);");
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     bDontShow = false;
 
