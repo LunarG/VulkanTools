@@ -28,17 +28,17 @@
 
 #include "layer_locations_widget.h"
 
-LayerLocationsWidget::LayerLocationsWidget(QWidget *parent)
-    : QGroupBox(tr("Layer Locations"), parent)
-{
+LayerLocationsWidget::LayerLocationsWidget(QWidget *parent) : QGroupBox(tr("Layer Locations"), parent) {
     default_layer_locations = {
 #if defined(_WIN32)
         QPair<QString, LayerType>("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers", LayerType::Explicit),
         QPair<QString, LayerType>("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers", LayerType::Implicit),
         QPair<QString, LayerType>("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers", LayerType::Explicit),
         QPair<QString, LayerType>("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", LayerType::Implicit),
-        QPair<QString, LayerType>("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers", LayerType::Explicit),
-        QPair<QString, LayerType>("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers", LayerType::Implicit),
+        QPair<QString, LayerType>("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
+                                  LayerType::Explicit),
+        QPair<QString, LayerType>("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers",
+                                  LayerType::Implicit),
 #else
         QPair<QString, LayerType>("/usr/local/etc/vulkan/explicit_layer.d", LayerType::Explicit),
         QPair<QString, LayerType>("/usr/local/etc/vulkan/implicit_layer.d", LayerType::Implicit),
@@ -92,8 +92,7 @@ LayerLocationsWidget::LayerLocationsWidget(QWidget *parent)
     loadLayerPaths();
 }
 
-void LayerLocationsWidget::addLayerPath()
-{
+void LayerLocationsWidget::addLayerPath() {
     QString path = QFileDialog::getExistingDirectory(this, tr("Layer Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly);
     if (path == "") {
         return;
@@ -118,7 +117,7 @@ void LayerLocationsWidget::addLayerPath()
 
     // Check if the layer is already present in the list
     QDir new_path(path);
-    for (const auto& location : custom_layer_locations) {
+    for (const auto &location : custom_layer_locations) {
         if (QDir(location.first) == new_path) {
             return;
         }
@@ -133,8 +132,7 @@ void LayerLocationsWidget::addLayerPath()
     emit pathsChanged(currentLayerPaths(), custom_path_box->isChecked());
 }
 
-void LayerLocationsWidget::clearLayerPaths()
-{
+void LayerLocationsWidget::clearLayerPaths() {
     custom_layer_locations.clear();
     while (path_list->count() > 0) {
         delete path_list->takeItem(0);
@@ -143,9 +141,8 @@ void LayerLocationsWidget::clearLayerPaths()
     emit pathsChanged(currentLayerPaths(), custom_path_box->isChecked());
 }
 
-void LayerLocationsWidget::removeSelectedLayerPath()
-{
-    for(auto item : path_list->selectedItems()) {
+void LayerLocationsWidget::removeSelectedLayerPath() {
+    for (auto item : path_list->selectedItems()) {
         for (int i = 0; i < custom_layer_locations.count(); ++i) {
             if (custom_layer_locations[i].first == item->text()) {
                 custom_layer_locations.removeAt(i);
@@ -157,8 +154,7 @@ void LayerLocationsWidget::removeSelectedLayerPath()
     emit pathsChanged(currentLayerPaths(), custom_path_box->isChecked());
 }
 
-void LayerLocationsWidget::selectCustomLayerPaths(int state)
-{
+void LayerLocationsWidget::selectCustomLayerPaths(int state) {
     bool is_custom = (state == Qt::Checked);
 
     search_path_button->setEnabled(is_custom);
@@ -169,8 +165,7 @@ void LayerLocationsWidget::selectCustomLayerPaths(int state)
     loadLayerPaths();
 }
 
-void LayerLocationsWidget::searchPath()
-{
+void LayerLocationsWidget::searchPath() {
     QString path = QFileDialog::getExistingDirectory(this, tr("Search Path"), QDir::homePath(), QFileDialog::ShowDirsOnly);
     if (path == "") {
         return;
@@ -191,8 +186,9 @@ void LayerLocationsWidget::searchPath()
     dialog.setWindowTitle(tr("Found Layer Paths"));
     QVBoxLayout *dialog_layout = new QVBoxLayout();
 
-    QLabel *label = new QLabel(tr("Layers were found in the following locations, and contain the layers shown below. Uncheck any "
-        "locations that you do not wish to add."));
+    QLabel *label =
+        new QLabel(tr("Layers were found in the following locations, and contain the layers shown below. Uncheck any "
+                      "locations that you do not wish to add."));
     dialog_layout->addWidget(label);
 
     QTreeWidget *tree = new QTreeWidget();
@@ -230,7 +226,7 @@ void LayerLocationsWidget::searchPath()
     dialog.exec();
 
     if (dialog.result() == QDialog::Accepted) {
-        for(int i = 0; i < tree->topLevelItemCount(); ++i) {
+        for (int i = 0; i < tree->topLevelItemCount(); ++i) {
             QTreeWidgetItem *item = tree->topLevelItem(i);
             if (item->checkState(0) == Qt::Checked) {
                 custom_layer_locations.append(QPair<QString, LayerType>(item->text(0), LayerType::Explicit));
@@ -240,8 +236,7 @@ void LayerLocationsWidget::searchPath()
     }
 }
 
-void LayerLocationsWidget::loadLayerPaths()
-{
+void LayerLocationsWidget::loadLayerPaths() {
     path_list->clear();
 
     for (QPair<QString, LayerType> &pair : currentLayerPaths()) {

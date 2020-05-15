@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 {
 
 #if defined(WIN32)
-    int argc=1;
+    int argc = 1;
     char *argv[1];
     argv[0] = "vktraceviewer";
 #endif

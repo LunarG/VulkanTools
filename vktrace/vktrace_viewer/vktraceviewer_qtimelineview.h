@@ -40,7 +40,7 @@ QT_END_NAMESPACE
 
 class vktraceviewer_QTimelineItemDelegate : public QAbstractItemDelegate {
     Q_OBJECT
-   public:
+  public:
     vktraceviewer_QTimelineItemDelegate(QObject *parent = 0);
     virtual ~vktraceviewer_QTimelineItemDelegate();
 
@@ -52,7 +52,7 @@ class vktraceviewer_QTimelineItemDelegate : public QAbstractItemDelegate {
 // http://www.informit.com/articles/article.aspx?p=1613548
 class vktraceviewer_QTimelineView : public QAbstractItemView {
     Q_OBJECT
-   public:
+  public:
     explicit vktraceviewer_QTimelineView(QWidget *parent = 0);
     virtual ~vktraceviewer_QTimelineView();
 
@@ -75,7 +75,7 @@ class vktraceviewer_QTimelineView : public QAbstractItemView {
         }
     }
 
-   private:
+  private:
     QBrush m_background;
     QPen m_trianglePen;
     QPen m_textPen;
@@ -114,7 +114,7 @@ class vktraceviewer_QTimelineView : public QAbstractItemView {
     virtual QRegion itemRegion(const QModelIndex &index) const;
     // End private...
 
-   protected:
+  protected:
     void paintEvent(QPaintEvent *event);
     void paint(QPainter *painter, QPaintEvent *event);
 
@@ -136,12 +136,12 @@ class vktraceviewer_QTimelineView : public QAbstractItemView {
     virtual QRegion visualRegionForSelection(const QItemSelection &selection) const { return QRegion(); }
     // End protected virtual functions of QAbstractItemView
 
-   protected slots:
+  protected slots:
     virtual void updateGeometries();
 
-   signals:
+  signals:
 
-   public slots:
+  public slots:
 };
 
 #endif  // VKTRACEVIEWER_QTIMELINEVIEW_H

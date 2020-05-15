@@ -30,7 +30,7 @@
 
 class glvdebug_apiCallItem  //: public vogleditor_snapshotItem
 {
-   public:
+  public:
     glvdebug_apiCallItem(glvdebug_apiCallTreeItem* pParent, glv_trace_packet_header* pTracePacket)
     //: m_pParentFrame(pFrame),
     //  m_glPacket(glPacket),

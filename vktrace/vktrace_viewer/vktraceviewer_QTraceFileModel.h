@@ -28,7 +28,7 @@
 
 class vktraceviewer_QTraceFileModel : public QAbstractItemModel {
     Q_OBJECT
-   public:
+  public:
     vktraceviewer_QTraceFileModel(QObject* parent, vktraceviewer_trace_file_info* pTraceFileInfo) : QAbstractItemModel(parent) {
         m_pTraceFileInfo = pTraceFileInfo;
     }
@@ -253,7 +253,7 @@ class vktraceviewer_QTraceFileModel : public QAbstractItemModel {
 
     void set_highlight_search_string(const QString searchString) { m_searchString = searchString; }
 
-   private:
+  private:
     vktraceviewer_trace_file_info* m_pTraceFileInfo;
     QString m_searchString;
 };

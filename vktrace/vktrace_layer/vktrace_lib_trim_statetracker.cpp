@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "vktrace_lib_trim_statetracker.h"
 #include "vktrace_lib_trim.h"
 
@@ -841,19 +841,17 @@ void StateTracker::copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInf
 
             // we first use sType to detect the type of extension that pNext
             // struct belong to.
-            const VkApplicationInfo *pNextStruct =
-                reinterpret_cast<const VkApplicationInfo *>(pDst->pRasterizationState->pNext);
+            const VkApplicationInfo *pNextStruct = reinterpret_cast<const VkApplicationInfo *>(pDst->pRasterizationState->pNext);
             if (pNextStruct->sType ==
                 VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD) {  // it's an AMD extension.
 
                 // cast to a reference so we can change pDst->pRasterizationState->pNext,
-                void*& pNext = const_cast<void*&>(pDst->pRasterizationState->pNext);
+                void *&pNext = const_cast<void *&>(pDst->pRasterizationState->pNext);
                 // then make pNext point to the newly created extension struct.
                 pNext = reinterpret_cast<void *>(new VkPipelineRasterizationStateRasterizationOrderAMD());
-                //make a copy of extension struct which is used by target app.
-                memcpy(pNext, src.pRasterizationState->pNext,sizeof(VkPipelineRasterizationStateRasterizationOrderAMD));
-            }
-            else {
+                // make a copy of extension struct which is used by target app.
+                memcpy(pNext, src.pRasterizationState->pNext, sizeof(VkPipelineRasterizationStateRasterizationOrderAMD));
+            } else {
                 // so far we only handle this extension, more extension
                 // handling can be added here;
                 assert(false);
@@ -1757,4 +1755,4 @@ void StateTracker::remove_QueryPool(const VkQueryPool var) {
     }
     createdQueryPools.erase(var);
 }
-}
+}  // namespace trim

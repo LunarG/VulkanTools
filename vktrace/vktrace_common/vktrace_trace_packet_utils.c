@@ -206,13 +206,13 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
     pHeader->entrypoint_begin_time = pHeader->vktrace_begin_time;
     pHeader->entrypoint_end_time = 0;
     pHeader->vktrace_end_time = 0;
-    pHeader->next_buffers_offset = sizeof(vktrace_trace_packet_header) +
-                                   ROUNDUP_TO_8(packet_size);  // Initial offset is from start of header to after the packet body.
-                                                               // Make the initial offset to 64-bit aligned to make it meets the
-                                                               // alignement requirement of instruction vst1.64 which may be used
-                                                               // by a 32-bit GPU driver on ARMv8 platform.
-                                                               // Assuming the content of the buffer has expected alignment of the
-                                                               // tracing platform.
+    pHeader->next_buffers_offset =
+        sizeof(vktrace_trace_packet_header) + ROUNDUP_TO_8(packet_size);  // Initial offset is from start of header to after the
+                                                                          // packet body. Make the initial offset to 64-bit aligned
+                                                                          // to make it meets the alignement requirement of
+                                                                          // instruction vst1.64 which may be used by a 32-bit GPU
+                                                                          // driver on ARMv8 platform. Assuming the content of the
+                                                                          // buffer has expected alignment of the tracing platform.
     if (total_packet_size > sizeof(vktrace_trace_packet_header)) {
         pHeader->pBody = (uintptr_t)(((char*)pMemory) + sizeof(vktrace_trace_packet_header));
     }

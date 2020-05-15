@@ -26,9 +26,8 @@
 #include "layer_manifest.h"
 
 // Add a Paths() method?
-class OverrideSettings
-{
-public:
+class OverrideSettings {
+  public:
     OverrideSettings();
     void ClearLayers();
     void ClearSettings();
@@ -39,7 +38,7 @@ public:
                     const QList<LayerManifest> &disabled_layers, int expiration);
     bool SaveSettings(const QHash<QString, QHash<QString, LayerValue>> &settings);
 
-private:
+  private:
     QString LayerFile(bool create_path) const;
     QString LayerSettingsFile(bool create_path) const;
 

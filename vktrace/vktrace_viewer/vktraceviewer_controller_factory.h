@@ -31,14 +31,14 @@ extern "C" {
 #include "vktraceviewer_controller.h"
 
 class vktraceviewer_controller_factory {
-   public:
+  public:
     vktraceviewer_controller_factory();
     ~vktraceviewer_controller_factory();
 
     vktraceviewer_QController* Load(const char* filename);
     void Unload(vktraceviewer_QController** ppController);
 
-   private:
+  private:
     QMap<vktraceviewer_QController*, void*> m_controllerToLibraryMap;
 };
 

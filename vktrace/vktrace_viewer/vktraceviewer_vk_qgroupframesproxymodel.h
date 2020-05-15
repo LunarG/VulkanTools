@@ -35,7 +35,7 @@ struct FrameInfo {
 
 class vktraceviewer_vk_QGroupFramesProxyModel : public QAbstractProxyModel {
     Q_OBJECT
-   public:
+  public:
     vktraceviewer_vk_QGroupFramesProxyModel(QObject *parent = 0) : QAbstractProxyModel(parent), m_curFrameCount(0) {
         buildGroups();
     }
@@ -211,7 +211,7 @@ class vktraceviewer_vk_QGroupFramesProxyModel : public QAbstractProxyModel {
     }
 
     //---------------------------------------------------------------------------------------------
-   private:
+  private:
     QList<FrameInfo> m_frameList;
     QList<int> m_mapSourceRowToProxyGroupRow;
     int m_curFrameCount;

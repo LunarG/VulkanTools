@@ -107,7 +107,7 @@ QList<LayerManifest> LayerManifest::LoadRegistry(const QString &path, LayerType 
 
         RegCloseKey(key);
     } else {
-        static const char* const DISPLAY_GUID = "{4d36e968-e325-11ce-bfc1-08002be10318}";
+        static const char *const DISPLAY_GUID = "{4d36e968-e325-11ce-bfc1-08002be10318}";
         static const char *const SOFTWARE_COMPONENT_GUID = "{5c4c3332-344d-483c-8739-259e934c9cc8}";
         static const ULONG FLAGS = CM_GETIDLIST_FILTER_CLASS | CM_GETIDLIST_FILTER_PRESENT;
 
@@ -119,7 +119,7 @@ QList<LayerManifest> LayerManifest::LoadRegistry(const QString &path, LayerType 
                 delete[] device_names;
             }
             device_names = new char[device_names_size];
-        }  while (CM_Get_Device_ID_List(DISPLAY_GUID, device_names, device_names_size, FLAGS) == CR_BUFFER_SMALL);
+        } while (CM_Get_Device_ID_List(DISPLAY_GUID, device_names, device_names_size, FLAGS) == CR_BUFFER_SMALL);
 
         if (device_names != nullptr) {
             QString entry;
@@ -149,22 +149,23 @@ QList<LayerManifest> LayerManifest::LoadRegistry(const QString &path, LayerType 
 
                     char child_guid[MAX_GUID_STRING_LEN + 2];
                     ULONG child_guid_size = sizeof(child_guid);
-                    if (CM_Get_DevNode_Registry_Property(child_id, CM_DRP_CLASSGUID, nullptr, &child_guid, &child_guid_size, 0) != CR_SUCCESS) {
+                    if (CM_Get_DevNode_Registry_Property(child_id, CM_DRP_CLASSGUID, nullptr, &child_guid, &child_guid_size, 0) !=
+                        CR_SUCCESS) {
                         continue;
                     }
                     if (strcmp(child_guid, SOFTWARE_COMPONENT_GUID) == 0) {
                         manifests += LoadDeviceRegistry(child_id, entry, type);
                         break;
-                     }
-                } while(CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
+                    }
+                } while (CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
             }
         }
 
-        if(device_names != nullptr) {
+        if (device_names != nullptr) {
             delete[] device_names;
         }
     }
-    
+
     return manifests;
 }
 #endif
@@ -244,11 +245,11 @@ void LayerManifest::LoadLayerObject(const QJsonObject &layer_object, LayerType t
 }
 
 #if defined(_WIN32)
-QList<LayerManifest> LayerManifest::LoadDeviceRegistry(DEVINST id, const QString& entry, LayerType type) {
+QList<LayerManifest> LayerManifest::LoadDeviceRegistry(DEVINST id, const QString &entry, LayerType type) {
     QList<LayerManifest> manifests;
 
     HKEY key;
-    if(CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS) {
+    if (CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS) {
         return manifests;
     }
 
@@ -267,7 +268,7 @@ QList<LayerManifest> LayerManifest::LoadDeviceRegistry(DEVINST id, const QString
     }
 
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
-        for (char* curr_filename = path; curr_filename[0] != '\0'; curr_filename += strlen(curr_filename) + 1) {
+        for (char *curr_filename = path; curr_filename[0] != '\0'; curr_filename += strlen(curr_filename) + 1) {
             LoadLayerFile(curr_filename, type, &manifests);
 
             if (data_type == REG_SZ) {

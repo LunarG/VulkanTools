@@ -113,7 +113,7 @@ class ConditionalFrameOutput {
 #endif
     }
 
-   public:
+  public:
     /* Parses a string for a comma seperated list of frames & frame ranges
      * where frames are singular integers and frame ranges are of the following
      * format: "S-C-I" with S is the start frame, C is the count of frames to dump,
@@ -224,7 +224,7 @@ class ConditionalFrameOutput {
 };
 
 class ApiDumpSettings {
-   public:
+  public:
     ApiDumpSettings() {
         std::string filename_string = "";
         // If the layer settings file has a flag indicating to output to a file,
@@ -537,7 +537,7 @@ class ApiDumpSettings {
 
     inline bool isFrameInRange(uint64_t frame) const { return condFrameOutput.isFrameInRange(frame); }
 
-   private:
+  private:
     // Utility member to enable easier comparison by forcing a string to all lower-case
     inline std::string ToLowerString(const std::string &value) {
         std::string lower_value = value;
@@ -660,7 +660,7 @@ const char *const ApiDumpSettings::SPACES =
 const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
 class ApiDumpInstance {
-   public:
+  public:
     inline ApiDumpInstance() : dump_settings(NULL), frame_count(0), thread_count(0) {
         program_start = std::chrono::system_clock::now();
     }
@@ -793,7 +793,7 @@ class ApiDumpInstance {
 
     std::unordered_map<uint64_t, std::string> object_name_map;
 
-   private:
+  private:
     static ApiDumpInstance current_instance;
 
     ApiDumpSettings *dump_settings;
@@ -1005,8 +1005,7 @@ inline std::ostream &dump_text_cstring(const char *object, const ApiDumpSettings
 }
 
 inline std::ostream &dump_text_void(const void *object, const ApiDumpSettings &settings, int indents) {
-    if (object == NULL)
-        return settings.stream() << "NULL";
+    if (object == NULL) return settings.stream() << "NULL";
     OutputAddress(settings, object, false);
     return settings.stream();
 }

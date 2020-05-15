@@ -33,7 +33,7 @@
 // Pretend an image is a QScrollArea with some some special event handling.
 class vktraceviewer_qimageviewer : public QScrollArea {
     Q_OBJECT
-   public:
+  public:
     explicit vktraceviewer_qimageviewer(QWidget* parent = 0)
         : QScrollArea(parent), m_pImageLabel(NULL), m_pPanStart(0, 0), m_pPan(false), m_pAutoFit(false) {
         // Create a basic image viewer using a QLabel to display the image.
@@ -148,7 +148,7 @@ class vktraceviewer_qimageviewer : public QScrollArea {
         return true;
     }
 
-   private:
+  private:
     QSize computeMinimumSize() const {
         if (m_pImageLabel->pixmap() == NULL) {
             return QSize(0, 0);

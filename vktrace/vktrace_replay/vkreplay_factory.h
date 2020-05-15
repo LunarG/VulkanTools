@@ -86,7 +86,7 @@ struct vktrace_trace_packet_replay_library {
 };
 
 class ReplayFactory {
-   public:
+  public:
     vktrace_trace_packet_replay_library *Create(uint8_t tracerId);
     void Destroy(vktrace_trace_packet_replay_library **ppReplayer);
 };

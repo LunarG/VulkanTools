@@ -27,7 +27,7 @@
 
 class vogleditor_frameItem  //: public vogleditor_snapshotItem
 {
-   public:
+  public:
     vogleditor_frameItem(uint64_t frameNumber) : m_frameNumber(frameNumber) {}
 
     ~vogleditor_frameItem() {
@@ -122,7 +122,7 @@ class vogleditor_frameItem  //: public vogleditor_snapshotItem
     //    return m_screenshot_filename;
     //}
 
-   private:
+  private:
     uint64_t m_frameNumber;
     QList<glvdebug_apiCallItem *> m_apiCallList;
     QList<vogleditor_groupItem *> m_groupList;

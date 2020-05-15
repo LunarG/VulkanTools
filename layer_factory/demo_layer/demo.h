@@ -25,7 +25,7 @@
 #include "layer_factory.h"
 
 class MemDemo : public layer_factory {
-   public:
+  public:
     // Constructor for state_tracker
     MemDemo() : number_mem_objects_(0), total_memory_(0), present_count_(0){};
 
@@ -38,7 +38,7 @@ class MemDemo : public layer_factory {
 
     VkResult PreCallQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo);
 
-   private:
+  private:
     uint32_t number_mem_objects_;
     VkDeviceSize total_memory_;
     uint32_t present_count_;

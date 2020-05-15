@@ -29,7 +29,7 @@
 
 class vktraceviewer_qsvgviewer : public QGraphicsView {
     Q_OBJECT
-   public:
+  public:
     vktraceviewer_qsvgviewer(QWidget* parent = 0) : QGraphicsView(parent), disabledScene(NULL), enabledScene(NULL), autoFit(false) {
         // The destructor for QGraphicsScene will be called when this QGraphicsView is
         // destroyed.
@@ -108,7 +108,7 @@ class vktraceviewer_qsvgviewer : public QGraphicsView {
         return true;
     }
 
-   private:
+  private:
     QGraphicsScene* disabledScene;
     QGraphicsScene* enabledScene;
 

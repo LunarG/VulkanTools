@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET
+    "10.12"
+    CACHE STRING "Minimum OS X deployment version")
 
-project (VULKAN_TOOLS)
+project(VULKAN_TOOLS)
 
-set(API_NAME "Vulkan" CACHE STRING "API name")
+set(API_NAME
+    "Vulkan"
+    CACHE STRING "API name")
 add_definitions(-DAPI_NAME="${API_NAME}")
 
 add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
@@ -16,17 +20,21 @@ include(GNUInstallDirs)
 
 # Set a better default install location for Windows only if the user did not provide one.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND WIN32)
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "default install path" FORCE)
+    set(CMAKE_INSTALL_PREFIX
+        "${CMAKE_BINARY_DIR}/install"
+        CACHE PATH "default install path" FORCE)
 endif()
 
-# Find Vulkan Headers, Loader, and ValidationLayers
-# Search order:
-#  User-supplied CMAKE_PREFIX_PATH containing paths to the header and/or loader install dirs
-#  CMake options VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
-#  Env vars VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
-#  Fallback to FindVulkan operation using SDK install or system installed components.
-set(VULKAN_HEADERS_INSTALL_DIR "HEADERS-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Headers install directory")
-set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
+# Find Vulkan Headers, Loader, and ValidationLayers Search order: User-supplied CMAKE_PREFIX_PATH containing paths to the header
+# and/or loader install dirs CMake options VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or
+# VULKAN_VALIDATIONLAYERS_INSTALL_DIR Env vars VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or
+# VULKAN_VALIDATIONLAYERS_INSTALL_DIR Fallback to FindVulkan operation using SDK install or system installed components.
+set(VULKAN_HEADERS_INSTALL_DIR
+    "HEADERS-NOTFOUND"
+    CACHE PATH "Absolute path to a Vulkan-Headers install directory")
+set(VULKAN_LOADER_INSTALL_DIR
+    "LOADER-NOTFOUND"
+    CACHE PATH "Absolute path to a Vulkan-Loader install directory")
 if(WIN32 AND "${VULKAN_LOADER_INSTALL_DIR}" STREQUAL "LOADER-NOTFOUND")
     if(CMAKE_CL_64)
         set(VULKAN_LOADER_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/x64")
@@ -35,8 +43,12 @@ if(WIN32 AND "${VULKAN_LOADER_INSTALL_DIR}" STREQUAL "LOADER-NOTFOUND")
     endif()
 endif()
 
-set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR "VALIDATIONLAYERS-NOTFOUND" CACHE PATH "Absolute path to Vulkan-ValidationLayers directory")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR
+    "VALIDATIONLAYERS-NOTFOUND"
+    CACHE PATH "Absolute path to Vulkan-ValidationLayers directory")
+set(CMAKE_PREFIX_PATH
+    ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR}
+)
 message(STATUS "Using find_package to locate Vulkan")
 find_package(Vulkan)
 message(STATUS "Vulkan FOUND = ${Vulkan_FOUND}")
@@ -54,22 +66,22 @@ endif()
 message(STATUS "Using Vulkan-Headers install located at ${VULKAN_HEADERS_INSTALL_DIR}")
 
 if(NOT VULKAN_LOADER_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_LOADER_INSTALL_DIR})
-message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
+    message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
 endif()
 
 # Cmake command line option overrides environment variable
 if(NOT VULKAN_LOADER_INSTALL_DIR)
-set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
+    set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
 endif()
 message(STATUS "Using Vulkan-Loader install located at ${VULKAN_LOADER_INSTALL_DIR}")
 
 if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
+    message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
 endif()
 
 # Cmake command line option overrides environment variable
 if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
-set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+    set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
 endif()
 message(STATUS "Using Vulkan-ValidationLayers install located at ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}")
 
@@ -79,14 +91,14 @@ set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/
 find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
 
 find_package(PythonInterp 3 REQUIRED)
-set (PYTHON_CMD ${PYTHON_EXECUTABLE})
+set(PYTHON_CMD ${PYTHON_EXECUTABLE})
 
 # Enable cmake folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(VULKANTOOLS_TARGET_FOLDER vt_cmake_targets)
 
 option(USE_CCACHE "Use ccache" OFF)
-if (USE_CCACHE)
+if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
     if(CCACHE_FOUND)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
@@ -95,26 +107,36 @@ if (USE_CCACHE)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(FALLBACK_CONFIG_DIRS "/etc/xdg" CACHE STRING
-        "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
-    set(FALLBACK_DATA_DIRS "/usr/local/share:/usr/share" CACHE STRING
-        "Search path to use when XDG_DATA_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
+    set(FALLBACK_CONFIG_DIRS
+        "/etc/xdg"
+        CACHE
+            STRING
+            "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant."
+    )
+    set(FALLBACK_DATA_DIRS
+        "/usr/local/share:/usr/share"
+        CACHE
+            STRING
+            "Search path to use when XDG_DATA_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant."
+    )
 
     include(FindPkgConfig)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
-    set(VKREPLAY_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for vkreplay (XCB, WAYLAND, DISPLAY)")
+    set(VKREPLAY_WSI_SELECTION
+        "XCB"
+        CACHE STRING "Select WSI target for vkreplay (XCB, WAYLAND, DISPLAY)")
 
-    if (BUILD_WSI_XCB_SUPPORT)
+    if(BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
     endif()
 
-    if (BUILD_WSI_XLIB_SUPPORT)
+    if(BUILD_WSI_XLIB_SUPPORT)
         find_package(X11 REQUIRED)
     endif()
 
-    if (BUILD_WSI_WAYLAND_SUPPORT)
+    if(BUILD_WSI_WAYLAND_SUPPORT)
         find_package(Wayland REQUIRED)
         include_directories(${WAYLAND_CLIENT_INCLUDE_DIR})
     endif()
@@ -123,10 +145,10 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_METAL_SUPPORT "Build Metal WSI support" OFF)
 endif()
 
-set (VULKAN_SDK $ENV{VULKAN_SDK})
+set(VULKAN_SDK $ENV{VULKAN_SDK})
 
 # NOTE: jsoncpp is located in SUBPROJECTS_DIR.
-set (SUBPROJECTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
+set(SUBPROJECTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 
 set(VULKANTOOLS_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
 
@@ -134,22 +156,23 @@ set(VULKANTOOLS_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
 find_package(VulkanHeaders)
 include_directories(${VulkanHeaders_INCLUDE_DIR} ${PROJECT_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION})
 
-# The vulkan loader search is:
-#     User-supplied setting of CMAKE_PREFIX_PATH
-#     VULKAN_LOADER_INSTALL_DIR defined via cmake option
-#     VULKAN_LOADER_INSTALL_DIR defined via environment variable
-#     Default findVulkan operation if the VULKAN_SDK environment variable is defined
-set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
-if (VULKAN_LOADER_INSTALL_DIR)
+# The vulkan loader search is: User-supplied setting of CMAKE_PREFIX_PATH VULKAN_LOADER_INSTALL_DIR defined via cmake option
+# VULKAN_LOADER_INSTALL_DIR defined via environment variable Default findVulkan operation if the VULKAN_SDK environment variable is
+# defined
+set(VULKAN_LOADER_INSTALL_DIR
+    "LOADER-NOTFOUND"
+    CACHE PATH "Absolute path to a Vulkan-Loader install directory")
+if(VULKAN_LOADER_INSTALL_DIR)
     message(STATUS "VULKAN_LOADER_INSTALL_DIR specified, using find_package to locate Vulkan")
 elseif(ENV{VULKAN_LOADER_INSTALL_DIR})
     message(STATUS "VULKAN_LOADER_INSTALL_DIR environment variable specified, using find_package to locate Vulkan")
 endif()
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR})
+set(CMAKE_PREFIX_PATH
+    ${CMAKE_PREFIX_PATH};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR}
+)
 find_package(Vulkan)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
-    CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     option(BUILD_TESTS "Build tests" ON)
     option(BUILD_LAYERSVT "Build layersvt" ON)
@@ -159,14 +182,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
 
     option(BUILD_LAYERMGR "Build layer manager" ON)
 
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
     else()
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" ON)
     endif()
 
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
     option(BUILD_VKTRACE ON)
     option(BUILD_LOADER OFF)
     option(BUILD_TESTS OFF)
@@ -183,37 +206,40 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
 endif()
 
-find_path(JSONCPP_INCLUDE_DIR json/json.h HINTS "${SUBPROJECTS_DIR}/jsoncpp/dist"
-                                                   "${SUBPROJECTS_DIR}/JsonCpp/dist"
-                                                   "${SUBPROJECTS_DIR}/JsonCPP/dist"
-                                                   "${SUBPROJECTS_DIR}/JSONCPP/dist"
-                                                   "${CMAKE_SOURCE_DIR}/../jsoncpp/dist"
-                                             DOC "Path to jsoncpp/dist/json/json.h")
+find_path(
+    JSONCPP_INCLUDE_DIR json/json.h
+    HINTS "${SUBPROJECTS_DIR}/jsoncpp/dist" "${SUBPROJECTS_DIR}/JsonCpp/dist" "${SUBPROJECTS_DIR}/JsonCPP/dist"
+          "${SUBPROJECTS_DIR}/JSONCPP/dist" "${CMAKE_SOURCE_DIR}/../jsoncpp/dist"
+    DOC "Path to jsoncpp/dist/json/json.h")
 
-find_path(JSONCPP_SOURCE_DIR jsoncpp.cpp HINTS "${SUBPROJECTS_DIR}/jsoncpp/dist"
-                                                   "${SUBPROJECTS_DIR}/JsonCpp/dist"
-                                                   "${SUBPROJECTS_DIR}/JsonCPP/dist"
-                                                   "${SUBPROJECTS_DIR}/JSONCPP/dist"
-                                                   "${CMAKE_SOURCE_DIR}/../jsoncpp/dist"
-                                             DOC "Path to jsoncpp/dist/json.cpp")
+find_path(
+    JSONCPP_SOURCE_DIR jsoncpp.cpp
+    HINTS "${SUBPROJECTS_DIR}/jsoncpp/dist" "${SUBPROJECTS_DIR}/JsonCpp/dist" "${SUBPROJECTS_DIR}/JsonCPP/dist"
+          "${SUBPROJECTS_DIR}/JSONCPP/dist" "${CMAKE_SOURCE_DIR}/../jsoncpp/dist"
+    DOC "Path to jsoncpp/dist/json.cpp")
 
-find_library(JSONCPP_LIB NAMES jsoncpp HINTS ${JSONCPP_SEARCH_PATH} )
+find_library(
+    JSONCPP_LIB
+    NAMES jsoncpp
+    HINTS ${JSONCPP_SEARCH_PATH})
 
-if (WIN32)
-    add_library(jsoncpp         STATIC IMPORTED)
-    find_library(JSONCPP_DLIB NAMES jsoncpp
-                 HINTS ${JSONCPP_DEBUG_SEARCH_PATH} )
-    set_target_properties(jsoncpp PROPERTIES
-                         IMPORTED_LOCATION       "${JSONCPP_LIB}"
-                         IMPORTED_LOCATION_DEBUG "${JSONCPP_DLIB}")
+if(WIN32)
+    add_library(jsoncpp STATIC IMPORTED)
+    find_library(
+        JSONCPP_DLIB
+        NAMES jsoncpp
+        HINTS ${JSONCPP_DEBUG_SEARCH_PATH})
+    set_target_properties(jsoncpp PROPERTIES IMPORTED_LOCATION "${JSONCPP_LIB}" IMPORTED_LOCATION_DEBUG "${JSONCPP_DLIB}")
 endif()
 
 # Define macro used for building vkxml generated files
 macro(run_vulkantools_vk_xml_generate dependency output)
-    add_custom_command(OUTPUT ${output}
-    COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} ${output}
-    DEPENDS ${VulkanRegistry_DIR}/vk.xml ${VulkanRegistry_DIR}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VulkanRegistry_DIR}/reg.py
-    )
+    add_custom_command(
+        OUTPUT ${output}
+        COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts
+                ${VulkanRegistry_DIR} ${output}
+        DEPENDS ${VulkanRegistry_DIR}/vk.xml ${VulkanRegistry_DIR}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency}
+                ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VulkanRegistry_DIR}/reg.py)
 endmacro()
 
 if(BUILD_TESTS)
@@ -241,9 +267,6 @@ if(BUILD_LAYERMGR)
 endif()
 
 # uninstall target
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
-add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+               IMMEDIATE @ONLY)
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)

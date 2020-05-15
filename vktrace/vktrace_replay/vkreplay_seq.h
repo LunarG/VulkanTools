@@ -36,7 +36,7 @@ struct seqBookmark {
 
 // replay Sequencer interface
 class AbstractSequencer {
-   public:
+  public:
     virtual ~AbstractSequencer() {}
     virtual vktrace_trace_packet_header *get_next_packet() = 0;
     virtual void get_bookmark(seqBookmark &bookmark) = 0;
@@ -44,7 +44,7 @@ class AbstractSequencer {
 };
 
 class Sequencer : public AbstractSequencer {
-   public:
+  public:
     Sequencer(FileLike *pFile) : m_lastPacket(NULL), m_pFile(pFile) {}
     ~Sequencer() { this->clean_up(); }
 
@@ -60,7 +60,7 @@ class Sequencer : public AbstractSequencer {
     void set_bookmark(const seqBookmark &bookmark);
     void record_bookmark();
 
-   private:
+  private:
     vktrace_trace_packet_header *m_lastPacket;
     seqBookmark m_bookmark;
     FileLike *m_pFile;

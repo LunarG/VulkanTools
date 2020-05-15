@@ -48,7 +48,7 @@ extern "C" {
 namespace vktrace_replay {
 
 class ReplayDisplayImp {
-   public:
+  public:
     ReplayDisplayImp() : m_initedVK(false) {}
     virtual ~ReplayDisplayImp() {}
     virtual int init(const unsigned int gpu_idx) = 0;
@@ -66,7 +66,7 @@ class ReplayDisplayImp {
 };
 
 class ReplayDisplay {
-   public:
+  public:
     ReplayDisplay() : m_imp(NULL), m_width(0), m_height(0), m_gpu(0) {}
 
     ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu)
@@ -117,7 +117,7 @@ class ReplayDisplay {
         if (m_imp) m_imp->set_quit_status(quit);
     }
 
-   private:
+  private:
     ReplayDisplayImp* m_imp;
     unsigned int m_width;
     unsigned int m_height;

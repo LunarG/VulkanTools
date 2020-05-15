@@ -426,8 +426,10 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
                                                    sizeof(VkPipelineMultisampleStateCreateInfo), pParam[i].pMultisampleState);
                 vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pMultisampleState),
                                                           pParam[i].pMultisampleState);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pMultisampleState->pSampleMask),
-                    sizeof(VkSampleMask)*((pParam[i].pMultisampleState->rasterizationSamples / 32) + 1), pParam[i].pMultisampleState->pSampleMask);
+                vktrace_add_buffer_to_trace_packet(
+                    pHeader, (void **)&(pPacket[i].pMultisampleState->pSampleMask),
+                    sizeof(VkSampleMask) * ((pParam[i].pMultisampleState->rasterizationSamples / 32) + 1),
+                    pParam[i].pMultisampleState->pSampleMask);
                 vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pMultisampleState->pSampleMask));
                 vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pMultisampleState));
             }

@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.10.2)
 project(vkconfig)
 
@@ -6,7 +5,11 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-find_package(Qt5 COMPONENTS Core Gui Widgets OPTIONAL_COMPONENTS WebEngineWidgets QUIET)
+find_package(
+    Qt5
+    COMPONENTS Core Gui Widgets
+    OPTIONAL_COMPONENTS WebEngineWidgets
+    QUIET)
 
 if(NOT Qt5_FOUND)
     message("WARNING: vkconfig will be excluded because Qt5 was not found.")
@@ -18,8 +21,7 @@ else()
         layer_settings_widget.cpp
         override_settings.cpp
         vkconfig.cpp
-        data.qrc
-    )
+        data.qrc)
 
     if(NOT Qt5WebEngineWidgets_FOUND)
         message("WARNING: vkconfig will not include vulkaninfo or via because Qt Web Engine Widgets was not found.")
@@ -30,7 +32,7 @@ else()
     endif()
 
     if(NOT APPLE)
-        if (NOT DEFINED CMAKE_INSTALL_BINDIR)
+        if(NOT DEFINED CMAKE_INSTALL_BINDIR)
             include(GNUInstallDirs)
         endif()
 

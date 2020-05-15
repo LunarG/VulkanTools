@@ -32,10 +32,10 @@
 #include "via_system.hpp"
 
 class ViaSystemWindows : public ViaSystem {
-   public:
+  public:
     ViaSystemWindows();
 
-   protected:
+  protected:
     virtual bool IsAbsolutePath(const std::string& path) override;
     virtual int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) override;
     virtual ViaResults PrintSystemEnvironmentInfo();
@@ -52,7 +52,7 @@ class ViaSystemWindows : public ViaSystem {
     virtual std::string GetEnvironmentalVariableValue(const std::string& env_var);
     virtual bool ExpandPathWithEnvVar(std::string& path);
 
-   private:
+  private:
     bool FindDriverIdsFromPlugAndPlay();
     bool FindDriverSpecificRegistryJsons(const std::string& key_name,
                                          std::vector<std::tuple<std::string, bool, std::string>>& json_paths);

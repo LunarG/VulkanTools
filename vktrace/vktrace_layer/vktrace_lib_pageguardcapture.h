@@ -46,7 +46,7 @@ typedef VkResult (*vkFlushMappedMemoryRangesFunc)(VkDevice device, uint32_t memo
                                                   const VkMappedMemoryRange* pMemoryRanges);
 
 typedef class PageGuardCapture {
-   private:
+  private:
     PageGuardChangedBlockInfo EmptyChangedInfoArray;
     std::unordered_map<VkDeviceMemory, PageGuardMappedMemory> MapMemory;
     std::unordered_map<VkDeviceMemory, PBYTE> MapMemoryPtr;
@@ -56,7 +56,7 @@ typedef class PageGuardCapture {
     std::unordered_map<VkDevice, VkPhysicalDevice> MapDevice;
     std::unordered_map<VkDeviceMemory, void*> MapMemoryExtHostPointer;
 
-   public:
+  public:
     PageGuardCapture();
 
     std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>& getMapMemory();

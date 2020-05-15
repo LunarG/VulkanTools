@@ -30,7 +30,7 @@ class QAction;
 class QAbstractProxyModel;
 
 class vktraceviewer_view {
-   public:
+  public:
     virtual void reset_view() = 0;
 
     //    virtual void output_message(uint64_t packetIndex, QString message) = 0;

@@ -45,7 +45,7 @@ extern "C" {
 
 class vktraceviewer_QGenerateTraceDialog : public QDialog {
     Q_OBJECT
-   public:
+  public:
     explicit vktraceviewer_QGenerateTraceDialog(QWidget *parent = 0);
     virtual ~vktraceviewer_QGenerateTraceDialog();
 
@@ -55,12 +55,12 @@ class vktraceviewer_QGenerateTraceDialog : public QDialog {
 
     QString get_trace_file_path();
 
-   signals:
+  signals:
     void OutputMessage(VktraceLogLevel level, const QString &message);
 
-   public slots:
+  public slots:
 
-   private slots:
+  private slots:
     void on_applicationLineEdit_textChanged(const QString &text);
     void on_traceFileLineEdit_textChanged(const QString &text);
     void on_vkLayerPathLineEdit_textChanged(const QString &text);
@@ -71,7 +71,7 @@ class vktraceviewer_QGenerateTraceDialog : public QDialog {
     void on_readStandardOutput();
     void on_readStandardError();
 
-   private:
+  private:
     bool launch_application_to_generate_trace();
 
     void check_inputs();

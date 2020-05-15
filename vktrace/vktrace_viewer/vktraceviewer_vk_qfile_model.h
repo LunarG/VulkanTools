@@ -25,7 +25,7 @@
 
 class vktraceviewer_vk_QFileModel : public vktraceviewer_QTraceFileModel {
     Q_OBJECT
-   public:
+  public:
     vktraceviewer_vk_QFileModel(QObject* parent, vktraceviewer_trace_file_info*);
     virtual ~vktraceviewer_vk_QFileModel();
 

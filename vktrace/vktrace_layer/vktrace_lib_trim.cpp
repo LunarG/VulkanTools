@@ -586,7 +586,6 @@ void initialize() {
         }
     }
     if ((!g_trimEnabled) && (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey))) {
-
         // There are two types of hotkey trigger, their command line option string
         // are hotkey-<keyname> and hotkey-<keyname>-<frameCount>, the latter one
         // means capture the next <frameCount> frames after pressing the hotkey
@@ -607,19 +606,15 @@ void initialize() {
         // parsing meet any error, the g_trimEndFrame will keep it initial value
         // UINT64_MAX which means the trim capture still stop by hotkey.
         const char *trimHotKeyOption = getTraceTriggerOptionString(enum_trim_trigger::hotKey);
-        const char *trimHotKeyFrames = strstr(trimHotKeyOption,"-");
-        if (trimHotKeyFrames)
-        { //trimHotKeyOption include "-", we continue the parsing to get frameCount
+        const char *trimHotKeyFrames = strstr(trimHotKeyOption, "-");
+        if (trimHotKeyFrames) {  // trimHotKeyOption include "-", we continue the parsing to get frameCount
 
             uint32_t numFrames = 0;
-            trimHotKeyFrames++;//ignore the "-" symbol
-            if (!strstr(trimHotKeyFrames, "-"))
-            {
-                if (sscanf(trimHotKeyFrames, "%" PRIu32, &numFrames) == 1)
-                {
-                    //the frame number after hotkey press should not be 0 or negtive.
-                    if (numFrames > 0)
-                    {
+            trimHotKeyFrames++;  // ignore the "-" symbol
+            if (!strstr(trimHotKeyFrames, "-")) {
+                if (sscanf(trimHotKeyFrames, "%" PRIu32, &numFrames) == 1) {
+                    // the frame number after hotkey press should not be 0 or negtive.
+                    if (numFrames > 0) {
                         g_trimEndFrame = static_cast<uint64_t>(numFrames);
                     }
                 }

@@ -29,9 +29,7 @@
 #include <QPushButton>
 #include <QTableWidget>
 
-LayerSettingsWidget::LayerSettingsWidget(QWidget *parent)
-    : QGroupBox(tr("Layer Settings"), parent)
-{
+LayerSettingsWidget::LayerSettingsWidget(QWidget *parent) : QGroupBox(tr("Layer Settings"), parent) {
     QVBoxLayout *layout = new QVBoxLayout();
 
     enabled_only_box = new QCheckBox(tr("Show enabled layers only"));
@@ -46,8 +44,7 @@ LayerSettingsWidget::LayerSettingsWidget(QWidget *parent)
     setFixedWidth(500);
 }
 
-void LayerSettingsWidget::setSettingsValues(const QHash<QString, QHash<QString, QString>> &values)
-{
+void LayerSettingsWidget::setSettingsValues(const QHash<QString, QHash<QString, QString>> &values) {
     for (const QString &layer : values.keys()) {
         for (const QString &setting : values[layer].keys()) {
             QString value = values[layer][setting];
@@ -58,21 +55,18 @@ void LayerSettingsWidget::setSettingsValues(const QHash<QString, QHash<QString, 
     }
 }
 
-void LayerSettingsWidget::updateAvailableLayers(const QList<LayerManifest>& enabled, const QList<LayerManifest>& disabled)
-{
+void LayerSettingsWidget::updateAvailableLayers(const QList<LayerManifest> &enabled, const QList<LayerManifest> &disabled) {
     enabled_layers = enabled;
     disabled_layers = disabled;
     updateLayers();
 }
 
-void LayerSettingsWidget::changeValue(const LayerValue &value)
-{
+void LayerSettingsWidget::changeValue(const LayerValue &value) {
     layer_settings[value.layer_name][value.name] = value;
     emit settingsChanged(layer_settings);
 }
 
-void LayerSettingsWidget::updateLayers()
-{
+void LayerSettingsWidget::updateLayers() {
     QList<LayerManifest> layers;
     if (enabled_only_box->isChecked()) {
         layers = enabled_layers;
@@ -84,7 +78,7 @@ void LayerSettingsWidget::updateLayers()
     // Remove any items that are no longer present
     for (const QString &layer : layer_settings.keys()) {
         bool layer_found = false;
-        for (const LayerManifest &manifest :  layers) {
+        for (const LayerManifest &manifest : layers) {
             if (manifest.name == layer) {
                 layer_found = true;
                 break;
@@ -102,7 +96,6 @@ void LayerSettingsWidget::updateLayers()
 
     // Add any new layers
     for (const LayerManifest &manifest : layers) {
-
         // Skip if the layer is already present
         bool layer_found = false;
         for (const QString &layer : layer_settings.keys()) {
@@ -131,7 +124,7 @@ void LayerSettingsWidget::updateLayers()
         qSort(options);
         layer_settings.insert(manifest.name, QHash<QString, LayerValue>());
         QByteArray bytes = manifest.name.toLocal8Bit();
-        const char* str = bytes.data();
+        const char *str = bytes.data();
 
         QWidget *widget = new QWidget();
         QGridLayout *grid = new QGridLayout();
@@ -144,44 +137,43 @@ void LayerSettingsWidget::updateLayers()
             grid->addWidget(label, i, 0);
 
             switch (options[i].type) {
-
-            case LayerOptionType::Bool: {
-                BoolSelectWidget *selector = new BoolSelectWidget(options[i]);
-                layer_settings[manifest.name].insert(options[i].name, selector->value());
-                connect(selector, &BoolSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
-                grid->addWidget(selector, i, 2);
-                settings_widgets[manifest.name][options[i].name] = selector;
-                break;
-            }
-            case LayerOptionType::Enum: {
-                EnumSelectWidget *selector = new EnumSelectWidget(options[i]);
-                layer_settings[manifest.name].insert(options[i].name, selector->value());
-                connect(selector, &EnumSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
-                grid->addWidget(selector, i, 2);
-                break;
-            }
-            case LayerOptionType::MultiEnum: {
-                MultiEnumSelectWidget *selector = new MultiEnumSelectWidget(options[i]);
-                layer_settings[manifest.name].insert(options[i].name, selector->value());
-                connect(selector, &MultiEnumSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
-                grid->addWidget(selector, i, 2);
-                break;
-            }
-            case LayerOptionType::OpenFile:
-            case LayerOptionType::SaveFile: {
-                FileSelectWidget *selector = new FileSelectWidget(options[i]);
-                layer_settings[manifest.name].insert(options[i].name, selector->value());
-                connect(selector, &FileSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
-                grid->addWidget(selector, i, 2);
-                break;
-            }
-            case LayerOptionType::String: {
-                StringSelectWidget *selector = new StringSelectWidget(options[i]);
-                layer_settings[manifest.name].insert(options[i].name, selector->value());
-                connect(selector, &StringSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
-                grid->addWidget(selector, i, 2);
-                break;
-            }
+                case LayerOptionType::Bool: {
+                    BoolSelectWidget *selector = new BoolSelectWidget(options[i]);
+                    layer_settings[manifest.name].insert(options[i].name, selector->value());
+                    connect(selector, &BoolSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
+                    grid->addWidget(selector, i, 2);
+                    settings_widgets[manifest.name][options[i].name] = selector;
+                    break;
+                }
+                case LayerOptionType::Enum: {
+                    EnumSelectWidget *selector = new EnumSelectWidget(options[i]);
+                    layer_settings[manifest.name].insert(options[i].name, selector->value());
+                    connect(selector, &EnumSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
+                    grid->addWidget(selector, i, 2);
+                    break;
+                }
+                case LayerOptionType::MultiEnum: {
+                    MultiEnumSelectWidget *selector = new MultiEnumSelectWidget(options[i]);
+                    layer_settings[manifest.name].insert(options[i].name, selector->value());
+                    connect(selector, &MultiEnumSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
+                    grid->addWidget(selector, i, 2);
+                    break;
+                }
+                case LayerOptionType::OpenFile:
+                case LayerOptionType::SaveFile: {
+                    FileSelectWidget *selector = new FileSelectWidget(options[i]);
+                    layer_settings[manifest.name].insert(options[i].name, selector->value());
+                    connect(selector, &FileSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
+                    grid->addWidget(selector, i, 2);
+                    break;
+                }
+                case LayerOptionType::String: {
+                    StringSelectWidget *selector = new StringSelectWidget(options[i]);
+                    layer_settings[manifest.name].insert(options[i].name, selector->value());
+                    connect(selector, &StringSelectWidget::valueChanged, this, &LayerSettingsWidget::changeValue);
+                    grid->addWidget(selector, i, 2);
+                    break;
+                }
             }
         }
         grid->setColumnStretch(1, 1);
@@ -194,8 +186,7 @@ void LayerSettingsWidget::updateLayers()
 }
 
 BoolSelectWidget::BoolSelectWidget(const LayerOption &option, QWidget *parent)
-    : QWidget(parent), option(option), value_info{option.layer_name, option.name, LayerOptionType::Bool, QSet<QString>()}
-{
+    : QWidget(parent), option(option), value_info{option.layer_name, option.name, LayerOptionType::Bool, QSet<QString>()} {
     if (!option.default_values.empty()) {
         value_info.values.insert(*option.default_values.begin());
     }
@@ -213,8 +204,7 @@ BoolSelectWidget::BoolSelectWidget(const LayerOption &option, QWidget *parent)
     connect(false_button, &QRadioButton::clicked, this, &BoolSelectWidget::setFalse);
 }
 
-void BoolSelectWidget::setValue(const QString &value)
-{
+void BoolSelectWidget::setValue(const QString &value) {
     if (value == "TRUE") {
         true_button->setChecked(true);
     } else {
@@ -222,16 +212,14 @@ void BoolSelectWidget::setValue(const QString &value)
     }
 }
 
-void BoolSelectWidget::setFalse(bool checked)
-{
+void BoolSelectWidget::setFalse(bool checked) {
     value_info.values.clear();
     value_info.values.insert(checked ? "FALSE" : "TRUE");
 
     emit valueChanged(value_info);
 }
 
-void BoolSelectWidget::setTrue(bool checked)
-{
+void BoolSelectWidget::setTrue(bool checked) {
     value_info.values.clear();
     value_info.values.insert(checked ? "TRUE" : "FALSE");
 
@@ -239,8 +227,7 @@ void BoolSelectWidget::setTrue(bool checked)
 }
 
 EnumSelectWidget::EnumSelectWidget(const LayerOption &option, QWidget *parent)
-    : QComboBox(parent), option(option), value_info{option.layer_name, option.name, LayerOptionType::Enum, QSet<QString>()}
-{
+    : QComboBox(parent), option(option), value_info{option.layer_name, option.name, LayerOptionType::Enum, QSet<QString>()} {
     if (!option.default_values.empty()) {
         value_info.values.insert(*option.default_values.begin());
     }
@@ -257,8 +244,7 @@ EnumSelectWidget::EnumSelectWidget(const LayerOption &option, QWidget *parent)
     connect(this, static_cast<void (EnumSelectWidget::*)(int)>(&EnumSelectWidget::activated), this, &EnumSelectWidget::selectIndex);
 }
 
-void EnumSelectWidget::selectIndex(int index)
-{
+void EnumSelectWidget::selectIndex(int index) {
     value_info.values.clear();
     value_info.values.insert(keys[index]);
 
@@ -266,8 +252,7 @@ void EnumSelectWidget::selectIndex(int index)
 }
 
 MultiEnumSelectWidget::MultiEnumSelectWidget(const LayerOption &option, QWidget *parent)
-    : QComboBox(parent), option(option), value_info{option.layer_name, option.name, LayerOptionType::Enum, QSet<QString>()}
-{
+    : QComboBox(parent), option(option), value_info{option.layer_name, option.name, LayerOptionType::Enum, QSet<QString>()} {
     for (const QString &item : option.default_values) {
         value_info.values.insert(item);
     }
@@ -290,17 +275,15 @@ MultiEnumSelectWidget::MultiEnumSelectWidget(const LayerOption &option, QWidget 
     updateText();
 }
 
-void MultiEnumSelectWidget::showPopup()
-{
+void MultiEnumSelectWidget::showPopup() {
     QComboBox::hidePopup();
 
     popup_menu->setFixedWidth(width());
     popup_menu->popup(mapToGlobal(QPoint(0, 0)));
 }
 
-void MultiEnumSelectWidget::changeItem(QAction *action)
-{
-    QList<QAction*> actions = popup_menu->actions();
+void MultiEnumSelectWidget::changeItem(QAction *action) {
+    QList<QAction *> actions = popup_menu->actions();
     if (action == actions.first()) {
         return;
     }
@@ -316,10 +299,9 @@ void MultiEnumSelectWidget::changeItem(QAction *action)
     showPopup();
 }
 
-void MultiEnumSelectWidget::updateText()
-{
+void MultiEnumSelectWidget::updateText() {
     QStringList selected_items;
-    QList<QAction*> actions = popup_menu->actions();
+    QList<QAction *> actions = popup_menu->actions();
     for (QAction *action : actions) {
         if (action->isChecked()) {
             selected_items.append(action->text());
@@ -334,8 +316,7 @@ void MultiEnumSelectWidget::updateText()
 }
 
 FileSelectWidget::FileSelectWidget(const LayerOption &option, QWidget *parent)
-    : QWidget(parent), option(option), value_info{option.layer_name, option.name, option.type, QSet<QString>()}
-{
+    : QWidget(parent), option(option), value_info{option.layer_name, option.name, option.type, QSet<QString>()} {
     if (!option.default_values.empty()) {
         value_info.values.insert(*option.default_values.begin());
     }
@@ -361,19 +342,17 @@ FileSelectWidget::FileSelectWidget(const LayerOption &option, QWidget *parent)
     setLayout(layout);
 }
 
-void FileSelectWidget::selectFile()
-{
+void FileSelectWidget::selectFile() {
     QString path;
     switch (option.type) {
-
-    case LayerOptionType::OpenFile:
-        path = QFileDialog::getOpenFileName(this, tr("File Path"), QDir::homePath());
-        break;
-    case LayerOptionType::SaveFile:
-        path = QFileDialog::getSaveFileName(this, tr("File Path"), QDir::homePath());
-        break;
-    default:
-        return;
+        case LayerOptionType::OpenFile:
+            path = QFileDialog::getOpenFileName(this, tr("File Path"), QDir::homePath());
+            break;
+        case LayerOptionType::SaveFile:
+            path = QFileDialog::getSaveFileName(this, tr("File Path"), QDir::homePath());
+            break;
+        default:
+            return;
     }
     if (path == "") {
         return;
@@ -383,8 +362,7 @@ void FileSelectWidget::selectFile()
     line_edit->setToolTip(path);
 }
 
-void FileSelectWidget::setText(const QString &text)
-{
+void FileSelectWidget::setText(const QString &text) {
     value_info.values.clear();
     value_info.values.insert(text);
 
@@ -392,8 +370,7 @@ void FileSelectWidget::setText(const QString &text)
 }
 
 StringSelectWidget::StringSelectWidget(const LayerOption &option, QWidget *parent)
-    : QLineEdit(parent), option(option), value_info{option.layer_name, option.name, option.type, QSet<QString>()}
-{
+    : QLineEdit(parent), option(option), value_info{option.layer_name, option.name, option.type, QSet<QString>()} {
     if (!option.default_values.empty()) {
         value_info.values.insert(*option.default_values.begin());
         setText(*option.default_values.begin());
@@ -401,8 +378,7 @@ StringSelectWidget::StringSelectWidget(const LayerOption &option, QWidget *paren
     connect(this, &StringSelectWidget::textChanged, this, &StringSelectWidget::setValue);
 }
 
-void StringSelectWidget::setValue(const QString &text)
-{
+void StringSelectWidget::setValue(const QString &text) {
     value_info.values.clear();
     value_info.values.insert(text);
 

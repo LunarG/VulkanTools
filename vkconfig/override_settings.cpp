@@ -34,8 +34,7 @@
 #define WIN_BUFFER_SIZE 1024
 #endif
 
-OverrideSettings::OverrideSettings()
-{
+OverrideSettings::OverrideSettings() {
     // Load the override layer (if found)
     QFile layer_file(LayerFile(false));
     if (layer_file.exists() && layer_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -74,7 +73,7 @@ OverrideSettings::OverrideSettings()
         QString data = settings_file.readAll();
         settings_file.close();
 
-        for (const QString& line : data.split(QRegularExpression("\n|\r\n|\r"))) {
+        for (const QString &line : data.split(QRegularExpression("\n|\r\n|\r"))) {
             if (QRegularExpression("\\s*#").match(line).hasMatch()) {
                 continue;
             }
@@ -102,15 +101,15 @@ OverrideSettings::OverrideSettings()
     }
 }
 
-void OverrideSettings::ClearLayers()
-{
+void OverrideSettings::ClearLayers() {
     QString layer_path = LayerFile(false);
 #if defined(_WIN32)
     HKEY key;
-    LSTATUS err = RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers", REG_OPTION_NON_VOLATILE, KEY_WRITE, &key);
+    LSTATUS err =
+        RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers", REG_OPTION_NON_VOLATILE, KEY_WRITE, &key);
     if (err == ERROR_SUCCESS) {
         QByteArray path_bytes = layer_path.toLocal8Bit();
-        const char* dummy = path_bytes.data();
+        const char *dummy = path_bytes.data();
         RegDeleteValue(key, path_bytes.data());
         RegCloseKey(key);
     }
@@ -124,8 +123,7 @@ void OverrideSettings::ClearLayers()
     disabled_layers.clear();
 }
 
-void OverrideSettings::ClearSettings()
-{
+void OverrideSettings::ClearSettings() {
     QString settings_path = LayerSettingsFile(false);
 #if defined(_WIN32)
     HKEY key;
@@ -149,10 +147,7 @@ QList<QString> OverrideSettings::DisabledLayers() const { return disabled_layers
 
 QList<QString> OverrideSettings::EnabledLayers() const { return enabled_layers; }
 
-QHash<QString, QHash<QString, QString>> OverrideSettings::LayerSettings() const
-{
-    return layer_settings;
-}
+QHash<QString, QHash<QString, QString>> OverrideSettings::LayerSettings() const { return layer_settings; }
 
 bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths, const QList<LayerManifest> &enabled_layers,
                                   const QList<LayerManifest> &disabled_layers, int expiration) {
@@ -208,8 +203,7 @@ bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths,
     return false;
 }
 
-bool OverrideSettings::SaveSettings(const QHash<QString, QHash<QString, LayerValue>> &settings)
-{
+bool OverrideSettings::SaveSettings(const QHash<QString, QHash<QString, LayerValue>> &settings) {
     layer_settings.clear();
     for (const QString &layer : settings.keys()) {
         QHash<QString, QString> options;
@@ -244,12 +238,12 @@ bool OverrideSettings::SaveSettings(const QHash<QString, QHash<QString, LayerVal
     return false;
 }
 
-QString OverrideSettings::LayerFile(bool create_path) const
-{
+QString OverrideSettings::LayerFile(bool create_path) const {
 #if defined(_WIN32)
     HKEY key;
     REGSAM access = KEY_READ | (create_path ? KEY_WRITE : 0);
-    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers", 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers", 0, NULL, REG_OPTION_NON_VOLATILE,
+                                 access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) {
         return "";
     }
@@ -261,7 +255,7 @@ QString OverrideSettings::LayerFile(bool create_path) const
         TCHAR buffer[WIN_BUFFER_SIZE];
         DWORD buff_size = WIN_BUFFER_SIZE;
         DWORD type, value, value_size = sizeof(value);
-        RegEnumValue(key, i, buffer, &buff_size, NULL, &type, (BYTE*) &value, &value_size);
+        RegEnumValue(key, i, buffer, &buff_size, NULL, &type, (BYTE *)&value, &value_size);
 
         if (type == REG_DWORD && value == 0) {
             file_path = buffer;
@@ -278,7 +272,7 @@ QString OverrideSettings::LayerFile(bool create_path) const
         file_path = QDir::toNativeSeparators(dir.absoluteFilePath("VkLayer_override.json"));
         QByteArray file_path_bytes = file_path.toLocal8Bit();
         DWORD value = 0;
-        RegSetValueEx(key, file_path_bytes.data(), 0, REG_DWORD, (BYTE*) &value, sizeof(value));
+        RegSetValueEx(key, file_path_bytes.data(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
     }
 
     RegCloseKey(key);
@@ -293,13 +287,12 @@ QString OverrideSettings::LayerFile(bool create_path) const
 #endif
 }
 
-QString OverrideSettings::LayerSettingsFile(bool create_path) const
-{
+QString OverrideSettings::LayerSettingsFile(bool create_path) const {
 #if defined(_WIN32)
     HKEY key;
     REGSAM access = KEY_READ | (create_path ? KEY_WRITE : 0);
-    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\Settings", 0, NULL, REG_OPTION_NON_VOLATILE,
-                                 access, NULL, &key, NULL);
+    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\Settings", 0, NULL, REG_OPTION_NON_VOLATILE, access,
+                                 NULL, &key, NULL);
     if (err != ERROR_SUCCESS) {
         return "";
     }
@@ -336,9 +329,9 @@ QString OverrideSettings::LayerSettingsFile(bool create_path) const
 #else
     QDir dir = QDir::home();
     if (!dir.cd(".local/share/vulkan/settings.d")) {
-            dir.mkpath(".local/share/vulkan/settings.d");
-            dir.cd(".local/share/vulkan/settings.d");
-        }
+        dir.mkpath(".local/share/vulkan/settings.d");
+        dir.cd(".local/share/vulkan/settings.d");
+    }
     return dir.absoluteFilePath("vk_layer_settings.txt");
 #endif
 }

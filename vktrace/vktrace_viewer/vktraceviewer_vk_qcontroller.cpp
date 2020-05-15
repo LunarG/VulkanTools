@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  * Author: Peter Lohrmann <peterl@valvesoftware.com> <plohrmann@gmail.com>
-**************************************************************************/
+ **************************************************************************/
 #include "vktraceviewer_vk_settings.h"
 #include "vktraceviewer_vk_qcontroller.h"
 
