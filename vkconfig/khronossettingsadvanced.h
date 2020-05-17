@@ -25,6 +25,7 @@
 
 #include <QWidget>
 #include <QTreeWidgetItem>
+#include <QRadioButton>
 
 #include <layerfile.h>
 
@@ -50,11 +51,19 @@ private:
     TLayerSettings *pDisables;
     TLayerSettings *pEnables;
 
+    QTreeWidgetItem *pShaderBasedBox;
+    QTreeWidgetItem *pGPUAssistBox;
+    QRadioButton    *pGPURadio;
+    QTreeWidgetItem *pReserveBox;
+    QTreeWidgetItem *pDebugPrintfBox;
+    QRadioButton    *pDebugRadio;
+
 public Q_SLOTS:
 
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
+
 };
 
 #endif // KHRONOSSETTINGSADVANCED_H

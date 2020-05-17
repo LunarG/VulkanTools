@@ -32,11 +32,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // delimted string is a comma delimited string. If value is found remove it
-QString RemoveString(QString& delimitedString, QString value)
+void RemoveString(QString& delimitedString, QString value)
     {
     // Well, it's not there now is it...
     if(!delimitedString.contains(value))
-        return delimitedString;
+        return;
 
     QStringList list = delimitedString.split(",");
     for(int i = 0; i < list.size(); i++)
@@ -45,7 +45,7 @@ QString RemoveString(QString& delimitedString, QString value)
             break;
             }
 
-    return list.join(",");
+    delimitedString = list.join(",");
     }
 
 /////////////////////////////////////////////////////////////////////////////////

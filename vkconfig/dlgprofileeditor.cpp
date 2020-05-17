@@ -147,7 +147,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
     ui(new Ui::dlgProfileEditor)
     {
     ui->setupUi(this);
-
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     // We never edit a profile directly, we only edit a copy of it.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     setWindowTitle("Creating New Profile");

@@ -183,7 +183,7 @@ bool KhronosSettings::CollectSettings(void)
         if(ui->radioButtonGPU->isChecked()) {
             AddString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
             RemoveString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
-            if(ui->checkReserve)
+            if(ui->checkReserve->isChecked())
                 AddString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
             else
                 RemoveString(linkedSetting[2]->settingsValue, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");

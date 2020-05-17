@@ -75,7 +75,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
             pDisables = layerSettings[i];
             break;
         }
-    Q_ASSERT(pEnables != nullptr);
+    Q_ASSERT(pDisables != nullptr);
 
     QTreeWidgetItem *pHeader = ui->treeWidget->headerItem();
     pHeader->setText(0, "Validation Settings");
@@ -83,10 +83,10 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     ///////////////////////////////////////////////////////////////
     /// \brief pCoreChecks
     /// If this is off, everyone below is disabled
-    bool bCoreValidation = !pDisables->settingsValue.contains("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+    bool bCoreValidationDisabled = pDisables->settingsValue.contains("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
     pCoreChecksParent = new QTreeWidgetItem();
     pCoreChecksParent->setText(0, "Core Validation Checks");
-    pCoreChecksParent->setCheckState(0, (bCoreValidation) ? Qt::Checked : Qt::Unchecked);
+    pCoreChecksParent->setCheckState(0, (bCoreValidationDisabled) ? Qt::Unchecked : Qt::Checked);
     ui->treeWidget->addTopLevelItem(pCoreChecksParent);
 
 
@@ -94,47 +94,24 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     for(int i = 0; i < 7; i++) {
         pChild = new QTreeWidgetItem();
         pChild->setText(0, coreChecks[i].prompt);
-        if(pDisables->settingsValue.contains(coreChecks[i].token))
+        printf("%s\n%s\n", pDisables->settingsValue.toUtf8().constData(),
+               coreChecks[i].token.toUtf8().constData());
+        if(pDisables->settingsValue.contains(coreChecks[i].token) ||  bCoreValidationDisabled)
             pChild->setCheckState(0, Qt::Unchecked);
         else
             pChild->setCheckState(0, Qt::Checked);
 
-        if(!bCoreValidation)
+        if(bCoreValidationDisabled)
             pChild->setFlags(pChild->flags() & ~Qt::ItemIsEnabled);
 
         pCoreChecksParent->addChild(pChild);
         coreChecks[i].pItem = pChild;
         }
 
-    //////////////////////////////////////////////////////////////////////
-
-    // Best Practices - one parent/child, but we want to be able
-    // to go back to these
-    pChild = new QTreeWidgetItem();
-    pChild->setText(0, bestPractices[1].prompt);
-    if(pEnables->settingsValue.contains(bestPractices[1].token))
-        pChild->setCheckState(0, Qt::Checked);
-    else
-        pChild->setCheckState(0, Qt::Unchecked);
-
-
-    QTreeWidgetItem *pItem = new QTreeWidgetItem();
-    pItem->setText(0, bestPractices[0].prompt);
-    if(pEnables->settingsValue.contains(bestPractices[0].token))
-        pItem->setCheckState(0, Qt::Checked);
-    else {
-        pItem->setCheckState(0, Qt::Unchecked);
-        pChild->setFlags(pChild->flags() & ~Qt::ItemIsEnabled);
-        }
-
-    bestPractices[0].pItem = pItem;
-    ui->treeWidget->addTopLevelItem(pItem);
-
-    pItem->addChild(pChild);
-    bestPractices[1].pItem = pChild;
 
     ///////////////////////////////////////////////////////////////
     // Miscellaneous disables
+    QTreeWidgetItem *pItem;
     for(int i = 0; i <4; i++) {
         pItem = new QTreeWidgetItem();
         pItem->setText(0, miscDisables[i].prompt);
@@ -149,21 +126,87 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
 
     ///////////////////////////////////////////////////////////////
     // Now for the GPU specific stuff
-    if(pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT"))
-        ui->radioButtonDebug->setChecked(true);
-    else
-        ui->radioButtonGPU->setChecked(true);   // This way one is the default
+     bool bGPUStuff = pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
+            pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
 
+    pShaderBasedBox = new QTreeWidgetItem();
+    pShaderBasedBox->setText(0, "Shader-Based Validation");
+    if(bGPUStuff)
+            pShaderBasedBox->setCheckState(0, Qt::Checked);
+        else
+            pShaderBasedBox->setCheckState(0, Qt::Unchecked);
+
+    ui->treeWidget->addTopLevelItem(pShaderBasedBox);
+
+    pGPUAssistBox = new QTreeWidgetItem();
+    pGPUAssistBox->setText(0, "     GPU-Assisted");
+    pShaderBasedBox->addChild(pGPUAssistBox);
+
+    pGPURadio = new QRadioButton();
+    ui->treeWidget->setItemWidget(pGPUAssistBox, 0, pGPURadio);
+
+    pReserveBox = new QTreeWidgetItem();
+    pReserveBox->setText(0, "Reserve Descriptor Set Binding");
     if(pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"))
-        ui->checkReserve->setChecked(true);
+        pReserveBox->setCheckState(0, Qt::Checked);
+    else
+        pReserveBox->setCheckState(0, Qt::Unchecked);
 
-    if(!pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") &&
-            !pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT"))
-        ui->groupBoxGPU->setChecked(false);
+
+    pGPUAssistBox->addChild(pReserveBox);
+
+    pDebugPrintfBox = new QTreeWidgetItem();
+    pDebugPrintfBox->setText(0, "     Debug printf");
+    pShaderBasedBox->addChild(pDebugPrintfBox);
+
+    pDebugRadio = new QRadioButton();
+    ui->treeWidget->setItemWidget(pDebugPrintfBox, 0, pDebugRadio);
+    if(pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
+        pDebugRadio->setChecked(true);
+        pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
+        }
+    else
+        pGPURadio->setChecked(true);
+
+    if(!bGPUStuff) {
+        pDebugRadio->setEnabled(false);
+        pGPURadio->setEnabled(false);
+        pDebugPrintfBox->setFlags(pDebugPrintfBox->flags() & ~Qt::ItemIsEnabled);
+        pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
+        pGPUAssistBox->setFlags(pGPUAssistBox->flags() & ~Qt::ItemIsEnabled);
+        }
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Best Practices - one parent/child, but we want to be able
+    // to go back to these
+    pChild = new QTreeWidgetItem();
+    pChild->setText(0, bestPractices[1].prompt);
+    if(pEnables->settingsValue.contains(bestPractices[1].token))
+        pChild->setCheckState(0, Qt::Checked);
+    else
+        pChild->setCheckState(0, Qt::Unchecked);
+
+
+    pItem = new QTreeWidgetItem();
+    pItem->setText(0, bestPractices[0].prompt);
+    if(pEnables->settingsValue.contains(bestPractices[0].token))
+        pItem->setCheckState(0, Qt::Checked);
+    else {
+        pItem->setCheckState(0, Qt::Unchecked);
+        pChild->setFlags(pChild->flags() & ~Qt::ItemIsEnabled);
+        }
+
+    bestPractices[0].pItem = pItem;
+    ui->treeWidget->addTopLevelItem(pItem);
+
+    pItem->addChild(pChild);
+    bestPractices[1].pItem = pChild;
+
 
     connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
-    connect(ui->radioButtonGPU, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
-    connect(ui->radioButtonDebug, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
+    connect(pGPURadio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
+    connect(pDebugRadio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
     }
 
 KhronosSettingsAdvanced::~KhronosSettingsAdvanced()
@@ -176,7 +219,6 @@ void KhronosSettingsAdvanced::SetEnabled(bool bEnabled)
     {
     ui->labelHideMessage->setVisible(!bEnabled);
     ui->treeWidget->setVisible(bEnabled);
-    ui->groupBoxGPU->setVisible(bEnabled);
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,7 +233,6 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
 
     // Most toggles we ignore. A few are important.
 
-
     // Best Practices?
     if(pItem == bestPractices[0].pItem)
         {
@@ -202,6 +243,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
             bestPractices[1].pItem->setFlags(bestPractices[1].pItem->flags() & ~Qt::ItemIsEnabled);
             bestPractices[1].pItem->setCheckState(0, Qt::Unchecked);
             }
+        return;
         }
 
     // Core Validation.
@@ -218,20 +260,48 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
                  coreChecks[i].pItem->setCheckState(0, Qt::Unchecked);
                  }
              }
+        return;
         }
+
+    // Shader based stuff
+    if(pItem == pShaderBasedBox) { // Just enable/disable the items below it
+        if(pShaderBasedBox->checkState(0) == Qt::Checked) {
+            pDebugRadio->setEnabled(true);
+            pGPURadio->setEnabled(true);
+            pDebugPrintfBox->setFlags(pDebugPrintfBox->flags() | Qt::ItemIsEnabled);
+            pReserveBox->setFlags(pReserveBox->flags() | Qt::ItemIsEnabled);
+            pGPUAssistBox->setFlags(pGPUAssistBox->flags() | Qt::ItemIsEnabled);
+            }
+        else {
+            pDebugRadio->setEnabled(false);
+            pGPURadio->setEnabled(false);
+            pDebugPrintfBox->setFlags(pDebugPrintfBox->flags() & ~Qt::ItemIsEnabled);
+            pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
+            pGPUAssistBox->setFlags(pGPUAssistBox->flags() & ~Qt::ItemIsEnabled);
+            }
+        return;
+        }
+
+    // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
+    if(pItem == pDebugPrintfBox && pDebugRadio->isChecked())
+        pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
+
+
     }
 
 
 void KhronosSettingsAdvanced::gpuToggled(bool toggle)
     {
     if(toggle)
-        ui->checkReserve->setEnabled(true);
+       pReserveBox->setFlags(pReserveBox->flags() | Qt::ItemIsEnabled);
     }
 
 void KhronosSettingsAdvanced::printfToggled(bool toggle)
     {
-    if(toggle)
-        ui->checkReserve->setEnabled(false);
+    if(toggle) {
+        pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
+        pReserveBox->setCheckState(0, Qt::Unchecked);
+        }
     }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -244,11 +314,11 @@ bool KhronosSettingsAdvanced::CollectSettings(void)
     QString disables;
 
     // GPU stuff
-    if(ui->groupBoxGPU->isChecked()) {
-        if(ui->radioButtonGPU->isChecked()) {
+    if(pShaderBasedBox->checkState(0) == Qt::Checked) {
+        if(pGPURadio->isChecked()) {
             enables ="VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT";
 
-            if(ui->checkReserve->isChecked())
+            if(pReserveBox->checkState(0) == Qt::Checked)
                 enables += ",VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT";
             }
          else  // Debug printf must be checked
