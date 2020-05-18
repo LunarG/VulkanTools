@@ -37,12 +37,13 @@
 #include "dlghistory.h"
 #include "dlgcustompaths.h"
 #include "profiledef.h"
+#include "dlgcustomalert.h"
 
 
-static const char *szWelcomeText = "\nWelcome to LunarG Vulkan Configurator. This tool allows configuring the Vulkan "
-                                   "Layers to do Vulkan Applicaton Validation, helping to detect application issues.\n\n"
-                                   "To start, click on \"Edit List...\" and add the applications you want to configure "
-                                   "layers for.";
+static const char *szWelcomeText = "<font color='red'>\nWelcome to LunarG Vulkan Configurator. This tool allows configuring Vulkan "
+                                   "Layers.\n\n"
+                                   "<br><br>To start, click on \"Edit List...\" and add the applications you want to configure "
+                                   "layers for.</br></br>";
 
 static const char *szStartText = "- Select a \"Configuration\" and \"Activate\" to start "
                                  "applying Vulkan Layers to the selected Vulkan application list.\n\n"
@@ -342,12 +343,24 @@ void MainWindow::helpShowHelp(bool bChecked)
 void MainWindow::closeEvent(QCloseEvent *event)
     {
     int nRow = ui->listWidgetProfiles->currentRow();
-    if(nRow != -1) {
-        CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
 
+    if(nRow != -1) {
         // Make sure we capture any changes.
         if(settingsEditor.CollectSettings())
             pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
+        }
+
+    if(pVulkanConfig->getVulkanConfig() != nullptr) {
+        QSettings settings;
+        bool bShowMe = settings.value("VK_CONFIG_EXIT_HIDE_MESSAGE").toBool();
+        if(!bShowMe) {
+            dlgCustomAlert ca(this);
+            ca.SetMessage("REMINDER: Active override configurations will remain in effect even after The Vulkan Configurator has closed.");
+            ca.exec();
+            if(ca.DontShowMeAgain())
+                settings.setValue("VK_CONFIG_EXIT_HIDE_MESSAGE", true);
+            }
         }
 
     event->accept();
@@ -558,7 +571,16 @@ void MainWindow::on_pushButtonActivate_clicked()
         }
 
     updateActivateButtonState();
-//    settingsEditor.SetEnabled(false);
+
+    QSettings settings;
+    if(settings.value("VKCONFIG_SETTING_RESTART_WARNING_IGNORE").toBool() == false) {
+        dlgCustomAlert alert(this);
+        alert.SetMessage("Any running Vulkan applications must be restarted before the new layer overrides can take effect.");
+        alert.exec();
+        if(alert.DontShowMeAgain())
+            settings.setValue("VKCONFIG_SETTING_RESTART_WARNING_IGNORE", true);
+        }
+
     }
 
 //////////////////////////////////////////////////////////////////////////////

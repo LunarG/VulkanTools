@@ -80,6 +80,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
     ui(new Ui::dlgCreateAssociation)
     {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
 

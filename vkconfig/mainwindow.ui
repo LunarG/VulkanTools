@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>632</width>
-    <height>655</height>
+    <height>739</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -64,22 +64,22 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="pushButtonEdit">
-         <property name="minimumSize">
-          <size>
-           <width>76</width>
-           <height>26</height>
-          </size>
+       <item row="0" column="0" rowspan="5">
+        <widget class="QListWidget" name="listWidgetProfiles">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>98</width>
-           <height>16777215</height>
-          </size>
+         <property name="showDropIndicator" stdset="0">
+          <bool>false</bool>
          </property>
-         <property name="text">
-          <string>Edit...</string>
+         <property name="dragEnabled">
+          <bool>false</bool>
+         </property>
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::NoDragDrop</enum>
          </property>
         </widget>
        </item>
@@ -102,25 +102,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" rowspan="5">
-        <widget class="QListWidget" name="listWidgetProfiles">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-           <horstretch>1</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="showDropIndicator" stdset="0">
-          <bool>false</bool>
-         </property>
-         <property name="dragEnabled">
-          <bool>false</bool>
-         </property>
-         <property name="dragDropMode">
-          <enum>QAbstractItemView::NoDragDrop</enum>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="1">
         <widget class="QPushButton" name="pushButtonActivate">
          <property name="minimumSize">
@@ -137,6 +118,35 @@
          </property>
          <property name="text">
           <string>Activate</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButtonEdit">
+         <property name="minimumSize">
+          <size>
+           <width>76</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>98</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Edit...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QCheckBox" name="checkBoxKeepActive">
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
+         <property name="text">
+          <string>Keep settings active when terminated.</string>
          </property>
         </widget>
        </item>
@@ -188,7 +198,7 @@
             <x>0</x>
             <y>0</y>
             <width>592</width>
-            <height>266</height>
+            <height>310</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3"/>
@@ -202,16 +212,66 @@
      <widget class="QGroupBox" name="groupBox_2">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>2</horstretch>
+        <horstretch>4</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>100</height>
+       </size>
       </property>
       <property name="title">
        <string>Vulkan Application Scope</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="3">
+        <widget class="QPushButton" name="pushButtonLaunch">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Test Environment...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2" rowspan="2">
+        <widget class="QLabel" name="label_2">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Apply settings to a user defined list of executables.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
         <widget class="QPushButton" name="pushButtonAppList">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>75</width>
@@ -220,32 +280,6 @@
          </property>
          <property name="text">
           <string>Edit List...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButtonLaunch">
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Launch Test Environment...</string>
          </property>
         </widget>
        </item>

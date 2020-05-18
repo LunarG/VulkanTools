@@ -26,6 +26,7 @@ SOURCES += \
     dlgabout.cpp \
     dlgbetamessage.cpp \
     dlgcreateassociation.cpp \
+    dlgcustomalert.cpp \
     dlgcustompaths.cpp \
     dlghelp.cpp \
     dlghistory.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     dlgabout.h \
     dlgbetamessage.h \
     dlgcreateassociation.h \
+    dlgcustomalert.h \
     dlgcustompaths.h \
     dlghelp.h \
     dlghistory.h \
@@ -65,6 +67,7 @@ FORMS += \
     dlgabout.ui \
     dlgbetamessage.ui \
     dlgcreateassociation.ui \
+    dlgcustomalert.ui \
     dlgcustompaths.ui \
     dlghelp.ui \
     dlghistory.ui \

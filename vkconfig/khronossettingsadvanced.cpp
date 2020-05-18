@@ -21,8 +21,10 @@
  * so much in flux, I just put this in quickly.
  */
 
+#include <QSettings>
 #include "khronossettingsadvanced.h"
 #include "ui_khronossettingsadvanced.h"
+#include "dlgcustomalert.h"
 
 // Keep track of tree/setting correlations
 struct TREE_SETTING { QString prompt;
@@ -418,16 +420,17 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
     ui->treeWidget->setCurrentItem(pItem);
 
     // Best Practices?
+    ui->treeWidget->blockSignals(true);
     if(pItem == bestPractices[0].pItem)
         {
         // If we turned it on, we need to enable AMD
-        if(pItem->checkState(0) == Qt::Checked)
+        if(pItem->checkState(0) == Qt::Checked) {
             bestPractices[1].pItem->setFlags(bestPractices[1].pItem->flags() | Qt::ItemIsEnabled);
+            }
         else {
             bestPractices[1].pItem->setFlags(bestPractices[1].pItem->flags() & ~Qt::ItemIsEnabled);
             bestPractices[1].pItem->setCheckState(0, Qt::Unchecked);
             }
-        return;
         }
 
     // Core Validation.
@@ -444,7 +447,6 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
                  coreChecks[i].pItem->setCheckState(0, Qt::Unchecked);
                  }
              }
-        return;
         }
 
     // Shader based stuff
@@ -463,13 +465,56 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
             pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
             pGPUAssistBox->setFlags(pGPUAssistBox->flags() & ~Qt::ItemIsEnabled);
             }
-        return;
         }
 
     // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
     if(pItem == pDebugPrintfBox && pDebugRadio->isChecked())
         pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
 
+    ui->treeWidget->blockSignals(false);
+
+    // Check for performance issues. There are three different variations, and I think
+    // we should alert the user to all three exactly/explicitly to what they are
+    QSettings settings;
+
+    // Core checks and shader based
+    if(pCoreChecksParent->checkState(0) == Qt::Checked &&
+            pShaderBasedBox->checkState(0) == Qt::Checked) {
+        if(settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
+            dlgCustomAlert alert(this);
+            alert.SetMessage(tr("Combining Core Validation and Shader Based Validation can result in extreme performance degradation."));
+            alert.exec();
+            if(alert.DontShowMeAgain())
+                settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
+            return;
+            }
+        }
+
+    // Core checks and best practices
+    if(pCoreChecksParent->checkState(0) == Qt::Checked &&
+            bestPractices[0].pItem->checkState(0) == Qt::Checked) {
+        if(settings.value("VKCONFIG_WARN_CORE_BEST_IGNORE").toBool() == false) {
+            dlgCustomAlert alert(this);
+            alert.SetMessage(tr("Combining Core Validation and Best Practices Validation can result in extreme performance degradation."));
+            alert.exec();
+            if(alert.DontShowMeAgain())
+                settings.setValue("VKCONFIG_WARN_CORE_BEST_IGNORE", true);
+            return;
+            }
+        }
+
+    // Core checks and best practices
+    if(pShaderBasedBox->checkState(0) == Qt::Checked &&
+            bestPractices[0].pItem->checkState(0) == Qt::Checked) {
+        if(settings.value("VKCONFIG_WARN_SHADER_BEST_IGNORE").toBool() == false) {
+            dlgCustomAlert alert(this);
+            alert.SetMessage(tr("Combining Best Practices Validation and Shader Based Validaation can result in extreme performance degradation."));
+            alert.exec();
+            if(alert.DontShowMeAgain())
+                settings.setValue("VKCONFIG_WARN_SHADER_BEST_IGNORE", true);
+            return;
+            }
+        }
 
     }
 

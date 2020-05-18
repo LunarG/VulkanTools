@@ -14,39 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * A custom message box with a "do not show again" feature.
+ *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
- * This is a temporary message that we are currently in "Beta" for this tool
  */
 
-#include <QStyle>
-#include "dlgbetamessage.h"
-#include "ui_dlgbetamessage.h"
+#include "dlgcustomalert.h"
+#include "ui_dlgcustomalert.h"
 
-dlgBetaMessage::dlgBetaMessage(QWidget *parent) :
+dlgCustomAlert::dlgCustomAlert(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::dlgBetaMessage)
+    ui(new Ui::dlgCustomAlert)
     {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
-    bDontShow = false;
-
-    connect(ui->checkBoxStopIt, SIGNAL(toggled(bool)), this, SLOT(dontShowToggled(bool)));
+    bDontShowMe = false;
     }
 
-dlgBetaMessage::~dlgBetaMessage()
+dlgCustomAlert::~dlgCustomAlert()
     {
     delete ui;
     }
 
-
-void dlgBetaMessage::on_pushButtonDismiss_clicked()
+void dlgCustomAlert::SetMessage(QString qsMessage)
     {
-    close();
+    ui->label->setText(qsMessage);
     }
 
-void dlgBetaMessage::dontShowToggled(bool bToggled)
+void dlgCustomAlert::on_checkBoxDontShow_clicked()
     {
-    (void)bToggled;
-    bDontShow = ui->checkBoxStopIt->isChecked();
+    bDontShowMe = ui->checkBoxDontShow->isChecked();
     }
