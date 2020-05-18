@@ -40,7 +40,6 @@ SOURCES += \
     mainwindow.cpp \
     profiledef.cpp \
     settingseditor.cpp \
-    settingslookup.cpp \
     vulkanconfiguration.cpp
 
 HEADERS += \

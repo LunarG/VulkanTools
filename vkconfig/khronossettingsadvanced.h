@@ -61,6 +61,7 @@ private:
 public Q_SLOTS:
 
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);
+    void itemClicked(QTreeWidgetItem *pItem, int nColumn);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
 
