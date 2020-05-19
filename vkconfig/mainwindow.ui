@@ -140,16 +140,6 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2">
-        <widget class="QCheckBox" name="checkBoxKeepActive">
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
-         <property name="text">
-          <string>Keep settings active when terminated.</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
@@ -198,7 +188,7 @@
             <x>0</x>
             <y>0</y>
             <width>592</width>
-            <height>310</height>
+            <height>339</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3"/>

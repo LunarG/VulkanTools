@@ -571,6 +571,8 @@ void MainWindow::on_pushButtonActivate_clicked()
         }
 
     updateActivateButtonState();
+    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
+        return;
 
     QSettings settings;
     if(settings.value("VKCONFIG_SETTING_RESTART_WARNING_IGNORE").toBool() == false) {

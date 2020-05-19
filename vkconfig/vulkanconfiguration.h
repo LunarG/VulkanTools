@@ -46,8 +46,8 @@
 static const char *szCannedProfiles[10] = {
 "Standard Validation",          ":/resourcefiles/Standard Validation.json",
 "Best Practices Validation",    ":/resourcefiles/Best Practices Validation.json",
-"Shader Based Validation",      ":/resourcefiles/Shader Based Validation.json",
-"Low Overhead Validation",  ":/resourcefiles/Low Overhead Validation.json",
+"Shader-Based Validation",      ":/resourcefiles/Shader-Based Validation.json",
+"Low-Overhead Validation",  ":/resourcefiles/Low-Overhead Validation.json",
 };
 
 
