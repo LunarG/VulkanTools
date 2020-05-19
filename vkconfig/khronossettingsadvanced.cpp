@@ -126,7 +126,7 @@ static TREE_SETTING miscDisables[NUM_MISC_DISABLES] = { { "Thread Safety Checks"
 
 #define NUM_BEST_PRACTICES  2
 static TREE_SETTING bestPractices[NUM_BEST_PRACTICES] = { {  "Best Practices Warning Checks", "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT", nullptr},
-                               { "ARM Specific Validation", "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM", nullptr}};
+                               { "ARM-Specific Validation", "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM", nullptr}};
 
 
 /////////////////////////////////////////////////////////////////////////////////

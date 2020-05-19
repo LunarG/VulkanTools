@@ -1,5 +1,5 @@
 {
-    "Shader Based Validation": {
+    "Shader-Based Validation": {
     "fixed_profile" : true,
     "description" : "Provides easy access to gpu-assisted validation tools and debug-printf functionality.",
     "blacklisted_layers": [],
