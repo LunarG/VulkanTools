@@ -56,7 +56,11 @@ int main(int argc, char *argv[])
 
 
     // Check loader version
+#ifdef WIN32
     QLibrary library("vulkan-1.dll");
+#else
+    QLibrary library("libvulkan");
+#endif
     if(!(library.load()))
         {
         QMessageBox dlg(NULL);
