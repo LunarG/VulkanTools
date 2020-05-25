@@ -50,6 +50,7 @@ static const char *szCannedProfiles[10] = {
 "Low-Overhead Validation",  ":/resourcefiles/Low-Overhead Validation.json",
 };
 
+#define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CPathFinder class
@@ -78,13 +79,16 @@ protected:
 #define VKCONFIG_NAME       "Vulkan Configurator"
 
 // Saved settings for the application
-#define VKCONFIG_KEY_LAUNCHAPP      "launchApp"
-#define VKCONFIG_KEY_LAUNCHAPP_CWD  "launchAppCWD"
-#define VKCONFIG_KEY_LAUNCHAPP_ARGS "launchAppARGS"
-#define VKCONFIG_KEY_LOGFILE        "logFileName"
-#define VKCONFIG_KEY_ACTIVEPROFILE  "activeProfile"
-#define VKCONFIG_KEY_APPLIST        "applicationList"
-#define VKCONFIG_KEY_CUSTOM_PATHS   "customPaths"
+#define VKCONFIG_KEY_LAUNCHAPP              "launchApp"
+#define VKCONFIG_KEY_LAUNCHAPP_CWD          "launchAppCWD"
+#define VKCONFIG_KEY_LAUNCHAPP_ARGS         "launchAppARGS"
+#define VKCONFIG_KEY_LOGFILE                "logFileName"
+#define VKCONFIG_KEY_ACTIVEPROFILE          "activeProfile"
+#define VKCONFIG_KEY_APPLIST                "applicationList"
+#define VKCONFIG_KEY_CUSTOM_PATHS           "customPaths"
+#define VKCONFIG_KEY_OVERRIDE_ACTIVE        "overrideActive"
+#define VKCONFIG_KEY_APPLY_ONLY_TO_LIST     "applyOnlyToList"
+#define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT    "keepActiveOnExit"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -99,7 +103,15 @@ public:
 };
 
 
-
+//////////////////////////////////////////////////////////
+// We will maintain a list of applicitons, each can have
+// it's own working folder (when run in test mode), and
+// it's own set of command line arguments
+struct TAppListEntry {
+    QString qsAppNameWithPath;
+    QString qsWorkingFolder;
+    QString qsArguments;
+};
 
 class CVulkanConfiguration
 {
@@ -113,6 +125,7 @@ public:
 
     ~CVulkanConfiguration();
 
+    /////////////////////////////////////////////////////////////////////////
     // Just local app settings
     void LoadAppSettings(void);
     void SaveAppSettings(void);
@@ -120,6 +133,10 @@ public:
     QString qsLaunchApplicatinArgs;
     QString qsLaunchApplicationWorkingDir;
     QString qsLogFileWPath;
+    bool    bOverrideActive;    // Do we have an active override?
+    bool    bApplyOnlyToList;   // Apply the overide only to the application list
+    bool    bKeepActiveOnExit;  // Stay active when app closes
+
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
@@ -129,7 +146,7 @@ public:
 
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
-    QStringList appList;
+    QVector <TAppListEntry *> appList;
     void LoadAppList(void);
     void SaveAppList(void);
 

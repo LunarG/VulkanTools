@@ -37,9 +37,9 @@
 #include "dlghistory.h"
 #include "dlgcustompaths.h"
 #include "profiledef.h"
-#include "dlgcustomalert.h"
 
 
+/*
 static const char *szWelcomeText = "<font color='red'>\nWelcome to LunarG Vulkan Configurator. This tool allows configuring Vulkan "
                                    "Layers.\n\n"
                                    "<br><br>To start, click on \"Edit List...\" and add the applications you want to configure "
@@ -58,7 +58,7 @@ static const char *szStartTextRed = "<font color='red'>\n- Select a \"Configurat
                                  "<br><br>-Activated Configurations will remain active after closing the Vulkan Configurator.\n\n</br></br>"
                                  "<br><br>-Vulkan Configurator effects are fully discarded using the \"Deactivate\" button.\n\n</br></br>"
                                  "<br><br>-An activated layer configuration and its settings will be taken into account only when restarting the application.</br></br>";
-
+*/
 #define         ACTIVATE_TEXT   "Activate"
 #define         DEACTIVATE_TEXT "Deactivate"
 
@@ -81,12 +81,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     ///////////////////////////////////////////////
     CheckAppListState();
-    if(pVulkanConfig->appList.size() == 0)
-        pVulkanConfig->SetCurrentActiveProfile(nullptr); // Just to be sure
+
+    // We need to resetup the new profile for consistency sake.
+    QSettings settings;
+    QString lastProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+    CProfileDef *pCurrentProfile = pVulkanConfig->FindProfile(lastProfile);
+    if(pVulkanConfig->bOverrideActive)
+        ChangeActiveProfile(pCurrentProfile);
 
     LoadProfileList();
 
-    connect(ui->listWidgetProfiles, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProfileChanged()));
+//    connect(ui->listWidgetProfiles, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProfileChanged()));
     connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(fileExit(bool)));
     connect(ui->actionHistory, SIGNAL(triggered(bool)), this, SLOT(fileHistory(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(aboutVkConfig(bool)));
@@ -99,8 +104,25 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSet_Test_Application, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanTestApp(bool)));
     connect(ui->actionLog_API_Dump, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanAPIDump(bool)));
 
-    // Activate should always be off because nothing is selected on startup ever
-    updateActivateButtonState();
+    connect(ui->profileTree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(profileItemChanged(QTreeWidgetItem*, int)));
+    connect(ui->profileTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(profileItemHighlighted(QTreeWidgetItem *, int)));
+    connect(ui->profileTree, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(profileItemHighlighted(QTreeWidgetItem *, int)));
+    connect(ui->profileTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(profileTreeChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
+
+
+    if(pVulkanConfig->bOverrideActive) {
+        ui->radioOverride->setChecked(true);
+        ui->checkBoxApplyList->setEnabled(true);
+        ui->checkBoxPersistent->setEnabled(true);
+        }
+    else {
+        ui->radioFully->setChecked(true);
+        ui->checkBoxApplyList->setEnabled(false);
+        ui->checkBoxPersistent->setEnabled(false);
+        }
+
+    ui->checkBoxApplyList->setChecked(pVulkanConfig->bApplyOnlyToList);
+    ui->checkBoxPersistent->setChecked(pVulkanConfig->bKeepActiveOnExit);
     }
 
 MainWindow::~MainWindow()
@@ -114,18 +136,23 @@ MainWindow::~MainWindow()
 // Load or refresh the list of profiles
 void MainWindow::LoadProfileList(void)
     {
-    settingsEditor.CleanupGUI(); // Cleanup from last time, just in case
-    ui->listWidgetProfiles->blockSignals(true);
-    ui->listWidgetProfiles->clear();
-    ui->pushButtonRemove->setEnabled(false); // Nothing is selected
-    ui->pushButtonEdit->setEnabled(false);
+    settingsEditor.CleanupGUI();            // Cleanup from last time, just in case
+    ui->profileTree->blockSignals(true);    // No signals firing off while we do this
+    ui->profileTree->clear();
 
     // Default profiles need the VK_LAYER_KHRONOS_validation layer.
     // If it's not found, we need to disable it.
     bool bKhronosAvailable = (nullptr != pVulkanConfig->FindLayerNamed("VK_LAYER_KHRONOS_validation"));
 
+    // Who is the currently active profile?
+    QSettings settings;
+    QString activeProfileName = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+
     // Add canned profiles first
-    int nItemCount = 0;
+    QTreeWidgetItem *pCannedProfiles = new QTreeWidgetItem();
+    pCannedProfiles->setText(0, tr("Built-In Layer Configurations"));
+    ui->profileTree->addTopLevelItem(pCannedProfiles);
+
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
         if(!pVulkanConfig->profileList[i]->bFixedProfile)
             continue;
@@ -133,31 +160,29 @@ void MainWindow::LoadProfileList(void)
         // Add to list
         CProfileListItem *pItem = new CProfileListItem();
         pItem->pProfilePointer = pVulkanConfig->profileList[i];
-        pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
-        pItem->setToolTip(pVulkanConfig->profileList[i]->qsDescription);
+        pCannedProfiles->addChild(pItem);
+        pItem->setText(0, "");
+        pItem->setToolTip(0, pVulkanConfig->profileList[i]->qsDescription);
+        pItem->pRadioButton = new QRadioButton();
+        pItem->pRadioButton->setText(pVulkanConfig->profileList[i]->qsProfileName);
+        if(activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) {
+            pItem->pRadioButton->setChecked(true);
+            ui->treeWidget->setCurrentItem(pItem);
+            }
 
         if(!bKhronosAvailable)
            pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
 
-        ui->listWidgetProfiles->addItem(pItem);
+        ui->profileTree->setItemWidget(pItem, 0, pItem->pRadioButton);
+        connect(pItem->pRadioButton, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
         CANNED_PROFILE_COUNT++;
         }
 
-    // Add the seperator
-    QFrame *line;
-    line = new QFrame(ui->listWidgetProfiles);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    line->setFrameRect(QRect(85, 8, 10, 20));
+    // Add the user defined
+    QTreeWidgetItem *pUserDefinedProfiles = new QTreeWidgetItem();
+    pUserDefinedProfiles->setText(0, tr("User-Defined Layer Configurations"));
+    ui->profileTree->addTopLevelItem(pUserDefinedProfiles);
 
-    CProfileListItem *pItem = new CProfileListItem();
-    pItem->setText("User Defined");
-            //, ui->listWidgetProfiles);
-    pItem->pProfilePointer = nullptr;
-    pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
-    ui->listWidgetProfiles->addItem(pItem);
-    ui->listWidgetProfiles->setItemWidget(pItem, line);
-    nItemCount++;
 
 
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
@@ -166,16 +191,193 @@ void MainWindow::LoadProfileList(void)
 
         CProfileListItem *pItem = new CProfileListItem();
         pItem->pProfilePointer = pVulkanConfig->profileList[i];
-        pItem->setText(pVulkanConfig->profileList[i]->qsProfileName);
-        pItem->setToolTip((pVulkanConfig->profileList[i]->qsDescription));
+        pUserDefinedProfiles->addChild(pItem);
+        pItem->setText(0, "");
+        pItem->setToolTip(0, pVulkanConfig->profileList[i]->qsDescription);
+        pItem->pRadioButton = new QRadioButton();
+        pItem->pRadioButton->setText(pVulkanConfig->profileList[i]->qsProfileName);
 
-        ui->listWidgetProfiles->addItem(pItem);
+        if(activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) {
+            pItem->pRadioButton->setChecked(true);
+            ui->treeWidget->setCurrentItem(pItem);
+            }
+
+        ui->profileTree->setItemWidget(pItem, 0, pItem->pRadioButton);
+        connect(pItem->pRadioButton, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
         }
 
-    ui->listWidgetProfiles->blockSignals(false);
-    ui->listWidgetProfiles->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->profileTree->expandItem(pCannedProfiles);
+    ui->profileTree->expandItem(pUserDefinedProfiles);
+
+    ui->profileTree->blockSignals(false);
 
     ChangeActiveProfile(pVulkanConfig->GetCurrentActiveProfile());
+    }
+
+//////////////////////////////////////////////////////////
+/// \brief MainWindow::on_radioFully_clicked
+// No override at all, fully controlled by the application
+void MainWindow::on_radioFully_clicked(void)
+    {
+    ui->checkBoxApplyList->setEnabled(false);
+    ui->checkBoxPersistent->setEnabled(false);
+    pVulkanConfig->bOverrideActive = false;
+    pVulkanConfig->SaveAppSettings();
+    ChangeActiveProfile(nullptr);
+    }
+
+//////////////////////////////////////////////////////////
+/// \brief MainWindow::on_radioOverride_clicked
+/// Use the active profile as the override
+void MainWindow::on_radioOverride_clicked(void)
+    {
+    ui->checkBoxApplyList->setEnabled(true);
+    ui->checkBoxPersistent->setEnabled(true);
+    pVulkanConfig->bOverrideActive = true;
+    pVulkanConfig->SaveAppSettings();
+
+    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(ui->profileTree->currentItem());
+    if(pProfileItem == nullptr)
+        ChangeActiveProfile(nullptr);
+    else
+        ChangeActiveProfile(pProfileItem->pProfilePointer);
+    }
+
+
+//////////////////////////////////////////////////////////
+void MainWindow::on_checkBoxApplyList_clicked(void)
+    {
+    pVulkanConfig->bApplyOnlyToList = ui->checkBoxApplyList->isChecked();
+    pVulkanConfig->SaveAppSettings();
+    }
+
+//////////////////////////////////////////////////////////
+void MainWindow::on_checkBoxPersistent_clicked(void)
+    {
+    pVulkanConfig->bKeepActiveOnExit = ui->checkBoxPersistent->isChecked();
+    pVulkanConfig->SaveAppSettings();
+    }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::profileItemClicked
+/// \param bChecked
+/// Thist signal actually comes from the radio button
+void MainWindow::profileItemClicked(bool bChecked)
+    {
+    if(!bChecked) {
+        // Anything important going on here?
+
+        }
+
+    // Someone just got checked, they are now the current profile
+    // This pointer will only be valid if it's one of the elements with
+    // the radio button
+    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(ui->profileTree->currentItem());
+    if(pProfileItem == nullptr)
+        return;
+
+    // Save the name of the current profile
+    QSettings settings;
+    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pProfileItem->pProfilePointer->qsProfileName);
+
+    // Do we go ahead and activate it?
+    if(pVulkanConfig->bOverrideActive)
+        ChangeActiveProfile(pProfileItem->pProfilePointer);
+    }
+
+
+//////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::profileItemChanged
+/// \param pItem
+/// \param nCol
+/// Something was selected, as in a radio button that changes which profile
+/// is now active.
+void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol)
+    {
+    (void)nCol;
+
+    // This pointer will only be valid if it's one of the elements with
+    // the radio button
+    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pItem);
+    if(pProfileItem == nullptr)
+        return;
+
+//    // We don't care what was unchecked
+//    if(!pProfileItem->pRadioButton->isChecked())
+//        return;
+
+//    // Save the name of the current profile
+//    QSettings settings;
+//    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pProfileItem->pProfilePointer->qsProfileName);
+
+//    // Do we go ahead and activate it?
+//    if(pVulkanConfig->bOverrideActive)
+//        pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
+
+    }
+
+
+//////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::profileItemHighlighted
+/// \param pItem
+/// \param nCol
+/// Just scrolling and selecting different profiles. This needs to activate
+/// the editor appropriately.
+void MainWindow::profileItemHighlighted(QTreeWidgetItem *pItem, int nCol)
+    {
+    (void)nCol;
+
+    // This pointer will only be valid if it's one of the elements with
+    // the radio button
+    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pItem);
+    if(pProfileItem == nullptr)
+        return;
+
+//    // We don't care what was unchecked
+//    if(!pProfileItem->pRadioButton->isChecked())
+//        return;
+
+//    // Save the name of the current profile
+//    QSettings settings;
+//    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pProfileItem->pProfilePointer->qsProfileName);
+
+//    // Do we go ahead and activate it?
+//    if(pVulkanConfig->bOverrideActive)
+//        pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
+
+
+
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::profileTreeChanged
+/// \param pCurrent
+/// \param pPrevious
+/// This gets called with keyboard selections
+void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
+    {
+    (void)pPrevious;
+
+    // This pointer will only be valid if it's one of the elements with
+    // the radio button
+    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pCurrent);
+    if(pProfileItem == nullptr)
+        return;
+
+    // We don't care what was unchecked
+    if(!pProfileItem->pRadioButton->isChecked())
+        return;
+
+    // Save the name of the current profile
+//    QSettings settings;
+//    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pProfileItem->pProfilePointer->qsProfileName);
+
+//    // Do we go ahead and activate it?
+//    if(pVulkanConfig->bOverrideActive)
+//        pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
     }
 
 
@@ -204,37 +406,37 @@ void MainWindow::updateGetStartedStatus(QString qsText)
 
 void MainWindow::CheckAppListState(void)
     {
-    // Final check - if there are no apps, disable the profiles list
-    if(pVulkanConfig->appList.length() == 0) {
-        this->setWindowTitle("Vulkan Configurator (Warning, no app list specified)");
-        ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
-        ui->groupBoxEditor->setTitle(tr("Getting Started"));
-        ui->groupBoxProfiles->setEnabled(false);
-        settingsEditor.CleanupGUI();    // Just in case
-        updateGetStartedStatus(szWelcomeText);
-        }
-    else { // There are apps
-        this->setWindowTitle(VKCONFIG_NAME);
-        ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
+//    // Final check - if there are no apps, disable the profiles list
+//    if(pVulkanConfig->appList.length() == 0) {
+//        this->setWindowTitle("Vulkan Configurator (Warning, no app list specified)");
+//        ui->pushButtonAppList->setStyleSheet("QPushButton { color: red;}");
+//        ui->groupBoxEditor->setTitle(tr("Getting Started"));
+//        ui->groupBoxProfiles->setEnabled(false);
+//        settingsEditor.CleanupGUI();    // Just in case
+//        updateGetStartedStatus(szWelcomeText);
+//        }
+//    else { // There are apps
+//        this->setWindowTitle(VKCONFIG_NAME);
+//        ui->pushButtonAppList->setStyleSheet("QPushButton { color: black;}");
 
-        // But was one of them selected?
-        int nSelected = ui->listWidgetProfiles->currentRow();
-        if(nSelected == -1) {
-            ui->groupBoxProfiles->setEnabled(false);
-            ui->groupBoxEditor->setTitle(tr("Using Vulkan Configurations"));
-            ui->groupBoxProfiles->setEnabled(true);
+//        // But was one of them selected?
+//        int nSelected = ui->listWidgetProfiles->currentRow();
+//        if(nSelected == -1) {
+//            ui->groupBoxProfiles->setEnabled(false);
+//            ui->groupBoxEditor->setTitle(tr("Using Vulkan Configurations"));
+//            ui->groupBoxProfiles->setEnabled(true);
 
-            if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
-                updateGetStartedStatus(szStartTextRed);
-                }
-            else
-                updateGetStartedStatus(szStartText);
-            }
-        else {
-            // An item was selected and active
-            ui->groupBoxProfiles->setEnabled(true);
-            }
-        }
+//            if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
+//                updateGetStartedStatus(szStartTextRed);
+//                }
+//            else
+//                updateGetStartedStatus(szStartText);
+//            }
+//        else {
+//            // An item was selected and active
+//            ui->groupBoxProfiles->setEnabled(true);
+//            }
+//        }
     }
 
 /////////////////////////////////////////////////////
@@ -315,14 +517,14 @@ void MainWindow::fileExit(bool bChecked)
     {
     (void)bChecked;
 
-    int nRow = ui->listWidgetProfiles->currentRow();
-    if(nRow != -1) {
-        CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+//    int nRow = ui->listWidgetProfiles->currentRow();
+//    if(nRow != -1) {
+//        CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
 
-        // Make sure we capture any changes.
-        if(settingsEditor.CollectSettings())
-            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
-        }
+//        // Make sure we capture any changes.
+//        if(settingsEditor.CollectSettings())
+//            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
+//        }
 
     close();
     }
@@ -342,26 +544,29 @@ void MainWindow::helpShowHelp(bool bChecked)
 
 void MainWindow::closeEvent(QCloseEvent *event)
     {
-    int nRow = ui->listWidgetProfiles->currentRow();
-    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+//    int nRow = ui->listWidgetProfiles->currentRow();
+//    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
 
-    if(nRow != -1) {
-        // Make sure we capture any changes.
-        if(settingsEditor.CollectSettings())
-            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
-        }
+//    if(nRow != -1) {
+//        // Make sure we capture any changes.
+//        if(settingsEditor.CollectSettings())
+//            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
+//        }
 
-    if(pVulkanConfig->getVulkanConfig() != nullptr) {
-        QSettings settings;
-        bool bShowMe = settings.value("VK_CONFIG_EXIT_HIDE_MESSAGE").toBool();
-        if(!bShowMe) {
-            dlgCustomAlert ca(this);
-            ca.SetMessage("REMINDER: Active override configurations will remain in effect even after The Vulkan Configurator has closed.");
-            ca.exec();
-            if(ca.DontShowMeAgain())
-                settings.setValue("VK_CONFIG_EXIT_HIDE_MESSAGE", true);
-            }
-        }
+//    if(pVulkanConfig->getVulkanConfig() != nullptr) {
+//        QSettings settings;
+//        bool bShowMe = settings.value("VK_CONFIG_EXIT_HIDE_MESSAGE").toBool();
+//        if(!bShowMe) {
+//            QMessageBox ca(this);
+//            ca.setText("REMINDER: Active override configurations will remain in effect even after The Vulkan Configurator has closed.");
+//            QCheckBox *pDoNotShow = new QCheckBox();
+//            pDoNotShow->setText("Do not show again");
+//            ca.setCheckBox(pDoNotShow);
+//            ca.exec();
+//            if(pDoNotShow->isChecked())
+//                settings.setValue("VK_CONFIG_EXIT_HIDE_MESSAGE", true);
+//            }
+//        }
 
     event->accept();
     }
@@ -398,25 +603,25 @@ void MainWindow::on_pushButtonAppList_clicked(void)
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEdit_clicked(void)
     {
-    int nSelection = ui->listWidgetProfiles->currentRow();
-    Q_ASSERT(nSelection >= 0);
+//    int nSelection = ui->listWidgetProfiles->currentRow();
+//    Q_ASSERT(nSelection >= 0);
 
-    // Which profile is selected?
-    QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
-    if(pItem != nullptr) {
-        CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
-        if(pProfileItem != nullptr) {
-            // Save current state before we go in
-            if(settingsEditor.CollectSettings())
-                pVulkanConfig->SaveProfile(pProfileItem->pProfilePointer);
-            dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
-            dlg.exec();
-            pVulkanConfig->LoadAllProfiles(); // Reset
-            LoadProfileList();  // Force a reload
-            if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
-                ui->pushButtonActivate->setEnabled(false);
-            }
-        }
+//    // Which profile is selected?
+//    QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
+//    if(pItem != nullptr) {
+//        CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
+//        if(pProfileItem != nullptr) {
+//            // Save current state before we go in
+//            if(settingsEditor.CollectSettings())
+//                pVulkanConfig->SaveProfile(pProfileItem->pProfilePointer);
+//            dlgProfileEditor dlg(this, pProfileItem->pProfilePointer);
+//            dlg.exec();
+//            pVulkanConfig->LoadAllProfiles(); // Reset
+//            LoadProfileList();  // Force a reload
+//            if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
+//                ui->pushButtonActivate->setEnabled(false);
+//            }
+//        }
     CheckAppListState();
     }
 
@@ -424,12 +629,12 @@ void MainWindow::on_pushButtonEdit_clicked(void)
 // Create a new blank profile
 void MainWindow::on_pushButtonNewProfile_clicked(void)
     {
-    dlgProfileEditor dlg(this, nullptr);
-    dlg.exec();
-    LoadProfileList();  // force a reload
-    CheckAppListState();
-    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
-        ui->pushButtonActivate->setEnabled(false);
+//    dlgProfileEditor dlg(this, nullptr);
+//    dlg.exec();
+//    LoadProfileList();  // force a reload
+//    CheckAppListState();
+//    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
+//        ui->pushButtonActivate->setEnabled(false);
     }
 
 
@@ -450,37 +655,37 @@ void MainWindow::addCustomPaths()
 /// Remove the currently selected user defined profile.
 void MainWindow::on_pushButtonRemove_clicked()
     {
-    int nSelection = ui->listWidgetProfiles->currentRow();
-    Q_ASSERT(nSelection != -1);
+//    int nSelection = ui->listWidgetProfiles->currentRow();
+//    Q_ASSERT(nSelection != -1);
 
-    // Which profile is selected?
-    QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
-    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
-    Q_ASSERT(pProfileItem != nullptr);
+//    // Which profile is selected?
+//    QListWidgetItem* pItem = ui->listWidgetProfiles->item(nSelection);
+//    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pItem);
+//    Q_ASSERT(pProfileItem != nullptr);
 
-    QMessageBox warning;
-    warning.setInformativeText(tr("Are you sure you want to delete this profile?"));
-    warning.setText(pProfileItem->pProfilePointer->qsProfileName);
-    warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    warning.setDefaultButton(QMessageBox::No);
-    if(QMessageBox::No == warning.exec())
-        return; // No harm, no foul
+//    QMessageBox warning;
+//    warning.setInformativeText(tr("Are you sure you want to delete this profile?"));
+//    warning.setText(pProfileItem->pProfilePointer->qsProfileName);
+//    warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+//    warning.setDefaultButton(QMessageBox::No);
+//    if(QMessageBox::No == warning.exec())
+//        return; // No harm, no foul
 
-    // Delete the file
-    QString completePath = pVulkanConfig->GetProfilePath();
-    completePath += "/";
-    completePath += pProfileItem->pProfilePointer->qsFileName;
-    remove(completePath.toUtf8().constData());
+//    // Delete the file
+//    QString completePath = pVulkanConfig->GetProfilePath();
+//    completePath += "/";
+//    completePath += pProfileItem->pProfilePointer->qsFileName;
+//    remove(completePath.toUtf8().constData());
 
-    // Reload profiles
-    pVulkanConfig->LoadAllProfiles();
-    LoadProfileList();
-    CheckAppListState();
+//    // Reload profiles
+//    pVulkanConfig->LoadAllProfiles();
+//    LoadProfileList();
+//    CheckAppListState();
 
-    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
-        ui->pushButtonActivate->setText(tr("Activate"));
-        ui->pushButtonActivate->setEnabled(false);
-        }
+//    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
+//        ui->pushButtonActivate->setText(tr("Activate"));
+//        ui->pushButtonActivate->setEnabled(false);
+//        }
     }
 
 void MainWindow::toolsSetCustomPaths(bool bChecked)
@@ -497,43 +702,22 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
 /// Update "decorations": window caption, (Active) status in list
 void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
     {
-    // Loop through all the items
-    for(int i = 0; i < ui->listWidgetProfiles->count(); i++) {
-        CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(i));
-        Q_ASSERT(pItem != nullptr);
-
-        CProfileDef *pThisProfile = pItem->pProfilePointer;
-        if(pThisProfile) {
-            if(pThisProfile != pNewProfile) { // No longer active
-                pItem->setText(pThisProfile->qsProfileName);
-                continue;
-                }
-            else {
-                QString label = pItem->pProfilePointer->qsProfileName;
-                label += tr(" (Activated)");
-                pItem->setText(label);
-                }
-            }
+    if(pNewProfile == nullptr) {
+        pVulkanConfig->SetCurrentActiveProfile(nullptr);
+        setWindowTitle("Vulkan Configurator");
+        return;
         }
 
-    // A profile is active, make it so...
-    if(pNewProfile != nullptr) {
-        QString title = pNewProfile->qsProfileName;
-        title += " - ";
-        title += tr(VKCONFIG_NAME);
-        setWindowTitle(title);
-        }
-    else { // No profile is currently active
-        QString qsTitle = VKCONFIG_NAME + tr(" - (NO ACTIVE LAYER OVERRIDES!)");
-        setWindowTitle(qsTitle);
+    QString newCaption = pNewProfile->qsProfileName;
+    newCaption += " - Vulkan Configurator ";
 
-        // Only enable the activeate button if something is selected that can
-        // be activated
-//        settingsEditor.SetEnabled(true);
+    // We may have changed it, but it may not actually be active
+    if(pVulkanConfig->bOverrideActive) {
+        pVulkanConfig->SetCurrentActiveProfile(pNewProfile);
+        newCaption += "<VULKAN APPLICATIONS OVERRIDDEN>";
         }
 
-    // Actually set/disable the profile
-    pVulkanConfig->SetCurrentActiveProfile(pNewProfile);
+    this->setWindowTitle(newCaption);
     }
 
 
@@ -542,46 +726,49 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
 /// Activate the currently selected profile
 void MainWindow::on_pushButtonActivate_clicked()
     {
-    // Get the current profile and activate it
-    int nRow = ui->listWidgetProfiles->currentRow();
-    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+//    // Get the current profile and activate it
+//    int nRow = ui->listWidgetProfiles->currentRow();
+//    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
 
-    // Make sure we capture any changes.
-    if(settingsEditor.CollectSettings())
-        pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
+//    // Make sure we capture any changes.
+//    if(settingsEditor.CollectSettings())
+//        pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
 
-    // If something is active, we are deactivating it
-    if(pVulkanConfig->GetCurrentActiveProfile() != nullptr) {
-        pVulkanConfig->SetCurrentActiveProfile(nullptr);
+//    // If something is active, we are deactivating it
+//    if(pVulkanConfig->GetCurrentActiveProfile() != nullptr) {
+//        pVulkanConfig->SetCurrentActiveProfile(nullptr);
 
-        // Keep the current row selection if one was set
-        LoadProfileList(); // Reload to clear activate status
-        if(nRow == -1) {
-            updateGetStartedStatus(szStartTextRed);
-            }
-        else {
-            ui->listWidgetProfiles->setCurrentRow(nRow);
-            selectedProfileChanged();
-            }
-        }
-    else
-        { // We are activating a profile
-        Q_ASSERT(pSelectedItem->pProfilePointer != nullptr);
-        ChangeActiveProfile(pSelectedItem->pProfilePointer);
-        }
+//        // Keep the current row selection if one was set
+//        LoadProfileList(); // Reload to clear activate status
+//        if(nRow == -1) {
+//            updateGetStartedStatus(szStartTextRed);
+//            }
+//        else {
+//            ui->listWidgetProfiles->setCurrentRow(nRow);
+//            selectedProfileChanged();
+//            }
+//        }
+//    else
+//        { // We are activating a profile
+//        Q_ASSERT(pSelectedItem->pProfilePointer != nullptr);
+//        ChangeActiveProfile(pSelectedItem->pProfilePointer);
+//        }
 
-    updateActivateButtonState();
-    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
-        return;
+//    updateActivateButtonState();
+//    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
+//        return;
 
-    QSettings settings;
-    if(settings.value("VKCONFIG_SETTING_RESTART_WARNING_IGNORE").toBool() == false) {
-        dlgCustomAlert alert(this);
-        alert.SetMessage("Any running Vulkan applications must be restarted before the new layer overrides can take effect.");
-        alert.exec();
-        if(alert.DontShowMeAgain())
-            settings.setValue("VKCONFIG_SETTING_RESTART_WARNING_IGNORE", true);
-        }
+//    QSettings settings;
+//    if(settings.value("VKCONFIG_SETTING_RESTART_WARNING_IGNORE").toBool() == false) {
+//        QMessageBox alert(this);
+//        alert.setText("Any running Vulkan applications must be restarted before the new layer overrides can take effect.");
+//        QCheckBox *pDoNotShow = new QCheckBox();
+//        pDoNotShow->setText("Do not show again");
+//        alert.setCheckBox(pDoNotShow);
+//        alert.exec();
+//        if(pDoNotShow->isChecked())
+//            settings.setValue("VKCONFIG_SETTING_RESTART_WARNING_IGNORE", true);
+//        }
 
     }
 
@@ -590,82 +777,82 @@ void MainWindow::on_pushButtonActivate_clicked()
 // button for the highlighted profile
 void MainWindow::selectedProfileChanged(void)
     {
-    updateActivateButtonState();
-    ui->pushButtonEdit->setEnabled(true);   // All profiles can be edited
+////    updateActivateButtonState();
+////    ui->pushButtonEdit->setEnabled(true);   // All profiles can be edited
 
-    // We have changed settings? Were there any edits to the last one?
-    if(settingsEditor.CollectSettings() == true)
-        if(pLastSelectedProfileItem != nullptr) {
-            // Write changes to the profile
-            pVulkanConfig->SaveProfile(pLastSelectedProfileItem->pProfilePointer);
+////    // We have changed settings? Were there any edits to the last one?
+////    if(settingsEditor.CollectSettings() == true)
+////        if(pLastSelectedProfileItem != nullptr) {
+////            // Write changes to the profile
+////            pVulkanConfig->SaveProfile(pLastSelectedProfileItem->pProfilePointer);
 
-            // Oh yeah... if we have changed the current profile, we need to also update
-            // the override settings.
-            if(pVulkanConfig->GetCurrentActiveProfile() == pLastSelectedProfileItem->pProfilePointer)
-                pVulkanConfig->SetCurrentActiveProfile(pLastSelectedProfileItem->pProfilePointer);
-            }
+////            // Oh yeah... if we have changed the current profile, we need to also update
+////            // the override settings.
+////            if(pVulkanConfig->GetCurrentActiveProfile() == pLastSelectedProfileItem->pProfilePointer)
+////                pVulkanConfig->SetCurrentActiveProfile(pLastSelectedProfileItem->pProfilePointer);
+////            }
 
-    // We need the list item that was selected
-    int nRow = ui->listWidgetProfiles->currentRow();
-    Q_ASSERT(-1);
-    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
-    pLastSelectedProfileItem = pSelectedItem;
-    if(pSelectedItem == nullptr) {
-        ui->listWidgetProfiles->setCurrentRow(-1);
-        ui->pushButtonEdit->setEnabled(true);
-        ui->pushButtonRemove->setEnabled(false);    // Only the ones you can edit can be deleted
-        ui->groupBoxEditor->setTitle(tr("Khronos Ouput Settings"));
-        return; // This should never happen, but if they do, nothing is selected
-        }
-
-
-    // We might need the Khronos layer
-    CLayerFile* pKhronos = pSelectedItem->pProfilePointer->GetKhronosLayer();
-
-    // This is the currently active profile
-    if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
-        ui->pushButtonRemove->setEnabled(!pSelectedItem->pProfilePointer->bFixedProfile);
-
-        QString title = tr("Khronos Ouput Settings");
-        title += " - ";
-        title += pSelectedItem->pProfilePointer->qsProfileName;
-        ui->groupBoxEditor->setTitle(title);
-
-        settingsEditor.CleanupGUI();
-        Q_ASSERT(pKhronos != nullptr);
-        if(pKhronos != nullptr)
-            settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
-                        pSelectedItem->pProfilePointer->qsDescription);
-
-        return;
-        }
-
-    // Something is selected, so we need to enable the button
-    ui->pushButtonRemove->setEnabled(true);
-
-    QString title = tr("Khronos Ouput Settings");
-    title += " - ";
-    title += pSelectedItem->pProfilePointer->qsProfileName;
-    ui->groupBoxEditor->setTitle(title);
+////    // We need the list item that was selected
+////    int nRow = ui->listWidgetProfiles->currentRow();
+////    Q_ASSERT(-1);
+////    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+////    pLastSelectedProfileItem = pSelectedItem;
+////    if(pSelectedItem == nullptr) {
+////        ui->listWidgetProfiles->setCurrentRow(-1);
+////        ui->pushButtonEdit->setEnabled(true);
+////        ui->pushButtonRemove->setEnabled(false);    // Only the ones you can edit can be deleted
+////        ui->groupBoxEditor->setTitle(tr("Khronos Ouput Settings"));
+////        return; // This should never happen, but if they do, nothing is selected
+////        }
 
 
-    if(pSelectedItem->pProfilePointer->bFixedProfile)
-        ui->pushButtonRemove->setEnabled(false);
+////    // We might need the Khronos layer
+////    CLayerFile* pKhronos = pSelectedItem->pProfilePointer->GetKhronosLayer();
 
-    // Label the button appropriately, but if a canned profile, we do need to
-    // setup the GUI
-    if(pKhronos != nullptr) {
-        settingsEditor.CleanupGUI();
-        Q_ASSERT(pKhronos != nullptr);
-        settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
-                pSelectedItem->pProfilePointer->qsDescription);
-        }
-    else {
-        ui->pushButtonRemove->setEnabled(true);    // Only the ones you can edit can be deleted
-        settingsEditor.CleanupGUI();
-        QVector <TLayerSettings *> dummy;
-        settingsEditor.CreateGUI(ui->scrollArea, dummy, EDITOR_TYPE_GENERAL, pSelectedItem->pProfilePointer->qsDescription);
-        }
+////    // This is the currently active profile
+////    if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
+////        ui->pushButtonRemove->setEnabled(!pSelectedItem->pProfilePointer->bFixedProfile);
+
+////        QString title = tr("Khronos Ouput Settings");
+////        title += " - ";
+////        title += pSelectedItem->pProfilePointer->qsProfileName;
+////        ui->groupBoxEditor->setTitle(title);
+
+////        settingsEditor.CleanupGUI();
+////        Q_ASSERT(pKhronos != nullptr);
+////        if(pKhronos != nullptr)
+////            settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
+////                        pSelectedItem->pProfilePointer->qsDescription);
+
+//        return;
+//        }
+
+//    // Something is selected, so we need to enable the button
+//    ui->pushButtonRemove->setEnabled(true);
+
+//    QString title = tr("Khronos Ouput Settings");
+//    title += " - ";
+//    title += pSelectedItem->pProfilePointer->qsProfileName;
+//    ui->groupBoxEditor->setTitle(title);
+
+
+//    if(pSelectedItem->pProfilePointer->bFixedProfile)
+//        ui->pushButtonRemove->setEnabled(false);
+
+//    // Label the button appropriately, but if a canned profile, we do need to
+//    // setup the GUI
+//    if(pKhronos != nullptr) {
+//        settingsEditor.CleanupGUI();
+//        Q_ASSERT(pKhronos != nullptr);
+//        settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
+//                pSelectedItem->pProfilePointer->qsDescription);
+//        }
+//    else {
+//        ui->pushButtonRemove->setEnabled(true);    // Only the ones you can edit can be deleted
+//        settingsEditor.CleanupGUI();
+//        QVector <TLayerSettings *> dummy;
+//        settingsEditor.CreateGUI(ui->scrollArea, dummy, EDITOR_TYPE_GENERAL, pSelectedItem->pProfilePointer->qsDescription);
+//        }
     }
 
 
@@ -673,24 +860,24 @@ void MainWindow::selectedProfileChanged(void)
 // Should be easy enough
 void MainWindow::updateActivateButtonState(void)
     {
-    // Capture the original style sheet so disabled doesn't look weird
-    static QString originalStyle = ui->pushButtonActivate->styleSheet();
+//    // Capture the original style sheet so disabled doesn't look weird
+//    static QString originalStyle = ui->pushButtonActivate->styleSheet();
 
-    // Nothing is active. Text says Activate
-    // Might be disabled, might not.
-    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
-        ui->pushButtonActivate->setText(tr(ACTIVATE_TEXT));
-        ui->pushButtonActivate->setStyleSheet(originalStyle);
+//    // Nothing is active. Text says Activate
+//    // Might be disabled, might not.
+//    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
+//        ui->pushButtonActivate->setText(tr(ACTIVATE_TEXT));
+//        ui->pushButtonActivate->setStyleSheet(originalStyle);
 
-        if(ui->listWidgetProfiles->currentRow() == -1)
-            ui->pushButtonActivate->setEnabled(false);
-        else
-            ui->pushButtonActivate->setEnabled(true);
-        }
-    else {
-        // This is always enabled, so we are okay with an abbreviated style sheet
-        ui->pushButtonActivate->setStyleSheet("QPushButton { color: red;}");
-        ui->pushButtonActivate->setText(tr(DEACTIVATE_TEXT));
-        }
+//        if(ui->listWidgetProfiles->currentRow() == -1)
+//            ui->pushButtonActivate->setEnabled(false);
+//        else
+//            ui->pushButtonActivate->setEnabled(true);
+//        }
+//    else {
+//        // This is always enabled, so we are okay with an abbreviated style sheet
+//        ui->pushButtonActivate->setStyleSheet("QPushButton { color: red;}");
+//        ui->pushButtonActivate->setText(tr(DEACTIVATE_TEXT));
+//        }
     }
 

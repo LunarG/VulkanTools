@@ -20,11 +20,12 @@
 #include <QApplication>
 #include <QSettings>
 #include <QLibrary>
+#include <QMessageBox>
+#include <QCheckBox>
 #include <vulkan/vulkan.h>
 
 #include "mainwindow.h"
 #include "dlgbetamessage.h"
-#include "dlgcustomalert.h"
 
 int main(int argc, char *argv[])
     {
@@ -58,23 +59,35 @@ int main(int argc, char *argv[])
     QLibrary library("vulkan-1.dll");
     if(!(library.load()))
         {
-        dlgCustomAlert dlg(NULL);
-        dlg.SetMessage("Could not load vulkan loader!");
+        QMessageBox dlg(NULL);
+        dlg.setText("Warning: Could not find a vulkan loader!");
+        dlg.setIcon(QMessageBox::Warning);
+//        QCheckBox *pCheckBox = new QCheckBox();
+//        pCheckBox->setText("Do not show again");
         dlg.exec();
     } else {
-        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
+        QSettings settings;
+        if(!settings.value("VKCONFIG_SHOW_LOADER_WARNING").toBool()) {
+            PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
 
-        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
-        uint32_t version=0;
-        if(VK_SUCCESS == vkEnumerateInstanceVersion(&version)) {
-            if(version < 4202633) {
-                QString message;
-                message.sprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
-                                "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 137 for this "
-                                "feature to work.\n\nYour current detected loader version is %d.%d Patch(%d)\n\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
-                dlgCustomAlert alert(nullptr);
-                alert.SetMessage(message);
-                alert.exec();
+            vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
+            uint32_t version=0;
+            if(VK_SUCCESS == vkEnumerateInstanceVersion(&version)) {
+                if(version < 4202633) {
+                    QString message;
+                    message.sprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
+                                    "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 137 for this "
+                                    "feature to work.\n\nYour current detected loader version is %d.%d Patch(%d)\n\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+                    QMessageBox alert(nullptr);
+                    alert.setText(message);
+                    QCheckBox *pCheckBox = new QCheckBox();
+                    pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
+                    alert.setCheckBox(pCheckBox);
+                    alert.setIcon(QMessageBox::Warning);
+                    alert.exec();
+                    if(pCheckBox->isChecked())
+                        settings.setValue("VKCONFIG_SHOW_LOADER_WARNING", true);
+                    }
                 }
             }
         }

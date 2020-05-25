@@ -25,9 +25,6 @@
 #include <vulkanconfiguration.h>
 
 
-void GetExecutableFromAppBundle(QString& csPath);
-
-
 namespace Ui {
 class dlgCreateAssociation;
 }
@@ -40,15 +37,20 @@ public:
     explicit dlgCreateAssociation(QWidget *parent = nullptr);
     ~dlgCreateAssociation();
 
+    static void GetExecutableFromAppBundle(QString& csPath);
+
 private:
     Ui::dlgCreateAssociation *ui;
-
     CVulkanConfiguration    *pVulkanConfig;
+    virtual void closeEvent(QCloseEvent *) override;
 
 public	Q_SLOTS:
     void on_pushButtonAdd_clicked();        // Pick the application
     void on_pushButtonRemove_clicked();     // Remove
     void selectedPathChanged(void);         // Used to enable remove button
+
+    void editCommandLine(const QString& cmdLine);
+    void editWorkingFolder(const QString& workingFolder);
 
 };
 

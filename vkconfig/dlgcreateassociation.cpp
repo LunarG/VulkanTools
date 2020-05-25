@@ -18,11 +18,150 @@
  */
 #include <QFileDialog>
 #include <QTextStream>
+#include <QCloseEvent>
 
 #include "dlgcreateassociation.h"
 #include "ui_dlgcreateassociation.h"
 
 
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::dlgCreateAssociation)
+    {
+    ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
+
+    // Show the current list
+    for(int i = 0; i < pVulkanConfig->appList.size(); i++)
+        ui->listWidget->addItem(pVulkanConfig->appList[i]->qsAppNameWithPath);
+
+    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectedPathChanged()));
+    connect(ui->lineEditCmdArgs, SIGNAL(textEdited(const QString&)), this, SLOT(editCommandLine(const QString&)));
+    connect(ui->lineEditWorkingFolder, SIGNAL(textEdited(const QString&)), this, SLOT(editWorkingFolder(const QString&)));
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+dlgCreateAssociation::~dlgCreateAssociation()
+    {
+    delete ui;
+    }
+
+
+void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent)
+    {
+    pVulkanConfig->SaveAppList();
+    pEvent->accept();
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief dlgCreateAssociation::on_pushButtonAdd_clicked
+/// Browse for and select an executable file to add to the list.
+void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test application
+    {
+    QString fileWildcard = ("Applications (*)");    // Linux default
+
+#ifdef __APPLE__
+    fileWildcard = QString("Applications (*.app, *");
+#endif
+
+#ifdef _WIN32
+    fileWildcard = QString("Applications (*.exe)");
+#endif
+
+    // Go get it.
+    QString appWithPath =  QFileDialog::getOpenFileName(this,
+        tr("Select executable to pair with "), "/", fileWildcard);
+
+    // If they have selected something!
+    if(!appWithPath.isEmpty()) {
+        // On macOS, they may have selected a binary, or they may have selected an app bundle.
+        // If the later, we need to drill down to the actuall applicaiton
+        if(appWithPath.right(4) == QString(".app")) {
+            // Start by drilling down
+            GetExecutableFromAppBundle(appWithPath);
+            }
+
+        TAppListEntry *pNewApp = new TAppListEntry;
+        pNewApp->qsAppNameWithPath = appWithPath;
+        pNewApp->qsWorkingFolder = QFileInfo(appWithPath).path();
+        pVulkanConfig->appList.push_back(pNewApp);
+        ui->listWidget->addItem(appWithPath);
+        pVulkanConfig->SaveAppList();
+        pVulkanConfig->RefreshProfile();
+        }
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief dlgCreateAssociation::on_pushButtonRemove_clicked
+/// Easy enough, just remove the selected program from the list
+void dlgCreateAssociation::on_pushButtonRemove_clicked(void)
+    {
+    int nItem = ui->listWidget->currentRow();
+    if(nItem < 0)
+        return;
+
+    QListWidgetItem *pItem = ui->listWidget->takeItem(nItem);
+    delete pItem;
+    pVulkanConfig->appList.removeAt(nItem);
+
+    if(ui->listWidget->currentRow() == -1) {
+        ui->pushButtonRemove->setEnabled(false);
+        ui->lineEditCmdArgs->setText("");
+        ui->lineEditCmdArgs->setEnabled(false);
+        ui->lineEditWorkingFolder->setText("");
+        ui->lineEditWorkingFolder->setEnabled(false);
+        }
+
+    pVulkanConfig->SaveAppList();
+    pVulkanConfig->RefreshProfile();
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief dlgCreateAssociation::selectedPathChanged
+/// The remove button is disabled until/unless something is selected that can
+/// be removed. Also the working folder and command line arguments are updated
+void dlgCreateAssociation::selectedPathChanged(void)
+    {
+    int iRow = ui->listWidget->currentRow();
+    if(iRow < 0) {
+        ui->groupLaunchInfo->setEnabled(false);
+        ui->pushButtonRemove->setEnabled(false);
+        ui->lineEditCmdArgs->setText("");
+        ui->lineEditWorkingFolder->setText("");
+        return;
+        }
+
+    ui->groupLaunchInfo->setEnabled(true);
+    ui->pushButtonRemove->setEnabled(true);
+    ui->lineEditWorkingFolder->setText(pVulkanConfig->appList[iRow]->qsWorkingFolder);
+    ui->lineEditCmdArgs->setText(pVulkanConfig->appList[iRow]->qsArguments);
+    }
+
+
+void dlgCreateAssociation::editCommandLine(const QString& cmdLine)
+    {
+    int iRow = ui->listWidget->currentRow();
+    if(iRow < 0)
+        return;
+
+    pVulkanConfig->appList[iRow]->qsArguments = cmdLine;
+    }
+
+void dlgCreateAssociation::editWorkingFolder(const QString& workingFolder)
+    {
+    int iRow = ui->listWidget->currentRow();
+    if(iRow < 0)
+        return;
+
+    pVulkanConfig->appList[iRow]->qsWorkingFolder = workingFolder;
+
+    }
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +172,7 @@
 /// you find in the /MacOS folder is the executable.
 /// The initial path is the folder where info.plist resides, and the
 /// path is completed to the executable upon completion.
-void GetExecutableFromAppBundle(QString& csPath)
+void dlgCreateAssociation::GetExecutableFromAppBundle(QString& csPath)
     {
     csPath += "/Contents/";
     QString pListFile = csPath + "Info.plist";
@@ -72,92 +211,4 @@ void GetExecutableFromAppBundle(QString& csPath)
         }
 
     file.close();
-    }
-
-//////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::dlgCreateAssociation)
-    {
-    ui->setupUi(this);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
-    pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-
-    for(int i = 0; i < pVulkanConfig->appList.size(); i++)
-        ui->listWidget->addItem(pVulkanConfig->appList[i]);
-
-    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectedPathChanged()));
-    }
-
-///////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::~dlgCreateAssociation()
-    {
-    delete ui;
-    }
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCreateAssociation::on_pushButtonAdd_clicked
-/// Browse for and select an executable file to add to the list.
-void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test application
-    {
-    QString fileWildcard = ("Applications (*)");    // Linux default
-
-#ifdef __APPLE__
-    fileWildcard = QString("Applications (*.app, *");
-#endif
-
-#ifdef _WIN32
-    fileWildcard = QString("Applications (*.exe)");
-#endif
-
-    // Go get it.
-    QString appWithPath =  QFileDialog::getOpenFileName(this,
-        tr("Select executable to pair with "), "/", fileWildcard);
-
-    // If they have selected something!
-    if(!appWithPath.isEmpty()) {
-        // On macOS, they may have selected a binary, or they may have selected an app bundle.
-        // If the later, we need to drill down to the actuall applicaiton
-        if(appWithPath.right(4) == QString(".app")) {
-            // Start by drilling down
-            GetExecutableFromAppBundle(appWithPath);
-            }
-
-        pVulkanConfig->appList << appWithPath;
-        ui->listWidget->addItem(appWithPath);
-        pVulkanConfig->SaveAppList();
-        pVulkanConfig->RefreshProfile();
-        }
-    }
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCreateAssociation::on_pushButtonRemove_clicked
-/// Easy enough, just remove the selected program from the list
-void dlgCreateAssociation::on_pushButtonRemove_clicked(void)
-    {
-    int nItem = ui->listWidget->currentRow();
-    if(nItem < 0)
-        return;
-
-    pVulkanConfig->appList.removeAt(nItem);
-    QListWidgetItem *pItem = ui->listWidget->takeItem(nItem);
-    delete pItem;
-
-    if(ui->listWidget->currentRow() == -1)
-        ui->pushButtonRemove->setEnabled(false);
-
-    pVulkanConfig->SaveAppList();
-    pVulkanConfig->RefreshProfile();
-    }
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCreateAssociation::selectedPathChanged
-/// The remove button is disabled until/unless something is selected that can
-/// be removed.
-void dlgCreateAssociation::selectedPathChanged(void)
-    {
-    ui->pushButtonRemove->setEnabled(true);
     }

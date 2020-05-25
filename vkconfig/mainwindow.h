@@ -19,10 +19,10 @@
 
 #pragma once
 #include <QVector>
-
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QLabel>
+#include <QRadioButton>
 
 #include "vulkanconfiguration.h"
 #include "settingseditor.h"
@@ -39,10 +39,11 @@ QT_END_NAMESPACE
 /// \brief The CProfileListItem class
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
-class CProfileListItem : public QListWidgetItem
+class CProfileListItem : public QTreeWidgetItem
 {
 public:
-    CProfileDef* pProfilePointer;
+    CProfileDef*    pProfilePointer;
+    QRadioButton*   pRadioButton;
 };
 
 
@@ -98,7 +99,18 @@ public Q_SLOTS:
 
     void addCustomPaths();    // Fired by menu
 
+    void on_radioFully_clicked(void);
+    void on_radioOverride_clicked(void);
+    void on_checkBoxApplyList_clicked(void);
+    void on_checkBoxPersistent_clicked(void);
+
     void on_pushButtonAppList_clicked(void);
+
+    void profileItemChanged(QTreeWidgetItem *pItem, int nCol);
+    void profileItemHighlighted(QTreeWidgetItem *pItem, int nCol);
+    void profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
+    void profileItemClicked(bool bChecked);
+
     void on_pushButtonEdit_clicked(void);
     void on_pushButtonNewProfile_clicked(void);
     void on_pushButtonRemove_clicked(void);

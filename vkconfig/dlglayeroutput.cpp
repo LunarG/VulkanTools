@@ -51,10 +51,14 @@ dlgLayerOutput::dlgLayerOutput(QWidget *parent, bool bTempEnv) :
     ui->labelRunStatus->setText(tr("Not Running"));
 
     // Load up the GUI
-    if(pVulkanConfig->qsLaunchApplicationWPath.isEmpty())
-        ui->labelLaunchApp->setText(tr("Launch app not set"));
-    else
-        ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
+    for(int i = 0; i < pVulkanConfig->appList.size(); i++) {
+        ui->comboBoxApp->addItem(pVulkanConfig->appList[i]->qsAppNameWithPath);
+        }
+
+//    if(pVulkanConfig->qsLaunchApplicationWPath.isEmpty())
+//        ui->labelLaunchApp->setText(tr("Launch app not set"));
+//    else
+//        ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
 
     // It's okay if these are just empty
     ui->lineEditCmdLine->setText(pVulkanConfig->qsLaunchApplicatinArgs);
@@ -127,20 +131,20 @@ void dlgLayerOutput::on_pushButtonSetApp_clicked()
     pVulkanConfig->qsLaunchApplicationWPath = QFileDialog::getOpenFileName(this,
         tr("Select executable to monitor"), "/", fileWildcard);
 
-    if(pVulkanConfig->qsLaunchApplicationWPath.isEmpty())
-        ui->labelLaunchApp->setText(tr("Launch app not set"));
-    else {
-        ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
+//    if(pVulkanConfig->qsLaunchApplicationWPath.isEmpty())
+//        ui->labelLaunchApp->setText(tr("Launch app not set"));
+//    else {
+//        ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
 
-        // Break name seperate from app and set the path as the default
-        // working directory. This does mean whenever the monitored app is changed,
-        // the working directory is automatically set to that folder
-        for(int i = pVulkanConfig->qsLaunchApplicationWPath.length()-1; i > 0; i--) {
-            if(pVulkanConfig->qsLaunchApplicationWPath[i] == '/') {
-                pVulkanConfig->qsLaunchApplicationWorkingDir = pVulkanConfig->qsLaunchApplicationWPath.left(i+1);
-                break;
-                }
-            }
+//        // Break name seperate from app and set the path as the default
+//        // working directory. This does mean whenever the monitored app is changed,
+//        // the working directory is automatically set to that folder
+//        for(int i = pVulkanConfig->qsLaunchApplicationWPath.length()-1; i > 0; i--) {
+//            if(pVulkanConfig->qsLaunchApplicationWPath[i] == '/') {
+//                pVulkanConfig->qsLaunchApplicationWorkingDir = pVulkanConfig->qsLaunchApplicationWPath.left(i+1);
+//                break;
+//                }
+//            }
 
         ui->lineEditWorkingDirectory->setText(pVulkanConfig->qsLaunchApplicationWorkingDir);
 
@@ -151,10 +155,10 @@ void dlgLayerOutput::on_pushButtonSetApp_clicked()
 
         ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
 #endif
-        }
+//        }
 
     // Save, just in case
-    pVulkanConfig->SaveAppSettings();
+ //   pVulkanConfig->SaveAppSettings();
     }
 
 

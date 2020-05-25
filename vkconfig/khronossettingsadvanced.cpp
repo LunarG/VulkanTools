@@ -24,7 +24,7 @@
 #include <QSettings>
 #include "khronossettingsadvanced.h"
 #include "ui_khronossettingsadvanced.h"
-#include "dlgcustomalert.h"
+
 
 // Keep track of tree/setting correlations
 struct TREE_SETTING { QString prompt;
@@ -480,40 +480,40 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
     // Core checks and shader based
     if(pCoreChecksParent->checkState(0) == Qt::Checked &&
             pShaderBasedBox->checkState(0) == Qt::Checked) {
-        if(settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
-            dlgCustomAlert alert(this);
-            alert.SetMessage(tr("Combining Core Validation and Shader Based Validation can result in extreme performance degradation."));
-            alert.exec();
-            if(alert.DontShowMeAgain())
-                settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
-            return;
-            }
+//        if(settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
+//            dlgCustomAlert alert(this);
+//            alert.SetMessage(tr("Combining Core Validation and Shader Based Validation can result in extreme performance degradation."));
+//            alert.exec();
+//            if(alert.DontShowMeAgain())
+//                settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
+//            return;
+//            }
         }
 
     // Core checks and best practices
     if(pCoreChecksParent->checkState(0) == Qt::Checked &&
             bestPractices[0].pItem->checkState(0) == Qt::Checked) {
-        if(settings.value("VKCONFIG_WARN_CORE_BEST_IGNORE").toBool() == false) {
-            dlgCustomAlert alert(this);
-            alert.SetMessage(tr("Combining Core Validation and Best Practices Validation can result in extreme performance degradation."));
-            alert.exec();
-            if(alert.DontShowMeAgain())
-                settings.setValue("VKCONFIG_WARN_CORE_BEST_IGNORE", true);
-            return;
-            }
+//        if(settings.value("VKCONFIG_WARN_CORE_BEST_IGNORE").toBool() == false) {
+//            dlgCustomAlert alert(this);
+//            alert.SetMessage(tr("Combining Core Validation and Best Practices Validation can result in extreme performance degradation."));
+//            alert.exec();
+//            if(alert.DontShowMeAgain())
+//                settings.setValue("VKCONFIG_WARN_CORE_BEST_IGNORE", true);
+//            return;
+//            }
         }
 
     // Core checks and best practices
     if(pShaderBasedBox->checkState(0) == Qt::Checked &&
             bestPractices[0].pItem->checkState(0) == Qt::Checked) {
-        if(settings.value("VKCONFIG_WARN_SHADER_BEST_IGNORE").toBool() == false) {
-            dlgCustomAlert alert(this);
-            alert.SetMessage(tr("Combining Best Practices Validation and Shader Based Validaation can result in extreme performance degradation."));
-            alert.exec();
-            if(alert.DontShowMeAgain())
-                settings.setValue("VKCONFIG_WARN_SHADER_BEST_IGNORE", true);
-            return;
-            }
+//        if(settings.value("VKCONFIG_WARN_SHADER_BEST_IGNORE").toBool() == false) {
+//            dlgCustomAlert alert(this);
+//            alert.SetMessage(tr("Combining Best Practices Validation and Shader Based Validaation can result in extreme performance degradation."));
+//            alert.exec();
+//            if(alert.DontShowMeAgain())
+//                settings.setValue("VKCONFIG_WARN_SHADER_BEST_IGNORE", true);
+//            return;
+//            }
         }
 
     }

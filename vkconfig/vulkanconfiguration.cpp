@@ -375,6 +375,9 @@ void CVulkanConfiguration::LoadAppSettings(void)
     qsLaunchApplicatinArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
     qsLaunchApplicationWorkingDir = settings.value(VKCONFIG_KEY_LAUNCHAPP_CWD).toString();
     qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE).toString();
+    bOverrideActive = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE).toBool();
+    bApplyOnlyToList = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
+    bKeepActiveOnExit = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
     }
 
 
@@ -387,6 +390,9 @@ void CVulkanConfiguration::SaveAppSettings(void)
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, qsLaunchApplicatinArgs);
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP_CWD, qsLaunchApplicationWorkingDir);
     settings.setValue(VKCONFIG_KEY_LOGFILE, qsLogFileWPath);
+    settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, bOverrideActive);
+    settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, bApplyOnlyToList);
+    settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, bKeepActiveOnExit);
     }
 
 
@@ -414,11 +420,34 @@ void CVulkanConfiguration::SaveAdditionalSearchPaths(void)
 
 ///////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadAppList
-/// Load the custom application list
+/// Load the custom application list. This is just maintained as a comma
+/// delimited list.
 void CVulkanConfiguration::LoadAppList(void)
     {
-    QSettings appPaths;
-    appList = appPaths.value(VKCONFIG_KEY_APPLIST).toStringList();
+    QSettings apps;
+    QString rawList = apps.value(VKCONFIG_KEY_APPLIST).toString();
+    QStringList delimetedList = rawList.split(",");
+
+    for(int i = 0; i < delimetedList.size(); i+=3) {
+        if(delimetedList[i].isEmpty()) // This is really the check for the trailing comma
+            break;
+
+        TAppListEntry *pItem = new TAppListEntry;
+        pItem->qsAppNameWithPath = delimetedList[i];    // There is always just a name
+        appList.push_back(pItem);
+
+        // Error checking in case we are at end of list prematurely
+        if(i+1 >= delimetedList.size())
+            break;
+        else
+            pItem->qsWorkingFolder = delimetedList[i+1];
+
+        // Ditto error checking
+        if(i + 2 >= delimetedList.size())
+            break;
+        else
+            pItem->qsArguments = delimetedList[i+2];
+        }
     }
 
 
@@ -427,8 +456,21 @@ void CVulkanConfiguration::LoadAppList(void)
 /// Save the custom applicaiton list
 void CVulkanConfiguration::SaveAppList(void)
     {
+    // Build a comma delimited list of entries
+    QString stringList;
+    for(int i = 0; i < appList.size(); i++) {
+        stringList += appList[i]->qsAppNameWithPath;
+        stringList += ",";
+        stringList += appList[i]->qsWorkingFolder;
+        stringList += ",";
+        stringList += appList[i]->qsArguments;
+
+        // If this is an extra terminating comma, it is handled gracefully
+        stringList += ",";
+        }
+
     QSettings appPaths;
-    appPaths.setValue(VKCONFIG_KEY_APPLIST, appList);
+    appPaths.setValue(VKCONFIG_KEY_APPLIST, stringList);
     }
 
 
@@ -1050,9 +1092,8 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         json_blacklist.append(pProfile->blacklistedLayers[i]);
 
     QJsonArray json_applist;
-    for(const QString &appName : appList) {
-        json_applist.append(QDir::toNativeSeparators(appName));
-        }
+    for(int i = 0; i < appList.size(); i++)
+        json_applist.append(QDir::toNativeSeparators(appList[i]->qsAppNameWithPath));
 
     QJsonObject disable;
     disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
