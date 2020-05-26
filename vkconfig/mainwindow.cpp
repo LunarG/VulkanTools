@@ -165,10 +165,8 @@ void MainWindow::LoadProfileList(void)
         pItem->setToolTip(0, pVulkanConfig->profileList[i]->qsDescription);
         pItem->pRadioButton = new QRadioButton();
         pItem->pRadioButton->setText(pVulkanConfig->profileList[i]->qsProfileName);
-        if(activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) {
+        if(activeProfileName == pVulkanConfig->profileList[i]->qsProfileName)
             pItem->pRadioButton->setChecked(true);
-            ui->treeWidget->setCurrentItem(pItem);
-            }
 
         if(!bKhronosAvailable)
            pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
@@ -184,7 +182,6 @@ void MainWindow::LoadProfileList(void)
     ui->profileTree->addTopLevelItem(pUserDefinedProfiles);
 
 
-
     for(int i = 0; i < pVulkanConfig->profileList.size(); i++) {
         if(pVulkanConfig->profileList[i]->bFixedProfile)
             continue;
@@ -197,10 +194,8 @@ void MainWindow::LoadProfileList(void)
         pItem->pRadioButton = new QRadioButton();
         pItem->pRadioButton->setText(pVulkanConfig->profileList[i]->qsProfileName);
 
-        if(activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) {
+        if(activeProfileName == pVulkanConfig->profileList[i]->qsProfileName)
             pItem->pRadioButton->setChecked(true);
-            ui->treeWidget->setCurrentItem(pItem);
-            }
 
         ui->profileTree->setItemWidget(pItem, 0, pItem->pRadioButton);
         connect(pItem->pRadioButton, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
@@ -226,6 +221,34 @@ void MainWindow::on_radioFully_clicked(void)
     ChangeActiveProfile(nullptr);
     }
 
+
+//////////////////////////////////////////////////////////
+/// \brief MainWindow::GetCheckedItem
+/// \return
+/// Okay, because we are using custom controls, some of
+/// the signaling is not happening as expected. So, we cannot
+/// always get an accurate answer to the currently selected
+/// item, but we do often need to know what has been checked
+/// when an event occurs. This unambigously answers that question.
+CProfileListItem* MainWindow::GetCheckedItem(void)
+    {
+    // We know there are only two top level items, but
+    // just in case we add more later
+    for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+        QTreeWidgetItem *pParent = ui->profileTree->topLevelItem(i);
+
+        for(int c = 0; c < pParent->childCount(); c++) {
+            CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(pParent->child(c));
+            if(pItem != nullptr)
+                if(pItem->pRadioButton->isChecked())
+                    return pItem;
+            }
+        }
+
+    return nullptr;
+    }
+
+
 //////////////////////////////////////////////////////////
 /// \brief MainWindow::on_radioOverride_clicked
 /// Use the active profile as the override
@@ -236,7 +259,8 @@ void MainWindow::on_radioOverride_clicked(void)
     pVulkanConfig->bOverrideActive = true;
     pVulkanConfig->SaveAppSettings();
 
-    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(ui->profileTree->currentItem());
+    // This just doesn't work. Make a function to look for the radio button checked.
+    CProfileListItem *pProfileItem = GetCheckedItem();
     if(pProfileItem == nullptr)
         ChangeActiveProfile(nullptr);
     else
@@ -267,6 +291,7 @@ void MainWindow::on_checkBoxPersistent_clicked(void)
 /// Thist signal actually comes from the radio button
 void MainWindow::profileItemClicked(bool bChecked)
     {
+    printf("profileItemClicked\n");
     if(!bChecked) {
         // Anything important going on here?
 
@@ -275,13 +300,9 @@ void MainWindow::profileItemClicked(bool bChecked)
     // Someone just got checked, they are now the current profile
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(ui->profileTree->currentItem());
+    CProfileListItem *pProfileItem = GetCheckedItem();
     if(pProfileItem == nullptr)
         return;
-
-    // Save the name of the current profile
-    QSettings settings;
-    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pProfileItem->pProfilePointer->qsProfileName);
 
     // Do we go ahead and activate it?
     if(pVulkanConfig->bOverrideActive)
@@ -298,6 +319,7 @@ void MainWindow::profileItemClicked(bool bChecked)
 void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol)
     {
     (void)nCol;
+    printf("profileItemChanged\n");
 
     // This pointer will only be valid if it's one of the elements with
     // the radio button
@@ -329,6 +351,8 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol)
 void MainWindow::profileItemHighlighted(QTreeWidgetItem *pItem, int nCol)
     {
     (void)nCol;
+    printf("profileItemHighlighted\n");
+
 
     // This pointer will only be valid if it's one of the elements with
     // the radio button
@@ -356,28 +380,23 @@ void MainWindow::profileItemHighlighted(QTreeWidgetItem *pItem, int nCol)
 /// \brief MainWindow::profileTreeChanged
 /// \param pCurrent
 /// \param pPrevious
-/// This gets called with keyboard selections
+/// This gets called with keyboard selections and clicks that do not necessarily
+/// result in a radio button change (but it may). So we need to do two checks here, one
+/// for the radio button, and one to change the editor/information at lower right.
 void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
     {
     (void)pPrevious;
+    printf("profileTreechanged\n");
 
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pCurrent);
+    CProfileListItem *pProfileItem = GetCheckedItem();
     if(pProfileItem == nullptr)
         return;
 
-    // We don't care what was unchecked
-    if(!pProfileItem->pRadioButton->isChecked())
-        return;
-
-    // Save the name of the current profile
-//    QSettings settings;
-//    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pProfileItem->pProfilePointer->qsProfileName);
-
-//    // Do we go ahead and activate it?
-//    if(pVulkanConfig->bOverrideActive)
-//        pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
+    // Do we go ahead and activate it?
+    if(pVulkanConfig->bOverrideActive)
+        pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
     }
 
 
@@ -542,41 +561,49 @@ void MainWindow::helpShowHelp(bool bChecked)
     pDlgHelp->show();
     }
 
+////////////////////////////////////////////////////////////////
+/// \brief MainWindow::closeEvent
+/// \param event
+/// The only thing we need to do here is clear the profile if
+/// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event)
     {
-//    int nRow = ui->listWidgetProfiles->currentRow();
-//    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
+    if(!pVulkanConfig->bKeepActiveOnExit)
+        pVulkanConfig->SetCurrentActiveProfile(nullptr);
 
-//    if(nRow != -1) {
-//        // Make sure we capture any changes.
-//        if(settingsEditor.CollectSettings())
-//            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
-//        }
+    event->accept();
+    }
 
-//    if(pVulkanConfig->getVulkanConfig() != nullptr) {
-//        QSettings settings;
-//        bool bShowMe = settings.value("VK_CONFIG_EXIT_HIDE_MESSAGE").toBool();
-//        if(!bShowMe) {
-//            QMessageBox ca(this);
-//            ca.setText("REMINDER: Active override configurations will remain in effect even after The Vulkan Configurator has closed.");
-//            QCheckBox *pDoNotShow = new QCheckBox();
-//            pDoNotShow->setText("Do not show again");
-//            ca.setCheckBox(pDoNotShow);
-//            ca.exec();
-//            if(pDoNotShow->isChecked())
-//                settings.setValue("VK_CONFIG_EXIT_HIDE_MESSAGE", true);
-//            }
-//        }
+/////////////////////////////////////////////////////////////
+void MainWindow::showEvent(QShowEvent *event)
+    {
+    QSettings settings;
+    if(settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool())
+        return;
+
+    QMessageBox alert(this);
+    alert.setText("Vulkan Layers are configured when creating a Vulkan instance which\n"
+                  "typically happens at application start.\n\n"
+                  "For Vulkan Layer overrides to take effect, running Vulkan applications\n"
+                  "should be restarted.");
+    QCheckBox *pCheckBox = new QCheckBox();
+    pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
+    alert.setWindowTitle("Runnng Vulkan Applications must be restarted");
+    alert.setCheckBox(pCheckBox);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+    if(pCheckBox->isChecked())
+        settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
 
     event->accept();
     }
 
 void MainWindow::fileHistory(bool bChecked)
-{
+    {
     (void)bChecked;
     dlgHistory dlg(this);
     dlg.exec();
-}
+    }
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -664,7 +691,7 @@ void MainWindow::on_pushButtonRemove_clicked()
 //    Q_ASSERT(pProfileItem != nullptr);
 
 //    QMessageBox warning;
-//    warning.setInformativeText(tr("Are you sure you want to delete this profile?"));
+//    warning.setInformativeText(tr("Are you sure you want to delete this configuration?"));
 //    warning.setText(pProfileItem->pProfilePointer->qsProfileName);
 //    warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 //    warning.setDefaultButton(QMessageBox::No);
@@ -702,7 +729,7 @@ void MainWindow::toolsSetCustomPaths(bool bChecked)
 /// Update "decorations": window caption, (Active) status in list
 void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
     {
-    if(pNewProfile == nullptr) {
+    if(pNewProfile == nullptr || !pVulkanConfig->bOverrideActive) {
         pVulkanConfig->SetCurrentActiveProfile(nullptr);
         setWindowTitle("Vulkan Configurator");
         return;
@@ -710,12 +737,8 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
 
     QString newCaption = pNewProfile->qsProfileName;
     newCaption += " - Vulkan Configurator ";
-
-    // We may have changed it, but it may not actually be active
-    if(pVulkanConfig->bOverrideActive) {
-        pVulkanConfig->SetCurrentActiveProfile(pNewProfile);
-        newCaption += "<VULKAN APPLICATIONS OVERRIDDEN>";
-        }
+    pVulkanConfig->SetCurrentActiveProfile(pNewProfile);
+    newCaption += "<VULKAN APPLICATIONS OVERRIDDEN>";
 
     this->setWindowTitle(newCaption);
     }

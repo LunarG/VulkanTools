@@ -996,6 +996,8 @@ void CVulkanConfiguration::LoadDefaultSettings(CLayerFile* pBlankLayer)
         }
     }
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Set this as the current override profile. The profile definition passed in
 // is used to construct the override and settings files.
@@ -1011,7 +1013,6 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         // Delete a bunch of stuff
         remove(qsOverrideSettingsPath.toUtf8().constData());
         remove(qsOverrideJsonPath.toUtf8().constData());
-        settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "");
 
         // On Windows only, we need clear these values from the registry
         // This works without any Win32 specific functions for the registry
@@ -1024,6 +1025,11 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     /////////////////////////////////////////////
     // Now the fun starts, we need to write out the json file
     // that describes the layers being employed and the settings file
+
+    // Save this as the last active profile (and we do NOT want to clear it when
+    // no profile is made active.
+    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pActiveProfile->qsProfileName);
+
 
     /////////////////////////
     // vk_layer_settings.txt
@@ -1091,9 +1097,11 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
     for(int i = 0; i < pProfile->blacklistedLayers.size(); i++)
         json_blacklist.append(pProfile->blacklistedLayers[i]);
 
+    // Only supply this list if an app list is specified
     QJsonArray json_applist;
-    for(int i = 0; i < appList.size(); i++)
-        json_applist.append(QDir::toNativeSeparators(appList[i]->qsAppNameWithPath));
+    if(this->bApplyOnlyToList)
+        for(int i = 0; i < appList.size(); i++)
+            json_applist.append(QDir::toNativeSeparators(appList[i]->qsAppNameWithPath));
 
     QJsonObject disable;
     disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
@@ -1120,8 +1128,6 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile)
         return;     // TBD, should we report an error
     jsonFile.write(doc.toJson());
     jsonFile.close();
-
-    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pActiveProfile->qsProfileName);
 
     // On Windows only, we need to write these values to the registry
 #ifdef _WIN32

@@ -23,6 +23,7 @@
 #include <QListWidgetItem>
 #include <QLabel>
 #include <QRadioButton>
+#include <QShowEvent>
 
 #include "vulkanconfiguration.h"
 #include "settingseditor.h"
@@ -65,6 +66,7 @@ protected:
     void ChangeActiveProfile(CProfileDef *pNewProfile);
 
     virtual void closeEvent(QCloseEvent *event) override;
+    virtual void showEvent(QShowEvent *event) override;
 
     dlgVulkanAnalysis *pVKVia;
     dlgVulkanInfo     *pVulkanInfo;
@@ -79,6 +81,7 @@ private:
     int CANNED_PROFILE_COUNT;
 
     CProfileListItem    *pLastSelectedProfileItem;
+    CProfileListItem* GetCheckedItem(void);
 
     void updateGetStartedStatus(QString qsText);
     void updateActivateButtonState(void);

@@ -66,8 +66,6 @@ int main(int argc, char *argv[])
         QMessageBox dlg(NULL);
         dlg.setText("Warning: Could not find a vulkan loader!");
         dlg.setIcon(QMessageBox::Warning);
-//        QCheckBox *pCheckBox = new QCheckBox();
-//        pCheckBox->setText("Do not show again");
         dlg.exec();
     } else {
         QSettings settings;
@@ -80,7 +78,7 @@ int main(int argc, char *argv[])
                 if(version < 4202633) {
                     QString message;
                     message.sprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
-                                    "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 137 for this "
+                                    "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 141 for this "
                                     "feature to work.\n\nYour current detected loader version is %d.%d Patch(%d)\n\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
                     QMessageBox alert(nullptr);
                     alert.setText(message);
