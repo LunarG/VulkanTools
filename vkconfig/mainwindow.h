@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QRadioButton>
 #include <QShowEvent>
+#include <QResizeEvent>
 
 #include "vulkanconfiguration.h"
 #include "settingseditor.h"
@@ -62,11 +63,15 @@ protected:
 
     void CheckAppListState(void);
     void LoadProfileList(void);
+    void SetupLaunchTree(void);
 
     void ChangeActiveProfile(CProfileDef *pNewProfile);
 
     virtual void closeEvent(QCloseEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
+
+    virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     dlgVulkanAnalysis *pVKVia;
     dlgVulkanInfo     *pVulkanInfo;
@@ -85,6 +90,7 @@ private:
 
     void updateGetStartedStatus(QString qsText);
     void updateActivateButtonState(void);
+
 
 public Q_SLOTS:
     void fileExit(bool bChecked);

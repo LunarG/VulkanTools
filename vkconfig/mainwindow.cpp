@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QFrame>
+#include <QComboBox>
 #include <QVariant>
 #ifndef _WIN32
 #include <unistd.h>
@@ -69,12 +70,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     {
     ui->setupUi(this);
+    ui->launchTree->installEventFilter(this);
+
     CANNED_PROFILE_COUNT = 0;
     pLastSelectedProfileItem = nullptr;
     pVKVia = nullptr;
     pVulkanInfo = nullptr;
     pTestEnv = nullptr;
     pDlgHelp = nullptr;
+
 
     // This loads all the layer information and current settings.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
@@ -90,6 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
         ChangeActiveProfile(pCurrentProfile);
 
     LoadProfileList();
+    SetupLaunchTree();
 
 //    connect(ui->listWidgetProfiles, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProfileChanged()));
     connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(fileExit(bool)));
@@ -108,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->profileTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(profileItemHighlighted(QTreeWidgetItem *, int)));
     connect(ui->profileTree, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(profileItemHighlighted(QTreeWidgetItem *, int)));
     connect(ui->profileTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(profileTreeChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
-
 
     if(pVulkanConfig->bOverrideActive) {
         ui->radioOverride->setChecked(true);
@@ -574,6 +578,23 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
     }
 
+////////////////////////////////////////////////////////////////
+/// \brief MainWindow::resizeEvent
+/// \param pEvent
+/// Resizing needs a little help. Yes please, there has to be
+/// a better way of doing this.
+void MainWindow::resizeEvent(QResizeEvent *pEvent)
+    {
+//    QRect rect = ui->launchTree->rect();
+//    ui->launchTree->setColumnWidth(0, 210);
+//    ui->launchTree->setColumnWidth(1, rect.width() - 210 - 25-16);
+//    ui->launchTree->setColumnWidth(2, 25);
+//    ui->launchTree->repaint();
+
+    if(pEvent != nullptr)
+        pEvent->accept();
+    }
+
 /////////////////////////////////////////////////////////////
 void MainWindow::showEvent(QShowEvent *event)
     {
@@ -594,6 +615,8 @@ void MainWindow::showEvent(QShowEvent *event)
     alert.exec();
     if(pCheckBox->isChecked())
         settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
+
+  //  resizeEvent(nullptr); // Fake to get controls to do the right thing
 
     event->accept();
     }
@@ -904,3 +927,95 @@ void MainWindow::updateActivateButtonState(void)
 //        }
     }
 
+
+///////////////////////////////////////////////////////////////////
+/// \brief MainWindow::SetupLaunchTree
+/// Launch and log area
+void MainWindow::SetupLaunchTree(void)
+    {
+    /////////////////////////////////////////////////////////////////
+    // Executable
+    QTreeWidgetItem *pLauncherParent = new QTreeWidgetItem();
+    pLauncherParent->setText(0, "Executable Path");
+    ui->launchTree->addTopLevelItem(pLauncherParent);
+
+    QComboBox *pDropDown = new QComboBox();
+    ui->launchTree->setItemWidget(pLauncherParent, 1, pDropDown);
+    //pDropDown->setStyleSheet("QComboBox { background-color: white; }");
+    for(int i = 0; i < pVulkanConfig->appList.size(); i++)
+        pDropDown->addItem(pVulkanConfig->appList[i]->qsAppNameWithPath);
+
+    QPushButton *pButton = new QPushButton();
+    pButton->setText("...");
+    ui->launchTree->setItemWidget(pLauncherParent, 2, pButton);
+
+    //////////////////////////////////////////////////////////////////
+    // Working folder
+    QTreeWidgetItem *pLauncherFolder = new QTreeWidgetItem();
+    pLauncherFolder->setText(0, "Working directory");
+    pLauncherParent->addChild(pLauncherFolder);
+
+    QLineEdit *pLineEdit = new QLineEdit();
+    ui->launchTree->setItemWidget(pLauncherFolder, 1, pLineEdit);
+
+
+    pButton = new QPushButton();
+    pButton->setText("...");
+    ui->launchTree->setItemWidget(pLauncherFolder, 2, pButton);
+
+    //////////////////////////////////////////////////////////////////
+    // Command line arguments
+    QTreeWidgetItem *pLauncherCMD = new QTreeWidgetItem();
+    pLauncherCMD->setText(0, "Command-line Arguments");
+    pLauncherParent->addChild(pLauncherCMD);
+
+    pLineEdit = new QLineEdit();
+    ui->launchTree->setItemWidget(pLauncherCMD, 1, pLineEdit);
+
+    pButton = new QPushButton();
+    pButton->setText("...");
+    ui->launchTree->setItemWidget(pLauncherCMD, 2, pButton);
+
+    //////////////////////////////////////////////////////////////////
+    // LOG FILE
+    QTreeWidgetItem *pLauncherLogFile = new QTreeWidgetItem();
+    pLauncherLogFile->setText(0, "Log File");
+    pLauncherParent->addChild(pLauncherLogFile);
+
+    pLineEdit = new QLineEdit();
+    ui->launchTree->setItemWidget(pLauncherLogFile, 1, pLineEdit);
+
+    pButton = new QPushButton();
+    pButton->setText("...");
+    ui->launchTree->setItemWidget(pLauncherLogFile, 2, pButton);
+
+    //////////////////////////////////////////////////////////////////
+    QRect rect = ui->launchTree->visualItemRect(pLauncherParent);
+    ui->launchTree->setMinimumHeight((rect.height() * 4)+6);
+
+
+    rect = ui->launchTree->rect();
+    ui->launchTree->setColumnWidth(0, 210);
+    ui->launchTree->setColumnWidth(1, rect.width() - 210 - 25-16);
+    ui->launchTree->setColumnWidth(2, 25);
+    ui->launchTree->expandItem(pLauncherParent);
+    ui->launchTree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->launchTree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->launchTree->resizeColumnToContents(0);
+    ui->launchTree->resizeColumnToContents(1);
+    }
+
+//////////////////////////////////////////////////////////////////////
+bool MainWindow::eventFilter(QObject *target, QEvent *event)
+    {
+    if(target == ui->launchTree) {
+        if(event->type() == QEvent::Resize) {
+            QRect rect = ui->launchTree->rect();
+            ui->launchTree->setColumnWidth(0, 210);
+            ui->launchTree->setColumnWidth(1, rect.width() - 210 - 25-16);
+            ui->launchTree->setColumnWidth(2, 25);
+            }
+        }
+
+    return false;
+    }
