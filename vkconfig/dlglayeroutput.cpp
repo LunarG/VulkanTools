@@ -151,9 +151,9 @@ void dlgLayerOutput::on_pushButtonSetApp_clicked()
         // If this is macOS, drill down to the actual applicaton, if a bundle was specified
 #ifdef __APPLE__
         if(pVulkanConfig->qsLaunchApplicationWPath.right(4) == QString(".app"))
-            GetExecutableFromAppBundle(pVulkanConfig->qsLaunchApplicationWPath);
+            dlgCreateAssociation::GetExecutableFromAppBundle(pVulkanConfig->qsLaunchApplicationWPath);
 
-        ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
+       // ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
 #endif
 //        }
 

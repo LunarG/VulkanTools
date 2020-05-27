@@ -585,12 +585,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 /// a better way of doing this.
 void MainWindow::resizeEvent(QResizeEvent *pEvent)
     {
-//    QRect rect = ui->launchTree->rect();
-//    ui->launchTree->setColumnWidth(0, 210);
-//    ui->launchTree->setColumnWidth(1, rect.width() - 210 - 25-16);
-//    ui->launchTree->setColumnWidth(2, 25);
-//    ui->launchTree->repaint();
-
     if(pEvent != nullptr)
         pEvent->accept();
     }
@@ -947,6 +941,7 @@ void MainWindow::SetupLaunchTree(void)
 
     QPushButton *pButton = new QPushButton();
     pButton->setText("...");
+    pButton->setMinimumWidth(32);
     ui->launchTree->setItemWidget(pLauncherParent, 2, pButton);
 
     //////////////////////////////////////////////////////////////////
@@ -961,6 +956,7 @@ void MainWindow::SetupLaunchTree(void)
 
     pButton = new QPushButton();
     pButton->setText("...");
+    pButton->setMinimumWidth(32);
     ui->launchTree->setItemWidget(pLauncherFolder, 2, pButton);
 
     //////////////////////////////////////////////////////////////////
@@ -974,6 +970,7 @@ void MainWindow::SetupLaunchTree(void)
 
     pButton = new QPushButton();
     pButton->setText("...");
+    pButton->setMinimumWidth(32);
     ui->launchTree->setItemWidget(pLauncherCMD, 2, pButton);
 
     //////////////////////////////////////////////////////////////////
@@ -987,6 +984,7 @@ void MainWindow::SetupLaunchTree(void)
 
     pButton = new QPushButton();
     pButton->setText("...");
+    pButton->setMinimumWidth(32);
     ui->launchTree->setItemWidget(pLauncherLogFile, 2, pButton);
 
     //////////////////////////////////////////////////////////////////

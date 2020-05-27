@@ -21,6 +21,7 @@
 #include "dlgvulkananalysis.h"
 #include "ui_dlgvulkananalysis.h"
 
+#include <stdlib.h>
 #include <QProcess>
 #include <QDir>
 #include <QByteArray>
@@ -63,6 +64,9 @@ void dlgVulkanAnalysis::RunTool(void)
 #else
     via->setProgram("vkvia");
 #endif    
+
+    char cPath[128];
+    printf("%s\n", getenv("PATH"));
 
     QString filePath = QDir::temp().path() + "/vkvia.json";
 

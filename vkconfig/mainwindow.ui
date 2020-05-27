@@ -108,9 +108,9 @@
            <widget class="QPushButton" name="pushButtonAppList">
             <property name="geometry">
              <rect>
-              <x>420</x>
+              <x>439</x>
               <y>70</y>
-              <width>80</width>
+              <width>101</width>
               <height>26</height>
              </rect>
             </property>
@@ -135,7 +135,7 @@
              <rect>
               <x>30</x>
               <y>73</y>
-              <width>541</width>
+              <width>391</width>
               <height>20</height>
              </rect>
             </property>
@@ -333,8 +333,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>326</width>
-              <height>612</height>
+              <width>389</width>
+              <height>602</height>
              </rect>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_3"/>
@@ -420,7 +420,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
