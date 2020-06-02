@@ -39,6 +39,10 @@ Compiling
 --------------
 
 TODO
+- Tools that needs to be installed
+- Things that needs to be the %PATH% 
+- Command lines, actions to build
+TODO
 
 OS User-Specific Monifications
 --------------
