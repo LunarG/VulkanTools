@@ -2,6 +2,35 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+Vulkan Configurator is a Vulkan Layers 
+
+
+* **Information for contributors**: [All contribution information](docs/CONTRIBUTING.md), [Compilation instructions](docs/CONTRIBUTING/Compiling.md), [Roadmap](https://github.com/baldurk/renderdoc/wiki/Roadmap)
+
+Screenshots
+--------------
+
+| [ ![Main Window](https://imgshare.io/images/2020/06/02/08.png) ](https://imgshare.io/images/2020/06/02/08.png) | [ ![Create a new layers ovveride configuration](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png2) ](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png) |
+| --- | --- |
+| [ ![Main Window](https://imgshare.io/images/2020/06/02/08.png) ](https://imgshare.io/images/2020/06/02/08.png) | [ ![Create a new layers ovveride configuration](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png2) ](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png) |
+
+Platform Support
+--------------
+
+| Windows                  | Linux                    | macOS                    |
+| ------------------------ | ------------------------ | ------------------------ |
+| :heavy_check_mark:       | :heavy_check_mark:       | :heavy_check_mark:       |
+
+
+
+
+
+
+
+
+
+
+
 
 
 The vkConfig 2.0 Reboot
