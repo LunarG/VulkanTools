@@ -10,7 +10,7 @@ A Vulkan applications may configure layers when creating a Vulkan Instance. This
 
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
 * **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
-* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [Compilation instructions](./Compiling.md), [Roadmap](https://github.com/LunarG/VulkanTools/wiki/VulkanConfiguratorRoadmap)
+* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [Compilation instructions](./Compiling.md), [Roadmap](#roadmap)
 
 Screenshots
 --------------
