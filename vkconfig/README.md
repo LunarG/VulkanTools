@@ -1,4 +1,9 @@
-# vkconfig2
+<p align="center"><img src="https://imgshare.io/images/2020/06/02/Vulkan-Configurator.png" /></p>
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
+
 The vkConfig 2.0 Reboot
 
 This is a BETA build of the Vulkan Configurator (vkConfig) 2.0.
