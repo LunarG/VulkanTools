@@ -98,6 +98,8 @@ Roadmap
 
 - Use CMake build system.
 
+- Add multiple command line arguments and environment variables per application.
+
 Known issues
 --------------
 
