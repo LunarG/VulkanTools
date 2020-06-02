@@ -82,6 +82,7 @@ Roadmap
 
 - When an old loader is present on the system, disable the "Apply layers override only on selected Vulkan applications" checkbox and use tool tip to tell the user the loader is too old.
 
+- CMake build system.
 
 Known issues
 --------------
