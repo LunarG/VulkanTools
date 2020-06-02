@@ -10,9 +10,9 @@ Vulkan Configurator is a Vulkan Layers
 Screenshots
 --------------
 
-| [ ![Main Window](https://imgshare.io/images/2020/06/02/08.png) ](https://imgshare.io/images/2020/06/02/08.png) | [ ![Create a new layers ovveride configuration](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png2) ](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png) |
+| [ ![Main Window](https://imgshare.io/images/2020/06/02/main-window_320px.png) ](https://imgshare.io/images/2020/06/02/08.png) | [ ![Overriding multiple layers](https://imgshare.io/images/2020/06/02/multiple_layers_320px.png) ](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png) |
 | --- | --- |
-| [ ![Main Window](https://imgshare.io/images/2020/06/02/08.png) ](https://imgshare.io/images/2020/06/02/08.png) | [ ![Create a new layers ovveride configuration](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png2) ](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png) |
+| [ ![Vulkan Applications launchers](https://imgshare.io/images/2020/06/02/launcher_320px.png) ](https://imgshare.io/images/2020/06/02/08.png) | [ ![Vulkan Layers slection and ordering ](https://imgshare.io/images/2020/06/02/layers-selection-and-ordering_320px.png) ](https://imgshare.io/images/2020/06/02/New-Configuration-Window.png) |
 
 Platform Support
 --------------
