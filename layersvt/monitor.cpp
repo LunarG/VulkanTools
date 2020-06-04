@@ -63,6 +63,18 @@ struct layer_data {
     int frame;
 };
 
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+static struct {
+    void *xcbLib;
+    decltype(xcb_change_property) *change_property;
+    decltype(xcb_flush) *flush;
+    decltype(xcb_get_property) *get_property;
+    decltype(xcb_get_property_reply) *get_property_reply;
+    decltype(xcb_get_property_value_length) *get_property_value_length;
+    decltype(xcb_get_property_value) *get_property_value;
+} xcb = {NULL};
+#endif
+
 static std::unordered_map<void *, layer_data *> layer_data_map;
 
 template layer_data *GetLayerDataPtr<layer_data>(void *data_key, std::unordered_map<void *, layer_data *> &data_map);
@@ -146,6 +158,30 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstance
     my_data->instance_dispatch_table = new VkLayerInstanceDispatchTable;
     layer_init_instance_dispatch_table(*pInstance, my_data->instance_dispatch_table, fpGetInstanceProcAddr);
 
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+    // Load the xcb library and initialize xcb function pointers
+    if (!xcb.xcbLib) {
+        xcb.xcbLib = dlopen("libxcb.so", RTLD_NOW | RTLD_LOCAL);
+        if (xcb.xcbLib) {
+            xcb.change_property = reinterpret_cast<decltype(xcb_change_property) *>(dlsym(xcb.xcbLib, "xcb_change_property"));
+            xcb.flush = reinterpret_cast<decltype(xcb_flush) *>(dlsym(xcb.xcbLib, "xcb_flush"));
+            xcb.get_property = reinterpret_cast<decltype(xcb_get_property) *>(dlsym(xcb.xcbLib, "xcb_get_property"));
+            xcb.get_property_reply =
+                reinterpret_cast<decltype(xcb_get_property_reply) *>(dlsym(xcb.xcbLib, "xcb_get_property_reply"));
+            xcb.get_property_value_length =
+                reinterpret_cast<decltype(xcb_get_property_value_length) *>(dlsym(xcb.xcbLib, "xcb_get_property_value_length"));
+            xcb.get_property_value =
+                reinterpret_cast<decltype(xcb_get_property_value) *>(dlsym(xcb.xcbLib, "xcb_get_property_value"));
+            if (!xcb.change_property || !xcb.flush || !xcb.get_property || !xcb.get_property_reply ||
+                !xcb.get_property_value_length || !xcb.get_property_value) {
+                // Something went wrong querying the entry points - set xcb.xdbLib to NULL
+                // to indicate we didn't successufly load libxcb.so
+                xcb.xcbLib = NULL;
+            }
+        }
+    }
+#endif
+
     return result;
 }
 
@@ -178,10 +214,10 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         SetWindowText(my_instance_data->hwnd, str);
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-        if (my_instance_data->xcb_fps) {
-            xcb_change_property(my_instance_data->connection, XCB_PROP_MODE_REPLACE, my_instance_data->xcb_window, XCB_ATOM_WM_NAME,
+        if (xcb.xcbLib && my_instance_data->xcb_fps) {
+            xcb.change_property(my_instance_data->connection, XCB_PROP_MODE_REPLACE, my_instance_data->xcb_window, XCB_ATOM_WM_NAME,
                                 XCB_ATOM_STRING, 8, strlen(str), str);
-            xcb_flush(my_instance_data->connection);
+            xcb.flush(my_instance_data->connection);
         }
 #endif
     }
@@ -239,25 +275,33 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance 
                                                                      const VkXcbSurfaceCreateInfoKHR *pCreateInfo,
                                                                      const VkAllocationCallbacks *pAllocator,
                                                                      VkSurfaceKHR *pSurface) {
+    static bool xcbErrorPrinted = false;  // Only print xcb error message once
     xcb_get_property_cookie_t cookie;
     xcb_get_property_reply_t *reply;
     xcb_atom_t property = XCB_ATOM_WM_NAME;
     xcb_atom_t type = XCB_ATOM_STRING;
 
     layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
-    my_data->xcb_window = pCreateInfo->window;
-    my_data->connection = pCreateInfo->connection;
-    cookie = xcb_get_property(my_data->connection, 0, my_data->xcb_window, property, type, 0, 0);
-    if ((reply = xcb_get_property_reply(my_data->connection, cookie, NULL))) {
-        my_data->xcb_fps = true;
-        int len = xcb_get_property_value_length(reply);
-        if (len > TITLE_LENGTH) {
-            my_data->xcb_fps = false;
-        } else if (len > 0) {
-            strcpy(my_data->base_title, (char *)xcb_get_property_value(reply));
-        } else {
-            // No window title - make base title null string
-            my_data->base_title[0] = 0;
+
+    if (!xcb.xcbLib and !xcbErrorPrinted) {
+        fprintf(stderr, "Monitor layer libxcb.so load failure, will not be able to display frame rate\n");
+        xcbErrorPrinted = true;
+    }
+    if (xcb.xcbLib) {
+        my_data->xcb_window = pCreateInfo->window;
+        my_data->connection = pCreateInfo->connection;
+        cookie = xcb.get_property(my_data->connection, 0, my_data->xcb_window, property, type, 0, 0);
+        if ((reply = xcb.get_property_reply(my_data->connection, cookie, NULL))) {
+            my_data->xcb_fps = true;
+            int len = xcb.get_property_value_length(reply);
+            if (len > TITLE_LENGTH) {
+                my_data->xcb_fps = false;
+            } else if (len > 0) {
+                strcpy(my_data->base_title, (char *)xcb.get_property_value(reply));
+            } else {
+                // No window title - make base title null string
+                my_data->base_title[0] = 0;
+            }
         }
     }
 
