@@ -40,6 +40,7 @@ Compiling
 - Tools that needs to be installed
 - Things that needs to be the %PATH% 
 - Command lines, actions to build
+
 **TODO**
 
 Glossary
@@ -56,7 +57,7 @@ Glossary
 
 Vulkan Loader and Layers design overview
 --------------
-[ ![Vulkan Loader](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png) ](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png)
+[ ![Vulkan Loader](https://imgshare.io/images/2020/06/05/Vulkan-Loader_800px.png) ](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
@@ -113,5 +114,5 @@ Known issues
 - Missing description for each layer settings.
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
 - Layer paths may not be duplicated in the layer override .json file. They currently are.
-- Layer execution order express in the "Select Vulkan Layers to override and execution order" is not accurate, only *forced on* layers can be ordered.
+- Layer execution order express in the "Select Vulkan Layers to override and execution order" window is not accurate, only *forced on* layers can be ordered.
 
