@@ -2,9 +2,11 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Vulkan Configurator allows overriding the [layers configuration](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/LAYER_CONFIGURATION.md) of Vulkan applications.
+*Vulkan Configurator* allows overriding the [layers configuration](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/LAYER_CONFIGURATION.md) used by Vulkan applications at runtime.
 
-A Vulkan application may configure layers when creating a Vulkan Instance. This layers configuration may be overridden using Vulkan Configurator globally or for a selected list of Vulkan applications.
+A Vulkan application may configure layers when creating a Vulkan Instance. This layers configuration may be overridden using *Vulkan Configurator* globally or for a selected list of Vulkan applications.
+
+Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
 * **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
@@ -27,11 +29,11 @@ Platform Support
 Downloads
 --------------
 
-Vulkan Configurator is part of [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#windows) releases.
+*Vulkan Configurator* is part of [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#windows) releases.
 
 License
 --------------
-Vulkan Configurator is part of Vulkan Tools released under the [Apache 2.0 license](../LICENSE.txt).
+*Vulkan Configurator* is part of Vulkan Tools released under the [Apache 2.0 license](../LICENSE.txt).
 
 Compiling
 --------------
@@ -64,7 +66,7 @@ For detailed information, read the [Architecture of the Vulkan Loader Interfaces
 OS User-Specific Monifications
 --------------
 
-The Vulkan Configurator does not make any system-wide changes to a system, but it does make user-specific changes.
+The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
 
 ### Linux/Mac
