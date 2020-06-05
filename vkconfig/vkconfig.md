@@ -13,9 +13,9 @@ A Vulkan application may configure layers when creating a Vulkan Instance. This 
 Screenshots
 --------------
 
-| [ ![Main Window](./images/main-window_320px.png) ](./images/main-window.png) | [ ![Overriding multiple layers](./images/multiple_layers_320px.png) ](./images/multiple_layers.png) |
+| [ ![Main Window](./images/main_window_320px.png) ](./images/main_window.png) | [ ![Overriding multiple layers](./images/multiple_layers_320px.png) ](./images/multiple_layers.png) |
 | --- | --- |
-| [ ![Vulkan Applications launchers](./images/launcher_320px.png) ](./images/launcher.png) | [ ![Vulkan Layers slection and ordering ](./images/layers-selection-and-ordering_320px.png) ](./images/layers-selection-and-ordering.png) |
+| [ ![Vulkan Applications launchers](./images/launcher_320px.png) ](./images/launcher.png) | [ ![Vulkan Layers slection and ordering ](./images/layers_selection_and_ordering_320px.png) ](./images/layers_selection_and_ordering.png) |
 
 Platform Support
 --------------
@@ -57,7 +57,7 @@ Glossary
 
 Vulkan Loader and Layers design overview
 --------------
-[ ![Vulkan Loader](./images/Vulkan-Loader_800px.png) ](./images/Vulkan-Loader.png)
+[ ![Vulkan Loader](./images/vulkan-loader_800px.png) ](./images/vulkan-loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
