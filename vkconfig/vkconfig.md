@@ -10,7 +10,7 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
 * **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
-* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [Compilation instructions](#compiling), [Roadmap](#roadmap)
+* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [Compilation instructions](#compiling), [Roadmap](#roadmap), [Known Issues](#known-issues)
 
 Screenshots
 --------------
@@ -113,7 +113,7 @@ Roadmap
 - Use CMake build system.
 - Add multiple command line arguments and environment variables per application.
 
-Known issues
+Known Issues
 --------------
 
 - Tool tips are not yet implemented.
