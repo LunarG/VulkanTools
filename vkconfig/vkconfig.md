@@ -36,16 +36,29 @@ Vulkan Configurator is part of Vulkan Tools released under the Apache 2.0 licens
 Compiling
 --------------
 
-TODO
+**TODO**
 - Tools that needs to be installed
 - Things that needs to be the %PATH% 
 - Command lines, actions to build
+**TODO**
 
-TODO
+Glossary
+--------------
+*[A Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)*: A layer is optional library that can intercept Vulkan funvtions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple functionalities simultanously.
+
+*A Vulkan Layers Configuration*: collection of Vulkan Layers executed in [a specific order](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#overall-layer-ordering) with specific settings for each layer.
+
+*Vulkan [Explicit Layers vs Implicit Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#implicit-vs-explicit-layers)*: A explicit layer has to be explicitly activated is the user request it from source in `vkCreateInstance`, using Vulkan Configurator or `VK_INSTANCE_LAYERS` environment variable. Implicit layers are enabled by their existence.
+
+*Vulkan [A Meta-Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#meta-layers)*: Meta-layers are a special kind of layer which is only available through the desktop loader. While normal layers are associated with one particular library, a meta-layer is actually a collection layer which contains an ordered list of other layers called *component layers*. 
+
+*Vulkan Layer settings*: Per layer settings loaded by the layer libraries and stored in the `vk_layer_settings.txt` file seats next to the Vulkan application executable or globally. These settings are discribed [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers distributed by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
 Vulkan Loader and Layers design overview
 --------------
 [ ![Vulkan Loader](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png) ](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png)
+
+For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
 OS User-Specific Monifications
 --------------
@@ -66,24 +79,13 @@ Unix systems store files in the following paths:
 Windows systems store files in the following paths:
 
 - `%TEMP%\VulkanLayerManager\VkLayerOverride.json` tells a Vulkan application which layers to use
-- `%TEMP%\VulkanLayerManager\vk_layer_settings.json` tells Vulkan layers which settings to use
+- `%TEMP%\VulkanLayerManager\vk_layer_settings.txt` tells Vulkan layers which settings to use
 
 In addition, Windows system create registry entries in the following locations:
 
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\ImplicitLayers` will have an entry that points to the JSON file above
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
-
-
-
-
-two approaches:
-- Using a vk_layer_settings.txt file in the application local directory based on documented settings (([validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt), [other](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt))).
-- Using Vulkan Configurator to override all Vulkan applications layers or a selected list of Vulkan applications.
-
-
-
-
 
 Roadmap
 --------------
@@ -108,8 +110,8 @@ Known issues
 --------------
 
 - Tool tips are not yet implemented.
-- Missing description for each settings
-- There is no warning when there is a local layer configuration file. Layers will use the override layer settings and ignore the local file and users need to be aware of this.
+- Missing description for each layer settings.
+- Layers will use the override layer settings and ignore the local file with no warning to the user.
 - Layer paths may not be duplicated in the layer override .json file. They currently are.
-- Layer execution order express in the "Select Vulkan Layers to override and execution order" is not accurate.
+- Layer execution order express in the "Select Vulkan Layers to override and execution order" is not accurate, only *forced on* layers can be ordered.
 
