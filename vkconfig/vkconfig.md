@@ -1,4 +1,4 @@
-<p align="center"><img src="./images/Vulkan-Configurator.png" /></p>
+<p align="center"><img src="./images/vulkan_configurator.png" /></p>
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
