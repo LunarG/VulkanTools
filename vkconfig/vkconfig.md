@@ -57,9 +57,19 @@ Glossary
 
 *Vulkan Layer settings*: Per layer settings loaded by the layer libraries and stored in the `vk_layer_settings.txt` file seats next to the Vulkan application executable or globally. These settings are discribed [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
+*[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)*: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override` and it is the mecanism used by *Vulkan Configurator* to override Vulkwn applications layers. This layer contains:
+- The ordered list of layers to activate
+- The list of layer to back-list
+- The list of paths to executables that the override applies to. If this list is empty, the override is applied to every application upon startup.
+
+Vulkan Layers execution order overview
+--------------
+
+[ ![Vulkan Loader](./images/vulkan_layers_order_small.png) ](./images/vulkan_layers_order.png)
+
 Vulkan Loader and Layers design overview
 --------------
-[ ![Vulkan Loader](./images/vulkan_loader_800px.png) ](./images/vulkan_loader.png)
+[ ![Vulkan Loader](./images/vulkan_loader_640px.png) ](./images/vulkan_loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
