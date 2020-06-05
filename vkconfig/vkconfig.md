@@ -57,7 +57,7 @@ Glossary
 
 Vulkan Loader and Layers design overview
 --------------
-[ ![Vulkan Loader](./images/vulkan-loader_800px.png) ](./images/vulkan-loader.png)
+[ ![Vulkan Loader](./images/vulkan_loader_800px.png) ](./images/vulkan_loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
