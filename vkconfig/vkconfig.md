@@ -1,4 +1,4 @@
-<p align="center"><img src="https://imgshare.io/images/2020/06/02/Vulkan-Configurator.png" /></p>
+<p align="center"><img src="./images/Vulkan-Configurator.png" /></p>
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -13,9 +13,9 @@ A Vulkan application may configure layers when creating a Vulkan Instance. This 
 Screenshots
 --------------
 
-| [ ![Main Window](https://imgshare.io/images/2020/06/02/main-window_320px.png) ](https://imgshare.io/images/2020/06/02/main-window.png) | [ ![Overriding multiple layers](https://imgshare.io/images/2020/06/02/multiple_layers_320px.png) ](https://imgshare.io/images/2020/06/02/multiple_layers.png) |
+| [ ![Main Window](./images/main-window_320px.png) ](./images/main-window.png) | [ ![Overriding multiple layers](./images/multiple_layers_320px.png) ](./images/multiple_layers.png) |
 | --- | --- |
-| [ ![Vulkan Applications launchers](https://imgshare.io/images/2020/06/02/launcher_320px.png) ](https://imgshare.io/images/2020/06/02/launcher.png) | [ ![Vulkan Layers slection and ordering ](https://imgshare.io/images/2020/06/02/layers-selection-and-ordering_320px.png) ](https://imgshare.io/images/2020/06/02/layers-selection-and-ordering.png) |
+| [ ![Vulkan Applications launchers](./images/launcher_320px.png) ](./images/launcher.png) | [ ![Vulkan Layers slection and ordering ](./images/layers-selection-and-ordering_320px.png) ](./images/layers-selection-and-ordering.png) |
 
 Platform Support
 --------------
@@ -31,7 +31,7 @@ Vulkan Configurator is part of [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#w
 
 License
 --------------
-Vulkan Configurator is part of Vulkan Tools released under the Apache 2.0 license, see [LICENSE.txt](../LICENSE.txt) for full text.
+Vulkan Configurator is part of Vulkan Tools released under the [Apache 2.0 license](../LICENSE.txt).
 
 Compiling
 --------------
@@ -49,15 +49,15 @@ Glossary
 
 *A Vulkan Layers Configuration*: collection of Vulkan Layers executed in [a specific order](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#overall-layer-ordering) with specific settings for each layer.
 
-*Vulkan [Explicit Layers vs Implicit Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#implicit-vs-explicit-layers)*: A explicit layer has to be explicitly activated is the user request it from source in `vkCreateInstance`, using Vulkan Configurator or `VK_INSTANCE_LAYERS` environment variable. Implicit layers are enabled by their existence.
+*Vulkan [Explicit Layers vs Implicit Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#implicit-vs-explicit-layers)*: A explicit layer has to be explicitly activated is the user request it from source in `vkCreateInstance`, using Vulkan Configurator or `VK_INSTANCE_LAYERS` environment variable. Implicit layers are enabled by their existence by default.
 
 *Vulkan [A Meta-Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#meta-layers)*: Meta-layers are a special kind of layer which is only available through the desktop loader. While normal layers are associated with one particular library, a meta-layer is actually a collection layer which contains an ordered list of other layers called *component layers*. 
 
-*Vulkan Layer settings*: Per layer settings loaded by the layer libraries and stored in the `vk_layer_settings.txt` file seats next to the Vulkan application executable or globally. These settings are discribed [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers distributed by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
+*Vulkan Layer settings*: Per layer settings loaded by the layer libraries and stored in the `vk_layer_settings.txt` file seats next to the Vulkan application executable or globally. These settings are discribed [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
 Vulkan Loader and Layers design overview
 --------------
-[ ![Vulkan Loader](https://imgshare.io/images/2020/06/05/Vulkan-Loader_800px.png) ](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png)
+[ ![Vulkan Loader](./images/Vulkan-Loader_800px.png) ](./images/Vulkan-Loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
