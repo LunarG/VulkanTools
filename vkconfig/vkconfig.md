@@ -43,6 +43,10 @@ TODO
 
 TODO
 
+Vulkan Loader and Layers design overview
+--------------
+[ ![Vulkan Loader](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png) ](https://imgshare.io/images/2020/06/05/Vulkan-Loader.png)
+
 OS User-Specific Monifications
 --------------
 
