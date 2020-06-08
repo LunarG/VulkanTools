@@ -122,6 +122,8 @@ public Q_SLOTS:
 
     void addCustomPaths();    // Fired by menu
 
+    void editorExpanded(QTreeWidgetItem *pItem);
+
 
 
     void launchItemExpanded(QTreeWidgetItem* pItem);

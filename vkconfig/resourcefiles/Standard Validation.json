@@ -1,6 +1,5 @@
 {
     "Standard Validation": {
-    "fixed_profile" : true,
     "description" : "This configuration is a good default validation setting and should serve most needs most of the time.",
             "blacklisted_layers": [],
             "layer_options": {

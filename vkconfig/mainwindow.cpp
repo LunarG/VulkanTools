@@ -100,6 +100,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->profileTree, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(profileItemHighlighted(QTreeWidgetItem *, int)));
     connect(ui->profileTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(profileTreeChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 
+    connect(ui->layerSettingsTree, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(editorExpanded(QTreeWidgetItem*)));
+
     connect(ui->launchTree, SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(launchItemCollapsed(QTreeWidgetItem*)));
     connect(ui->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(launchItemExpanded(QTreeWidgetItem* )));
 
@@ -359,21 +361,18 @@ void MainWindow::profileItemHighlighted(QTreeWidgetItem *pItem, int nCol)
 /// for the radio button, and one to change the editor/information at lower right.
 void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
     {
-    (void)pPrevious;
-    (void)pCurrent;
-    printf("profileTreechanged\n");
+    // If we have made edits to the last profile, we need to save them
+    CProfileListItem *pLastItem = dynamic_cast<CProfileListItem *>(pPrevious);
+    if(pLastItem)
+        pVulkanConfig->SaveProfile(pLastItem->pProfilePointer);
 
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    CProfileListItem *pProfileItem = GetCheckedItem();
+    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pCurrent);
     if(pProfileItem == nullptr)
         return;
 
     settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfileItem->pProfilePointer);
-
-    // Do we go ahead and activate it?
-    if(pVulkanConfig->bOverrideActive)
-        pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
     }
 
 
@@ -679,6 +678,12 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
     this->setWindowTitle(newCaption);
     }
 
+void MainWindow::editorExpanded(QTreeWidgetItem *pItem)
+    {
+    (void)pItem;
+    ui->layerSettingsTree->resizeColumnToContents(0);
+    }
+
 
 //////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonActivate_clicked
@@ -823,7 +828,7 @@ void MainWindow::selectedProfileChanged(void)
 void MainWindow::ResetLaunchOptions(void)
     {
     // Reload launch apps selections
-    int nFoundLast = 0;
+    int nFoundLast = -1;
     pLaunchAppsCombo->blockSignals(true);
     pLaunchAppsCombo->clear();
     for(int i = 0; i < pVulkanConfig->appList.size(); i++) {
@@ -831,6 +836,9 @@ void MainWindow::ResetLaunchOptions(void)
         if(pVulkanConfig->appList[i]->qsAppNameWithPath == pVulkanConfig->qsLaunchApplicationWPath)
             nFoundLast = i;
         }
+
+    if(nFoundLast < 0)
+        return;
 
     pLaunchAppsCombo->setCurrentIndex(nFoundLast);
 

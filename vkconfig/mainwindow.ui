@@ -340,12 +340,20 @@
          </property>
          <item row="1" column="0">
           <widget class="QTreeWidget" name="layerSettingsTree">
+           <property name="columnCount">
+            <number>2</number>
+           </property>
            <attribute name="headerVisible">
             <bool>false</bool>
            </attribute>
            <column>
             <property name="text">
              <string notr="true">1</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string notr="true">2</string>
             </property>
            </column>
           </widget>

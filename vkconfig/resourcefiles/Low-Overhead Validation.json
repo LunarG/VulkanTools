@@ -1,6 +1,5 @@
 {
     "Low-Overhead Validation": {
-    "fixed_profile" : true,
     "description" : "This configuration disableds some of the checks of Standard Validation in the interest of performance.",
     "blacklisted_layers": [],
     "layer_options": {

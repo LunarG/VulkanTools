@@ -791,10 +791,6 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     QJsonValue description = profileEntryObject.value("description");
     pProfile->qsDescription = description.toString();
 
-    QJsonValue fixed = profileEntryObject.value("fixed_profile");
-    if(!fixed.isNull())
-        pProfile->bFixedProfile = fixed.toBool();
-
     QJsonValue optionsValue = profileEntryObject.value("layer_options");
 
     QJsonObject layerObjects = optionsValue.toObject();
@@ -966,7 +962,6 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
     QJsonObject json_profile;
     json_profile.insert("blacklisted_layers", blackList);
     json_profile.insert("description", pProfile->qsDescription);
-    json_profile.insert("fixed_profile", pProfile->bFixedProfile);
     json_profile.insert("layer_options", layerList);
     root.insert(pProfile->qsProfileName, json_profile);
     QJsonDocument doc(root);

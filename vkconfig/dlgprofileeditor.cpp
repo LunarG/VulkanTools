@@ -159,19 +159,11 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         }
     else {
         QString title;
-
+        ui->lineEditName->setEnabled(false); // This is now where we rename
         // We are editing an exisitng profile. Make a copy of it
         pThisProfile = pProfileToEdit->DuplicateProfile();
 
-        // IF this was a fixed profile, clear that setting
-        // AND we need to modify the name since we are making a copy
-        if(pProfileToEdit->bFixedProfile) {
-            pThisProfile->qsFileName = "";
-            pThisProfile->qsProfileName += "-Duplicate";
-            title = tr("Save Duplicate Configuration");
-            }
-        else
-            title = tr("Edit existing configuration");
+        title = tr("Edit existing configuration");
 
         // We now have a profile ready for editing, but only the layers that
         // are actually used are attached. Now, we need to add the remaining layers
