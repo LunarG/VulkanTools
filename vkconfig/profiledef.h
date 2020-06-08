@@ -37,6 +37,7 @@ public:
 
     bool            bFixedProfile;              // One of the fixed system profiles
     QString         qsProfileName;              // User readable display of the profile name (may contain spaces)
+                                                // This is the same as the filename, but with the .json stripped off.
     QString         qsFileName;                 // Root file name without path (by convention, no spaces and .profile suffix)
     QString         qsDescription;              // A friendly description of what this profile does
 

@@ -26,7 +26,6 @@
 
 #include "profiledef.h"
 #include <vulkanconfiguration.h>
-#include <settingseditor.h>
 
 
 namespace Ui {
@@ -50,23 +49,29 @@ private:
     Ui::dlgProfileEditor *ui;
 
     CVulkanConfiguration*    pVulkanConfig;
-    CSettingsEditor          settingsEditor;
 
     CProfileDef             *pThisProfile;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;
 
-    void addMissingLayers(CProfileDef *pProfile);
+    void AddMissingLayers(CProfileDef *pProfile);
+
+    void PopulateCustomTree(void);
+
 
 public Q_SLOTS:
     virtual void accept() override;
 
     void currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
 
+    void customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn);
+
+
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonLaunchTest_clicked();
     void on_pushButtonAddLayers_clicked();
+    void on_pushButtonRemoveLayers_clicked();
 
     void on_toolButtonUp_clicked();
     void on_toolButtonDown_clicked();
@@ -74,6 +79,7 @@ public Q_SLOTS:
     void layerUseChanged(int nSelection);
 
     void profileNameChanged(const QString& qsProfileName);
+
 
 };
 

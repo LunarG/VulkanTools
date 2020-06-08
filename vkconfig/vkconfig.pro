@@ -41,6 +41,7 @@ SOURCES += \
     mainwindow.cpp \
     profiledef.cpp \
     settingseditor.cpp \
+    settingstreemanager.cpp \
     vulkanconfiguration.cpp
 
 HEADERS += \
@@ -60,6 +61,7 @@ HEADERS += \
     mainwindow.h \
     profiledef.h \
     settingseditor.h \
+    settingstreemanager.h \
     vulkanconfiguration.h
 
 FORMS += \

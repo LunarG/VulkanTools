@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
-    QCoreApplication::setApplicationName("VkConfig");
+    QCoreApplication::setApplicationName("vkconfig");
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 
@@ -40,9 +40,6 @@ int main(int argc, char *argv[])
     // Get and initialize the application model, which is essentially the Vulkan
     // configuration of the system.
     CVulkanConfiguration* pModel = CVulkanConfiguration::getVulkanConfig();
-
-    // The main GUI is driven here
-    MainWindow w;
 
     QSettings settings;
     bool bShowMe = settings.value("VK_CONFIG_BETA_MESSAGE").toBool();
@@ -68,14 +65,15 @@ int main(int argc, char *argv[])
         dlg.setIcon(QMessageBox::Warning);
         dlg.exec();
     } else {
-        QSettings settings;
-        if(!settings.value("VKCONFIG_SHOW_LOADER_WARNING").toBool()) {
-            PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
 
-            vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
-            uint32_t version=0;
-            if(VK_SUCCESS == vkEnumerateInstanceVersion(&version)) {
-                if(version < 4202633) {
+        QSettings settings;
+        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
+        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
+        uint32_t version=0;
+        if(VK_SUCCESS == vkEnumerateInstanceVersion(&version)) {
+            if(version < 4202633) {
+                pModel->bHasOldLoader = true;
+                if(!settings.value("VKCONFIG_SHOW_LOADER_WARNING").toBool()) {
                     QString message;
                     message.sprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
                                     "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 141 for this "
@@ -94,7 +92,9 @@ int main(int argc, char *argv[])
             }
         }
 
-    w.show();
+    // The main GUI is driven here
+    MainWindow mainWindow;
+    mainWindow.show();
     int nRet =  app.exec();
 
     delete pModel; // Cleanup everything when app terminates

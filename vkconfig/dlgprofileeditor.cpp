@@ -23,11 +23,11 @@
 #include <QMessageBox>
 #include <QComboBox>
 #include <QStyle>
+#include <QFileDialog>
 
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
 #include "dlglayeroutput.h"
-#include "dlgcustompaths.h"
 
 
 #ifdef _WIN32
@@ -178,7 +178,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
         // in their default states
         // Loop through all the available layers. If the layer is not use for the profile
         // attach it for editing.
-        addMissingLayers(pThisProfile);
+        AddMissingLayers(pThisProfile);
         setWindowTitle(title);
         }
 
@@ -193,11 +193,14 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
     connect(ui->lineEditName, SIGNAL(textChanged(const QString&)), this, SLOT(profileNameChanged(const QString&)));
     connect(ui->layerTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this,
                 SLOT(currentLayerChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
+    connect(ui->treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(customTreeItemActivated(QTreeWidgetItem*, int)));
+    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(customTreeItemActivated(QTreeWidgetItem*, int)));
 
     LoadLayerDisplay(0); // Load/Reload the layer editor
+    PopulateCustomTree();
     }
 
-void dlgProfileEditor::addMissingLayers(CProfileDef *pProfile)
+void dlgProfileEditor::AddMissingLayers(CProfileDef *pProfile)
     {
     int nRank = pProfile->layers.size();    // Next rank starts here
     for(int iAvailable = 0; iAvailable < pVulkanConfig->allLayers.size(); iAvailable++) {
@@ -233,13 +236,90 @@ dlgProfileEditor::~dlgProfileEditor()
     delete ui;
     }
 
+////////////////////////////////////////////////////////////
+/// \brief dlgProfileEditor::on_pushButtonAddLayers_clicked
+/// Add a custom layer path, and update everything accordingly
 void dlgProfileEditor::on_pushButtonAddLayers_clicked()
     {
-    dlgCustomPaths dlg(this);
-    dlg.exec();
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    QString customFolder =
+        dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
+
+    if(customFolder.isEmpty())
+        return;
+
+    pVulkanConfig->additionalSearchPaths.append(customFolder);
+    pVulkanConfig->SaveAdditionalSearchPaths();
+    pVulkanConfig->FindAllInstalledLayers();
     pThisProfile->CollapseProfile();
-    addMissingLayers(pThisProfile);
+    AddMissingLayers(pThisProfile);
     LoadLayerDisplay();
+    PopulateCustomTree();
+    }
+
+////////////////////////////////////////////////////////////
+// Remove the selected item.
+void dlgProfileEditor::on_pushButtonRemoveLayers_clicked()
+    {
+    // Which one is selected? We need the top item too
+    QTreeWidgetItem *pSelected = ui->treeWidget->currentItem();
+    if(pSelected == nullptr)
+        return;
+
+    while(pSelected->parent() != nullptr)
+        pSelected = pSelected->parent();
+
+    for(int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
+        if(pVulkanConfig->additionalSearchPaths[i] == pSelected->text(0)) {
+            pVulkanConfig->additionalSearchPaths.removeAt(i);
+            break;
+            }
+        }
+
+    pVulkanConfig->SaveAdditionalSearchPaths();
+    pVulkanConfig->FindAllInstalledLayers();
+    pThisProfile->CollapseProfile();
+    AddMissingLayers(pThisProfile);
+    LoadLayerDisplay();
+    PopulateCustomTree();
+    }
+
+void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn)
+    {
+    (void)nColumn;
+    (void)pItem;
+    ui->pushButtonRemoveLayers->setEnabled(true);
+    }
+
+
+////////////////////////////////////////////////////////////
+// Custom layer paths and the layers found therein
+void dlgProfileEditor::PopulateCustomTree(void)
+    {
+    ui->treeWidget->clear();
+
+    // Populate the tree
+    for(int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++ ) {
+        QTreeWidgetItem *pItem = new QTreeWidgetItem();
+        pItem->setText(0, pVulkanConfig->additionalSearchPaths[i]);
+        ui->treeWidget->addTopLevelItem(pItem);
+
+        // Look for layers that are in this folder. If any are found, add them to the tree
+        QVector <CLayerFile*>   customLayers;
+        pVulkanConfig->LoadLayersFromPath(pVulkanConfig->additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
+
+        for(int j = 0; j < customLayers.size(); j++) {
+            QTreeWidgetItem *pChild = new QTreeWidgetItem();
+            pChild->setText(0, customLayers[j]->name);
+            pItem->addChild(pChild);
+            }
+
+        // Free the dynamic memory, the rest passes out of scope
+        qDeleteAll(customLayers.begin(), customLayers.end());
+        }
+
+    ui->pushButtonRemoveLayers->setEnabled(false);
     }
 
 
@@ -250,14 +330,14 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked()
 /// of a profile with the same name.
 void dlgProfileEditor::profileNameChanged(const QString& qsName)
     {
-    // Compare the edit field with the list of canned profile names
-    for(int i = 0; i < 10; i+=2)
-        if(szCannedProfiles[i] == qsName) {
-            ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(false);
-            return;
-            }
+//    // Compare the edit field with the list of canned profile names
+//    for(int i = 0; i < 10; i+=2)
+//        if(szCannedProfiles[i] == qsName) {
+//            ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(false);
+//            return;
+//            }
 
-    ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(true);
+//    ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(true);
     }
 
 
@@ -313,8 +393,8 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection)
        pItem->setSizeHint(1, QSize(comboWidth, comboHeight));
 
        pUse->addItem("App Controlled");
-       pUse->addItem("Force On");
-       pUse->addItem("Force Off");
+       pUse->addItem("Overridden - Force On");
+       pUse->addItem("Disabled - Force Off");
 
        if(pItem->pLayer->bActive)
            pUse->setCurrentIndex(1);
@@ -364,7 +444,7 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked(void)
     ui->groupBoxSettings->setTitle(tr("Layer Settings"));
     delete pThisProfile;
     pThisProfile = pVulkanConfig->CreateEmptyProfile();
-    settingsEditor.CleanupGUI();
+//    settingsEditor.CleanupGUI();
     LoadLayerDisplay();
     }
 
@@ -393,8 +473,8 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     {
     (void)pPrevious;
     // These are always safe to call
-    settingsEditor.CollectSettings();
-    settingsEditor.CleanupGUI();
+//    settingsEditor.CollectSettings();
+//    settingsEditor.CleanupGUI();
 
     // New settings
     QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pCurrent);
@@ -404,17 +484,17 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
         return;
         }
 
-    // Get the name of the selected layer
-    QString qsTitle = "Layer Settings (" + pCurrent->text(0);
-    qsTitle += ")";
-    ui->groupBoxSettings->setTitle(qsTitle);
-    if(pLayerItem->pLayer->name == QString("VK_LAYER_KHRONOS_validation"))
-        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_kHRONOS_ADVANCED, "");
-    else
-        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_GENERAL, "");
+//    // Get the name of the selected layer
+//    QString qsTitle = "Layer Settings (" + pCurrent->text(0);
+//    qsTitle += ")";
+//    ui->groupBoxSettings->setTitle(qsTitle);
+//    if(pLayerItem->pLayer->name == QString("VK_LAYER_KHRONOS_validation"))
+//        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_kHRONOS_ADVANCED, "");
+//    else
+//        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_GENERAL, "");
 
-    // Is this layer Force on?
-    settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
+//    // Is this layer Force on?
+//    settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
 
     /////////////////////////////////////////////////////////////////////
     // Populate the side label
@@ -474,19 +554,19 @@ void dlgProfileEditor::layerUseChanged(int nSelection)
         case LAYER_APP_CONTROLLED:
             pLayer->bActive = false;
             pLayer->bDisabled = false;
-            settingsEditor.SetEnabled(false);
+//            settingsEditor.SetEnabled(false);
         break;
 
         case LAYER_FORCED_ON:
             pLayer->bActive = true;
             pLayer->bDisabled = false;
-            settingsEditor.SetEnabled(true);
+//            settingsEditor.SetEnabled(true);
         break;
 
         case LAYER_FORCED_OFF:
             pLayer->bActive = false;
             pLayer->bDisabled = true;
-            settingsEditor.SetEnabled(false);
+//            settingsEditor.SetEnabled(false);
         }
     }
 
@@ -498,7 +578,7 @@ void dlgProfileEditor::layerUseChanged(int nSelection)
 void dlgProfileEditor::accept()
     {
     // Collect any remaining GUI edits
-    settingsEditor.CollectSettings();
+//    settingsEditor.CollectSettings();
 
     pThisProfile->qsProfileName = ui->lineEditName->text();
     pThisProfile->qsDescription = ui->lineEditDesc->text();

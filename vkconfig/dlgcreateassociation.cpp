@@ -19,12 +19,10 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QCloseEvent>
+#include <QCheckBox>
 
 #include "dlgcreateassociation.h"
 #include "ui_dlgcreateassociation.h"
-
-
-
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -36,12 +34,28 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
+    if(pVulkanConfig->bHasOldLoader)
+        setWindowTitle(tr("Vulkan Applications Shortcuts"));
 
     // Show the current list
-    for(int i = 0; i < pVulkanConfig->appList.size(); i++)
-        ui->listWidget->addItem(pVulkanConfig->appList[i]->qsAppNameWithPath);
+    for(int i = 0; i < pVulkanConfig->appList.size(); i++) {
+        QTreeWidgetItem *pItem = new QTreeWidgetItem();
+        pItem->setText(0, pVulkanConfig->appList[i]->qsAppNameWithPath);
+        ui->treeWidget->addTopLevelItem(pItem);
 
-    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectedPathChanged()));
+        QCheckBox *pCheckBox = new QCheckBox();
+        pCheckBox->setChecked(pVulkanConfig->appList[i]->bExcludeFromGlobalList);
+        ui->treeWidget->setItemWidget(pItem, 1, pCheckBox);
+        connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
+        }
+
+    QTreeWidgetItem *pHeader = ui->treeWidget->headerItem();
+    pHeader->setText(0, tr("Application Executable"));
+    pHeader->setText(1, tr("Exclude from Override Metalayer"));
+    ui->treeWidget->installEventFilter(this);
+
+    connect(ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(selectedPathChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
+    connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
     connect(ui->lineEditCmdArgs, SIGNAL(textEdited(const QString&)), this, SLOT(editCommandLine(const QString&)));
     connect(ui->lineEditWorkingFolder, SIGNAL(textEdited(const QString&)), this, SLOT(editWorkingFolder(const QString&)));
     }
@@ -52,7 +66,25 @@ dlgCreateAssociation::~dlgCreateAssociation()
     delete ui;
     }
 
+//////////////////////////////////////////////////////////////////////////////
+bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event)
+    {
+    // Launch tree does some fancy resizing and since it's down in
+    // layouts and splitters, we can't just relay on the resize method
+    // of this window.
+    if(target == ui->treeWidget) {
+        if(event->type() == QEvent::Resize) {
+            ui->treeWidget->resizeColumnToContents(1);
+            int nLastColumnWidth = ui->treeWidget->columnWidth(1);
+            QRect rect = ui->treeWidget->geometry();
+            ui->treeWidget->setColumnWidth(0, rect.width() - nLastColumnWidth);
+            }
+        }
+    return false;
+    }
 
+///////////////////////////////////////////////////////////////////////////////
+/// Make sure any changes are saved
 void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent)
     {
     pVulkanConfig->SaveAppList();
@@ -90,10 +122,16 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
         TAppListEntry *pNewApp = new TAppListEntry;
         pNewApp->qsAppNameWithPath = appWithPath;
         pNewApp->qsWorkingFolder = QFileInfo(appWithPath).path();
+        pNewApp->bExcludeFromGlobalList = false;
         pVulkanConfig->appList.push_back(pNewApp);
-        ui->listWidget->addItem(appWithPath);
+        QTreeWidgetItem *pItem = new QTreeWidgetItem();
+        pItem->setText(0, appWithPath);
+        QCheckBox *pCheck = new QCheckBox();
+        ui->treeWidget->addTopLevelItem(pItem);
+        ui->treeWidget->setItemWidget(pItem, 1, pCheck);
         pVulkanConfig->SaveAppList();
         pVulkanConfig->RefreshProfile();
+        connect(pCheck, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
         }
     }
 
@@ -102,33 +140,31 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
 /// Easy enough, just remove the selected program from the list
 void dlgCreateAssociation::on_pushButtonRemove_clicked(void)
     {
-    int nItem = ui->listWidget->currentRow();
-    if(nItem < 0)
+    QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
+    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if(iRow < 0)
         return;
 
-    QListWidgetItem *pItem = ui->listWidget->takeItem(nItem);
-    delete pItem;
-    pVulkanConfig->appList.removeAt(nItem);
+    ui->treeWidget->takeTopLevelItem(iRow);
+    ui->treeWidget->setCurrentItem(nullptr);
+    pVulkanConfig->appList.removeAt(iRow);
 
-    if(ui->listWidget->currentRow() == -1) {
-        ui->pushButtonRemove->setEnabled(false);
-        ui->lineEditCmdArgs->setText("");
-        ui->lineEditCmdArgs->setEnabled(false);
-        ui->lineEditWorkingFolder->setText("");
-        ui->lineEditWorkingFolder->setEnabled(false);
-        }
+    ui->groupLaunchInfo->setEnabled(false);
+    ui->pushButtonRemove->setEnabled(false);
+    ui->lineEditCmdArgs->setText("");
+    ui->lineEditWorkingFolder->setText("");
 
     pVulkanConfig->SaveAppList();
     pVulkanConfig->RefreshProfile();
     }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCreateAssociation::selectedPathChanged
 /// The remove button is disabled until/unless something is selected that can
 /// be removed. Also the working folder and command line arguments are updated
-void dlgCreateAssociation::selectedPathChanged(void)
+void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
     {
-    int iRow = ui->listWidget->currentRow();
+    (void)pPrevious;
+    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
     if(iRow < 0) {
         ui->groupLaunchInfo->setEnabled(false);
         ui->pushButtonRemove->setEnabled(false);
@@ -143,24 +179,53 @@ void dlgCreateAssociation::selectedPathChanged(void)
     ui->lineEditCmdArgs->setText(pVulkanConfig->appList[iRow]->qsArguments);
     }
 
+///////////////////////////////////////////////////////////////////////////////
+void dlgCreateAssociation::itemChanged(QTreeWidgetItem* pItem, int nColumn)
+    {
+    int iRow = ui->treeWidget->indexOfTopLevelItem(pItem);
+    QCheckBox *pCheckBox = dynamic_cast<QCheckBox*>(ui->treeWidget->itemWidget(pItem, nColumn));
+    if(pCheckBox != nullptr)
+        pVulkanConfig->appList[iRow]->bExcludeFromGlobalList = pCheckBox->isChecked();
+    }
 
+
+///////////////////////////////////////////////////////////////////////////////
+/// Something was clicked. We don't know what, and short of setting up a new
+/// signal/slot for each button, this seemed a reasonable approach. Just poll
+/// all of them. There aren't that many, so KISS (keep it simple stupid)
+void dlgCreateAssociation::itemClicked(bool bClicked)
+    {
+    (void)bClicked;
+
+    // Loop through the whole list and reset the checkboxes
+    for(int i = 0; i < ui->treeWidget->topLevelItemCount(); i++) {
+        QTreeWidgetItem *pItem = ui->treeWidget->topLevelItem(i);
+        QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, 1));
+        Q_ASSERT(pCheckBox != nullptr);
+        pVulkanConfig->appList[i]->bExcludeFromGlobalList = pCheckBox->isChecked();
+        }
+    }
+
+///////////////////////////////////////////////////////////////////////////////
 void dlgCreateAssociation::editCommandLine(const QString& cmdLine)
     {
-    int iRow = ui->listWidget->currentRow();
+    QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
+    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
     if(iRow < 0)
         return;
 
     pVulkanConfig->appList[iRow]->qsArguments = cmdLine;
     }
 
+//////////////////////////////////////////////////////////////////////////////
 void dlgCreateAssociation::editWorkingFolder(const QString& workingFolder)
     {
-    int iRow = ui->listWidget->currentRow();
+    QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
+    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
     if(iRow < 0)
         return;
 
     pVulkanConfig->appList[iRow]->qsWorkingFolder = workingFolder;
-
     }
 
 

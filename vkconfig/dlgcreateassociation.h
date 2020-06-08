@@ -22,6 +22,8 @@
  * the profile will only affect those in the list.
  */
 #include <QDialog>
+#include <QTreeWidgetItem>
+
 #include <vulkanconfiguration.h>
 
 
@@ -42,12 +44,16 @@ public:
 private:
     Ui::dlgCreateAssociation *ui;
     CVulkanConfiguration    *pVulkanConfig;
-    virtual void closeEvent(QCloseEvent *) override;
+    virtual void closeEvent(QCloseEvent *) override;    
+    virtual bool eventFilter(QObject *target, QEvent *event) override;
+
 
 public	Q_SLOTS:
     void on_pushButtonAdd_clicked();        // Pick the application
     void on_pushButtonRemove_clicked();     // Remove
-    void selectedPathChanged(void);         // Used to enable remove button
+    void selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);         // Used to enable remove button
+    void itemChanged(QTreeWidgetItem *pItem, int nColumn);
+    void itemClicked(bool bClicked);
 
     void editCommandLine(const QString& cmdLine);
     void editWorkingFolder(const QString& workingFolder);

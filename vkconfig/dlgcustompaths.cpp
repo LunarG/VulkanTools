@@ -29,6 +29,7 @@ dlgCustomPaths::dlgCustomPaths(QWidget *parent) :
     {
     bPathsChanged = false;
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     ui->treeWidget->headerItem()->setText(0,tr("Custom Search Paths & Layers"));
 
