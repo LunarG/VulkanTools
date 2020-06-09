@@ -122,6 +122,7 @@ Roadmap
 - When an old loader is present on the system, disable the "Apply layers override only on selected Vulkan applications" checkbox and use tool tip to tell the user the loader is too old.
 - Use *CMake* build system.
 - Add multiple command line arguments and environment variables per application.
+- Add a search field for the log area.
 
 Known Issues
 --------------
