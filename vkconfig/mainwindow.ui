@@ -167,7 +167,7 @@
             </sizepolicy>
            </property>
            <property name="title">
-            <string>Vulkan Layer Configurations</string>
+            <string>Vulkan Layers Configurations</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
@@ -340,11 +340,23 @@
          </property>
          <item row="1" column="0">
           <widget class="QTreeWidget" name="layerSettingsTree">
+           <property name="alternatingRowColors">
+            <bool>false</bool>
+           </property>
+           <property name="sortingEnabled">
+            <bool>false</bool>
+           </property>
            <property name="columnCount">
-            <number>2</number>
+            <number>3</number>
            </property>
            <attribute name="headerVisible">
             <bool>false</bool>
+           </attribute>
+           <attribute name="headerMinimumSectionSize">
+            <number>40</number>
+           </attribute>
+           <attribute name="headerDefaultSectionSize">
+            <number>200</number>
            </attribute>
            <column>
             <property name="text">
@@ -354,6 +366,11 @@
            <column>
             <property name="text">
              <string notr="true">2</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string notr="true">3</string>
             </property>
            </column>
           </widget>
@@ -425,6 +442,23 @@
               <set>Qt::AlignCenter</set>
              </property>
              <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Submit issues at our &lt;/span&gt;&lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;
+</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="openExternalLinks">
               <bool>true</bool>
              </property>
             </widget>

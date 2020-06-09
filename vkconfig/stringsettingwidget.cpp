@@ -1,5 +1,3 @@
-#ifndef CENUMSETTINGWIDGET_H
-#define CENUMSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -21,24 +19,18 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QObject>
-#include <QWidget>
-#include <QComboBox>
-#include <QTreeWidgetItem>
-#include "layerfile.h"
+#include "stringsettingwidget.h"
 
-class CEnumSettingWidget : public QComboBox
-{
-    Q_OBJECT
-public:
-    CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSettings *pLayerSetting);
+CStringSettingWidget::CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSettings *pLayerSetting)
+    {
+    pSetting = pLayerSetting;
+    pItem->setText(0, pLayerSetting->settingsPrompt);
+    pItem->setToolTip(0, pLayerSetting->settingsDesc);
+    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemToggled(const QString&)));
+    }
 
-private:
-    TLayerSettings *pSetting;
 
-public Q_SLOTS:
-    void indexChanged(int nIndex);
-
-};
-
-#endif // CENUMSETTINGWIDGET_H
+void CStringSettingWidget::itemEdited(const QString& newString)
+    {
+    pSetting->settingsValue = newString;
+    }

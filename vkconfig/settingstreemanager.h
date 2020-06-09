@@ -40,6 +40,7 @@ public:
 protected:
     QTreeWidget *pEditorTree;
     CProfileDef *pProfile;
+    QVector <QTreeWidgetItem*> fileWidgets;
 
     void BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile *pKhronosLayer);
     void BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile *pLayer);

@@ -1,5 +1,5 @@
-#ifndef CENUMSETTINGWIDGET_H
-#define CENUMSETTINGWIDGET_H
+#ifndef CSTRINGSETTINGWIDGET_H
+#define CSTRINGSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -20,25 +20,25 @@
  * in a profile.
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
-
 #include <QObject>
 #include <QWidget>
-#include <QComboBox>
+#include <QLineEdit>
 #include <QTreeWidgetItem>
+
 #include "layerfile.h"
 
-class CEnumSettingWidget : public QComboBox
+class CStringSettingWidget : public QLineEdit
 {
     Q_OBJECT
 public:
-    CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSettings *pLayerSetting);
+    CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSettings *pLayerSetting);
 
 private:
     TLayerSettings *pSetting;
 
 public Q_SLOTS:
-    void indexChanged(int nIndex);
+    void itemEdited(const QString& newString);
 
 };
 
-#endif // CENUMSETTINGWIDGET_H
+#endif // CSTRINGSETTINGWIDGET_H
