@@ -24,6 +24,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
+    boolsettingwidget.cpp \
     dlgabout.cpp \
     dlgbetamessage.cpp \
     dlgcreateassociation.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
     dlgprofileeditor.cpp \
     dlgvulkananalysis.cpp \
     dlgvulkaninfo.cpp \
+    enumsettingwidget.cpp \
     khronossettings.cpp \
     khronossettingsadvanced.cpp \
     layerfile.cpp \
@@ -41,9 +43,11 @@ SOURCES += \
     mainwindow.cpp \
     profiledef.cpp \
     settingseditor.cpp \
+    settingstreemanager.cpp \
     vulkanconfiguration.cpp
 
 HEADERS += \
+    boolsettingwidget.h \
     dlgabout.h \
     dlgbetamessage.h \
     dlgcreateassociation.h \
@@ -54,12 +58,14 @@ HEADERS += \
     dlgprofileeditor.h \
     dlgvulkananalysis.h \
     dlgvulkaninfo.h \
+    enumsettingwidget.h \
     khronossettings.h \
     khronossettingsadvanced.h \
     layerfile.h \
     mainwindow.h \
     profiledef.h \
     settingseditor.h \
+    settingstreemanager.h \
     vulkanconfiguration.h
 
 FORMS += \

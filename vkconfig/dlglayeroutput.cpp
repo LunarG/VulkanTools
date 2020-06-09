@@ -61,7 +61,7 @@ dlgLayerOutput::dlgLayerOutput(QWidget *parent, bool bTempEnv) :
 //        ui->labelLaunchApp->setText(pVulkanConfig->qsLaunchApplicationWPath);
 
     // It's okay if these are just empty
-    ui->lineEditCmdLine->setText(pVulkanConfig->qsLaunchApplicatinArgs);
+    ui->lineEditCmdLine->setText(pVulkanConfig->qsLaunchApplicationArgs);
     ui->lineEditWorkingDirectory->setText(pVulkanConfig->qsLaunchApplicationWorkingDir);
 
 
@@ -183,7 +183,7 @@ void dlgLayerOutput::on_pushButtonWorkingDir_clicked()
 /// it.
 void dlgLayerOutput::on_lineEditCmdLine_editingFinished()
     {
-    pVulkanConfig->qsLaunchApplicatinArgs = ui->lineEditCmdLine->text();
+    pVulkanConfig->qsLaunchApplicationArgs = ui->lineEditCmdLine->text();
     pVulkanConfig->SaveAppSettings();
     }
 
@@ -240,8 +240,8 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
      vulkan_app->setProgram(pVulkanConfig->qsLaunchApplicationWPath);
      vulkan_app->setWorkingDirectory(pVulkanConfig->qsLaunchApplicationWorkingDir);
 
-     if(!pVulkanConfig->qsLaunchApplicatinArgs.isEmpty())
-         vulkan_app->setArguments(QStringList() << pVulkanConfig->qsLaunchApplicatinArgs);
+     if(!pVulkanConfig->qsLaunchApplicationArgs.isEmpty())
+         vulkan_app->setArguments(QStringList() << pVulkanConfig->qsLaunchApplicationArgs);
 
      vulkan_app->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
      vulkan_app->setProcessChannelMode(QProcess::MergedChannels);
@@ -279,7 +279,7 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
     pLogFile->write(out.toUtf8().constData(), out.length());
     out.asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
-    out.asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicatinArgs.toUtf8().constData());
+    out.asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
     }
 

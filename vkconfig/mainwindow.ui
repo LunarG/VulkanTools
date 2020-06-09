@@ -84,7 +84,7 @@
              <rect>
               <x>10</x>
               <y>26</y>
-              <width>551</width>
+              <width>531</width>
               <height>20</height>
              </rect>
             </property>
@@ -102,7 +102,7 @@
              </rect>
             </property>
             <property name="text">
-             <string>Overriden by the vulkan Configurator</string>
+             <string>Overriden by the Vulkan Configurator</string>
             </property>
            </widget>
            <widget class="QPushButton" name="pushButtonAppList">
@@ -172,12 +172,29 @@
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
              <widget class="QTreeWidget" name="profileTree">
+              <property name="alternatingRowColors">
+               <bool>false</bool>
+              </property>
+              <property name="indentation">
+               <number>5</number>
+              </property>
+              <property name="columnCount">
+               <number>2</number>
+              </property>
               <attribute name="headerVisible">
                <bool>false</bool>
+              </attribute>
+              <attribute name="headerMinimumSectionSize">
+               <number>20</number>
               </attribute>
               <column>
                <property name="text">
                 <string notr="true">1</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string notr="true">2</string>
                </property>
               </column>
              </widget>
@@ -198,7 +215,37 @@
          <string>Vulkan Application Launcher</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0" colspan="4">
+         <item row="2" column="0" colspan="5">
+          <widget class="QTextBrowser" name="logBrowser"/>
+         </item>
+         <item row="1" column="3">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButtonOpenLog">
+           <property name="text">
+            <string>Load Log</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="checkBoxClearOnLaunch">
+           <property name="text">
+            <string>Clear log at launch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="5">
           <widget class="QTreeWidget" name="launchTree">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -250,36 +297,19 @@
            </column>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="checkBox">
-           <property name="text">
-            <string>Clear log at launch</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>Clear Log</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="text">
-            <string>Open Log</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QPushButton" name="pushButton_3">
+         <item row="1" column="4">
+          <widget class="QPushButton" name="pushButtonLaunch">
            <property name="text">
             <string>Launch</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="4">
-          <widget class="QTextBrowser" name="logBrowser"/>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pushButtonClearLog">
+           <property name="text">
+            <string>Clear This</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -289,10 +319,16 @@
         <enum>Qt::Vertical</enum>
        </property>
        <widget class="QGroupBox" name="groupBoxEditor">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>650</height>
+          <height>300</height>
          </size>
         </property>
         <property name="title">
@@ -302,43 +338,31 @@
          <property name="topMargin">
           <number>9</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QScrollArea" name="scrollArea">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>2</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+         <item row="1" column="0">
+          <widget class="QTreeWidget" name="layerSettingsTree">
+           <property name="columnCount">
+            <number>2</number>
            </property>
-           <property name="minimumSize">
-            <size>
-             <width>300</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::AdjustToContents</enum>
-           </property>
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-           <widget class="QWidget" name="scrollAreaWidgetContents">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>389</width>
-              <height>602</height>
-             </rect>
+           <attribute name="headerVisible">
+            <bool>false</bool>
+           </attribute>
+           <column>
+            <property name="text">
+             <string notr="true">1</string>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_3"/>
-           </widget>
+           </column>
+           <column>
+            <property name="text">
+             <string notr="true">2</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButtonNewProfile">
+           <property name="text">
+            <string>Create new layer override configuration</string>
+           </property>
           </widget>
          </item>
         </layout>
@@ -420,7 +444,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
@@ -431,8 +455,7 @@
     <addaction name="actionVulkan_Installation"/>
     <addaction name="actionCustom_Layer_Paths"/>
     <addaction name="separator"/>
-    <addaction name="actionLog_API_Dump"/>
-    <addaction name="actionSet_Test_Application"/>
+    <addaction name="actionRestore_Default_Configurations"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -477,12 +500,12 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About VkConfig</string>
+    <string>About Vulkan Configurator</string>
    </property>
   </action>
   <action name="actionHelp">
    <property name="text">
-    <string>VkConfig Help</string>
+    <string>Vulkan Configurator Help</string>
    </property>
   </action>
   <action name="actionSet_Test_Application">
@@ -503,6 +526,11 @@
   <action name="actionCreate_Custom_Profile">
    <property name="text">
     <string>Create Custom Profile..</string>
+   </property>
+  </action>
+  <action name="actionRestore_Default_Configurations">
+   <property name="text">
+    <string>Restore Default Configurations...</string>
    </property>
   </action>
  </widget>

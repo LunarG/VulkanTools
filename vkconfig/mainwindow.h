@@ -28,6 +28,7 @@
 
 #include "vulkanconfiguration.h"
 #include "settingseditor.h"
+#include "settingstreemanager.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
 #include "dlglayeroutput.h"
@@ -60,8 +61,11 @@ public:
 protected:
     CVulkanConfiguration*    pVulkanConfig;
     CSettingsEditor          settingsEditor;
+    CSettingsTreeManager     settingsTreeManager;
 
-    void CheckAppListState(void);
+    QProcess *pVulkanApp;       // Keeps track of the monitored app
+    QFile    *pLogFile;          // Log file for layer output
+
     void LoadProfileList(void);
     void SetupLaunchTree(void);
 
@@ -81,16 +85,24 @@ protected:
 private:
     Ui::MainWindow *ui;
 
-    // This is the number of canned profiles. It is used to sepearate
-    // the canned profiles from the user profiles in the list box
-    int CANNED_PROFILE_COUNT;
-
     CProfileListItem    *pLastSelectedProfileItem;
     CProfileListItem* GetCheckedItem(void);
 
-    void updateGetStartedStatus(QString qsText);
-    void updateActivateButtonState(void);
+    QComboBox*          pLaunchAppsCombo;
+    QLineEdit*          pLaunchArguments;
+    QLineEdit*          pLaunchWorkingFolder;
+    QLineEdit*          pLaunchLogFile;
+    QPushButton*        pLuanchAppBrowseButton;
+    QPushButton*        pLaunchWorkingFolderButton;
+    QPushButton*        pLaunchLogFilebutton;
 
+    void ResetLaunchOptions(void);
+
+    void RemoveClicked(CProfileListItem *pItem);
+    void RenameClicked(CProfileListItem *pItem);
+    void ExportClicked(CProfileListItem *pItem);
+    void ImportClicked(CProfileListItem *pItem);
+    void EditClicked(CProfileListItem *pItem);
 
 public Q_SLOTS:
     void fileExit(bool bChecked);
@@ -102,11 +114,26 @@ public Q_SLOTS:
     void toolsVulkanTestApp(bool bChecked);
     void toolsVulkanAPIDump(bool bChecked);
     void toolsSetCustomPaths(bool bChecked);
+    void toolsResetDefaultProfiles(bool bChecked);
+
     void helpShowHelp(bool bChecked);
 
     void selectedProfileChanged(void);
 
     void addCustomPaths();    // Fired by menu
+
+    void editorExpanded(QTreeWidgetItem *pItem);
+
+
+
+    void launchItemExpanded(QTreeWidgetItem* pItem);
+    void launchItemCollapsed(QTreeWidgetItem* pItem);
+    void launchItemChanged(int nIndex);
+    void launchAddProgram(void);
+    void launchSetLogFile(void);
+    void on_pushButtonLaunch_clicked(void);
+    void on_pushButtonClearLog_clicked(void);
+    void on_pushButtonOpenLog_clicked(void);
 
     void on_radioFully_clicked(void);
     void on_radioOverride_clicked(void);
@@ -120,10 +147,16 @@ public Q_SLOTS:
     void profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
     void profileItemClicked(bool bChecked);
 
-    void on_pushButtonEdit_clicked(void);
+
     void on_pushButtonNewProfile_clicked(void);
-    void on_pushButtonRemove_clicked(void);
     void on_pushButtonActivate_clicked(void);
-    void on_pushButtonLaunch_clicked(void);
+
+
+
+    void standardOutputAvailable(void);         // stdout output is available
+    void errorOutputAvailable(void);            // Layeroutput is available
+    void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
+
+
 };
 

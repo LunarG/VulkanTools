@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Application List for Layer Overrides</string>
+   <string>Application List for Layer Overrides &amp; Application Launcher</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0" colspan="2">
@@ -31,14 +31,17 @@
        <height>60</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>This information is used only when the application is launched manually from vkconfig.</string>
+     </property>
      <property name="title">
-      <string>Launch Info</string>
+      <string>Monitored Launch Info</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Working Folder:</string>
+         <string>Command Line Arguments:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -48,10 +51,10 @@
       <item row="0" column="1">
        <widget class="QLineEdit" name="lineEditWorkingFolder"/>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Command Line Arguments:</string>
+         <string>Working Folder:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -64,13 +67,6 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="pushButtonAdd">
-     <property name="text">
-      <string>Add...</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QPushButton" name="pushButtonRemove">
      <property name="enabled">
@@ -81,8 +77,38 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="pushButtonAdd">
+     <property name="text">
+      <string>Add...</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="2">
-    <widget class="QListWidget" name="listWidget"/>
+    <widget class="QTreeWidget" name="treeWidget">
+     <property name="indentation">
+      <number>4</number>
+     </property>
+     <property name="columnCount">
+      <number>2</number>
+     </property>
+     <attribute name="headerVisible">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="headerStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string notr="true">2</string>
+      </property>
+     </column>
+    </widget>
    </item>
   </layout>
  </widget>

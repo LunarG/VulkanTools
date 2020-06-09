@@ -39,16 +39,6 @@
 #include "profiledef.h"
 
 
-//////////////////////////////////////////////////////////////////////////
-// Canned/fixed profiles
-// Compiler warning says this is not used... it is.
-// Don't beleive me? Go ahead... delete it... ;)
-static const char *szCannedProfiles[10] = {
-"Standard Validation",          ":/resourcefiles/Standard Validation.json",
-"Best Practices Validation",    ":/resourcefiles/Best Practices Validation.json",
-"Shader-Based Validation",      ":/resourcefiles/Shader-Based Validation.json",
-"Low-Overhead Validation",  ":/resourcefiles/Low-Overhead Validation.json",
-};
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 
@@ -84,11 +74,12 @@ protected:
 #define VKCONFIG_KEY_LAUNCHAPP_ARGS         "launchAppARGS"
 #define VKCONFIG_KEY_LOGFILE                "logFileName"
 #define VKCONFIG_KEY_ACTIVEPROFILE          "activeProfile"
-#define VKCONFIG_KEY_APPLIST                "applicationList"
 #define VKCONFIG_KEY_CUSTOM_PATHS           "customPaths"
 #define VKCONFIG_KEY_OVERRIDE_ACTIVE        "overrideActive"
 #define VKCONFIG_KEY_APPLY_ONLY_TO_LIST     "applyOnlyToList"
 #define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT    "keepActiveOnExit"
+#define VKCONFIG_KEY_FIRST_RUN              "firstRun"
+
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -111,6 +102,7 @@ struct TAppListEntry {
     QString qsAppNameWithPath;
     QString qsWorkingFolder;
     QString qsArguments;
+    bool    bExcludeFromGlobalList;
 };
 
 class CVulkanConfiguration
@@ -130,13 +122,18 @@ public:
     void LoadAppSettings(void);
     void SaveAppSettings(void);
     QString qsLaunchApplicationWPath;
-    QString qsLaunchApplicatinArgs;
+    QString qsLaunchApplicationArgs;
     QString qsLaunchApplicationWorkingDir;
     QString qsLogFileWPath;
     bool    bOverrideActive;    // Do we have an active override?
     bool    bApplyOnlyToList;   // Apply the overide only to the application list
     bool    bKeepActiveOnExit;  // Stay active when app closes
+    bool    bHasOldLoader;      // Older loader does not support per-application overrides
 
+
+    QString qsProfileFilesPath;         // Where config working files live
+    QString qsOverrideSettingsPath;     // Where settings go when profile is active
+    QString qsOverrideJsonPath;         // Where json goes when profile is active
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
@@ -206,11 +203,9 @@ protected:
     // Currently active profile
     CProfileDef*                    pActiveProfile;
 
+    bool                            bFirstRun;  // This is used for populating the initial set of profiles/configurations
     void clearLayerLists(void);
 
-    QString qsProfileFilesPath;         // Where config working files live
-    QString qsOverrideSettingsPath;     // Where settings go when profile is active
-    QString qsOverrideJsonPath;         // Where json goes when profile is active
 
 #ifdef WIN32
     void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type);

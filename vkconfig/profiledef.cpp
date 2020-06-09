@@ -32,7 +32,6 @@
 
 CProfileDef::CProfileDef()
     {
-    bFixedProfile = false;
     }
 
 CProfileDef::~CProfileDef()

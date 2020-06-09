@@ -1,13 +1,11 @@
 {
     "Standard Validation": {
-    "fixed_profile" : true,
     "description" : "This configuration is a good default validation setting and should serve most needs most of the time.",
             "blacklisted_layers": [],
             "layer_options": {
                     "VK_LAYER_KHRONOS_validation": {
                             "layer_rank": 0,
                             "debug_action": {
-                                    "common_edit": true,
                                     "name": "Debug Action",
                                     "description": "This indicates what action is to be taken when a layer wants to report information",
                                     "type": "enum",
@@ -21,7 +19,6 @@
                                     "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
                             },
                             "report_flags": {
-                                    "common_edit": true,
                                     "name": "Report Flags",
                                     "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
                                     "type": "multi_enum",
@@ -39,14 +36,12 @@
                                     ]
                             },
                             "log_filename": {
-                                    "common_edit": true,
                                     "name": "Log Filename",
                                     "description": "Specifies the output filename",
                                     "type": "save_file",
                                     "default": "stdout"
                             },
                             "disables": {
-                                    "common_edit": "false",
                                     "name": "Disables",
                                     "description": "Setting an option here will disable areas of validation",
                                     "type": "multi_enum",
@@ -67,7 +62,6 @@
                                     "default": []
                             },
                             "enables": {
-                                    "common_edit": false,
                                     "name": "Enables",
                                     "description": "Setting an option here will enable specialized areas of validation",
                                     "type": "multi_enum",

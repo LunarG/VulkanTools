@@ -89,6 +89,8 @@ CVulkanConfiguration::CVulkanConfiguration()
     allLayers.reserve(10);
     pActiveProfile = nullptr;
     pSavedProfile = nullptr;
+    bHasOldLoader = false;
+    bFirstRun = true;
 
     // Where is stuff
 #ifdef _WIN32
@@ -372,7 +374,7 @@ void CVulkanConfiguration::LoadAppSettings(void)
     // Load the launch app name from the last session
     QSettings settings;
     qsLaunchApplicationWPath = settings.value(VKCONFIG_KEY_LAUNCHAPP).toString();
-    qsLaunchApplicatinArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
+    qsLaunchApplicationArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
     qsLaunchApplicationWorkingDir = settings.value(VKCONFIG_KEY_LAUNCHAPP_CWD).toString();
     qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE).toString();
     bOverrideActive = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE).toBool();
@@ -387,7 +389,7 @@ void CVulkanConfiguration::SaveAppSettings(void)
     {
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP, qsLaunchApplicationWPath);
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, qsLaunchApplicatinArgs);
+    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, qsLaunchApplicationArgs);
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP_CWD, qsLaunchApplicationWorkingDir);
     settings.setValue(VKCONFIG_KEY_LOGFILE, qsLogFileWPath);
     settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, bOverrideActive);
@@ -420,57 +422,76 @@ void CVulkanConfiguration::SaveAdditionalSearchPaths(void)
 
 ///////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadAppList
-/// Load the custom application list. This is just maintained as a comma
-/// delimited list.
+/// Load the custom application list. This is maintained as a json database
+/// file.
 void CVulkanConfiguration::LoadAppList(void)
     {
-    QSettings apps;
-    QString rawList = apps.value(VKCONFIG_KEY_APPLIST).toString();
-    QStringList delimetedList = rawList.split(",");
+    QString appListJson = qsProfileFilesPath + "/applist.json";
+    QFile file(appListJson);
+    file.open(QFile::ReadOnly);
+    QString data = file.readAll();
+    file.close();
 
-    for(int i = 0; i < delimetedList.size(); i+=3) {
-        if(delimetedList[i].isEmpty()) // This is really the check for the trailing comma
-            break;
+    QJsonDocument       jsonAppList;
+    jsonAppList = QJsonDocument::fromJson(data.toLocal8Bit());
+    if (!jsonAppList.isObject())
+        return;
 
-        TAppListEntry *pItem = new TAppListEntry;
-        pItem->qsAppNameWithPath = delimetedList[i];    // There is always just a name
-        appList.push_back(pItem);
+    if(jsonAppList.isEmpty())
+        return;
 
-        // Error checking in case we are at end of list prematurely
-        if(i+1 >= delimetedList.size())
-            break;
-        else
-            pItem->qsWorkingFolder = delimetedList[i+1];
+    // Get the list of apps
+    QStringList appKeys;
+    QJsonObject jsonDocObject = jsonAppList.object();
+    appKeys = jsonDocObject.keys();
 
-        // Ditto error checking
-        if(i + 2 >= delimetedList.size())
-            break;
-        else
-            pItem->qsArguments = delimetedList[i+2];
+    // Get them...
+    for(int i = 0; i < appKeys.length(); i++) {
+        QJsonValue appValue = jsonDocObject.value(appKeys[i]);
+        QJsonObject appObject = appValue.toObject();
+
+        TAppListEntry *appEntry = new TAppListEntry;
+        appEntry->qsWorkingFolder = appObject.value("app_folder").toString();
+        appEntry->qsAppNameWithPath = appObject.value("app_path").toString();
+        appEntry->bExcludeFromGlobalList = appObject.value("exclude_override").toBool();
+
+        // Arguments are in an array to make room for adding more in a future version
+        QJsonArray args = appObject.value("command_lines").toArray();
+        appEntry->qsArguments = args[0].toString();
+
+        appList.push_back(appEntry);
         }
     }
 
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::saveAppList
-/// Save the custom applicaiton list
+/// Save the custom applicaiton list in a .json file
 void CVulkanConfiguration::SaveAppList(void)
     {
-    // Build a comma delimited list of entries
-    QString stringList;
-    for(int i = 0; i < appList.size(); i++) {
-        stringList += appList[i]->qsAppNameWithPath;
-        stringList += ",";
-        stringList += appList[i]->qsWorkingFolder;
-        stringList += ",";
-        stringList += appList[i]->qsArguments;
+    QJsonObject root;
 
-        // If this is an extra terminating comma, it is handled gracefully
-        stringList += ",";
+    for(int i = 0; i < appList.size(); i++) {
+        // Build an array of appnames with associated data
+        QJsonObject applicationObject;
+        applicationObject.insert("app_path", appList[i]->qsAppNameWithPath);
+        applicationObject.insert("app_folder", appList[i]->qsWorkingFolder);
+        applicationObject.insert("exclude_override", appList[i]->bExcludeFromGlobalList);
+
+        // Ground work for mulitiple sets of command line arguments
+        QJsonArray argsArray;
+        argsArray.append(QJsonValue(appList[i]->qsArguments)); // [J] PROBABLY
+
+        applicationObject.insert("command_lines", argsArray);
+        root.insert(QFileInfo(appList[i]->qsAppNameWithPath).fileName(), applicationObject);
         }
 
-    QSettings appPaths;
-    appPaths.setValue(VKCONFIG_KEY_APPLIST, stringList);
+    QString appListJson = qsProfileFilesPath + "/applist.json";
+    QFile file(appListJson);
+    file.open(QFile::WriteOnly);
+    QJsonDocument doc(root);
+    file.write(doc.toJson());
+    file.close();
     }
 
 
@@ -580,6 +601,14 @@ CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
     }
 
 
+static const char *szCannedProfiles[10] = {
+"Standard Validation",          ":/resourcefiles/Standard Validation.json",
+"Best Practices Validation",    ":/resourcefiles/Best Practices Validation.json",
+"Shader-Based Validation",      ":/resourcefiles/Shader-Based Validation.json",
+"Low-Overhead Validation",      ":/resourcefiles/Low-Overhead Validation.json",
+"API dump",                     ":/resourcefiles/API dump.json",
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadProfiles
 /// Load all the  profiles. If the canned profiles don't exist,
@@ -590,6 +619,23 @@ void CVulkanConfiguration::LoadAllProfiles(void)
     qDeleteAll(profileList.begin(), profileList.end());
     profileList.clear();
     pActiveProfile = nullptr;
+
+    // //////////////////////////////////////////////////////////////////////////
+    // If this is the first time, we need to create the initial set of
+    // configuration files.
+    QSettings settings;
+    bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, 1).toBool();
+    if(bFirstRun) {
+    for(int i = 0; i < 10; i+=2) {
+            // Search the list of loaded profiles
+            CProfileDef *pProfile = LoadProfile(szCannedProfiles[i+1]);
+               if(pProfile != nullptr)
+                   SaveProfile(pProfile);
+            }
+
+        bFirstRun = false;
+        settings.setValue(VKCONFIG_KEY_FIRST_RUN, false);
+        }
 
     // Get a list of all files that end in .json in the folder where
     // we store them. TBD... don't hard code this here.
@@ -602,6 +648,9 @@ void CVulkanConfiguration::LoadAllProfiles(void)
     for(int iProfile = 0; iProfile < profileFiles.size(); iProfile++)
         {
         QFileInfo info = profileFiles.at(iProfile);
+        if(info.absoluteFilePath().contains("applist.json"))
+            continue;
+
         CProfileDef *pProfile = LoadProfile(info.absoluteFilePath());
         if(pProfile != nullptr) {
             pProfile->qsFileName = info.fileName(); // Easier than parsing it myself ;-)
@@ -610,23 +659,7 @@ void CVulkanConfiguration::LoadAllProfiles(void)
         }
 
     //////////////////////////////////////////////////////////////////////////
-    // All profile files found are loaded. Now, double check for the canned
-    // profiles and if they aren't already loaded, load them from the
-    // resource file. Array below is just the name of the profile and
-    // the embedded resource location if they are needed.
-    for(int i = 0; i < 10; i+=2) {
-        // Search the list of loaded profiles
-        CProfileDef *pProfile = FindProfile(szCannedProfiles[i]);
-        if(pProfile == nullptr) {
-            pProfile = LoadProfile(szCannedProfiles[i+1]);
-            if(pProfile != nullptr)
-                profileList.push_back(pProfile);
-            }
-        }
-
-    //////////////////////////////////////////////////////////////////////////
     // Which of these profiles is currently active?
-    QSettings settings;
     pActiveProfile = nullptr;
     QString qsActiveProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
     for(int i = 0; i < profileList.size(); i++)
@@ -742,7 +775,10 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
     QJsonObject jsonTopObject = jsonDoc.object();
     QStringList key = jsonTopObject.keys();
-    pProfile->qsProfileName = key[0];
+
+    // The file name overrides the stored name. Otherwise
+    // we can end up with duplicate profiles
+    pProfile->qsProfileName = pProfile->qsFileName.left(pProfile->qsFileName.length() - 5);
 
     QJsonValue profileEntryValue = jsonTopObject.value(key[0]);
     QJsonObject profileEntryObject = profileEntryValue.toObject();
@@ -754,10 +790,6 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
 
     QJsonValue description = profileEntryObject.value("description");
     pProfile->qsDescription = description.toString();
-
-    QJsonValue fixed = profileEntryObject.value("fixed_profile");
-    if(!fixed.isNull())
-        pProfile->bFixedProfile = fixed.toBool();
 
     QJsonValue optionsValue = profileEntryObject.value("layer_options");
 
@@ -930,17 +962,18 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
     QJsonObject json_profile;
     json_profile.insert("blacklisted_layers", blackList);
     json_profile.insert("description", pProfile->qsDescription);
-    json_profile.insert("fixed_profile", pProfile->bFixedProfile);
     json_profile.insert("layer_options", layerList);
     root.insert(pProfile->qsProfileName, json_profile);
     QJsonDocument doc(root);
 
 
     ///////////////////////////////////////////////////////////
-    // Write it out
+    // Write it out - file name is same as name. If it's been
+    // changed, this corrects the behavior.
     QString pathToProfile = qsProfileFilesPath;
     pathToProfile += "/";
-    pathToProfile += pProfile->qsFileName;
+    pathToProfile += pProfile->qsProfileName;
+    pathToProfile += QString(".json");
 
     QFile jsonFile(pathToProfile);
     if(!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text))
