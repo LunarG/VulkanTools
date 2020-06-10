@@ -31,6 +31,7 @@
 #include "stringsettingwidget.h"
 #include "filenamesettingwidget.h"
 #include "foldersettingwidget.h"
+#include "multienumsetting.h"
 
 CSettingsTreeManager::CSettingsTreeManager()
     {
@@ -126,6 +127,24 @@ void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile
             pParent->addChild(pChild);
             pEditorTree->setItemWidget(pChild, 1, pWidget);
             fileWidgets.push_back(pChild);
+            continue;
+            }
+
+        // Multi-enum - This is a subtree
+        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_INCLUSIVE_LIST) {
+            QTreeWidgetItem *pSubCategory = new QTreeWidgetItem;
+            pSubCategory->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
+            pSubCategory->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
+            pParent->addChild(pSubCategory);
+
+            for(int i = 0; i < pKhronosLayer->layerSettings[iSetting]->settingsListInclusiveValue.size(); i++) {
+                QTreeWidgetItem *pChild = new QTreeWidgetItem();
+                CMultiEnumSetting *pControl = new CMultiEnumSetting(pKhronosLayer->layerSettings[iSetting], pKhronosLayer->layerSettings[iSetting]->settingsListInclusiveValue[i]);
+                pControl->setText(pKhronosLayer->layerSettings[iSetting]->settingsListInclusivePrompt[i]);
+                pSubCategory->addChild(pChild);
+                pEditorTree->setItemWidget(pChild, 0, pControl);
+                }
+
             continue;
             }
 

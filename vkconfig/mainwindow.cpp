@@ -26,6 +26,7 @@
 #include <QVariant>
 #include <QContextMenuEvent>
 #include <QFileDialog>
+#include <QLineEdit>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -144,7 +145,6 @@ MainWindow::~MainWindow()
 // Load or refresh the list of profiles
 void MainWindow::LoadProfileList(void)
     {
-    settingsEditor.CleanupGUI();            // Cleanup from last time, just in case
     ui->profileTree->blockSignals(true);    // No signals firing off while we do this
     ui->profileTree->clear();
 
@@ -548,20 +548,41 @@ void MainWindow::on_pushButtonEditProfile_clicked()
         return;
 
     // Save current state before we go in
+
     dlgProfileEditor dlg(this, pItem->pProfilePointer);
     dlg.exec();
-    pVulkanConfig->LoadAllProfiles(); // Reset
-    LoadProfileList();  // Force a reload
+    // pItem will be invalid after LoadProfileList, but I still
+    // need the pointer to the profile
+    QString editedProfileName = pItem->pProfilePointer->qsProfileName;
+    pVulkanConfig->LoadAllProfiles();
+    LoadProfileList();
+
+    // Reload the tree editor
+    settingsTreeManager.CleanupGUI();
+
+    // Reset the current item
+    for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+        pItem = dynamic_cast<CProfileListItem*>(ui->profileTree->topLevelItem(i));
+        if(pItem != nullptr)
+            if(pItem->pProfilePointer->qsProfileName == editedProfileName) {
+                ui->profileTree->setCurrentItem(pItem);
+//                settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfile);
+                break;
+                }
+        }
+
     }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a new blank profile
 void MainWindow::NewClicked()
     {
-    dlgProfileEditor dlg(this, nullptr);
-    dlg.exec();
-    LoadProfileList();  // force a reload
-    }
+    CProfileDef* pNewProfile = pVulkanConfig->CreateEmptyProfile();
+    dlgProfileEditor dlg(this, pNewProfile);
+    if(QDialog::Accepted == dlg.exec())
+        pVulkanConfig->LoadAllProfiles();
+        LoadProfileList();
+        }
 
 
 ///////////////////////////////////////////////////////////////////////////////

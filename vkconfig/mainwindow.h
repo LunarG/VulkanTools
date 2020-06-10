@@ -27,7 +27,6 @@
 #include <QResizeEvent>
 
 #include "vulkanconfiguration.h"
-#include "settingseditor.h"
 #include "settingstreemanager.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
@@ -60,7 +59,6 @@ public:
 
 protected:
     CVulkanConfiguration*    pVulkanConfig;
-    CSettingsEditor          settingsEditor;
     CSettingsTreeManager     settingsTreeManager;
 
     QProcess *pVulkanApp;       // Keeps track of the monitored app

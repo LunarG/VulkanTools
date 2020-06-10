@@ -43,6 +43,7 @@ SOURCES += \
     layerfile.cpp \
     main.cpp \
     mainwindow.cpp \
+    multienumsetting.cpp \
     profiledef.cpp \
     settingseditor.cpp \
     settingstreemanager.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     khronossettingsadvanced.h \
     layerfile.h \
     mainwindow.h \
+    multienumsetting.h \
     profiledef.h \
     settingseditor.h \
     settingstreemanager.h \
