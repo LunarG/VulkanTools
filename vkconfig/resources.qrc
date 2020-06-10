@@ -10,5 +10,8 @@
         <file>resourcefiles/Low-Overhead Validation.json</file>
         <file>resourcefiles/API dump.json</file>
         <file>resourcefiles/lunargLogo.png</file>
+	<file>resourcefiles/Frame Capture - First two frames.json</file>
+	<file>resourcefiles/Frame Capture - Range F12 to start and to stop.json</file>
+	<file>resourcefiles/Frame Capture - Single frame triggered with F12.json</file>
     </qresource>
 </RCC>

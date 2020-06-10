@@ -540,8 +540,10 @@ void MainWindow::on_pushButtonAppList_clicked(void)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonEditProfile_clicked
 /// Just resave the list anytime we go into the editor
-void MainWindow::EditClicked(CProfileListItem *pItem)
+void MainWindow::on_pushButtonEditProfile_clicked()
     {
+    // Who is selected?
+    CProfileListItem *pItem = dynamic_cast<CProfileListItem*>(ui->profileTree->currentItem());
     if(pItem == nullptr)
         return;
 
@@ -554,7 +556,7 @@ void MainWindow::EditClicked(CProfileListItem *pItem)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a new blank profile
-void MainWindow::on_pushButtonNewProfile_clicked()
+void MainWindow::NewClicked()
     {
     dlgProfileEditor dlg(this, nullptr);
     dlg.exec();
@@ -572,6 +574,9 @@ void MainWindow::addCustomPaths()
     dlg.exec();
     LoadProfileList();  // Force a reload
     }
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -606,6 +611,29 @@ void MainWindow::RemoveClicked(CProfileListItem *pItem)
 void MainWindow::RenameClicked(CProfileListItem *pItem)
     {
     ui->profileTree->editItem(pItem, 1);
+    }
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Copy the current configuration
+void MainWindow::DuplicateClicked(CProfileListItem *pItem)
+    {
+    QString qsNewName = pItem->pProfilePointer->qsProfileName;
+    qsNewName += "2";
+    pItem->pProfilePointer->qsProfileName = qsNewName;
+    pVulkanConfig->SaveProfile(pItem->pProfilePointer);
+    pVulkanConfig->LoadAllProfiles();
+    LoadProfileList();
+
+    // Good enough? Nope, I want to select it and edit the name.
+    // Find it.
+    for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+        CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+        if(pItem->pProfilePointer->qsProfileName == qsNewName) {
+            ui->profileTree->editItem(pItem, 1);
+            return;
+            }
+        }
     }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1038,14 +1066,18 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
             if(pItem != nullptr) {
                 //Create context menu here
                 QMenu menu(ui->profileTree);
-                QAction *pNewAction = new QAction("New");
+                QAction *pNewAction = new QAction("New...");
                 menu.addAction(pNewAction);
 
-                QAction *pEditAction = new QAction("Edit");
-                menu.addAction(pEditAction);
+//                QAction *pEditAction = new QAction("Edit Layers...");
+//                menu.addAction(pEditAction);
 
                 QAction *pRemoveAction = new QAction("Remove");
                 menu.addAction(pRemoveAction);
+
+                QAction *pDuplicateAction = new QAction("Duplicate");
+                menu.addAction(pDuplicateAction);
+
                 menu.addSeparator();
 
                 QAction *pRenameAction = new QAction("Rename");
@@ -1067,13 +1099,19 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                 // put the hammer away....
                 // New Profile...
                 if(pAction == pNewAction) {
-                    on_pushButtonNewProfile_clicked();
+                    NewClicked();
                     return true;
                     }
 
-                // Edit this profile....
-                if(pAction == pEditAction) {
-                    EditClicked(pItem);
+//                // Edit this profile....
+//                if(pAction == pEditAction) {
+//                    EditClicked(pItem);
+//                    return true;
+//                    }
+
+                // Duplicate
+                if(pAction == pDuplicateAction) {
+                    DuplicateClicked(pItem);
                     return true;
                     }
 

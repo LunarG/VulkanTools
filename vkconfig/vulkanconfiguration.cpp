@@ -601,12 +601,15 @@ CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
     }
 
 
-static const char *szCannedProfiles[10] = {
-"Standard Validation",          ":/resourcefiles/Standard Validation.json",
-"Best Practices Validation",    ":/resourcefiles/Best Practices Validation.json",
-"Shader-Based Validation",      ":/resourcefiles/Shader-Based Validation.json",
-"Low-Overhead Validation",      ":/resourcefiles/Low-Overhead Validation.json",
-"API dump",                     ":/resourcefiles/API dump.json",
+static const char *szCannedProfiles[8] = {
+"Standard Validation",
+"Best Practices Validation",
+"Shader-Based Validation",
+"Low-Overhead Validation",
+"API dump",
+"Frame Capture - First two frames",
+"Frame Capture - Range F12 to start and to stop",
+"Frame Capture - Single frame triggered with F12",
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -626,16 +629,19 @@ void CVulkanConfiguration::LoadAllProfiles(void)
     QSettings settings;
     bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, 1).toBool();
     if(bFirstRun) {
-    for(int i = 0; i < 10; i+=2) {
-            // Search the list of loaded profiles
-            CProfileDef *pProfile = LoadProfile(szCannedProfiles[i+1]);
-               if(pProfile != nullptr)
-                   SaveProfile(pProfile);
-            }
+        for(int i = 0; i < 8; i+=1) {
+                // Search the list of loaded profiles
+                QString qsFile = ":/resourcefiles/";
+                qsFile += szCannedProfiles[i];
+                qsFile += ".json";
+                CProfileDef *pProfile = LoadProfile(qsFile);
+                   if(pProfile != nullptr)
+                       SaveProfile(pProfile);
+                }
 
-        bFirstRun = false;
-        settings.setValue(VKCONFIG_KEY_FIRST_RUN, false);
-        }
+            bFirstRun = false;
+            settings.setValue(VKCONFIG_KEY_FIRST_RUN, false);
+            }
 
     // Get a list of all files that end in .json in the folder where
     // we store them. TBD... don't hard code this here.

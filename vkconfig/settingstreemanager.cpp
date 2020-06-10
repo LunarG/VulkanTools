@@ -110,20 +110,29 @@ void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile
     pParent->addChild(pItem);
     pEditorTree->setItemWidget(pItem, 1, pKhronosPresets);
 
-    for(int i = 0; i < pKhronosLayer->layerSettings.size(); i++) {
+    for(int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
         QTreeWidgetItem *pChild = new QTreeWidgetItem();
 
         // Combobox - enum - just one thing
-        if(pKhronosLayer->layerSettings[i]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
-            CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pChild, pKhronosLayer->layerSettings[i]);
+        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
+            CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pChild, pKhronosLayer->layerSettings[iSetting]);
             pParent->addChild(pChild);
             pEditorTree->setItemWidget(pChild, 1, pEnumWidget);
             }
 
+        // Select a file?
+        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_FILE) {
+            CFilenameSettingWidget* pWidget = new CFilenameSettingWidget(pChild, pKhronosLayer->layerSettings[iSetting]);
+            pParent->addChild(pChild);
+            pEditorTree->setItemWidget(pChild, 1, pWidget);
+            fileWidgets.push_back(pChild);
+            continue;
+            }
+
 
         // TBD - just add description
-        pChild->setText(0, pKhronosLayer->layerSettings[i]->settingsPrompt);
-        pChild->setToolTip(0, pKhronosLayer->layerSettings[i]->settingsDesc);
+        pChild->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
+        pChild->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
         pParent->addChild(pChild);
         }
 
@@ -151,7 +160,6 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
             continue;
             }
-
 
         // Combobox - enum - just one thing
         if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {

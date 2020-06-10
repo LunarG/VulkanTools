@@ -26,6 +26,7 @@ CStringSettingWidget::CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSetting
     pSetting = pLayerSetting;
     pItem->setText(0, pLayerSetting->settingsPrompt);
     pItem->setToolTip(0, pLayerSetting->settingsDesc);
+    this->setText(pLayerSetting->settingsValue);
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
     }
 
