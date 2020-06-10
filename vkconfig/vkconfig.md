@@ -123,6 +123,7 @@ Roadmap
 - Use *CMake* build system.
 - Add multiple command line arguments and environment variables per application.
 - Add a search field for the log area.
+- Make vkconfig a service to add an icon in the taskbar when running.
 
 Known Issues
 --------------
