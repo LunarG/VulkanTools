@@ -37,6 +37,7 @@ SOURCES += \
     dlgvulkaninfo.cpp \
     enumsettingwidget.cpp \
     filenamesettingwidget.cpp \
+    foldersettingwidget.cpp \
     khronossettings.cpp \
     khronossettingsadvanced.cpp \
     layerfile.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     dlgvulkaninfo.h \
     enumsettingwidget.h \
     filenamesettingwidget.h \
+    foldersettingwidget.h \
     khronossettings.h \
     khronossettingsadvanced.h \
     layerfile.h \

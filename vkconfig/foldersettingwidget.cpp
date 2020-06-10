@@ -19,11 +19,10 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
+#include "foldersettingwidget.h"
 
-#include "filenamesettingwidget.h"
-
-CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr)
-    {
+CFolderSettingWidget::CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr)
+{
     pSetting = pLayerSetting;
 
     pItem->setText(0, pLayerSetting->settingsPrompt);
@@ -42,7 +41,7 @@ CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSet
     }
 
 
- void CFilenameSettingWidget::resizeEvent(QResizeEvent *event)
+ void CFolderSettingWidget::resizeEvent(QResizeEvent *event)
     {
     if(pLineEdit == nullptr)
         return;
@@ -56,10 +55,10 @@ CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSet
     pPushButton->setGeometry(buttonRect);
     }
 
-void CFilenameSettingWidget::browseButtonClicked(void)
+void CFolderSettingWidget::browseButtonClicked(void)
     {
-    QString file = QFileDialog::getSaveFileName(pPushButton,
-        tr("Select File"),
+    QString file = QFileDialog::getExistingDirectory(pPushButton,
+        tr("Select Folder"),
         ".");
 
     if(!file.isEmpty()) {
@@ -69,7 +68,7 @@ void CFilenameSettingWidget::browseButtonClicked(void)
     }
 
 
-void CFilenameSettingWidget::textFieldChanged(const QString& newText)
+void CFolderSettingWidget::textFieldChanged(const QString& newText)
     {
     pSetting->settingsValue = newText;
     }

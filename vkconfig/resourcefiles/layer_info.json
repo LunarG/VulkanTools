@@ -292,14 +292,14 @@
             "log_output_to_os_debug_string": {
                 "name": "Log Output to Debug Console",
                 "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
-                "type": "bool_numeric",
+                "type": "bool",
                 "default": "FALSE"
             },
 
             "log_file": {
-                "name": "Log File.",
+                "name": "Log File",
                 "description": "When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).",
-                "type": "string",
+                "type": "save_file",
                 "default": ""
             },
             "log_file_flush_after_write": {
@@ -315,20 +315,20 @@
                 "default": "TRUE"
             },
             "log_file_create_new": {
-                "name": "Exit On Error",
-                "description": "Enables exit-on-error.",
-                "type": "bool_numeric",
-                "default": "0"
-            },
+                 "name": "Log File Overwrite",
+                 "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
+                 "type": "bool",
+                 "default": "TRUE"
+             },
             "log_level": {
                 "name": "Log Level",
                 "description": "Specify the highest level message to log. Options are: debug, info, warning, error, and fatal. The specified level and all levels listed after it will be enabled for logging. For example, choosing the warning level will also enable the error and fatal levels.",
                 "type": "enum",
                 "options": {
-                    "debug, info, warning, error, fatal": "debug",
-                    "info, warning, error, fatal": "info",
-                    "warning, error, fatal": "warning",
-                    "error, fatal": "error",
+                    "debug": "debug, info, warning, error",
+                    "info": "info, warning, error, fatal",
+                    "warning": "warning, error, fatal",
+                    "error": "error, fatal",
                     "fatal": "fatal"
                 },
                 "default": "info"

@@ -30,6 +30,7 @@
 #include "enumsettingwidget.h"
 #include "stringsettingwidget.h"
 #include "filenamesettingwidget.h"
+#include "foldersettingwidget.h"
 
 CSettingsTreeManager::CSettingsTreeManager()
     {
@@ -143,6 +144,15 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             continue;
             }
 
+        // True false? (with numeric output instead of text)
+        if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_BOOL_NUMERIC) {
+            CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting], true);
+            pParent->addChild(pSettingItem);
+            pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
+            continue;
+            }
+
+
         // Combobox - enum - just one thing
         if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
             CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
@@ -165,23 +175,18 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 1, pWidget);
             fileWidgets.push_back(pSettingItem);
-
-//            QLineEdit *pLineEdit = new QLineEdit();
-//            QPushButton *pButton = new QPushButton();
-//            pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
-//            pLineEdit->setText(pLayer->layerSettings[iSetting]->settingsValue);
-//            pButton->setText("...");
-//            pSettingItem->setToolTip(0, pLayer->layerSettings[iSetting]->settingsDesc);
-//            pParent->addChild(pSettingItem);
-//            pEditorTree->setItemWidget(pSettingItem, 1, pLineEdit);
-//            pEditorTree->setItemWidget(pSettingItem, 2, pButton);
-//            pEditorTree->setColumnWidth(2, 32);
             continue;
             }
 
 
-
         // Save to folder?
+        if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_SAVE_FOLDER) {
+            CFolderSettingWidget* pWidget = new CFolderSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+            pParent->addChild(pSettingItem);
+            pEditorTree->setItemWidget(pSettingItem, 1, pWidget);
+            fileWidgets.push_back(pSettingItem);
+            continue;
+            }
 
 
         // Undefined... at least gracefuly display what the setting is

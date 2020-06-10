@@ -904,6 +904,11 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
                     setting.insert("default", pSettingsDetails->settingsValue);
                 break;
 
+                case LAYER_SETTINGS_BOOL_NUMERIC:
+                    setting.insert("type", "bool_numeric");
+                    setting.insert("default", pSettingsDetails->settingsValue);
+                break;
+
                 case LAYER_SETTINGS_EXCLUSIVE_LIST: {
                     setting.insert("type", "enum");
                     setting.insert("default", pSettingsDetails->settingsValue);

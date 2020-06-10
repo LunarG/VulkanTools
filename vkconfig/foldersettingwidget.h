@@ -1,5 +1,5 @@
-#ifndef CBOOLSETTINGWIDGET_H
-#define CBOOLSETTINGWIDGET_H
+#ifndef CFOLDERSETTINGWIDGET_H
+#define CFOLDERSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -21,25 +21,32 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QObject>
 #include <QWidget>
-#include <QCheckBox>
+#include <QTreeWidgetItem>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QFileDialog>
 
 #include "layerfile.h"
 
-class CBoolSettingWidget : public QCheckBox
+class CFolderSettingWidget : public QWidget
 {
     Q_OBJECT
 public:
-    CBoolSettingWidget(TLayerSettings *pLayerSetting, bool bNumeric = false);
+    explicit CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting);
 
-private:
-    bool bNumericOutput;
+    virtual void resizeEvent(QResizeEvent *event) override;
+
     TLayerSettings *pSetting;
+    QLineEdit      *pLineEdit;
+    QPushButton    *pPushButton;
 
 public Q_SLOTS:
-    void itemToggled(void);
+    void browseButtonClicked(void);
+    void textFieldChanged(const QString& newText);
+
 
 };
 
-#endif // CBOOLSETTINGWIDGET_H
+#endif // CFOLDERSETTINGWIDGET_H
