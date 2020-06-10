@@ -247,6 +247,12 @@
                 "type": "save_file",
                 "default": "gfxrecon_capture.gfxr"
             },
+            "capture_file_timestamp": {
+                "name": "Capture File Name with Timestamp",
+                "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
+                "type": "bool",
+                "default": "TRUE"
+            },
             "capture_file_flush": {
                 "name": "Capture File Flush After Write",
                 "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
@@ -264,12 +270,6 @@
                     "NONE": "NONE"
                 },
                 "default": "LZ4"
-            },
-            "capture_file_timestamp": {
-                "name": "Capture File Timestamp",
-                "description": "Add a timestamp to the capture file as described by Timestamps.",
-                "type": "bool",
-                "default": "TRUE"
             },
             "log_output_to_console": {
                 "name": "Log Output to Console / stdout",
