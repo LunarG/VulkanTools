@@ -28,6 +28,8 @@
 #include "settingstreemanager.h"
 #include "boolsettingwidget.h"
 #include "enumsettingwidget.h"
+#include "stringsettingwidget.h"
+#include "filenamesettingwidget.h"
 
 CSettingsTreeManager::CSettingsTreeManager()
     {
@@ -97,7 +99,7 @@ void CSettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProf
 void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile *pKhronosLayer)
     {
     QTreeWidgetItem* pItem = new QTreeWidgetItem();
-    pItem->setText(0, "Validation Settings");
+    pItem->setText(0, "Validation Preset");
     pKhronosPresets = new QComboBox();
     pKhronosPresets->addItem("Standard");
     pKhronosPresets->addItem("Shader-Based");
@@ -138,7 +140,6 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
-
             continue;
             }
 
@@ -147,9 +148,43 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 1, pEnumWidget);
+            continue;
             }
 
-        // TBD - just list the text
+        // Raw text field?
+        if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_STRING) {
+            CStringSettingWidget *pStringWidget = new CStringSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+            pParent->addChild(pSettingItem);
+            pEditorTree->setItemWidget(pSettingItem, 1, pStringWidget);
+            continue;
+            }
+
+        // Select a file?
+        if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_FILE) {
+            CFilenameSettingWidget* pWidget = new CFilenameSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+            pParent->addChild(pSettingItem);
+            pEditorTree->setItemWidget(pSettingItem, 1, pWidget);
+            fileWidgets.push_back(pSettingItem);
+
+//            QLineEdit *pLineEdit = new QLineEdit();
+//            QPushButton *pButton = new QPushButton();
+//            pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
+//            pLineEdit->setText(pLayer->layerSettings[iSetting]->settingsValue);
+//            pButton->setText("...");
+//            pSettingItem->setToolTip(0, pLayer->layerSettings[iSetting]->settingsDesc);
+//            pParent->addChild(pSettingItem);
+//            pEditorTree->setItemWidget(pSettingItem, 1, pLineEdit);
+//            pEditorTree->setItemWidget(pSettingItem, 2, pButton);
+//            pEditorTree->setColumnWidth(2, 32);
+            continue;
+            }
+
+
+
+        // Save to folder?
+
+
+        // Undefined... at least gracefuly display what the setting is
         pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
         pSettingItem->setToolTip(0, pLayer->layerSettings[iSetting]->settingsDesc);
         pParent->addChild(pSettingItem);
@@ -162,6 +197,10 @@ void CSettingsTreeManager::CleanupGUI(void)
     {
     if(pEditorTree == nullptr)
         return;
+
+    for(int i = 0; i < fileWidgets.size(); i++)
+        pEditorTree->setItemWidget(fileWidgets[i], 1, nullptr);
+    fileWidgets.clear();
 
     pEditorTree->clear();
     pEditorTree = nullptr;

@@ -51,7 +51,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
 
     QTreeWidgetItem *pHeader = ui->treeWidget->headerItem();
     pHeader->setText(0, tr("Application Executable"));
-    pHeader->setText(1, tr("Exclude from Override Metalayer"));
+    pHeader->setText(1, tr("Exclude from Layer Overrides"));
     ui->treeWidget->installEventFilter(this);
 
     connect(ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(selectedPathChanged(QTreeWidgetItem*, QTreeWidgetItem*)));

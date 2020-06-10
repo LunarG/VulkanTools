@@ -1,5 +1,5 @@
-#ifndef CENUMSETTINGWIDGET_H
-#define CENUMSETTINGWIDGET_H
+#ifndef CFILENAMESETTINGWIDGET_H
+#define CFILENAMESETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -21,24 +21,36 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
+
 #include <QObject>
 #include <QWidget>
-#include <QComboBox>
 #include <QTreeWidgetItem>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QHideEvent>
+
 #include "layerfile.h"
 
-class CEnumSettingWidget : public QComboBox
+class CFilenameSettingWidget : public QWidget
 {
     Q_OBJECT
 public:
-    CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSettings *pLayerSetting);
+    explicit CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting);
+    virtual ~CFilenameSettingWidget();
 
 private:
+    virtual void resizeEvent(QResizeEvent *event) override;
+    void destroy(bool destroyWindow = true, bool destroySubWindows = true);
+    virtual void hideEvent(QHideEvent *event) override;
+
     TLayerSettings *pSetting;
+    QLineEdit      *pLineEdit;
+    QPushButton    *pPushButton;
 
 public Q_SLOTS:
-    void indexChanged(int nIndex);
+//    void itemToggled(void);
 
 };
 
-#endif // CENUMSETTINGWIDGET_H
+#endif // CFILENAMESETTINGWIDGET_H

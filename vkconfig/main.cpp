@@ -42,14 +42,14 @@ int main(int argc, char *argv[])
     CVulkanConfiguration* pModel = CVulkanConfiguration::getVulkanConfig();
 
     QSettings settings;
-    bool bShowMe = settings.value("VK_CONFIG_BETA_MESSAGE").toBool();
-    if(!bShowMe) {
-        dlgBetaMessage beta(nullptr);
-        beta.exec();
+//    bool bShowMe = settings.value("VK_CONFIG_BETA_MESSAGE").toBool();
+//    if(!bShowMe) {
+//        dlgBetaMessage beta(nullptr);
+//        beta.exec();
 
-        if(beta.bDontShow)
-            settings.setValue("VK_CONFIG_BETA_MESSAGE", true);
-        }
+//        if(beta.bDontShow)
+//            settings.setValue("VK_CONFIG_BETA_MESSAGE", true);
+//        }
 
 
     // Check loader version

@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // We need to resetup the new profile for consistency sake.
     QSettings settings;
-    QString lastProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+    QString lastProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Standard Validation")).toString();
     CProfileDef *pCurrentProfile = pVulkanConfig->FindProfile(lastProfile);
     if(pVulkanConfig->bOverrideActive)
         ChangeActiveProfile(pCurrentProfile);
@@ -105,17 +105,22 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->launchTree, SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(launchItemCollapsed(QTreeWidgetItem*)));
     connect(ui->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(launchItemExpanded(QTreeWidgetItem* )));
 
+    // Always off if old loader, only on if selected
+    if(pVulkanConfig->bHasOldLoader)
+        ui->pushButtonAppList->setEnabled(false);
+    else
+        ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
 
     if(pVulkanConfig->bOverrideActive) {
         ui->radioOverride->setChecked(true);
         ui->checkBoxApplyList->setEnabled(!pVulkanConfig->bHasOldLoader);
-        ui->pushButtonAppList->setEnabled(!pVulkanConfig->bHasOldLoader);
         ui->checkBoxPersistent->setEnabled(true);
         }
     else {
         ui->radioFully->setChecked(true);
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxPersistent->setEnabled(false);
+        ui->pushButtonAppList->setEnabled(false);
         }
 
     ui->checkBoxApplyList->setChecked(pVulkanConfig->bApplyOnlyToList);
@@ -185,6 +190,9 @@ void MainWindow::on_radioFully_clicked(void)
     ui->checkBoxApplyList->setEnabled(false);
     ui->checkBoxPersistent->setEnabled(false);
     pVulkanConfig->bOverrideActive = false;
+
+    ui->pushButtonAppList->setEnabled(false);
+
     pVulkanConfig->SaveAppSettings();
     ChangeActiveProfile(nullptr);
     }
@@ -219,6 +227,7 @@ CProfileListItem* MainWindow::GetCheckedItem(void)
 void MainWindow::on_radioOverride_clicked(void)
     {
     ui->checkBoxApplyList->setEnabled(!pVulkanConfig->bHasOldLoader);
+    ui->pushButtonAppList->setEnabled(!pVulkanConfig->bHasOldLoader && pVulkanConfig->bApplyOnlyToList);
     ui->checkBoxPersistent->setEnabled(true);
     pVulkanConfig->bOverrideActive = true;
     pVulkanConfig->SaveAppSettings();
@@ -236,7 +245,8 @@ void MainWindow::on_radioOverride_clicked(void)
 void MainWindow::on_checkBoxApplyList_clicked(void)
     {
     pVulkanConfig->bApplyOnlyToList = ui->checkBoxApplyList->isChecked();
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->SaveAppSettings();    
+    ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
     }
 
 //////////////////////////////////////////////////////////
@@ -503,24 +513,6 @@ void MainWindow::resizeEvent(QResizeEvent *pEvent)
 /////////////////////////////////////////////////////////////
 void MainWindow::showEvent(QShowEvent *event)
     {
-    QSettings settings;
-    if(settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool())
-        return;
-
-    QMessageBox alert(this);
-    alert.setText("Vulkan Layers are configured when creating a Vulkan instance which\n"
-                  "typically happens at application start.\n\n"
-                  "For Vulkan Layer overrides to take effect, running Vulkan applications\n"
-                  "should be restarted.");
-    QCheckBox *pCheckBox = new QCheckBox();
-    pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-    alert.setWindowTitle("Runnng Vulkan Applications must be restarted");
-    alert.setCheckBox(pCheckBox);
-    alert.setIcon(QMessageBox::Warning);
-    alert.exec();
-    if(pCheckBox->isChecked())
-        settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
-
   //  resizeEvent(nullptr); // Fake to get controls to do the right thing
 
     event->accept();
@@ -838,7 +830,7 @@ void MainWindow::ResetLaunchOptions(void)
         }
 
     if(nFoundLast < 0)
-        return;
+        nFoundLast = 0;
 
     pLaunchAppsCombo->setCurrentIndex(nFoundLast);
 
@@ -1150,6 +1142,26 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
         msg.exec();
         return;
         }
+
+    // Display warning first
+    QSettings settings;
+    if(settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool())
+        return;
+
+    QMessageBox alert(this);
+    alert.setText("Vulkan Layers are configured when creating a Vulkan instance which\n"
+                  "typically happens at application start.\n\n"
+                  "For Vulkan Layer overrides to take effect, running Vulkan applications\n"
+                  "should be restarted.");
+    QCheckBox *pCheckBox = new QCheckBox();
+    pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
+    alert.setWindowTitle("Runnng Vulkan Applications must be restarted");
+    alert.setCheckBox(pCheckBox);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+    if(pCheckBox->isChecked())
+        settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
+
 
     // Launch the test application
     pVulkanApp = new QProcess(this);

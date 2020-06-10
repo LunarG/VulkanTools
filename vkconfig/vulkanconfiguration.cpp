@@ -377,7 +377,7 @@ void CVulkanConfiguration::LoadAppSettings(void)
     qsLaunchApplicationArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
     qsLaunchApplicationWorkingDir = settings.value(VKCONFIG_KEY_LAUNCHAPP_CWD).toString();
     qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE).toString();
-    bOverrideActive = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE).toBool();
+    bOverrideActive = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE, true).toBool();
     bApplyOnlyToList = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
     bKeepActiveOnExit = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
     }
