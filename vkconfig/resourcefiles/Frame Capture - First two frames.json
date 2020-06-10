@@ -1,0 +1,172 @@
+{
+    "Frame Capture - First two frames": {
+        "blacklisted_layers": [
+        ],
+        "description": "Capture the application first two frames",
+        "layer_options": {
+            "VK_LAYER_LUNARG_gfxreconstruct": {
+                "capture_compression_type": {
+                    "default": "LZ4",
+                    "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
+                    "name": "Output Format",
+                    "options": {
+                        "LZ4": "LZ4",
+                        "NONE": "NONE",
+                        "ZLIB": "ZLIB",
+                        "ZSTD": "ZSTD"
+                    },
+                    "type": "enum"
+                },
+                "capture_file": {
+                    "default": "gfxrecon_capture.gfxr",
+                    "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
+                    "name": "Capture File Name",
+                    "type": "save_file"
+                },
+                "capture_file_flush": {
+                    "default": "TRUE",
+                    "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
+                    "name": "Capture File Flush After Write",
+                    "type": "bool"
+                },
+                "capture_file_timestamp": {
+                    "default": "TRUE",
+                    "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
+                    "name": "Capture File Name with Timestamp",
+                    "type": "bool"
+                },
+                "capture_frames": {
+                    "default": "1-2",
+                    "description": "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. Default is: Empty string (all frames are captured).",
+                    "name": "Capture Specific Frames",
+                    "type": "string"
+                },
+                "capture_trigger": {
+                    "default": "F12",
+                    "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
+                    "name": "Hotkey Capture Trigger",
+                    "options": {
+                        "CONTROL": "CONTROL",
+                        "F1": "F1",
+                        "F10": "F10",
+                        "F11": "F11",
+                        "F12": "F12",
+                        "F2": "F2",
+                        "F3": "F3",
+                        "F4": "F4",
+                        "F5": "F5",
+                        "F6": "F6",
+                        "F7": "F7",
+                        "F8": "F8",
+                        "F9": "F9",
+                        "TAB": "TAB"
+                    },
+                    "type": "enum"
+                },
+                "layer_rank": 0,
+                "log_allow_indents": {
+                    "default": "FALSE",
+                    "description": "Apply additional indentation formatting to log messages.",
+                    "name": "Log Allow Indents",
+                    "type": "bool"
+                },
+                "log_break_on_error": {
+                    "default": "FALSE",
+                    "description": "Trigger a debug break when logging an error.",
+                    "name": "Trigger Debug Break on Error",
+                    "type": "bool"
+                },
+                "log_detailed": {
+                    "default": "TRUE",
+                    "description": "Include name and line number from the file responsible for the log message.",
+                    "name": "Log Detailed",
+                    "type": "bool"
+                },
+                "log_errors_to_stderr": {
+                    "default": "TRUE",
+                    "description": "Log error messages will be written to stderr.",
+                    "name": "Log Errors to Console / stderr",
+                    "type": "bool"
+                },
+                "log_file": {
+                    "default": "",
+                    "description": "When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).",
+                    "name": "Log File",
+                    "type": "save_file"
+                },
+                "log_file_create_new": {
+                    "default": "TRUE",
+                    "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
+                    "name": "Log File Overwrite",
+                    "type": "bool"
+                },
+                "log_file_flush_after_write": {
+                    "default": "FALSE",
+                    "description": "Flush the log file to disk after each write when true.",
+                    "name": "Log File Flush After Write",
+                    "type": "bool"
+                },
+                "log_file_keep_open": {
+                    "default": "TRUE",
+                    "description": "Keep the log file open between log messages when true, or close and reopen the log file for each message when false.",
+                    "name": "Log File Keep Open",
+                    "type": "bool"
+                },
+                "log_level": {
+                    "default": "debug",
+                    "description": "Specify the highest level message to log. Options are: debug, info, warning, error, and fatal. The specified level and all levels listed after it will be enabled for logging. For example, choosing the warning level will also enable the error and fatal levels.",
+                    "name": "Log Level",
+                    "options": {
+                        "debug": "debug, info, warning, error",
+                        "error": "error, fatal",
+                        "fatal": "fatal",
+                        "info": "info, warning, error, fatal",
+                        "warning": "warning, error, fatal"
+                    },
+                    "type": "enum"
+                },
+                "log_output_to_console": {
+                    "default": "TRUE",
+                    "description": "Log messages will be written to stdout.",
+                    "name": "Log Output to Console / stdout",
+                    "type": "bool"
+                },
+                "log_output_to_os_debug_string": {
+                    "default": "FALSE",
+                    "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
+                    "name": "Log Output to Debug Console",
+                    "type": "bool"
+                },
+                "memory_tracking_mode": {
+                    "default": "unassisted",
+                    "description": "Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: page_guard, assisted, and unassisted.",
+                    "name": "Memory Tracking Mode",
+                    "options": {
+                        "assisted": "assisted",
+                        "page_guard": "page_guard",
+                        "unassisted": "unassisted"
+                    },
+                    "type": "enum"
+                },
+                "page_guard_copy_on_map": {
+                    "default": "TRUE",
+                    "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
+                    "name": "Page Guard Copy on Map",
+                    "type": "bool"
+                },
+                "page_guard_external_memory": {
+                    "default": "FALSE",
+                    "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
+                    "name": "Page Guard External Memory",
+                    "type": "bool"
+                },
+                "page_guard_separate_read": {
+                    "default": "TRUE",
+                    "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
+                    "name": "Page Guard Separate Read Tracking",
+                    "type": "bool"
+                }
+            }
+        }
+    }
+}
