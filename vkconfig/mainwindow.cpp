@@ -881,6 +881,9 @@ void MainWindow::ResetLaunchOptions(void)
     if(nFoundLast < 0)
         nFoundLast = 0;
 
+    if(pVulkanConfig->appList.size() == 0)
+        return;
+
     pLaunchAppsCombo->setCurrentIndex(nFoundLast);
 
     // Reset working folder and command line choices
