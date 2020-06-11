@@ -600,7 +600,9 @@ CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
     return nullptr;
     }
 
-
+//////////////////////////////////////////////////////////////////////////////
+// These are the built-in configurations that are pulled in from the resource
+// file.
 static const char *szCannedProfiles[9] = {
 "Validation - Standard",
 "Validation - Best Practices",
