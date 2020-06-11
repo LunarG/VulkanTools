@@ -3,7 +3,6 @@
 ## **Open Source Project Objectives**
 
 * Provide tools to aid in the development of Vulkan applications. Current tools include:
-  * vktrace/vkreplay - API trace and replay tool
   * via - Vulkan Installation Analyzer
   * layers: device simulation, api dump, fps monitor, screenshot
   * layer factory: framework that facilitates the creation of new layers
@@ -14,7 +13,6 @@
 * Repo Quality
   * All repo tests passing
   * Continuous Integration: HW test farms operated by Google and LunarG perform pre-commit cloud testing on pull-requests on various hardware/software platforms
-  * Periodic vktrace/replay testing by LunarG of popular Vulkan games/apps
 
 ## **Roles and Definitions**
 

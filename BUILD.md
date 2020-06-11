@@ -1,7 +1,7 @@
 # Build Instructions
 This document contains the instructions for building this repository on Linux and Windows.
 
-This repository contains Vulkan development tools, such as additional layers and VkTrace trace/replay utilities,
+This repository contains Vulkan development tools and layers,
 supplementing the loader and validation layer core components found at https://github.com/KhronosGroup.
 
 ## Get Additional Components
@@ -416,38 +416,6 @@ cd build-android
 update_external_sources_android.bat
 android-generate.bat
 ndk-build
-```
-
-## Android usage
-This documentation is preliminary and needs to be beefed up.
-
-See the [vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/vktracereplay.sh) file for a working example of how to use vktrace/vkreplay and screenshot layers.
-
-Two additional scripts have been added to facilitate tracing and replaying any APK.  Note that these two scripts do not install anything for you, so make sure your target APK, vktrace, vktrace_layer, and vkreplay all use the same ABI.
-```
-./create_trace.sh --serial 0123456789 --abi armeabi-v7a --package com.example.CubeWithLayers  --activity android.app.NativeActivity
-adb install --abi armeabi-v7a
-./replay_trace.sh --serial 0123456789 --tracefile com.example.CubeWithLayers0.vktrace
-```
-An example of using the scripts on Linux and macOS:
-```
-./build_vktracereplay.sh
-./vktracereplay.sh \
- --serial 12345678 \
- --abi armeabi-v7a \
- --apk ../demos/android/cube-with-layers/bin/cube-with-layers.apk \
- --package com.example.CubeWithLayers \
- --frame 50
-```
-And on Windows:
-```
-build_vktracereplay.bat ^
-vktracereplay.bat ^
- --serial 12345678 ^
- --abi armeabi-v7a ^
- --apk ..\demos\android\cube-with-layers\bin\NativeActivity-debug.apk ^
- --package com.example.CubeWithLayers ^
- --frame 50
 ```
 ### vkjson_info
 Currently vkjson_info is only available as an executable for devices with root access.

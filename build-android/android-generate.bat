@@ -54,23 +54,6 @@ py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api
 py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api_dump_html.h
 py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api_dump_json.h
  
-REM vktrace
-echo Generating VT vktrace header/source files
-echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk_packets.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_packet_id.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_struct_size_helper.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_struct_size_helper.c
-
-REM vkreplay
-echo Generating VT vkreplay header/source files
-echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_func_ptrs.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_replay_gen.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_objmapper.h
-
 REM Copy over the built source files to LVL.  Otherwise,
 REM cube won't build.
 echo Entering third_party\Vulkan-ValidationLayers\build-android

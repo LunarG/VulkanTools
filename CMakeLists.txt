@@ -104,7 +104,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
-    set(VKREPLAY_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for vkreplay (XCB, WAYLAND, DISPLAY)")
 
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
@@ -154,32 +153,21 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_TESTS "Build tests" ON)
     option(BUILD_LAYERSVT "Build layersvt" ON)
     option(BUILD_VLF "Build layer_factory" ON)
-    option(BUILD_VKTRACE "Build VkTrace" ON)
     option(BUILD_VIA "Build via" ON)
 
     option(BUILD_LAYERMGR "Build layer manager" ON)
 
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
-        option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
-    else()
-        option(BUILD_VKTRACE_REPLAY "Build VkReplay" ON)
-    endif()
-
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     
-    option(BUILD_VKTRACE ON)
     option(BUILD_LOADER OFF)
     option(BUILD_TESTS OFF)
     option(BUILD_LAYERS OFF)
     option(BUILD_LAYERSVT "Build layersvt" ON)
     option(BUILD_VLF OFF)
-    option(BUILD_VKTRACEVIEWER OFF)
     option(BUILD_DEMOS OFF)
     option(BUILD_VKJSON OFF)
     option(BUILD_VIA "Build VIA" ON)
     option(BUILD_LAYERMGR "Build layer manager" ON)
-    option(BUILD_VKTRACE_LAYER OFF)
-    option(BUILD_VKTRACE_REPLAY OFF)
 
 endif()
 
@@ -222,10 +210,6 @@ endif()
 
 if(BUILD_VLF)
     add_subdirectory(layer_factory)
-endif()
-
-if(BUILD_VKTRACE)
-    add_subdirectory(vktrace)
 endif()
 
 if(BUILD_VIA)
