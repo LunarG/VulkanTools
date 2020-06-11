@@ -63,7 +63,6 @@
                     },
                     "type": "enum"
                 },
-                "layer_path": "C:/VulkanSDK/1.2.141.0/Bin/VkLayer_gfxreconstruct.json",
                 "layer_rank": 0,
                 "log_allow_indents": {
                     "default": "FALSE",

@@ -138,9 +138,6 @@ class QTreeWidgetItemWithLayer : public QTreeWidgetItem
 /// Case 2: Edit: An exisitng profile that contains specifically activated layers and
 ///         contains settings that have already been specified and previously saved.
 ///         The file name is not blank. User can save or abandon the changes.
-/// Case 3: Clone: Same as edit, but the name of the profile is cleared, and if it was
-///         a fixed profile, that flag is cleared.
-///         The file name is blank. User must save the profile.
 ///////////////////////////////////////////////////////////////////////////////
 dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit) :
     QDialog(parent),
@@ -148,22 +145,25 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
     {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    pThisProfile = pProfileToEdit;
+
     // We never edit a profile directly, we only edit a copy of it.
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     setWindowTitle("Creating New Profile");
 
     // Case 1: New profile (easiest case)
-    if(pProfileToEdit == nullptr) {
-        pThisProfile = pVulkanConfig->CreateEmptyProfile();
+    if(pProfileToEdit->qsProfileName.isEmpty()) {
         setWindowTitle(tr("Create new layer configuration"));
         }
     else {
         QString title;
         ui->lineEditName->setEnabled(false); // This is now where we rename
+
         // We are editing an exisitng profile. Make a copy of it
         pThisProfile = pProfileToEdit->DuplicateProfile();
 
-        title = tr("Edit existing configuration");
+        title = tr("Edit ");
+        title += pThisProfile->qsProfileName;
 
         // We now have a profile ready for editing, but only the layers that
         // are actually used are attached. Now, we need to add the remaining layers
@@ -314,23 +314,6 @@ void dlgProfileEditor::PopulateCustomTree(void)
     ui->pushButtonRemoveLayers->setEnabled(false);
     }
 
-
-//////////////////////////////////////////////////////////////////////////
-/// \brief dlgProfileEditor::profileNameChanged
-/// \param qsName
-/// Monitor the name of the profile and do not allow saving
-/// of a profile with the same name.
-void dlgProfileEditor::profileNameChanged(const QString& qsName)
-    {
-//    // Compare the edit field with the list of canned profile names
-//    for(int i = 0; i < 10; i+=2)
-//        if(szCannedProfiles[i] == qsName) {
-//            ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(false);
-//            return;
-//            }
-
-//    ui->buttonBox->button(ui->buttonBox->Save)->setEnabled(true);
-    }
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -569,12 +552,8 @@ void dlgProfileEditor::layerUseChanged(int nSelection)
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept()
     {
-    // Collect any remaining GUI edits
-//    settingsEditor.CollectSettings();
-
     pThisProfile->qsProfileName = ui->lineEditName->text();
     pThisProfile->qsDescription = ui->lineEditDesc->text();
-
 
     // Hard Fail: Cannot use two layers with the same name
     bool bSameName = false;
@@ -646,7 +625,6 @@ void dlgProfileEditor::accept()
     // Collapse the profile and remove unused layers and write
     pThisProfile->CollapseProfile();
     pVulkanConfig->SaveProfile(pThisProfile);
-    pVulkanConfig->profileList.push_back(pThisProfile);
     QDialog::accept();
     }
 

@@ -376,9 +376,9 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QPushButton" name="pushButtonNewProfile">
+          <widget class="QPushButton" name="pushButtonEditProfile">
            <property name="text">
-            <string>Create new layer override configuration</string>
+            <string>Select Vulkan Layers to Override and Execution Order</string>
            </property>
           </widget>
          </item>

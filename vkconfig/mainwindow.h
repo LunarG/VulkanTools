@@ -27,7 +27,6 @@
 #include <QResizeEvent>
 
 #include "vulkanconfiguration.h"
-#include "settingseditor.h"
 #include "settingstreemanager.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
@@ -60,7 +59,6 @@ public:
 
 protected:
     CVulkanConfiguration*    pVulkanConfig;
-    CSettingsEditor          settingsEditor;
     CSettingsTreeManager     settingsTreeManager;
 
     QProcess *pVulkanApp;       // Keeps track of the monitored app
@@ -100,6 +98,8 @@ private:
 
     void RemoveClicked(CProfileListItem *pItem);
     void RenameClicked(CProfileListItem *pItem);
+    void NewClicked(void);
+    void DuplicateClicked(CProfileListItem *pItem);
     void ExportClicked(CProfileListItem *pItem);
     void ImportClicked(CProfileListItem *pItem);
     void EditClicked(CProfileListItem *pItem);
@@ -148,7 +148,7 @@ public Q_SLOTS:
     void profileItemClicked(bool bChecked);
 
 
-    void on_pushButtonNewProfile_clicked(void);
+    void on_pushButtonEditProfile_clicked(void);
     void on_pushButtonActivate_clicked(void);
 
 

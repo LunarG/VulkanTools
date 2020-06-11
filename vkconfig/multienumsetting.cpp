@@ -1,5 +1,3 @@
-#ifndef CBOOLSETTINGWIDGET_H
-#define CBOOLSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -21,25 +19,27 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QObject>
-#include <QWidget>
-#include <QCheckBox>
 
-#include "layerfile.h"
+#include "multienumsetting.h"
 
-class CBoolSettingWidget : public QCheckBox
-{
-    Q_OBJECT
-public:
-    CBoolSettingWidget(TLayerSettings *pLayerSetting, bool bNumeric = false);
+CMultiEnumSetting::CMultiEnumSetting(TLayerSettings *pLayerSetting, QString thisSetting)
+    {
+    pSetting = pLayerSetting;
+    mySetting = thisSetting;
 
-private:
-    bool bNumericOutput;
-    TLayerSettings *pSetting;
+    if(pLayerSetting->settingsListInclusiveValue.contains(mySetting))
+        this->setChecked(true);
 
-public Q_SLOTS:
-    void itemToggled(void);
+    connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
+    }
 
-};
 
-#endif // CBOOLSETTINGWIDGET_H
+void CMultiEnumSetting::itemChecked(bool bChecked)
+    {
+    if(bChecked)
+        AddString(pSetting->settingsValue, mySetting);
+    else
+        RemoveString(pSetting->settingsValue, mySetting);
+    }
+
+

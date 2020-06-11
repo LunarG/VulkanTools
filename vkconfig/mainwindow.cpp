@@ -26,6 +26,7 @@
 #include <QVariant>
 #include <QContextMenuEvent>
 #include <QFileDialog>
+#include <QLineEdit>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -144,7 +145,6 @@ MainWindow::~MainWindow()
 // Load or refresh the list of profiles
 void MainWindow::LoadProfileList(void)
     {
-    settingsEditor.CleanupGUI();            // Cleanup from last time, just in case
     ui->profileTree->blockSignals(true);    // No signals firing off while we do this
     ui->profileTree->clear();
 
@@ -540,26 +540,49 @@ void MainWindow::on_pushButtonAppList_clicked(void)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonEditProfile_clicked
 /// Just resave the list anytime we go into the editor
-void MainWindow::EditClicked(CProfileListItem *pItem)
+void MainWindow::on_pushButtonEditProfile_clicked()
     {
+    // Who is selected?
+    CProfileListItem *pItem = dynamic_cast<CProfileListItem*>(ui->profileTree->currentItem());
     if(pItem == nullptr)
         return;
 
     // Save current state before we go in
+
     dlgProfileEditor dlg(this, pItem->pProfilePointer);
     dlg.exec();
-    pVulkanConfig->LoadAllProfiles(); // Reset
-    LoadProfileList();  // Force a reload
+    // pItem will be invalid after LoadProfileList, but I still
+    // need the pointer to the profile
+    QString editedProfileName = pItem->pProfilePointer->qsProfileName;
+    pVulkanConfig->LoadAllProfiles();
+    LoadProfileList();
+
+    // Reload the tree editor
+    settingsTreeManager.CleanupGUI();
+
+    // Reset the current item
+    for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+        pItem = dynamic_cast<CProfileListItem*>(ui->profileTree->topLevelItem(i));
+        if(pItem != nullptr)
+            if(pItem->pProfilePointer->qsProfileName == editedProfileName) {
+                ui->profileTree->setCurrentItem(pItem);
+//                settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfile);
+                break;
+                }
+        }
+
     }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a new blank profile
-void MainWindow::on_pushButtonNewProfile_clicked()
+void MainWindow::NewClicked()
     {
-    dlgProfileEditor dlg(this, nullptr);
-    dlg.exec();
-    LoadProfileList();  // force a reload
-    }
+    CProfileDef* pNewProfile = pVulkanConfig->CreateEmptyProfile();
+    dlgProfileEditor dlg(this, pNewProfile);
+    if(QDialog::Accepted == dlg.exec())
+        pVulkanConfig->LoadAllProfiles();
+        LoadProfileList();
+        }
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -572,6 +595,9 @@ void MainWindow::addCustomPaths()
     dlg.exec();
     LoadProfileList();  // Force a reload
     }
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -606,6 +632,29 @@ void MainWindow::RemoveClicked(CProfileListItem *pItem)
 void MainWindow::RenameClicked(CProfileListItem *pItem)
     {
     ui->profileTree->editItem(pItem, 1);
+    }
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Copy the current configuration
+void MainWindow::DuplicateClicked(CProfileListItem *pItem)
+    {
+    QString qsNewName = pItem->pProfilePointer->qsProfileName;
+    qsNewName += "2";
+    pItem->pProfilePointer->qsProfileName = qsNewName;
+    pVulkanConfig->SaveProfile(pItem->pProfilePointer);
+    pVulkanConfig->LoadAllProfiles();
+    LoadProfileList();
+
+    // Good enough? Nope, I want to select it and edit the name.
+    // Find it.
+    for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+        CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+        if(pItem->pProfilePointer->qsProfileName == qsNewName) {
+            ui->profileTree->editItem(pItem, 1);
+            return;
+            }
+        }
     }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -832,6 +881,9 @@ void MainWindow::ResetLaunchOptions(void)
     if(nFoundLast < 0)
         nFoundLast = 0;
 
+    if(pVulkanConfig->appList.size() == 0)
+        return;
+
     pLaunchAppsCombo->setCurrentIndex(nFoundLast);
 
     // Reset working folder and command line choices
@@ -1038,14 +1090,18 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
             if(pItem != nullptr) {
                 //Create context menu here
                 QMenu menu(ui->profileTree);
-                QAction *pNewAction = new QAction("New");
+                QAction *pNewAction = new QAction("New...");
                 menu.addAction(pNewAction);
 
-                QAction *pEditAction = new QAction("Edit");
-                menu.addAction(pEditAction);
+//                QAction *pEditAction = new QAction("Edit Layers...");
+//                menu.addAction(pEditAction);
 
                 QAction *pRemoveAction = new QAction("Remove");
                 menu.addAction(pRemoveAction);
+
+                QAction *pDuplicateAction = new QAction("Duplicate");
+                menu.addAction(pDuplicateAction);
+
                 menu.addSeparator();
 
                 QAction *pRenameAction = new QAction("Rename");
@@ -1067,13 +1123,19 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                 // put the hammer away....
                 // New Profile...
                 if(pAction == pNewAction) {
-                    on_pushButtonNewProfile_clicked();
+                    NewClicked();
                     return true;
                     }
 
-                // Edit this profile....
-                if(pAction == pEditAction) {
-                    EditClicked(pItem);
+//                // Edit this profile....
+//                if(pAction == pEditAction) {
+//                    EditClicked(pItem);
+//                    return true;
+//                    }
+
+                // Duplicate
+                if(pAction == pDuplicateAction) {
+                    DuplicateClicked(pItem);
                     return true;
                     }
 

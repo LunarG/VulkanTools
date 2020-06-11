@@ -37,11 +37,13 @@ SOURCES += \
     dlgvulkaninfo.cpp \
     enumsettingwidget.cpp \
     filenamesettingwidget.cpp \
+    foldersettingwidget.cpp \
     khronossettings.cpp \
     khronossettingsadvanced.cpp \
     layerfile.cpp \
     main.cpp \
     mainwindow.cpp \
+    multienumsetting.cpp \
     profiledef.cpp \
     settingseditor.cpp \
     settingstreemanager.cpp \
@@ -62,10 +64,12 @@ HEADERS += \
     dlgvulkaninfo.h \
     enumsettingwidget.h \
     filenamesettingwidget.h \
+    foldersettingwidget.h \
     khronossettings.h \
     khronossettingsadvanced.h \
     layerfile.h \
     mainwindow.h \
+    multienumsetting.h \
     profiledef.h \
     settingseditor.h \
     settingstreemanager.h \

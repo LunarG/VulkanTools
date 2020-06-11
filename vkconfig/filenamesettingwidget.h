@@ -22,13 +22,12 @@
  */
 
 
-#include <QObject>
 #include <QWidget>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QResizeEvent>
-#include <QHideEvent>
+#include <QFileDialog>
 
 #include "layerfile.h"
 
@@ -37,19 +36,17 @@ class CFilenameSettingWidget : public QWidget
     Q_OBJECT
 public:
     explicit CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting);
-    virtual ~CFilenameSettingWidget();
 
 private:
     virtual void resizeEvent(QResizeEvent *event) override;
-    void destroy(bool destroyWindow = true, bool destroySubWindows = true);
-    virtual void hideEvent(QHideEvent *event) override;
 
     TLayerSettings *pSetting;
     QLineEdit      *pLineEdit;
     QPushButton    *pPushButton;
 
 public Q_SLOTS:
-//    void itemToggled(void);
+    void browseButtonClicked(void);
+    void textFieldChanged(const QString& newText);
 
 };
 

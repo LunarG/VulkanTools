@@ -30,6 +30,8 @@
 #include "enumsettingwidget.h"
 #include "stringsettingwidget.h"
 #include "filenamesettingwidget.h"
+#include "foldersettingwidget.h"
+#include "multienumsetting.h"
 
 CSettingsTreeManager::CSettingsTreeManager()
     {
@@ -109,20 +111,47 @@ void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile
     pParent->addChild(pItem);
     pEditorTree->setItemWidget(pItem, 1, pKhronosPresets);
 
-    for(int i = 0; i < pKhronosLayer->layerSettings.size(); i++) {
+    for(int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
         QTreeWidgetItem *pChild = new QTreeWidgetItem();
 
         // Combobox - enum - just one thing
-        if(pKhronosLayer->layerSettings[i]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
-            CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pChild, pKhronosLayer->layerSettings[i]);
+        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
+            CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pChild, pKhronosLayer->layerSettings[iSetting]);
             pParent->addChild(pChild);
             pEditorTree->setItemWidget(pChild, 1, pEnumWidget);
             }
 
+        // Select a file?
+        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_FILE) {
+            CFilenameSettingWidget* pWidget = new CFilenameSettingWidget(pChild, pKhronosLayer->layerSettings[iSetting]);
+            pParent->addChild(pChild);
+            pEditorTree->setItemWidget(pChild, 1, pWidget);
+            fileWidgets.push_back(pChild);
+            continue;
+            }
+
+        // Multi-enum - This is a subtree
+        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_INCLUSIVE_LIST) {
+            QTreeWidgetItem *pSubCategory = new QTreeWidgetItem;
+            pSubCategory->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
+            pSubCategory->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
+            pParent->addChild(pSubCategory);
+
+            for(int i = 0; i < pKhronosLayer->layerSettings[iSetting]->settingsListInclusiveValue.size(); i++) {
+                QTreeWidgetItem *pChild = new QTreeWidgetItem();
+                CMultiEnumSetting *pControl = new CMultiEnumSetting(pKhronosLayer->layerSettings[iSetting], pKhronosLayer->layerSettings[iSetting]->settingsListInclusiveValue[i]);
+                pControl->setText(pKhronosLayer->layerSettings[iSetting]->settingsListInclusivePrompt[i]);
+                pSubCategory->addChild(pChild);
+                pEditorTree->setItemWidget(pChild, 0, pControl);
+                }
+
+            continue;
+            }
+
 
         // TBD - just add description
-        pChild->setText(0, pKhronosLayer->layerSettings[i]->settingsPrompt);
-        pChild->setToolTip(0, pKhronosLayer->layerSettings[i]->settingsDesc);
+        pChild->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
+        pChild->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
         pParent->addChild(pChild);
         }
 
@@ -138,6 +167,14 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
         // True false?
         if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_BOOL) {
             CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting]);
+            pParent->addChild(pSettingItem);
+            pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
+            continue;
+            }
+
+        // True false? (with numeric output instead of text)
+        if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_BOOL_NUMERIC) {
+            CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting], true);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
             continue;
@@ -165,23 +202,18 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 1, pWidget);
             fileWidgets.push_back(pSettingItem);
-
-//            QLineEdit *pLineEdit = new QLineEdit();
-//            QPushButton *pButton = new QPushButton();
-//            pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
-//            pLineEdit->setText(pLayer->layerSettings[iSetting]->settingsValue);
-//            pButton->setText("...");
-//            pSettingItem->setToolTip(0, pLayer->layerSettings[iSetting]->settingsDesc);
-//            pParent->addChild(pSettingItem);
-//            pEditorTree->setItemWidget(pSettingItem, 1, pLineEdit);
-//            pEditorTree->setItemWidget(pSettingItem, 2, pButton);
-//            pEditorTree->setColumnWidth(2, 32);
             continue;
             }
 
 
-
         // Save to folder?
+        if(pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_SAVE_FOLDER) {
+            CFolderSettingWidget* pWidget = new CFolderSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+            pParent->addChild(pSettingItem);
+            pEditorTree->setItemWidget(pSettingItem, 1, pWidget);
+            fileWidgets.push_back(pSettingItem);
+            continue;
+            }
 
 
         // Undefined... at least gracefuly display what the setting is

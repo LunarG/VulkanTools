@@ -78,8 +78,6 @@ public Q_SLOTS:
 
     void layerUseChanged(int nSelection);
 
-    void profileNameChanged(const QString& qsProfileName);
-
 
 };
 

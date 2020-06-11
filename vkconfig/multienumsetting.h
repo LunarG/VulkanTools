@@ -1,5 +1,5 @@
-#ifndef CBOOLSETTINGWIDGET_H
-#define CBOOLSETTINGWIDGET_H
+#ifndef CMULTIENUMSETTING_H
+#define CMULTIENUMSETTING_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -21,25 +21,26 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QObject>
 #include <QWidget>
 #include <QCheckBox>
+#include <QTreeWidgetItem>
+#include <QString>
 
 #include "layerfile.h"
 
-class CBoolSettingWidget : public QCheckBox
+class CMultiEnumSetting : public QCheckBox
 {
     Q_OBJECT
 public:
-    CBoolSettingWidget(TLayerSettings *pLayerSetting, bool bNumeric = false);
+    CMultiEnumSetting(TLayerSettings *pLayerSetting, QString thisSetting);
 
 private:
-    bool bNumericOutput;
     TLayerSettings *pSetting;
+    QString         mySetting;
 
 public Q_SLOTS:
-    void itemToggled(void);
+    void itemChecked(bool bChecked);
 
 };
 
-#endif // CBOOLSETTINGWIDGET_H
+#endif // CMULTIENUMSETTING_H
