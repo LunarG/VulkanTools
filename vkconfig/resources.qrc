@@ -1,17 +1,19 @@
 <RCC>
     <qresource prefix="/">
         <file>resourcefiles/lunarg_logo.png</file>
+        <file>resourcefiles/lunargLogo.png</file>
         <file>resourcefiles/qt_logo.png</file>
         <file>resourcefiles/layer_info.json</file>
         <file>resourcefiles/presets_info.json</file>
-        <file>resourcefiles/Standard Validation.json</file>
-        <file>resourcefiles/Best Practices Validation.json</file>
-        <file>resourcefiles/Shader-Based Validation.json</file>
-        <file>resourcefiles/Low-Overhead Validation.json</file>
+        <file>resourcefiles/A User-Defined Configuration.json</file>
         <file>resourcefiles/API dump.json</file>
-        <file>resourcefiles/lunargLogo.png</file>
-	<file>resourcefiles/Frame Capture - First two frames.json</file>
-	<file>resourcefiles/Frame Capture - Range F12 to start and to stop.json</file>
-	<file>resourcefiles/Frame Capture - Single frame triggered with F12.json</file>
+        <file>resourcefiles/Validation - Best Practices.json</file>
+        <file>resourcefiles/Validation - GPU Assisted.json</file>
+        <file>resourcefiles/Validation - Reduced-Overhead.json</file>
+        <file>resourcefiles/Validation - Shader Printf.json</file>
+        <file>resourcefiles/Validation - Standard.json</file>
+	    <file>resourcefiles/Frame Capture - First two frames.json</file>
+	    <file>resourcefiles/Frame Capture - Range F10 to start and to stop.json</file>
+	    <file>resourcefiles/Frame Capture - Single frame triggered with F10.json</file>
     </qresource>
 </RCC>
