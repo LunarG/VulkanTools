@@ -294,7 +294,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue& jsonValue, QTreeWidgetItem *pRoot)
        QJsonValue layerExtensions = layerObject.value("Layer Extensions");
        QJsonObject layerExtensionsObject = layerExtensions.toObject();
        int nExtCount = layerExtensionsObject.size();
-       output.asprintf("Layer Extensions: count = %d", nExtCount);
+       output = QString().asprintf("Layer Extensions: count = %d", nExtCount);
        QTreeWidgetItem *pExtItem = new QTreeWidgetItem();
        pExtItem->setText(0, output);
        pLayer->addChild(pExtItem);
@@ -325,7 +325,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue& jsonValue, QTreeWidgetItem *pRoot)
             QJsonValue devExtVal = gpuObject.value("Layer-Device Extensions");
             QJsonObject devExtObj = devExtVal.toObject();
             int extCount = devExtObj.size();
-            output.asprintf("Layer-Device Extensions: count = %d", extCount);
+            output = QString().asprintf("Layer-Device Extensions: count = %d", extCount);
             QTreeWidgetItem *pNext = new QTreeWidgetItem();
             pNext->setText(0, output);
             pDeviceItem->addChild(pNext);

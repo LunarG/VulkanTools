@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
                 pModel->bHasOldLoader = true;
                 if(!settings.value("VKCONFIG_SHOW_LOADER_WARNING").toBool()) {
                     QString message;
-                    message.asprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
+                    message = QString().asprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
                                     "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 141 for this "
                                     "feature to work.\n\nYour current detected loader version is %d.%d Patch(%d)\n\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
                     QMessageBox alert(nullptr);
