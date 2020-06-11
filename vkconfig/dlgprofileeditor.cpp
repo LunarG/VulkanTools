@@ -182,7 +182,6 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit)
     pHeader->setText(0, "Layers");
     pHeader->setText(1, "Usage");
 
-    connect(ui->lineEditName, SIGNAL(textChanged(const QString&)), this, SLOT(profileNameChanged(const QString&)));
     connect(ui->layerTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this,
                 SLOT(currentLayerChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
     connect(ui->treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(customTreeItemActivated(QTreeWidgetItem*, int)));

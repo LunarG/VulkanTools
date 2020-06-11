@@ -173,7 +173,7 @@
                 "name": "Directory",
                 "description": "This can be set to specify the directory in which to create the screenshot files.",
                 "type": "save_folder",
-                "default": "./"
+                "default": ""
             },
             "format": {
                 "name": "Format",

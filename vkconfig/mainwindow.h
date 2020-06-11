@@ -118,8 +118,6 @@ public Q_SLOTS:
 
     void helpShowHelp(bool bChecked);
 
-    void selectedProfileChanged(void);
-
     void addCustomPaths();    // Fired by menu
 
     void editorExpanded(QTreeWidgetItem *pItem);
@@ -131,6 +129,7 @@ public Q_SLOTS:
     void launchItemChanged(int nIndex);
     void launchAddProgram(void);
     void launchSetLogFile(void);
+    void launchArgsEdited(const QString& newText);
     void on_pushButtonLaunch_clicked(void);
     void on_pushButtonClearLog_clicked(void);
     void on_pushButtonOpenLog_clicked(void);
@@ -143,15 +142,12 @@ public Q_SLOTS:
     void on_pushButtonAppList_clicked(void);
 
     void profileItemChanged(QTreeWidgetItem *pItem, int nCol);
-    void profileItemHighlighted(QTreeWidgetItem *pItem, int nCol);
     void profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
     void profileItemClicked(bool bChecked);
+    void profileItemExpanded(QTreeWidgetItem *pItem);
 
 
     void on_pushButtonEditProfile_clicked(void);
-    void on_pushButtonActivate_clicked(void);
-
-
 
     void standardOutputAvailable(void);         // stdout output is available
     void errorOutputAvailable(void);            // Layeroutput is available

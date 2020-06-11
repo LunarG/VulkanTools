@@ -45,9 +45,7 @@
 
 
 
-#define         ACTIVATE_TEXT   "Activate"
-#define         DEACTIVATE_TEXT "Deactivate"
-
+#define EDITOR_CAPTION_EMPTY "Configuration Layer Settings"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -97,8 +95,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetDefaultProfiles(bool)));
 
     connect(ui->profileTree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(profileItemChanged(QTreeWidgetItem*, int)));
-    connect(ui->profileTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(profileItemHighlighted(QTreeWidgetItem *, int)));
-    connect(ui->profileTree, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(profileItemHighlighted(QTreeWidgetItem *, int)));
     connect(ui->profileTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(profileTreeChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 
     connect(ui->layerSettingsTree, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(editorExpanded(QTreeWidgetItem*)));
@@ -180,9 +176,8 @@ void MainWindow::LoadProfileList(void)
         }
 
     ui->profileTree->blockSignals(false);
-    ui->profileTree->resizeColumnToContents(0);
-
     ChangeActiveProfile(pVulkanConfig->GetCurrentActiveProfile());
+    ui->profileTree->resizeColumnToContents(0);
     }
 
 //////////////////////////////////////////////////////////
@@ -332,39 +327,6 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol)
     }
 
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::profileItemHighlighted
-/// \param pItem
-/// \param nCol
-/// Just scrolling and selecting different profiles. This needs to activate
-/// the editor appropriately.
-void MainWindow::profileItemHighlighted(QTreeWidgetItem *pItem, int nCol)
-    {
-    (void)nCol;
-    printf("profileItemHighlighted\n");
-
-    // This pointer will only be valid if it's one of the elements with
-    // the radio button
-    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pItem);
-    if(pProfileItem == nullptr)
-        return;
-
-//    // We don't care what was unchecked
-//    if(!pProfileItem->pRadioButton->isChecked())
-//        return;
-
-//    // Save the name of the current profile
-//    QSettings settings;
-//    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, pProfileItem->pProfilePointer->qsProfileName);
-
-//    // Do we go ahead and activate it?
-//    if(pVulkanConfig->bOverrideActive)
-//        pVulkanConfig->SetCurrentActiveProfile(pProfileItem->pProfilePointer);
-
-
-
-    }
-
 //////////////////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::profileTreeChanged
 /// \param pCurrent
@@ -386,6 +348,10 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *
         return;
 
     settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfileItem->pProfilePointer);
+    QString title = pProfileItem->pProfilePointer->qsProfileName;
+    title += " - Layer Settings";
+    ui->groupBoxEditor->setTitle(title);
+    ui->layerSettingsTree->resizeColumnToContents(0);
     }
 
 
@@ -393,12 +359,11 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *
 ////////////////////////////////////////////////////
 // Unused flag, just display the about Qt dialog
 void MainWindow::aboutVkConfig(bool bChecked)
-{
+    {
     (void)bChecked;
     dlgAbout dlg(this);
     dlg.exec();
-
-}
+    }
 
 //////////////////////////////////////////////////////////
 /// \brief MainWindow::toolsVulkanInfo
@@ -498,6 +463,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
     if(!pVulkanConfig->bKeepActiveOnExit)
         pVulkanConfig->SetCurrentActiveProfile(nullptr);
+
+    pVulkanConfig->SaveAppList();
+    pVulkanConfig->SaveAppSettings();
 
     event->accept();
     }
@@ -710,7 +678,7 @@ void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile)
     {
     if(pNewProfile == nullptr || !pVulkanConfig->bOverrideActive) {
         pVulkanConfig->SetCurrentActiveProfile(nullptr);
-        setWindowTitle("Vulkan Configurator");
+        setWindowTitle("Vulkan Configurator <VULKAN APPLICATION CONTROLLED>");
         return;
         }
 
@@ -729,141 +697,12 @@ void MainWindow::editorExpanded(QTreeWidgetItem *pItem)
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::on_pushButtonActivate_clicked
-/// Activate the currently selected profile
-void MainWindow::on_pushButtonActivate_clicked()
+void MainWindow::profileItemExpanded(QTreeWidgetItem * pItem)
     {
-//    // Get the current profile and activate it
-//    int nRow = ui->listWidgetProfiles->currentRow();
-//    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
-
-//    // Make sure we capture any changes.
-//    if(settingsEditor.CollectSettings())
-//        pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
-
-//    // If something is active, we are deactivating it
-//    if(pVulkanConfig->GetCurrentActiveProfile() != nullptr) {
-//        pVulkanConfig->SetCurrentActiveProfile(nullptr);
-
-//        // Keep the current row selection if one was set
-//        LoadProfileList(); // Reload to clear activate status
-//        if(nRow == -1) {
-//            updateGetStartedStatus(szStartTextRed);
-//            }
-//        else {
-//            ui->listWidgetProfiles->setCurrentRow(nRow);
-//            selectedProfileChanged();
-//            }
-//        }
-//    else
-//        { // We are activating a profile
-//        Q_ASSERT(pSelectedItem->pProfilePointer != nullptr);
-//        ChangeActiveProfile(pSelectedItem->pProfilePointer);
-//        }
-
-//    updateActivateButtonState();
-//    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr)
-//        return;
-
-//    QSettings settings;
-//    if(settings.value("VKCONFIG_SETTING_RESTART_WARNING_IGNORE").toBool() == false) {
-//        QMessageBox alert(this);
-//        alert.setText("Any running Vulkan applications must be restarted before the new layer overrides can take effect.");
-//        QCheckBox *pDoNotShow = new QCheckBox();
-//        pDoNotShow->setText("Do not show again");
-//        alert.setCheckBox(pDoNotShow);
-//        alert.exec();
-//        if(pDoNotShow->isChecked())
-//            settings.setValue("VKCONFIG_SETTING_RESTART_WARNING_IGNORE", true);
-//        }
-
+    (void)pItem;
+    ui->layerSettingsTree->resizeColumnToContents(0);
+    ui->layerSettingsTree->resizeColumnToContents(1);
     }
-
-//////////////////////////////////////////////////////////////////////////////
-// The primary purpose here is to enable/disable/rename the edit/clone
-// button for the highlighted profile
-void MainWindow::selectedProfileChanged(void)
-    {
-////    updateActivateButtonState();
-////    ui->pushButtonEdit->setEnabled(true);   // All profiles can be edited
-
-////    // We have changed settings? Were there any edits to the last one?
-////    if(settingsEditor.CollectSettings() == true)
-////        if(pLastSelectedProfileItem != nullptr) {
-////            // Write changes to the profile
-////            pVulkanConfig->SaveProfile(pLastSelectedProfileItem->pProfilePointer);
-
-////            // Oh yeah... if we have changed the current profile, we need to also update
-////            // the override settings.
-////            if(pVulkanConfig->GetCurrentActiveProfile() == pLastSelectedProfileItem->pProfilePointer)
-////                pVulkanConfig->SetCurrentActiveProfile(pLastSelectedProfileItem->pProfilePointer);
-////            }
-
-////    // We need the list item that was selected
-////    int nRow = ui->listWidgetProfiles->currentRow();
-////    Q_ASSERT(-1);
-////    CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
-////    pLastSelectedProfileItem = pSelectedItem;
-////    if(pSelectedItem == nullptr) {
-////        ui->listWidgetProfiles->setCurrentRow(-1);
-////        ui->pushButtonEdit->setEnabled(true);
-////        ui->pushButtonRemove->setEnabled(false);    // Only the ones you can edit can be deleted
-////        ui->groupBoxEditor->setTitle(tr("Khronos Ouput Settings"));
-////        return; // This should never happen, but if they do, nothing is selected
-////        }
-
-
-////    // We might need the Khronos layer
-////    CLayerFile* pKhronos = pSelectedItem->pProfilePointer->GetKhronosLayer();
-
-////    // This is the currently active profile
-////    if(pSelectedItem->pProfilePointer == pVulkanConfig->GetCurrentActiveProfile()) {
-////        ui->pushButtonRemove->setEnabled(!pSelectedItem->pProfilePointer->bFixedProfile);
-
-////        QString title = tr("Khronos Ouput Settings");
-////        title += " - ";
-////        title += pSelectedItem->pProfilePointer->qsProfileName;
-////        ui->groupBoxEditor->setTitle(title);
-
-////        settingsEditor.CleanupGUI();
-////        Q_ASSERT(pKhronos != nullptr);
-////        if(pKhronos != nullptr)
-////            settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
-////                        pSelectedItem->pProfilePointer->qsDescription);
-
-//        return;
-//        }
-
-//    // Something is selected, so we need to enable the button
-//    ui->pushButtonRemove->setEnabled(true);
-
-//    QString title = tr("Khronos Ouput Settings");
-//    title += " - ";
-//    title += pSelectedItem->pProfilePointer->qsProfileName;
-//    ui->groupBoxEditor->setTitle(title);
-
-
-//    if(pSelectedItem->pProfilePointer->bFixedProfile)
-//        ui->pushButtonRemove->setEnabled(false);
-
-//    // Label the button appropriately, but if a canned profile, we do need to
-//    // setup the GUI
-//    if(pKhronos != nullptr) {
-//        settingsEditor.CleanupGUI();
-//        Q_ASSERT(pKhronos != nullptr);
-//        settingsEditor.CreateGUI(ui->scrollArea, pKhronos->layerSettings, EDITOR_TYPE_KHRONOS,
-//                pSelectedItem->pProfilePointer->qsDescription);
-//        }
-//    else {
-//        ui->pushButtonRemove->setEnabled(true);    // Only the ones you can edit can be deleted
-//        settingsEditor.CleanupGUI();
-//        QVector <TLayerSettings *> dummy;
-//        settingsEditor.CreateGUI(ui->scrollArea, dummy, EDITOR_TYPE_GENERAL, pSelectedItem->pProfilePointer->qsDescription);
-//        }
-    }
-
-
 
 
 ///////////////////////////////////////////////////////////////////
@@ -942,6 +781,7 @@ void MainWindow::SetupLaunchTree(void)
 
     pLaunchArguments = new QLineEdit();
     ui->launchTree->setItemWidget(pLauncherCMD, 1, pLaunchArguments);
+    connect(pLaunchArguments, SIGNAL(textEdited(const QString&)), this, SLOT(launchArgsEdited(const QString&)));
 
     // Comming soon
 //    pButton = new QPushButton();
@@ -1048,6 +888,21 @@ void MainWindow::launchItemChanged(int nIndex)
     pVulkanConfig->SaveAppSettings();
     }
 
+/////////////////////////////////////////////////////////////////////
+/// \brief MainWindow::launchArgsEdited
+/// \param newText
+/// New command line arguments. Update them.
+void MainWindow::launchArgsEdited(const QString& newText)
+    {
+    int nIndex = pLaunchAppsCombo->currentIndex();
+    if(nIndex < 0)
+        return;
+
+    pVulkanConfig->qsLaunchApplicationArgs = newText;
+    pVulkanConfig->appList[nIndex]->qsArguments = newText;
+    }
+
+
 //////////////////////////////////////////////////////////////////////
 // Clear the browser window
 void MainWindow::on_pushButtonClearLog_clicked(void)
@@ -1096,9 +951,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                 QAction *pNewAction = new QAction("New...");
                 menu.addAction(pNewAction);
 
-//                QAction *pEditAction = new QAction("Edit Layers...");
-//                menu.addAction(pEditAction);
-
                 QAction *pRemoveAction = new QAction("Remove");
                 menu.addAction(pRemoveAction);
 
@@ -1127,42 +979,48 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                 // New Profile...
                 if(pAction == pNewAction) {
                     NewClicked();
+                    settingsTreeManager.CleanupGUI();
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
-
-//                // Edit this profile....
-//                if(pAction == pEditAction) {
-//                    EditClicked(pItem);
-//                    return true;
-//                    }
 
                 // Duplicate
                 if(pAction == pDuplicateAction) {
                     DuplicateClicked(pItem);
+                    settingsTreeManager.CleanupGUI();
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
 
                 // Remove this profile....
                 if(pAction == pRemoveAction) {
                     RemoveClicked(pItem);
+                    settingsTreeManager.CleanupGUI();
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
 
                 // Rename this profile...
                 if(pAction == pRenameAction) {
                     RenameClicked(pItem);
+                    settingsTreeManager.CleanupGUI();
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
 
                 // Export his profile (copy the .json)
                 if(pAction == pExportAction) {
                     ExportClicked(pItem);
+                    settingsTreeManager.CleanupGUI();
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
 
                 // Import a profile (copy a json)
                 if(pAction == pImportAction) {
                     ImportClicked(pItem);
+                    settingsTreeManager.CleanupGUI();
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
                 }
@@ -1175,6 +1033,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
     // Pass it on
     return false;
     }
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 /// Launch the app and monitor it's stdout to get layer output.
@@ -1210,23 +1069,21 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
 
     // Display warning first
     QSettings settings;
-    if(settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool())
-        return;
-
-    QMessageBox alert(this);
-    alert.setText("Vulkan Layers are configured when creating a Vulkan instance which\n"
-                  "typically happens at application start.\n\n"
-                  "For Vulkan Layer overrides to take effect, running Vulkan applications\n"
-                  "should be restarted.");
-    QCheckBox *pCheckBox = new QCheckBox();
-    pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-    alert.setWindowTitle("Runnng Vulkan Applications must be restarted");
-    alert.setCheckBox(pCheckBox);
-    alert.setIcon(QMessageBox::Warning);
-    alert.exec();
-    if(pCheckBox->isChecked())
-        settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
-
+    if(!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
+        QMessageBox alert(this);
+        alert.setText("Vulkan Layers are configured when creating a Vulkan instance which\n"
+                      "typically happens at application start.\n\n"
+                      "For Vulkan Layer overrides to take effect, running Vulkan applications\n"
+                      "should be restarted.");
+        QCheckBox *pCheckBox = new QCheckBox();
+        pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
+        alert.setWindowTitle("Runnng Vulkan Applications must be restarted");
+        alert.setCheckBox(pCheckBox);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+        if(pCheckBox->isChecked())
+            settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
+        }
 
     // Launch the test application
     pVulkanApp = new QProcess(this);

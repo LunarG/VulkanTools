@@ -908,6 +908,11 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
                     setting.insert("default", pSettingsDetails->settingsValue);
                 break;
 
+                case LAYER_SETTINGS_SAVE_FOLDER:
+                   setting.insert("type", "save_folder");
+                   setting.insert("default", pSettingsDetails->settingsValue);
+                break;
+
                 case LAYER_SETTINGS_BOOL:
                     setting.insert("type", "bool");
                     setting.insert("default", pSettingsDetails->settingsValue);

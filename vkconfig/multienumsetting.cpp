@@ -30,7 +30,7 @@ CMultiEnumSetting::CMultiEnumSetting(TLayerSettings *pLayerSetting, QString this
     if(pLayerSetting->settingsListInclusiveValue.contains(mySetting))
         this->setChecked(true);
 
-    connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
+    connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
     }
 
 

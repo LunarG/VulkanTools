@@ -85,7 +85,7 @@
             },
             "VK_LAYER_LUNARG_screenshot": {
                 "dir": {
-                    "default": "unknown data",
+                    "default": "",
                     "description": "This can be set to specify the directory in which to create the screenshot files.",
                     "name": "Directory",
                     "type": "unknown type"

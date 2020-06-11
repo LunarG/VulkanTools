@@ -332,7 +332,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Validation - Standard Settings</string>
+         <string>Configuration Layer Settings</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
          <property name="topMargin">
@@ -407,7 +407,7 @@
            <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Welcome to LunarG Vulkan Configurator</string>
+              <string>Welcome to the LunarG Vulkan Configurator</string>
              </property>
              <property name="scaledContents">
               <bool>true</bool>
