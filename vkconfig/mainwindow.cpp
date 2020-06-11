@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // We need to resetup the new profile for consistency sake.
     QSettings settings;
-    QString lastProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Standard Validation")).toString();
+    QString lastProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Validation - Standard")).toString();
     CProfileDef *pCurrentProfile = pVulkanConfig->FindProfile(lastProfile);
     if(pVulkanConfig->bOverrideActive)
         ChangeActiveProfile(pCurrentProfile);
