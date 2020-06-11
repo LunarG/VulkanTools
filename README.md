@@ -1,6 +1,6 @@
 # Vulkan Ecosystem Components
 
-This project provides vktrace capture/replay tool, the Layer Factory, and other layer tools and driver tests.
+This project provides various Vulkan tools, the Layer Factory, and other layer tools and driver tests.
 
 ## CI Build Status
 | Platform | Build Status |
@@ -17,8 +17,6 @@ These pieces are required to enable this repository to be built standalone; that
 The following components are available in this repository over and above what is mirrored from Vulkan-ValidationLayers repository
 - Api_dump, screenshot, device_simulation, and example layers (layersvt/)
 - Starter_layer and demo_layer (layer_factory/)
-- tests for the vktrace and vkreplay (tests/)
-- vktrace and vkreplay, API capture and replay  (vktrace/)
 
 ## Contributing
 
