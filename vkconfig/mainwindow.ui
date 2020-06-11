@@ -89,7 +89,7 @@
              </rect>
             </property>
             <property name="text">
-             <string>Fully controlled by the Vulkan application (no override)</string>
+             <string>Fully controlled by the Vulkan applications (no override)</string>
             </property>
            </widget>
            <widget class="QRadioButton" name="radioOverride">
@@ -392,19 +392,6 @@
             <enum>QLayout::SetFixedSize</enum>
            </property>
            <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QLabel" name="label">
              <property name="text">
               <string/>
@@ -449,14 +436,17 @@
            <item>
             <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>Submit issues at our &lt;/span&gt;&lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;
-</string>
+              <string>Development of this tool is &quot;work in progress&quot;, we are looking forward for your feedback and issues on the &lt;/span&gt;&lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;
+.</string>
              </property>
              <property name="textFormat">
               <enum>Qt::RichText</enum>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
              <property name="openExternalLinks">
               <bool>true</bool>
