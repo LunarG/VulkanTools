@@ -133,4 +133,5 @@ Known Issues
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
 - Layer paths may not be duplicated in the layer override json file. They currently are.
 - Layer execution order express in the "Select Vulkan Layers to override and execution order" window is not accurate, only ***forced on*** layers can be ordered.
+- Layers settings fields are not checked for syntax errors.
 
