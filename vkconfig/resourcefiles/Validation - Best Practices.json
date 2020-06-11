@@ -1,5 +1,5 @@
 {
-"Best Practices Validation" : {
+"Validation - Best Practices" : {
 "description" : "This configuration provides access to the Vulkan Best Practices check. Provides warnings about potential API misuse.",
 "blacklisted_layers": [],
 "layer_options": {

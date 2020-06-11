@@ -1,6 +1,6 @@
 {
-    "Low-Overhead Validation": {
-    "description" : "This configuration disableds some of the checks of Standard Validation in the interest of performance.",
+    "Validation - Shader Assisted": {
+    "description" : "Provides easy access to gpu-assisted validation tools and debug-printf functionality.",
     "blacklisted_layers": [],
     "layer_options": {
         "VK_LAYER_KHRONOS_validation": {
@@ -59,14 +59,13 @@
                 "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE": "Object in Use",
                 "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET": "Idle Descritor Set"
                 },
-                "default": ["VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
-                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
-                            "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
-                            "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
-                            "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
-                            "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE",
-                            "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
-                            "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET"]
+                "default": [
+                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT",
+                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
+                    ]
             },
             "enables": {
                 "name": "Enables",
@@ -79,11 +78,19 @@
                 "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
                 "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM specific validation"
                 },
-                "default": []
+                "default": ["VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
+                            ]
             }
         }
     }
+} }
 
-    }
-}
+
+
+
+
+
+
+
 

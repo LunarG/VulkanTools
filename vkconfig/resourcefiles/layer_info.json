@@ -315,10 +315,10 @@
                 "default": "TRUE"
             },
             "log_file_create_new": {
-                "name": "Exit On Error",
-                "description": "Enables exit-on-error.",
-                "type": "bool_numeric",
-                "default": "0"
+                "name": "Log File Overwrite",
+                "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
+                "type": "bool",
+                "default": "TRUE"
             },
             "log_level": {
                 "name": "Log Level",
