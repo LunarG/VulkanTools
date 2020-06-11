@@ -601,11 +601,12 @@ CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
     }
 
 
-static const char *szCannedProfiles[8] = {
-"Standard Validation",
-"Best Practices Validation",
-"Shader-Based Validation",
-"Low-Overhead Validation",
+static const char *szCannedProfiles[9] = {
+"Validation - Standard",
+"Validation - Best Practices",
+"Validation - GPU Assisted.json",
+"Validation - Shader Printf",
+"Validation - Reduced-Overhead",
 "API dump",
 "Frame Capture - First two frames",
 "Frame Capture - Range F12 to start and to stop",
@@ -629,7 +630,7 @@ void CVulkanConfiguration::LoadAllProfiles(void)
     QSettings settings;
     bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, 1).toBool();
     if(bFirstRun) {
-        for(int i = 0; i < 8; i+=1) {
+        for(int i = 0; i < 9; i+=1) {
                 // Search the list of loaded profiles
                 QString qsFile = ":/resourcefiles/";
                 qsFile += szCannedProfiles[i];
