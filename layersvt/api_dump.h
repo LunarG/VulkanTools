@@ -226,6 +226,19 @@ class ConditionalFrameOutput {
 class ApiDumpSettings {
    public:
     ApiDumpSettings() {
+        // Read the format type first as it may be used in the output file extension
+        output_format = readFormatOption("lunarg_api_dump.output_format", ApiDumpFormat::Text);
+        std::string env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_OUTPUT_FMT);
+        if (!env_value.empty()) {
+            if (ToLowerString(env_value) == "html") {
+                output_format = ApiDumpFormat::Html;
+            } else if (ToLowerString(env_value) == "json") {
+                output_format = ApiDumpFormat::Json;
+            } else {
+                output_format = ApiDumpFormat::Text;
+            }
+        }
+
         std::string filename_string = "";
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate filename.
@@ -238,10 +251,30 @@ class ApiDumpSettings {
                 filename_string = "vk_apidump.txt";
             }
         }
+
+        // Append file extension if one doesn't exist or is the wrong extension. Make sure the found extension is at the end
+        if (!filename_string.empty()) {
+            size_t found_pos = std::string::npos;
+            switch (output_format) {
+                default:
+                case (ApiDumpFormat::Text):
+                    found_pos = filename_string.rfind(".txt");
+                    if (found_pos == std::string::npos || found_pos + 4 != filename_string.size()) filename_string.append(".txt");
+                    break;
+                case (ApiDumpFormat::Html):
+                    found_pos = filename_string.rfind(".html");
+                    if (found_pos == std::string::npos || found_pos + 5 != filename_string.size()) filename_string.append(".html");
+                    break;
+                case (ApiDumpFormat::Json):
+                    found_pos = filename_string.rfind(".json");
+                    if (found_pos == std::string::npos || found_pos + 5 != filename_string.size()) filename_string.append(".json");
+                    break;
+            }
+        }
         // If an environment variable is set, always output to that filename instead,
         // whether or not the settings file enables the option.  Just assume a non-empty
         // string is asking for the file output to the given name.
-        std::string env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_LOG_FILE);
+        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_LOG_FILE);
         if (!env_value.empty()) {
             filename_string = env_value;
         }
@@ -260,18 +293,6 @@ class ApiDumpSettings {
 
         // Get the remaining settings (some we also want to provide the ability to override
         // using environment variables).
-
-        output_format = readFormatOption("lunarg_api_dump.output_format", ApiDumpFormat::Text);
-        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_OUTPUT_FMT);
-        if (!env_value.empty()) {
-            if (ToLowerString(env_value) == "html") {
-                output_format = ApiDumpFormat::Html;
-            } else if (ToLowerString(env_value) == "json") {
-                output_format = ApiDumpFormat::Json;
-            } else {
-                output_format = ApiDumpFormat::Text;
-            }
-        }
 
         show_params = readBoolOption("lunarg_api_dump.detailed", true);
         env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_DETAILED_OUTPUT);
