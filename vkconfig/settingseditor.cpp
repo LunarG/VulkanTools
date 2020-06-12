@@ -167,12 +167,12 @@ void CSettingsEditor::CreateGUI(QScrollArea *pDestination, QVector<TLayerSetting
         // Okay, we needto know if we only want the shared settings
         // or not. Skip them otherwise
         // This works from the editor, when bKhronosEditor is false
-        if((layerSettings[iSetting]->commonKhronosEdit && (editorType == EDITOR_TYPE_GENERAL)))
-            continue;
+//        if((layerSettings[iSetting]->commonKhronosEdit && (editorType == EDITOR_TYPE_GENERAL)))
+//            continue;
 
-        // On main screen, bKhronosEditor is true
-         if(!layerSettings[iSetting]->commonKhronosEdit && (editorType != EDITOR_TYPE_GENERAL))
-            continue;
+//        // On main screen, bKhronosEditor is true
+//         if(!layerSettings[iSetting]->commonKhronosEdit && (editorType != EDITOR_TYPE_GENERAL))
+//            continue;
 
         // Prompt doesn't matter what the data type is
         QLabel *pPromptLabel = new QLabel(pEditArea);

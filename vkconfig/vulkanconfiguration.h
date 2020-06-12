@@ -117,6 +117,10 @@ public:
 
     ~CVulkanConfiguration();
 
+    static int nNumCannedProfiles;
+    static int nNumKhronosPreConfigs;
+    static const char *szCannedProfiles[9];
+
     /////////////////////////////////////////////////////////////////////////
     // Just local app settings
     void LoadAppSettings(void);

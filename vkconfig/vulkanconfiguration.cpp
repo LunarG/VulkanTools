@@ -32,10 +32,10 @@
 #include "vulkanconfiguration.h"
 
 
-
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work. Abstracts away instances where we might
 // be searching a disk path, or a registry path.
+// TBD, does this really need it's own file/module?
 CPathFinder::CPathFinder(const QString& qsPath, bool bForceFileSystem)
     {
     if(!bForceFileSystem) {
@@ -50,6 +50,24 @@ CPathFinder::CPathFinder(const QString& qsPath, bool bForceFileSystem)
             fileList << fileInfoList[iFile].filePath();
         }
     }
+
+
+//////////////////////////////////////////////////////////////////////////////
+// These are the built-in configurations that are pulled in from the resource
+// file.
+int CVulkanConfiguration::nNumCannedProfiles = 9;
+int CVulkanConfiguration::nNumKhronosPreConfigs = 5;
+const char* CVulkanConfiguration::szCannedProfiles[9] = {
+    "Validation - Standard",
+    "Validation - Best Practices",
+    "Validation - GPU Assisted",
+    "Validation - Shader Printf",
+    "Validation - Reduced-Overhead",
+    "API dump",
+    "Frame Capture - First two frames",
+    "Frame Capture - Range F12 to start and to stop",
+    "Frame Capture - Single frame triggered with F12",
+    };
 
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
@@ -600,21 +618,6 @@ CProfileDef* CVulkanConfiguration::FindProfile(QString profileName)
     return nullptr;
     }
 
-//////////////////////////////////////////////////////////////////////////////
-// These are the built-in configurations that are pulled in from the resource
-// file.
-static const char *szCannedProfiles[9] = {
-"Validation - Standard",
-"Validation - Best Practices",
-"Validation - GPU Assisted.json",
-"Validation - Shader Printf",
-"Validation - Reduced-Overhead",
-"API dump",
-"Frame Capture - First two frames",
-"Frame Capture - Range F12 to start and to stop",
-"Frame Capture - Single frame triggered with F12",
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadProfiles
 /// Load all the  profiles. If the canned profiles don't exist,
@@ -632,7 +635,7 @@ void CVulkanConfiguration::LoadAllProfiles(void)
     QSettings settings;
     bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, 1).toBool();
     if(bFirstRun) {
-        for(int i = 0; i < 9; i+=1) {
+        for(int i = 0; i < nNumCannedProfiles; i+=1) {
                 // Search the list of loaded profiles
                 QString qsFile = ":/resourcefiles/";
                 qsFile += szCannedProfiles[i];
@@ -887,12 +890,6 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
         for(int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
             QJsonObject setting;
             TLayerSettings *pSettingsDetails = pLayer->layerSettings[iSetting];
-
-            // Only write if it's true, we don't want to clutter up
-            // the other layers, or tempt someone to see it in the .json and set
-            // it to true.
-            if(pSettingsDetails->commonKhronosEdit)
-                setting.insert("common_edit", true);
 
             setting.insert("name", pSettingsDetails->settingsPrompt);
             setting.insert("description", pSettingsDetails->settingsDesc);

@@ -52,7 +52,6 @@ struct TLayerSettings {
     QStringList             settingsListInclusiveValue;     // List of non-exclusive items (more than one item can be selected)
     QStringList             settingsListInclusivePrompt;    // List of non-exclusive item prompts (more than one item can be selected)
     QString                 settingsValue;                  // Default value as a string
-    bool                    commonKhronosEdit;              // This setting is displayed only on the front panel.
     };
 
 void RemoveString(QString& delimitedString, QString value);
@@ -116,7 +115,7 @@ public:
     bool ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind);
 
     // Utility, may move outside this class....
-    static bool LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers);
+    static void LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers);
 
 };
 

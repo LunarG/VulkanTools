@@ -38,6 +38,8 @@ CSettingsTreeManager::CSettingsTreeManager()
     pEditorTree = nullptr;
     pProfile = nullptr;
     pKhronosPresets = nullptr;
+    pKhronosLayer = nullptr;
+    pKhronosTree = nullptr;
     }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +71,9 @@ void CSettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProf
         // Okay kid, this is where it gets complicated...
         // Is this Khronos? Khronos is special...
         if(pProfileDef->layers[iLayer]->name == QString("VK_LAYER_KHRONOS_validation")) {
-            BuildKhronosTree(pLayerItem, pProfileDef->layers[iLayer]);
+            pKhronosLayer = pProfileDef->layers[iLayer];
+            pKhronosTree = pLayerItem;
+            BuildKhronosTree();
             continue;
             }
 
@@ -92,23 +96,31 @@ void CSettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProf
         pBlackList->addChild(pChild);
         }
 
-//    pBuildTree->setColumnWidth(0, 400);
     pBuildTree->resizeColumnToContents(0);
-//    pBuildTree->resizeColumnToContents(1);
     }
 
+///////////////////////////////////////////////////////
+// These correlate with CVulkanConfiguration::szCannedProfiles
+#define KHRONOS_PRESET_STANDARD         0
+#define KHRONOS_PRESET_BEST_PRACTICES   1
+#define KHRONOS_PRESET_GPU_ASSIST       2
+#define KHRONOS_PRESET_SHADER_PRINTF    3
+#define KHRONOS_PRESET_LOW_OVERHEAD     4
+#define KHRONOS_PRESET_USER_DEFINED     5
 
-void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile *pKhronosLayer)
+void CSettingsTreeManager::BuildKhronosTree(void)
     {
     QTreeWidgetItem* pItem = new QTreeWidgetItem();
     pItem->setText(0, "Validation Preset");
     pKhronosPresets = new QComboBox();
     pKhronosPresets->addItem("Standard");
-    pKhronosPresets->addItem("Shader-Based");
-    pKhronosPresets->addItem("Low-Overhead");
     pKhronosPresets->addItem("Best Practices");
+    pKhronosPresets->addItem("GPU Assisted");
+    pKhronosPresets->addItem("Shader Printf");
+    pKhronosPresets->addItem("Reduced-Overhead");
     pKhronosPresets->addItem("User Defined");
-    pParent->addChild(pItem);
+
+    pKhronosTree->addChild(pItem);
     pEditorTree->setItemWidget(pItem, 1, pKhronosPresets);
 
     for(int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
@@ -117,14 +129,14 @@ void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile
         // Combobox - enum - just one thing
         if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
             CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pChild, pKhronosLayer->layerSettings[iSetting]);
-            pParent->addChild(pChild);
+            pKhronosTree->addChild(pChild);
             pEditorTree->setItemWidget(pChild, 1, pEnumWidget);
             }
 
         // Select a file?
         if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_FILE) {
             CFilenameSettingWidget* pWidget = new CFilenameSettingWidget(pChild, pKhronosLayer->layerSettings[iSetting]);
-            pParent->addChild(pChild);
+            pKhronosTree->addChild(pChild);
             pEditorTree->setItemWidget(pChild, 1, pWidget);
             fileWidgets.push_back(pChild);
             continue;
@@ -135,7 +147,7 @@ void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile
             QTreeWidgetItem *pSubCategory = new QTreeWidgetItem;
             pSubCategory->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
             pSubCategory->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
-            pParent->addChild(pSubCategory);
+            pKhronosTree->addChild(pSubCategory);
 
             for(int i = 0; i < pKhronosLayer->layerSettings[iSetting]->settingsListInclusiveValue.size(); i++) {
                 QTreeWidgetItem *pChild = new QTreeWidgetItem();
@@ -152,10 +164,10 @@ void CSettingsTreeManager::BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile
         // TBD - just add description
         pChild->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
         pChild->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
-        pParent->addChild(pChild);
+        pKhronosTree->addChild(pChild);
         }
 
-    pParent->addChild(pItem);
+    pKhronosTree->addChild(pItem);
     }
 
 
@@ -224,6 +236,11 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
     }
 
 
+void CSettingsTreeManager::khronosPresetChanged(int nIndex)
+    {
+
+    }
+
 ////////////////////////////////////////////////////////////////////////////////////
 void CSettingsTreeManager::CleanupGUI(void)
     {
@@ -238,4 +255,6 @@ void CSettingsTreeManager::CleanupGUI(void)
     pEditorTree = nullptr;
     pProfile = nullptr;
     pKhronosPresets = nullptr;
+    pKhronosLayer = nullptr;
+    pKhronosTree = nullptr;
     }

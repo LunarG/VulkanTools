@@ -40,15 +40,21 @@ public:
 protected:
     QTreeWidget *pEditorTree;
     CProfileDef *pProfile;
-    QVector <QTreeWidgetItem*> fileWidgets;
+    QVector <QTreeWidgetItem*> fileWidgets; // These have special cleanup requirements
 
-    void BuildKhronosTree(QTreeWidgetItem* pParent, CLayerFile *pKhronosLayer);
+    void BuildKhronosTree();
     void BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile *pLayer);
 
     QVector <QTreeWidgetItem*> layerItems; // These parallel the  profiles layers
 
     QComboBox *pKhronosPresets;
+    CLayerFile *pKhronosLayer;
+    QTreeWidgetItem *pKhronosTree;
 
+public Q_SLOTS:
+    void khronosPresetChanged(int nIndex); // Okay, is this a custom guy HERE, or do we move it out
+                                           // It really forces a reload of the entire branch of this tree
+                                           // Reset layer defaults for the profile, and then call BuildKhronosTree again
 };
 
 #endif // CSETTINGSTREEMANAGER_H
