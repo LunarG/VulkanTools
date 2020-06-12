@@ -23,7 +23,6 @@
 
 #include <QSettings>
 #include "khronossettingsadvanced.h"
-#include "ui_khronossettingsadvanced.h"
 
 
 // Keep track of tree/setting correlations
@@ -156,13 +155,9 @@ QString GetSettingDetails(QString qsSetting, QString& url)
     }
 
 ///////////////////////////////////////////////////////////////////////////////
-KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLayerSettings *>& layerSettings, QString qsText) :
-    QWidget(parent),
-    ui(new Ui::KhronosSettingsAdvanced)
+KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget* pMainTree, QTreeWidgetItem *parent,  QVector<TLayerSettings *>& layerSettings)
     {
-    (void)qsText; // ???? Sure about this?
-    ui->setupUi(this);
-    ui->labelHideMessage->setVisible(true);
+    pMainTreeWidget = pMainTree;
 
     // Find the enables
     pEnables = nullptr;
@@ -182,9 +177,6 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
         }
     Q_ASSERT(pDisables != nullptr);
 
-    QTreeWidgetItem *pHeader = ui->treeWidget->headerItem();
-    pHeader->setText(0, "Validation Settings");
-
     ///////////////////////////////////////////////////////////////
     /// \brief pCoreChecks
     /// If this is off, everyone below is disabled
@@ -192,15 +184,13 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     pCoreChecksParent = new QTreeWidgetItem();
     pCoreChecksParent->setText(0, "Core Validation Checks");
     pCoreChecksParent->setCheckState(0, (bCoreValidationDisabled) ? Qt::Unchecked : Qt::Checked);
-    ui->treeWidget->addTopLevelItem(pCoreChecksParent);
+    parent->addChild(pCoreChecksParent);
 
 
     QTreeWidgetItem *pChild;
     for(int i = 0; i < NUM_CORE_CHECKS; i++) {
         pChild = new QTreeWidgetItem();
         pChild->setText(0, coreChecks[i].prompt);
-        printf("%s\n%s\n", pDisables->settingsValue.toUtf8().constData(),
-               coreChecks[i].token.toUtf8().constData());
         if(pDisables->settingsValue.contains(coreChecks[i].token) ||  bCoreValidationDisabled)
             pChild->setCheckState(0, Qt::Unchecked);
         else
@@ -225,7 +215,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
         else
             pItem->setCheckState(0, Qt::Checked);
 
-        ui->treeWidget->addTopLevelItem(pItem);
+        parent->addChild(pItem);
         miscDisables[i].pItem = pItem;
         }
 
@@ -241,14 +231,14 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
         else
             pShaderBasedBox->setCheckState(0, Qt::Unchecked);
 
-    ui->treeWidget->addTopLevelItem(pShaderBasedBox);
+    parent->addChild(pShaderBasedBox);
 
     pGPUAssistBox = new QTreeWidgetItem();
     pGPUAssistBox->setText(0, "     GPU-Assisted");
     pShaderBasedBox->addChild(pGPUAssistBox);
 
     pGPURadio = new QRadioButton();
-    ui->treeWidget->setItemWidget(pGPUAssistBox, 0, pGPURadio);
+    pMainTreeWidget->setItemWidget(pGPUAssistBox, 0, pGPURadio);
 
     pReserveBox = new QTreeWidgetItem();
     pReserveBox->setText(0, "Reserve Descriptor Set Binding");
@@ -265,7 +255,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
     pShaderBasedBox->addChild(pDebugPrintfBox);
 
     pDebugRadio = new QRadioButton();
-    ui->treeWidget->setItemWidget(pDebugPrintfBox, 0, pDebugRadio);
+    pMainTreeWidget->setItemWidget(pDebugPrintfBox, 0, pDebugRadio);
     if(pEnables->settingsValue.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
         pDebugRadio->setChecked(true);
         pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
@@ -303,28 +293,20 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QWidget *parent,  QVector<TLaye
         }
 
     bestPractices[0].pItem = pItem;
-    ui->treeWidget->addTopLevelItem(pItem);
+    parent->addChild(pItem);
 
     pItem->addChild(pChild);
     bestPractices[1].pItem = pChild;
 
 
-    connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
-    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemClicked(QTreeWidgetItem*, int)));
+    connect(pMainTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
+    connect(pMainTreeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemClicked(QTreeWidgetItem*, int)));
     connect(pGPURadio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
     connect(pDebugRadio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
     }
 
 KhronosSettingsAdvanced::~KhronosSettingsAdvanced()
     {
-    delete ui;
-    }
-
-
-void KhronosSettingsAdvanced::SetEnabled(bool bEnabled)
-    {
-    ui->labelHideMessage->setVisible(!bEnabled);
-    ui->treeWidget->setVisible(bEnabled);
     }
 
 
@@ -343,7 +325,7 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *pItem, int nColumn)
     // Check for core validation checks
     if(pItem == pCoreChecksParent) {
         description = GetSettingDetails("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT", url);
-        ui->labelSettingInfo->setText(description);
+        //ui->labelSettingInfo->setText(description);
         return;
         }
 
@@ -351,7 +333,7 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *pItem, int nColumn)
         if(pItem == coreChecks[i].pItem) {
             description = GetSettingDetails(coreChecks[i].token, url);
             if(!description.isEmpty()) {
-                ui->labelSettingInfo->setText(description);
+                //ui->labelSettingInfo->setText(description);
                 return;
                 }
             }
@@ -362,7 +344,7 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *pItem, int nColumn)
         if(pItem == miscDisables[i].pItem) {
             description = GetSettingDetails(miscDisables[i].token, url);
             if(!description.isEmpty()) {
-                ui->labelSettingInfo->setText(description);
+                //ui->labelSettingInfo->setText(description);
                 return;
                 }
             }
@@ -373,7 +355,7 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *pItem, int nColumn)
         if(pItem == bestPractices[i].pItem) {
             description = GetSettingDetails(bestPractices[i].token, url);
             if(!description.isEmpty()) {
-                ui->labelSettingInfo->setText(description);
+                //ui->labelSettingInfo->setText(description);
                 return;
                 }
             }
@@ -383,25 +365,25 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *pItem, int nColumn)
     // GPU Stuff
     if(pItem == pGPUAssistBox) {
         description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT", url);
-        ui->labelSettingInfo->setText(description);
+        //ui->labelSettingInfo->setText(description);
         return;
         }
 
     if(pItem == pReserveBox) {
         description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT", url);
-        ui->labelSettingInfo->setText(description);
+        //ui->labelSettingInfo->setText(description);
         return;
         }
 
     if(pItem == pDebugPrintfBox) {
         description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT", url);
-        ui->labelSettingInfo->setText(description);
+        //ui->labelSettingInfo->setText(description);
         return;
         }
 
 
     // Not found?
-    ui->labelSettingInfo->setText(tr("Click on a setting for additional information."));
+    //ui->labelSettingInfo->setText(tr("Click on a setting for additional information."));
     }
 
 
@@ -417,10 +399,10 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
 
     // Anything toggled needs to be selected in order to work well with the
     // information display.
-    ui->treeWidget->setCurrentItem(pItem);
+    pMainTreeWidget->setCurrentItem(pItem);
 
     // Best Practices?
-    ui->treeWidget->blockSignals(true);
+    pMainTreeWidget->blockSignals(true);
     if(pItem == bestPractices[0].pItem)
         {
         // If we turned it on, we need to enable AMD
@@ -471,7 +453,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
     if(pItem == pDebugPrintfBox && pDebugRadio->isChecked())
         pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
 
-    ui->treeWidget->blockSignals(false);
+    pMainTreeWidget->blockSignals(false);
 
     // Check for performance issues. There are three different variations, and I think
     // we should alert the user to all three exactly/explicitly to what they are
@@ -515,7 +497,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
 //            return;
 //            }
         }
-
+    CollectSettings();
     }
 
 
@@ -523,6 +505,8 @@ void KhronosSettingsAdvanced::gpuToggled(bool toggle)
     {
     if(toggle)
        pReserveBox->setFlags(pReserveBox->flags() | Qt::ItemIsEnabled);
+
+    CollectSettings();
     }
 
 void KhronosSettingsAdvanced::printfToggled(bool toggle)
@@ -531,6 +515,8 @@ void KhronosSettingsAdvanced::printfToggled(bool toggle)
         pReserveBox->setFlags(pReserveBox->flags() & ~Qt::ItemIsEnabled);
         pReserveBox->setCheckState(0, Qt::Unchecked);
         }
+
+    CollectSettings();
     }
 
 ///////////////////////////////////////////////////////////////////////////

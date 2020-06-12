@@ -38,14 +38,12 @@ SOURCES += \
     enumsettingwidget.cpp \
     filenamesettingwidget.cpp \
     foldersettingwidget.cpp \
-    khronossettings.cpp \
     khronossettingsadvanced.cpp \
     layerfile.cpp \
     main.cpp \
     mainwindow.cpp \
     multienumsetting.cpp \
     profiledef.cpp \
-    settingseditor.cpp \
     settingstreemanager.cpp \
     stringsettingwidget.cpp \
     vulkanconfiguration.cpp
@@ -65,13 +63,11 @@ HEADERS += \
     enumsettingwidget.h \
     filenamesettingwidget.h \
     foldersettingwidget.h \
-    khronossettings.h \
     khronossettingsadvanced.h \
     layerfile.h \
     mainwindow.h \
     multienumsetting.h \
     profiledef.h \
-    settingseditor.h \
     settingstreemanager.h \
     stringsettingwidget.h \
     vulkanconfiguration.h
@@ -87,8 +83,6 @@ FORMS += \
     dlgprofileeditor.ui \
     dlgvulkananalysis.ui \
     dlgvulkaninfo.ui \
-    khronossettings.ui \
-    khronossettingsadvanced.ui \
     mainwindow.ui
 
 TRANSLATIONS += \

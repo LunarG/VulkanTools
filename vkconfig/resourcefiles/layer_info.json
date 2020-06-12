@@ -105,7 +105,7 @@
                 "name": "Log Filename",
                 "description": "Specifies the file to dump to when output files are enabled",
                 "type": "save_file",
-                "default": "vk_apidump.txt"
+                "default": "vk_apidump"
             },
             "flush": {
                 "name": "Log Flush After Write",

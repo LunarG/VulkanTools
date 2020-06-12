@@ -27,6 +27,7 @@
 #include <QComboBox>
 
 #include "profiledef.h"
+#include "khronossettingsadvanced.h"
 
 class CSettingsTreeManager : QObject
 {
@@ -50,6 +51,8 @@ protected:
     QComboBox *pKhronosPresets;
     CLayerFile *pKhronosLayer;
     QTreeWidgetItem *pKhronosTree;
+    QTreeWidgetItem *pKhronosFileItem;
+    KhronosSettingsAdvanced *pAdvancedKhronosEditor;
 
 public Q_SLOTS:
     void khronosPresetChanged(int nIndex); // Okay, is this a custom guy HERE, or do we move it out

@@ -25,6 +25,7 @@
 #include <QPushButton>
 #include <QRadioButton>
 
+#include "vulkanconfiguration.h"
 #include "settingstreemanager.h"
 #include "boolsettingwidget.h"
 #include "enumsettingwidget.h"
@@ -33,6 +34,16 @@
 #include "foldersettingwidget.h"
 #include "multienumsetting.h"
 
+
+///////////////////////////////////////////////////////
+// These correlate with CVulkanConfiguration::szCannedProfiles
+#define KHRONOS_PRESET_STANDARD         0
+#define KHRONOS_PRESET_BEST_PRACTICES   1
+#define KHRONOS_PRESET_GPU_ASSIST       2
+#define KHRONOS_PRESET_SHADER_PRINTF    3
+#define KHRONOS_PRESET_LOW_OVERHEAD     4
+#define KHRONOS_PRESET_USER_DEFINED     5
+
 CSettingsTreeManager::CSettingsTreeManager()
     {
     pEditorTree = nullptr;
@@ -40,6 +51,8 @@ CSettingsTreeManager::CSettingsTreeManager()
     pKhronosPresets = nullptr;
     pKhronosLayer = nullptr;
     pKhronosTree = nullptr;
+    pAdvancedKhronosEditor = nullptr;
+    pKhronosFileItem = nullptr;
     }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -99,15 +112,7 @@ void CSettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProf
     pBuildTree->resizeColumnToContents(0);
     }
 
-///////////////////////////////////////////////////////
-// These correlate with CVulkanConfiguration::szCannedProfiles
-#define KHRONOS_PRESET_STANDARD         0
-#define KHRONOS_PRESET_BEST_PRACTICES   1
-#define KHRONOS_PRESET_GPU_ASSIST       2
-#define KHRONOS_PRESET_SHADER_PRINTF    3
-#define KHRONOS_PRESET_LOW_OVERHEAD     4
-#define KHRONOS_PRESET_USER_DEFINED     5
-
+//////////////////////////////////////////////////////////////////////////
 void CSettingsTreeManager::BuildKhronosTree(void)
     {
     QTreeWidgetItem* pItem = new QTreeWidgetItem();
@@ -120,8 +125,13 @@ void CSettingsTreeManager::BuildKhronosTree(void)
     pKhronosPresets->addItem("Reduced-Overhead");
     pKhronosPresets->addItem("User Defined");
 
+    connect(pKhronosPresets, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     pKhronosTree->addChild(pItem);
     pEditorTree->setItemWidget(pItem, 1, pKhronosPresets);
+
+    // This just finds the enables and disables
+    pAdvancedKhronosEditor = new KhronosSettingsAdvanced(pEditorTree, pKhronosTree, pKhronosLayer->layerSettings);
+
 
     for(int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
         QTreeWidgetItem *pChild = new QTreeWidgetItem();
@@ -138,12 +148,13 @@ void CSettingsTreeManager::BuildKhronosTree(void)
             CFilenameSettingWidget* pWidget = new CFilenameSettingWidget(pChild, pKhronosLayer->layerSettings[iSetting]);
             pKhronosTree->addChild(pChild);
             pEditorTree->setItemWidget(pChild, 1, pWidget);
-            fileWidgets.push_back(pChild);
+            pKhronosFileItem = pChild;
             continue;
             }
 
-        // Multi-enum - This is a subtree
-        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_INCLUSIVE_LIST) {
+        // Multi-enum - report flags only
+        if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_INCLUSIVE_LIST &&
+                pKhronosLayer->layerSettings[iSetting]->settingsName == QString("report_flags")) {
             QTreeWidgetItem *pSubCategory = new QTreeWidgetItem;
             pSubCategory->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
             pSubCategory->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
@@ -159,12 +170,6 @@ void CSettingsTreeManager::BuildKhronosTree(void)
 
             continue;
             }
-
-
-        // TBD - just add description
-        pChild->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
-        pChild->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
-        pKhronosTree->addChild(pChild);
         }
 
     pKhronosTree->addChild(pItem);
@@ -227,7 +232,6 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             continue;
             }
 
-
         // Undefined... at least gracefuly display what the setting is
         pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
         pSettingItem->setToolTip(0, pLayer->layerSettings[iSetting]->settingsDesc);
@@ -236,9 +240,39 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
     }
 
 
+////////////////////////////////////////////////////////////////////////////////////
+/// The user has selected a preset for this layer
 void CSettingsTreeManager::khronosPresetChanged(int nIndex)
     {
+    // We really just don't care
+    if(nIndex >= KHRONOS_PRESET_USER_DEFINED)
+        return;
 
+    // The easiest way to do this is to create a new profile, and copy the layer over
+    QString preDefined = ":/resourcefiles/";
+    preDefined += CVulkanConfiguration::szCannedProfiles[nIndex];
+    preDefined += ".json";
+    CProfileDef *pPatternProfile = CVulkanConfiguration::getVulkanConfig()->LoadProfile(preDefined);
+    if(pPatternProfile == nullptr)
+        return;
+
+    // Copy it all into the real layer and delete it
+    delete pProfile->layers[0];             // This is the Khronos layer we are deleting
+    pProfile->layers[0] = new CLayerFile;   // Allocate a new one
+    pKhronosLayer = pProfile->layers[0];    // Update Khronos pointer
+    pPatternProfile->layers[0]->CopyLayer(pKhronosLayer);   // Copy pattern into the new layer
+    delete pPatternProfile;                                 // Delete the pattern
+
+    // Now we need to reload the Khronos tree item.
+    pEditorTree->blockSignals(true);
+    pEditorTree->setItemWidget(pKhronosFileItem, 1, nullptr);
+    delete pAdvancedKhronosEditor;
+    int nChildren = pKhronosTree->childCount();
+    for(int i = 0; i < nChildren; i++)
+        pKhronosTree->takeChild(0);
+
+    BuildKhronosTree();
+    pEditorTree->blockSignals(false);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -246,6 +280,14 @@ void CSettingsTreeManager::CleanupGUI(void)
     {
     if(pEditorTree == nullptr)
         return;
+
+    if(pKhronosFileItem)
+        pEditorTree->setItemWidget(pKhronosFileItem, 1, nullptr);
+
+    pKhronosFileItem = nullptr;
+
+    if(pAdvancedKhronosEditor)
+        delete pAdvancedKhronosEditor;
 
     for(int i = 0; i < fileWidgets.size(); i++)
         pEditorTree->setItemWidget(fileWidgets[i], 1, nullptr);
@@ -257,4 +299,5 @@ void CSettingsTreeManager::CleanupGUI(void)
     pKhronosPresets = nullptr;
     pKhronosLayer = nullptr;
     pKhronosTree = nullptr;
+    pAdvancedKhronosEditor = nullptr;
     }

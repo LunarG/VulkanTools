@@ -19,33 +19,27 @@
  *
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  *
- * Khronos layer advanced settings dialog.
+ * Khronos layer advanced settings tree.
  *
  */
 
-#include <QWidget>
+#include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QRadioButton>
-
 #include <layerfile.h>
 
-namespace Ui {
-class KhronosSettingsAdvanced;
-}
-
-class KhronosSettingsAdvanced : public QWidget
+class KhronosSettingsAdvanced : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit KhronosSettingsAdvanced(QWidget *parent,  QVector<TLayerSettings *>& layerSettings, QString qsText);
+    explicit KhronosSettingsAdvanced(QTreeWidget* pMainTree, QTreeWidgetItem *parent,  QVector<TLayerSettings *>& layerSettings);
     ~KhronosSettingsAdvanced();
 
     bool CollectSettings(void);
-    void SetEnabled(bool bEnabled);
 
 private:
-    Ui::KhronosSettingsAdvanced *ui;
+    QTreeWidget     *pMainTreeWidget;
     QTreeWidgetItem *pCoreChecksParent;
 
     TLayerSettings *pDisables;
