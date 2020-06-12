@@ -475,29 +475,7 @@ class ApiDumpSettings {
 
         vkuSetLayerSettingCompatibilityNamespace(layerSettingSet, GetDefaultPrefix());
 
-        // If the layer settings file has a flag indicating to output to a file,
-        // do so, to the appropriate filename.
-        std::string filename_string = "";
-        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFile)) {
-            bool file = false;
-            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
-
-            if (file) {
-                if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyLogFilename)) {
-                    vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyLogFilename, filename_string);
-                    if (filename_string.empty()) {
-                        filename_string = "vk_apidump.txt";
-                    }
-                }
-            }
-        }
-
-        // If one of the above has set a filename, open the file as an output stream.
-        if (!filename_string.empty()) {
-            output_file_stream.open(filename_string, std::ofstream::out | std::ostream::trunc);
-            output_stream.rdbuf(output_file_stream.rdbuf());
-        }
-
+        // Read the format type first as it may be used in the output file extension
         output_format = ApiDumpFormat::Text;
         if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyOutputFormat)) {
             std::string value;
@@ -510,6 +488,54 @@ class ApiDumpSettings {
             } else {
                 output_format = ApiDumpFormat::Text;
             }
+        }
+
+        // If the layer settings file has a flag indicating to output to a file,
+        // do so, to the appropriate default filename.
+        std::string filename_string = "";
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFile)) {
+            bool file = false;
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
+
+            if (output_format == ApiDumpFormat::Html) {
+                filename_string = "vk_apidump.html";
+            } else if (output_format == ApiDumpFormat::Json) {
+                filename_string = "vk_apidump.json";
+            } else {
+                filename_string = "vk_apidump.txt";
+            }
+        }
+
+        // Check if there is a specific filename that should be used
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyLogFilename)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyLogFilename, filename_string);
+        }
+
+        // Append file extension if one doesn't exist or is the wrong extension. Make sure the found extension is at the end
+        if (!filename_string.empty()) {
+            size_t txt_pos = filename_string.find(".txt", filename_string.size() - 4);
+            size_t html_pos = filename_string.find(".html", filename_string.size() - 5);
+            size_t json_pos = filename_string.find(".json", filename_string.size() - 5);
+
+            if (output_format == ApiDumpFormat::Html) {
+                if (json_pos != std::string::npos) filename_string.erase(json_pos);
+                if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
+                if (html_pos == std::string::npos) filename_string.append(".html");
+            } else if (output_format == ApiDumpFormat::Json) {
+                if (html_pos != std::string::npos) filename_string.erase(html_pos);
+                if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
+                if (json_pos == std::string::npos) filename_string.append(".json");
+            } else {
+                if (html_pos != std::string::npos) filename_string.erase(html_pos);
+                if (json_pos != std::string::npos) filename_string.erase(json_pos);
+                if (txt_pos == std::string::npos) filename_string.append(".txt");
+            }
+        }
+
+        // If one of the above has set a filename, open the file as an output stream.
+        if (!filename_string.empty()) {
+            output_file_stream.open(filename_string, std::ofstream::out | std::ostream::trunc);
+            output_stream.rdbuf(output_file_stream.rdbuf());
         }
 
         show_params = true;
