@@ -25,7 +25,8 @@
         "-DBUILD_TESTS=OFF"
       ],
       "build_platforms" : [
-        "linux"
+        "linux",
+        "darwin"
       ]
     },
     {
