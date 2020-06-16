@@ -65,8 +65,8 @@ const char* CVulkanConfiguration::szCannedProfiles[9] = {
     "Validation - Reduced-Overhead",
     "API dump",
     "Frame Capture - First two frames",
-    "Frame Capture - Range F12 to start and to stop",
-    "Frame Capture - Single frame triggered with F12",
+    "Frame Capture - Range F10 to start and to stop",
+    "Frame Capture - Single frame triggered with F10",
     };
 
 
@@ -183,12 +183,12 @@ CVulkanConfiguration::CVulkanConfiguration()
 
 CVulkanConfiguration::~CVulkanConfiguration()
     {
-    clearLayerLists();
+    ClearLayerLists();
     qDeleteAll(profileList.begin(), profileList.end());
     profileList.clear();
     }
 
-void CVulkanConfiguration::clearLayerLists(void)
+void CVulkanConfiguration::ClearLayerLists(void)
     {
     qDeleteAll(allLayers.begin(), allLayers.end());
     allLayers.clear();
@@ -438,12 +438,55 @@ void CVulkanConfiguration::SaveAdditionalSearchPaths(void)
     }
 
 
+/////////////////////////////////////////////////////////////////////////////
+// Search for vkcube and add it to the app list.
+void CVulkanConfiguration::FindVkCube(void)
+    {
+    // This should only be called on first run, but make sure it's not already there.
+    if(appList.size() != 0)
+        for(int i = 0; i < appList.size(); i++)
+            if(appList[i]->qsAppNameWithPath.contains("vkcube"))
+                return;
+
+    // One of these must be true, or we just aren't going to compile!
+#ifdef _WIN32
+    QString appName("vkcube.exe");
+#endif
+
+#ifdef __APPLE__
+    QString appName("vkcube.app");
+#endif
+
+#ifdef __linux__
+    QString appName("vkcube");
+#endif
+
+    QString searchPath = "./" + appName;
+    QFileInfo local(searchPath);
+    if(!local.exists()) {
+        searchPath = "../bin/" + appName;
+        QFileInfo local2(searchPath);
+        if(!local2.exists())
+            return;
+        local = local2;
+        }
+
+    TAppListEntry *appEntry = new TAppListEntry;
+    appEntry->qsWorkingFolder = local.absolutePath();
+    appEntry->qsAppNameWithPath = local.absoluteFilePath();
+    appEntry->bExcludeFromGlobalList = false;
+    appList.push_back(appEntry);
+    }
+
+
 ///////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadAppList
 /// Load the custom application list. This is maintained as a json database
 /// file.
 void CVulkanConfiguration::LoadAppList(void)
     {
+    /////////////////////////////////////////////////////////////
+    // Now, use the list
     QString appListJson = qsProfileFilesPath + "/applist.json";
     QFile file(appListJson);
     file.open(QFile::ReadOnly);
@@ -452,33 +495,37 @@ void CVulkanConfiguration::LoadAppList(void)
 
     QJsonDocument       jsonAppList;
     jsonAppList = QJsonDocument::fromJson(data.toLocal8Bit());
-    if (!jsonAppList.isObject())
-        return;
+    if (jsonAppList.isObject())
+        if(!jsonAppList.isEmpty()) {
+            // Get the list of apps
+            QStringList appKeys;
+            QJsonObject jsonDocObject = jsonAppList.object();
+            appKeys = jsonDocObject.keys();
 
-    if(jsonAppList.isEmpty())
-        return;
+            // Get them...
+            for(int i = 0; i < appKeys.length(); i++) {
+                QJsonValue appValue = jsonDocObject.value(appKeys[i]);
+                QJsonObject appObject = appValue.toObject();
 
-    // Get the list of apps
-    QStringList appKeys;
-    QJsonObject jsonDocObject = jsonAppList.object();
-    appKeys = jsonDocObject.keys();
+                TAppListEntry *appEntry = new TAppListEntry;
+                appEntry->qsWorkingFolder = appObject.value("app_folder").toString();
+                appEntry->qsAppNameWithPath = appObject.value("app_path").toString();
+                appEntry->bExcludeFromGlobalList = appObject.value("exclude_override").toBool();
 
-    // Get them...
-    for(int i = 0; i < appKeys.length(); i++) {
-        QJsonValue appValue = jsonDocObject.value(appKeys[i]);
-        QJsonObject appObject = appValue.toObject();
+                // Arguments are in an array to make room for adding more in a future version
+                QJsonArray args = appObject.value("command_lines").toArray();
+                appEntry->qsArguments = args[0].toString();
 
-        TAppListEntry *appEntry = new TAppListEntry;
-        appEntry->qsWorkingFolder = appObject.value("app_folder").toString();
-        appEntry->qsAppNameWithPath = appObject.value("app_path").toString();
-        appEntry->bExcludeFromGlobalList = appObject.value("exclude_override").toBool();
-
-        // Arguments are in an array to make room for adding more in a future version
-        QJsonArray args = appObject.value("command_lines").toArray();
-        appEntry->qsArguments = args[0].toString();
-
-        appList.push_back(appEntry);
+                appList.push_back(appEntry);
+                }
         }
+
+    //////////////////////////////////////////////
+    // On first run, search for vkcube. Do this after this list
+    // is loaded in case it's already there.
+    QSettings settings;
+    if(settings.value(VKCONFIG_KEY_FIRST_RUN, true).toBool())
+        FindVkCube();
     }
 
 
@@ -519,7 +566,7 @@ void CVulkanConfiguration::FindAllInstalledLayers(void)
     {
     // This is called initially, but also when custom search paths are set, so
     // we need to clear out the old data and just do a clean refresh
-    clearLayerLists();
+    ClearLayerLists();
 
     // Standard layer paths
     for(uint32_t i = 0; i < nSearchPaths; i++) {
@@ -633,7 +680,7 @@ void CVulkanConfiguration::LoadAllProfiles(void)
     // If this is the first time, we need to create the initial set of
     // configuration files.
     QSettings settings;
-    bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, 1).toBool();
+    bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, true).toBool();
     if(bFirstRun) {
         for(int i = 0; i < nNumCannedProfiles; i+=1) {
                 // Search the list of loaded profiles
@@ -799,6 +846,13 @@ CProfileDef* CVulkanConfiguration::LoadProfile(QString pathToProfile)
     QJsonArray blackListArray = blackListValue.toArray();
     for(int i = 0; i < blackListArray.size(); i++)
         pProfile->blacklistedLayers << blackListArray[i].toString();
+
+    QJsonValue presetIndex = profileEntryObject.value("preset");
+    pProfile->nPresetIndex = presetIndex.toInt();
+
+    QJsonValue editorState = profileEntryObject.value("editor_state");
+    pProfile->settingTreeState = editorState.toVariant().toByteArray();
+
 
     QJsonValue description = profileEntryObject.value("description");
     pProfile->qsDescription = description.toString();
@@ -978,6 +1032,8 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile)
     QJsonObject json_profile;
     json_profile.insert("blacklisted_layers", blackList);
     json_profile.insert("description", pProfile->qsDescription);
+    json_profile.insert("preset", pProfile->nPresetIndex);
+    json_profile.insert("editor_state", pProfile->settingTreeState.data());
     json_profile.insert("layer_options", layerList);
     root.insert(pProfile->qsProfileName, json_profile);
     QJsonDocument doc(root);

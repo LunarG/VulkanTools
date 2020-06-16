@@ -1,5 +1,6 @@
 {
     "Validation - Standard": {
+    "preset" : 1,
     "description" : "This configuration is a good default validation setting and should serve most needs most of the time.",
             "blacklisted_layers": [],
             "layer_options": {

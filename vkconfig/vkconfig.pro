@@ -30,7 +30,6 @@ SOURCES += \
     dlgcreateassociation.cpp \
     dlgcustompaths.cpp \
     dlghelp.cpp \
-    dlghistory.cpp \
     dlglayeroutput.cpp \
     dlgprofileeditor.cpp \
     dlgvulkananalysis.cpp \
@@ -55,7 +54,6 @@ HEADERS += \
     dlgcreateassociation.h \
     dlgcustompaths.h \
     dlghelp.h \
-    dlghistory.h \
     dlglayeroutput.h \
     dlgprofileeditor.h \
     dlgvulkananalysis.h \

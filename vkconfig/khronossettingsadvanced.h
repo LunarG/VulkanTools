@@ -53,11 +53,14 @@ private:
     QRadioButton    *pDebugRadio;
 
 public Q_SLOTS:
-
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);
     void itemClicked(QTreeWidgetItem *pItem, int nColumn);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
+
+Q_SIGNALS:
+    void settingChanged(void);
+
 
 };
 

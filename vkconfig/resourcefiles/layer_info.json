@@ -218,7 +218,7 @@
                 "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
                 "type": "enum",
                 "options": {
-                    "": "NONE",
+                    "NONE": "None",
                     "F1": "F1",
                     "F2": "F2",
                     "F3": "F3",

@@ -32,6 +32,7 @@
 
 CProfileDef::CProfileDef()
     {
+    nPresetIndex = 0;
     }
 
 CProfileDef::~CProfileDef()
@@ -82,6 +83,7 @@ CProfileDef* CProfileDef::DuplicateProfile(void)
     pDuplicate->qsFileName = qsFileName;
     pDuplicate->qsDescription = qsDescription;
     pDuplicate->blacklistedLayers = blacklistedLayers;
+    pDuplicate->nPresetIndex = nPresetIndex;
     // Do not copy ->bFixedProfile
 
     for(int i = 0; i < layers.size(); i++) {

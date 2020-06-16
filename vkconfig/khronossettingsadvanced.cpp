@@ -322,6 +322,8 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *pItem, int nColumn)
     QString description;
     QString url;
 
+    emit settingChanged();
+
     // Check for core validation checks
     if(pItem == pCoreChecksParent) {
         description = GetSettingDetails("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT", url);
@@ -396,6 +398,8 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn)
     {
     if(nColumn != 0)
         return;
+
+    emit settingChanged();
 
     // Anything toggled needs to be selected in order to work well with the
     // information display.
@@ -507,6 +511,7 @@ void KhronosSettingsAdvanced::gpuToggled(bool toggle)
        pReserveBox->setFlags(pReserveBox->flags() | Qt::ItemIsEnabled);
 
     CollectSettings();
+    emit settingChanged();
     }
 
 void KhronosSettingsAdvanced::printfToggled(bool toggle)
@@ -517,6 +522,7 @@ void KhronosSettingsAdvanced::printfToggled(bool toggle)
         }
 
     CollectSettings();
+    emit settingChanged();
     }
 
 ///////////////////////////////////////////////////////////////////////////

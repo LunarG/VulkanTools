@@ -39,6 +39,8 @@ public:
                                                 // This is the same as the filename, but with the .json stripped off.
     QString         qsFileName;                 // Root file name without path (by convention, no spaces and .profile suffix)
     QString         qsDescription;              // A friendly description of what this profile does
+    QByteArray      settingTreeState;           // Recall editor tree state
+    int             nPresetIndex;               // Khronos layer presets. 0 = none or user defined
 
     // A profile is nothing but a list of layers and their settings in truth
     QVector<CLayerFile *>layers;

@@ -105,9 +105,6 @@ private:
     void EditClicked(CProfileListItem *pItem);
 
 public Q_SLOTS:
-    void fileExit(bool bChecked);
-    void fileHistory(bool bChecked);
-
     void aboutVkConfig(bool bChecked);
     void toolsVulkanInfo(bool bChecked);
     void toolsVulkanInstallation(bool bChecked);

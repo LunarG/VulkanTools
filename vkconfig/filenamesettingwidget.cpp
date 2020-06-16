@@ -63,6 +63,7 @@ void CFilenameSettingWidget::browseButtonClicked(void)
         ".");
 
     if(!file.isEmpty()) {
+        file = QDir::toNativeSeparators(file);
         pSetting->settingsValue = file;
         pLineEdit->setText(file);
         }

@@ -208,8 +208,8 @@ protected:
     CProfileDef*                    pActiveProfile;
 
     bool                            bFirstRun;  // This is used for populating the initial set of profiles/configurations
-    void clearLayerLists(void);
-
+    void ClearLayerLists(void);
+    void FindVkCube(void);
 
 #ifdef WIN32
     void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type);

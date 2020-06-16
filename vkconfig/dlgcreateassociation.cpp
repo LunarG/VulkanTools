@@ -108,7 +108,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
 
     // Go get it.
     QString appWithPath =  QFileDialog::getOpenFileName(this,
-        tr("Select executable to pair with "), "/", fileWildcard);
+        tr("Select a Vulkan Executable"), "/", fileWildcard);
 
     // If they have selected something!
     if(!appWithPath.isEmpty()) {
@@ -119,9 +119,10 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
             GetExecutableFromAppBundle(appWithPath);
             }
 
+        appWithPath = QDir::toNativeSeparators(appWithPath);
         TAppListEntry *pNewApp = new TAppListEntry;
         pNewApp->qsAppNameWithPath = appWithPath;
-        pNewApp->qsWorkingFolder = QFileInfo(appWithPath).path();
+        pNewApp->qsWorkingFolder = QDir::toNativeSeparators(QFileInfo(appWithPath).path());
         pNewApp->bExcludeFromGlobalList = false;
         pVulkanConfig->appList.push_back(pNewApp);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
@@ -131,6 +132,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
         ui->treeWidget->setItemWidget(pItem, 1, pCheck);
         pVulkanConfig->SaveAppList();
         pVulkanConfig->RefreshProfile();
+        ui->treeWidget->setCurrentItem(pItem);
         connect(pCheck, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
         }
     }

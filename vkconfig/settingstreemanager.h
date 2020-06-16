@@ -28,6 +28,13 @@
 
 #include "profiledef.h"
 #include "khronossettingsadvanced.h"
+#include "filenamesettingwidget.h"
+#include "boolsettingwidget.h"
+#include "enumsettingwidget.h"
+#include "stringsettingwidget.h"
+#include "foldersettingwidget.h"
+#include "multienumsetting.h"
+
 
 class CSettingsTreeManager : QObject
 {
@@ -37,6 +44,9 @@ public:
 
     void CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProfileDef);
     void CleanupGUI(void);
+
+    void GetTreeState(QByteArray &byteArray, QTreeWidgetItem *pTopItem);
+    int SetTreeState(QByteArray &byteArray, int nIndex, QTreeWidgetItem *pTopItem);
 
 protected:
     QTreeWidget *pEditorTree;
@@ -52,12 +62,21 @@ protected:
     CLayerFile *pKhronosLayer;
     QTreeWidgetItem *pKhronosTree;
     QTreeWidgetItem *pKhronosFileItem;
+    QTreeWidgetItem *pKhronosPresetItem;
+    QTreeWidgetItem *pKhronosLogFileItem;
+    CFilenameSettingWidget* pKhronosLogFileWidget;
+    CEnumSettingWidget *pKhronosDebugAction;
     KhronosSettingsAdvanced *pAdvancedKhronosEditor;
 
 public Q_SLOTS:
+//    void itemCollapsed(QTreeWidgetItem *);
+//    void itemExpanded(QTreeWidgetItem *);
+
+    void khronosDebugChanged(int nIndex);
     void khronosPresetChanged(int nIndex); // Okay, is this a custom guy HERE, or do we move it out
                                            // It really forces a reload of the entire branch of this tree
                                            // Reset layer defaults for the profile, and then call BuildKhronosTree again
+    void khronosPresetEdited(void);         // The user has changed something from a preset, and we are now a custom setting
 };
 
 #endif // CSETTINGSTREEMANAGER_H

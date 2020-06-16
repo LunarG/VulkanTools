@@ -27,6 +27,7 @@
 #include <QContextMenuEvent>
 #include <QFileDialog>
 #include <QLineEdit>
+#include <QDesktopServices>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -39,7 +40,6 @@
 #include "dlgvulkaninfo.h"
 #include "dlgprofileeditor.h"
 #include "dlgcreateassociation.h"
-#include "dlghistory.h"
 #include "dlgcustompaths.h"
 #include "profiledef.h"
 
@@ -81,8 +81,6 @@ MainWindow::MainWindow(QWidget *parent)
     LoadProfileList();
     SetupLaunchTree();
 
-    connect(ui->actionExit, SIGNAL(triggered(bool)), this, SLOT(fileExit(bool)));
-    connect(ui->actionHistory, SIGNAL(triggered(bool)), this, SLOT(fileHistory(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(aboutVkConfig(bool)));
     connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
     connect(ui->actionHelp, SIGNAL(triggered(bool)), this, SLOT(helpShowHelp(bool)));
@@ -126,11 +124,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->checkBoxApplyList->setChecked(pVulkanConfig->bApplyOnlyToList);
     ui->checkBoxPersistent->setChecked(pVulkanConfig->bKeepActiveOnExit);
 
-//    if(pVulkanConfig->qsLogFileWPath.isEmpty())
-//        ui->labelLogFile->setText(tr("Log file not set."));
-//    else
-//        ui->labelLogFile->setText(pVulkanConfig->qsLogFileWPath);
-
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
     }
 
 MainWindow::~MainWindow()
@@ -144,6 +139,9 @@ MainWindow::~MainWindow()
 // Load or refresh the list of profiles
 void MainWindow::LoadProfileList(void)
     {
+    // There are lots of ways into this, and in none of them
+    // can we have an active editor running.
+    settingsTreeManager.CleanupGUI();
     ui->profileTree->blockSignals(true);    // No signals firing off while we do this
     ui->profileTree->clear();
 
@@ -270,7 +268,7 @@ void MainWindow::toolsResetDefaultProfiles(bool bChecked)
         return;
 
     QSettings settings;
-    settings.setValue(VKCONFIG_KEY_FIRST_RUN, 1);
+    settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
 
     // Now we need to kind of restart everything
     pVulkanConfig->LoadAllProfiles();
@@ -336,11 +334,6 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol)
 /// for the radio button, and one to change the editor/information at lower right.
 void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
     {
-    // If we have made edits to the last profile, we need to save them
-    CProfileListItem *pLastItem = dynamic_cast<CProfileListItem *>(pPrevious);
-    if(pLastItem)
-        pVulkanConfig->SaveProfile(pLastItem->pProfilePointer);
-
     // This pointer will only be valid if it's one of the elements with
     // the radio button
     CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pCurrent);
@@ -424,22 +417,6 @@ void MainWindow::toolsVulkanAPIDump(bool bChecked)
     }
 
 
-//////////////////////////////////////////////////////////////
-void MainWindow::fileExit(bool bChecked)
-    {
-    (void)bChecked;
-
-//    int nRow = ui->listWidgetProfiles->currentRow();
-//    if(nRow != -1) {
-//        CProfileListItem *pSelectedItem = dynamic_cast<CProfileListItem *>(ui->listWidgetProfiles->item(nRow));
-
-//        // Make sure we capture any changes.
-//        if(settingsEditor.CollectSettings())
-//            pVulkanConfig->SaveProfile(pSelectedItem->pProfilePointer);
-//        }
-
-    close();
-    }
 
 ////////////////////////////////////////////////////////////////
 /// \brief MainWindow::helpShowHelp
@@ -467,7 +444,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     pVulkanConfig->SaveAppList();
     pVulkanConfig->SaveAppSettings();
 
-    event->accept();
+    QSettings settings;
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+    QMainWindow::closeEvent(event);
     }
 
 ////////////////////////////////////////////////////////////////
@@ -488,14 +468,6 @@ void MainWindow::showEvent(QShowEvent *event)
 
     event->accept();
     }
-
-void MainWindow::fileHistory(bool bChecked)
-    {
-    (void)bChecked;
-    dlgHistory dlg(this);
-    dlg.exec();
-    }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonAppList_clicked
@@ -519,6 +491,7 @@ void MainWindow::on_pushButtonEditProfile_clicked()
         return;
 
     // Save current state before we go in
+    settingsTreeManager.CleanupGUI();
 
     dlgProfileEditor dlg(this, pItem->pProfilePointer);
     dlg.exec();
@@ -527,9 +500,6 @@ void MainWindow::on_pushButtonEditProfile_clicked()
     QString editedProfileName = pItem->pProfilePointer->qsProfileName;
     pVulkanConfig->LoadAllProfiles();
     LoadProfileList();
-
-    // Reload the tree editor
-    settingsTreeManager.CleanupGUI();
 
     // Reset the current item
     for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
@@ -859,6 +829,8 @@ void MainWindow::launchSetLogFile(void)
         tr("Set Log File To..."),
         ".", tr("Log text(*.txt)"));
 
+    pVulkanConfig->qsLogFileWPath = QDir::toNativeSeparators(pVulkanConfig->qsLogFileWPath);
+
     if(pVulkanConfig->qsLogFileWPath.isEmpty())
         pLaunchLogFile->setText("");
     else
@@ -914,11 +886,12 @@ void MainWindow::on_pushButtonClearLog_clicked(void)
 // Open an existing log file and display it's contents
 void MainWindow::on_pushButtonOpenLog_clicked(void)
     {
-    QFile file(pVulkanConfig->qsLogFileWPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString string = file.readAll();
-    file.close();
-    ui->logBrowser->setPlainText(string);
+    QDesktopServices::openUrl(pVulkanConfig->qsLogFileWPath);
+//    QFile file(pVulkanConfig->qsLogFileWPath);
+//    file.open(QIODevice::ReadOnly | QIODevice::Text);
+//    QString string = file.readAll();
+//    file.close();
+//    ui->logBrowser->setPlainText(string);
     }
 
 //////////////////////////////////////////////////////////////////////
@@ -978,8 +951,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                 // put the hammer away....
                 // New Profile...
                 if(pAction == pNewAction) {
-                    NewClicked();
                     settingsTreeManager.CleanupGUI();
+                    NewClicked();
                     ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
@@ -994,8 +967,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
 
                 // Remove this profile....
                 if(pAction == pRemoveAction) {
-                    RemoveClicked(pItem);
                     settingsTreeManager.CleanupGUI();
+                    RemoveClicked(pItem);
                     ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
@@ -1008,18 +981,18 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                     return true;
                     }
 
-                // Export his profile (copy the .json)
+                // Export this profile (copy the .json)
                 if(pAction == pExportAction) {
-                    ExportClicked(pItem);
                     settingsTreeManager.CleanupGUI();
+                    ExportClicked(pItem);
                     ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
 
                 // Import a profile (copy a json)
                 if(pAction == pImportAction) {
-                    ImportClicked(pItem);
                     settingsTreeManager.CleanupGUI();
+                    ImportClicked(pItem);
                     ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                     }
