@@ -27,7 +27,7 @@ else()
 
     if(APPLE)
         add_definitions(-DVIA_MACOS_TARGET)
-    else()
+    elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
         if (BUILD_WSI_XCB_SUPPORT)
             find_package(XCB REQUIRED)
 
@@ -47,17 +47,13 @@ else()
             link_libraries(${WAYLAND_CLIENT_LIBRARIES})
         endif()
         add_definitions(-DVIA_LINUX_TARGET)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "BSD")
+	    add_definitions(-DVIA_BSD_TARGET)
     endif()
 
     # Disable the RPATH for VIA because we want it to use
     # the environment setup by the user
     SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
-
-    if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    	add_definitions(-DVIA_LINUX_TARGET)
-    else()
-	add_definitions(-DVIA_BSD_TARGET)
-    endif()
 endif()
 
 if(WIN32)

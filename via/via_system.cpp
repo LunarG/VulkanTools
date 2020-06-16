@@ -2043,10 +2043,12 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
                 path += "/bin";
             }
 #elif VIA_MACOS_TARGET
+            cube_exe = "./" + cube_exe;
             if (!_is_system_installed_sdk) {
-                cube_exe = "./" + cube_exe;
                 path = _sdk_path;
                 path += "/../Applications/vkcube.app/Contents/MacOS";
+            } else {
+                path = "/Applications/vkcube.app/Contents/MacOS";
             }
 #endif
 
