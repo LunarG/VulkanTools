@@ -338,7 +338,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Configuration Layer Settings</string>
+         <string>Configuration Settings</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
          <property name="topMargin">

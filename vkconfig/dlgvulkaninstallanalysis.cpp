@@ -8,16 +8,19 @@ dlgVulkanInstallAnalysis::dlgVulkanInstallAnalysis(QObject *parent)
 QVariant dlgVulkanInstallAnalysis::headerData(int section, Qt::Orientation orientation, int role) const
 {
     // FIXME: Implement me!
+    return QVariant();
 }
 
 QModelIndex dlgVulkanInstallAnalysis::index(int row, int column, const QModelIndex &parent) const
 {
     // FIXME: Implement me!
+    return QModelIndex();
 }
 
 QModelIndex dlgVulkanInstallAnalysis::parent(const QModelIndex &index) const
 {
     // FIXME: Implement me!
+    return QModelIndex();
 }
 
 int dlgVulkanInstallAnalysis::rowCount(const QModelIndex &parent) const
@@ -26,6 +29,7 @@ int dlgVulkanInstallAnalysis::rowCount(const QModelIndex &parent) const
         return 0;
 
     // FIXME: Implement me!
+    return 0;
 }
 
 int dlgVulkanInstallAnalysis::columnCount(const QModelIndex &parent) const
@@ -34,6 +38,7 @@ int dlgVulkanInstallAnalysis::columnCount(const QModelIndex &parent) const
         return 0;
 
     // FIXME: Implement me!
+    return 0;
 }
 
 QVariant dlgVulkanInstallAnalysis::data(const QModelIndex &index, int role) const

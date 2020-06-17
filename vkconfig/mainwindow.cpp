@@ -342,7 +342,7 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *
 
     settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfileItem->pProfilePointer);
     QString title = pProfileItem->pProfilePointer->qsProfileName;
-    title += " - Layer Settings";
+    title += " Settings";
     ui->groupBoxEditor->setTitle(title);
     ui->layerSettingsTree->resizeColumnToContents(0);
     }

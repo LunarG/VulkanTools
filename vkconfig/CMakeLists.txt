@@ -55,7 +55,7 @@ else()
         endif()
 
         if(WIN32)
-            add_executable(vkconfig WIN32 ${LAYERMGR_SRCS})
+            add_executable(vkconfig WIN32 ${LAYERMGR_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/resourcefiles/vkconfig.rc)
             target_link_libraries(vkconfig Cfgmgr32)
         else()
             add_executable(vkconfig ${LAYERMGR_SRCS})
