@@ -208,14 +208,14 @@ void CVulkanConfiguration::LoadDeviceRegistry(DEVINST id, const QString& entry, 
         return;
 
     DWORD path_size;
-    if (RegQueryValueEx(key, (LPCWSTR)entry.utf16(), nullptr, nullptr, nullptr, &path_size) != ERROR_SUCCESS) {
+    if (RegQueryValueExW(key, (LPCWSTR)entry.utf16(), nullptr, nullptr, nullptr, &path_size) != ERROR_SUCCESS) {
         RegCloseKey(key);
         return;
         }
 
     DWORD data_type;
     wchar_t *path = new wchar_t[path_size];
-    if (RegQueryValueEx(key, (LPCWSTR)entry.utf16(), nullptr, &data_type, (LPBYTE)path, &path_size) != ERROR_SUCCESS) {
+    if (RegQueryValueExW(key, (LPCWSTR)entry.utf16(), nullptr, &data_type, (LPBYTE)path, &path_size) != ERROR_SUCCESS) {
         delete[] path;
         RegCloseKey(key);
         return;
@@ -265,12 +265,12 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
     ULONG device_names_size;
     wchar_t *device_names = nullptr;
     do {
-        CM_Get_Device_ID_List_Size(&device_names_size, (LPCWSTR)DISPLAY_GUID.utf16(), FLAGS);
+        CM_Get_Device_ID_List_SizeW(&device_names_size, (LPCWSTR)DISPLAY_GUID.utf16(), FLAGS);
         if (device_names != nullptr) {
             delete[] device_names;
         }
         device_names = new wchar_t[device_names_size];
-    }  while (CM_Get_Device_ID_List((LPCWSTR)DISPLAY_GUID.utf16(), device_names, device_names_size, FLAGS) == CR_BUFFER_SMALL);
+    }  while (CM_Get_Device_ID_ListW((LPCWSTR)DISPLAY_GUID.utf16(), device_names, device_names_size, FLAGS) == CR_BUFFER_SMALL);
 
     if (device_names != nullptr) {
         QString entry;
@@ -285,7 +285,7 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
 
         for (wchar_t *device_name = device_names; device_name[0] != '\0'; device_name += wcslen(device_name) + 1) {
             DEVINST device_id;
-            if (CM_Locate_DevNode(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL) != CR_SUCCESS) {
+            if (CM_Locate_DevNodeW(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL) != CR_SUCCESS) {
                 continue;
             }
             LoadDeviceRegistry(device_id, entry, layerList, type);
@@ -296,7 +296,7 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
             }
             do {
                 wchar_t child_buffer[MAX_DEVICE_ID_LEN];
-                CM_Get_Device_ID(child_id, child_buffer, MAX_DEVICE_ID_LEN, 0);
+                CM_Get_Device_IDW(child_id, child_buffer, MAX_DEVICE_ID_LEN, 0);
 
                 wchar_t child_guid[MAX_GUID_STRING_LEN + 2];
                 ULONG child_guid_size = sizeof(child_guid);
@@ -336,7 +336,7 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
     DWORD value_count;
     DWORD value = 0;
     RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueEx(key, (LPCWSTR)qsJSONFile.utf16(), 0, REG_DWORD, (BYTE*) &value, sizeof(value));
+    RegSetValueExW(key, (LPCWSTR)qsJSONFile.utf16(), 0, REG_DWORD, (BYTE*) &value, sizeof(value));
     RegCloseKey(key);
 
 
@@ -347,7 +347,7 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
         return;
 
     RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueEx(key, (LPCWSTR)qsSettingsFile.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    RegSetValueExW(key, (LPCWSTR)qsSettingsFile.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
     RegCloseKey(key);
     }
 
@@ -367,7 +367,7 @@ void CVulkanConfiguration::RemoveRegistryEntriesForLayers(QString qsJSONFile, QS
     if (err != ERROR_SUCCESS)
         return;
 
-    RegDeleteValue(key, (LPCWSTR)qsJSONFile.utf16());
+    RegDeleteValueW(key, (LPCWSTR)qsJSONFile.utf16());
     RegCloseKey(key);
 
 
@@ -377,7 +377,7 @@ void CVulkanConfiguration::RemoveRegistryEntriesForLayers(QString qsJSONFile, QS
     if (err != ERROR_SUCCESS)
         return;
 
-    RegDeleteValue(key, (LPCWSTR)qsSettingsFile.utf16());
+    RegDeleteValueW(key, (LPCWSTR)qsSettingsFile.utf16());
     RegCloseKey(key);
     }
 
