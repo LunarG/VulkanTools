@@ -29,15 +29,15 @@
 #include <Cfgmgr32.h>
 #define WIN_BUFFER_SIZE 1024
 #endif
-
 #include <QString>
 #include <QVector>
 #include <QSettings>
 #include <QDir>
 
+#include <vulkan/vulkan.h>
+
 #include <layerfile.h>
 #include "profiledef.h"
-
 
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
@@ -121,6 +121,9 @@ public:
     static int nNumCannedProfiles;
     static int nNumKhronosPreConfigs;
     static const char *szCannedProfiles[9];
+
+    // Need this to check vulkan loader version
+    uint32_t vulkanInstanceVersion;
 
     /////////////////////////////////////////////////////////////////////////
     // Just local app settings

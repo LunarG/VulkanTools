@@ -44,9 +44,10 @@
 #include "profiledef.h"
 
 
+// This is what happens when programmers can touch type....
+bool bBeenWarnedAboutOldLoader = false;
 
 #define EDITOR_CAPTION_EMPTY "Configuration Layer Settings"
-
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -100,18 +101,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->launchTree, SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(launchItemCollapsed(QTreeWidgetItem*)));
     connect(ui->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(launchItemExpanded(QTreeWidgetItem* )));
 
-    // Always off if old loader, only on if selected
-    if(pVulkanConfig->bHasOldLoader) {
-        ui->pushButtonAppList->setEnabled(false);
-        ui->checkBoxApplyList->setToolTip(tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
-        ui->pushButtonAppList->setToolTip(tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
-        }
-    else
-        ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
-
     if(pVulkanConfig->bOverrideActive) {
         ui->radioOverride->setChecked(true);
-        ui->checkBoxApplyList->setEnabled(!pVulkanConfig->bHasOldLoader);
+        ui->checkBoxApplyList->setEnabled(true);
         ui->checkBoxPersistent->setEnabled(true);
         }
     else {
@@ -121,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pushButtonAppList->setEnabled(false);
         }
 
+    ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
     ui->checkBoxApplyList->setChecked(pVulkanConfig->bApplyOnlyToList);
     ui->checkBoxPersistent->setChecked(pVulkanConfig->bKeepActiveOnExit);
 
@@ -222,8 +215,11 @@ CProfileListItem* MainWindow::GetCheckedItem(void)
 /// Use the active profile as the override
 void MainWindow::on_radioOverride_clicked(void)
     {
-    ui->checkBoxApplyList->setEnabled(!pVulkanConfig->bHasOldLoader);
-    ui->pushButtonAppList->setEnabled(!pVulkanConfig->bHasOldLoader && pVulkanConfig->bApplyOnlyToList);
+    bool bUse = (!pVulkanConfig->bHasOldLoader || !bBeenWarnedAboutOldLoader);
+    ui->checkBoxApplyList->setEnabled(bUse);
+    ui->pushButtonAppList->setEnabled(bUse && pVulkanConfig->bApplyOnlyToList);
+
+
     ui->checkBoxPersistent->setEnabled(true);
     pVulkanConfig->bOverrideActive = true;
     pVulkanConfig->SaveAppSettings();
@@ -237,9 +233,35 @@ void MainWindow::on_radioOverride_clicked(void)
     }
 
 
-//////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// We want to apply to just the app list... hang on there. Doe we have
+// the new loader?
 void MainWindow::on_checkBoxApplyList_clicked(void)
     {
+    if(pVulkanConfig->bHasOldLoader && !bBeenWarnedAboutOldLoader) {
+
+        uint32_t version = pVulkanConfig->vulkanInstanceVersion;
+        QString message;
+        message = QString().asprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
+                        "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 141 in order to "
+                        "apply overrides to specific applications.\n\nYour current detected loader version is %d.%d Patch(%d).\n\n<br><br>"
+                        "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a></br></br>", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+        QMessageBox alert(this);
+        alert.setTextFormat(Qt::RichText);
+        alert.setText(message);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+
+
+        ui->pushButtonAppList->setEnabled(false);
+        ui->checkBoxApplyList->setEnabled(false);
+        ui->checkBoxApplyList->setChecked(false);
+        ui->checkBoxApplyList->setToolTip(tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
+        ui->pushButtonAppList->setToolTip(tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
+        bBeenWarnedAboutOldLoader = true;
+        }
+
+
     pVulkanConfig->bApplyOnlyToList = ui->checkBoxApplyList->isChecked();
     pVulkanConfig->SaveAppSettings();    
     ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
@@ -334,6 +356,8 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol)
 /// for the radio button, and one to change the editor/information at lower right.
 void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
     {
+    (void)pPrevious;
+
     // This pointer will only be valid if it's one of the elements with
     // the radio button
     CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem*>(pCurrent);
@@ -520,10 +544,11 @@ void MainWindow::NewClicked()
     {
     CProfileDef* pNewProfile = pVulkanConfig->CreateEmptyProfile();
     dlgProfileEditor dlg(this, pNewProfile);
-    if(QDialog::Accepted == dlg.exec())
+    if(QDialog::Accepted == dlg.exec()) {
         pVulkanConfig->LoadAllProfiles();
         LoadProfileList();
         }
+    }
 
 
 ///////////////////////////////////////////////////////////////////////////////

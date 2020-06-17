@@ -19,10 +19,8 @@
 
 #include <QApplication>
 #include <QSettings>
-#include <QLibrary>
 #include <QMessageBox>
 #include <QCheckBox>
-#include <vulkan/vulkan.h>
 
 #include "mainwindow.h"
 #include "dlgbetamessage.h"
@@ -40,45 +38,6 @@ int main(int argc, char *argv[])
     // Get and initialize the application model, which is essentially the Vulkan
     // configuration of the system.
     CVulkanConfiguration* pModel = CVulkanConfiguration::getVulkanConfig();
-    QSettings settings;
-
-    // Check loader version
-#ifdef WIN32
-    QLibrary library("vulkan-1.dll");
-#else
-    QLibrary library("libvulkan");
-#endif
-    if(!(library.load()))
-        {
-        QMessageBox dlg(NULL);
-        dlg.setText("Warning: Could not find a vulkan loader!");
-        dlg.setIcon(QMessageBox::Warning);
-        dlg.exec();
-    } else {
-        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
-        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
-        uint32_t version=0;
-        if(VK_SUCCESS == vkEnumerateInstanceVersion(&version)) {
-            if(version < 4202633) {
-                pModel->bHasOldLoader = true;
-                if(!settings.value("VKCONFIG_SHOW_LOADER_WARNING").toBool()) {
-                    QString message;
-                    message = QString().asprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
-                                    "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 141 for this "
-                                    "feature to work.\n\nYour current detected loader version is %d.%d Patch(%d)\n\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
-                    QMessageBox alert(nullptr);
-                    alert.setText(message);
-                    QCheckBox *pCheckBox = new QCheckBox();
-                    pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-                    alert.setCheckBox(pCheckBox);
-                    alert.setIcon(QMessageBox::Warning);
-                    alert.exec();
-                    if(pCheckBox->isChecked())
-                        settings.setValue("VKCONFIG_SHOW_LOADER_WARNING", true);
-                    }
-                }
-            }
-        }
 
     // The main GUI is driven here
     MainWindow mainWindow;

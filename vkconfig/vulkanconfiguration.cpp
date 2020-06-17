@@ -25,6 +25,8 @@
 #include <QDir>
 #include <QSettings>
 #include <QTextStream>
+#include <QLibrary>
+#include <QMessageBox>
 
 #include <vulkan/vulkan.h>
 
@@ -166,6 +168,31 @@ CVulkanConfiguration::CVulkanConfiguration()
     qsOverrideSettingsPath = qsProfileFilesPath + "settings.d/vk_layer_settings.txt";
     qsOverrideJsonPath = qsProfileFilesPath + "implicit_layer.d/VkLayer_override.json";
 #endif
+
+    // Check loader version
+#ifdef WIN32
+    QLibrary library("vulkan-1.dll");
+#else
+    QLibrary library("libvulkan");
+#endif
+    if(!(library.load()))
+        {
+        QMessageBox dlg(NULL);
+        dlg.setText("Warning: Could not find a vulkan loader!");
+        dlg.setIcon(QMessageBox::Warning);
+        dlg.exec();
+    } else {
+        // Now is a good time to see if we have the old loader
+        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
+        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
+        if(VK_SUCCESS == vkEnumerateInstanceVersion(&vulkanInstanceVersion)) {
+            if(vulkanInstanceVersion < 4202633) {
+                bHasOldLoader = true;
+                }
+            }
+        }
+
+
     // Load simple app settings, the additional search paths, and the
     // override app list.
     LoadAppSettings();

@@ -108,7 +108,7 @@
            <widget class="QPushButton" name="pushButtonAppList">
             <property name="geometry">
              <rect>
-              <x>440</x>
+              <x>420</x>
               <y>70</y>
               <width>81</width>
               <height>26</height>
@@ -135,7 +135,7 @@
              <rect>
               <x>30</x>
               <y>73</y>
-              <width>391</width>
+              <width>381</width>
               <height>20</height>
              </rect>
             </property>
@@ -364,11 +364,11 @@
            <attribute name="headerVisible">
             <bool>false</bool>
            </attribute>
-           <attribute name="headerMinimumSectionSize">
-            <number>40</number>
-           </attribute>
            <attribute name="headerDefaultSectionSize">
             <number>200</number>
+           </attribute>
+           <attribute name="headerMinimumSectionSize">
+            <number>40</number>
            </attribute>
            <column>
             <property name="text">
@@ -480,7 +480,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
