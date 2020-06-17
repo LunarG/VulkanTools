@@ -5,19 +5,48 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-find_package(Qt5 COMPONENTS Core Gui Widgets OPTIONAL_COMPONENTS QUIET)
+set(CMAKE_AUTOUIC ON)
+find_package(Qt5 COMPONENTS Core Gui Widgets QUIET)
 
 if(NOT Qt5_FOUND)
-    message("WARNING: vkconfig will be excluded because Qt5 was not found.")
+    message("WARNING: vkconfig will be excluded because Qt5 was not found. Please add Qt5 into the PATH environment variable")
 else()
     set(LAYERMGR_SRCS
-        active_layers_widget.cpp
-        layer_locations_widget.cpp
-        layer_manifest.cpp
-        layer_settings_widget.cpp
-        override_settings.cpp
-        vkconfig.cpp
-        data.qrc
+        dlgabout.ui
+        dlgbetamessage.ui
+        dlgcreateassociation.ui
+        dlgcustompaths.ui
+        dlghelp.ui
+        dlghistory.ui
+        dlglayeroutput.ui
+        dlgprofileeditor.ui
+        dlgvulkananalysis.ui
+        dlgvulkaninfo.ui
+        mainwindow.ui
+        boolsettingwidget.cpp
+        dlgabout.cpp
+        dlgbetamessage.cpp
+        dlgcreateassociation.cpp
+        dlgcustompaths.cpp
+        dlghelp.cpp
+        dlglayeroutput.cpp
+        dlgprofileeditor.cpp
+        dlgvulkananalysis.cpp
+        dlgvulkaninfo.cpp
+        dlgvulkaninstallanalysis.cpp
+        enumsettingwidget.cpp
+        filenamesettingwidget.cpp
+        foldersettingwidget.cpp
+        khronossettingsadvanced.cpp
+        layerfile.cpp
+        main.cpp
+        mainwindow.cpp
+        multienumsetting.cpp
+        profiledef.cpp
+        settingstreemanager.cpp
+        stringsettingwidget.cpp
+        vulkanconfiguration.cpp
+        resources.qrc
     )
 
     if(NOT APPLE)
