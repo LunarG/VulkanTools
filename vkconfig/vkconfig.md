@@ -12,6 +12,8 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 * **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
 * **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [Compilation instructions](#compiling), [Roadmap](#roadmap), [Known Issues](#known-issues)
 
+Copyright &copy; 2015-2020 LunarG, Inc.
+
 Screenshots
 --------------
 

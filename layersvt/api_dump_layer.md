@@ -155,3 +155,4 @@ Show Shader | `lunarg_api_dump.show_shader` | false | Output the contents of any
 Show Types | `lunarg_api_dump.show_types` | true | Output the types for each setting.
 Type Size | `lunarg_api_dump.type_size` | 0 | Set the max length to assume for written types.  This is intended to allow cleaner indenting by reserving space for types shorter than this length.  A value of 0 means no additional spacing applied.  Only valid when "Use Spaces" is enabled.
 Use Spaces| `lunarg_api_dump.use_spaces` | true | Attempt to use additional white space to produce a cleaner/easier-to-read output.
+Show Thread And Frame | `lunarg_api_dump.show_thread_and_frame` | true | Show the thread and frame of each function called.

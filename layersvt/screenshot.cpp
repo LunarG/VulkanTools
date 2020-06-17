@@ -28,7 +28,6 @@
 #include <unordered_map>
 #include <iostream>
 #include <algorithm>
-#include <list>
 #include <map>
 #include <set>
 #include <vector>
@@ -49,7 +48,6 @@ using namespace std;
 #include <android/log.h>
 #include <sys/system_properties.h>
 
-static char android_env[64] = {};
 const char *env_var_frames = "debug.vulkan.screenshot";
 const char *env_var_old = env_var_frames;
 const char *env_var_format = "debug.vulkan.screenshot.format";
@@ -66,37 +64,25 @@ const char *settings_option_format = "lunarg_screenshot.format";
 const char *settings_option_dir = "lunarg_screenshot.dir";
 
 #ifdef ANDROID
-char *android_exec(const char *cmd) {
-    FILE *pipe = popen(cmd, "r");
-    if (pipe != nullptr) {
-        fgets(android_env, 64, pipe);
-        pclose(pipe);
-    }
 
-    // Only if the value is set will we get a string back
-    if (strlen(android_env) > 0) {
-        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Vulkan screenshot layer capturing: %s", android_env);
-        // Do a right strip of " ", "\n", "\r", "\t" for the android_env string
-        string android_env_str(android_env);
-        android_env_str.erase(android_env_str.find_last_not_of(" \n\r\t") + 1);
-        snprintf(android_env, sizeof(android_env), "%s", android_env_str.c_str());
-        return android_env;
-    }
+static std::map<std::string, std::string> android_env_map;
 
-    return nullptr;
+static char *local_getenv(const char *name) {
+    char env_val[PROP_VALUE_MAX];
+    char *rval = nullptr;
+    if (__system_property_get(name, env_val) > 0) {
+        android_env_map[std::string(name)] = std::string(env_val);
+        rval = const_cast<char *>(android_env_map[std::string(name)].c_str());
+        __android_log_print(ANDROID_LOG_INFO, "screenshot", "android local_getenv(\"%s\") returned \"%s\"", name, rval);
+    } else {
+        __android_log_print(ANDROID_LOG_INFO, "screenshot", "android local_getenv(\"%s\") returned nullptr", name);
+    }
+    return rval;
 }
 
-char *android_getenv(const char *key) {
-    std::string command("getprop ");
-    command += key;
-    return android_exec(command.c_str());
-}
+static void local_free_getenv(const char *val) { android_env_map.erase(std::string(val)); }
 
-static inline char *local_getenv(const char *name) { return android_getenv(name); }
-
-static inline void local_free_getenv(const char *val) {}
-
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
 static inline void local_free_getenv(const char *val) {}
@@ -147,6 +133,13 @@ typedef enum colorSpaceFormat {
 
 colorSpaceFormat userColorSpaceFormat = UNDEFINED;
 
+// unordered map: associates Vulkan dispatchable objects to a dispatch table
+typedef struct {
+    VkLayerDispatchTable *device_dispatch_table;
+    PFN_vkSetDeviceLoaderData pfn_dev_init;
+} DispatchMapStruct;
+static unordered_map<VkDevice, DispatchMapStruct *> dispatchMap;
+
 // unordered map: associates a swap chain with a device, image extent, format,
 // and list of images
 typedef struct {
@@ -165,17 +158,18 @@ typedef struct {
 } ImageMapStruct;
 static unordered_map<VkImage, ImageMapStruct *> imageMap;
 
-// unordered map: associates a device with a queue, commandPool, and physical
-// device also contains per device info including dispatch table
+// unordered map: associates a device with per device info -
+//   wsi capability
+//   set of queues created for this device
+//   queue to queueFamilyIndex map
+//   physical device
 typedef struct {
-    VkLayerDispatchTable *device_dispatch_table;
     bool wsi_enabled;
-    VkQueue queue;
+    set<VkQueue> queues;
+    unordered_map<VkQueue, uint32_t> queueIndexMap;
     VkPhysicalDevice physicalDevice;
-    PFN_vkSetDeviceLoaderData pfn_dev_init;
 } DeviceMapStruct;
 static unordered_map<VkDevice, DeviceMapStruct *> deviceMap;
-static unordered_map<VkQueue, uint32_t> queueIndexMap;
 
 // unordered map: associates a physical device with an instance
 typedef struct {
@@ -404,7 +398,15 @@ static bool memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory
     return false;
 }
 
-static DeviceMapStruct *get_dev_info(VkDevice dev) {
+static DispatchMapStruct *get_dispatch_info(VkDevice dev) {
+    auto it = dispatchMap.find(dev);
+    if (it == dispatchMap.end())
+        return NULL;
+    else
+        return it->second;
+}
+
+static DeviceMapStruct *get_device_info(VkDevice dev) {
     auto it = deviceMap.find(dev);
     if (it == deviceMap.end())
         return NULL;
@@ -425,6 +427,54 @@ static void init_screenshot() {
     readScreenShotFormatENV();
     readScreenShotDir();
     readScreenShotFrames();
+}
+
+VkQueue getQueueForScreenshot(VkDevice device) {
+    // Find a queue that we can use for taking a screenshot
+    VkQueue queue = VK_NULL_HANDLE;
+    uint32_t count;
+    VkBool32 graphicsCapable = VK_FALSE;
+    VkBool32 presentCapable = VK_FALSE;
+    VkLayerInstanceDispatchTable *pInstanceTable;
+    DeviceMapStruct *devMap = get_device_info(device);
+    if (NULL == devMap) {
+        assert(0);
+        return queue;
+    }
+
+    pInstanceTable = instance_dispatch_table(physDeviceMap[devMap->physicalDevice]->instance);
+    assert(pInstanceTable);
+    pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, NULL);
+
+    std::vector<VkQueueFamilyProperties> queueProps(count);
+
+#if defined(__ANDROID__)
+    // On Android, all physical devices and queue families must be capable of presentation with any native window
+    presentCapable = VK_TRUE;
+#endif
+
+    if (queueProps.size() > 0) {
+        pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, queueProps.data());
+
+        // Iterate over all queues for this device, searching for a queue that is graphics and present capable
+        deviceMap[device]->queues.begin();
+        for (auto it = deviceMap[device]->queues.begin(); it != deviceMap[device]->queues.end(); it++) {
+            queue = *it;
+            graphicsCapable = ((queueProps[deviceMap[device]->queueIndexMap[queue]].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
+#if defined(_WIN32)
+            presentCapable =
+                instance_dispatch_table(devMap->physicalDevice)
+                    ->GetPhysicalDeviceWin32PresentationSupportKHR(devMap->physicalDevice, deviceMap[device]->queueIndexMap[queue]);
+#elif not defined(__ANDROID__)
+            // Everthing else not Windows or Android
+            // TODO: Make a function call to get present support from vkGetPhysicalDeviceXlibPresentationSupportKHR,
+            // vkGetPhysicalDeviceXcbPresentationSupportKHR, etc
+            presentCapable = graphicsCapable;
+#endif
+            if (graphicsCapable && presentCapable) break;
+        }
+    }
+    return queue;
 }
 
 // Track allocated resources in writePPM()
@@ -481,14 +531,22 @@ static void writePPM(const char *filename, VkImage image1) {
     VkDevice device = imageMap[image1]->device;
     VkPhysicalDevice physicalDevice = deviceMap[device]->physicalDevice;
     VkInstance instance = physDeviceMap[physicalDevice]->instance;
-    VkQueue queue = deviceMap[device]->queue;
-    DeviceMapStruct *devMap = get_dev_info(device);
-    if (NULL == devMap) {
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    if (NULL == dispMap) {
         assert(0);
         return;
     }
-    VkLayerDispatchTable *pTableDevice = devMap->device_dispatch_table;
-    VkLayerDispatchTable *pTableQueue = get_dev_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
+    VkQueue queue = getQueueForScreenshot(device);
+    if (!queue) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - capable queue not found\n");
+#else
+        fprintf(stderr, "Screenshot could not find a capable queue\n");
+#endif
+        return;
+    }
+    VkLayerDispatchTable *pTableDevice = dispMap->device_dispatch_table;
+    VkLayerDispatchTable *pTableQueue = get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
     VkLayerInstanceDispatchTable *pInstanceTable;
     pInstanceTable = instance_dispatch_table(instance);
 
@@ -766,8 +824,8 @@ static void writePPM(const char *filename, VkImage image1) {
     VkCommandPoolCreateInfo cmd_pool_info = {};
     cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     cmd_pool_info.pNext = NULL;
-    auto it = queueIndexMap.find(queue);
-    assert(it != queueIndexMap.end());
+    auto it = deviceMap[device]->queueIndexMap.find(queue);
+    assert(it != deviceMap[device]->queueIndexMap.end());
     cmd_pool_info.queueFamilyIndex = it->second;
     cmd_pool_info.flags = 0;
 
@@ -786,18 +844,18 @@ static void writePPM(const char *filename, VkImage image1) {
         // Remove element with key cmdBuf from deviceMap so we can replace it
         deviceMap.erase(cmdBuf);
     }
-    deviceMap.emplace(cmdBuf, devMap);
+    dispatchMap.emplace(cmdBuf, dispMap);
     VkLayerDispatchTable *pTableCommandBuffer;
-    pTableCommandBuffer = get_dev_info(cmdBuf)->device_dispatch_table;
+    pTableCommandBuffer = get_dispatch_info(cmdBuf)->device_dispatch_table;
 
     // We have just created a dispatchable object, but the dispatch table has
     // not been placed in the object yet.  When a "normal" application creates
     // a command buffer, the dispatch table is installed by the top-level api
     // binding (trampoline.c). But here, we have to do it ourselves.
-    if (!devMap->pfn_dev_init) {
+    if (!dispMap->pfn_dev_init) {
         *((const void **)data.commandBuffer) = *(void **)device;
     } else {
-        err = devMap->pfn_dev_init(device, (void *)data.commandBuffer);
+        err = dispMap->pfn_dev_init(device, (void *)data.commandBuffer);
         assert(!err);
     }
 
@@ -1033,8 +1091,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
 static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo, VkDevice device) {
     uint32_t i;
-    DeviceMapStruct *devMap = get_dev_info(device);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    DeviceMapStruct *devMap = get_device_info(device);
+    VkLayerDispatchTable *pDisp = dispMap->device_dispatch_table;
     PFN_vkGetDeviceProcAddr gpa = pDisp->GetDeviceProcAddr;
     pDisp->CreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)gpa(device, "vkCreateSwapchainKHR");
     pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
@@ -1070,10 +1129,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     assert(deviceMap.find(*pDevice) == deviceMap.end());
     DeviceMapStruct *deviceMapElem = new DeviceMapStruct;
     deviceMap[*pDevice] = deviceMapElem;
+    assert(dispatchMap.find(*pDevice) == dispatchMap.end());
+    DispatchMapStruct *dispatchMapElem = new DispatchMapStruct;
+    dispatchMap[*pDevice] = dispatchMapElem;
 
     // Setup device dispatch table
-    deviceMapElem->device_dispatch_table = new VkLayerDispatchTable;
-    layer_init_device_dispatch_table(*pDevice, deviceMapElem->device_dispatch_table, fpGetDeviceProcAddr);
+    dispatchMapElem->device_dispatch_table = new VkLayerDispatchTable;
+    layer_init_device_dispatch_table(*pDevice, dispatchMapElem->device_dispatch_table, fpGetDeviceProcAddr);
 
     createDeviceRegisterExtensions(pCreateInfo, *pDevice);
     // Create a mapping from a device to a physicalDevice
@@ -1082,9 +1144,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     // store the loader callback for initializing created dispatchable objects
     chain_info = get_chain_info(pCreateInfo, VK_LOADER_DATA_CALLBACK);
     if (chain_info) {
-        deviceMapElem->pfn_dev_init = chain_info->u.pfnSetDeviceLoaderData;
+        dispatchMapElem->pfn_dev_init = chain_info->u.pfnSetDeviceLoaderData;
     } else {
-        deviceMapElem->pfn_dev_init = NULL;
+        dispatchMapElem->pfn_dev_init = NULL;
     }
     return result;
 }
@@ -1109,9 +1171,11 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
-    DeviceMapStruct *devMap = get_dev_info(device);
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    DeviceMapStruct *devMap = get_device_info(device);
+    assert(dispMap);
     assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    VkLayerDispatchTable *pDisp = dispMap->device_dispatch_table;
     pDisp->DestroyDevice(device, pAllocator);
 
     if (vk_screenshot_dir_used_env_var) {
@@ -1120,6 +1184,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
 
     loader_platform_thread_lock_mutex(&globalLock);
     delete pDisp;
+    delete dispMap;
     delete devMap;
 
     deviceMap.erase(device);
@@ -1127,9 +1192,9 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
 }
 
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue *pQueue) {
-    DeviceMapStruct *devMap = get_dev_info(device);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    assert(dispMap);
+    VkLayerDispatchTable *pDisp = dispMap->device_dispatch_table;
     pDisp->GetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
 
     // Save the device queue in a map if we are taking screenshots.
@@ -1140,63 +1205,34 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
         return;
     }
 
-    // Make sure this queue can take graphics or present commands
-    uint32_t count;
-    VkBool32 graphicsCapable = VK_FALSE;
-    VkBool32 presentCapable = VK_FALSE;
-    VkLayerInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physDeviceMap[devMap->physicalDevice]->instance);
+    // Add this queue to deviceMap[device].queues, and queueFamilyIndex to deviceMap[device].queueIndexMap
+    if (deviceMap.find(device) != deviceMap.end()) {
+        deviceMap[device]->queues.emplace(*pQueue);
 
-    pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, NULL);
-
-    std::vector<VkQueueFamilyProperties> queueProps(count);
-
-    if (queueProps.size() > 0) {
-        pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, queueProps.data());
-
-        graphicsCapable = ((queueProps[queueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
-
-#if defined(_WIN32)
-        presentCapable = instance_dispatch_table(devMap->physicalDevice)
-                             ->GetPhysicalDeviceWin32PresentationSupportKHR(devMap->physicalDevice, queueFamilyIndex);
-#elif defined(__ANDROID__)
-        // Android - all physical devices and queue families must be capable of presentation with any native window
-        presentCapable = VK_TRUE;
-#else  // (__linux__), (__APPLE__), (__QNXNTO__) or Others
-       // TODO LINUX, make function call to get present support from vkGetPhysicalDeviceXlibPresentationSupportKHR and
-       // vkGetPhysicalDeviceXcbPresentationSupportKHR
-       // TBD APPLE, QNXNTO, others Temp use original logic.
-        presentCapable = ((queueProps[queueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
-#endif
-
-    } else {
-        graphicsCapable = VK_TRUE;
+        if (deviceMap[device]->queueIndexMap.find(*pQueue) != deviceMap[device]->queueIndexMap.end())
+            deviceMap[device]->queueIndexMap.erase(*pQueue);
+        deviceMap[device]->queueIndexMap.emplace(*pQueue, queueFamilyIndex);
     }
 
-    if ((presentCapable == VK_TRUE) || (graphicsCapable == VK_TRUE)) {
-        // Create a mapping from a device to a queue
-        VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
-        if (deviceMap.find(que) != deviceMap.end()) {
-            // Remove element with key que from deviceMap so we can replace it
-            deviceMap.erase(que);
-        }
-        deviceMap.emplace(que, devMap);
-        devMap->queue = *pQueue;
-
-        if (queueIndexMap.find(*pQueue) != queueIndexMap.end()) {
-            // Remove element with key *pQueue from queueIndexMap so we can replace it
-            queueIndexMap.erase(*pQueue);
-        }
-        queueIndexMap.emplace(*pQueue, queueFamilyIndex);
-    }
+    // queues are dispatchable objects.
+    // Create dispatchMap entry with this queue as its key.
+    // Copy the device dispatch table to the new dispatch table.
+    VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
+    if (dispatchMap.find(que) != dispatchMap.end()) dispatchMap.erase(que);
+    dispatchMap.emplace(que, dispMap);
 
     loader_platform_thread_unlock_mutex(&globalLock);
 }
 
+VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(VkDevice device, const VkDeviceQueueInfo2 *pQueueInfo, VkQueue *pQueue) {
+    if (pQueueInfo) GetDeviceQueue(device, pQueueInfo->queueFamilyIndex, pQueueInfo->queueIndex, pQueue);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
                                                   const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
-    DeviceMapStruct *devMap = get_dev_info(device);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    assert(dispMap);
+    VkLayerDispatchTable *pDisp = dispMap->device_dispatch_table;
 
     // This layer does an image copy later on, and the copy command expects the
     // transfer src bit to be on.
@@ -1237,9 +1273,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
 
 VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pCount,
                                                      VkImage *pSwapchainImages) {
-    DeviceMapStruct *devMap = get_dev_info(device);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    assert(dispMap);
+    VkLayerDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
 
     // Save the swapchain images in a map if we are taking screenshots
@@ -1281,8 +1317,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
 
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     static int frameNumber = 0;
-    DeviceMapStruct *devMap = get_dev_info((VkDevice)queue);
-    assert(devMap);
+    DispatchMapStruct *dispMap = get_dispatch_info((VkDevice)queue);
+    assert(dispMap);
     loader_platform_thread_lock_mutex(&globalLock);
 
     if (!screenshotFrames.empty() || screenShotFrameRange.valid) {
@@ -1310,9 +1346,18 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             VkImage image;
             VkSwapchainKHR swapchain;
             // We'll dump only one image: the first
-            swapchain = pPresentInfo->pSwapchains[0];
-            image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-            writePPM(fileName.c_str(), image);
+            // If there are 0 swapchains, skip taking the snapshot
+            if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
+                swapchain = pPresentInfo->pSwapchains[0];
+                image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
+                writePPM(fileName.c_str(), image);
+            } else {
+#ifdef ANDROID
+                __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - no swapchain specified\n");
+#else
+                fprintf(stderr, "Screenshot failure - no swapchain specified\n");
+#endif
+            }
             if (inScreenShotFrames) {
                 screenshotFrames.erase(it);
             }
@@ -1340,7 +1385,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     }
     frameNumber++;
     loader_platform_thread_unlock_mutex(&globalLock);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    VkLayerDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     return result;
 }
@@ -1432,9 +1477,9 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const c
     proc = intercept_khr_swapchain_command(funcName, dev);
     if (proc) return proc;
 
-    DeviceMapStruct *devMap = get_dev_info(dev);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    DispatchMapStruct *dispMap = get_dispatch_info(dev);
+    assert(dispMap);
+    VkLayerDispatchTable *pDisp = dispMap->device_dispatch_table;
 
     if (pDisp->GetDeviceProcAddr == NULL) return NULL;
     return pDisp->GetDeviceProcAddr(dev, funcName);
@@ -1484,6 +1529,7 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
     } core_device_commands[] = {
         {"vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
         {"vkGetDeviceQueue", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue)},
+        {"vkGetDeviceQueue2", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue2)},
         {"vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
     };
 
@@ -1505,7 +1551,7 @@ static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDe
     };
 
     if (dev) {
-        DeviceMapStruct *devMap = get_dev_info(dev);
+        DeviceMapStruct *devMap = get_device_info(dev);
         if (!devMap->wsi_enabled) return nullptr;
     }
 

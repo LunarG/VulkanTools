@@ -1,4 +1,25 @@
 {
+    "layer_authors": {
+        "LUNARG": {
+            "name": "LunarG",
+            "logo": "lunarg_small.png"
+        },
+        "GOOGLE": {
+            "name": "Google"
+        },
+        "KHRONOS": {
+            "name": "Khronos"
+        },
+        "NV": {
+            "name": "Nvidia"
+        },
+        "RENDERDOC": {
+            "name": "RenderDoc"
+        },
+        "VALVE": {
+            "name": "Valve"
+        }
+    },
     "layer_options": {
         "VK_LAYER_KHRONOS_validation": {
             "debug_action": {
@@ -87,31 +108,31 @@
                 "name": "Detailed Output",
                 "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "no_addr": {
                 "name": "Hide Addresses",
                 "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "file": {
                 "name": "Output to File",
                 "description": "Setting this to true indicates that output should be written to file instead of stdout",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "log_filename": {
                 "name": "Log Filename",
                 "description": "Specifies the file to dump to when output files are enabled",
                 "type": "save_file",
-                "default": "vk_apidump"
+                "default": "vk_apidump.txt"
             },
             "flush": {
                 "name": "Log Flush After Write",
                 "description": "Setting this to true causes IO to be flushed after each API call that is written",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "indent_size": {
                 "name": "Indent Size",
@@ -123,7 +144,7 @@
                 "name": "Show Types",
                 "description": "Setting this to true causes types to be dumped in addition to values",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "name_size": {
                 "name": "Name Size",
@@ -141,19 +162,19 @@
                 "name": "Use Spaces",
                 "description": "Setting this to true causes all tab characters to be replaced with spaces",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "show_timestamp": {
                 "name": "Show Timestamp",
                 "description": "Show the timestamp of function calls since start in microseconds",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "show_shader": {
                 "name": "Show Shader",
                 "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "output_range": {
                 "name": "Output Range",
@@ -252,13 +273,13 @@
                 "name": "Capture File Name with Timestamp",
                 "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "capture_file_flush": {
                 "name": "Capture File Flush After Write",
                 "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "capture_compression_type": {
                 "name": "Output Format",
@@ -276,25 +297,25 @@
                 "name": "Log Output to Console / stdout",
                 "description": "Log messages will be written to stdout.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "log_errors_to_stderr": {
                 "name": "Log Errors to Console / stderr",
                 "description": "Log error messages will be written to stderr.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "log_break_on_error": {
                 "name": "Trigger Debug Break on Error",
                 "description": "Trigger a debug break when logging an error.",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "log_output_to_os_debug_string": {
                 "name": "Log Output to Debug Console",
                 "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
 
             "log_file": {
@@ -307,19 +328,19 @@
                 "name": "Log File Flush After Write",
                 "description": "Flush the log file to disk after each write when true.",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "log_file_keep_open": {
                 "name": "Log File Keep Open",
                 "description": "Keep the log file open between log messages when true, or close and reopen the log file for each message when false.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "log_file_create_new": {
                 "name": "Log File Overwrite",
                 "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "log_level": {
                 "name": "Log Level",
@@ -338,13 +359,13 @@
                 "name": "Log Detailed",
                 "description": "Include name and line number from the file responsible for the log message.",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "log_allow_indents": {
                 "name": "Log Allow Indents",
                 "description": "Apply additional indentation formatting to log messages.",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             "memory_tracking_mode": {
                 "name": "Memory Tracking Mode",
@@ -361,19 +382,19 @@
                 "name": "Page Guard Copy on Map",
                 "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "page_guard_separate_read": {
                 "name": "Page Guard Separate Read Tracking",
                 "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             "page_guard_external_memory": {
                 "name": "Page Guard External Memory",
                 "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             }
         }
     }

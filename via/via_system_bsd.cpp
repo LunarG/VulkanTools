@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016-2019 Valve Corporation
- * Copyright (c) 2016-2019 LunarG, Inc.
+ * Copyright (c) 2019 Valve Corporation
+ * Copyright (c) 2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Mark Young <marky@lunarg.com>
- * Author: Jeremy Kniager <jeremyk@lunarg.com>
+ * Author: David Carlier <devnexen@gmail.com>
  */
 
-#ifdef VIA_MACOS_TARGET
+#ifdef VIA_BSD_TARGET
 
 #include <cstring>
 #include <sstream>
@@ -26,28 +25,27 @@
 
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/sysctl.h>
 #include <sys/statvfs.h>
 #include <sys/utsname.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <dlfcn.h>
-#include <mach-o/dyld.h>
 
-#include "via_system_macos.hpp"
+#include "via_system_bsd.hpp"
 
-ViaSystemMacOS::ViaSystemMacOS() : ViaSystem() {
-    uint32_t bufSize = 0;
-    _NSGetExecutablePath(NULL, &bufSize);
-    char temp_exe_path_c_str[bufSize];
-    _NSGetExecutablePath(temp_exe_path_c_str, &bufSize);
-    if (bufSize > 0) {
-        std::string exe_location = temp_exe_path_c_str;
+ViaSystemBSD::ViaSystemBSD() : ViaSystem() {
+    char temp_c_string[PATH_MAX];
+    size_t len = sizeof(temp_c_string);
+    int tmp_mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+    int ret = sysctl(tmp_mib, sizeof(tmp_mib) / sizeof(tmp_mib[0]), temp_c_string, &len, NULL, 0);
+    if (ret == 0) {
+        std::string exe_location = temp_c_string;
         _exe_path = exe_location.substr(0, exe_location.rfind("/"));
     } else {
         _exe_path = "";
     }
-    char temp_c_string[1024];
-    if (getcwd(temp_c_string, 1023) != NULL) {
+    if (getcwd(temp_c_string, sizeof(temp_c_string)) != NULL) {
         _cur_path = temp_c_string;
     } else {
         _cur_path = "";
@@ -58,7 +56,7 @@ ViaSystemMacOS::ViaSystemMacOS() : ViaSystem() {
 // command-line arguments.
 // Returns 0 on no error, 1 if test file wasn't found, and -1
 // on any other errors.
-int ViaSystemMacOS::RunTestInDirectory(std::string path, std::string test, std::string cmd_line) {
+int ViaSystemBSD::RunTestInDirectory(std::string path, std::string test, std::string cmd_line) {
     int err_code = -1;
     char orig_dir[1024];
     orig_dir[0] = '\0';
@@ -97,73 +95,12 @@ int ViaSystemMacOS::RunTestInDirectory(std::string path, std::string test, std::
     return err_code;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemEnvironmentInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemEnvironmentInfo() {
     ViaResults result = VIA_SUCCESSFUL;
-    char path[1035];
     char *env_value;
     utsname uts_buffer;
 
     PrintBeginTable("Environment", 3);
-
-    FILE *fp = popen("sw_vers", "r");
-    if (fp == NULL) {
-        PrintBeginTableRow();
-        PrintTableElement("ERROR");
-        PrintTableElement("Failed to run sw_vers");
-        PrintTableElement("");
-        PrintEndTableRow();
-        result = VIA_SYSTEM_CALL_FAILURE;
-    } else {
-        // Read the output a line at a time - output it.
-        while (fgets(path, sizeof(path) - 1, fp) != NULL) {
-            uint32_t index;
-            index = strlen(path) - 1;
-            while (path[index] == ' ' || path[index] == '\t' || path[index] == '\r' || path[index] == '\n' || path[index] == '\"') {
-                path[index] = '\0';
-                index = strlen(path) - 1;
-            }
-            if (NULL != strstr(path, "ProductName")) {
-                index = strlen("ProductName:");
-                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
-                    index++;
-                }
-                _os_name = &path[index];
-                PrintBeginTableRow();
-                PrintTableElement("MacOS");
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintEndTableRow();
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("Product Name");
-                PrintTableElement(_os_name);
-                PrintEndTableRow();
-            } else if (NULL != strstr(path, "ProductVersion")) {
-                index = strlen("ProductVersion:");
-                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
-                    index++;
-                }
-                std::string _os_version = &path[index];
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("Product Version");
-                PrintTableElement(_os_version);
-                PrintEndTableRow();
-            } else if (NULL != strstr(path, "BuildVersion")) {
-                index = strlen("BuildVersion:");
-                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
-                    index++;
-                }
-                std::string _build_version = &path[index];
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("Build Version");
-                PrintTableElement(_build_version);
-                PrintEndTableRow();
-            }
-        }
-        pclose(fp);
-    }
 
     errno = 0;
     if (uname(&uts_buffer) != 0) {
@@ -191,11 +128,43 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemEnvironmentInfo() {
         PrintEndTableRow();
     }
 
-    env_value = getenv("DYLD_LIBRARY_PATH");
+    env_value = getenv("DESKTOP_SESSION");
     if (env_value != NULL) {
         PrintBeginTableRow();
         PrintTableElement("");
-        PrintTableElement("DYLD_LIBRARY_PATH");
+        PrintTableElement("DESKTOP_SESSION");
+        PrintTableElement(env_value);
+        PrintEndTableRow();
+    }
+    env_value = getenv("LD_LIBRARY_PATH");
+    if (env_value != NULL) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("LD_LIBRARY_PATH");
+        PrintTableElement(env_value);
+        PrintEndTableRow();
+    }
+    env_value = getenv("GDK_BACKEND");
+    if (env_value != NULL) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("GDK_BACKEND");
+        PrintTableElement(env_value);
+        PrintEndTableRow();
+    }
+    env_value = getenv("DISPLAY");
+    if (env_value != NULL) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("DISPLAY");
+        PrintTableElement(env_value);
+        PrintEndTableRow();
+    }
+    env_value = getenv("WAYLAND_DISPLAY");
+    if (env_value != NULL) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("WAYLAND_DISPLAY");
         PrintTableElement(env_value);
         PrintEndTableRow();
     }
@@ -204,7 +173,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemEnvironmentInfo() {
     return result;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemHardwareInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemHardwareInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     char generic_string[1024];
     uint64_t memory;
@@ -242,20 +211,42 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemHardwareInfo() {
     PrintEndTableRow();
 
     // Print system disk space usage
-    if (0 == statvfs("/System/Library/CoreServices/SystemVersion.plist", &fs_stats)) {
-        uint64_t bytes_total = (uint64_t)fs_stats.f_frsize * (uint64_t)fs_stats.f_bavail;
-        std::string suffixes[5] = {"bytes", "Ki", "Mi", "Gi", "Ti"};
-        for (size_t i = 0; i < 5; i++) {
-            if (bytes_total < 1000 || i == 4) {
-                snprintf(generic_string, 1023, "%u %s", static_cast<uint32_t>(bytes_total), suffixes[i].c_str());
-                PrintBeginTableRow();
-                PrintTableElement("System Disk Space");
-                PrintTableElement("Free");
-                PrintTableElement(generic_string);
-                PrintEndTableRow();
-                break;
-            }
-            bytes_total /= 1000;
+    if (0 == statvfs("/", &fs_stats)) {
+        uint64_t bytes_total = (uint64_t)fs_stats.f_bsize * (uint64_t)fs_stats.f_bavail;
+        if ((bytes_total >> 40) > 0x0ULL) {
+            snprintf(generic_string, 1023, "%u TB", static_cast<uint32_t>(bytes_total >> 40));
+            PrintBeginTableRow();
+            PrintTableElement("System Disk Space");
+            PrintTableElement("Free");
+            PrintTableElement(generic_string);
+            PrintEndTableRow();
+        } else if ((bytes_total >> 30) > 0x0ULL) {
+            snprintf(generic_string, 1023, "%u GB", static_cast<uint32_t>(bytes_total >> 30));
+            PrintBeginTableRow();
+            PrintTableElement("System Disk Space");
+            PrintTableElement("Free");
+            PrintTableElement(generic_string);
+        } else if ((bytes_total >> 20) > 0x0ULL) {
+            snprintf(generic_string, 1023, "%u MB", static_cast<uint32_t>(bytes_total >> 20));
+            PrintBeginTableRow();
+            PrintTableElement("System Disk Space");
+            PrintTableElement("Free");
+            PrintTableElement(generic_string);
+            PrintEndTableRow();
+        } else if ((bytes_total >> 10) > 0x0ULL) {
+            snprintf(generic_string, 1023, "%u KB", static_cast<uint32_t>(bytes_total >> 10));
+            PrintBeginTableRow();
+            PrintTableElement("System Disk Space");
+            PrintTableElement("Free");
+            PrintTableElement(generic_string);
+            PrintEndTableRow();
+        } else {
+            snprintf(generic_string, 1023, "%u bytes", static_cast<uint32_t>(bytes_total));
+            PrintBeginTableRow();
+            PrintTableElement("System Disk Space");
+            PrintTableElement("Free");
+            PrintTableElement(generic_string);
+            PrintEndTableRow();
         }
     }
 
@@ -273,14 +264,6 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemHardwareInfo() {
         PrintTableElement("Current Dir Disk Space");
         PrintTableElement("Free");
         if (fgets(generic_string, 1023, fp) != NULL) {
-            uint32_t i = 0;
-            while (generic_string[i] != '\0') {
-                if (generic_string[i] == '\n') {
-                    generic_string[i] = '\0';
-                    break;
-                }
-                i++;
-            }
             PrintTableElement(generic_string);
         } else {
             PrintTableElement("Failed to determine current directory disk space");
@@ -293,7 +276,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemHardwareInfo() {
     return result;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExecutableInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemExecutableInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     PrintBeginTable("Executable Info", 2);
 
@@ -314,7 +297,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExecutableInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("Vulkan API Version");
-    PrintTableElement("1.2." + std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION)));
+    PrintTableElement("1.1." + std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION)));
     PrintEndTableRow();
 
     PrintBeginTableRow();
@@ -331,9 +314,9 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExecutableInfo() {
 }
 
 // Utility function to determine if a driver may exist in the folder.
-static bool CheckDriver(ViaSystemMacOS *via_sys_macos, std::string &folder_loc, std::string &object_name) {
+static bool CheckDriver(ViaSystemBSD *via_sys_bsd, std::string &folder_loc, std::string &object_name) {
     bool success = false;
-    (void)via_sys_macos;
+    (void)via_sys_bsd;
     std::string full_name = folder_loc;
     if (folder_loc.c_str()[folder_loc.size() - 1] != '/') {
         full_name += "/";
@@ -346,15 +329,15 @@ static bool CheckDriver(ViaSystemMacOS *via_sys_macos, std::string &folder_loc, 
 }
 
 // Pointer to a function sed to validate if the system object is found
-typedef bool (*PFN_CheckIfValid)(ViaSystemMacOS *via_sys_macos, std::string &folder_loc, std::string &object_name);
+typedef bool (*PFN_CheckIfValid)(ViaSystemBSD *via_sys_bsd, std::string &folder_loc, std::string &object_name);
 
-static bool FindMacOSSystemObject(ViaSystemMacOS *via_sys_macos, std::string object_name, std::string &location,
-                                  PFN_CheckIfValid func, bool break_on_first) {
+static bool FindBSDSystemObject(ViaSystemBSD *via_sys_bsd, std::string object_name, std::string &location, PFN_CheckIfValid func,
+                                bool break_on_first) {
     bool found_one = false;
     std::string path_to_check;
-    char *env_value = getenv("DYLD_LIBRARY_PATH");
+    char *env_value = getenv("LD_LIBRARY_PATH");
 
-    for (uint32_t iii = 0; iii < 2; iii++) {
+    for (uint32_t iii = 0; iii < 1; iii++) {
         switch (iii) {
             case 0:
                 path_to_check = "/usr/lib";
@@ -366,7 +349,7 @@ static bool FindMacOSSystemObject(ViaSystemMacOS *via_sys_macos, std::string obj
                 continue;
         }
 
-        if (func(via_sys_macos, path_to_check, object_name)) {
+        if (func(via_sys_bsd, path_to_check, object_name)) {
             location = path_to_check + "/" + object_name;
 
             // We found one runtime, clear any failures
@@ -377,14 +360,14 @@ static bool FindMacOSSystemObject(ViaSystemMacOS *via_sys_macos, std::string obj
         }
     }
 
-    // DYLD_LIBRARY_PATH may have multiple folders listed in it (colon
+    // LD_LIBRARY_PATH may have multiple folders listed in it (colon
     // ':' delimited)
     if (env_value != NULL) {
         char *tok = strtok(env_value, ":");
         while (tok != NULL) {
             if (strlen(tok) > 0) {
                 path_to_check = tok;
-                if (func(via_sys_macos, path_to_check, object_name)) {
+                if (func(via_sys_bsd, path_to_check, object_name)) {
                     location = path_to_check + "/" + object_name;
 
                     // We found one runtime, clear any failures
@@ -411,7 +394,7 @@ static bool VerifyOpen(std::string library_file, std::string &error) {
     return success;
 }
 
-bool ViaSystemMacOS::ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
+bool ViaSystemBSD::ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
     bool found_json = false;
     std::ifstream *stream = NULL;
     Json::Value root = Json::nullValue;
@@ -489,42 +472,22 @@ bool ViaSystemMacOS::ReadDriverJson(std::string cur_driver_json, bool &found_lib
                 found_lib = true;
                 could_load = VerifyOpen(full_driver_path, load_error);
             } else if (driver_name.find("/") == std::string::npos) {
-                if (FindMacOSSystemObject(this, driver_name, location, CheckDriver, true)) {
+                if (FindBSDSystemObject(this, driver_name, location, CheckDriver, true)) {
                     found_lib = true;
                     could_load = VerifyOpen(location, load_error);
                 }
             }
         }
         if (!found_lib) {
-            bool found = false;
-            uint32_t image_count = _dyld_image_count();
-            for (uint32_t i = 0; i < image_count; i++) {
-                std::string path = _dyld_get_image_name(i);
-                if (NULL != strstr(path.c_str(), driver_name.c_str())) {
-                    found = true;
-
-                    snprintf(generic_string, 2047, "Found at %s", path.c_str());
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("");
-                    PrintTableElement(generic_string);
-                    PrintEndTableRow();
-                    found_lib = true;
-                    could_load = VerifyOpen(path.c_str(), load_error);
-                    break;
-                }
-            }
-            if (!found) {
-                snprintf(generic_string, 1023,
-                         "Failed to find driver %s "
-                         "referenced by JSON %s",
-                         driver_name.c_str(), cur_driver_json.c_str());
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintTableElement(generic_string);
-                PrintEndTableRow();
-            }
+            snprintf(generic_string, 1023,
+                     "Failed to find driver %s "
+                     "referenced by JSON %s",
+                     driver_name.c_str(), cur_driver_json.c_str());
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement(generic_string);
+            PrintEndTableRow();
         } else if (!could_load) {
             PrintBeginTableRow();
             PrintTableElement("");
@@ -601,7 +564,7 @@ out:
     return found_json;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemDriverInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemDriverInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     bool found_json = false;
     bool found_lib = false;
@@ -619,8 +582,6 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemDriverInfo() {
 
     // There are several folders ICD JSONs could be in.  So,
     // try all of them.
-    driver_paths.push_back("/etc/vulkan/icd.d");
-    driver_paths.push_back("/usr/share/vulkan/icd.d");
     driver_paths.push_back("/usr/local/etc/vulkan/icd.d");
     driver_paths.push_back("/usr/local/share/vulkan/icd.d");
 
@@ -774,17 +735,19 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemDriverInfo() {
 
 // Print out all the runtime files found in a given location.  This way we
 // capture the full state of the system.
-ViaSystem::ViaResults ViaSystemMacOS::PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name, bool print_header) {
+ViaSystem::ViaResults ViaSystemBSD::PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name, bool print_header) {
     DIR *runtime_dir;
     ViaResults res = VIA_SUCCESSFUL;
 
     runtime_dir = opendir(folder_loc.c_str());
     if (NULL != runtime_dir) {
         bool file_found = false;
+        FILE *pfp;
         uint32_t i = 0;
         dirent *cur_ent;
         std::string command_str;
         std::stringstream generic_str;
+        char path[1035];
 
         if (print_header) {
             PrintBeginTableRow();
@@ -795,11 +758,14 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintRuntimesInFolder(std::string &folder_
         }
 
         while ((cur_ent = readdir(runtime_dir)) != NULL) {
-            std::string name_check = object_name + "dylib";
-            if (NULL != strstr(cur_ent->d_name, name_check.c_str())) {
-                char buffer[1023];
-                std::string object_path = folder_loc + "/" + cur_ent->d_name;
-                ssize_t len = readlink(object_path.c_str(), buffer, 1023);
+            if (NULL != strstr(cur_ent->d_name, object_name.c_str()) && strlen(cur_ent->d_name) == 14) {
+                // Get the source of this symbolic link
+                command_str = "stat -c%N \'";
+                command_str += folder_loc;
+                command_str += "/";
+                command_str += cur_ent->d_name;
+                command_str += "\'";
+                pfp = popen(command_str.c_str(), "r");
 
                 generic_str << "[" << i++ << "]";
 
@@ -808,30 +774,42 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintRuntimesInFolder(std::string &folder_
 
                 file_found = true;
 
-                if (len == -1) {
+                if (pfp == NULL) {
                     PrintTableElement(cur_ent->d_name);
                     PrintTableElement("Failed to retrieve symbolic link");
                     res = VIA_SYSTEM_CALL_FAILURE;
                 } else {
-                    buffer[len] = '\0';
-                    if (len > 0) {
-                        std::string trimmed_path = TrimWhitespace(buffer, " \t\n\r\'\"");
+                    if (NULL != fgets(path, sizeof(path) - 1, pfp)) {
+                        std::string cmd = path;
+                        size_t arrow_loc = cmd.find("->");
+                        if (arrow_loc == std::string::npos) {
+                            std::string trimmed_path = TrimWhitespace(path, " \t\n\r\'\"");
 
-                        PrintTableElement(object_path);
-                        PrintTableElement(trimmed_path);
+                            PrintTableElement(trimmed_path);
+                            PrintTableElement("");
+                        } else {
+                            std::string before_arrow = cmd.substr(0, arrow_loc);
+                            std::string trim_before = TrimWhitespace(before_arrow, " \t\n\r\'\"");
+                            std::string after_arrow = cmd.substr(arrow_loc + 2, std::string::npos);
+                            std::string trim_after = TrimWhitespace(after_arrow, " \t\n\r\'\"");
+                            PrintTableElement(trim_before);
+                            PrintTableElement(trim_after);
+                        }
                     } else {
                         PrintTableElement(cur_ent->d_name);
                         PrintTableElement("Failed to retrieve symbolic link");
                     }
 
                     PrintEndTableRow();
+
+                    pclose(pfp);
                 }
             }
         }
         if (!file_found) {
             PrintBeginTableRow();
             PrintTableElement("");
-            PrintTableElement("No " + object_name + "dylib files found");
+            PrintTableElement("No libvulkan.so files found");
             PrintTableElement("");
             PrintEndTableRow();
         }
@@ -848,16 +826,21 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintRuntimesInFolder(std::string &folder_
 }
 
 // Utility function to determine if a runtime exists in the folder
-static bool CheckRuntime(ViaSystemMacOS *via_sys_macos, std::string &folder_loc, std::string &object_name) {
-    return (ViaSystem::VIA_SUCCESSFUL == via_sys_macos->PrintRuntimesInFolder(folder_loc, object_name));
+static bool CheckRuntime(ViaSystemBSD *via_sys_bsd, std::string &folder_loc, std::string &object_name) {
+    return (ViaSystem::VIA_SUCCESSFUL == via_sys_bsd->PrintRuntimesInFolder(folder_loc, object_name));
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemLoaderInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemLoaderInfo() {
     ViaResults result = VIA_SUCCESSFUL;
-    const char vulkan_dylib_prefix[] = "libvulkan.1.";
-    std::string path;
+    const char vulkan_so_prefix[] = "libvulkan.so.";
+    char path[1035];
+    char generic_string[2048];
+    char buff[PATH_MAX];
+    size_t len = sizeof(buff);
+    int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
     std::string runtime_dir_name;
     std::string location;
+    FILE *pfp;
 
     PrintBeginTable("Vulkan Runtimes", 3);
 
@@ -867,18 +850,16 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemLoaderInfo() {
     PrintTableElement("");
     PrintEndTableRow();
 
-    if (!FindMacOSSystemObject(this, vulkan_dylib_prefix, location, CheckRuntime, false)) {
+    if (!FindBSDSystemObject(this, vulkan_so_prefix, location, CheckRuntime, false)) {
         result = VIA_VULKAN_CANT_FIND_RUNTIME;
     }
 
-    uint32_t bufSize = 0;
-    _NSGetExecutablePath(NULL, &bufSize);
-    char buff[bufSize];
-    int exe_found = _NSGetExecutablePath(buff, &bufSize);
-    if (exe_found != -1) {
+    int ret = sysctl(mib, sizeof(mib) / sizeof(mib[0]), buff, &len, NULL, 0);
+    if (ret != -1) {
         std::string runtime_dir_id = "Runtime Folder Used By via";
-        uint32_t image_count = _dyld_image_count();
-        if (image_count == 0) {
+        snprintf(generic_string, 2047, "ldd \'%s\'", buff);
+        pfp = popen(generic_string, "r");
+        if (pfp == NULL) {
             PrintBeginTableRow();
             PrintTableElement(runtime_dir_id);
             PrintTableElement("Failed to query via library info");
@@ -887,32 +868,42 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemLoaderInfo() {
             result = VIA_SYSTEM_CALL_FAILURE;
         } else {
             bool found = false;
-            for (uint32_t i = 0; i < image_count; i++) {
-                path = _dyld_get_image_name(i);
-                if (NULL != strstr(path.c_str(), vulkan_dylib_prefix)) {
-                    std::string after_arrow = path;
-                    std::string before_slash = after_arrow.substr(0, after_arrow.rfind("/"));
-                    std::string trimmed = TrimWhitespace(before_slash, " \t\n\r\'\"");
+            while (fgets(path, sizeof(path) - 1, pfp) != NULL) {
+                if (NULL != strstr(path, vulkan_so_prefix)) {
+                    std::string cmd = path;
+                    size_t arrow_loc = cmd.find("=>");
+                    if (arrow_loc == std::string::npos) {
+                        std::string trimmed_path = TrimWhitespace(path, " \t\n\r\'\"");
+                        PrintBeginTableRow();
+                        PrintTableElement(runtime_dir_id);
+                        PrintTableElement(trimmed_path);
+                        PrintTableElement("");
+                        PrintEndTableRow();
+                    } else {
+                        std::string after_arrow = cmd.substr(arrow_loc + 2);
+                        std::string before_slash = after_arrow.substr(0, after_arrow.rfind("/"));
+                        std::string trimmed = TrimWhitespace(before_slash, " \t\n\r\'\"");
 
-                    PrintBeginTableRow();
-                    PrintTableElement(runtime_dir_id);
-                    PrintTableElement(trimmed);
-                    PrintTableElement("");
-                    PrintEndTableRow();
+                        PrintBeginTableRow();
+                        PrintTableElement(runtime_dir_id);
+                        PrintTableElement(trimmed);
+                        PrintTableElement("");
+                        PrintEndTableRow();
 
-                    std::string find_dylib = vulkan_dylib_prefix;
-                    ViaResults temp_res = PrintRuntimesInFolder(trimmed, find_dylib, false);
-                    if (!found) {
-                        // If nothing's been found so far, save the current error message
-                        result = temp_res;
-                        // If the result was successful, then we did end up finding at least
-                        // one.
-                        if (result == VIA_SUCCESSFUL) {
-                            found = true;
+                        std::string find_so = vulkan_so_prefix;
+                        ViaResults temp_res = PrintRuntimesInFolder(trimmed, find_so, false);
+                        if (!found) {
+                            // If nothing's been found so far, save the current error message
+                            result = temp_res;
+                            // If the result was successful, then we did end up finding at least
+                            // one.
+                            if (result == VIA_SUCCESSFUL) {
+                                found = true;
+                            }
+                            // We found at least one runtime already, clear any failures
+                        } else if (found && result == VIA_VULKAN_CANT_FIND_RUNTIME) {
+                            result = VIA_SUCCESSFUL;
                         }
-                        // We found at least one runtime already, clear any failures
-                    } else if (found && result == VIA_VULKAN_CANT_FIND_RUNTIME) {
-                        result = VIA_SUCCESSFUL;
                     }
                     break;
                 }
@@ -920,11 +911,13 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemLoaderInfo() {
             if (!found) {
                 PrintBeginTableRow();
                 PrintTableElement(runtime_dir_id);
-                PrintTableElement("Failed to find Vulkan dylib used for via");
+                PrintTableElement("Failed to find Vulkan SO used for via");
                 PrintTableElement("");
                 PrintEndTableRow();
             }
+            pclose(pfp);
         }
+        PrintEndTableRow();
     }
 
     PrintEndTable();
@@ -933,7 +926,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemLoaderInfo() {
 
 // Print out the explicit layers that are stored in any of the standard
 // locations.
-ViaSystem::ViaResults ViaSystemMacOS::PrintExplicitLayersInFolder(const std::string &id, std::string &folder_loc) {
+ViaSystem::ViaResults ViaSystemBSD::PrintExplicitLayersInFolder(const std::string &id, std::string &folder_loc) {
     ViaResults res = VIA_SUCCESSFUL;
     DIR *layer_dir;
 
@@ -1023,12 +1016,12 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintExplicitLayersInFolder(const std::str
     return res;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSdkInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemSdkInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     bool sdk_exists = false;
     std::string sdk_path;
     std::string sdk_env_name;
-    const char vulkan_so_prefix[] = "libvulkan.dylib.";
+    const char vulkan_so_prefix[] = "libvulkan.so.";
     DIR *sdk_dir;
     dirent *cur_ent;
     char *env_value;
@@ -1036,38 +1029,89 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSdkInfo() {
     PrintBeginTable("LunarG Vulkan SDKs", 4);
 
     // First, try environmental variables
-    sdk_env_name = "VULKAN_SDK";
-    env_value = getenv(sdk_env_name.c_str());
-    if (env_value != NULL) {
-        sdk_path = env_value;
-    }
-    PrintBeginTableRow();
-    PrintTableElement(sdk_env_name);
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintEndTableRow();
-
-    const std::vector<const char *> explicit_layer_path_suffixes{"/etc/explicit_layer.d", "/etc/vulkan/explicit_layer.d",
-                                                                 "/share/explicit_layer.d", "/share/vulkan/explicit_layer.d"};
-
-    for (auto &explicit_layer_path_suffix : explicit_layer_path_suffixes) {
-        std::string explicit_layer_path = sdk_path + explicit_layer_path_suffix;
-
-        sdk_dir = opendir(explicit_layer_path.c_str());
-        if (NULL != sdk_dir) {
-            while ((cur_ent = readdir(sdk_dir)) != NULL) {
-                if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) && strlen(cur_ent->d_name) == 14) {
+    for (uint32_t dir = 0; dir < 2; dir++) {
+        switch (dir) {
+            case 0:
+                sdk_env_name = "VK_SDK_PATH";
+                env_value = getenv(sdk_env_name.c_str());
+                if (env_value == NULL) {
+                    continue;
                 }
-            }
-            closedir(sdk_dir);
+                sdk_path = env_value;
+                break;
+            case 1:
+                sdk_env_name = "VULKAN_SDK";
+                env_value = getenv(sdk_env_name.c_str());
+                if (env_value == NULL) {
+                    continue;
+                }
+                sdk_path = env_value;
+                break;
+            default:
+                result = VIA_UNKNOWN_ERROR;
+                continue;
+        }
+        PrintBeginTableRow();
+        PrintTableElement(sdk_env_name);
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
 
-            result = PrintExplicitLayersInFolder("", explicit_layer_path);
+        const std::vector<const char *> explicit_layer_path_suffixes{"/usr/local/etc/explicit_layer.d",
+                                                                     "/usr/local/etc/vulkan/explicit_layer.d"};
+
+        for (auto &explicit_layer_path_suffix : explicit_layer_path_suffixes) {
+            std::string explicit_layer_path = sdk_path + explicit_layer_path_suffix;
+
+            sdk_dir = opendir(explicit_layer_path.c_str());
+            if (NULL != sdk_dir) {
+                while ((cur_ent = readdir(sdk_dir)) != NULL) {
+                    if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) && strlen(cur_ent->d_name) == 14) {
+                    }
+                }
+                closedir(sdk_dir);
+
+                result = PrintExplicitLayersInFolder("", explicit_layer_path);
+
+                _found_sdk = true;
+                _sdk_path = sdk_path;
+                sdk_exists = true;
+                break;
+            }
+        }
+    }
+
+    // Next, try system install items
+    std::string upper_os_name = _os_name;
+    std::transform(upper_os_name.begin(), upper_os_name.end(), upper_os_name.begin(), ::toupper);
+    FILE *pkg_output = popen("pkg info vulkan-loader", "r");
+    if (pkg_output != nullptr) {
+        char cur_line[1035];
+        std::string install_name("vulkan-loader");
+        std::string install_version;
+        // Read the output a line at a time - output it.
+        while (fgets(cur_line, sizeof(cur_line) - 1, pkg_output) != nullptr) {
+            if (!strncmp(cur_line, "Version", sizeof("Version") - 1)) {
+                char *p = strstr(cur_line, ": ");
+                if (p) {
+                    install_version = p;
+                }
+                break;
+            }
+        }
+        pclose(pkg_output);
+        if (install_name.size() > 0 && install_version.size() > 0) {
+            PrintBeginTableRow();
+            PrintTableElement("System Installed SDK");
+            PrintTableElement(install_name.c_str());
+            PrintTableElement(install_version.c_str());
+            PrintTableElement("");
+            PrintEndTableRow();
 
             _found_sdk = true;
-            _sdk_path = sdk_path;
+            _is_system_installed_sdk = true;
             sdk_exists = true;
-            break;
         }
     }
 
@@ -1084,7 +1128,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSdkInfo() {
     return result;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemImplicitLayerInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemImplicitLayerInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     uint32_t i = 0;
     char generic_string[1024];
@@ -1097,22 +1141,16 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemImplicitLayerInfo() {
 
     // There are several folders implicit layers could be in.  So,
     // try all of them.
-    for (uint32_t dir = 0; dir < 4; dir++) {
+    for (uint32_t dir = 0; dir < 3; dir++) {
         std::string cur_layer_path;
         switch (dir) {
             case 0:
-                cur_layer_path = "/usr/etc/vulkan/implicit_layer.d";
-                break;
-            case 1:
-                cur_layer_path = "/usr/share/vulkan/implicit_layer.d";
-                break;
-            case 2:
                 cur_layer_path = "/usr/local/etc/vulkan/implicit_layer.d";
                 break;
-            case 3:
+            case 1:
                 cur_layer_path = "/usr/local/share/vulkan/implicit_layer.d";
                 break;
-            case 4: {
+            case 2: {
                 char *env_value = getenv("HOME");
                 if (NULL == env_value) {
                     cur_layer_path = "~/.local/share/vulkan/implicit_layer.d";
@@ -1192,7 +1230,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemImplicitLayerInfo() {
     return result;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExplicitLayerInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemExplicitLayerInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     char *env_value = NULL;
     std::string explicit_layer_id;
@@ -1254,29 +1292,21 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExplicitLayerInfo() {
 
     // There are several folders explicit layers could be in.  So,
     // try all of them.
-    for (uint32_t dir = 0; dir < 4; dir++) {
+    for (uint32_t dir = 0; dir < 3; dir++) {
         std::string cur_layer_path;
         std::string explicit_layer_id;
         std::string explicit_layer_path = cur_layer_path;
         char *env_value = NULL;
         switch (dir) {
             case 0:
-                cur_layer_path = "/etc/vulkan/explicit_layer.d";
-                explicit_layer_id = "/etc/vulkan";
-                break;
-            case 1:
-                cur_layer_path = "/usr/share/vulkan/explicit_layer.d";
-                explicit_layer_id = "/usr/share/vulkan";
-                break;
-            case 2:
                 cur_layer_path = "/usr/local/etc/vulkan/explicit_layer.d";
                 explicit_layer_id = "/usr/local/etc/vulkan";
                 break;
-            case 3:
+            case 1:
                 cur_layer_path = "/usr/local/share/vulkan/explicit_layer.d";
                 explicit_layer_id = "/usr/local/share/vulkan";
                 break;
-            case 4:
+            case 2:
                 explicit_layer_id = "$HOME/.local/share/vulkan/explicit_layer.d";
                 env_value = getenv("HOME");
                 if (NULL == env_value) {
@@ -1297,7 +1327,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExplicitLayerInfo() {
     return result;
 }
 
-bool ViaSystemMacOS::CheckExpiration(ViaSystem::OverrideExpiration expiration) {
+bool ViaSystemBSD::CheckExpiration(ViaSystem::OverrideExpiration expiration) {
     bool still_valid = false;
     uint16_t year = 0;
     uint8_t month = 0;
@@ -1321,7 +1351,7 @@ bool ViaSystemMacOS::CheckExpiration(ViaSystem::OverrideExpiration expiration) {
     return still_valid;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSettingsFileInfo() {
+ViaSystem::ViaResults ViaSystemBSD::PrintSystemSettingsFileInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     const char settings_file_name[] = "vk_layer_settings.txt";
     std::vector<std::string> settings_files;
@@ -1346,13 +1376,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSettingsFileInfo() {
     } else {
         // There are several folders settings JSONs could be in.  So,
         // try all of them.
-        std::string full_file = "/etc/vulkan/settings.d/";
-        full_file += settings_file_name;
-        settings_files.push_back(full_file);
-        full_file = "/usr/share/vulkan/settings.d/";
-        full_file += settings_file_name;
-        settings_files.push_back(full_file);
-        full_file = "/usr/local/etc/vulkan/settings.d/";
+        std::string full_file = "/usr/local/etc/vulkan/settings.d/";
         full_file += settings_file_name;
         settings_files.push_back(full_file);
         full_file = "/usr/local/share/vulkan/settings.d/";
@@ -1386,7 +1410,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSettingsFileInfo() {
     return result;
 }
 
-std::string ViaSystemMacOS::GetEnvironmentalVariableValue(const std::string &env_var) {
+std::string ViaSystemBSD::GetEnvironmentalVariableValue(const std::string &env_var) {
     std::string return_value;
     char *env_return = getenv(env_var.c_str());
     if (NULL != env_return) {
@@ -1395,10 +1419,10 @@ std::string ViaSystemMacOS::GetEnvironmentalVariableValue(const std::string &env
     return return_value;
 }
 
-bool ViaSystemMacOS::ExpandPathWithEnvVar(std::string &path) {
+bool ViaSystemBSD::ExpandPathWithEnvVar(std::string &path) {
     // TBD
     (void)path;
     return true;
 }
 
-#endif  // VIA_MACOS_TARGET
+#endif  // VIA_LINUX_TARGET

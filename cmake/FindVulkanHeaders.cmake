@@ -113,7 +113,7 @@ foreach(VulkanHeader_line ${VulkanHeader_lines})
     #   Format is:
     #      #define VK_HEADER_VERSION Z
     #   Where Z is the patch version which we just grab off the end
-    string(REGEX MATCH "define.*VK_HEADER_VERSION.*[0-9]+" VulkanHeaders_out ${VulkanHeader_line})
+    string(REGEX MATCH "define.*VK_HEADER_VERSION[^_].*[0-9]+" VulkanHeaders_out ${VulkanHeader_line})
     list(LENGTH VulkanHeaders_out VulkanHeaders_len)
     if (VulkanHeaders_len)
         string(REGEX MATCH "[0-9]+" VulkanHeaders_VERSION_PATCH "${VulkanHeaders_out}")

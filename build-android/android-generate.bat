@@ -39,25 +39,6 @@ echo Entering Generated/Include Folder
 echo ********
 pushd generated\include
 
-echo Generating LVL header/source files
-echo ********
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_safe_struct.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_safe_struct.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_enum_string_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_object_types.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_dispatch_table_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% thread_check.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% parameter_validation.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_layer_dispatch_table.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_extension_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_typemap_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_chassis_dispatch.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_chassis_dispatch.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.h
-
 REM layer factory
 echo Generating VT layer factory header/source files
 echo ********
@@ -73,23 +54,6 @@ py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api
 py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api_dump_html.h
 py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api_dump_json.h
  
-REM vktrace
-echo Generating VT vktrace header/source files
-echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk_packets.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_packet_id.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_struct_size_helper.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_struct_size_helper.c
-
-REM vkreplay
-echo Generating VT vkreplay header/source files
-echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_func_ptrs.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_replay_gen.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_objmapper.h
-
 REM Copy over the built source files to LVL.  Otherwise,
 REM cube won't build.
 echo Entering third_party\Vulkan-ValidationLayers\build-android

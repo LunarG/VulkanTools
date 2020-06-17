@@ -7,6 +7,8 @@ project (VULKAN_TOOLS)
 set(API_NAME "Vulkan" CACHE STRING "API name")
 add_definitions(-DAPI_NAME="${API_NAME}")
 
+add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Define GNU standard installation directories.
@@ -92,7 +94,7 @@ if (USE_CCACHE)
     endif(CCACHE_FOUND)
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
     set(FALLBACK_CONFIG_DIRS "/etc/xdg" CACHE STRING
         "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
     set(FALLBACK_DATA_DIRS "/usr/local/share:/usr/share" CACHE STRING
@@ -102,7 +104,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
-    set(VKREPLAY_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for vkreplay (XCB, WAYLAND, DISPLAY)")
 
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
@@ -147,37 +148,27 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_LOADER_INSTALL_DIR};${VULKAN
 find_package(Vulkan)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
-    CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
+    CMAKE_SYSTEM_NAME MATCHES "BSD")
 
     option(BUILD_TESTS "Build tests" ON)
     option(BUILD_LAYERSVT "Build layersvt" ON)
     option(BUILD_VLF "Build layer_factory" ON)
-    option(BUILD_VKTRACE "Build VkTrace" ON)
     option(BUILD_VIA "Build via" ON)
 
     option(BUILD_LAYERMGR "Build layer manager" ON)
 
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
-        option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
-    else()
-        option(BUILD_VKTRACE_REPLAY "Build VkReplay" ON)
-    endif()
-
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     
-    option(BUILD_VKTRACE ON)
     option(BUILD_LOADER OFF)
     option(BUILD_TESTS OFF)
     option(BUILD_LAYERS OFF)
     option(BUILD_LAYERSVT "Build layersvt" ON)
     option(BUILD_VLF OFF)
-    option(BUILD_VKTRACEVIEWER OFF)
     option(BUILD_DEMOS OFF)
     option(BUILD_VKJSON OFF)
     option(BUILD_VIA "Build VIA" ON)
     option(BUILD_LAYERMGR "Build layer manager" ON)
-    option(BUILD_VKTRACE_LAYER OFF)
-    option(BUILD_VKTRACE_REPLAY OFF)
 
 endif()
 
@@ -193,7 +184,7 @@ find_path(JSONCPP_SOURCE_DIR jsoncpp.cpp HINTS "${SUBPROJECTS_DIR}/jsoncpp/dist"
                                                    "${SUBPROJECTS_DIR}/JsonCPP/dist"
                                                    "${SUBPROJECTS_DIR}/JSONCPP/dist"
                                                    "${CMAKE_SOURCE_DIR}/../jsoncpp/dist"
-                                             DOC "Path to jsoncpp/dist/json.cpp")
+                                             DOC "Path to jsoncpp/dist/jsoncpp.cpp")
 
 find_library(JSONCPP_LIB NAMES jsoncpp HINTS ${JSONCPP_SEARCH_PATH} )
 
@@ -220,10 +211,6 @@ endif()
 
 if(BUILD_VLF)
     add_subdirectory(layer_factory)
-endif()
-
-if(BUILD_VKTRACE)
-    add_subdirectory(vktrace)
 endif()
 
 if(BUILD_VIA)
