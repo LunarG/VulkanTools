@@ -105,12 +105,14 @@ MainWindow::MainWindow(QWidget *parent)
         ui->radioOverride->setChecked(true);
         ui->checkBoxApplyList->setEnabled(true);
         ui->checkBoxPersistent->setEnabled(true);
+        ui->checkBoxApplyAll->setEnabled(true);
         }
     else {
         ui->radioFully->setChecked(true);
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxPersistent->setEnabled(false);
         ui->pushButtonAppList->setEnabled(false);
+        ui->checkBoxApplyAll->setEnabled(false);
         }
 
     ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
@@ -178,6 +180,7 @@ void MainWindow::on_radioFully_clicked(void)
     {
     ui->checkBoxApplyList->setEnabled(false);
     ui->checkBoxPersistent->setEnabled(false);
+    ui->checkBoxApplyAll->setEnabled(false);
     pVulkanConfig->bOverrideActive = false;
 
     ui->pushButtonAppList->setEnabled(false);
@@ -219,7 +222,7 @@ void MainWindow::on_radioOverride_clicked(void)
     ui->checkBoxApplyList->setEnabled(bUse);
     ui->pushButtonAppList->setEnabled(bUse && pVulkanConfig->bApplyOnlyToList);
 
-
+    ui->checkBoxApplyAll->setEnabled(true);
     ui->checkBoxPersistent->setEnabled(true);
     pVulkanConfig->bOverrideActive = true;
     pVulkanConfig->SaveAppSettings();
@@ -282,7 +285,7 @@ void MainWindow::toolsResetDefaultProfiles(bool bChecked)
 
     // Let make sure...
     QMessageBox msg;
-    msg.setText(tr("This will reset/restore the 5 default layer configurations to their default state. "
+    msg.setText(tr("This will reset/restore the 9 default layer configurations to their default state. "
                    "If you've made changes to these configurations they will also be lost. Are you sure you want to continue?"));
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msg.setDefaultButton(QMessageBox::Yes);
@@ -293,6 +296,7 @@ void MainWindow::toolsResetDefaultProfiles(bool bChecked)
     settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
 
     // Now we need to kind of restart everything
+    settingsTreeManager.CleanupGUI();
     pVulkanConfig->LoadAllProfiles();
     LoadProfileList();
     }
@@ -787,7 +791,7 @@ void MainWindow::SetupLaunchTree(void)
     //////////////////////////////////////////////////////////////////
     // LOG FILE
     QTreeWidgetItem *pLauncherLogFile = new QTreeWidgetItem();
-    pLauncherLogFile->setText(0, "Log File");
+    pLauncherLogFile->setText(0, "Output Log");
     pLauncherParent->addChild(pLauncherLogFile);
 
     pLaunchLogFile = new QLineEdit();
