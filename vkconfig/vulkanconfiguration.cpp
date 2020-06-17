@@ -328,7 +328,7 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
     // Layer override json file
     HKEY key;
     REGSAM access =  KEY_WRITE;
-    LSTATUS err = RegCreateKeyExW(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS)
         return;
 
@@ -341,7 +341,7 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
 
 
     // Layer settings file
-    err = RegCreateKeyExW(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
+    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
                                  access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS)
         return;
