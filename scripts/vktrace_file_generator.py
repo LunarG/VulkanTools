@@ -297,7 +297,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     def paramIsPointer(self, param):
         ispointer = False
         for elem in param:
-            if ((elem.tag is not 'type') and (elem.tail is not None)) and '*' in elem.tail:
+            if ((elem.tag != 'type') and (elem.tail is not None)) and '*' in elem.tail:
                 ispointer = True
         return ispointer
     #
@@ -821,7 +821,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            do {\n'
                 last_name = ''
                 for p in params:
-                    if p.name is not '':
+                    if p.name != '':
                         if create_func or create_view:
                             if p.name != params[-1].name:
                                 replay_gen_source += self.RemapPacketParam(cmdname, p, last_name)
@@ -920,7 +920,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 else:
                     rr_string += 'm_vkDeviceFuncs.%s(' % cmdname
                 for p in params:
-                    if p.name is not '':
+                    if p.name != '':
                         # For last param of Create funcs, pass address of param
                         if create_func:
                             if cmdname == 'AllocateDescriptorSets' and ((p.name == params[-2].name) or (p.name == params[-1].name)):
@@ -2439,7 +2439,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 if ret_value:
                     param_string += 'pPacket->result, '
                 for p in params:
-                    if p.name is not '':
+                    if p.name != '':
                         param_string += 'pPacket->%s, ' % p.name
                         param_string_no_result += 'pPacket->%s, ' % p.name
                 param_string = '%s);' % param_string[:-2]
