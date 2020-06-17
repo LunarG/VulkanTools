@@ -65,6 +65,7 @@ void CFolderSettingWidget::browseButtonClicked(void)
         file = QDir::toNativeSeparators(file);
         pSetting->settingsValue = file;
         pLineEdit->setText(file);
+        emit itemChanged();
         }
     }
 
@@ -72,4 +73,5 @@ void CFolderSettingWidget::browseButtonClicked(void)
 void CFolderSettingWidget::textFieldChanged(const QString& newText)
     {
     pSetting->settingsValue = newText;
+    emit itemChanged();
     }

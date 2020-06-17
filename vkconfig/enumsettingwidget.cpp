@@ -43,4 +43,5 @@ CEnumSettingWidget::CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSetting
 void CEnumSettingWidget::indexChanged(int nIndex)
     {
     pSetting->settingsValue = pSetting->settingsListExclusiveValue[nIndex];
+    emit itemChanged();
     }

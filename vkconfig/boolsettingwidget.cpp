@@ -46,4 +46,6 @@ void CBoolSettingWidget::itemToggled(void)
         else
             pSetting->settingsValue = QString("FALSE");
         }
+
+    emit itemChanged();
     }

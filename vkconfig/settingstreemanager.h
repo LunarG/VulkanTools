@@ -76,7 +76,8 @@ public Q_SLOTS:
     void khronosPresetChanged(int nIndex); // Okay, is this a custom guy HERE, or do we move it out
                                            // It really forces a reload of the entire branch of this tree
                                            // Reset layer defaults for the profile, and then call BuildKhronosTree again
-    void khronosPresetEdited(void);         // The user has changed something from a preset, and we are now a custom setting
+    void khronosPresetEdited(void);        // The user has changed something from a preset, and we are now a custom setting
+    void profileEdited(void);              // The profile has been edited and should be saved
 };
 
 #endif // CSETTINGSTREEMANAGER_H

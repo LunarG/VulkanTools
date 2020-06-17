@@ -40,6 +40,8 @@ void CMultiEnumSetting::itemChecked(bool bChecked)
         AddString(pSetting->settingsValue, mySetting);
     else
         RemoveString(pSetting->settingsValue, mySetting);
+
+    emit itemChanged();
     }
 
 

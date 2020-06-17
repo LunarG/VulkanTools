@@ -48,6 +48,10 @@ public Q_SLOTS:
     void browseButtonClicked(void);
     void textFieldChanged(const QString& newText);
 
+Q_SIGNALS:
+    void itemChanged(void);
+
+
 };
 
 #endif // CFILENAMESETTINGWIDGET_H

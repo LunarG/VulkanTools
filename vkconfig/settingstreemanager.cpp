@@ -95,7 +95,6 @@ void CSettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProf
         BuildGenericTree(pLayerItem, pProfileDef->layers[iLayer]);
         }
 
-
     ///////////////////////////////////////////////////////////////////
     // The last item is just the blacklisted layers
     if(!pProfileDef->blacklistedLayers.isEmpty()) {
@@ -111,6 +110,8 @@ void CSettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProf
 
     // Walk the tree, and restore the expanded state of all the items
     SetTreeState(pProfile->settingTreeState, 0, pEditorTree->invisibleRootItem());
+
+    // Everyone is expanded.
     pBuildTree->resizeColumnToContents(0);
     }
 
@@ -184,6 +185,7 @@ void CSettingsTreeManager::BuildKhronosTree(void)
                 pControl->setText(pKhronosLayer->layerSettings[iSetting]->settingsListInclusivePrompt[i]);
                 pSubCategory->addChild(pChild);
                 pEditorTree->setItemWidget(pChild, 0, pControl);
+                connect(pControl, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
                 }
 
             continue;
@@ -257,6 +259,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
+            connect(pBoolWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
             }
 
@@ -265,6 +268,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting], true);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
+            connect(pBoolWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
             }
 
@@ -273,6 +277,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 1, pEnumWidget);
+            connect(pEnumWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
             }
 
@@ -281,6 +286,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             CStringSettingWidget *pStringWidget = new CStringSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 1, pStringWidget);
+            connect(pStringWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
             }
 
@@ -290,6 +296,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 1, pWidget);
             fileWidgets.push_back(pSettingItem);
+            connect(pWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
             }
 
@@ -300,6 +307,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 1, pWidget);
             fileWidgets.push_back(pSettingItem);
+            connect(pWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
             }
 
@@ -360,15 +368,19 @@ void CSettingsTreeManager::khronosPresetChanged(int nIndex)
     BuildKhronosTree();
     SetTreeState(savedState, 0, pKhronosPresetItem);
     pEditorTree->blockSignals(false);
+    profileEdited();
     }
 
-
+///////////////////////////////////////////////////////////////////////
+// Any edit to these settings means we are not user defined
+// (and that we need to save the settings)
 void CSettingsTreeManager::khronosPresetEdited(void)
     {
     pKhronosPresets->blockSignals(true);
     pKhronosPresets->setCurrentIndex(KHRONOS_PRESET_USER_DEFINED);
     pProfile->nPresetIndex = KHRONOS_PRESET_USER_DEFINED;
     pKhronosPresets->blockSignals(false);
+    profileEdited();
     }
 
 
@@ -439,4 +451,19 @@ void CSettingsTreeManager::CleanupGUI(void)
     pAdvancedKhronosEditor = nullptr;
     pKhronosLogFileWidget = nullptr;
     pKhronosLogFileItem = nullptr;
+    }
+
+/////////////////////////////////////////////////////////////
+// The profile has been edited and should be saved
+void CSettingsTreeManager::profileEdited(void)
+    {
+    // Resave this profile
+    CVulkanConfiguration* pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
+    pVulkanConfig->SaveProfile(pProfile);
+
+    // If this profile is active, we need to reset the override files too
+    // Just resetting with the same parent pointer will do the trick
+    if(pProfile == pVulkanConfig->GetCurrentActiveProfile())
+            pVulkanConfig->SetCurrentActiveProfile(pProfile);
+
     }

@@ -41,6 +41,10 @@ private:
 public Q_SLOTS:
     void itemChecked(bool bChecked);
 
+Q_SIGNALS:
+    void itemChanged(void);
+
+
 };
 
 #endif // CMULTIENUMSETTING_H

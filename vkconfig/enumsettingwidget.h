@@ -39,6 +39,10 @@ private:
 public Q_SLOTS:
     void indexChanged(int nIndex);
 
+Q_SIGNALS:
+    void itemChanged(void);
+
+
 };
 
 #endif // CENUMSETTINGWIDGET_H

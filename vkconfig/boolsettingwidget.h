@@ -40,6 +40,9 @@ private:
 public Q_SLOTS:
     void itemToggled(void);
 
+Q_SIGNALS:
+    void itemChanged(void);
+
 };
 
 #endif // CBOOLSETTINGWIDGET_H

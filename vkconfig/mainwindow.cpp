@@ -1176,10 +1176,13 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
     QString out;
     out = QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
+    ui->logBrowser->append(out);
     out = QString().asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
+    ui->logBrowser->append(out);
     out = QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
+    ui->logBrowser->append(out);
     }
 
 

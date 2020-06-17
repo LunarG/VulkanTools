@@ -66,6 +66,7 @@ void CFilenameSettingWidget::browseButtonClicked(void)
         file = QDir::toNativeSeparators(file);
         pSetting->settingsValue = file;
         pLineEdit->setText(file);
+        emit itemChanged();
         }
     }
 
@@ -73,4 +74,5 @@ void CFilenameSettingWidget::browseButtonClicked(void)
 void CFilenameSettingWidget::textFieldChanged(const QString& newText)
     {
     pSetting->settingsValue = newText;
+    emit itemChanged();
     }
