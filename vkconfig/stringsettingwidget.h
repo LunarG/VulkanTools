@@ -39,6 +39,10 @@ private:
 public Q_SLOTS:
     void itemEdited(const QString& newString);
 
+Q_SIGNALS:
+    void itemChanged(void);
+
+
 };
 
 #endif // CSTRINGSETTINGWIDGET_H

@@ -34,4 +34,5 @@ CStringSettingWidget::CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSetting
 void CStringSettingWidget::itemEdited(const QString& newString)
     {
     pSetting->settingsValue = newString;
+    emit itemChanged();
     }
