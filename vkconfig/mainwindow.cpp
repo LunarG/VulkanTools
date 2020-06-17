@@ -1026,6 +1026,9 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
     // Are we already monitoring a running app? If so, terminate it
     if(pVulkanApp != nullptr) {
         pVulkanApp->terminate();
+        pVulkanApp->deleteLater();
+        pVulkanApp = nullptr;
+        ui->pushButtonLaunch->setText(tr("Launch"));
         return;
         }
 
@@ -1084,6 +1087,22 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
      pVulkanApp->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
      pVulkanApp->setProcessChannelMode(QProcess::MergedChannels);
      pVulkanApp->closeWriteChannel();
+
+     // Wait... did we start? Give it 4 seconds, more than enough time
+     if(!pVulkanApp->waitForStarted(4000))
+        {
+        pVulkanApp->waitForStarted();
+        pVulkanApp->deleteLater();
+        pVulkanApp = nullptr;
+
+        QMessageBox dlg(this);
+        dlg.setText("Failed to launch test application!");
+        dlg.setIcon(QMessageBox::Critical);
+        dlg.exec();
+        return;
+        }
+
+     // We are off to the races....
      ui->pushButtonLaunch->setText(tr("Terminate"));
 
      // No log file is set, just bail

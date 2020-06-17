@@ -190,6 +190,52 @@ void CSettingsTreeManager::BuildKhronosTree(void)
             }
         }
 
+    // All that message filtering stuff
+//    QTreeWidgetItem *pMuteMessageRoot = new QTreeWidgetItem();
+//    pMuteMessageRoot->setText(0, "Mute Message");
+//    pKhronosTree->addChild(pMuteMessageRoot);
+
+//    QTreeWidgetItem *pMuteSeverity = new QTreeWidgetItem();
+//    pMuteSeverity->setText(0, "Mute Message Severity");
+//    pMuteMessageRoot->addChild(pMuteSeverity);
+
+//    // Yeah, throwing this away for now
+//    TLayerSettings *pTest = new TLayerSettings;
+//    pTest->settingsName = "Mute Message Severity";
+//    pTest->settingsDesc = "Mute me";
+//    pTest->settingsType = LAYER_SETTINGS_INCLUSIVE_LIST;
+//    pTest->settingsListInclusivePrompt = QStringList() << "Verbose" << "Information" << "Warning" << "Error";
+//    pTest->settingsListInclusiveValue = QStringList() << "VERBOSE" << "INFORM" << "WARNING" << "ERROR";
+//    pTest->settingsPrompt = "Mute Prompt";
+//    for(int i = 0; i < pTest->settingsListInclusiveValue.size(); i++) {
+//        QTreeWidgetItem *pChild = new QTreeWidgetItem();
+//        CMultiEnumSetting *pControl = new CMultiEnumSetting(pTest, pTest->settingsListInclusiveValue[i]);
+//        pControl->setText(pTest->settingsListInclusivePrompt[i]);
+//        pMuteSeverity->addChild(pChild);
+//        pEditorTree->setItemWidget(pChild, 0, pControl);
+//        }
+
+//    QTreeWidgetItem *pMuteMessageType = new QTreeWidgetItem();
+//    pMuteMessageType->setText(0, "Mute Message Type");
+//    pMuteMessageRoot->addChild(pMuteMessageType);
+//    pTest = new TLayerSettings;
+//    pTest->settingsName = "";
+//    pTest->settingsDesc = "Mute me";
+//    pTest->settingsType = LAYER_SETTINGS_INCLUSIVE_LIST;
+//    pTest->settingsListInclusivePrompt = QStringList() << "General" << "Validation" << "Performance";
+//    pTest->settingsListInclusiveValue = QStringList() << "VERBOSE" << "INFORM" << "WARNING";
+//    pTest->settingsPrompt = "Mute Prompt";
+
+//    for(int i = 0; i < pTest->settingsListInclusiveValue.size(); i++) {
+//        QTreeWidgetItem *pChild = new QTreeWidgetItem();
+//        CMultiEnumSetting *pControl = new CMultiEnumSetting(pTest, pTest->settingsListInclusiveValue[i]);
+//        pControl->setText(pTest->settingsListInclusivePrompt[i]);
+//        pMuteMessageType->addChild(pChild);
+//        pEditorTree->setItemWidget(pChild, 0, pControl);
+//        }
+
+
+
     pKhronosTree->addChild(pKhronosPresetItem);
     }
 

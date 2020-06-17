@@ -79,6 +79,7 @@ protected:
 #define VKCONFIG_KEY_APPLY_ONLY_TO_LIST     "applyOnlyToList"
 #define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT    "keepActiveOnExit"
 #define VKCONFIG_KEY_FIRST_RUN              "firstRun"
+#define VKCONFIG_KEY_APPLY_ALL              "applytoall"
 
 
 // This is a master list of layer settings. All the settings
@@ -133,6 +134,7 @@ public:
     bool    bApplyOnlyToList;   // Apply the overide only to the application list
     bool    bKeepActiveOnExit;  // Stay active when app closes
     bool    bHasOldLoader;      // Older loader does not support per-application overrides
+    bool    bApplyToAllUsers;   // Apply to all users, not just the current user
 
 
     QString qsProfileFilesPath;         // Where config working files live

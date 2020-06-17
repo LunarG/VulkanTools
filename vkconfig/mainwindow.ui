@@ -30,7 +30,7 @@
   </property>
   <property name="font">
    <font>
-    <family>Verdana</family>
+    <family>Arial</family>
     <pointsize>10</pointsize>
    </font>
   </property>
@@ -67,7 +67,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>135</height>
+             <height>160</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -156,6 +156,19 @@
              <string>Make layers override persistent on exit</string>
             </property>
            </widget>
+           <widget class="QCheckBox" name="checkBoxApplyAll">
+            <property name="geometry">
+             <rect>
+              <x>30</x>
+              <y>130</y>
+              <width>321</width>
+              <height>17</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Apply for all users on this machine</string>
+            </property>
+           </widget>
           </widget>
          </item>
          <item>
@@ -215,10 +228,7 @@
          <string>Vulkan Application Launcher</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="2" column="0" colspan="5">
-          <widget class="QTextBrowser" name="logBrowser"/>
-         </item>
-         <item row="1" column="3">
+         <item row="1" column="2">
           <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -231,10 +241,10 @@
            </property>
           </spacer>
          </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="pushButtonOpenLog">
+         <item row="1" column="3">
+          <widget class="QPushButton" name="pushButtonLaunch">
            <property name="text">
-            <string>Open Log</string>
+            <string>Launch</string>
            </property>
           </widget>
          </item>
@@ -245,7 +255,17 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="5">
+         <item row="2" column="0" colspan="4">
+          <widget class="QTextBrowser" name="logBrowser"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pushButtonClearLog">
+           <property name="text">
+            <string>Clear This</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="4">
           <widget class="QTreeWidget" name="launchTree">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -297,20 +317,6 @@
            </column>
           </widget>
          </item>
-         <item row="1" column="4">
-          <widget class="QPushButton" name="pushButtonLaunch">
-           <property name="text">
-            <string>Launch</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="pushButtonClearLog">
-           <property name="text">
-            <string>Clear This</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </widget>
@@ -340,6 +346,12 @@
          </property>
          <item row="1" column="0">
           <widget class="QTreeWidget" name="layerSettingsTree">
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+           </property>
            <property name="alternatingRowColors">
             <bool>false</bool>
            </property>

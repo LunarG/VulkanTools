@@ -76,7 +76,6 @@ FORMS += \
     dlgcreateassociation.ui \
     dlgcustompaths.ui \
     dlghelp.ui \
-    dlghistory.ui \
     dlglayeroutput.ui \
     dlgprofileeditor.ui \
     dlgvulkananalysis.ui \

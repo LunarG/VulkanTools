@@ -208,14 +208,14 @@ void CVulkanConfiguration::LoadDeviceRegistry(DEVINST id, const QString& entry, 
         return;
 
     DWORD path_size;
-    if (RegQueryValueEx(key, (LPCWSTR)entry.utf16(), nullptr, nullptr, nullptr, &path_size) != ERROR_SUCCESS) {
+    if (RegQueryValueExW(key, (LPCWSTR)entry.utf16(), nullptr, nullptr, nullptr, &path_size) != ERROR_SUCCESS) {
         RegCloseKey(key);
         return;
         }
 
     DWORD data_type;
     wchar_t *path = new wchar_t[path_size];
-    if (RegQueryValueEx(key, (LPCWSTR)entry.utf16(), nullptr, &data_type, (LPBYTE)path, &path_size) != ERROR_SUCCESS) {
+    if (RegQueryValueExW(key, (LPCWSTR)entry.utf16(), nullptr, &data_type, (LPBYTE)path, &path_size) != ERROR_SUCCESS) {
         delete[] path;
         RegCloseKey(key);
         return;
@@ -328,7 +328,7 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
     // Layer override json file
     HKEY key;
     REGSAM access =  KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    LSTATUS err = RegCreateKeyExW(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS)
         return;
 
@@ -341,13 +341,13 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
 
 
     // Layer settings file
-    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
+    err = RegCreateKeyExW(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE,
                                  access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS)
         return;
 
-    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueEx(key, (LPCWSTR)qsSettingsFile.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    RegQueryInfoKeyW(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
+    RegSetValueExW(key, (LPCWSTR)qsSettingsFile.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
     RegCloseKey(key);
     }
 
@@ -394,7 +394,7 @@ void CVulkanConfiguration::LoadAppSettings(void)
     qsLaunchApplicationWPath = settings.value(VKCONFIG_KEY_LAUNCHAPP).toString();
     qsLaunchApplicationArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
     qsLaunchApplicationWorkingDir = settings.value(VKCONFIG_KEY_LAUNCHAPP_CWD).toString();
-    qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE).toString();
+    qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE, QString("vkconfig_log.txt")).toString();
     bOverrideActive = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE, true).toBool();
     bApplyOnlyToList = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
     bKeepActiveOnExit = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();

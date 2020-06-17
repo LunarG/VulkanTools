@@ -10,6 +10,11 @@
     <height>772</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Vulkan Installation Analysis</string>
   </property>
@@ -43,7 +48,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -74,7 +79,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -99,7 +104,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -124,7 +129,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -149,7 +154,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -174,7 +179,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -199,7 +204,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -224,7 +229,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -249,7 +254,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>465</height>
+              <height>455</height>
              </rect>
             </property>
             <attribute name="label">
@@ -288,7 +293,7 @@
               <x>0</x>
               <y>0</y>
               <width>708</width>
-              <height>600</height>
+              <height>595</height>
              </rect>
             </property>
             <attribute name="label">
