@@ -10,9 +10,7 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
 * **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
-* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [Compilation instructions](#compiling), [Roadmap](#roadmap), [Known Issues](#known-issues)
-
-Copyright &copy; 2015-2020 LunarG, Inc.
+* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [Compilation instructions](#compiling), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
 
 Screenshots
 --------------
@@ -36,6 +34,8 @@ Downloads
 License
 --------------
 *Vulkan Configurator* is part of Vulkan Tools released under the [Apache 2.0 license](../LICENSE.txt).
+
+Copyright &copy; 2015-2020 LunarG, Inc.
 
 Using the Vulkan Configurator
 --------------
