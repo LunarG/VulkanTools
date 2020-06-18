@@ -358,31 +358,29 @@
            <property name="sortingEnabled">
             <bool>false</bool>
            </property>
+           <property name="animated">
+            <bool>false</bool>
+           </property>
            <property name="columnCount">
-            <number>3</number>
+            <number>2</number>
            </property>
            <attribute name="headerVisible">
-            <bool>false</bool>
+            <bool>true</bool>
+           </attribute>
+           <attribute name="headerMinimumSectionSize">
+            <number>160</number>
            </attribute>
            <attribute name="headerDefaultSectionSize">
             <number>200</number>
            </attribute>
-           <attribute name="headerMinimumSectionSize">
-            <number>40</number>
-           </attribute>
            <column>
             <property name="text">
-             <string notr="true">1</string>
+             <string notr="true">Layers Settings</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string notr="true">2</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string notr="true">3</string>
+             <string notr="true">Settings Values</string>
             </property>
            </column>
           </widget>
@@ -480,7 +478,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
