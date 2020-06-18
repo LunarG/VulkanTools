@@ -155,12 +155,14 @@ void MainWindow::LoadProfileList(void) {
 
         pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
         ui->profileTree->setItemWidget(pItem, 0, pItem->pRadioButton);
+        //ui->profileTree->setColumnWidth(0, 50);
         connect(pItem->pRadioButton, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
     }
 
     ui->profileTree->blockSignals(false);
     ChangeActiveProfile(pVulkanConfig->GetCurrentActiveProfile());
-    ui->profileTree->resizeColumnToContents(0);
+    ui->profileTree->setColumnWidth(0, 24);
+    ui->profileTree->resizeColumnToContents(1);
 }
 
 //////////////////////////////////////////////////////////
