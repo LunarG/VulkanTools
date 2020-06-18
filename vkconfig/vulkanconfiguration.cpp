@@ -57,7 +57,7 @@ int CVulkanConfiguration::nNumKhronosPreConfigs = 5;
 const char *CVulkanConfiguration::szCannedProfiles[9] = {
     "Validation - Standard",
     "Validation - Best Practices",
-    "Validation - GPU Assisted",
+    "Validation - GPU-Assisted",
     "Validation - Shader Printf",
     "Validation - Reduced-Overhead",
     "API dump",

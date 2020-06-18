@@ -87,7 +87,7 @@
                 "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
                 "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
                 "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
-                "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM specific validation"
+                "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM-specific validation"
                 },
                 "default": []
             }
