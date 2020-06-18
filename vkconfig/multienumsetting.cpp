@@ -19,29 +19,22 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-
 #include "multienumsetting.h"
 
-CMultiEnumSetting::CMultiEnumSetting(TLayerSettings *pLayerSetting, QString thisSetting)
-    {
+CMultiEnumSetting::CMultiEnumSetting(TLayerSettings *pLayerSetting, QString thisSetting) {
     pSetting = pLayerSetting;
     mySetting = thisSetting;
 
-    if(pLayerSetting->settingsValue.contains(mySetting))
-        this->setChecked(true);
+    if (pLayerSetting->settingsValue.contains(mySetting)) this->setChecked(true);
 
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
-    }
+}
 
-
-void CMultiEnumSetting::itemChecked(bool bChecked)
-    {
-    if(bChecked)
+void CMultiEnumSetting::itemChecked(bool bChecked) {
+    if (bChecked)
         AddString(pSetting->settingsValue, mySetting);
     else
         RemoveString(pSetting->settingsValue, mySetting);
 
     emit itemChanged();
-    }
-
-
+}

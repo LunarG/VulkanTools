@@ -25,8 +25,7 @@
 #include "mainwindow.h"
 #include "dlgbetamessage.h"
 
-int main(int argc, char *argv[])
-    {
+int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
     QCoreApplication::setApplicationName("vkconfig");
@@ -42,8 +41,8 @@ int main(int argc, char *argv[])
     // The main GUI is driven here
     MainWindow mainWindow;
     mainWindow.show();
-    int nRet =  app.exec();
+    int nRet = app.exec();
 
-    delete pModel; // Cleanup everything when app terminates
+    delete pModel;  // Cleanup everything when app terminates
     return nRet;
-    }
+}

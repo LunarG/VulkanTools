@@ -24,21 +24,16 @@
 #include "dlgcreateassociation.h"
 #include "ui_dlgcreateassociation.h"
 
-
 //////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::dlgCreateAssociation)
-    {
+dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCreateAssociation) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    if(pVulkanConfig->bHasOldLoader)
-        setWindowTitle(tr("Vulkan Applications Shortcuts"));
+    if (pVulkanConfig->bHasOldLoader) setWindowTitle(tr("Vulkan Applications Shortcuts"));
 
     // Show the current list
-    for(int i = 0; i < pVulkanConfig->appList.size(); i++) {
+    for (int i = 0; i < pVulkanConfig->appList.size(); i++) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, pVulkanConfig->appList[i]->qsAppNameWithPath);
         ui->treeWidget->addTopLevelItem(pItem);
@@ -47,56 +42,52 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) :
         pCheckBox->setChecked(pVulkanConfig->appList[i]->bExcludeFromGlobalList);
         ui->treeWidget->setItemWidget(pItem, 1, pCheckBox);
         connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
-        }
+    }
 
     QTreeWidgetItem *pHeader = ui->treeWidget->headerItem();
     pHeader->setText(0, tr("Application Executable"));
     pHeader->setText(1, tr("Exclude from Layer Overrides"));
     ui->treeWidget->installEventFilter(this);
 
-    connect(ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(selectedPathChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
-    connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
-    connect(ui->lineEditCmdArgs, SIGNAL(textEdited(const QString&)), this, SLOT(editCommandLine(const QString&)));
-    connect(ui->lineEditWorkingFolder, SIGNAL(textEdited(const QString&)), this, SLOT(editWorkingFolder(const QString&)));
-    }
+    connect(ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
+            SLOT(selectedPathChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+    connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
+    connect(ui->lineEditCmdArgs, SIGNAL(textEdited(const QString &)), this, SLOT(editCommandLine(const QString &)));
+    connect(ui->lineEditWorkingFolder, SIGNAL(textEdited(const QString &)), this, SLOT(editWorkingFolder(const QString &)));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::~dlgCreateAssociation()
-    {
-    delete ui;
-    }
+dlgCreateAssociation::~dlgCreateAssociation() { delete ui; }
 
 //////////////////////////////////////////////////////////////////////////////
-bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event)
-    {
+bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just relay on the resize method
     // of this window.
-    if(target == ui->treeWidget) {
-        if(event->type() == QEvent::Resize) {
+    if (target == ui->treeWidget) {
+        if (event->type() == QEvent::Resize) {
             ui->treeWidget->resizeColumnToContents(1);
             int nLastColumnWidth = ui->treeWidget->columnWidth(1);
             QRect rect = ui->treeWidget->geometry();
             ui->treeWidget->setColumnWidth(0, rect.width() - nLastColumnWidth);
-            }
         }
-    return false;
     }
+    return false;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Make sure any changes are saved
-void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent)
-    {
+void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent) {
     pVulkanConfig->SaveAppList();
     pEvent->accept();
-    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCreateAssociation::on_pushButtonAdd_clicked
 /// Browse for and select an executable file to add to the list.
-void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test application
-    {
-    QString fileWildcard = ("Applications (*)");    // Linux default
+void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test application
+{
+    QString fileWildcard = ("Applications (*)");  // Linux default
 
 #ifdef __APPLE__
     fileWildcard = QString("Applications (*.app, *");
@@ -107,17 +98,16 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
 #endif
 
     // Go get it.
-    QString appWithPath =  QFileDialog::getOpenFileName(this,
-        tr("Select a Vulkan Executable"), "/", fileWildcard);
+    QString appWithPath = QFileDialog::getOpenFileName(this, tr("Select a Vulkan Executable"), "/", fileWildcard);
 
     // If they have selected something!
-    if(!appWithPath.isEmpty()) {
+    if (!appWithPath.isEmpty()) {
         // On macOS, they may have selected a binary, or they may have selected an app bundle.
         // If the later, we need to drill down to the actuall applicaiton
-        if(appWithPath.right(4) == QString(".app")) {
+        if (appWithPath.right(4) == QString(".app")) {
             // Start by drilling down
             GetExecutableFromAppBundle(appWithPath);
-            }
+        }
 
         appWithPath = QDir::toNativeSeparators(appWithPath);
         TAppListEntry *pNewApp = new TAppListEntry;
@@ -134,18 +124,16 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()         // Pick the test a
         pVulkanConfig->RefreshProfile();
         ui->treeWidget->setCurrentItem(pItem);
         connect(pCheck, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
-        }
     }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCreateAssociation::on_pushButtonRemove_clicked
 /// Easy enough, just remove the selected program from the list
-void dlgCreateAssociation::on_pushButtonRemove_clicked(void)
-    {
+void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
     int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if(iRow < 0)
-        return;
+    if (iRow < 0) return;
 
     ui->treeWidget->takeTopLevelItem(iRow);
     ui->treeWidget->setCurrentItem(nullptr);
@@ -158,78 +146,68 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void)
 
     pVulkanConfig->SaveAppList();
     pVulkanConfig->RefreshProfile();
-    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// The remove button is disabled until/unless something is selected that can
 /// be removed. Also the working folder and command line arguments are updated
-void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious)
-    {
+void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious) {
     (void)pPrevious;
     int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if(iRow < 0) {
+    if (iRow < 0) {
         ui->groupLaunchInfo->setEnabled(false);
         ui->pushButtonRemove->setEnabled(false);
         ui->lineEditCmdArgs->setText("");
         ui->lineEditWorkingFolder->setText("");
         return;
-        }
+    }
 
     ui->groupLaunchInfo->setEnabled(true);
     ui->pushButtonRemove->setEnabled(true);
     ui->lineEditWorkingFolder->setText(pVulkanConfig->appList[iRow]->qsWorkingFolder);
     ui->lineEditCmdArgs->setText(pVulkanConfig->appList[iRow]->qsArguments);
-    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-void dlgCreateAssociation::itemChanged(QTreeWidgetItem* pItem, int nColumn)
-    {
+void dlgCreateAssociation::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
     int iRow = ui->treeWidget->indexOfTopLevelItem(pItem);
-    QCheckBox *pCheckBox = dynamic_cast<QCheckBox*>(ui->treeWidget->itemWidget(pItem, nColumn));
-    if(pCheckBox != nullptr)
-        pVulkanConfig->appList[iRow]->bExcludeFromGlobalList = pCheckBox->isChecked();
-    }
-
+    QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, nColumn));
+    if (pCheckBox != nullptr) pVulkanConfig->appList[iRow]->bExcludeFromGlobalList = pCheckBox->isChecked();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Something was clicked. We don't know what, and short of setting up a new
 /// signal/slot for each button, this seemed a reasonable approach. Just poll
 /// all of them. There aren't that many, so KISS (keep it simple stupid)
-void dlgCreateAssociation::itemClicked(bool bClicked)
-    {
+void dlgCreateAssociation::itemClicked(bool bClicked) {
     (void)bClicked;
 
     // Loop through the whole list and reset the checkboxes
-    for(int i = 0; i < ui->treeWidget->topLevelItemCount(); i++) {
+    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *pItem = ui->treeWidget->topLevelItem(i);
         QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, 1));
         Q_ASSERT(pCheckBox != nullptr);
         pVulkanConfig->appList[i]->bExcludeFromGlobalList = pCheckBox->isChecked();
-        }
     }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-void dlgCreateAssociation::editCommandLine(const QString& cmdLine)
-    {
+void dlgCreateAssociation::editCommandLine(const QString &cmdLine) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
     int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if(iRow < 0)
-        return;
+    if (iRow < 0) return;
 
     pVulkanConfig->appList[iRow]->qsArguments = cmdLine;
-    }
+}
 
 //////////////////////////////////////////////////////////////////////////////
-void dlgCreateAssociation::editWorkingFolder(const QString& workingFolder)
-    {
+void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
     int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if(iRow < 0)
-        return;
+    if (iRow < 0) return;
 
     pVulkanConfig->appList[iRow]->qsWorkingFolder = workingFolder;
-    }
-
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCreateAssociation::GetExecutableFromAppBundle
@@ -239,43 +217,40 @@ void dlgCreateAssociation::editWorkingFolder(const QString& workingFolder)
 /// you find in the /MacOS folder is the executable.
 /// The initial path is the folder where info.plist resides, and the
 /// path is completed to the executable upon completion.
-void dlgCreateAssociation::GetExecutableFromAppBundle(QString& csPath)
-    {
+void dlgCreateAssociation::GetExecutableFromAppBundle(QString &csPath) {
     csPath += "/Contents/";
     QString pListFile = csPath + "Info.plist";
     QFile file(pListFile);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
 
     QTextStream stream(&file);
 
     // Read a line at a time looking for the executable tag
     QString lineBuffer;
-    while(!stream.atEnd()) {
+    while (!stream.atEnd()) {
         lineBuffer = stream.readLine();
-        if(lineBuffer.contains("<key>CFBundleExecutable</key>")) {  // Exe follows this
-            lineBuffer = stream.readLine();  // <string>Qt Creator</string>
-            char *cExeName = new char[lineBuffer.length()]; // Prevent buffer overrun
+        if (lineBuffer.contains("<key>CFBundleExecutable</key>")) {  // Exe follows this
+            lineBuffer = stream.readLine();                          // <string>Qt Creator</string>
+            char *cExeName = new char[lineBuffer.length()];          // Prevent buffer overrun
 
             const char *pStart = strstr(lineBuffer.toUtf8().constData(), "<string>");
-            if(pStart == nullptr)
-                return;
+            if (pStart == nullptr) return;
 
             // We found it, now extract it out
             pStart += 8;
             int iIndex = 0;
-            while(*pStart != '<') {
+            while (*pStart != '<') {
                 cExeName[iIndex++] = *pStart++;
-                }
+            }
             cExeName[iIndex] = '\0';
 
             // Complete the partial path
             csPath += QString("MacOS/");
             csPath += QString(cExeName);
-            delete [] cExeName;
+            delete[] cExeName;
             break;
-            }
         }
+    }
 
     file.close();
-    }
+}

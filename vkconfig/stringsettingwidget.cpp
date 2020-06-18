@@ -21,18 +21,15 @@
 
 #include "stringsettingwidget.h"
 
-CStringSettingWidget::CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSettings *pLayerSetting)
-    {
+CStringSettingWidget::CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) {
     pSetting = pLayerSetting;
     pItem->setText(0, pLayerSetting->settingsPrompt);
     pItem->setToolTip(0, pLayerSetting->settingsDesc);
     this->setText(pLayerSetting->settingsValue);
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
-    }
+}
 
-
-void CStringSettingWidget::itemEdited(const QString& newString)
-    {
+void CStringSettingWidget::itemEdited(const QString& newString) {
     pSetting->settingsValue = newString;
     emit itemChanged();
-    }
+}

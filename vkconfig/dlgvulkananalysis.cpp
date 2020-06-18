@@ -17,7 +17,6 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-
 #include "dlgvulkananalysis.h"
 #include "ui_dlgvulkananalysis.h"
 
@@ -29,21 +28,11 @@
 
 #include <QMessageBox>
 
-dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::dlgVulkanAnalysis)
-    {
-    ui->setupUi(this);
-    }
+dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanAnalysis) { ui->setupUi(this); }
 
-dlgVulkanAnalysis::~dlgVulkanAnalysis()
-    {
-    delete ui;
-    }
+dlgVulkanAnalysis::~dlgVulkanAnalysis() { delete ui; }
 
-
-void dlgVulkanAnalysis::RunTool(void)
-    {
+void dlgVulkanAnalysis::RunTool(void) {
     ui->envTable->clear();
     ui->cleanupTable->clear();
     ui->hardwareTable->clear();
@@ -63,7 +52,7 @@ void dlgVulkanAnalysis::RunTool(void)
     via->setProgram("/usr/local/bin/vkvia");
 #else
     via->setProgram("vkvia");
-#endif    
+#endif
 
     char cPath[128];
     printf("%s\n", getenv("PATH"));
@@ -83,36 +72,34 @@ void dlgVulkanAnalysis::RunTool(void)
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-         QMessageBox msgBox;
-         msgBox.setText(tr("Error running vkvia. Is your SDK up to date and installed properly?"));
-         msgBox.exec();
-         return;
-        }
+        QMessageBox msgBox;
+        msgBox.setText(tr("Error running vkvia. Is your SDK up to date and installed properly?"));
+        msgBox.exec();
+        return;
+    }
 
-     QString jsonText = file.readAll();
-     file.close();
+    QString jsonText = file.readAll();
+    file.close();
 
-     //////////////////////////////////////////////////////
-     // Convert the text to a JSON document & validate it
-     QJsonDocument jsonDoc;
-     QJsonParseError parseError;
-     jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
+    //////////////////////////////////////////////////////
+    // Convert the text to a JSON document & validate it
+    QJsonDocument jsonDoc;
+    QJsonParseError parseError;
+    jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
 
-     if(parseError.error != QJsonParseError::NoError) {
+    if (parseError.error != QJsonParseError::NoError) {
         QMessageBox msgBox;
         msgBox.setText(parseError.errorString());
         msgBox.exec();
         return;
-        }
+    }
 
-     if(jsonDoc.isEmpty() || jsonDoc.isNull())
-         return;
+    if (jsonDoc.isEmpty() || jsonDoc.isNull()) return;
 
     /////////////////////////////////////////////////////////
     // Get the instance version and set that to the header
     QString output;
     QJsonObject jsonObject = jsonDoc.object();
-
 
     ///////////////////////////////////// System Info
     // Get the extensions object and process it's members
@@ -169,10 +156,9 @@ void dlgVulkanAnalysis::RunTool(void)
     /////////////////////////////////// External Tests
     QJsonValue cubeValue = jsonObject.value(QString(tr("Cube"))).toObject();
     QJsonObject cubeObject = cubeValue.toObject();
-    if(!cubeObject.isEmpty())
+    if (!cubeObject.isEmpty())
         LoadTable(cubeObject, ui->externalTestsTable);
-    else
-    {
+    else {
         ui->externalTestsTable->setRowCount(1);
         ui->externalTestsTable->setColumnCount(1);
         ui->externalTestsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -183,11 +169,9 @@ void dlgVulkanAnalysis::RunTool(void)
     }
 
     show();
-    }
+}
 
-
-void dlgVulkanAnalysis::LoadTable(QJsonObject& jsonParent, QTableWidget* pTable)
-    {
+void dlgVulkanAnalysis::LoadTable(QJsonObject &jsonParent, QTableWidget *pTable) {
     // How many items does this object contain?
     int nHowManyRows = jsonParent.size();
     pTable->setRowCount(nHowManyRows);
@@ -201,13 +185,12 @@ void dlgVulkanAnalysis::LoadTable(QJsonObject& jsonParent, QTableWidget* pTable)
 
     pTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-
     // Now just iterate and fill in the cells
-    for(int row = 0; row < nHowManyRows; row++) {
+    for (int row = 0; row < nHowManyRows; row++) {
         rowValue = jsonParent.value(QString().asprintf("%d", row));
         rowObject = rowValue.toObject();
 
-        for(int col = 0; col < nHowManyCols; col++) {
+        for (int col = 0; col < nHowManyCols; col++) {
             QJsonValue colValue = rowObject.value(QString().asprintf("%d", col));
             QString text = colValue.toString();
             QTableWidgetItem *pItem = new QTableWidgetItem;

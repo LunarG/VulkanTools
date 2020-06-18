@@ -23,63 +23,50 @@
 #include "dlgcustompaths.h"
 #include "ui_dlgcustompaths.h"
 
-dlgCustomPaths::dlgCustomPaths(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::dlgCustomPaths)
-    {
+dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCustomPaths) {
     bPathsChanged = false;
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    ui->treeWidget->headerItem()->setText(0,tr("Custom Search Paths & Layers"));
+    ui->treeWidget->headerItem()->setText(0, tr("Custom Search Paths & Layers"));
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
 
     RepopulateTree();
-    }
+}
 
-dlgCustomPaths::~dlgCustomPaths()
-    {
-    delete ui;
-    }
+dlgCustomPaths::~dlgCustomPaths() { delete ui; }
 
-
-
-void dlgCustomPaths::RepopulateTree(void)
-    {
+void dlgCustomPaths::RepopulateTree(void) {
     ui->treeWidget->clear();
 
     // Populate the tree
-    for(int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++ ) {
+    for (int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, pVulkanConfig->additionalSearchPaths[i]);
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
-        QVector <CLayerFile*>   customLayers;
+        QVector<CLayerFile *> customLayers;
         pVulkanConfig->LoadLayersFromPath(pVulkanConfig->additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
-        for(int j = 0; j < customLayers.size(); j++) {
+        for (int j = 0; j < customLayers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
             pChild->setText(0, customLayers[j]->name);
             pItem->addChild(pChild);
-            }
+        }
 
         // Free the dynamic memory, the rest passes out of scope
         qDeleteAll(customLayers.begin(), customLayers.end());
-        }
-
     }
+}
 
-
-void dlgCustomPaths::on_pushButtonAdd_clicked()
-    {
+void dlgCustomPaths::on_pushButtonAdd_clicked() {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
-    QString customFolder =
-        dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
+    QString customFolder = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
 
-    if(!customFolder.isEmpty()) {
+    if (!customFolder.isEmpty()) {
         pVulkanConfig->additionalSearchPaths.append(customFolder);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, customFolder);
@@ -90,28 +77,21 @@ void dlgCustomPaths::on_pushButtonAdd_clicked()
         pVulkanConfig->LoadAllProfiles();
         bPathsChanged = true;
         RepopulateTree();
-        }
     }
-
+}
 
 //////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCustomPaths::on_treeWidget_itemSelectionChanged
 /// Don't make remove button accessable unless an item has been selected
-void dlgCustomPaths::on_treeWidget_itemSelectionChanged()
-    {
-    ui->pushButtonRemove->setEnabled(true);
-    }
-
+void dlgCustomPaths::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
 
 //////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCustomPaths::on_pushButtonRemove_clicked
 /// Remove the selected custom search path
-void dlgCustomPaths::on_pushButtonRemove_clicked()
-    {
+void dlgCustomPaths::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
     QTreeWidgetItem *pSelected = ui->treeWidget->currentItem();
-    while(pSelected->parent() != nullptr)
-        pSelected = pSelected->parent();
+    while (pSelected->parent() != nullptr) pSelected = pSelected->parent();
 
     // Confirm?
     QMessageBox msg;
@@ -119,16 +99,15 @@ void dlgCustomPaths::on_pushButtonRemove_clicked()
     msg.setInformativeText(tr("Delete this custom path?"));
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msg.setDefaultButton(QMessageBox::Yes);
-    if(msg.exec() == QMessageBox::No)
-        return;
+    if (msg.exec() == QMessageBox::No) return;
 
     // Now actually remove it.
-    for(int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
-        if(pVulkanConfig->additionalSearchPaths[i] == pSelected->text(0)) {
+    for (int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
+        if (pVulkanConfig->additionalSearchPaths[i] == pSelected->text(0)) {
             pVulkanConfig->additionalSearchPaths.removeAt(i);
             break;
-            }
         }
+    }
 
     // Update GUI and save
     RepopulateTree();
@@ -136,4 +115,4 @@ void dlgCustomPaths::on_pushButtonRemove_clicked()
     pVulkanConfig->FindAllInstalledLayers();
     pVulkanConfig->LoadAllProfiles();
     bPathsChanged = true;
-    }
+}

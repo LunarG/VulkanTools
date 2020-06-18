@@ -19,11 +19,9 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-
 #include "filenamesettingwidget.h"
 
-CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr)
-    {
+CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr) {
     pSetting = pLayerSetting;
 
     pItem->setText(0, pLayerSetting->settingsPrompt);
@@ -39,40 +37,32 @@ CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSet
 
     connect(pPushButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
     connect(pLineEdit, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
-    }
+}
 
-
- void CFilenameSettingWidget::resizeEvent(QResizeEvent *event)
-    {
-    if(pLineEdit == nullptr)
-        return;
+void CFilenameSettingWidget::resizeEvent(QResizeEvent* event) {
+    if (pLineEdit == nullptr) return;
 
     QSize parentSize = event->size();
 
     // Button takes up the last 32 pixels
     QRect buttonRect = QRect(parentSize.width() - 32, 0, 32, parentSize.height());
-    QRect editRect= QRect(0, 0, parentSize.width() - 32, parentSize.height());
+    QRect editRect = QRect(0, 0, parentSize.width() - 32, parentSize.height());
     pLineEdit->setGeometry(editRect);
     pPushButton->setGeometry(buttonRect);
-    }
+}
 
-void CFilenameSettingWidget::browseButtonClicked(void)
-    {
-    QString file = QFileDialog::getSaveFileName(pPushButton,
-        tr("Select File"),
-        ".");
+void CFilenameSettingWidget::browseButtonClicked(void) {
+    QString file = QFileDialog::getSaveFileName(pPushButton, tr("Select File"), ".");
 
-    if(!file.isEmpty()) {
+    if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
         pSetting->settingsValue = file;
         pLineEdit->setText(file);
         emit itemChanged();
-        }
     }
+}
 
-
-void CFilenameSettingWidget::textFieldChanged(const QString& newText)
-    {
+void CFilenameSettingWidget::textFieldChanged(const QString& newText) {
     pSetting->settingsValue = newText;
     emit itemChanged();
-    }
+}

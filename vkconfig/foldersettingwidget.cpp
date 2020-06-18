@@ -21,8 +21,7 @@
 
 #include "foldersettingwidget.h"
 
-CFolderSettingWidget::CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr)
-{
+CFolderSettingWidget::CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr) {
     pSetting = pLayerSetting;
 
     pItem->setText(0, pLayerSetting->settingsPrompt);
@@ -38,40 +37,32 @@ CFolderSettingWidget::CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSetting
 
     connect(pPushButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
     connect(pLineEdit, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
-    }
+}
 
-
- void CFolderSettingWidget::resizeEvent(QResizeEvent *event)
-    {
-    if(pLineEdit == nullptr)
-        return;
+void CFolderSettingWidget::resizeEvent(QResizeEvent* event) {
+    if (pLineEdit == nullptr) return;
 
     QSize parentSize = event->size();
 
     // Button takes up the last 32 pixels
     QRect buttonRect = QRect(parentSize.width() - 32, 0, 32, parentSize.height());
-    QRect editRect= QRect(0, 0, parentSize.width() - 32, parentSize.height());
+    QRect editRect = QRect(0, 0, parentSize.width() - 32, parentSize.height());
     pLineEdit->setGeometry(editRect);
     pPushButton->setGeometry(buttonRect);
-    }
+}
 
-void CFolderSettingWidget::browseButtonClicked(void)
-    {
-    QString file = QFileDialog::getExistingDirectory(pPushButton,
-        tr("Select Folder"),
-        ".");
+void CFolderSettingWidget::browseButtonClicked(void) {
+    QString file = QFileDialog::getExistingDirectory(pPushButton, tr("Select Folder"), ".");
 
-    if(!file.isEmpty()) {
+    if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
         pSetting->settingsValue = file;
         pLineEdit->setText(file);
         emit itemChanged();
-        }
     }
+}
 
-
-void CFolderSettingWidget::textFieldChanged(const QString& newText)
-    {
+void CFolderSettingWidget::textFieldChanged(const QString& newText) {
     pSetting->settingsValue = newText;
     emit itemChanged();
-    }
+}

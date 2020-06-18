@@ -21,27 +21,23 @@
 
 #include "enumsettingwidget.h"
 
-CEnumSettingWidget::CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSettings *pLayerSetting)
-    {
+CEnumSettingWidget::CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSettings* pLayerSetting) {
     pSetting = pLayerSetting;
     pTreeItem->setText(0, pLayerSetting->settingsPrompt);
     pTreeItem->setToolTip(0, pLayerSetting->settingsDesc);
 
     int nCurrSel = 0;
-    for(int i = 0; i < pLayerSetting->settingsListExclusivePrompt.size(); i++) {
+    for (int i = 0; i < pLayerSetting->settingsListExclusivePrompt.size(); i++) {
         this->addItem(pLayerSetting->settingsListExclusivePrompt[i]);
-        if(pLayerSetting->settingsListExclusiveValue[i] == pLayerSetting->settingsValue)
-            nCurrSel = i;
-        }
+        if (pLayerSetting->settingsListExclusiveValue[i] == pLayerSetting->settingsValue) nCurrSel = i;
+    }
 
     setCurrentIndex(nCurrSel);
 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
-    }
+}
 
-
-void CEnumSettingWidget::indexChanged(int nIndex)
-    {
+void CEnumSettingWidget::indexChanged(int nIndex) {
     pSetting->settingsValue = pSetting->settingsListExclusiveValue[nIndex];
     emit itemChanged();
-    }
+}

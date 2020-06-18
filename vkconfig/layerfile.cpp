@@ -27,54 +27,46 @@
 #include <QFile>
 #include <QMessageBox>
 
-
 ////////// A couple of utility functions for building/modifying enable/disable lists
 
 ///////////////////////////////////////////////////////////////////////////////
 // delimted string is a comma delimited string. If value is found remove it
-void RemoveString(QString& delimitedString, QString value)
-    {
+void RemoveString(QString& delimitedString, QString value) {
     // Well, it's not there now is it...
-    if(!delimitedString.contains(value))
-        return;
+    if (!delimitedString.contains(value)) return;
 
     QStringList list = delimitedString.split(",");
-    for(int i = 0; i < list.size(); i++)
-        if(list[i] == value) {
+    for (int i = 0; i < list.size(); i++)
+        if (list[i] == value) {
             list.removeAt(i);
             break;
-            }
+        }
 
     delimitedString = list.join(",");
-    }
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 // Pretty simple, add to list if it's not already in it
-void AddString(QString& delimitedString, QString value)
-    {
+void AddString(QString& delimitedString, QString value) {
     // Do I have anything to do?
-    if(delimitedString.contains(value)) // Nope
+    if (delimitedString.contains(value))  // Nope
         return;
 
-    if(!delimitedString.isEmpty())
-        delimitedString += ",";
+    if (!delimitedString.isEmpty()) delimitedString += ",";
 
     delimitedString += value;
-    }
+}
 
-
-CLayerFile::CLayerFile()
-    {
+CLayerFile::CLayerFile() {
     bActive = false;
     bDisabled = false;
     nRank = 0;
-    }
+}
 
-CLayerFile::~CLayerFile()
-    {
+CLayerFile::~CLayerFile() {
     qDeleteAll(layerSettings.begin(), layerSettings.end());
     layerSettings.clear();
-    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief CLayerFile::readLayerFile
@@ -82,53 +74,51 @@ CLayerFile::~CLayerFile()
 /// \return true on success, false on failure.
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
-bool CLayerFile::ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind)
-{
-    layerType = layerKind;           // Set layer type, no way to know this from the json file
+bool CLayerFile::ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind) {
+    layerType = layerKind;  // Set layer type, no way to know this from the json file
 
     // Open the file, should be text. Read it into a
     // temporary string.
-    if(qsFullPathToFile.isEmpty())
-        return false;
+    if (qsFullPathToFile.isEmpty()) return false;
 
     QFile file(qsFullPathToFile);
-     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-         return false;
-         QMessageBox msgBox;
-         msgBox.setText(tr("Could not open layer file"));
-         msgBox.exec();
-         return false;
-        }
-
-     QString jsonText = file.readAll();
-     file.close();
-
-     qsLayerPath = qsFullPathToFile;
-
-     //////////////////////////////////////////////////////
-     // Convert the text to a JSON document & validate it.
-     // It does need to be a valid json formatted file.
-     QJsonDocument jsonDoc;
-     QJsonParseError parseError;
-     jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
-    if(parseError.error != QJsonParseError::NoError) {
-         QMessageBox msgBox;
-         msgBox.setText(parseError.errorString());
-         msgBox.exec();
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
-        }
+        QMessageBox msgBox;
+        msgBox.setText(tr("Could not open layer file"));
+        msgBox.exec();
+        return false;
+    }
+
+    QString jsonText = file.readAll();
+    file.close();
+
+    qsLayerPath = qsFullPathToFile;
+
+    //////////////////////////////////////////////////////
+    // Convert the text to a JSON document & validate it.
+    // It does need to be a valid json formatted file.
+    QJsonDocument jsonDoc;
+    QJsonParseError parseError;
+    jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        QMessageBox msgBox;
+        msgBox.setText(parseError.errorString());
+        msgBox.exec();
+        return false;
+    }
 
     // Make sure it's not empty
-    if(jsonDoc.isNull() || jsonDoc.isEmpty()) {
+    if (jsonDoc.isNull() || jsonDoc.isEmpty()) {
         QMessageBox msgBox;
         msgBox.setText(tr("Json document is empty!"));
         msgBox.exec();
         return false;
-        }
+    }
 
     // Populate key items about the layer
     QJsonObject jsonObject = jsonDoc.object();
-    QJsonValue  jsonValue = jsonObject.value("file_format_version");
+    QJsonValue jsonValue = jsonObject.value("file_format_version");
     file_format_version = jsonValue.toString();
 
     QJsonValue layerValue = jsonObject.value("layer");
@@ -156,27 +146,21 @@ bool CLayerFile::ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind)
     return true;
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////
-void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers)
-    {
+void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings*>& layers) {
     // Okay, how many settings do we have?
     QStringList settingsNames = layerSettingsDescriptors.keys();
 
-    for(int iSetting = 0; iSetting < settingsNames.size(); iSetting++) {
+    for (int iSetting = 0; iSetting < settingsNames.size(); iSetting++) {
         // The layer rank may or may not be here, but it is not a
         // user setting.
-        if(settingsNames[iSetting] == QString("layer_rank"))
-            continue;
+        if (settingsNames[iSetting] == QString("layer_rank")) continue;
 
         // Layer path is in this JSON, do not add it as a setting,
         // it is also not a user editable setting.
-        if(settingsNames[iSetting] == QString("layer_path"))
-            continue;
+        if (settingsNames[iSetting] == QString("layer_path")) continue;
 
-
-        TLayerSettings *pLayerSettings = new TLayerSettings;
+        TLayerSettings* pLayerSettings = new TLayerSettings;
         pLayerSettings->settingsName = settingsNames[iSetting];
 
         QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[iSetting]);
@@ -192,12 +176,11 @@ void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
         // This is either a single value, or a comma delimted set of strings
         // selected from a nonexclusive list
         value = settingObject.value("default");
-        if(value.isArray()) {
+        if (value.isArray()) {
             QJsonArray array = value.toArray();
-            for(int a = 0; a < array.size(); a++) {
+            for (int a = 0; a < array.size(); a++) {
                 pLayerSettings->settingsValue += array[a].toString();
-                if(a != array.size() -1)
-                    pLayerSettings->settingsValue += ",";
+                if (a != array.size() - 1) pLayerSettings->settingsValue += ",";
             }
 
         } else
@@ -210,7 +193,7 @@ void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
 
         QString typeString = value.toString();
         ///////////////////////////////////////////////// Exclusive Enums
-        if(typeString == QString("enum")) {
+        if (typeString == QString("enum")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_EXCLUSIVE_LIST;
 
             // Now we have a list of options, both the enum for the settings file, and the prompts
@@ -218,17 +201,17 @@ void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
             QJsonObject object = value.toObject();
             QStringList keys, values;
             keys = object.keys();
-            for(int v = 0; v < keys.size(); v++) {
+            for (int v = 0; v < keys.size(); v++) {
                 pLayerSettings->settingsListExclusiveValue << keys[v];
                 pLayerSettings->settingsListExclusivePrompt << object.value(keys[v]).toString();
-                }
+            }
 
             layers.push_back(pLayerSettings);
             continue;
-            }
+        }
 
         /////////////////////////////////////////////////// Pick one or more from a list
-        if(typeString == QString("multi_enum")) {
+        if (typeString == QString("multi_enum")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_INCLUSIVE_LIST;
 
             // Now we have a list of options, both the enum for the settings file, and the prompts
@@ -236,52 +219,48 @@ void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
             QJsonObject object = value.toObject();
             QStringList keys, values;
             keys = object.keys();
-            for(int v = 0; v < keys.size(); v++) {
+            for (int v = 0; v < keys.size(); v++) {
                 pLayerSettings->settingsListInclusiveValue << keys[v];
                 pLayerSettings->settingsListInclusivePrompt << object.value(keys[v]).toString();
-                }
+            }
 
             layers.push_back(pLayerSettings);
             continue;
-            }
+        }
 
         ////////////////////////////////////////////////////// Select a file. Nice and simple
-        if(typeString == QString("save_file")) {
+        if (typeString == QString("save_file")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_FILE;
             layers.push_back(pLayerSettings);
             continue;
-            }
+        }
 
         ////////////////////////////////////////////////////// Folder to put screen shots in
-        if(typeString == QString("save_folder")) {
+        if (typeString == QString("save_folder")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_SAVE_FOLDER;
             layers.push_back(pLayerSettings);
             continue;
-            }
+        }
 
         ////////////////////////////////////////////////////// Bool, also nice and simple ("true"/"false")
-        if(typeString == QString("bool")) {
+        if (typeString == QString("bool")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_BOOL;
             layers.push_back(pLayerSettings);
             continue;
-            }
-
+        }
 
         //////////////////////////////////////////////////// Bool, but written out as 0 or 1
-        if(typeString == QString("bool_numeric")) {
+        if (typeString == QString("bool_numeric")) {
             pLayerSettings->settingsType = LAYER_SETTINGS_BOOL_NUMERIC;
             layers.push_back(pLayerSettings);
             continue;
-            }
-
-        ////////////////////////////////////////////////////// Just a string please
-        if(typeString == QString("string"))
-            pLayerSettings->settingsType = LAYER_SETTINGS_STRING;
-
-
-        layers.push_back(pLayerSettings);
         }
 
-    return;
+        ////////////////////////////////////////////////////// Just a string please
+        if (typeString == QString("string")) pLayerSettings->settingsType = LAYER_SETTINGS_STRING;
+
+        layers.push_back(pLayerSettings);
     }
 
+    return;
+}

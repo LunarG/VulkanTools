@@ -22,31 +22,20 @@
 #include "dlgbetamessage.h"
 #include "ui_dlgbetamessage.h"
 
-dlgBetaMessage::dlgBetaMessage(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::dlgBetaMessage)
-    {
+dlgBetaMessage::dlgBetaMessage(QWidget *parent) : QDialog(parent), ui(new Ui::dlgBetaMessage) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     bDontShow = false;
 
     connect(ui->checkBoxStopIt, SIGNAL(toggled(bool)), this, SLOT(dontShowToggled(bool)));
-    }
+}
 
-dlgBetaMessage::~dlgBetaMessage()
-    {
-    delete ui;
-    }
+dlgBetaMessage::~dlgBetaMessage() { delete ui; }
 
+void dlgBetaMessage::on_pushButtonDismiss_clicked() { close(); }
 
-void dlgBetaMessage::on_pushButtonDismiss_clicked()
-    {
-    close();
-    }
-
-void dlgBetaMessage::dontShowToggled(bool bToggled)
-    {
+void dlgBetaMessage::dontShowToggled(bool bToggled) {
     (void)bToggled;
     bDontShow = ui->checkBoxStopIt->isChecked();
-    }
+}
