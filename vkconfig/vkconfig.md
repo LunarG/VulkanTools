@@ -118,7 +118,7 @@ FAQ
 ### How do I use Vulkan Configurator to override only the Vulkan layers of a selected list of appliucation?
 
 This is typically done by enabling the "Apply only to the selected list of Vulkan applications" check box.
-[Only list of selected applications](./images/only_list.png).
+<p align="center"><img src="./images/only_list.png" /></p>
 
 However, if this is not working it might be because the *Vulkan Loader* on the system is two old. Update the *Vulkan Loader* by installing the latest *[Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)* to use this feature.
 
