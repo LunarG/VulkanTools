@@ -1,7 +1,7 @@
 # Build Instructions
 This document contains the instructions for building this repository on Linux and Windows.
 
-This repository contains Vulkan development tools and layers,
+This repository contains *Vulkan* development tools and layers,
 supplementing the loader and validation layer core components found at https://github.com/KhronosGroup.
 
 ## System Requirements
@@ -12,24 +12,24 @@ Windows 7+ with additional required software packages:
 
 - Microsoft Visual Studio 2015 Professional or 2017 Professional.  Note: it is possible that lesser/older versions may work, but not guaranteed.
 - [CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-win64-x64.zip) is recommended.
-  - Tell the installer to "Add CMake to the system PATH" environment variable.
+  - Tell the installer to "Add CMake to the system `PATH`" environment variable.
 - Python 3 (from https://www.python.org/downloads).  Notes:
-  - Select to install the optional sub-package to add Python to the system PATH environment variable.
-  - Need python3.3 or later to get the Windows py.exe launcher that is used to get python3 rather than python2 if both are installed on Windows
+  - Select to install the optional sub-package to add Python to the system `PATH` environment variable.
+  - Need python3.3 or later to get the Windows `py.exe` launcher that is used to get `python3` rather than `python2` if both are installed on Windows
 - Git (from http://git-scm.com/download/win).
   - Tell the installer to allow it to be used for "Developer Prompt" as well as "Git Bash".
   - Tell the installer to treat line endings "as is" (i.e. both DOS and Unix-style line endings).
 
 Optional software packages:
 
-- [Qt 5](https://www.qt.io/download) is required to build *[Vulkan Configurator]*(./vkconfig/vkconfig.md).
-  - The Qt `bin` directory requires to be added to the PATH environment variable for Qt to be detected and Vulkan Configurator built.
+- *[Qt 5](https://www.qt.io/download)* is required to build *[Vulkan Configurator]*(./vkconfig/vkconfig.md).
+  - The Qt `bin` directory requires to be added to the `PATH` environment variable for *Qt* to be detected and Vulkan Configurator built.
   - If `Qt` is not directed, *[Vulkan Configurator]* build will be skipped.
-- Cygwin (from https://www.cygwin.com/).
-  - Cygwin provides some Linux-like tools, which are valuable for obtaining the source code, and running CMake.
-    Especially valuable are the BASH shell and git packages.
-  - If you do not wish to use Cygwin, there are other shells and environments that can be used.
-    You can also use a Git package that does not come from Cygwin.
+- *Cygwin* (from https://www.cygwin.com/).
+  - *Cygwin* provides some Linux-like tools, which are valuable for obtaining the source code, and running CMake.
+    Especially valuable are the *BASH* shell and git packages.
+  - If you do not wish to use *Cygwin*, there are other shells and environments that can be used.
+    You can also use a Git package that does not come from *Cygwin*.
 
 ### Ubuntu System Requirements
 

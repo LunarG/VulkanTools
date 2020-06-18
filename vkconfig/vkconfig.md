@@ -11,7 +11,7 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
 * **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
 * **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
-* **Build instruction**: Vulkan Configurator is built as part of the [VulkanTools](../BUILD.md) using CMake build system.
+* **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](../BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
 
 Screenshots
 --------------
@@ -133,7 +133,7 @@ Roadmap
 Known Issues
 --------------
 
-- Message filtering using VUID is not yet implemented.
+- Message filtering using VUID name and index is not yet implemented.
 - All tool tips are not yet implemented.
 - Missing description for each layer settings.
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
