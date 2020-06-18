@@ -112,6 +112,16 @@ In addition, Windows system create registry entries in the following locations:
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
 
+FAQ
+--------------
+
+### How do I use Vulkan Configurator to override only the Vulkan layers of a selected list of appliucation?
+
+This is typically done by enabling the "Apply only to the selected list of Vulkan applications" check box.
+[Only list of selected applications](./images/only_list.png).
+
+However, if this is not working it might be because the *Vulkan Loader* on the system is two old. Update the *Vulkan Loader* by installing the latest *[Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)* to use this feature.
+
 Roadmap
 --------------
 
