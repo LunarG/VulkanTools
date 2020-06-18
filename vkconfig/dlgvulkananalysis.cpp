@@ -28,7 +28,10 @@
 
 #include <QMessageBox>
 
-dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanAnalysis) { ui->setupUi(this); }
+dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanAnalysis) {
+    ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+}
 
 dlgVulkanAnalysis::~dlgVulkanAnalysis() { delete ui; }
 
@@ -53,9 +56,6 @@ void dlgVulkanAnalysis::RunTool(void) {
 #else
     via->setProgram("vkvia");
 #endif
-
-    char cPath[128];
-    printf("%s\n", getenv("PATH"));
 
     QString filePath = QDir::temp().path() + "/vkvia.json";
 

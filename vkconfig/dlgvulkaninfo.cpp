@@ -35,7 +35,10 @@
 #include <QMessageBox>
 #include <QStringList>
 
-dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanInfo) { ui->setupUi(this); }
+dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanInfo) {
+    ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+}
 
 dlgVulkanInfo::~dlgVulkanInfo() { delete ui; }
 
@@ -99,7 +102,7 @@ void dlgVulkanInfo::RunTool(void) {
         msgBox.setText(tr("Error running vulkaninfo. Is your SDK up to date and installed properly?"));
         msgBox.exec();
         return;
-    }
+        }
 
     QString jsonText = file.readAll();
     file.close();

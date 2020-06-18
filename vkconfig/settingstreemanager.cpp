@@ -188,51 +188,34 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
         }
     }
 
-    // All that message filtering stuff
-    //    QTreeWidgetItem *pMuteMessageRoot = new QTreeWidgetItem();
-    //    pMuteMessageRoot->setText(0, "Mute Message");
-    //    pKhronosTree->addChild(pMuteMessageRoot);
+    //////////////////////////////// VUID message filtering
+    for (int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
+       if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_VUID_FILTER) {
+           QTreeWidgetItem* pMuteMessageItem = new QTreeWidgetItem;
+           pMuteMessageItem->setText(0, "Mute Message VUIDs");
+           pKhronosTree->addChild(pMuteMessageItem);
 
-    //    QTreeWidgetItem *pMuteSeverity = new QTreeWidgetItem();
-    //    pMuteSeverity->setText(0, "Mute Message Severity");
-    //    pMuteMessageRoot->addChild(pMuteSeverity);
+           pMuteMessageSearchItem = new QTreeWidgetItem();
+           pMuteMessageSearchItem->setText(0, "Search for:");
+           pVUIDSearchWidget = new CVUIDSearchWidget();
 
-    //    // Yeah, throwing this away for now
-    //    TLayerSettings *pTest = new TLayerSettings;
-    //    pTest->settingsName = "Mute Message Severity";
-    //    pTest->settingsDesc = "Mute me";
-    //    pTest->settingsType = LAYER_SETTINGS_INCLUSIVE_LIST;
-    //    pTest->settingsListInclusivePrompt = QStringList() << "Verbose" << "Information" << "Warning" << "Error";
-    //    pTest->settingsListInclusiveValue = QStringList() << "VERBOSE" << "INFORM" << "WARNING" << "ERROR";
-    //    pTest->settingsPrompt = "Mute Prompt";
-    //    for(int i = 0; i < pTest->settingsListInclusiveValue.size(); i++) {
-    //        QTreeWidgetItem *pChild = new QTreeWidgetItem();
-    //        CMultiEnumSetting *pControl = new CMultiEnumSetting(pTest, pTest->settingsListInclusiveValue[i]);
-    //        pControl->setText(pTest->settingsListInclusivePrompt[i]);
-    //        pMuteSeverity->addChild(pChild);
-    //        pEditorTree->setItemWidget(pChild, 0, pControl);
-    //        }
+           pMuteMessageItem->addChild(pMuteMessageSearchItem);
+           pEditorTree->setItemWidget(pMuteMessageSearchItem, 1, pVUIDSearchWidget);
 
-    //    QTreeWidgetItem *pMuteMessageType = new QTreeWidgetItem();
-    //    pMuteMessageType->setText(0, "Mute Message Type");
-    //    pMuteMessageRoot->addChild(pMuteMessageType);
-    //    pTest = new TLayerSettings;
-    //    pTest->settingsName = "";
-    //    pTest->settingsDesc = "Mute me";
-    //    pTest->settingsType = LAYER_SETTINGS_INCLUSIVE_LIST;
-    //    pTest->settingsListInclusivePrompt = QStringList() << "General" << "Validation" << "Performance";
-    //    pTest->settingsListInclusiveValue = QStringList() << "VERBOSE" << "INFORM" << "WARNING";
-    //    pTest->settingsPrompt = "Mute Prompt";
+           QTreeWidgetItem *pListItem = new QTreeWidgetItem();
+           pMuteMessageItem->addChild(pListItem);
+           pListItem->setSizeHint(1, QSize(350, 200));
+           pMuteMessageWidget = new CMuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
+           pEditorTree->setItemWidget(pListItem, 1, pMuteMessageWidget);
+           connect(pVUIDSearchWidget, SIGNAL(itemSelected(QString&)), pMuteMessageWidget, SLOT(addItem(QString&)));
+           continue;
+       }
 
-    //    for(int i = 0; i < pTest->settingsListInclusiveValue.size(); i++) {
-    //        QTreeWidgetItem *pChild = new QTreeWidgetItem();
-    //        CMultiEnumSetting *pControl = new CMultiEnumSetting(pTest, pTest->settingsListInclusiveValue[i]);
-    //        pControl->setText(pTest->settingsListInclusivePrompt[i]);
-    //        pMuteMessageType->addChild(pChild);
-    //        pEditorTree->setItemWidget(pChild, 0, pControl);
-    //        }
+    }
 
+    //////// Add the preset item
     pKhronosTree->addChild(pKhronosPresetItem);
+
 }
 
 void CSettingsTreeManager::khronosDebugChanged(int nIndex) {
@@ -406,7 +389,12 @@ void CSettingsTreeManager::CleanupGUI(void) {
     GetTreeState(pProfile->settingTreeState, pEditorTree->invisibleRootItem());
     CVulkanConfiguration::getVulkanConfig()->SaveProfile(pProfile);
 
-    if (pKhronosFileItem) pEditorTree->setItemWidget(pKhronosFileItem, 1, nullptr);
+    // If a Khronos layer is present, it needs cleanup up from custom controls before
+    // it's cleared or deleted.
+    if (pKhronosLayer)  {
+        pEditorTree->setItemWidget(pKhronosFileItem, 1, nullptr);
+        pEditorTree->setItemWidget(pMuteMessageSearchItem, 1, nullptr);
+    }
 
     pKhronosFileItem = nullptr;
 

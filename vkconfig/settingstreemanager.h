@@ -34,6 +34,8 @@
 #include "stringsettingwidget.h"
 #include "foldersettingwidget.h"
 #include "multienumsetting.h"
+#include "mutemessagewidget.h"
+#include "vuidsearchwidget.h"
 
 class CSettingsTreeManager : QObject {
     Q_OBJECT
@@ -65,6 +67,9 @@ class CSettingsTreeManager : QObject {
     CFilenameSettingWidget *pKhronosLogFileWidget;
     CEnumSettingWidget *pKhronosDebugAction;
     KhronosSettingsAdvanced *pAdvancedKhronosEditor;
+    CMuteMessageWidget *pMuteMessageWidget;
+    CVUIDSearchWidget *pVUIDSearchWidget;
+    QTreeWidgetItem* pMuteMessageSearchItem;
 
    public Q_SLOTS:
     //    void itemCollapsed(QTreeWidgetItem *);

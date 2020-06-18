@@ -256,8 +256,16 @@ void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
             continue;
         }
 
+        //////////////////////////////////////////////////// VUID Filter List
+        if(typeString == QString("vuid_exclude")) {
+            pLayerSettings->settingsType = LAYER_SETTINGS_VUID_FILTER;
+            layers.push_back(pLayerSettings);
+            continue;
+        }
+
         ////////////////////////////////////////////////////// Just a string please
-        if (typeString == QString("string")) pLayerSettings->settingsType = LAYER_SETTINGS_STRING;
+        if (typeString == QString("string"))
+            pLayerSettings->settingsType = LAYER_SETTINGS_STRING;
 
         layers.push_back(pLayerSettings);
     }

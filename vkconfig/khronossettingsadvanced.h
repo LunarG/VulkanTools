@@ -28,6 +28,8 @@
 #include <QRadioButton>
 #include <layerfile.h>
 
+#include "mutemessagewidget.h"
+
 class KhronosSettingsAdvanced : public QObject {
     Q_OBJECT
 
@@ -50,6 +52,7 @@ class KhronosSettingsAdvanced : public QObject {
     QTreeWidgetItem *pReserveBox;
     QTreeWidgetItem *pDebugPrintfBox;
     QRadioButton *pDebugRadio;
+    CMuteMessageWidget *pMuteMessageWidget;
 
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);

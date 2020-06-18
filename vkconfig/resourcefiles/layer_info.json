@@ -58,6 +58,12 @@
                 "type": "save_file",
                 "default": "stdout"
             },
+            "message_id_filter": {
+                "name": "Message Filter",
+                "description": "VUID's to ignore",
+                "type": "vuid_exclude",
+                "default": ""
+            },
             "disables": {
                 "name": "Disables",
                 "description": "Setting an option here will disable areas of validation",

@@ -43,7 +43,8 @@ typedef enum {
     LAYER_SETTINGS_BOOL_NUMERIC,
     LAYER_SETTINGS_EXCLUSIVE_LIST,
     LAYER_SETTINGS_INCLUSIVE_LIST,
-    LAYER_SETTINGS_RANGE_INT
+    LAYER_SETTINGS_RANGE_INT,
+    LAYER_SETTINGS_VUID_FILTER,
 } TLayerSettingsType;
 
 // This structure is copied by assignment elsewhere, so do not add

@@ -42,9 +42,11 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     multienumsetting.cpp \
+    mutemessagewidget.cpp \
     profiledef.cpp \
     settingstreemanager.cpp \
     stringsettingwidget.cpp \
+    vuidsearchwidget.cpp \
     vulkanconfiguration.cpp
 
 HEADERS += \
@@ -65,9 +67,11 @@ HEADERS += \
     layerfile.h \
     mainwindow.h \
     multienumsetting.h \
+    mutemessagewidget.h \
     profiledef.h \
     settingstreemanager.h \
     stringsettingwidget.h \
+    vuidsearchwidget.h \
     vulkanconfiguration.h
 
 FORMS += \

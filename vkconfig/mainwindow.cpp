@@ -116,6 +116,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+
+    // All else is done, highlight and activeate the current profile on startup
+    CProfileDef *pActive = pVulkanConfig->GetCurrentActiveProfile();
+    if(pActive != nullptr) {
+        for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+            CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+            if(pItem != nullptr)
+                if(pItem->pProfilePointer == pActive) { // Ding ding ding... we have a winner
+                    ui->profileTree->setCurrentItem(pItem);
+                }
+        }
+
+
+    }
 }
 
 MainWindow::~MainWindow() {
@@ -268,11 +282,24 @@ void MainWindow::toolsResetDefaultProfiles(bool bChecked) {
     // Let make sure...
     QMessageBox msg;
     msg.setText(
-        tr("This will reset/restore the 9 default layer configurations to their default state. "
-           "If you've made changes to these configurations they will also be lost. Are you sure you want to continue?"));
+        tr("This will reset/restore the 9 default layer configurations to their default state, and remove any user defined "
+           "configurations.\n\nAre you sure you want to continue?"));
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msg.setDefaultButton(QMessageBox::Yes);
     if (msg.exec() == QMessageBox::No) return;
+
+    // Delete all the *.json files in the storage folder
+    QDir dir(pVulkanConfig->qsProfileFilesPath);
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.json");
+    QFileInfoList profileFiles = dir.entryInfoList();
+
+    // Loop through all the profiles found and load them
+    for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
+        QFileInfo info = profileFiles.at(iProfile);
+        if (info.absoluteFilePath().contains("applist.json")) continue;
+        remove(info.filePath().toUtf8().constData());
+    }
 
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
@@ -288,11 +315,7 @@ void MainWindow::toolsResetDefaultProfiles(bool bChecked) {
 /// \param bChecked
 /// Thist signal actually comes from the radio button
 void MainWindow::profileItemClicked(bool bChecked) {
-    printf("profileItemClicked\n");
-    if (!bChecked) {
-        // Anything important going on here?
-    }
-
+    (void)bChecked;
     // Someone just got checked, they are now the current profile
     // This pointer will only be valid if it's one of the elements with
     // the radio button
@@ -877,6 +900,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
                 // Duplicate
                 if (pAction == pDuplicateAction) {
+                    settingsTreeManager.CleanupGUI();
                     DuplicateClicked(pItem);
                     settingsTreeManager.CleanupGUI();
                     ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -924,6 +948,17 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     // Pass it on
     return false;
 }
+
+///////////////////////////////////////////////////////////////////////////////////
+// TBD... Toggles writing from HKEY_CURRENT_USER to HKEY_LOCAL_MACHINE
+void MainWindow::on_checkBoxApplyAll_clicked(void) {
+    QMessageBox alert(this);
+    alert.setText("This will toggle having overrides apply to all users, or just the current user.");
+    alert.setIcon(QMessageBox::Warning);
+    alert.setWindowTitle(tr("TBD: To Be Done..."));
+    alert.exec();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 /// Launch the app and monitor it's stdout to get layer output.

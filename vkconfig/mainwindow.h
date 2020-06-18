@@ -134,6 +134,7 @@ class MainWindow : public QMainWindow {
     void on_checkBoxPersistent_clicked(void);
 
     void on_pushButtonAppList_clicked(void);
+    void on_checkBoxApplyAll_clicked(void);
 
     void profileItemChanged(QTreeWidgetItem *pItem, int nCol);
     void profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
