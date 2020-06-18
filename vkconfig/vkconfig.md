@@ -128,7 +128,7 @@ Roadmap
 - Add multiple command line arguments and environment variables per application.
 - Add a search field for the launcher log area and button to open the launcher log file, make it possible to browse the log.
 - Make vkconfig a service to add an icon in the taskbar when running.
-- A dedicated Vulkan Configurator layers to capture all the debug messages directly.
+- A dedicated Vulkan Configurator layer to capture all the debug messages directly.
 
 Known Issues
 --------------
