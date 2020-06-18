@@ -275,9 +275,9 @@ void dlgLayerOutput::on_pushButtonLaunchApp_clicked()
 
     // We are logging, let's add that we've launched a new application
     QString out;
-    out = QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+    out = QString().asprintf("Starting Vulkan Application: %s", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
-    out = QString().asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
+    out = QString().asprintf("Working folder: %s", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
     out = QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());

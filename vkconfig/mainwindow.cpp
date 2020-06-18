@@ -245,14 +245,15 @@ void MainWindow::on_checkBoxApplyList_clicked(void)
 
         uint32_t version = pVulkanConfig->vulkanInstanceVersion;
         QString message;
-        message = QString().asprintf("Warning, you have an older Vulkan Loader. Layer overrides applied with this tool "
-                        "will affect all Vulkan applications on your system.\n\nYou need at least version 1.2, patch 141 in order to "
-                        "apply overrides to specific applications.\n\nYour current detected loader version is %d.%d Patch(%d).\n\n<br><br>"
-                        "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a></br></br>", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+        message = QString().asprintf(
+            "The detected Vulkan Loader version is %d.%d.%d but version 1.2.141 or newer is required in order to apply layers override to only a selected list of Vulkan applications.\n\n<br><br>"
+            "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature.", 
+            VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
         QMessageBox alert(this);
         alert.setTextFormat(Qt::RichText);
         alert.setText(message);
         alert.setIcon(QMessageBox::Warning);
+        alert.setWindowTitle(tr("Layers override of a selected list of Vulkan Applications is not available"));
         alert.exec();
 
 
@@ -1174,10 +1175,10 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
 
     // We are logging, let's add that we've launched a new application
     QString out;
-    out = QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+    out = QString().asprintf("Starting Vulkan Application: %s", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
     ui->logBrowser->append(out);
-    out = QString().asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
+    out = QString().asprintf("Working folder: %s", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
     pLogFile->write(out.toUtf8().constData(), out.length());
     ui->logBrowser->append(out);
     out = QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
