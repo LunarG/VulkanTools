@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>824</height>
+    <height>842</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -46,6 +46,12 @@
      <widget class="QSplitter" name="splitter_3">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="opaqueResize">
+       <bool>true</bool>
+      </property>
+      <property name="handleWidth">
+       <number>5</number>
       </property>
       <widget class="QSplitter" name="splitter_2">
        <property name="orientation">
@@ -200,6 +206,9 @@
            <layout class="QGridLayout" name="gridLayout_3">
             <property name="horizontalSpacing">
              <number>6</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>-1</number>
             </property>
             <item row="0" column="0">
              <widget class="QTreeWidget" name="profileTree">
@@ -389,7 +398,7 @@
             <number>2</number>
            </property>
            <attribute name="headerVisible">
-            <bool>true</bool>
+            <bool>false</bool>
            </attribute>
            <attribute name="headerMinimumSectionSize">
             <number>160</number>
@@ -502,7 +511,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
