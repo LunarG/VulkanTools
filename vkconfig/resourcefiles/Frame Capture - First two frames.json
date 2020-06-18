@@ -3,6 +3,7 @@
         "blacklisted_layers": [
         ],
         "description": "Capture the application first two frames",
+        "editor_state": "01111111111111111111111",
         "layer_options": {
             "VK_LAYER_LUNARG_gfxreconstruct": {
                 "capture_compression_type": {
@@ -42,11 +43,10 @@
                     "type": "string"
                 },
                 "capture_trigger": {
-                    "default": "F12",
+                    "default": "NONE",
                     "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
                     "name": "Hotkey Capture Trigger",
                     "options": {
-                        "NONE": "None",
                         "CONTROL": "CONTROL",
                         "F1": "F1",
                         "F10": "F10",
@@ -60,10 +60,12 @@
                         "F7": "F7",
                         "F8": "F8",
                         "F9": "F9",
+                        "NONE": "None",
                         "TAB": "TAB"
                     },
                     "type": "enum"
                 },
+                "layer_path": "C:/VulkanSDK/1.2.141.0/Bin/VkLayer_gfxreconstruct.json",
                 "layer_rank": 0,
                 "log_allow_indents": {
                     "default": "FALSE",
@@ -168,6 +170,7 @@
                     "type": "bool"
                 }
             }
-        }
+        },
+        "preset": 0
     }
 }
