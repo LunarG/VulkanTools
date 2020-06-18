@@ -1073,24 +1073,6 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
         return;
         }
 
-    // Display warning first
-    QSettings settings;
-    if(!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
-        QMessageBox alert(this);
-        alert.setText("Vulkan Layers are configured when creating a Vulkan instance which\n"
-                      "typically happens at application start.\n\n"
-                      "For Vulkan Layer overrides to take effect, running Vulkan applications\n"
-                      "should be restarted.");
-        QCheckBox *pCheckBox = new QCheckBox();
-        pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-        alert.setWindowTitle("Runnng Vulkan Applications must be restarted");
-        alert.setCheckBox(pCheckBox);
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
-        if(pCheckBox->isChecked())
-            settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
-        }
-
     // Launch the test application
     pVulkanApp = new QProcess(this);
     connect(pVulkanApp, SIGNAL(readyReadStandardOutput()), this,
@@ -1117,6 +1099,24 @@ void MainWindow::on_pushButtonLaunch_clicked(void)
      pVulkanApp->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
      pVulkanApp->setProcessChannelMode(QProcess::MergedChannels);
      pVulkanApp->closeWriteChannel();
+
+    // Display warning for configuration changes
+     QSettings settings;
+     if (!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
+         QMessageBox alert(this);
+         alert.setText(
+             "Vulkan Layers are fully configured when creating a Vulkan Instance which\n"
+             "typically happens at Vulkan Application start.\n\n"
+             "For changes to take effect, running Vulkan Applications should be restarted.");
+         QCheckBox *pCheckBox = new QCheckBox();
+         pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
+         alert.setWindowTitle(
+             "Any Layers Configuration change requires Vulkan Applications restart");
+         alert.setCheckBox(pCheckBox);
+         alert.setIcon(QMessageBox::Warning);
+         alert.exec();
+         if (pCheckBox->isChecked()) settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
+     }
 
      // Wait... did we start? Give it 4 seconds, more than enough time
      if(!pVulkanApp->waitForStarted(4000))
