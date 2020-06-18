@@ -7,16 +7,15 @@ namespace Ui {
 class dlgHelp;
 }
 
-class dlgHelp : public QWidget
-{
+class dlgHelp : public QWidget {
     Q_OBJECT
 
-public:
+   public:
     explicit dlgHelp(QWidget *parent = nullptr);
     ~dlgHelp();
 
-private:
+   private:
     Ui::dlgHelp *ui;
 };
 
-#endif // DLGHELP_H
+#endif  // DLGHELP_H

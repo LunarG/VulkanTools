@@ -34,35 +34,34 @@
 #include "dlghelp.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui {
+class MainWindow;
+}
 QT_END_NAMESPACE
 
 //////////////////////////////////////////////////
 /// \brief The CProfileListItem class
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
-class CProfileListItem : public QTreeWidgetItem
-{
-public:
-    CProfileDef*    pProfilePointer;
-    QRadioButton*   pRadioButton;
+class CProfileListItem : public QTreeWidgetItem {
+   public:
+    CProfileDef *pProfilePointer;
+    QRadioButton *pRadioButton;
 };
 
-
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
-public:
+   public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-protected:
-    CVulkanConfiguration*    pVulkanConfig;
-    CSettingsTreeManager     settingsTreeManager;
+   protected:
+    CVulkanConfiguration *pVulkanConfig;
+    CSettingsTreeManager settingsTreeManager;
 
-    QProcess *pVulkanApp;       // Keeps track of the monitored app
-    QFile    *pLogFile;          // Log file for layer output
+    QProcess *pVulkanApp;  // Keeps track of the monitored app
+    QFile *pLogFile;       // Log file for layer output
 
     void LoadProfileList(void);
     void SetupLaunchTree(void);
@@ -76,23 +75,23 @@ protected:
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     dlgVulkanAnalysis *pVKVia;
-    dlgVulkanInfo     *pVulkanInfo;
-    dlgLayerOutput    *pTestEnv;
-    dlgHelp           *pDlgHelp;
+    dlgVulkanInfo *pVulkanInfo;
+    dlgLayerOutput *pTestEnv;
+    dlgHelp *pDlgHelp;
 
-private:
+   private:
     Ui::MainWindow *ui;
 
-    CProfileListItem    *pLastSelectedProfileItem;
-    CProfileListItem* GetCheckedItem(void);
+    CProfileListItem *pLastSelectedProfileItem;
+    CProfileListItem *GetCheckedItem(void);
 
-    QComboBox*          pLaunchAppsCombo;
-    QLineEdit*          pLaunchArguments;
-    QLineEdit*          pLaunchWorkingFolder;
-    QLineEdit*          pLaunchLogFile;
-    QPushButton*        pLuanchAppBrowseButton;
-    QPushButton*        pLaunchWorkingFolderButton;
-    QPushButton*        pLaunchLogFilebutton;
+    QComboBox *pLaunchAppsCombo;
+    QLineEdit *pLaunchArguments;
+    QLineEdit *pLaunchWorkingFolder;
+    QLineEdit *pLaunchLogFile;
+    QPushButton *pLuanchAppBrowseButton;
+    QPushButton *pLaunchWorkingFolderButton;
+    QPushButton *pLaunchLogFilebutton;
 
     void ResetLaunchOptions(void);
 
@@ -104,7 +103,7 @@ private:
     void ImportClicked(CProfileListItem *pItem);
     void EditClicked(CProfileListItem *pItem);
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void aboutVkConfig(bool bChecked);
     void toolsVulkanInfo(bool bChecked);
     void toolsVulkanInstallation(bool bChecked);
@@ -115,18 +114,16 @@ public Q_SLOTS:
 
     void helpShowHelp(bool bChecked);
 
-    void addCustomPaths();    // Fired by menu
+    void addCustomPaths();  // Fired by menu
 
     void editorExpanded(QTreeWidgetItem *pItem);
 
-
-
-    void launchItemExpanded(QTreeWidgetItem* pItem);
-    void launchItemCollapsed(QTreeWidgetItem* pItem);
+    void launchItemExpanded(QTreeWidgetItem *pItem);
+    void launchItemCollapsed(QTreeWidgetItem *pItem);
     void launchItemChanged(int nIndex);
     void launchAddProgram(void);
     void launchSetLogFile(void);
-    void launchArgsEdited(const QString& newText);
+    void launchArgsEdited(const QString &newText);
     void on_pushButtonLaunch_clicked(void);
     void on_pushButtonClearLog_clicked(void);
     void on_pushButtonOpenLog_clicked(void);
@@ -143,13 +140,9 @@ public Q_SLOTS:
     void profileItemClicked(bool bChecked);
     void profileItemExpanded(QTreeWidgetItem *pItem);
 
-
     void on_pushButtonEditProfile_clicked(void);
 
-    void standardOutputAvailable(void);         // stdout output is available
-    void errorOutputAvailable(void);            // Layeroutput is available
+    void standardOutputAvailable(void);                             // stdout output is available
+    void errorOutputAvailable(void);                                // Layeroutput is available
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
-
-
 };
-

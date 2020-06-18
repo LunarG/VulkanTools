@@ -27,22 +27,19 @@
 #include <QTreeWidgetItem>
 #include "layerfile.h"
 
-class CEnumSettingWidget : public QComboBox
-{
+class CEnumSettingWidget : public QComboBox {
     Q_OBJECT
-public:
-    CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSettings *pLayerSetting);
+   public:
+    CEnumSettingWidget(QTreeWidgetItem *pTreeItem, TLayerSettings *pLayerSetting);
 
-private:
+   private:
     TLayerSettings *pSetting;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void indexChanged(int nIndex);
 
-Q_SIGNALS:
+   Q_SIGNALS:
     void itemChanged(void);
-
-
 };
 
-#endif // CENUMSETTINGWIDGET_H
+#endif  // CENUMSETTINGWIDGET_H

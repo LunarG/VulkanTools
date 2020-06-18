@@ -27,22 +27,20 @@
 
 #include "layerfile.h"
 
-class CBoolSettingWidget : public QCheckBox
-{
+class CBoolSettingWidget : public QCheckBox {
     Q_OBJECT
-public:
+   public:
     CBoolSettingWidget(TLayerSettings *pLayerSetting, bool bNumeric = false);
 
-private:
+   private:
     bool bNumericOutput;
     TLayerSettings *pSetting;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void itemToggled(void);
 
-Q_SIGNALS:
+   Q_SIGNALS:
     void itemChanged(void);
-
 };
 
-#endif // CBOOLSETTINGWIDGET_H
+#endif  // CBOOLSETTINGWIDGET_H

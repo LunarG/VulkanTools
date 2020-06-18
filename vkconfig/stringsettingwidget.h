@@ -27,22 +27,19 @@
 
 #include "layerfile.h"
 
-class CStringSettingWidget : public QLineEdit
-{
+class CStringSettingWidget : public QLineEdit {
     Q_OBJECT
-public:
-    CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSettings *pLayerSetting);
+   public:
+    CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting);
 
-private:
-    TLayerSettings *pSetting;
+   private:
+    TLayerSettings* pSetting;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void itemEdited(const QString& newString);
 
-Q_SIGNALS:
+   Q_SIGNALS:
     void itemChanged(void);
-
-
 };
 
-#endif // CSTRINGSETTINGWIDGET_H
+#endif  // CSTRINGSETTINGWIDGET_H

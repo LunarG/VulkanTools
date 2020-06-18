@@ -29,32 +29,31 @@
 
 #include <layerfile.h>
 
-class CProfileDef
-{
-public:
+class CProfileDef {
+   public:
     CProfileDef();
     ~CProfileDef();
 
-    QString         qsProfileName;              // User readable display of the profile name (may contain spaces)
-                                                // This is the same as the filename, but with the .json stripped off.
-    QString         qsFileName;                 // Root file name without path (by convention, no spaces and .profile suffix)
-    QString         qsDescription;              // A friendly description of what this profile does
-    QByteArray      settingTreeState;           // Recall editor tree state
-    int             nPresetIndex;               // Khronos layer presets. 0 = none or user defined
+    QString qsProfileName;        // User readable display of the profile name (may contain spaces)
+                                  // This is the same as the filename, but with the .json stripped off.
+    QString qsFileName;           // Root file name without path (by convention, no spaces and .profile suffix)
+    QString qsDescription;        // A friendly description of what this profile does
+    QByteArray settingTreeState;  // Recall editor tree state
+    int nPresetIndex;             // Khronos layer presets. 0 = none or user defined
 
     // A profile is nothing but a list of layers and their settings in truth
-    QVector<CLayerFile *>layers;
+    QVector<CLayerFile *> layers;
 
-    QStringList     blacklistedLayers;                  // Just the names of blacklisted layers
+    QStringList blacklistedLayers;  // Just the names of blacklisted layers
 
-    CLayerFile*     FindLayer(QString qsLayerName, QString qsFullPath);     // Find the layer if it exists
-    CLayerFile*     FindLayerNamed(QString qsLayerName);                    // Find the layer if it exists, only care about the name
+    CLayerFile *FindLayer(QString qsLayerName, QString qsFullPath);  // Find the layer if it exists
+    CLayerFile *FindLayerNamed(QString qsLayerName);                 // Find the layer if it exists, only care about the name
 
-    CProfileDef     *DuplicateProfile(void);            // Copy a profile so we can mess with it
+    CProfileDef *DuplicateProfile(void);  // Copy a profile so we can mess with it
 
-    void            CollapseProfile(void);              // Remove unused layers and settings, set blacklist
+    void CollapseProfile(void);  // Remove unused layers and settings, set blacklist
 
-    CLayerFile      *GetKhronosLayer(void);             // Retrieve the Khronos validation layer if it is included
+    CLayerFile *GetKhronosLayer(void);  // Retrieve the Khronos validation layer if it is included
 };
 
-#endif // CPROFILEDEF_H
+#endif  // CPROFILEDEF_H

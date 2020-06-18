@@ -39,7 +39,6 @@
 #include <layerfile.h>
 #include "profiledef.h"
 
-
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,9 +50,8 @@
 /// This is a little weird because generally QSettings is for going back
 /// and forth between the Registry or .ini files. Here, I'm going from
 /// the registry to directory entries.
-class CPathFinder
-{
-public:
+class CPathFinder {
+   public:
 #ifdef _WIN32
     CPathFinder(const QString& qsPath, bool bForceFileSystem = false);
 #else
@@ -61,26 +59,25 @@ public:
 #endif
     int FileCount(void) { return fileList.size(); }
     QString GetFileName(int iIndex) { return fileList[iIndex]; }
-protected:
+
+   protected:
     QStringList fileList;
 };
 
-
-#define VKCONFIG_NAME       "Vulkan Configurator"
+#define VKCONFIG_NAME "Vulkan Configurator"
 
 // Saved settings for the application
-#define VKCONFIG_KEY_LAUNCHAPP              "launchApp"
-#define VKCONFIG_KEY_LAUNCHAPP_CWD          "launchAppCWD"
-#define VKCONFIG_KEY_LAUNCHAPP_ARGS         "launchAppARGS"
-#define VKCONFIG_KEY_LOGFILE                "logFileName"
-#define VKCONFIG_KEY_ACTIVEPROFILE          "activeProfile"
-#define VKCONFIG_KEY_CUSTOM_PATHS           "customPaths"
-#define VKCONFIG_KEY_OVERRIDE_ACTIVE        "overrideActive"
-#define VKCONFIG_KEY_APPLY_ONLY_TO_LIST     "applyOnlyToList"
-#define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT    "keepActiveOnExit"
-#define VKCONFIG_KEY_FIRST_RUN              "firstRun"
-#define VKCONFIG_KEY_APPLY_ALL              "applytoall"
-
+#define VKCONFIG_KEY_LAUNCHAPP "launchApp"
+#define VKCONFIG_KEY_LAUNCHAPP_CWD "launchAppCWD"
+#define VKCONFIG_KEY_LAUNCHAPP_ARGS "launchAppARGS"
+#define VKCONFIG_KEY_LOGFILE "logFileName"
+#define VKCONFIG_KEY_ACTIVEPROFILE "activeProfile"
+#define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
+#define VKCONFIG_KEY_OVERRIDE_ACTIVE "overrideActive"
+#define VKCONFIG_KEY_APPLY_ONLY_TO_LIST "applyOnlyToList"
+#define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT "keepActiveOnExit"
+#define VKCONFIG_KEY_FIRST_RUN "firstRun"
+#define VKCONFIG_KEY_APPLY_ALL "applytoall"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -89,11 +86,10 @@ protected:
 // to reset or initialize the a full layer definition for the
 // profiles.
 class LayerSettingsDefaults {
-public:
-    QString                 layerName;                  // Name of layer
-    QVector<TLayerSettings *>defaultSettings;           // Default settings for this layer
+   public:
+    QString layerName;                         // Name of layer
+    QVector<TLayerSettings*> defaultSettings;  // Default settings for this layer
 };
-
 
 //////////////////////////////////////////////////////////
 // We will maintain a list of applicitons, each can have
@@ -103,24 +99,22 @@ struct TAppListEntry {
     QString qsAppNameWithPath;
     QString qsWorkingFolder;
     QString qsArguments;
-    bool    bExcludeFromGlobalList;
+    bool bExcludeFromGlobalList;
 };
 
-class CVulkanConfiguration
-{
-public:
+class CVulkanConfiguration {
+   public:
     static CVulkanConfiguration* getVulkanConfig(void) {
-        if(pMe == nullptr)
-            pMe = new CVulkanConfiguration();
+        if (pMe == nullptr) pMe = new CVulkanConfiguration();
 
         return pMe;
-        }
+    }
 
     ~CVulkanConfiguration();
 
     static int nNumCannedProfiles;
     static int nNumKhronosPreConfigs;
-    static const char *szCannedProfiles[9];
+    static const char* szCannedProfiles[9];
 
     // Need this to check vulkan loader version
     uint32_t vulkanInstanceVersion;
@@ -133,16 +127,15 @@ public:
     QString qsLaunchApplicationArgs;
     QString qsLaunchApplicationWorkingDir;
     QString qsLogFileWPath;
-    bool    bOverrideActive;    // Do we have an active override?
-    bool    bApplyOnlyToList;   // Apply the overide only to the application list
-    bool    bKeepActiveOnExit;  // Stay active when app closes
-    bool    bHasOldLoader;      // Older loader does not support per-application overrides
-    bool    bApplyToAllUsers;   // Apply to all users, not just the current user
+    bool bOverrideActive;    // Do we have an active override?
+    bool bApplyOnlyToList;   // Apply the overide only to the application list
+    bool bKeepActiveOnExit;  // Stay active when app closes
+    bool bHasOldLoader;      // Older loader does not support per-application overrides
+    bool bApplyToAllUsers;   // Apply to all users, not just the current user
 
-
-    QString qsProfileFilesPath;         // Where config working files live
-    QString qsOverrideSettingsPath;     // Where settings go when profile is active
-    QString qsOverrideJsonPath;         // Where json goes when profile is active
+    QString qsProfileFilesPath;      // Where config working files live
+    QString qsOverrideSettingsPath;  // Where settings go when profile is active
+    QString qsOverrideJsonPath;      // Where json goes when profile is active
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
@@ -152,16 +145,15 @@ public:
 
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
-    QVector <TAppListEntry *> appList;
+    QVector<TAppListEntry*> appList;
     void LoadAppList(void);
     void SaveAppList(void);
-
 
     ////////////////////////////////////////////////////////////////////////
     // A readonly list of layer names with the associated settings
     // and their default values. This is for reference by individual profile
     // objects.
-    QVector <LayerSettingsDefaults *> defaultLayerSettings;
+    QVector<LayerSettingsDefaults*> defaultLayerSettings;
     void LoadDefaultLayerSettings(void);
     const LayerSettingsDefaults* FindSettingsFor(QString layerName);
     void LoadDefaultSettings(CLayerFile* pBlankLayer);
@@ -172,53 +164,49 @@ public:
     // in the above (defaultLayerSettings). The binding of a layer with it's
     // particular settings is done in the profile (CProfileDef - in profile list).
     // This includes all found implicit, explicit, or layers found in custom folders
-    QVector <CLayerFile*>   allLayers;          // All the found layers, lumped together
+    QVector<CLayerFile*> allLayers;  // All the found layers, lumped together
     void FindAllInstalledLayers(void);
-    void LoadLayersFromPath(const QString &qsPath, QVector<CLayerFile *>& layerList, TLayerType type);
+    void LoadLayersFromPath(const QString& qsPath, QVector<CLayerFile*>& layerList, TLayerType type);
     const CLayerFile* FindLayerNamed(QString qsLayerName, const char* location = nullptr);
 
-
-
-    QVector <CProfileDef *>  profileList;       // List and details about current profiles
+    QVector<CProfileDef*> profileList;  // List and details about current profiles
 
     // We need to push and pop a temporary environment.
     // The stack is only one deep...
-    CProfileDef*             pSavedProfile;
+    CProfileDef* pSavedProfile;
 
-    void pushProfile(CProfileDef *pNew);
+    void pushProfile(CProfileDef* pNew);
     void popProfile(void);
-
 
     CProfileDef* CreateEmptyProfile(void);
     CProfileDef* FindProfile(QString profileName);
-    CProfileDef* LoadProfile(QString pathToProfile);        // Load .profile descriptor
-    void LoadAllProfiles(void);                             // Load all the .profile files found
-    void SaveProfile(CProfileDef *pProfile);                // Write .profile descriptor
+    CProfileDef* LoadProfile(QString pathToProfile);  // Load .profile descriptor
+    void LoadAllProfiles(void);                       // Load all the .profile files found
+    void SaveProfile(CProfileDef* pProfile);          // Write .profile descriptor
 
     // Set this as the current override profile
-    void SetCurrentActiveProfile(CProfileDef *pProfile);
+    void SetCurrentActiveProfile(CProfileDef* pProfile);
     CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
     void RefreshProfile(void) {
-                if(pActiveProfile)
-                    SetCurrentActiveProfile(pActiveProfile);
-                }
+        if (pActiveProfile) SetCurrentActiveProfile(pActiveProfile);
+    }
 
     QString GetProfilePath(void) { return qsProfileFilesPath; }
 
-protected:
+   protected:
     CVulkanConfiguration();
-    static CVulkanConfiguration*    pMe;
+    static CVulkanConfiguration* pMe;
 
     // Currently active profile
-    CProfileDef*                    pActiveProfile;
+    CProfileDef* pActiveProfile;
 
-    bool                            bFirstRun;  // This is used for populating the initial set of profiles/configurations
+    bool bFirstRun;  // This is used for populating the initial set of profiles/configurations
     void ClearLayerLists(void);
     void FindVkCube(void);
 
 #ifdef WIN32
-    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile *>& layerList, TLayerType type);
-    void LoadRegistryLayers(const QString &path, QVector<CLayerFile *>& layerList, TLayerType type);
+    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile*>& layerList, TLayerType type);
+    void LoadRegistryLayers(const QString& path, QVector<CLayerFile*>& layerList, TLayerType type);
 
     void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
     void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
@@ -226,4 +214,4 @@ protected:
 #endif
 };
 
-#endif // CVULKANCONFIGURATION_H
+#endif  // CVULKANCONFIGURATION_H

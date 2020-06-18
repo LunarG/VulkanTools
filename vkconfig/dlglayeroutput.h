@@ -33,45 +33,43 @@ namespace Ui {
 class dlgLayerOutput;
 }
 
-class dlgLayerOutput : public QDialog
-{
+class dlgLayerOutput : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit dlgLayerOutput(QWidget *parent, bool bTempEnv = false);
     ~dlgLayerOutput();
 
     bool bTempEnvironment;
     bool bAPIDump;
 
-private:
+   private:
     Ui::dlgLayerOutput *ui;
 
-    CVulkanConfiguration*       pVulkanConfig;  // Singleton
+    CVulkanConfiguration *pVulkanConfig;  // Singleton
 
-    QProcess *vulkan_app;       // Keeps track of the monitored app
+    QProcess *vulkan_app;  // Keeps track of the monitored app
 
-    QFile   *pLogFile;          // Log file for layer output
-
+    QFile *pLogFile;  // Log file for layer output
 
     virtual void showEvent(QShowEvent *event);
 
-public	Q_SLOTS:
-    void on_pushButtonSetApp_clicked();         // Pick the test application
-    void on_pushButtonLaunchApp_clicked();      // Launch the test application
-    void on_pushButtonWorkingDir_clicked();     // Set working directory
-    void on_pushButtonSetLogFile_clicked();     // Set the log file name/location
-    void on_pushButtonClear_clicked();          // Clear the log
-    void on_pushButtonSave_clicked();           // Save log to file
-    void on_pushButtonClearLogFile_clicked();   // Clear the log file
-    void on_lineEditCmdLine_editingFinished();  // User has changed command line
-    void on_lineEditWorkingDirectory_editingFinished(); // User has manually updated the working directory (we need this for mac app bundles)
+   public Q_SLOTS:
+    void on_pushButtonSetApp_clicked();                  // Pick the test application
+    void on_pushButtonLaunchApp_clicked();               // Launch the test application
+    void on_pushButtonWorkingDir_clicked();              // Set working directory
+    void on_pushButtonSetLogFile_clicked();              // Set the log file name/location
+    void on_pushButtonClear_clicked();                   // Clear the log
+    void on_pushButtonSave_clicked();                    // Save log to file
+    void on_pushButtonClearLogFile_clicked();            // Clear the log file
+    void on_lineEditCmdLine_editingFinished();           // User has changed command line
+    void on_lineEditWorkingDirectory_editingFinished();  // User has manually updated the working directory (we need this for mac
+                                                         // app bundles)
 
-    void standardOutputAvailable(void);         // stdout output is available
-    void errorOutputAvailable(void);            // Layeroutput is available
+    void standardOutputAvailable(void);  // stdout output is available
+    void errorOutputAvailable(void);     // Layeroutput is available
 
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
-
 };
 
-#endif // DLGLAYEROUTPUT_H
+#endif  // DLGLAYEROUTPUT_H

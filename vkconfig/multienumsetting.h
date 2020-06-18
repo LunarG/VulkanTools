@@ -28,23 +28,20 @@
 
 #include "layerfile.h"
 
-class CMultiEnumSetting : public QCheckBox
-{
+class CMultiEnumSetting : public QCheckBox {
     Q_OBJECT
-public:
+   public:
     CMultiEnumSetting(TLayerSettings *pLayerSetting, QString thisSetting);
 
-private:
+   private:
     TLayerSettings *pSetting;
-    QString         mySetting;
+    QString mySetting;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void itemChecked(bool bChecked);
 
-Q_SIGNALS:
+   Q_SIGNALS:
     void itemChanged(void);
-
-
 };
 
-#endif // CMULTIENUMSETTING_H
+#endif  // CMULTIENUMSETTING_H

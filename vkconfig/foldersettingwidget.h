@@ -30,26 +30,23 @@
 
 #include "layerfile.h"
 
-class CFolderSettingWidget : public QWidget
-{
+class CFolderSettingWidget : public QWidget {
     Q_OBJECT
-public:
-    explicit CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting);
+   public:
+    explicit CFolderSettingWidget(QTreeWidgetItem *pItem, TLayerSettings *pLayerSetting);
 
     virtual void resizeEvent(QResizeEvent *event) override;
 
     TLayerSettings *pSetting;
-    QLineEdit      *pLineEdit;
-    QPushButton    *pPushButton;
+    QLineEdit *pLineEdit;
+    QPushButton *pPushButton;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void browseButtonClicked(void);
-    void textFieldChanged(const QString& newText);
+    void textFieldChanged(const QString &newText);
 
-Q_SIGNALS:
+   Q_SIGNALS:
     void itemChanged(void);
-
-
 };
 
-#endif // CFOLDERSETTINGWIDGET_H
+#endif  // CFOLDERSETTINGWIDGET_H

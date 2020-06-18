@@ -35,56 +35,61 @@
 
 typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT, LAYER_TYPE_CUSTOM } TLayerType;
 
-typedef enum { LAYER_SETTINGS_STRING = 0, LAYER_SETTINGS_FILE, LAYER_SETTINGS_SAVE_FOLDER, LAYER_SETTINGS_BOOL, LAYER_SETTINGS_BOOL_NUMERIC,
-                LAYER_SETTINGS_EXCLUSIVE_LIST, LAYER_SETTINGS_INCLUSIVE_LIST, LAYER_SETTINGS_RANGE_INT } TLayerSettingsType;
+typedef enum {
+    LAYER_SETTINGS_STRING = 0,
+    LAYER_SETTINGS_FILE,
+    LAYER_SETTINGS_SAVE_FOLDER,
+    LAYER_SETTINGS_BOOL,
+    LAYER_SETTINGS_BOOL_NUMERIC,
+    LAYER_SETTINGS_EXCLUSIVE_LIST,
+    LAYER_SETTINGS_INCLUSIVE_LIST,
+    LAYER_SETTINGS_RANGE_INT
+} TLayerSettingsType;
 
 // This structure is copied by assignment elsewhere, so do not add
 // any pointers to it please...
 struct TLayerSettings {
-    QString                 settingsName;                   // Name of the setting the layer looks for (programatic variable name)
-    QString                 settingsPrompt;                 // Short name to prompt end user
-    QString                 settingsDesc;                   // Human version, describes the setting
-    TLayerSettingsType      settingsType;                   // The data type
-    QVariant                settingsMaxValue;               // For range based
-    QVariant                settingsMinValue;               // For range based
-    QStringList             settingsListExclusiveValue;     // List of exclusive items
-    QStringList             settingsListExclusivePrompt;    // List of exclusive item prompts
-    QStringList             settingsListInclusiveValue;     // List of non-exclusive items (more than one item can be selected)
-    QStringList             settingsListInclusivePrompt;    // List of non-exclusive item prompts (more than one item can be selected)
-    QString                 settingsValue;                  // Default value as a string
-    };
+    QString settingsName;                     // Name of the setting the layer looks for (programatic variable name)
+    QString settingsPrompt;                   // Short name to prompt end user
+    QString settingsDesc;                     // Human version, describes the setting
+    TLayerSettingsType settingsType;          // The data type
+    QVariant settingsMaxValue;                // For range based
+    QVariant settingsMinValue;                // For range based
+    QStringList settingsListExclusiveValue;   // List of exclusive items
+    QStringList settingsListExclusivePrompt;  // List of exclusive item prompts
+    QStringList settingsListInclusiveValue;   // List of non-exclusive items (more than one item can be selected)
+    QStringList settingsListInclusivePrompt;  // List of non-exclusive item prompts (more than one item can be selected)
+    QString settingsValue;                    // Default value as a string
+};
 
 void RemoveString(QString& delimitedString, QString value);
 void AddString(QString& delimitedString, QString value);
 
-
-class CLayerFile : public QObject
-{
+class CLayerFile : public QObject {
     Q_OBJECT
-public:
+   public:
     // Standard pieces of a layer
-    QString     file_format_version;
-    QString     name;
-    QString     type;
-    QString     library_path;               // This is a relative path, straight out of the json
-    QString     api_version;
-    QString     implementation_version;
-    QString     description;
+    QString file_format_version;
+    QString name;
+    QString type;
+    QString library_path;  // This is a relative path, straight out of the json
+    QString api_version;
+    QString implementation_version;
+    QString description;
 
-    QString     qsLayerPath;                // Actual path to the folder that contains the layer (this is important!)
-    TLayerType  layerType;
+    QString qsLayerPath;  // Actual path to the folder that contains the layer (this is important!)
+    TLayerType layerType;
 
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    QVector<TLayerSettings *>layerSettings;
+    QVector<TLayerSettings*> layerSettings;
 
+    bool bActive;    // When used in a profile, is this one active?
+    bool bDisabled;  // When used in a profile, is this one disabled?
+    int nRank;       // When used in a profile, what is the rank? (0 being first layer)
 
-    bool        bActive;            // When used in a profile, is this one active?
-    bool        bDisabled;          // When used in a profile, is this one disabled?
-    int         nRank;              // When used in a profile, what is the rank? (0 being first layer)
-
-public:
+   public:
     CLayerFile();
     ~CLayerFile();
 
@@ -104,19 +109,18 @@ public:
         destinationLayer->bDisabled = bDisabled;
         destinationLayer->qsLayerPath = qsLayerPath;
 
-        for(int i = 0; i < layerSettings.length(); i++) {
-            TLayerSettings *pSettings = new TLayerSettings();
+        for (int i = 0; i < layerSettings.length(); i++) {
+            TLayerSettings* pSettings = new TLayerSettings();
             *pSettings = *layerSettings[i];
             destinationLayer->layerSettings.push_back(pSettings);
-            }
         }
+    }
 
     // File based layers
     bool ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind);
 
     // Utility, may move outside this class....
-    static void LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings *>& layers);
-
+    static void LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings*>& layers);
 };
 
-#endif // CLAYERFILE_H
+#endif  // CLAYERFILE_H

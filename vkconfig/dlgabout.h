@@ -20,26 +20,24 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-
 #include <QDialog>
 
 namespace Ui {
 class dlgAbout;
 }
 
-class dlgAbout : public QDialog
-{
+class dlgAbout : public QDialog {
     Q_OBJECT
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void aboutQt(void);
 
-public:
+   public:
     explicit dlgAbout(QWidget *parent = nullptr);
     ~dlgAbout();
 
-private:
+   private:
     Ui::dlgAbout *ui;
 };
 
-#endif // DLGABOUT_H
+#endif  // DLGABOUT_H

@@ -28,18 +28,17 @@
 #include <QRadioButton>
 #include <layerfile.h>
 
-class KhronosSettingsAdvanced : public QObject
-{
+class KhronosSettingsAdvanced : public QObject {
     Q_OBJECT
 
-public:
-    explicit KhronosSettingsAdvanced(QTreeWidget* pMainTree, QTreeWidgetItem *parent,  QVector<TLayerSettings *>& layerSettings);
+   public:
+    explicit KhronosSettingsAdvanced(QTreeWidget *pMainTree, QTreeWidgetItem *parent, QVector<TLayerSettings *> &layerSettings);
     ~KhronosSettingsAdvanced();
 
     bool CollectSettings(void);
 
-private:
-    QTreeWidget     *pMainTreeWidget;
+   private:
+    QTreeWidget *pMainTreeWidget;
     QTreeWidgetItem *pCoreChecksParent;
 
     TLayerSettings *pDisables;
@@ -47,21 +46,19 @@ private:
 
     QTreeWidgetItem *pShaderBasedBox;
     QTreeWidgetItem *pGPUAssistBox;
-    QRadioButton    *pGPURadio;
+    QRadioButton *pGPURadio;
     QTreeWidgetItem *pReserveBox;
     QTreeWidgetItem *pDebugPrintfBox;
-    QRadioButton    *pDebugRadio;
+    QRadioButton *pDebugRadio;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);
     void itemClicked(QTreeWidgetItem *pItem, int nColumn);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
 
-Q_SIGNALS:
+   Q_SIGNALS:
     void settingChanged(void);
-
-
 };
 
-#endif // KHRONOSSETTINGSADVANCED_H
+#endif  // KHRONOSSETTINGSADVANCED_H

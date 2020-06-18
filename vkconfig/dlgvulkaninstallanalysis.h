@@ -3,19 +3,17 @@
 
 #include <QAbstractItemModel>
 
-class dlgVulkanInstallAnalysis : public QAbstractItemModel
-{
+class dlgVulkanInstallAnalysis : public QAbstractItemModel {
     Q_OBJECT
 
-public:
+   public:
     explicit dlgVulkanInstallAnalysis(QObject *parent = nullptr);
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     // Basic functionality:
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -23,7 +21,7 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-private:
+   private:
 };
 
-#endif // DLGVULKANINSTALLANALYSIS_H
+#endif  // DLGVULKANINSTALLANALYSIS_H

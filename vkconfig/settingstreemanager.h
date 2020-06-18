@@ -35,11 +35,9 @@
 #include "foldersettingwidget.h"
 #include "multienumsetting.h"
 
-
-class CSettingsTreeManager : QObject
-{
+class CSettingsTreeManager : QObject {
     Q_OBJECT
-public:
+   public:
     CSettingsTreeManager();
 
     void CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProfileDef);
@@ -48,15 +46,15 @@ public:
     void GetTreeState(QByteArray &byteArray, QTreeWidgetItem *pTopItem);
     int SetTreeState(QByteArray &byteArray, int nIndex, QTreeWidgetItem *pTopItem);
 
-protected:
+   protected:
     QTreeWidget *pEditorTree;
     CProfileDef *pProfile;
-    QVector <QTreeWidgetItem*> fileWidgets; // These have special cleanup requirements
+    QVector<QTreeWidgetItem *> fileWidgets;  // These have special cleanup requirements
 
     void BuildKhronosTree();
-    void BuildGenericTree(QTreeWidgetItem* pParent, CLayerFile *pLayer);
+    void BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile *pLayer);
 
-    QVector <QTreeWidgetItem*> layerItems; // These parallel the  profiles layers
+    QVector<QTreeWidgetItem *> layerItems;  // These parallel the  profiles layers
 
     QComboBox *pKhronosPresets;
     CLayerFile *pKhronosLayer;
@@ -64,20 +62,20 @@ protected:
     QTreeWidgetItem *pKhronosFileItem;
     QTreeWidgetItem *pKhronosPresetItem;
     QTreeWidgetItem *pKhronosLogFileItem;
-    CFilenameSettingWidget* pKhronosLogFileWidget;
+    CFilenameSettingWidget *pKhronosLogFileWidget;
     CEnumSettingWidget *pKhronosDebugAction;
     KhronosSettingsAdvanced *pAdvancedKhronosEditor;
 
-public Q_SLOTS:
-//    void itemCollapsed(QTreeWidgetItem *);
-//    void itemExpanded(QTreeWidgetItem *);
+   public Q_SLOTS:
+    //    void itemCollapsed(QTreeWidgetItem *);
+    //    void itemExpanded(QTreeWidgetItem *);
 
     void khronosDebugChanged(int nIndex);
-    void khronosPresetChanged(int nIndex); // Okay, is this a custom guy HERE, or do we move it out
-                                           // It really forces a reload of the entire branch of this tree
-                                           // Reset layer defaults for the profile, and then call BuildKhronosTree again
-    void khronosPresetEdited(void);        // The user has changed something from a preset, and we are now a custom setting
-    void profileEdited(void);              // The profile has been edited and should be saved
+    void khronosPresetChanged(int nIndex);  // Okay, is this a custom guy HERE, or do we move it out
+                                            // It really forces a reload of the entire branch of this tree
+                                            // Reset layer defaults for the profile, and then call BuildKhronosTree again
+    void khronosPresetEdited(void);         // The user has changed something from a preset, and we are now a custom setting
+    void profileEdited(void);               // The profile has been edited and should be saved
 };
 
-#endif // CSETTINGSTREEMANAGER_H
+#endif  // CSETTINGSTREEMANAGER_H

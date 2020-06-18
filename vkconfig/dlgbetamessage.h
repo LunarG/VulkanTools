@@ -21,29 +21,27 @@
 #ifndef DLGBETAMESSAGE_H
 #define DLGBETAMESSAGE_H
 
-
 #include <QDialog>
 
 namespace Ui {
 class dlgBetaMessage;
 }
 
-class dlgBetaMessage : public QDialog
-{
+class dlgBetaMessage : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit dlgBetaMessage(QWidget *parent = nullptr);
     ~dlgBetaMessage();
 
     bool bDontShow;
 
-private:
+   private:
     Ui::dlgBetaMessage *ui;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void on_pushButtonDismiss_clicked();
     void dontShowToggled(bool bToggled);
 };
 
-#endif // DLGBETAMESSAGE_H
+#endif  // DLGBETAMESSAGE_H

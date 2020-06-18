@@ -21,7 +21,6 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-
 #include <QWidget>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
@@ -31,27 +30,24 @@
 
 #include "layerfile.h"
 
-class CFilenameSettingWidget : public QWidget
-{
+class CFilenameSettingWidget : public QWidget {
     Q_OBJECT
-public:
-    explicit CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting);
+   public:
+    explicit CFilenameSettingWidget(QTreeWidgetItem *pItem, TLayerSettings *pLayerSetting);
 
-private:
+   private:
     virtual void resizeEvent(QResizeEvent *event) override;
 
     TLayerSettings *pSetting;
-    QLineEdit      *pLineEdit;
-    QPushButton    *pPushButton;
+    QLineEdit *pLineEdit;
+    QPushButton *pPushButton;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void browseButtonClicked(void);
-    void textFieldChanged(const QString& newText);
+    void textFieldChanged(const QString &newText);
 
-Q_SIGNALS:
+   Q_SIGNALS:
     void itemChanged(void);
-
-
 };
 
-#endif // CFILENAMESETTINGWIDGET_H
+#endif  // CFILENAMESETTINGWIDGET_H

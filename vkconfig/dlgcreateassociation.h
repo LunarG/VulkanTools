@@ -26,38 +26,34 @@
 
 #include <vulkanconfiguration.h>
 
-
 namespace Ui {
 class dlgCreateAssociation;
 }
 
-class dlgCreateAssociation : public QDialog
-{
+class dlgCreateAssociation : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit dlgCreateAssociation(QWidget *parent = nullptr);
     ~dlgCreateAssociation();
 
-    static void GetExecutableFromAppBundle(QString& csPath);
+    static void GetExecutableFromAppBundle(QString &csPath);
 
-private:
+   private:
     Ui::dlgCreateAssociation *ui;
-    CVulkanConfiguration    *pVulkanConfig;
-    virtual void closeEvent(QCloseEvent *) override;    
+    CVulkanConfiguration *pVulkanConfig;
+    virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-
-public	Q_SLOTS:
-    void on_pushButtonAdd_clicked();        // Pick the application
-    void on_pushButtonRemove_clicked();     // Remove
-    void selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);         // Used to enable remove button
+   public Q_SLOTS:
+    void on_pushButtonAdd_clicked();                                                  // Pick the application
+    void on_pushButtonRemove_clicked();                                               // Remove
+    void selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);  // Used to enable remove button
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);
     void itemClicked(bool bClicked);
 
-    void editCommandLine(const QString& cmdLine);
-    void editWorkingFolder(const QString& workingFolder);
-
+    void editCommandLine(const QString &cmdLine);
+    void editWorkingFolder(const QString &workingFolder);
 };
 
-#endif // DLGCREATEASSOCIATION_H
+#endif  // DLGCREATEASSOCIATION_H

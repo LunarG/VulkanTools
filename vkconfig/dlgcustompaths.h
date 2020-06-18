@@ -19,8 +19,6 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-
-
 #include <QDialog>
 
 #include <vulkanconfiguration.h>
@@ -29,27 +27,26 @@ namespace Ui {
 class dlgCustomPaths;
 }
 
-class dlgCustomPaths : public QDialog
-{
+class dlgCustomPaths : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit dlgCustomPaths(QWidget *parent = nullptr);
     ~dlgCustomPaths();
 
-    bool        bPathsChanged;
+    bool bPathsChanged;
 
-private:
+   private:
     Ui::dlgCustomPaths *ui;
 
     CVulkanConfiguration *pVulkanConfig;
 
     void RepopulateTree(void);
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void on_pushButtonAdd_clicked();
     void on_pushButtonRemove_clicked();
     void on_treeWidget_itemSelectionChanged();
 };
 
-#endif // DLGCUSTOMPATHS_H
+#endif  // DLGCUSTOMPATHS_H

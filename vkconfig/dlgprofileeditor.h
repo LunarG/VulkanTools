@@ -27,30 +27,26 @@
 #include "profiledef.h"
 #include <vulkanconfiguration.h>
 
-
 namespace Ui {
 class dlgProfileEditor;
 }
 
-class dlgProfileEditor : public QDialog
-{
+class dlgProfileEditor : public QDialog {
     Q_OBJECT
 
-public:
-    explicit dlgProfileEditor(QWidget *parent, CProfileDef* pProfileToEdit);
+   public:
+    explicit dlgProfileEditor(QWidget *parent, CProfileDef *pProfileToEdit);
     ~dlgProfileEditor();
 
     // Load all layers into the list box
     void LoadLayerDisplay(int nSelection = -1);
 
-
-
-private:
+   private:
     Ui::dlgProfileEditor *ui;
 
-    CVulkanConfiguration*    pVulkanConfig;
+    CVulkanConfiguration *pVulkanConfig;
 
-    CProfileDef             *pThisProfile;
+    CProfileDef *pThisProfile;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;
@@ -59,14 +55,12 @@ private:
 
     void PopulateCustomTree(void);
 
-
-public Q_SLOTS:
+   public Q_SLOTS:
     virtual void accept() override;
 
     void currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
 
     void customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn);
-
 
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonLaunchTest_clicked();
@@ -77,8 +71,6 @@ public Q_SLOTS:
     void on_toolButtonDown_clicked();
 
     void layerUseChanged(int nSelection);
-
-
 };
 
-#endif // DLGPROFILEEDITOR_H
+#endif  // DLGPROFILEEDITOR_H

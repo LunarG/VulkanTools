@@ -33,20 +33,19 @@ namespace Ui {
 class dlgVulkanAnalysis;
 }
 
-class dlgVulkanAnalysis : public QDialog
-{
+class dlgVulkanAnalysis : public QDialog {
     Q_OBJECT
 
-public:
-    explicit dlgVulkanAnalysis(QWidget *parent = nullptr);
+   public:
+    explicit dlgVulkanAnalysis(QWidget* parent = nullptr);
     ~dlgVulkanAnalysis();
 
     void RunTool(void);
 
-private:
+   private:
     void LoadTable(QJsonObject& jsonParent, QTableWidget* pTable);
 
-    Ui::dlgVulkanAnalysis *ui;
+    Ui::dlgVulkanAnalysis* ui;
 };
 
-#endif // DLGVULKANANALYSIS_H
+#endif  // DLGVULKANANALYSIS_H

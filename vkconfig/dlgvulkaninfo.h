@@ -27,26 +27,24 @@ namespace Ui {
 class dlgVulkanInfo;
 }
 
-class dlgVulkanInfo : public QDialog
-{
+class dlgVulkanInfo : public QDialog {
     Q_OBJECT
 
-public:
+   public:
     explicit dlgVulkanInfo(QWidget *parent = nullptr);
     ~dlgVulkanInfo();
 
-    void BuildExtensions(QJsonValue& jsonValue, QTreeWidgetItem *pRoot);
-    void BuildLayers(QJsonValue& jsonValue, QTreeWidgetItem *pRoot);
-    void BuildSurfaces(QJsonValue& jsonValue, QTreeWidgetItem *pRoot);
-    void BuildGroups(QJsonValue& jsonValue, QTreeWidgetItem *pRoot);
-    void BuildDevices(QJsonValue& jsonValue, QTreeWidgetItem *pRoot);
-    void TraverseGenericProperties(QJsonValue& parentJson, QTreeWidgetItem *pParentTreeItem);
+    void BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
+    void BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
+    void BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
+    void BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
+    void BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
+    void TraverseGenericProperties(QJsonValue &parentJson, QTreeWidgetItem *pParentTreeItem);
 
     void RunTool(void);
 
-private:
-
+   private:
     Ui::dlgVulkanInfo *ui;
 };
 
-#endif // DLGVULKANINFO_H
+#endif  // DLGVULKANINFO_H
