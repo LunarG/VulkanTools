@@ -36,7 +36,7 @@
                 "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
             },
             "report_flags": {
-                "name": "Report Flags",
+                "name": "Message Severity",
                 "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
                 "type": "multi_enum",
                 "options": {
