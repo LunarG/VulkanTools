@@ -395,7 +395,7 @@
             <number>2</number>
            </property>
            <attribute name="headerVisible">
-            <bool>false</bool>
+            <bool>true</bool>
            </attribute>
            <attribute name="headerMinimumSectionSize">
             <number>160</number>
@@ -405,12 +405,12 @@
            </attribute>
            <column>
             <property name="text">
-             <string notr="true">Layers Settings</string>
+             <string notr="true"/>
             </property>
            </column>
            <column>
             <property name="text">
-             <string notr="true">Settings Values</string>
+             <string notr="true"/>
             </property>
            </column>
           </widget>
