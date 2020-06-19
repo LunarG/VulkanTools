@@ -612,39 +612,6 @@ void MainWindow::ExportClicked(CProfileListItem *pItem) {
     file.copy(qsSaveIt);
 }
 
-void MainWindow::RestoreClicked(CProfileListItem *pItem) {
-    (void)pItem;  // We don't need this
-
-    // Let make sure...
-    QMessageBox msg;
-    msg.setIcon(QMessageBox::Warning);
-    msg.setWindowTitle(tr("Restoring and Resetting all Layers Configurations to default"));
-    msg.setText(
-        tr("You are about to delete all the user-defined configurations and resetting all default configurations to their default state.\n\n"
-           "Are you sure you want to continue?"));
-    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msg.setDefaultButton(QMessageBox::Yes);
-    if (msg.exec() == QMessageBox::No) return;
-
-    // Delete all the *.json files in the storage folder
-    QDir dir(pVulkanConfig->qsProfileFilesPath);
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.json");
-    QFileInfoList profileFiles = dir.entryInfoList();
-
-    // Loop through all the profiles found and load them
-    for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
-        QFileInfo info = profileFiles.at(iProfile);
-        if (info.absoluteFilePath().contains("applist.json")) continue;
-        remove(info.filePath().toUtf8().constData());
-    }
-
-    // Now we need to kind of restart everything
-    settingsTreeManager.CleanupGUI();
-    pVulkanConfig->LoadAllProfiles();
-    LoadProfileList();
-}
-
 void MainWindow::toolsSetCustomPaths(bool bChecked) {
     (void)bChecked;
     addCustomPaths();
@@ -925,11 +892,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 QAction *pImportAction = new QAction("Import a Layers Configuration...");
                 menu.addAction(pImportAction);
 
-                menu.addSeparator();
-
-                QAction *pRestoreAction = new QAction("Restore all Layers Configurations");
-                menu.addAction(pRestoreAction);
-
                 QPoint point(pRightClick->globalX(), pRightClick->globalY());
                 QAction *pAction = menu.exec(point);
 
@@ -982,14 +944,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 if (pAction == pImportAction) {
                     settingsTreeManager.CleanupGUI();
                     ImportClicked(pItem);
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
-
-                // Restore all configurations
-                if (pAction == pRestoreAction) {
-                    settingsTreeManager.CleanupGUI();
-                    RestoreClicked(pItem);
                     ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                 }
