@@ -134,7 +134,7 @@ Known Issues
 --------------
 
 - The UI still feels a little clunky... Need more polish.
-- Message filtering using VUID name and index is not yet implemented.
+- Message filtering using VUID name and index is not yet fully implemented.
 - All tool tips are not yet implemented.
 - Missing description for each layer settings.
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
