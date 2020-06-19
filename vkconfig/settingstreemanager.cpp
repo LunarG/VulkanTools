@@ -208,6 +208,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
            pMuteMessageWidget = new CMuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
            pEditorTree->setItemWidget(pListItem, 1, pMuteMessageWidget);
            connect(pVUIDSearchWidget, SIGNAL(itemSelected(QString&)), pMuteMessageWidget, SLOT(addItem(QString&)));
+           connect(pMuteMessageWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
            continue;
        }
 

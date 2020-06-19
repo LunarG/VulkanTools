@@ -54,6 +54,7 @@ void CMuteMessageWidget::addItem(QString &item) {
     // Update Setting
     AddString(pSetting->settingsValue, item);
     pRemovebutton->setEnabled(true);
+    emit itemChanged();
 }
 
 void CMuteMessageWidget::removePushed(void) {
@@ -65,4 +66,5 @@ void CMuteMessageWidget::removePushed(void) {
 
     // Update Setting
     RemoveString(pSetting->settingsValue, itemName);
+    emit itemChanged();
 }
