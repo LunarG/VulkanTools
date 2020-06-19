@@ -298,7 +298,7 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList profileFiles = dir.entryInfoList();
 
-    // Loop through all the profiles found and load them
+    // Loop through all the profiles found and remove them
     for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
         QFileInfo info = profileFiles.at(iProfile);
         if (info.absoluteFilePath().contains("applist.json")) continue;

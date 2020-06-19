@@ -661,6 +661,21 @@ void CVulkanConfiguration::LoadAllProfiles(void) {
     QSettings settings;
     bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, true).toBool();
     if (bFirstRun) {
+
+        // Delete all the *.json files in the storage folder
+        QDir dir(qsProfileFilesPath);
+        dir.setFilter(QDir::Files | QDir::NoSymLinks);
+        dir.setNameFilters(QStringList() << "*.json");
+        QFileInfoList profileFiles = dir.entryInfoList();
+
+        // Loop through all the profiles found and remove them
+        for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
+            QFileInfo info = profileFiles.at(iProfile);
+            if (info.absoluteFilePath().contains("applist.json")) continue;
+            remove(info.filePath().toUtf8().constData());
+        }
+
+
         for (int i = 0; i < nNumCannedProfiles; i += 1) {
             // Search the list of loaded profiles
             QString qsFile = ":/resourcefiles/";
