@@ -30,40 +30,35 @@ CMuteMessageWidget::CMuteMessageWidget(TLayerSettings *pLayerSetting) : QWidget(
     pRemovebutton->show();
 
     // Load with existing settings
-    if(!pSetting->settingsValue.isEmpty()) {
+    if (!pSetting->settingsValue.isEmpty()) {
         QStringList list = pSetting->settingsValue.split(",");
         pListWidget->addItems(list);
-        pListWidget->setCurrentRow(pListWidget->count()-1);
-        }
-    else
+        pListWidget->setCurrentRow(pListWidget->count() - 1);
+    } else
         pRemovebutton->setEnabled(false);
 
     connect(pRemovebutton, SIGNAL(pressed()), this, SLOT(removePushed()));
-    }
-
+}
 
 void CMuteMessageWidget::resizeEvent(QResizeEvent *event) {
     int nButtonHeight = 26;
     QSize parentSize = event->size();
-    pListWidget->setGeometry(0, 0, parentSize.width(), parentSize.height()-nButtonHeight);
+    pListWidget->setGeometry(0, 0, parentSize.width(), parentSize.height() - nButtonHeight);
     pRemovebutton->setGeometry(0, parentSize.height() - nButtonHeight, parentSize.width(), nButtonHeight);
 }
 
-
-void CMuteMessageWidget::addItem(QString& item) {
+void CMuteMessageWidget::addItem(QString &item) {
     pListWidget->addItem(item);
-    pListWidget->setCurrentRow(pListWidget->count()-1);
+    pListWidget->setCurrentRow(pListWidget->count() - 1);
 
     // Update Setting
     AddString(pSetting->settingsValue, item);
     pRemovebutton->setEnabled(true);
 }
 
-
 void CMuteMessageWidget::removePushed(void) {
     int nRow = pListWidget->currentRow();
-    if(nRow <= 0)
-        return;
+    if (nRow <= 0) return;
 
     QString itemName = pListWidget->currentItem()->text();
     pListWidget->takeItem(nRow);
