@@ -460,6 +460,7 @@ void CVulkanConfiguration::FindVkCube(void) {
     TAppListEntry *appEntry = new TAppListEntry;
     appEntry->qsWorkingFolder = local.absolutePath();
     appEntry->qsAppNameWithPath = local.absoluteFilePath();
+    appEntry->qsArguments = QString("--supress_popups");
     appEntry->bExcludeFromGlobalList = false;
     appList.push_back(appEntry);
 }
