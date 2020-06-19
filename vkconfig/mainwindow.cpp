@@ -281,9 +281,11 @@ void MainWindow::toolsResetDefaultProfiles(bool bChecked) {
 
     // Let make sure...
     QMessageBox msg;
+    msg.setIcon(QMessageBox::Warning);
+    msg.setWindowTitle(tr("Restoring and resetting all layers configurations to default"));
     msg.setText(
-        tr("This will reset/restore the 9 default layer configurations to their default state, and remove any user defined "
-           "configurations.\n\nAre you sure you want to continue?"));
+        tr("You are about to delete all the user-defined configurations and resetting all default configurations to their default state.\n\n"
+           "Are you sure you want to continue?"));
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msg.setDefaultButton(QMessageBox::Yes);
     if (msg.exec() == QMessageBox::No) return;
