@@ -30,6 +30,7 @@ CVUIDSearchWidget::CVUIDSearchWidget(QWidget *parent) : QWidget(parent) {
 
     pUserBox = new QComboBox(this);
     pUserBox->setEditable(true);
+    pUserBox->setFocusPolicy(Qt::StrongFocus);
     pUserBox->addItems(list);
 
     pSearchMe = new QCompleter(list, this);
@@ -45,6 +46,8 @@ CVUIDSearchWidget::CVUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     pUserBox->show();
     pUserBox->setCurrentText("");
 
+    pUserBox->installEventFilter(this);
+
     connect(pUserBox, SIGNAL(currentIndexChanged(int)), this, SLOT(itemSelected(int)));
     }
 
@@ -59,3 +62,15 @@ void CVUIDSearchWidget::itemSelected(int nIndex) {
     emit itemSelected(list[nIndex]);
     pUserBox->setCurrentText("");
 }
+
+// Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's
+bool CVUIDSearchWidget::eventFilter(QObject *target, QEvent *event) {
+    (void)target;
+    if(event->type() == QEvent::Wheel) {
+        event->ignore();
+        return true;
+        }
+
+    return pUserBox->eventFilter(target, event);
+    }
+

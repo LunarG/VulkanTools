@@ -39,7 +39,8 @@ private:
     QCompleter  *pSearchMe;
     QComboBox   *pUserBox;
 
-    void resizeEvent(QResizeEvent *event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
+    virtual bool eventFilter(QObject *target, QEvent *event) override;
 
 public Q_SLOTS:
  void itemSelected(int nIndex);

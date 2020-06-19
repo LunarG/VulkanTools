@@ -23,7 +23,7 @@
 
 CEnumSettingWidget::CEnumSettingWidget(QTreeWidgetItem* pTreeItem, TLayerSettings* pLayerSetting) {
     pSetting = pLayerSetting;
-    pTreeItem->setText(0, pLayerSetting->settingsPrompt);
+    pTreeItem->setText(0, pLayerSetting->settingsPrompt + QString(":"));
     pTreeItem->setToolTip(0, pLayerSetting->settingsDesc);
 
     int nCurrSel = 0;

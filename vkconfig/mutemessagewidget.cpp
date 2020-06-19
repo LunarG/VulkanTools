@@ -23,6 +23,7 @@
 CMuteMessageWidget::CMuteMessageWidget(TLayerSettings *pLayerSetting) : QWidget(nullptr) {
     pSetting = pLayerSetting;
     pListWidget = new QListWidget(this);
+    pListWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     pListWidget->show();
     pRemovebutton = new QPushButton(this);
     pRemovebutton->setText("Remove");
