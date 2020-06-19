@@ -13,38 +13,62 @@ if(NOT Qt5_FOUND)
 else()
     set(LAYERMGR_SRCS
         dlgabout.ui
-        dlgbetamessage.ui
-        dlgcreateassociation.ui
-        dlgcustompaths.ui
-        dlghelp.ui
-        dlglayeroutput.ui
-        dlgprofileeditor.ui
-        dlgvulkananalysis.ui
-        dlgvulkaninfo.ui
-        mainwindow.ui
-        boolsettingwidget.cpp
         dlgabout.cpp
+        dlgabout.h
+        dlgbetamessage.ui
         dlgbetamessage.cpp
+        dlgbetamessage.h
+        dlgcreateassociation.ui
         dlgcreateassociation.cpp
+        dlgcreateassociation.h
+        dlgcustompaths.ui
         dlgcustompaths.cpp
+        dlgcustompaths.h
+        dlghelp.ui
         dlghelp.cpp
+        dlghelp.h
+        dlglayeroutput.ui
         dlglayeroutput.cpp
+        dlglayeroutput.h
+        dlgprofileeditor.ui
         dlgprofileeditor.cpp
+        dlgprofileeditor.h
+        dlgvulkananalysis.ui
         dlgvulkananalysis.cpp
+        dlgvulkananalysis.h
+        dlgvulkaninfo.ui
         dlgvulkaninfo.cpp
-        dlgvulkaninstallanalysis.cpp
-        enumsettingwidget.cpp
-        filenamesettingwidget.cpp
-        foldersettingwidget.cpp
-        khronossettingsadvanced.cpp
-        layerfile.cpp
-        main.cpp
+        dlgvulkaninfo.h
+        mainwindow.ui
         mainwindow.cpp
+        mainwindow.h
+        boolsettingwidget.cpp
+        boolsettingwidget.h
+        enumsettingwidget.cpp
+        enumsettingwidget.h
+        filenamesettingwidget.cpp
+        filenamesettingwidget.h
+        foldersettingwidget.cpp
+        foldersettingwidget.h
+        khronossettingsadvanced.cpp
+        khronossettingsadvanced.h
+        layerfile.cpp
+        layerfile.h
+        main.cpp
         multienumsetting.cpp
+        multienumsetting.h
+        mutemessagewidget.cpp
+        mutemessagewidget.h
         profiledef.cpp
+        profiledef.h
         settingstreemanager.cpp
+        settingstreemanager.h
         stringsettingwidget.cpp
+        stringsettingwidget.h
+        vuidsearchwidget.cpp
+        vuidsearchwidget.h
         vulkanconfiguration.cpp
+        vulkanconfiguration.h
         resources.qrc
     )
 
