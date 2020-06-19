@@ -482,6 +482,7 @@ void MainWindow::on_pushButtonAppList_clicked(void) {
     dlgCreateAssociation dlg(this);
     dlg.exec();
     pVulkanConfig->SaveAppList();
+    ResetLaunchOptions();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -697,7 +698,11 @@ void MainWindow::ResetLaunchOptions(void) {
 
     if (nFoundLast < 0) nFoundLast = 0;
 
-    if (pVulkanConfig->appList.size() == 0) return;
+    if (pVulkanConfig->appList.size() == 0) {
+        pLaunchArguments->setText("");
+        pLaunchWorkingFolder->setText("");
+        return;
+        }
 
     pLaunchAppsCombo->setCurrentIndex(nFoundLast);
 
