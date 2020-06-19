@@ -28,27 +28,24 @@
 #include <QStringList>
 #include <QLineEdit>
 
-class CVUIDSearchWidget : public QWidget
-{
+class CVUIDSearchWidget : public QWidget {
     Q_OBJECT
-public:
+   public:
     explicit CVUIDSearchWidget(QWidget *parent = nullptr);
 
-private:
+   private:
     QStringList list;
-    QCompleter  *pSearchMe;
-    QComboBox   *pUserBox;
+    QCompleter *pSearchMe;
+    QComboBox *pUserBox;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-public Q_SLOTS:
- void itemSelected(int nIndex);
+   public Q_SLOTS:
+    void itemSelected(int nIndex);
 
-Q_SIGNALS:
- void itemSelected(QString& textSelected);
-
-
+   Q_SIGNALS:
+    void itemSelected(QString &textSelected);
 };
 
-#endif // CVUIDSEARCHWIDGET_H
+#endif  // CVUIDSEARCHWIDGET_H

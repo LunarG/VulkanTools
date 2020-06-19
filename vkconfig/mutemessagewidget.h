@@ -28,13 +28,12 @@
 
 #include <layerfile.h>
 
-class CMuteMessageWidget : public QWidget
-{
+class CMuteMessageWidget : public QWidget {
     Q_OBJECT
-public:
+   public:
     explicit CMuteMessageWidget(TLayerSettings *pLayerSetting);
 
-private:
+   private:
     TLayerSettings *pSetting;
     QListWidget *pListWidget;
     QPushButton *pAddButton;
@@ -42,14 +41,12 @@ private:
 
     void resizeEvent(QResizeEvent *event) override;
 
+   public Q_SLOTS:
+    void addItem(QString &item);  // Added from combo box
+    void removePushed(void);      // Remove button
 
-public Q_SLOTS:
- void addItem(QString& item);   // Added from combo box
- void removePushed(void);       // Remove button
-
-Q_SIGNALS:
-// void itemChanged(void);
-
+   Q_SIGNALS:
+    // void itemChanged(void);
 };
 
-#endif // CMUTEMESSAGEWIDGET_H
+#endif  // CMUTEMESSAGEWIDGET_H
