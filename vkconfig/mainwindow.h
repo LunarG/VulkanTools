@@ -102,6 +102,7 @@ class MainWindow : public QMainWindow {
     void ExportClicked(CProfileListItem *pItem);
     void ImportClicked(CProfileListItem *pItem);
     void EditClicked(CProfileListItem *pItem);
+    void RestoreClicked(CProfileListItem *pItem);
 
    public Q_SLOTS:
     void aboutVkConfig(bool bChecked);
@@ -110,7 +111,7 @@ class MainWindow : public QMainWindow {
     void toolsVulkanTestApp(bool bChecked);
     void toolsVulkanAPIDump(bool bChecked);
     void toolsSetCustomPaths(bool bChecked);
-    void toolsResetDefaultProfiles(bool bChecked);
+    void toolsResetToDefault(bool bChecked);
 
     void helpShowHelp(bool bChecked);
 

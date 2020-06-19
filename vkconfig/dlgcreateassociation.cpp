@@ -30,7 +30,9 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), u
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    if (pVulkanConfig->bHasOldLoader) setWindowTitle(tr("Vulkan Applications Shortcuts"));
+    bool enabledOnlyToList = !pVulkanConfig->bHasOldLoader && pVulkanConfig->bApplyOnlyToList;
+
+    if (!enabledOnlyToList) setWindowTitle(tr("Applications Launcher Shortcuts"));
 
     // Show the current list
     for (int i = 0; i < pVulkanConfig->appList.size(); i++) {
@@ -38,15 +40,19 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), u
         pItem->setText(0, pVulkanConfig->appList[i]->qsAppNameWithPath);
         ui->treeWidget->addTopLevelItem(pItem);
 
-        QCheckBox *pCheckBox = new QCheckBox();
-        pCheckBox->setChecked(pVulkanConfig->appList[i]->bExcludeFromGlobalList);
-        ui->treeWidget->setItemWidget(pItem, 1, pCheckBox);
-        connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
+        if (enabledOnlyToList)
+        {
+            QCheckBox *pCheckBox = new QCheckBox();
+            pCheckBox->setChecked(pVulkanConfig->appList[i]->bExcludeFromGlobalList);
+            pCheckBox->setToolTip(tr("Exclude from Layers Override"));
+            ui->treeWidget->setItemWidget(pItem, 1, pCheckBox);
+            connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
+        }
     }
 
     QTreeWidgetItem *pHeader = ui->treeWidget->headerItem();
-    pHeader->setText(0, tr("Application Executable"));
-    pHeader->setText(1, tr("Exclude from Layer Overrides"));
+    pHeader->setText(0, tr("Application Executables"));
+    pHeader->setText(1, tr("Exclude from Layers Override"));
     ui->treeWidget->installEventFilter(this);
 
     connect(ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,

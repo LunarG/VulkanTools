@@ -86,7 +86,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
     connect(ui->actionSet_Test_Application, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanTestApp(bool)));
     connect(ui->actionLog_API_Dump, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanAPIDump(bool)));
-    connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetDefaultProfiles(bool)));
+    connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
 
     connect(ui->profileTree, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(profileItemChanged(QTreeWidgetItem *, int)));
     connect(ui->profileTree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
@@ -276,13 +276,13 @@ void MainWindow::on_checkBoxPersistent_clicked(void) {
 }
 
 //////////////////////////////////////////////////////////
-void MainWindow::toolsResetDefaultProfiles(bool bChecked) {
+void MainWindow::toolsResetToDefault(bool bChecked) {
     (void)bChecked;
 
     // Let make sure...
     QMessageBox msg;
     msg.setIcon(QMessageBox::Warning);
-    msg.setWindowTitle(tr("Restoring and resetting all layers configurations to default"));
+    msg.setWindowTitle(tr("Restoring and Resetting all Layers Configurations to default"));
     msg.setText(
         tr("You are about to delete all the user-defined configurations and resetting all default configurations to their default state.\n\n"
            "Are you sure you want to continue?"));
@@ -586,7 +586,7 @@ void MainWindow::DuplicateClicked(CProfileListItem *pItem) {
 // Import a configuration file. File copy followed by a reload.
 void MainWindow::ImportClicked(CProfileListItem *pItem) {
     (void)pItem;  // We don't need this
-    QString qsGetIt = QFileDialog::getOpenFileName(this, "Import Configuration File", QDir::homePath(), "*.json");
+    QString qsGetIt = QFileDialog::getOpenFileName(this, "Import Layers Configuration File", QDir::homePath(), "*.json");
     if (qsGetIt.isEmpty()) return;
 
     QFile input(qsGetIt);
@@ -601,7 +601,7 @@ void MainWindow::ImportClicked(CProfileListItem *pItem) {
 // Export a configuration file. Basically just a file copy
 void MainWindow::ExportClicked(CProfileListItem *pItem) {
     // Where to put it and what to call it
-    QString qsSaveIt = QFileDialog::getSaveFileName(this, "Export Configuration File", QDir::homePath(), "*.json");
+    QString qsSaveIt = QFileDialog::getSaveFileName(this, "Export Layers Configuration File", QDir::homePath(), "*.json");
     if (qsSaveIt.isEmpty()) return;
 
     // Copy away
@@ -609,6 +609,39 @@ void MainWindow::ExportClicked(CProfileListItem *pItem) {
     fullSourceName += pItem->pProfilePointer->qsFileName;
     QFile file(fullSourceName);
     file.copy(qsSaveIt);
+}
+
+void MainWindow::RestoreClicked(CProfileListItem *pItem) {
+    (void)pItem;  // We don't need this
+
+    // Let make sure...
+    QMessageBox msg;
+    msg.setIcon(QMessageBox::Warning);
+    msg.setWindowTitle(tr("Restoring and Resetting all Layers Configurations to default"));
+    msg.setText(
+        tr("You are about to delete all the user-defined configurations and resetting all default configurations to their default state.\n\n"
+           "Are you sure you want to continue?"));
+    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msg.setDefaultButton(QMessageBox::Yes);
+    if (msg.exec() == QMessageBox::No) return;
+
+    // Delete all the *.json files in the storage folder
+    QDir dir(pVulkanConfig->qsProfileFilesPath);
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.json");
+    QFileInfoList profileFiles = dir.entryInfoList();
+
+    // Loop through all the profiles found and load them
+    for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
+        QFileInfo info = profileFiles.at(iProfile);
+        if (info.absoluteFilePath().contains("applist.json")) continue;
+        remove(info.filePath().toUtf8().constData());
+    }
+
+    // Now we need to kind of restart everything
+    settingsTreeManager.CleanupGUI();
+    pVulkanConfig->LoadAllProfiles();
+    LoadProfileList();
 }
 
 void MainWindow::toolsSetCustomPaths(bool bChecked) {
@@ -864,26 +897,31 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             if (pItem != nullptr) {
                 // Create context menu here
                 QMenu menu(ui->profileTree);
-                QAction *pNewAction = new QAction("New...");
+                QAction *pNewAction = new QAction("New Layers Configuration...");
                 menu.addAction(pNewAction);
 
-                QAction *pRemoveAction = new QAction("Remove");
+                QAction *pRemoveAction = new QAction("Remove the Layers Configuration");
                 menu.addAction(pRemoveAction);
 
-                QAction *pDuplicateAction = new QAction("Duplicate");
+                QAction *pDuplicateAction = new QAction("Duplicate the Layers Configuration");
                 menu.addAction(pDuplicateAction);
 
                 menu.addSeparator();
 
-                QAction *pRenameAction = new QAction("Rename");
+                QAction *pRenameAction = new QAction("Rename the Layers Configuration");
                 menu.addAction(pRenameAction);
                 menu.addSeparator();
 
-                QAction *pExportAction = new QAction("Export...");
+                QAction *pExportAction = new QAction("Export the Layers Configuration...");
                 menu.addAction(pExportAction);
 
-                QAction *pImportAction = new QAction("Import...");
+                QAction *pImportAction = new QAction("Import a Layers Configuration...");
                 menu.addAction(pImportAction);
+
+                menu.addSeparator();
+
+                QAction *pRestoreAction = new QAction("Restore all Layers Configurations");
+                menu.addAction(pRestoreAction);
 
                 QPoint point(pRightClick->globalX(), pRightClick->globalY());
                 QAction *pAction = menu.exec(point);
@@ -937,6 +975,14 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 if (pAction == pImportAction) {
                     settingsTreeManager.CleanupGUI();
                     ImportClicked(pItem);
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                    return true;
+                }
+
+                // Restore all configurations
+                if (pAction == pRestoreAction) {
+                    settingsTreeManager.CleanupGUI();
+                    RestoreClicked(pItem);
                     ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                     return true;
                 }
