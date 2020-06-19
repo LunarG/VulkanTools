@@ -251,6 +251,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
         if (pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
             CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
+            pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
             pEditorTree->setItemWidget(pSettingItem, 1, pEnumWidget);
             connect(pEnumWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;

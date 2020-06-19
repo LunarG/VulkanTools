@@ -32,8 +32,10 @@ CMuteMessageWidget::CMuteMessageWidget(TLayerSettings *pLayerSetting) : QWidget(
     if(!pSetting->settingsValue.isEmpty()) {
         QStringList list = pSetting->settingsValue.split(",");
         pListWidget->addItems(list);
+        pListWidget->setCurrentRow(pListWidget->count()-1);
         }
-    pListWidget->setCurrentRow(pListWidget->count()-1);
+    else
+        pRemovebutton->setEnabled(false);
 
     connect(pRemovebutton, SIGNAL(pressed()), this, SLOT(removePushed()));
     }
@@ -53,6 +55,7 @@ void CMuteMessageWidget::addItem(QString& item) {
 
     // Update Setting
     AddString(pSetting->settingsValue, item);
+    pRemovebutton->setEnabled(true);
 }
 
 
