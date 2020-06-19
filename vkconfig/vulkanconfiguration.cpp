@@ -1220,3 +1220,46 @@ void CVulkanConfiguration::popProfile(void) {
     SetCurrentActiveProfile(pSavedProfile);
     pSavedProfile = nullptr;
 }
+
+void CVulkanConfiguration::ImportProfile(QString qsFullPathToSource) {
+
+    QFile input(qsFullPathToSource);
+    QString qsFullDestName = qsProfileFilesPath + "/";
+    qsFullDestName += QFileInfo(qsFullPathToSource).fileName();
+
+    if (!input.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("File Error");
+        msg.setText("Cannot access the profile");
+        msg.exec();
+        return;
+        }
+
+    QFile output(qsFullDestName);
+    if(!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("File Error");
+        msg.setText("Cannot create the destination file.");
+        msg.exec();
+        return;
+        }
+
+
+    QTextStream in(&input);
+    QTextStream out(&output);
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+
+        if(line.contains("layer_path"))
+            continue;
+
+        out << line << "\n";
+    }
+
+    output.close();
+    input.close();
+    LoadAllProfiles();
+}

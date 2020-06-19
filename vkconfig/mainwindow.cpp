@@ -573,6 +573,7 @@ void MainWindow::DuplicateClicked(CProfileListItem *pItem) {
     pItem->pProfilePointer->qsProfileName = qsNewName;
     pVulkanConfig->SaveProfile(pItem->pProfilePointer);
     pVulkanConfig->LoadAllProfiles();
+    settingsTreeManager.CleanupGUI();
     LoadProfileList();
 
     // Good enough? Nope, I want to select it and edit the name.
@@ -592,13 +593,9 @@ void MainWindow::ImportClicked(CProfileListItem *pItem) {
     (void)pItem;  // We don't need this
     QString qsGetIt = QFileDialog::getOpenFileName(this, "Import Layers Configuration File", QDir::homePath(), "*.json");
     if (qsGetIt.isEmpty()) return;
-
-    QFile input(qsGetIt);
-    QString qsFullDestName = pVulkanConfig->qsProfileFilesPath + "/";
-    qsFullDestName += QFileInfo(qsGetIt).fileName();
-    input.copy(qsFullDestName);
-    pVulkanConfig->LoadAllProfiles();
-    this->LoadProfileList();
+    settingsTreeManager.CleanupGUI();
+    pVulkanConfig->ImportProfile(qsGetIt);
+    LoadProfileList();
 }
 
 /////////////////////////////////////////////////////////////////////////////
