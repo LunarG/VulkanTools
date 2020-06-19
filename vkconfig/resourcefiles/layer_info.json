@@ -245,7 +245,7 @@
                 "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
                 "type": "enum",
                 "options": {
-                    "NONE": "None",
+                    "": "None",
                     "F1": "F1",
                     "F2": "F2",
                     "F3": "F3",
@@ -261,7 +261,7 @@
                     "TAB": "TAB",
                     "CONTROL": "CONTROL"
                 },
-                "default": "F12"
+                "default": ""
             },
             "capture_frames": {
                 "name": "Capture Specific Frames",
@@ -288,7 +288,7 @@
                 "default": true
             },
             "capture_compression_type": {
-                "name": "Output Format",
+                "name": "Compression Format",
                 "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
                 "type": "enum",
                 "options": {
@@ -302,12 +302,6 @@
             "log_output_to_console": {
                 "name": "Log Output to Console / stdout",
                 "description": "Log messages will be written to stdout.",
-                "type": "bool",
-                "default": true
-            },
-            "log_errors_to_stderr": {
-                "name": "Log Errors to Console / stderr",
-                "description": "Log error messages will be written to stderr.",
                 "type": "bool",
                 "default": true
             },
@@ -360,18 +354,6 @@
                     "fatal": "fatal"
                 },
                 "default": "info"
-            },
-            "log_detailed": {
-                "name": "Log Detailed",
-                "description": "Include name and line number from the file responsible for the log message.",
-                "type": "bool",
-                "default": false
-            },
-            "log_allow_indents": {
-                "name": "Log Allow Indents",
-                "description": "Apply additional indentation formatting to log messages.",
-                "type": "bool",
-                "default": false
             },
             "memory_tracking_mode": {
                 "name": "Memory Tracking Mode",

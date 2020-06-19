@@ -5,10 +5,16 @@
         "description": "Capture the application first two frames",
         "layer_options": {
             "VK_LAYER_LUNARG_gfxreconstruct": {
+                "capture_file": {
+                    "default": "gfxrecon_capture.gfxr",
+                    "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
+                    "name": "Capture File Name",
+                    "type": "save_file"
+                },
                 "capture_compression_type": {
                     "default": "LZ4",
                     "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
-                    "name": "Output Format",
+                    "name": "Compression Format",
                     "options": {
                         "LZ4": "LZ4",
                         "NONE": "NONE",
@@ -16,12 +22,6 @@
                         "ZSTD": "ZSTD"
                     },
                     "type": "enum"
-                },
-                "capture_file": {
-                    "default": "gfxrecon_capture.gfxr",
-                    "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
-                    "name": "Capture File Name",
-                    "type": "save_file"
                 },
                 "capture_file_flush": {
                     "default": "TRUE",
@@ -46,7 +46,7 @@
                     "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
                     "name": "Hotkey Capture Trigger",
                     "options": {
-                        "NONE": "None",
+                        "": "None",
                         "CONTROL": "CONTROL",
                         "F1": "F1",
                         "F10": "F10",
@@ -65,28 +65,10 @@
                     "type": "enum"
                 },
                 "layer_rank": 0,
-                "log_allow_indents": {
-                    "default": "FALSE",
-                    "description": "Apply additional indentation formatting to log messages.",
-                    "name": "Log Allow Indents",
-                    "type": "bool"
-                },
                 "log_break_on_error": {
                     "default": "FALSE",
                     "description": "Trigger a debug break when logging an error.",
                     "name": "Trigger Debug Break on Error",
-                    "type": "bool"
-                },
-                "log_detailed": {
-                    "default": "FALSE",
-                    "description": "Include name and line number from the file responsible for the log message.",
-                    "name": "Log Detailed",
-                    "type": "bool"
-                },
-                "log_errors_to_stderr": {
-                    "default": "FALSE",
-                    "description": "Log error messages will be written to stderr.",
-                    "name": "Log Errors to Console / stderr",
                     "type": "bool"
                 },
                 "log_file": {

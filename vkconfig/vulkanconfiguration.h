@@ -114,7 +114,7 @@ class CVulkanConfiguration {
 
     static int nNumCannedProfiles;
     static int nNumKhronosPreConfigs;
-    static const char* szCannedProfiles[9];
+    static const char* szCannedProfiles[8];
 
     // Need this to check vulkan loader version
     uint32_t vulkanInstanceVersion;

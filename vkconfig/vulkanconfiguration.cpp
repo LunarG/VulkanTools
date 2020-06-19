@@ -52,9 +52,9 @@ CPathFinder::CPathFinder(const QString &qsPath, bool bForceFileSystem) {
 //////////////////////////////////////////////////////////////////////////////
 // These are the built-in configurations that are pulled in from the resource
 // file.
-int CVulkanConfiguration::nNumCannedProfiles = 9;
+int CVulkanConfiguration::nNumCannedProfiles = 8;
 int CVulkanConfiguration::nNumKhronosPreConfigs = 5;
-const char *CVulkanConfiguration::szCannedProfiles[9] = {
+const char *CVulkanConfiguration::szCannedProfiles[8] = {
     "Validation - Standard",
     "Validation - Best Practices",
     "Validation - GPU-Assisted",
@@ -62,8 +62,7 @@ const char *CVulkanConfiguration::szCannedProfiles[9] = {
     "Validation - Reduced-Overhead",
     "API dump",
     "Frame Capture - First two frames",
-    "Frame Capture - Range F10 to start and to stop",
-    "Frame Capture - Single frame triggered with F10",
+    "Frame Capture - Range F10 to start and to stop"
 };
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
