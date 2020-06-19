@@ -119,16 +119,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // All else is done, highlight and activeate the current profile on startup
     CProfileDef *pActive = pVulkanConfig->GetCurrentActiveProfile();
-    if(pActive != nullptr) {
-        for(int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+    if (pActive != nullptr) {
+        for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
             CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
-            if(pItem != nullptr)
-                if(pItem->pProfilePointer == pActive) { // Ding ding ding... we have a winner
+            if (pItem != nullptr)
+                if (pItem->pProfilePointer == pActive) {  // Ding ding ding... we have a winner
                     ui->profileTree->setCurrentItem(pItem);
                 }
         }
-
-
     }
 }
 
@@ -169,7 +167,7 @@ void MainWindow::LoadProfileList(void) {
 
         pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
         ui->profileTree->setItemWidget(pItem, 0, pItem->pRadioButton);
-        //ui->profileTree->setColumnWidth(0, 50);
+        // ui->profileTree->setColumnWidth(0, 50);
         connect(pItem->pRadioButton, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
     }
 
@@ -284,7 +282,8 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     msg.setIcon(QMessageBox::Warning);
     msg.setWindowTitle(tr("Restoring and Resetting all Layers Configurations to default"));
     msg.setText(
-        tr("You are about to delete all the user-defined configurations and resetting all default configurations to their default state.\n\n"
+        tr("You are about to delete all the user-defined configurations and resetting all default configurations to their default "
+           "state.\n\n"
            "Are you sure you want to continue?"));
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msg.setDefaultButton(QMessageBox::Yes);
@@ -652,7 +651,7 @@ void MainWindow::profileItemExpanded(QTreeWidgetItem *pItem) {
 /// Reload controls for launch control
 void MainWindow::ResetLaunchOptions(void) {
     ui->pushButtonLaunch->setEnabled(pVulkanConfig->appList.size() > 0);
-    
+
     // Reload launch apps selections
     int nFoundLast = -1;
     pLaunchAppsCombo->blockSignals(true);
@@ -668,7 +667,7 @@ void MainWindow::ResetLaunchOptions(void) {
         pLaunchArguments->setText("");
         pLaunchWorkingFolder->setText("");
         return;
-        }
+    }
 
     pLaunchAppsCombo->setCurrentIndex(nFoundLast);
 
@@ -968,7 +967,6 @@ void MainWindow::on_checkBoxApplyAll_clicked(void) {
     alert.exec();
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 /// Launch the app and monitor it's stdout to get layer output.
 /// stdout is buffered by default, so in order to see realtime output it must
@@ -994,14 +992,6 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
 
     // Is there an app selected?
     int nIndex = pLaunchAppsCombo->currentIndex();
-    if (nIndex < 0) {
-        QMessageBox msg;
-        msg.setInformativeText(tr("No test application has been specified."));
-        msg.setText(tr("No Application Selected"));
-        msg.setStandardButtons(QMessageBox::Ok);
-        msg.exec();
-        return;
-    }
 
     // Launch the test application
     pVulkanApp = new QProcess(this);
@@ -1045,35 +1035,15 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         if (pCheckBox->isChecked()) settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
     }
 
-    // Wait... did we start? Give it 4 seconds, more than enough time
-    if (!pVulkanApp->waitForStarted(4000)) {
-        pVulkanApp->waitForStarted();
-        pVulkanApp->deleteLater();
-        pVulkanApp = nullptr;
-
-        QMessageBox dlg(this);
-        dlg.setText("Failed to launch test application!");
-        dlg.setIcon(QMessageBox::Critical);
-        dlg.exec();
-        return;
-    }
-
-    // We are off to the races....
-    ui->pushButtonLaunch->setText(tr("Terminate"));
-
-    // No log file is set, just bail
-    if (pLaunchLogFile->text() != pVulkanConfig->qsLogFileWPath) {
-        pVulkanConfig->qsLogFileWPath = pLaunchLogFile->text();
-        pVulkanConfig->SaveAppSettings();
-    }
-
     // We are logging, let's add that we've launched a new application
-    QString outApplication = QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
-    QString outFolder = QString().asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
-    QString outArgs = QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
+    QString outApplication =
+        QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+    QString outFolder =
+        QString().asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
+    QString outArgs =
+        QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
 
-    if (!pVulkanConfig->qsLogFileWPath.isEmpty())
-    {
+    if (!pVulkanConfig->qsLogFileWPath.isEmpty()) {
         // This should never happen... but things that should never happen do in
         // fact happen... so just a sanity check.
         if (pLogFile != nullptr) {
@@ -1108,6 +1078,30 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     ui->logBrowser->append(outApplication);
     ui->logBrowser->append(outFolder);
     ui->logBrowser->append(outArgs);
+
+    // Wait... did we start? Give it 4 seconds, more than enough time
+    if (!pVulkanApp->waitForStarted(4000)) {
+        pVulkanApp->waitForStarted();
+        pVulkanApp->deleteLater();
+        pVulkanApp = nullptr;
+
+        QString outFailed =
+        QString().asprintf("Failed to launch %s!\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+        
+        ui->logBrowser->append(outFailed);
+        pLogFile->write(outFailed.toUtf8().constData(), outFailed.length());
+
+        return;
+    }
+
+    // We are off to the races....
+    ui->pushButtonLaunch->setText(tr("Terminate"));
+
+    // No log file is set, just bail
+    if (pLaunchLogFile->text() != pVulkanConfig->qsLogFileWPath) {
+        pVulkanConfig->qsLogFileWPath = pLaunchLogFile->text();
+        pVulkanConfig->SaveAppSettings();
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
