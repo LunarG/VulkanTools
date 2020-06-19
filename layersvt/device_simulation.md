@@ -1,29 +1,20 @@
 <!-- markdownlint-disable MD041 -->
-[![LunarG][1]][2]
-
-[1]: https://vulkan.lunarg.com/img/LunarGLogo.png "www.LunarG.com"
-[2]: https://www.LunarG.com/
+<p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
 
 [![Creative Commons][3]][4]
 
 [3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
-Copyright &copy; 2015-2019 LunarG, Inc.
+
+
+Copyright &copy; 2015-2020 LunarG, Inc.
 
 # VK\_LAYER\_LUNARG\_device\_simulation
 
 ## Overview
 
-### Extend your Vulkan test coverage with free LunarG tool
-
-Do you have a test lab with examples of all the GPUs you hope your application will support?
-
-Is your Vulkan application stress-tested to ensure it behaves correctly across the wide range of hardware available in the marketplace?
-
-If either answer is "no," LunarG offers a free tool that could extend your test coverage and increase your peace of mind.
-
-### Introducing the LunarG Device Simulation Layer
+### Extend your Vulkan test coverage with the LunarG Device Simulation Layer
 The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device. It can be applied without modifying any application binaries, and in a fully automated fashion. The Device Simulation layer (aka DevSim) is a Vulkan layer that can override the values returned by your application’s queries of the GPU. DevSim uses a JSON text configuration file to make your application see a different driver/GPU than is actually in your system. This capability is useful to verify that your application both a) properly queries the limits from Vulkan, and b) obeys those limits.
 
 The DevSim layer library is available pre-built in the LunarG Vulkan SDK, and continues to evolve. DevSim works for all Vulkan platforms (Linux, Windows, and Android), and is open-source software hosted on GitHub.
