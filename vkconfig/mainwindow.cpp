@@ -289,6 +289,9 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     msg.setDefaultButton(QMessageBox::Yes);
     if (msg.exec() == QMessageBox::No) return;
 
+    // Clear the current profile as we may be about to remove it.
+    pVulkanConfig->SetCurrentActiveProfile(nullptr);
+
     // Delete all the *.json files in the storage folder
     QDir dir(pVulkanConfig->qsProfileFilesPath);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -302,13 +305,27 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
         remove(info.filePath().toUtf8().constData());
     }
 
+    // Reset to recopy from resource file
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
 
     // Now we need to kind of restart everything
     settingsTreeManager.CleanupGUI();
     pVulkanConfig->LoadAllProfiles();
+
+    // Find the Standard Validation and make it current if we are active
+    CProfileDef *pNewActiveProfile = pVulkanConfig->FindProfile(QString("Validation - Standard"));
+    if (pVulkanConfig->bOverrideActive) ChangeActiveProfile(pNewActiveProfile);
+
     LoadProfileList();
+
+    // Active or not, set it in the tree so we can see the settings.
+    for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+        CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+        if (pItem != nullptr)
+            if (pItem->pProfilePointer == pNewActiveProfile)
+                ui->profileTree->setCurrentItem(pItem);
+            }
 
     pVulkanConfig->FindVkCube();
     ResetLaunchOptions();
