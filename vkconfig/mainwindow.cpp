@@ -687,6 +687,8 @@ void MainWindow::profileItemExpanded(QTreeWidgetItem *pItem) {
 /// \brief MainWindow::ResetLaunchOptions
 /// Reload controls for launch control
 void MainWindow::ResetLaunchOptions(void) {
+    ui->pushButtonLaunch->setEnabled(pVulkanConfig->appList.size() > 0);
+    
     // Reload launch apps selections
     int nFoundLast = -1;
     pLaunchAppsCombo->blockSignals(true);
