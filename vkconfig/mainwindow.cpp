@@ -310,6 +310,9 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     settingsTreeManager.CleanupGUI();
     pVulkanConfig->LoadAllProfiles();
     LoadProfileList();
+
+    pVulkanConfig->FindVkCube();
+    ResetLaunchOptions();
 }
 
 ////////////////////////////////////////////////////////////////////////////

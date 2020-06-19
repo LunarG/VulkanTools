@@ -123,6 +123,7 @@ class CVulkanConfiguration {
     // Just local app settings
     void LoadAppSettings(void);
     void SaveAppSettings(void);
+    void ResetToDefaultAppSettings(void);
     QString qsLaunchApplicationWPath;
     QString qsLaunchApplicationArgs;
     QString qsLaunchApplicationWorkingDir;
@@ -184,6 +185,8 @@ class CVulkanConfiguration {
     void LoadAllProfiles(void);                       // Load all the .profile files found
     void SaveProfile(CProfileDef* pProfile);          // Write .profile descriptor
 
+    void FindVkCube(void);
+
     // Set this as the current override profile
     void SetCurrentActiveProfile(CProfileDef* pProfile);
     CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
@@ -202,7 +205,6 @@ class CVulkanConfiguration {
 
     bool bFirstRun;  // This is used for populating the initial set of profiles/configurations
     void ClearLayerLists(void);
-    void FindVkCube(void);
 
 #ifdef WIN32
     void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile*>& layerList, TLayerType type);

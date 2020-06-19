@@ -409,6 +409,18 @@ void CVulkanConfiguration::SaveAppSettings(void) {
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, bKeepActiveOnExit);
 }
 
+
+void CVulkanConfiguration::ResetToDefaultAppSettings(void) {
+    QSettings settings;
+    settings.setValue(VKCONFIG_KEY_LAUNCHAPP, "");
+    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, "");
+    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_CWD, "");
+    settings.setValue(VKCONFIG_KEY_LOGFILE, QString("vkconfig_log.txt"));
+    settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, true);
+    settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, false);
+    settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, false);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::loadAdditionalSearchPaths
 /// We may have additional paths where we want to search for layers.
