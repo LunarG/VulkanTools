@@ -1051,6 +1051,7 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     connect(pVulkanApp, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
     pVulkanApp->setProgram(pVulkanConfig->appList[nIndex]->qsAppNameWithPath);
+    pVulkanConfig->qsLaunchApplicationWPath = pVulkanConfig->appList[nIndex]->qsAppNameWithPath;
     pVulkanConfig->qsLaunchApplicationWorkingDir = pVulkanConfig->appList[nIndex]->qsWorkingFolder;
     pVulkanApp->setWorkingDirectory(pVulkanConfig->appList[nIndex]->qsWorkingFolder);
 
@@ -1105,45 +1106,47 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         pVulkanConfig->SaveAppSettings();
     }
 
-    if (pVulkanConfig->qsLogFileWPath.isEmpty()) return;
+    // We are logging, let's add that we've launched a new application
+    QString outApplication = QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+    QString outFolder = QString().asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
+    QString outArgs = QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
 
-    // This should never happen... but things that should never happen do in
-    // fact happen... so just a sanity check.
-    if (pLogFile != nullptr) {
-        pLogFile->close();
-        pLogFile = nullptr;
-    }
-
-    if (ui->checkBoxClearOnLaunch->isChecked()) ui->logBrowser->clear();
-
-    // Start logging
-    pLogFile = new QFile(pVulkanConfig->qsLogFileWPath);
-
-    // Open and append, or open and truncate?
-    QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
-    if (!ui->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
-
-    if (!pVulkanConfig->qsLogFileWPath.isEmpty()) {
-        if (!pLogFile->open(mode)) {
-            QMessageBox err;
-            err.setText(tr("Warning: Cannot open log file"));
-            err.exec();
-            delete pLogFile;
+    if (!pVulkanConfig->qsLogFileWPath.isEmpty())
+    {
+        // This should never happen... but things that should never happen do in
+        // fact happen... so just a sanity check.
+        if (pLogFile != nullptr) {
+            pLogFile->close();
             pLogFile = nullptr;
         }
+
+        if (ui->checkBoxClearOnLaunch->isChecked()) ui->logBrowser->clear();
+
+        // Start logging
+        pLogFile = new QFile(pVulkanConfig->qsLogFileWPath);
+
+        // Open and append, or open and truncate?
+        QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
+        if (!ui->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
+
+        if (!pVulkanConfig->qsLogFileWPath.isEmpty()) {
+            if (!pLogFile->open(mode)) {
+                QMessageBox err;
+                err.setText(tr("Warning: Cannot open log file"));
+                err.exec();
+                delete pLogFile;
+                pLogFile = nullptr;
+            }
+        }
+
+        pLogFile->write(outApplication.toUtf8().constData(), outApplication.length());
+        pLogFile->write(outFolder.toUtf8().constData(), outFolder.length());
+        pLogFile->write(outArgs.toUtf8().constData(), outArgs.length());
     }
 
-    // We are logging, let's add that we've launched a new application
-    QString out;
-    out = QString().asprintf("Starting Vulkan Application: %s", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
-    pLogFile->write(out.toUtf8().constData(), out.length());
-    ui->logBrowser->append(out);
-    out = QString().asprintf("Working folder: %s", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
-    pLogFile->write(out.toUtf8().constData(), out.length());
-    ui->logBrowser->append(out);
-    out = QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
-    pLogFile->write(out.toUtf8().constData(), out.length());
-    ui->logBrowser->append(out);
+    ui->logBrowser->append(outApplication);
+    ui->logBrowser->append(outFolder);
+    ui->logBrowser->append(outArgs);
 }
 
 /////////////////////////////////////////////////////////////////////////////
