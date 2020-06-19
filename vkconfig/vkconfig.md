@@ -1,6 +1,10 @@
-<p align="center"><img src="./images/vulkan_configurator.png" /></p>
+<p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=198 height=85 /></p>
+<p align="center"><img src="./images/vulkan_configurator.png" width=400 height=200 /></p>
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Creative Commons][3]][4]
+
+[3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
+[4]: https://creativecommons.org/licenses/by-nd/4.0/
 
 *Vulkan Configurator* allows overriding the [layers configuration](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers) used by Vulkan applications at runtime.
 
@@ -30,7 +34,7 @@ Platform Support
 Downloads
 --------------
 
-*Vulkan Configurator* is part of [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#windows) releases.
+*Vulkan Configurator* is delivered with the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home).
 
 License
 --------------
@@ -44,8 +48,8 @@ The Vulkan Configurator is a graphical user interface (GUI) that may be launched
 
 The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
-- Linux tarball: After extracting the SDK, run `./vulkansdk lunarg-tools` to build `vkconfig`. Note that the Core, GUI, and Widgets modules of Qt5 must be installed prior to running the build script.
-- Windows: The tool will be present on the start menu, in the Vulkan SDK menu.
+- Linux tarball: The vkconfig executable comes pre-built. Run vkconfig on the command line. 
+- Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
 - macOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
 Glossary
@@ -58,11 +62,11 @@ Glossary
 
 ***Vulkan [Meta-Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#meta-layers)***: Meta-layers are a special kind of layer which is only available through the desktop loader. While usual layers are associated with one particular library, a meta-layer is actually a collection layer which contains an ordered list of other layers called *component layers*. 
 
-***Vulkan Layer settings***: Per layer settings loaded by each layer libraries and stored in the `vk_layer_settings.txt` file which seats next to the Vulkan application executable or that is globally applied to all Vulkan applications. These settings are discribed [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
+***Vulkan Layer settings***: Per layer settings loaded by each layer libraries and stored in the `vk_layer_settings.txt` file which seats next to the Vulkan application executable or that is globally applied to all Vulkan applications. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
-***[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override` and it is the mecanism used by *Vulkan Configurator* to override Vulkwn applications layers. This layer contains:
+***[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override` and it is the mechanism used by *Vulkan Configurator* to override Vulkwn applications layers. This layer contains:
 - The ordered list of layers to activate
-- The list of layer to back-list
+- The list of layers to back-list
 - The list of paths to executables that the override applies to. If this list is empty, the override is applied to every application upon startup.
 
 Vulkan Layers execution order overview
@@ -76,7 +80,7 @@ Vulkan Loader and Layers design overview
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
-OS User-Specific Monifications
+OS User-Specific Modifications
 --------------
 
 The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
