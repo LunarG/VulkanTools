@@ -1,6 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 
 <p align="center"><img src="https://vulkan.lunarg.com/img/VIAArtWork.jpg" alt="LunarG" /></p>
+
 [![Creative Commons][3]][4]
 
 [3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
