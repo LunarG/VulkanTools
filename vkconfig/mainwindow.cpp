@@ -255,10 +255,12 @@ void MainWindow::on_checkBoxApplyList_clicked(void) {
         ui->pushButtonAppList->setEnabled(false);
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxApplyList->setChecked(false);
-        ui->checkBoxApplyList->setToolTip(
-            tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
-        ui->pushButtonAppList->setToolTip(
-            tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
+        QString messageToolTip;
+        messageToolTip = QString().asprintf(
+            "The detected Vulkan loader version is %d.%d.%d but version 1.2.141 or newer is required",
+            VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+        ui->checkBoxApplyList->setToolTip(messageToolTip);
+        ui->pushButtonAppList->setToolTip(messageToolTip);
         bBeenWarnedAboutOldLoader = true;
     }
 
