@@ -449,18 +449,18 @@ void CVulkanConfiguration::FindVkCube(void) {
 
                 // One of these must be true, or we just aren't going to compile!
 #ifdef _WIN32
-    QString appName("vkcube.exe");
+    QString appName("./vkcube.exe");
 #endif
 
 #ifdef __APPLE__
-    QString appName("vkcube.app");
+    QString appName("../../vkcube.app");
 #endif
 
 #ifdef __linux__
-    QString appName("vkcube");
+    QString appName("./vkcube");
 #endif
 
-    QString searchPath = "./" + appName;
+    QString searchPath = appName;
     QFileInfo local(searchPath);
     if (!local.exists()) {
         searchPath = "../bin/" + appName;

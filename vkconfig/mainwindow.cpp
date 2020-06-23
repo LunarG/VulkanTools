@@ -852,16 +852,6 @@ void MainWindow::launchArgsEdited(const QString &newText) {
 // Clear the browser window
 void MainWindow::on_pushButtonClearLog_clicked(void) { ui->logBrowser->clear(); }
 
-//////////////////////////////////////////////////////////////////////
-// Open an existing log file and display it's contents
-void MainWindow::on_pushButtonOpenLog_clicked(void) {
-    QDesktopServices::openUrl(pVulkanConfig->qsLogFileWPath);
-    //    QFile file(pVulkanConfig->qsLogFileWPath);
-    //    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    //    QString string = file.readAll();
-    //    file.close();
-    //    ui->logBrowser->setPlainText(string);
-}
 
 //////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
