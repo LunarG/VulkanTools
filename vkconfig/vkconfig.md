@@ -66,7 +66,7 @@ Glossary
 
 ***[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override` and it is the mechanism used by *Vulkan Configurator* to override Vulkwn applications layers. This layer contains:
 - The ordered list of layers to activate
-- The list of layers to back-list
+- The list of layers to black-list
 - The list of paths to executables that the override applies to. If this list is empty, the override is applied to every application upon startup.
 
 Vulkan Layers execution order overview
