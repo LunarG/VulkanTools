@@ -1044,22 +1044,6 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     pVulkanApp->setProcessChannelMode(QProcess::MergedChannels);
     pVulkanApp->closeWriteChannel();
 
-    // Display warning for configuration changes
-    QSettings settings;
-    if (!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
-        QMessageBox alert(this);
-        alert.setText(
-            "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application start.\n\n"
-            "For changes to take effect, running Vulkan Applications should be restarted.");
-        QCheckBox *pCheckBox = new QCheckBox();
-        pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-        alert.setWindowTitle("Any change requires Vulkan Applications restart");
-        alert.setCheckBox(pCheckBox);
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
-        if (pCheckBox->isChecked()) settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
-    }
-
     // We are logging, let's add that we've launched a new application
     QString outApplication =
         QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());

@@ -27,6 +27,7 @@
 #include <QTextStream>
 #include <QLibrary>
 #include <QMessageBox>
+#include <QCheckBox>
 
 #include <vulkan/vulkan.h>
 
@@ -524,10 +525,32 @@ void CVulkanConfiguration::LoadAppList(void) {
     if (settings.value(VKCONFIG_KEY_FIRST_RUN, true).toBool()) FindVkCube();
 }
 
+void CVulkanConfiguration::CheckApplicationRestart(void) {
+    // Display warning for configuration changes
+    QSettings settings;
+    if (!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
+        QMessageBox alert;
+        alert.setText(
+            "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application "
+            "start.\n\n"
+            "For changes to take effect, running Vulkan Applications should be restarted.");
+        QCheckBox *pCheckBox = new QCheckBox();
+        pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
+        pCheckBox->setChecked(true);
+        alert.setWindowTitle("Any change requires Vulkan Applications restart");
+        alert.setCheckBox(pCheckBox);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+        if (pCheckBox->isChecked()) settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::saveAppList
 /// Save the custom applicaiton list in a .json file
 void CVulkanConfiguration::SaveAppList(void) {
+    CheckApplicationRestart();
+
     QJsonObject root;
 
     for (int i = 0; i < appList.size(); i++) {
@@ -895,6 +918,8 @@ CProfileDef *CVulkanConfiguration::LoadProfile(QString pathToProfile) {
 
 /////////////////////////////////////////////////////////////////////////////////////
 void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
+    CheckApplicationRestart();
+
     // Build the json document
     QJsonArray blackList;
     for (int i = 0; i < pProfile->blacklistedLayers.size(); i++) blackList.append(pProfile->blacklistedLayers[i]);
