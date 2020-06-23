@@ -290,6 +290,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             continue;
         }
 
+        ///////////////////////////////////////////////////////////////////////////
         // Undefined... at least gracefuly display what the setting is
         pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
         pSettingItem->setToolTip(0, pLayer->layerSettings[iSetting]->settingsDesc);
@@ -405,7 +406,9 @@ void CSettingsTreeManager::CleanupGUI(void) {
 
     if (pAdvancedKhronosEditor) delete pAdvancedKhronosEditor;
 
-    for (int i = 0; i < fileWidgets.size(); i++) pEditorTree->setItemWidget(fileWidgets[i], 1, nullptr);
+    for (int i = 0; i < fileWidgets.size(); i++)
+        pEditorTree->setItemWidget(fileWidgets[i], 1, nullptr);
+
     fileWidgets.clear();
 
     pEditorTree->clear();
