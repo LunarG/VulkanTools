@@ -127,7 +127,7 @@ class MainWindow : public QMainWindow {
     void launchArgsEdited(const QString &newText);
     void on_pushButtonLaunch_clicked(void);
     void on_pushButtonClearLog_clicked(void);
-    void on_pushButtonOpenLog_clicked(void);
+    //void on_pushButtonOpenLog_clicked(void);
 
     void on_radioFully_clicked(void);
     void on_radioOverride_clicked(void);

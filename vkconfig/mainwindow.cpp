@@ -854,6 +854,7 @@ void MainWindow::on_pushButtonClearLog_clicked(void) { ui->logBrowser->clear(); 
 
 //////////////////////////////////////////////////////////////////////
 // Open an existing log file and display it's contents
+/*
 void MainWindow::on_pushButtonOpenLog_clicked(void) {
     QDesktopServices::openUrl(pVulkanConfig->qsLogFileWPath);
     //    QFile file(pVulkanConfig->qsLogFileWPath);
@@ -862,6 +863,7 @@ void MainWindow::on_pushButtonOpenLog_clicked(void) {
     //    file.close();
     //    ui->logBrowser->setPlainText(string);
 }
+*/
 
 //////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
