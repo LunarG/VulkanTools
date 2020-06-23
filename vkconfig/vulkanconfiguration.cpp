@@ -593,6 +593,20 @@ void CVulkanConfiguration::FindAllInstalledLayers(void) {
             LoadLayersFromPath(szSearchPaths[i], allLayers, type);
     }
 
+#ifndef _WIN32
+    // On Linux systems, the path might also be an extracted tar ball at just about any arbitrary place. Use the environment
+    // variable VULKAN_SDK to look for additional layers.
+    // (Go ahead and let macOS do this as well).
+    char *vulkanSDK = getenv("VULKAN_SDK");
+    if(vulkanSDK != nullptr) {
+        QString searchPath = vulkanSDK;
+        searchPath += "/etc/vulkan/explicit_layer.d";
+        LoadLayersFromPath(searchPath, allLayers, LAYER_TYPE_EXPLICIT);
+        }
+
+
+#endif
+
     // Any custom paths? All layers from all paths are appended together here
     for (int i = 0; i < additionalSearchPaths.size(); i++)
         LoadLayersFromPath(additionalSearchPaths[i], allLayers, LAYER_TYPE_CUSTOM);
