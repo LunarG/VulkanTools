@@ -294,7 +294,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
 
     // We need some infor for sizing the column with the combo box
     QFontMetrics fm = ui->layerTree->fontMetrics();
-    int comboWidth = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 1.6);
+    int comboWidth = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 2.2);
     int comboHeight = fm.size(Qt::TextSingleLine, "App Controlled").height() * 1.6;
 
     // Loop through the layers. They are expected to be in order
@@ -330,9 +330,9 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
         ui->layerTree->setItemWidget(pItem, 1, pUse);
         pItem->setSizeHint(1, QSize(comboWidth, comboHeight));
 
-        pUse->addItem("App Controlled");
-        pUse->addItem("Overridden - Force On");
-        pUse->addItem("Disabled - Force Off");
+        pUse->addItem("Application Controlled");
+        pUse->addItem("Overridden / Forced On");
+        pUse->addItem("Excluded / Forced Off");
 
         if (pItem->pLayer->bActive) pUse->setCurrentIndex(1);
 
@@ -362,7 +362,7 @@ void dlgProfileEditor::showEvent(QShowEvent *event) {
 void dlgProfileEditor::resizeEvent(QResizeEvent *event) {
     (void)event;
     QFontMetrics fm = ui->layerTree->fontMetrics();
-    int comboWidth = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 1.6);
+    int comboWidth = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 2.2);
     int width = ui->layerTree->width() - comboWidth;
     ui->layerTree->setColumnWidth(0, width);
 }

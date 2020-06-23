@@ -48,6 +48,10 @@ bool bBeenWarnedAboutOldLoader = false;
 
 #define EDITOR_CAPTION_EMPTY "Configuration Layer Settings"
 
+static const int LAUNCH_COLUMN0_SIZE = 240;
+static const int LAUNCH_COLUMN2_SIZE = 32;
+static const int LAUNCH_SPACING_SIZE = 2;
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     ui->launchTree->installEventFilter(this);
@@ -255,10 +259,12 @@ void MainWindow::on_checkBoxApplyList_clicked(void) {
         ui->pushButtonAppList->setEnabled(false);
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxApplyList->setChecked(false);
-        ui->checkBoxApplyList->setToolTip(
-            tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
-        ui->pushButtonAppList->setToolTip(
-            tr("This feature is disabled because the Vulkan loader is too old and does not support this feature."));
+        QString messageToolTip;
+        messageToolTip = QString().asprintf(
+            "The detected Vulkan loader version is %d.%d.%d but version 1.2.141 or newer is required",
+            VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+        ui->checkBoxApplyList->setToolTip(messageToolTip);
+        ui->pushButtonAppList->setToolTip(messageToolTip);
         bBeenWarnedAboutOldLoader = true;
     }
 
@@ -709,7 +715,8 @@ void MainWindow::SetupLaunchTree(void) {
 
     pLuanchAppBrowseButton = new QPushButton();
     pLuanchAppBrowseButton->setText("...");
-    pLuanchAppBrowseButton->setMinimumWidth(32);
+    pLuanchAppBrowseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    pLuanchAppBrowseButton->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
     ui->launchTree->setItemWidget(pLauncherParent, 2, pLuanchAppBrowseButton);
     connect(pLaunchAppsCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
     connect(pLuanchAppBrowseButton, SIGNAL(clicked()), this, SLOT(launchAddProgram()));
@@ -717,12 +724,12 @@ void MainWindow::SetupLaunchTree(void) {
     //////////////////////////////////////////////////////////////////
     // Working folder
     QTreeWidgetItem *pLauncherFolder = new QTreeWidgetItem();
-    pLauncherFolder->setText(0, "Working directory");
+    pLauncherFolder->setText(0, "Working Directory");
     pLauncherParent->addChild(pLauncherFolder);
 
     pLaunchWorkingFolder = new QLineEdit();
     ui->launchTree->setItemWidget(pLauncherFolder, 1, pLaunchWorkingFolder);
-    pLaunchWorkingFolder->setReadOnly(true);
+    pLaunchWorkingFolder->setReadOnly(false);
 
     // Comming soon
     //    pLaunchWorkingFolderButton = new QPushButton();
@@ -743,7 +750,6 @@ void MainWindow::SetupLaunchTree(void) {
     // Comming soon
     //    pButton = new QPushButton();
     //    pButton->setText("...");
-    //    pButton->setMinimumWidth(32);
     //    ui->launchTree->setItemWidget(pLauncherCMD, 2, pButton);
 
     //////////////////////////////////////////////////////////////////
@@ -758,23 +764,24 @@ void MainWindow::SetupLaunchTree(void) {
 
     pLaunchLogFilebutton = new QPushButton();
     pLaunchLogFilebutton->setText("...");
-    pLaunchLogFilebutton->setMinimumWidth(32);
+    pLaunchLogFilebutton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    pLaunchLogFilebutton->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
     ui->launchTree->setItemWidget(pLauncherLogFile, 2, pLaunchLogFilebutton);
     connect(pLaunchLogFilebutton, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
 
     //////////////////////////////////////////////////////////////////
     QRect rect = ui->launchTree->visualItemRect(pLauncherParent);
-    ui->launchTree->setMinimumHeight((rect.height() * 4) + 6);
+    ui->launchTree->setMinimumHeight(rect.height() * 4);
+    ui->launchTree->setMaximumHeight(rect.height() * 4);
 
-    rect = ui->launchTree->rect();
-    ui->launchTree->setColumnWidth(0, 210);
-    ui->launchTree->setColumnWidth(1, rect.width() - 210 - 25 - 16);
-    ui->launchTree->setColumnWidth(2, 25);
+    ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
+    ui->launchTree->setColumnWidth(1, ui->launchTree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
+    ui->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
+
     ui->launchTree->expandItem(pLauncherParent);
     ui->launchTree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->launchTree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    ui->launchTree->resizeColumnToContents(1);
     ResetLaunchOptions();
 }
 
@@ -782,8 +789,8 @@ void MainWindow::SetupLaunchTree(void) {
 // Expanding the tree also grows the tree to match
 void MainWindow::launchItemExpanded(QTreeWidgetItem *pItem) {
     QRect rect = ui->launchTree->visualItemRect(pItem);
-    ui->launchTree->setMinimumHeight((rect.height() * 4) + 6);
-    ui->launchTree->setMaximumHeight((rect.height() * 4) + 6);
+    ui->launchTree->setMinimumHeight((rect.height() * 4));
+    ui->launchTree->setMaximumHeight((rect.height() * 4));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -791,8 +798,8 @@ void MainWindow::launchItemExpanded(QTreeWidgetItem *pItem) {
 // the first line
 void MainWindow::launchItemCollapsed(QTreeWidgetItem *pItem) {
     QRect rect = ui->launchTree->visualItemRect(pItem);
-    ui->launchTree->setMinimumHeight(rect.height() + 6);
-    ui->launchTree->setMaximumHeight(rect.height() + 6);
+    ui->launchTree->setMinimumHeight(rect.height());
+    ui->launchTree->setMaximumHeight(rect.height());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -852,7 +859,6 @@ void MainWindow::launchArgsEdited(const QString &newText) {
 // Clear the browser window
 void MainWindow::on_pushButtonClearLog_clicked(void) { ui->logBrowser->clear(); }
 
-
 //////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
@@ -861,9 +867,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     if (target == ui->launchTree) {
         if (event->type() == QEvent::Resize) {
             QRect rect = ui->launchTree->rect();
-            ui->launchTree->setColumnWidth(0, 210);
-            ui->launchTree->setColumnWidth(1, rect.width() - 210 - 25 - 16);
-            ui->launchTree->setColumnWidth(2, 25);
+            ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
+            ui->launchTree->setColumnWidth(1, rect.width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
+            ui->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
         }
     }
 
@@ -1030,12 +1036,11 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     if (!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
         QMessageBox alert(this);
         alert.setText(
-            "Vulkan Layers are fully configured when creating a Vulkan Instance which\n"
-            "typically happens at Vulkan Application start.\n\n"
+            "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application start.\n\n"
             "For changes to take effect, running Vulkan Applications should be restarted.");
         QCheckBox *pCheckBox = new QCheckBox();
         pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-        alert.setWindowTitle("Any Layers Configuration change requires Vulkan Applications restart");
+        alert.setWindowTitle("Any change requires Vulkan Applications restart");
         alert.setCheckBox(pCheckBox);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();

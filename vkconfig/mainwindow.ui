@@ -425,6 +425,12 @@
         </layout>
        </widget>
        <widget class="QWidget" name="widgetBottomRight" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>220</height>
+         </size>
+        </property>
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
           <layout class="QVBoxLayout" name="verticalLayout">
@@ -476,8 +482,7 @@
            <item>
             <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>Development of this tool is &quot;work in progress&quot;, we are looking forward for your feedback and issues on the &lt;/span&gt;&lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;
-.</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Development of this tool is &amp;quot;work in progress&amp;quot;. Please report your issues on the &lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="textFormat">
               <enum>Qt::RichText</enum>
@@ -508,7 +513,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
