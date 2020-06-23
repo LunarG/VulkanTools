@@ -162,7 +162,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
     pNextLine = new QTreeWidgetItem();
     pKhronosLogFileWidget = new CFilenameSettingWidget(pKhronosLogFileItem, pLogFile);
     pDebugActionItem->addChild(pKhronosLogFileItem);
-    pDebugActionItem->addChild(pNextLine);
+    pKhronosLogFileItem->addChild(pNextLine);
     pEditorTree->setItemWidget(pNextLine, 0, pKhronosLogFileWidget);
     compoundWidgets.push_back(pNextLine);
     pKhronosFileItem = pKhronosLogFileItem;
@@ -264,7 +264,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             pParent->addChild(pSettingItem);
             pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
-            pParent->addChild(pPlaceHolder);
+            pSettingItem->addChild(pPlaceHolder);
 
             CEnumSettingWidget *pEnumWidget = new CEnumSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pEditorTree->setItemWidget(pPlaceHolder, 0, pEnumWidget);
@@ -277,7 +277,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             CStringSettingWidget *pStringWidget = new CStringSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
-            pParent->addChild(pPlaceHolder);
+            pSettingItem->addChild(pPlaceHolder);
             pEditorTree->setItemWidget(pPlaceHolder, 0, pStringWidget);
             connect(pStringWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
@@ -288,7 +288,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             CFilenameSettingWidget *pWidget = new CFilenameSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
-            pParent->addChild(pPlaceHolder);
+            pSettingItem->addChild(pPlaceHolder);
             pEditorTree->setItemWidget(pPlaceHolder, 0, pWidget);
             compoundWidgets.push_back(pPlaceHolder);
             connect(pWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
@@ -300,7 +300,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             CFolderSettingWidget *pWidget = new CFolderSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
-            pParent->addChild(pPlaceHolder);
+            pSettingItem->addChild(pPlaceHolder);
             pEditorTree->setItemWidget(pPlaceHolder, 0, pWidget);
             compoundWidgets.push_back(pPlaceHolder);
             connect(pWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
