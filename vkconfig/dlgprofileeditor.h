@@ -24,6 +24,7 @@
 #include <QResizeEvent>
 #include <QShowEvent>
 
+#include "treefriendlycombobox.h"
 #include "profiledef.h"
 #include <vulkanconfiguration.h>
 
@@ -70,7 +71,7 @@ class dlgProfileEditor : public QDialog {
     void on_toolButtonUp_clicked();
     void on_toolButtonDown_clicked();
 
-    void layerUseChanged(int nSelection);
+    void layerUseChanged(QTreeWidgetItem* pItem, int nSelection);
 };
 
 #endif  // DLGPROFILEEDITOR_H

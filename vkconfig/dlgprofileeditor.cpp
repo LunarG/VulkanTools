@@ -79,6 +79,7 @@ PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 /// Utility function to see if the file is 32-bit
 bool isDLL32Bit(QString qsFileAndPath) {
 #ifndef _WIN32
+    (void)qsFileAndPath;
     return false;
 #else
     if (qsFileAndPath.isEmpty()) return false;
@@ -326,7 +327,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
         if (iLayer == nSelection) ui->layerTree->setCurrentItem(pItem);
 
         // Add a combo box. Default has gray background which looks hidious
-        QComboBox *pUse = new QComboBox();
+        CTreeFriendlyComboBox *pUse = new CTreeFriendlyComboBox(pItem);
         ui->layerTree->setItemWidget(pItem, 1, pUse);
         pItem->setSizeHint(1, QSize(comboWidth, comboHeight));
 
@@ -338,7 +339,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
 
         if (pItem->pLayer->bDisabled) pUse->setCurrentIndex(2);
 
-        connect(pUse, SIGNAL(currentIndexChanged(int)), this, SLOT(layerUseChanged(int)));
+        connect(pUse, SIGNAL(selectionMade(QTreeWidgetItem*, int)), this, SLOT(layerUseChanged(QTreeWidgetItem*, int)));
 
         ///////////////////////////////////////////////////
         // Now for the children, which is just supplimental
@@ -467,11 +468,11 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
 /// \brief dlgProfileEditor::layerUseChanged
 /// \param item
 /// use, don't use, black list...
-void dlgProfileEditor::layerUseChanged(int nSelection) {
+void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *pItem, int nSelection) {
     // Combo box changed. We first need to know which tree item was selected.
     // Fortunatly, changing the combo box also changes the selected item.
 
-    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(ui->layerTree->currentItem());
+    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer*>(pItem);
     Q_ASSERT(pLayerItem != nullptr);
 
     CLayerFile *pLayer = pLayerItem->pLayer;
