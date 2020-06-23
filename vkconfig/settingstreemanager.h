@@ -51,7 +51,7 @@ class CSettingsTreeManager : QObject {
    protected:
     QTreeWidget *pEditorTree;
     CProfileDef *pProfile;
-    QVector<QTreeWidgetItem *> fileWidgets;  // These have special cleanup requirements
+    QVector<QTreeWidgetItem *> compoundWidgets;  // These have special cleanup requirements
 
     void BuildKhronosTree();
     void BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile *pLayer);

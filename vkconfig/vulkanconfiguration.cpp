@@ -1060,8 +1060,7 @@ bool CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
     QFile jsonFile(pathToProfile);
     if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox alert;
-        alert.setText(
-            "Could not save configuration file!");
+        alert.setText("Could not save configuration file!");
         alert.setWindowTitle(pProfile->qsProfileName);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
@@ -1070,7 +1069,7 @@ bool CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
 
     jsonFile.write(doc.toJson());
     jsonFile.close();
-    true;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
