@@ -1044,12 +1044,11 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     if (!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
         QMessageBox alert(this);
         alert.setText(
-            "Vulkan Layers are fully configured when creating a Vulkan Instance which\n"
-            "typically happens at Vulkan Application start.\n\n"
+            "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application start.\n\n"
             "For changes to take effect, running Vulkan Applications should be restarted.");
         QCheckBox *pCheckBox = new QCheckBox();
         pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-        alert.setWindowTitle("Any Layers Configuration change requires Vulkan Applications restart");
+        alert.setWindowTitle("Any change requires Vulkan Applications restart");
         alert.setCheckBox(pCheckBox);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
