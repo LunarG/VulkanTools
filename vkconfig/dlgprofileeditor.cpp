@@ -349,6 +349,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
     }
 
     resizeEvent(nullptr);
+    ui->layerTree->update();
     //    int width = ui->layerTree->width() - comboWidth;
     //    ui->layerTree->setColumnWidth(0, width);
 }
@@ -573,7 +574,12 @@ void dlgProfileEditor::accept() {
 
     // Collapse the profile and remove unused layers and write
     pThisProfile->CollapseProfile();
-    pVulkanConfig->SaveProfile(pThisProfile);
+    if(!pVulkanConfig->SaveProfile(pThisProfile)) {
+        AddMissingLayers(pThisProfile);
+        LoadLayerDisplay(0);
+        return;
+    }
+
     QDialog::accept();
 }
 

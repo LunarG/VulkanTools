@@ -932,7 +932,7 @@ CProfileDef *CVulkanConfiguration::LoadProfile(QString pathToProfile) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
+bool CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
     CheckApplicationRestart();
 
     // Build the json document
@@ -1059,11 +1059,18 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
 
     QFile jsonFile(pathToProfile);
     if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return;
+        QMessageBox alert;
+        alert.setText(
+            "Could not save configuration file!");
+        alert.setWindowTitle(pProfile->qsProfileName);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+        return false;
         }
 
     jsonFile.write(doc.toJson());
     jsonFile.close();
+    true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
