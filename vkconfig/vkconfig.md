@@ -54,7 +54,7 @@ The tool is distributed differently, depending on the platform:
 
 Glossary
 --------------
-***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultanously.
+***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is an optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultanously.
 
 ***Vulkan Layers Configuration***: A collection of Vulkan Layers executed in [a specific order](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#overall-layer-ordering) with specific settings for each layer.
 
@@ -64,9 +64,9 @@ Glossary
 
 ***Vulkan Layer settings***: Per layer settings loaded by each layer libraries and stored in the `vk_layer_settings.txt` file which seats next to the Vulkan application executable or that is globally applied to all Vulkan applications. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
-***[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override` and it is the mechanism used by *Vulkan Configurator* to override Vulkwn applications layers. This layer contains:
+***[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override` and it is the mechanism used by *Vulkan Configurator* to override Vulkan applications layers. This layer contains:
 - The ordered list of layers to activate
-- The list of layers to black-list
+- The list of layers to exclude from execution
 - The list of paths to executables that the override applies to. If this list is empty, the override is applied to every application upon startup.
 
 Vulkan Layers execution order overview
@@ -86,7 +86,7 @@ OS User-Specific Modifications
 The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
 
-### Linux/Mac
+### Linux and macOS
 
 Unix systems store files in the following paths:
 
