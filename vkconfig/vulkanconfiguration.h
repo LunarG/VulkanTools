@@ -198,6 +198,8 @@ class CVulkanConfiguration {
     QString GetProfilePath(void) { return qsProfileFilesPath; }
 
    protected:
+    void CheckApplicationRestart(void);
+
     CVulkanConfiguration();
     static CVulkanConfiguration* pMe;
 

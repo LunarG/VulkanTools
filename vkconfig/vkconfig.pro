@@ -48,6 +48,7 @@ SOURCES += \
     profiledef.cpp \
     settingstreemanager.cpp \
     stringsettingwidget.cpp \
+    treefriendlycombobox.cpp \
     vuidsearchwidget.cpp \
     vulkanconfiguration.cpp
 
@@ -73,6 +74,7 @@ HEADERS += \
     profiledef.h \
     settingstreemanager.h \
     stringsettingwidget.h \
+    treefriendlycombobox.h \
     vuidsearchwidget.h \
     vulkanconfiguration.h
 

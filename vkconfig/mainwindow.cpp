@@ -860,19 +860,6 @@ void MainWindow::launchArgsEdited(const QString &newText) {
 void MainWindow::on_pushButtonClearLog_clicked(void) { ui->logBrowser->clear(); }
 
 //////////////////////////////////////////////////////////////////////
-// Open an existing log file and display it's contents
-/*
-void MainWindow::on_pushButtonOpenLog_clicked(void) {
-    QDesktopServices::openUrl(pVulkanConfig->qsLogFileWPath);
-    //    QFile file(pVulkanConfig->qsLogFileWPath);
-    //    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    //    QString string = file.readAll();
-    //    file.close();
-    //    ui->logBrowser->setPlainText(string);
-}
-*/
-
-//////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just relay on the resize method
@@ -1043,22 +1030,6 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     pVulkanApp->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
     pVulkanApp->setProcessChannelMode(QProcess::MergedChannels);
     pVulkanApp->closeWriteChannel();
-
-    // Display warning for configuration changes
-    QSettings settings;
-    if (!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
-        QMessageBox alert(this);
-        alert.setText(
-            "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application start.\n\n"
-            "For changes to take effect, running Vulkan Applications should be restarted.");
-        QCheckBox *pCheckBox = new QCheckBox();
-        pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-        alert.setWindowTitle("Any change requires Vulkan Applications restart");
-        alert.setCheckBox(pCheckBox);
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
-        if (pCheckBox->isChecked()) settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
-    }
 
     // We are logging, let's add that we've launched a new application
     QString outApplication =
