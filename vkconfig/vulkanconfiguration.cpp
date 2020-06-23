@@ -113,6 +113,7 @@ CVulkanConfiguration::CVulkanConfiguration() {
 
     QDir home = QDir::home();
     qsProfileFilesPath = home.path() + QString("/AppData/Local/");
+    home.setPath(qsProfileFilesPath);
     if (!home.cd("LunarG")) {
         home.mkpath("LunarG");
         home.cd("LunarG");
@@ -1018,7 +1019,10 @@ void CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
     pathToProfile += QString(".json");
 
     QFile jsonFile(pathToProfile);
-    if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) return;  // TBD, should we report an error
+    if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+        }
+
     jsonFile.write(doc.toJson());
     jsonFile.close();
 }
