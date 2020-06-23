@@ -105,6 +105,9 @@
         <property name="headerHidden">
          <bool>true</bool>
         </property>
+        <attribute name="headerMinimumSectionSize">
+         <number>50</number>
+        </attribute>
         <column>
          <property name="text">
           <string notr="true">1</string>
