@@ -462,7 +462,8 @@ void CVulkanConfiguration::FindVkCube(void) {
     QString searchPath = appName;
     QFileInfo local(searchPath);
     if (!local.exists()) {
-        searchPath = "../bin/" + appName;
+        searchPath = std::getenv("VULKAN_SDK");
+        searchPath = searchPath + "/bin/" + appName;
         QFileInfo local2(searchPath);
         if (!local2.exists()) return;
         local = local2;
