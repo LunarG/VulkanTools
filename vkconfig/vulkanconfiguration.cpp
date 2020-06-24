@@ -33,6 +33,7 @@
 
 #include <profiledef.h>
 #include "vulkanconfiguration.h"
+#include "dlgcustompaths.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work. Abstracts away instances where we might
@@ -93,6 +94,10 @@ const QString szSearchPaths[nSearchPaths] = {"/usr/local/etc/vulkan/explicit_lay
 CVulkanConfiguration *CVulkanConfiguration::pMe = nullptr;
 
 CVulkanConfiguration::CVulkanConfiguration() {
+    // Looks suspicious... don't remove. There is potentially some recursion with
+    // this if no layers are found, the custom layer dialog asks for a pointer to this
+    // instance before it's actually fully constructed.
+    pMe = this;
     allLayers.reserve(10);
     pActiveProfile = nullptr;
     pSavedProfile = nullptr;
@@ -184,7 +189,28 @@ CVulkanConfiguration::CVulkanConfiguration() {
     LoadAdditionalSearchPaths();
     LoadAppList();
     LoadDefaultLayerSettings();  // findAllInstalledLayers uses the results of this.
+
     FindAllInstalledLayers();
+
+    // If no layers are found, give the user another chance to add some custom paths
+    if(allLayers.size() == 0) {
+        QMessageBox alert;
+        alert.setText(
+            "No Vulkan Layers were found in standard paths or in the SDK path.\n"
+                    "Vulkan Layers are required in order to proceed. Please select the path where you have your layers installed.");
+        alert.setWindowTitle("No layers found");
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+
+        dlgCustomPaths dlg;
+        dlg.exec();
+
+        // Give it one more chance... If there are still no layers, bail
+        FindAllInstalledLayers();
+        if(allLayers.size() == 0)
+            return;
+    }
+
     LoadAllProfiles();
 
     // This will reset or clear the current profile if the files have been
@@ -595,13 +621,16 @@ void CVulkanConfiguration::FindAllInstalledLayers(void) {
     // On Linux systems, the path might also be an extracted tar ball at just about any arbitrary place. Use the environment
     // variable VULKAN_SDK to look for additional layers.
     // (Go ahead and let macOS do this as well).
-    char *vulkanSDK = getenv("VULKAN_SDK");
-    if (vulkanSDK != nullptr) {
-        QString searchPath = vulkanSDK;
-        searchPath += "/etc/vulkan/explicit_layer.d";
-        LoadLayersFromPath(searchPath, allLayers, LAYER_TYPE_EXPLICIT);
+    // This will create duplicate entries if the layers ARE installed, so only do this if
+    // No layers have been found yet.
+    if(allLayers.size() == 0) {
+        char *vulkanSDK = getenv("VULKAN_SDK");
+        if (vulkanSDK != nullptr) {
+            QString searchPath = vulkanSDK;
+            searchPath += "/etc/vulkan/explicit_layer.d";
+            LoadLayersFromPath(searchPath, allLayers, LAYER_TYPE_EXPLICIT);
+        }
     }
-
 #endif
 
     // Any custom paths? All layers from all paths are appended together here

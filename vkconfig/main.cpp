@@ -38,6 +38,12 @@ int main(int argc, char* argv[]) {
     // configuration of the system.
     CVulkanConfiguration* pModel = CVulkanConfiguration::getVulkanConfig();
 
+    // Double check, we simply cannot run without any layers
+    if(pModel->allLayers.size() == 0) {
+        delete pModel;
+        return -1;
+    }
+
     // The main GUI is driven here
     MainWindow mainWindow;
     mainWindow.show();

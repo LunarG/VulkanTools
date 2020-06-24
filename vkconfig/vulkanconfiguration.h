@@ -105,6 +105,8 @@ struct TAppListEntry {
 class CVulkanConfiguration {
    public:
     static CVulkanConfiguration* getVulkanConfig(void) {
+        // Just a note... pMe is also set inside the constructor
+        // to prevent recusion when no layers are found.
         if (pMe == nullptr) pMe = new CVulkanConfiguration();
 
         return pMe;
