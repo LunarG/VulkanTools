@@ -54,6 +54,9 @@ class CProfileDef {
     void CollapseProfile(void);  // Remove unused layers and settings, set blacklist
 
     CLayerFile *GetKhronosLayer(void);  // Retrieve the Khronos validation layer if it is included
+
+    bool IsProfileUsable(void) { return bAllLayersAvailable; }
+    bool bAllLayersAvailable;
 };
 
 #endif  // CPROFILEDEF_H

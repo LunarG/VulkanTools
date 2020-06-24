@@ -30,7 +30,7 @@
 #include "profiledef.h"
 #include "vulkanconfiguration.h"
 
-CProfileDef::CProfileDef() { nPresetIndex = 0; }
+CProfileDef::CProfileDef() { nPresetIndex = 0; bAllLayersAvailable = true; }
 
 CProfileDef::~CProfileDef() {
     qDeleteAll(layers.begin(), layers.end());
@@ -69,6 +69,7 @@ CProfileDef* CProfileDef::DuplicateProfile(void) {
     pDuplicate->qsDescription = qsDescription;
     pDuplicate->blacklistedLayers = blacklistedLayers;
     pDuplicate->nPresetIndex = nPresetIndex;
+    pDuplicate->bAllLayersAvailable = bAllLayersAvailable;
     // Do not copy ->bFixedProfile
 
     for (int i = 0; i < layers.size(); i++) {
@@ -113,3 +114,4 @@ void CProfileDef::CollapseProfile() {
         iCurrent++;
     }
 }
+

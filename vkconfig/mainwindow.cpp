@@ -140,17 +140,14 @@ MainWindow::~MainWindow() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Load or refresh the list of profiles
+// Load or refresh the list of profiles. Any profile that uses a layer that
+// is not detected on the system is disabled.
 void MainWindow::LoadProfileList(void) {
     // There are lots of ways into this, and in none of them
     // can we have an active editor running.
     settingsTreeManager.CleanupGUI();
     ui->profileTree->blockSignals(true);  // No signals firing off while we do this
     ui->profileTree->clear();
-
-    // Default profiles need the VK_LAYER_KHRONOS_validation layer.
-    // If it's not found, we need to disable it.
-    bool bKhronosAvailable = (nullptr != pVulkanConfig->FindLayerNamed("VK_LAYER_KHRONOS_validation"));
 
     // Who is the currently active profile?
     QSettings settings;
@@ -167,7 +164,7 @@ void MainWindow::LoadProfileList(void) {
         pItem->pRadioButton->setText("");
         if (activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) pItem->pRadioButton->setChecked(true);
 
-        if (!bKhronosAvailable) pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
+        if (!pVulkanConfig->profileList[i]->IsProfileUsable()) pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
 
         pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
         ui->profileTree->setItemWidget(pItem, 0, pItem->pRadioButton);

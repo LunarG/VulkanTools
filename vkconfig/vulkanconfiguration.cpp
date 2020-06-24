@@ -917,15 +917,20 @@ CProfileDef *CVulkanConfiguration::LoadProfile(QString pathToProfile) {
         if (layerPath.isEmpty()) {  // No layer path exists
             // Find this in our lookup of layers. The standard layers are listed first
             pLayer = FindLayerNamed(layerList[iLayer]);
-            if (pLayer == nullptr)  // If not found, we have a layer missing....
+            if (pLayer == nullptr) { // If not found, we have a layer missing....
+                pProfile->bAllLayersAvailable = false;
                 continue;
+                }
         } else {
             // We have a layer path, find the exact match. If an exact match doesn't
             // exist, allow just the name to match
             // (this fixes the problem with the API dump tool)
             // WAIT? Why both checking for path then?
             pLayer = FindLayerNamed(layerList[iLayer], layerPath.toUtf8().constData());
-            if (pLayer == nullptr) continue;  // We still can't find the layer
+            if (pLayer == nullptr) {
+                pProfile->bAllLayersAvailable = false;
+                continue;  // We still can't find the layer
+            }
         }
 
         // Make a copy add it to this layer
