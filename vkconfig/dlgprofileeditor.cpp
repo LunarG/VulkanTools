@@ -339,7 +339,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
 
         if (pItem->pLayer->bDisabled) pUse->setCurrentIndex(2);
 
-        connect(pUse, SIGNAL(selectionMade(QTreeWidgetItem*, int)), this, SLOT(layerUseChanged(QTreeWidgetItem*, int)));
+        connect(pUse, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
 
         ///////////////////////////////////////////////////
         // Now for the children, which is just supplimental
@@ -473,7 +473,7 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *pItem, int nSelection) {
     // Combo box changed. We first need to know which tree item was selected.
     // Fortunatly, changing the combo box also changes the selected item.
 
-    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer*>(pItem);
+    QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pItem);
     Q_ASSERT(pLayerItem != nullptr);
 
     CLayerFile *pLayer = pLayerItem->pLayer;
@@ -574,7 +574,7 @@ void dlgProfileEditor::accept() {
 
     // Collapse the profile and remove unused layers and write
     pThisProfile->CollapseProfile();
-    if(!pVulkanConfig->SaveProfile(pThisProfile)) {
+    if (!pVulkanConfig->SaveProfile(pThisProfile)) {
         AddMissingLayers(pThisProfile);
         LoadLayerDisplay(0);
         return;

@@ -26,22 +26,19 @@
 #include <QComboBox>
 #include <QTreeWidgetItem>
 
-
-class CTreeFriendlyComboBox : public QComboBox
-{
+class CTreeFriendlyComboBox : public QComboBox {
     Q_OBJECT
-public:
+   public:
     CTreeFriendlyComboBox(QTreeWidgetItem *pItem);
 
-protected:
+   protected:
     QTreeWidgetItem *pTreeWidget;
 
-public Q_SLOTS:
+   public Q_SLOTS:
     void indexChanged(int nIndex);
 
-Q_SIGNALS:
-    void selectionMade(QTreeWidgetItem* pTreeItem, int nIndex);
-
+   Q_SIGNALS:
+    void selectionMade(QTreeWidgetItem *pTreeItem, int nIndex);
 };
 
-#endif // CTREEFRIENDLYCOMBOBOX_H
+#endif  // CTREEFRIENDLYCOMBOBOX_H

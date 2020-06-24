@@ -198,36 +198,34 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
 
     //////////////////////////////// VUID message filtering
     for (int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
-       if(pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_VUID_FILTER) {
-           QTreeWidgetItem* pMuteMessageItem = new QTreeWidgetItem;
-           pMuteMessageItem->setText(0, "Mute Message VUIDs");
-           pKhronosTree->addChild(pMuteMessageItem);
+        if (pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_VUID_FILTER) {
+            QTreeWidgetItem *pMuteMessageItem = new QTreeWidgetItem;
+            pMuteMessageItem->setText(0, "Mute Message VUIDs");
+            pKhronosTree->addChild(pMuteMessageItem);
 
-           pMuteMessageSearchItem = new QTreeWidgetItem();
-           pMuteMessageSearchItem->setText(0, "Search for:");
-           pMuteMessageItem->addChild(pMuteMessageSearchItem);
-           pVUIDSearchWidget = new CVUIDSearchWidget();
-           pNextLine = new QTreeWidgetItem();
-           pMuteMessageItem->addChild(pNextLine);
-           pEditorTree->setItemWidget(pNextLine, 0, pVUIDSearchWidget);
-           compoundWidgets.push_back(pNextLine);
+            pMuteMessageSearchItem = new QTreeWidgetItem();
+            pMuteMessageSearchItem->setText(0, "Search for:");
+            pMuteMessageItem->addChild(pMuteMessageSearchItem);
+            pVUIDSearchWidget = new CVUIDSearchWidget();
+            pNextLine = new QTreeWidgetItem();
+            pMuteMessageItem->addChild(pNextLine);
+            pEditorTree->setItemWidget(pNextLine, 0, pVUIDSearchWidget);
+            compoundWidgets.push_back(pNextLine);
 
-           QTreeWidgetItem *pListItem = new QTreeWidgetItem();
-           pMuteMessageItem->addChild(pListItem);
-           pListItem->setSizeHint(1, QSize(350, 200));
-           pMuteMessageWidget = new CMuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
-           compoundWidgets.push_back(pListItem);
-           pEditorTree->setItemWidget(pListItem, 0, pMuteMessageWidget);
-           connect(pVUIDSearchWidget, SIGNAL(itemSelected(QString&)), pMuteMessageWidget, SLOT(addItem(QString&)));
-           connect(pMuteMessageWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-           continue;
-       }
-
+            QTreeWidgetItem *pListItem = new QTreeWidgetItem();
+            pMuteMessageItem->addChild(pListItem);
+            pListItem->setSizeHint(1, QSize(350, 200));
+            pMuteMessageWidget = new CMuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
+            compoundWidgets.push_back(pListItem);
+            pEditorTree->setItemWidget(pListItem, 0, pMuteMessageWidget);
+            connect(pVUIDSearchWidget, SIGNAL(itemSelected(QString &)), pMuteMessageWidget, SLOT(addItem(QString &)));
+            connect(pMuteMessageWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            continue;
+        }
     }
 
     //////// Add the preset item
     pKhronosTree->addChild(pKhronosPresetItem);
-
 }
 
 void CSettingsTreeManager::khronosDebugChanged(int nIndex) {
@@ -414,7 +412,7 @@ void CSettingsTreeManager::CleanupGUI(void) {
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
-    if (pKhronosLayer)  {
+    if (pKhronosLayer) {
         pEditorTree->setItemWidget(pKhronosFileItem, 1, nullptr);
         pEditorTree->setItemWidget(pMuteMessageSearchItem, 1, nullptr);
     }
@@ -423,8 +421,7 @@ void CSettingsTreeManager::CleanupGUI(void) {
 
     if (pAdvancedKhronosEditor) delete pAdvancedKhronosEditor;
 
-    for (int i = 0; i < compoundWidgets.size(); i++)
-        pEditorTree->setItemWidget(compoundWidgets[i], 1, nullptr);
+    for (int i = 0; i < compoundWidgets.size(); i++) pEditorTree->setItemWidget(compoundWidgets[i], 1, nullptr);
 
     compoundWidgets.clear();
 

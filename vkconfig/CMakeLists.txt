@@ -65,6 +65,8 @@ else()
         settingstreemanager.h
         stringsettingwidget.cpp
         stringsettingwidget.h
+        treefriendlycombobox.cpp
+        treefriendlycombobox.h
         vuidsearchwidget.cpp
         vuidsearchwidget.h
         vulkanconfiguration.cpp

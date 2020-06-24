@@ -102,7 +102,7 @@ void dlgVulkanInfo::RunTool(void) {
         msgBox.setText(tr("Error running vulkaninfo. Is your SDK up to date and installed properly?"));
         msgBox.exec();
         return;
-        }
+    }
 
     QString jsonText = file.readAll();
     file.close();

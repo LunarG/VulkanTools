@@ -260,9 +260,9 @@ void MainWindow::on_checkBoxApplyList_clicked(void) {
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxApplyList->setChecked(false);
         QString messageToolTip;
-        messageToolTip = QString().asprintf(
-            "The detected Vulkan loader version is %d.%d.%d but version 1.2.141 or newer is required",
-            VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+        messageToolTip =
+            QString().asprintf("The detected Vulkan loader version is %d.%d.%d but version 1.2.141 or newer is required",
+                               VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
         ui->checkBoxApplyList->setToolTip(messageToolTip);
         ui->pushButtonAppList->setToolTip(messageToolTip);
         bBeenWarnedAboutOldLoader = true;
@@ -329,9 +329,8 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
         CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
         if (pItem != nullptr)
-            if (pItem->pProfilePointer == pNewActiveProfile)
-                ui->profileTree->setCurrentItem(pItem);
-            }
+            if (pItem->pProfilePointer == pNewActiveProfile) ui->profileTree->setCurrentItem(pItem);
+    }
 
     pVulkanConfig->FindVkCube();
     ResetLaunchOptions();
@@ -775,7 +774,8 @@ void MainWindow::SetupLaunchTree(void) {
     ui->launchTree->setMaximumHeight(rect.height() * 4);
 
     ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
-    ui->launchTree->setColumnWidth(1, ui->launchTree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
+    ui->launchTree->setColumnWidth(
+        1, ui->launchTree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
     ui->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
 
     ui->launchTree->expandItem(pLauncherParent);
@@ -1082,8 +1082,8 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         pVulkanApp = nullptr;
 
         QString outFailed =
-        QString().asprintf("Failed to launch %s!\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
-        
+            QString().asprintf("Failed to launch %s!\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+
         ui->logBrowser->append(outFailed);
         pLogFile->write(outFailed.toUtf8().constData(), outFailed.length());
 

@@ -55,16 +55,14 @@ CPathFinder::CPathFinder(const QString &qsPath, bool bForceFileSystem) {
 // file.
 int CVulkanConfiguration::nNumCannedProfiles = 8;
 int CVulkanConfiguration::nNumKhronosPreConfigs = 5;
-const char *CVulkanConfiguration::szCannedProfiles[8] = {
-    "Validation - Standard",
-    "Validation - Best Practices",
-    "Validation - GPU-Assisted",
-    "Validation - Shader Printf",
-    "Validation - Reduced-Overhead",
-    "API dump",
-    "Frame Capture - First two frames",
-    "Frame Capture - Range F10 to start and to stop"
-};
+const char *CVulkanConfiguration::szCannedProfiles[8] = {"Validation - Standard",
+                                                         "Validation - Best Practices",
+                                                         "Validation - GPU-Assisted",
+                                                         "Validation - Shader Printf",
+                                                         "Validation - Reduced-Overhead",
+                                                         "API dump",
+                                                         "Frame Capture - First two frames",
+                                                         "Frame Capture - Range F10 to start and to stop"};
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
@@ -411,7 +409,6 @@ void CVulkanConfiguration::SaveAppSettings(void) {
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, bKeepActiveOnExit);
 }
 
-
 void CVulkanConfiguration::ResetToDefaultAppSettings(void) {
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP, "");
@@ -598,12 +595,11 @@ void CVulkanConfiguration::FindAllInstalledLayers(void) {
     // variable VULKAN_SDK to look for additional layers.
     // (Go ahead and let macOS do this as well).
     char *vulkanSDK = getenv("VULKAN_SDK");
-    if(vulkanSDK != nullptr) {
+    if (vulkanSDK != nullptr) {
         QString searchPath = vulkanSDK;
         searchPath += "/etc/vulkan/explicit_layer.d";
         LoadLayersFromPath(searchPath, allLayers, LAYER_TYPE_EXPLICIT);
-        }
-
+    }
 
 #endif
 
@@ -699,7 +695,6 @@ void CVulkanConfiguration::LoadAllProfiles(void) {
     QSettings settings;
     bFirstRun = settings.value(VKCONFIG_KEY_FIRST_RUN, true).toBool();
     if (bFirstRun) {
-
         // Delete all the *.json files in the storage folder
         QDir dir(qsProfileFilesPath);
         dir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -712,7 +707,6 @@ void CVulkanConfiguration::LoadAllProfiles(void) {
             if (info.absoluteFilePath().contains("applist.json")) continue;
             remove(info.filePath().toUtf8().constData());
         }
-
 
         for (int i = 0; i < nNumCannedProfiles; i += 1) {
             // Search the list of loaded profiles
@@ -1065,7 +1059,7 @@ bool CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return false;
-        }
+    }
 
     jsonFile.write(doc.toJson());
     jsonFile.close();
@@ -1286,7 +1280,6 @@ void CVulkanConfiguration::popProfile(void) {
 }
 
 void CVulkanConfiguration::ImportProfile(QString qsFullPathToSource) {
-
     QFile input(qsFullPathToSource);
     QString qsFullDestName = qsProfileFilesPath + "/";
     qsFullDestName += QFileInfo(qsFullPathToSource).fileName();
@@ -1298,18 +1291,17 @@ void CVulkanConfiguration::ImportProfile(QString qsFullPathToSource) {
         msg.setText("Cannot access the profile");
         msg.exec();
         return;
-        }
+    }
 
     QFile output(qsFullDestName);
-    if(!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("File Error");
         msg.setText("Cannot create the destination file.");
         msg.exec();
         return;
-        }
-
+    }
 
     QTextStream in(&input);
     QTextStream out(&output);
@@ -1317,8 +1309,7 @@ void CVulkanConfiguration::ImportProfile(QString qsFullPathToSource) {
     while (!in.atEnd()) {
         QString line = in.readLine();
 
-        if(line.contains("layer_path"))
-            continue;
+        if (line.contains("layer_path")) continue;
 
         out << line << "\n";
     }

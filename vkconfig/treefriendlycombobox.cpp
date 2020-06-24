@@ -24,10 +24,7 @@
 CTreeFriendlyComboBox::CTreeFriendlyComboBox(QTreeWidgetItem *pItem) : QComboBox() {
     pTreeWidget = pItem;
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
-    }
-
+}
 
 ///////////////////////////////////////////////////////////////////
-void CTreeFriendlyComboBox::indexChanged(int nIndex) {
-    emit selectionMade(pTreeWidget, nIndex);
-}
+void CTreeFriendlyComboBox::indexChanged(int nIndex) { emit selectionMade(pTreeWidget, nIndex); }

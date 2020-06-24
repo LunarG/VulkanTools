@@ -40,8 +40,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), u
         pItem->setText(0, pVulkanConfig->appList[i]->qsAppNameWithPath);
         ui->treeWidget->addTopLevelItem(pItem);
 
-        if (enabledOnlyToList)
-        {
+        if (enabledOnlyToList) {
             QCheckBox *pCheckBox = new QCheckBox();
             pCheckBox->setChecked(pVulkanConfig->appList[i]->bExcludeFromGlobalList);
             pCheckBox->setToolTip(tr("Exclude from Layers Override"));
