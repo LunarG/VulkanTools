@@ -11,68 +11,18 @@ find_package(Qt5 COMPONENTS Core Gui Widgets QUIET)
 if(NOT Qt5_FOUND)
     message("WARNING: vkconfig will be excluded because Qt5 was not found. Please add Qt5 into the PATH environment variable")
 else()
-    set(LAYERMGR_SRCS
-        dlgabout.ui
-        dlgabout.cpp
-        dlgabout.h
-        dlgbetamessage.ui
-        dlgbetamessage.cpp
-        dlgbetamessage.h
-        dlgcreateassociation.ui
-        dlgcreateassociation.cpp
-        dlgcreateassociation.h
-        dlgcustompaths.ui
-        dlgcustompaths.cpp
-        dlgcustompaths.h
-        dlghelp.ui
-        dlghelp.cpp
-        dlghelp.h
-        dlglayeroutput.ui
-        dlglayeroutput.cpp
-        dlglayeroutput.h
-        dlgprofileeditor.ui
-        dlgprofileeditor.cpp
-        dlgprofileeditor.h
-        dlgvulkananalysis.ui
-        dlgvulkananalysis.cpp
-        dlgvulkananalysis.h
-        dlgvulkaninfo.ui
-        dlgvulkaninfo.cpp
-        dlgvulkaninfo.h
-        mainwindow.ui
-        mainwindow.cpp
-        mainwindow.h
-        boolsettingwidget.cpp
-        boolsettingwidget.h
-        enumsettingwidget.cpp
-        enumsettingwidget.h
-        filenamesettingwidget.cpp
-        filenamesettingwidget.h
-        foldersettingwidget.cpp
-        foldersettingwidget.h
-        khronossettingsadvanced.cpp
-        khronossettingsadvanced.h
-        layerfile.cpp
-        layerfile.h
-        main.cpp
-        multienumsetting.cpp
-        multienumsetting.h
-        mutemessagewidget.cpp
-        mutemessagewidget.h
-        profiledef.cpp
-        profiledef.h
-        settingstreemanager.cpp
-        settingstreemanager.h
-        stringsettingwidget.cpp
-        stringsettingwidget.h
-        treefriendlycombobox.cpp
-        treefriendlycombobox.h
-        vuidsearchwidget.cpp
-        vuidsearchwidget.h
-        vulkanconfiguration.cpp
-        vulkanconfiguration.h
-        resources.qrc
-    )
+    file(GLOB FILES_RESSOURCE ./resourcefiles/*.json)
+
+    source_group("Resources Files" FILES ${FILES_RESSOURCE})
+
+    file(GLOB FILES_UI ./*.ui)
+
+    source_group("UI Files" FILES ${FILES_UI})
+
+    file(GLOB FILES_SOURCE ./*.cpp)
+    file(GLOB FILES_HEADER ./*.h)
+
+    set(FILES_ALL ${FILES_RESSOURCE} ${FILES_UI} ${FILES_SOURCE} ${FILES_HEADER} resources.qrc)
 
     if(NOT APPLE)
         if (NOT DEFINED CMAKE_INSTALL_BINDIR)
@@ -80,10 +30,11 @@ else()
         endif()
 
         if(WIN32)
-            add_executable(vkconfig WIN32 ${LAYERMGR_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/resourcefiles/vkconfig.rc)
+            add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+            add_executable(vkconfig WIN32 ${FILES_ALL} ${CMAKE_CURRENT_SOURCE_DIR}/resourcefiles/vkconfig.rc)
             target_link_libraries(vkconfig Cfgmgr32)
         else()
-            add_executable(vkconfig ${LAYERMGR_SRCS})
+            add_executable(vkconfig ${FILES_ALL} ${FILES_UI})
         endif()
         target_include_directories(vkconfig PRIVATE "${Vulkan_INCLUDE_DIR}")
         target_link_libraries(vkconfig Qt5::Core Qt5::Gui Qt5::Widgets)
