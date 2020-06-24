@@ -392,7 +392,7 @@
             <bool>false</bool>
            </property>
            <property name="columnCount">
-            <number>2</number>
+            <number>1</number>
            </property>
            <attribute name="headerVisible">
             <bool>false</bool>
@@ -403,11 +403,6 @@
            <attribute name="headerDefaultSectionSize">
             <number>200</number>
            </attribute>
-           <column>
-            <property name="text">
-             <string notr="true"/>
-            </property>
-           </column>
            <column>
             <property name="text">
              <string notr="true"/>
@@ -513,7 +508,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
