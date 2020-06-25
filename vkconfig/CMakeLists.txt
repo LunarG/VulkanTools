@@ -21,8 +21,11 @@ else()
 
     file(GLOB FILES_SOURCE ./*.cpp)
     file(GLOB FILES_HEADER ./*.h)
+    file(GLOB FILES_DOCS ./*.md)
 
-    set(FILES_ALL ${FILES_RESSOURCE} ${FILES_UI} ${FILES_SOURCE} ${FILES_HEADER} resources.qrc)
+    source_group("Docs Files" FILES ${FILES_DOCS})
+
+    set(FILES_ALL ${FILES_RESSOURCE} ${FILES_UI} ${FILES_SOURCE} ${FILES_HEADER} ${FILES_DOCS} resources.qrc)
 
     if(NOT APPLE)
         if (NOT DEFINED CMAKE_INSTALL_BINDIR)
