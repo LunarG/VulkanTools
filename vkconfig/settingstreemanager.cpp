@@ -164,6 +164,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
     pDebugActionItem->addChild(pKhronosLogFileItem);
     pKhronosLogFileItem->addChild(pNextLine);
     pEditorTree->setItemWidget(pNextLine, 0, pKhronosLogFileWidget);
+    pNextLine->setSizeHint(0, QSize(0, 28));
     compoundWidgets.push_back(pNextLine);
     pKhronosFileItem = pKhronosLogFileItem;
     connect(pKhronosDebugAction, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosDebugChanged(int)));
@@ -208,6 +209,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
             pMuteMessageItem->addChild(pMuteMessageSearchItem);
             pVUIDSearchWidget = new CVUIDSearchWidget();
             pNextLine = new QTreeWidgetItem();
+            pNextLine->setSizeHint(0, QSize(0, 28));
             pMuteMessageItem->addChild(pNextLine);
             pEditorTree->setItemWidget(pNextLine, 0, pVUIDSearchWidget);
             compoundWidgets.push_back(pNextLine);
@@ -286,6 +288,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             CFilenameSettingWidget *pWidget = new CFilenameSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
+            pPlaceHolder->setSizeHint(0, QSize(0, 28));
             pSettingItem->addChild(pPlaceHolder);
             pEditorTree->setItemWidget(pPlaceHolder, 0, pWidget);
             compoundWidgets.push_back(pPlaceHolder);
@@ -298,6 +301,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             CFolderSettingWidget *pWidget = new CFolderSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
+            pPlaceHolder->setSizeHint(0, QSize(0, 28));
             pSettingItem->addChild(pPlaceHolder);
             pEditorTree->setItemWidget(pPlaceHolder, 0, pWidget);
             compoundWidgets.push_back(pPlaceHolder);
