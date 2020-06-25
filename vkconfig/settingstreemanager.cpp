@@ -214,7 +214,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
 
             QTreeWidgetItem *pListItem = new QTreeWidgetItem();
             pMuteMessageItem->addChild(pListItem);
-            pListItem->setSizeHint(1, QSize(350, 200));
+            pListItem->setSizeHint(0, QSize(350, 200));
             pMuteMessageWidget = new CMuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
             compoundWidgets.push_back(pListItem);
             pEditorTree->setItemWidget(pListItem, 0, pMuteMessageWidget);
