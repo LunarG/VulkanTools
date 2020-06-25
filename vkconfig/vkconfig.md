@@ -127,6 +127,7 @@ Roadmap
 	- Global layers overriding file is placed in `VulkanLayerManager` directory.
 	- Local layers overriding file / selected Vulkan application is placed the application directory.
 - Add full command line arguments to use `Vulkan Configurator` features and add a test framework.
+- Add a test to check Vulkan is working fine on the machine and display the review in the log at Vulkan Configurator start up.
 - Improve layer ordering representation and accuracy.
 - Add Import and export of layers configurations.
 - Add multiple command line arguments and environment variables per application.
