@@ -257,6 +257,9 @@
            <property name="text">
             <string>Clear log at launch</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="2" column="0" colspan="4">
