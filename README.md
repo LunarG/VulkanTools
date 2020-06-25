@@ -1,6 +1,6 @@
 # Vulkan Ecosystem Components
 
-This project provides various Vulkan tools, the Layer Factory, and other layer tools and driver tests.
+This project provides various Vulkan tools
 
 ## CI Build Status
 | Platform | Build Status |
@@ -10,11 +10,7 @@ This project provides various Vulkan tools, the Layer Factory, and other layer t
 
 ## Introduction
 
-Branches within this repository include the Vulkan loader, validation layers, header files, and associated tests.  These pieces are mirrored from this Github repository:
-https://github.com/KhronosGroup/Vulkan-ValidationLayers
-These pieces are required to enable this repository to be built standalone; that is without having to clone the Vulkan-ValidationLayers repository.
-
-The following components are available in this repository over and above what is mirrored from Vulkan-ValidationLayers repository
+The following components are available in this repository:
 - Api_dump, screenshot, device_simulation, and example layers (layersvt/)
 - Starter_layer and demo_layer (layer_factory/)
 
@@ -48,5 +44,4 @@ See COPYRIGHT.txt for a full list of licenses used in this repository.
 ## Acknowledgements
 While this project has been developed primarily by LunarG, Inc., there are many other
 companies and individuals making this possible: Valve Corporation, funding
-project development; Google providing significant contributions to the validation layers;
-Khronos providing oversight and hosting of the project.
+project development;
