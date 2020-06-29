@@ -119,6 +119,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
     QTreeWidgetItem *pNextLine = new QTreeWidgetItem();
 
     pKhronosPresets = new QComboBox();
+    pKhronosPresets ->blockSignals(true);
     pKhronosPresets->addItem("User Defined");
     pKhronosPresets->addItem("Standard");
     pKhronosPresets->addItem("Best Practices");
@@ -135,7 +136,6 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
 
     // This just finds the enables and disables
     pAdvancedKhronosEditor = new KhronosSettingsAdvanced(pEditorTree, pKhronosPresetItem, pKhronosLayer->layerSettings);
-    connect(pAdvancedKhronosEditor, SIGNAL(settingChanged()), this, SLOT(khronosPresetEdited()));
 
     // Look for the Debug Action and log file settings
     TLayerSettings *pDebugAction = nullptr;
@@ -226,15 +226,23 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
         }
     }
 
+    // This really does go way down here.
+    connect(pAdvancedKhronosEditor, SIGNAL(settipMainParentngChanged()), this, SLOT(khronosPresetEdited()));
+    pKhronosPresets->blockSignals(false);
+
     //////// Add the preset item
     pKhronosTree->addChild(pKhronosPresetItem);
 }
 
+/////////////////////////////////////////////////////////////////////////////////
 void CSettingsTreeManager::khronosDebugChanged(int nIndex) {
     (void)nIndex;
     bool bEnable = (pKhronosDebugAction->currentText() != QString("Log Message"));
+    pEditorTree->blockSignals(true);
     pKhronosLogFileItem->setDisabled(bEnable);
     pKhronosLogFileWidget->setDisabled(bEnable);
+    pEditorTree->blockSignals(false);
+    profileEdited();
 }
 
 void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile *pLayer) {
@@ -341,10 +349,16 @@ void CSettingsTreeManager::khronosPresetChanged(int nIndex) {
 
     Q_ASSERT(nKhronosLayer != -1);
 
-    delete pProfile->layers[nKhronosLayer];                // This is the Khronos layer we are deleting
-    pProfile->layers[nKhronosLayer] = new CLayerFile;      // Allocate a new one
-    pKhronosLayer = pProfile->layers[nKhronosLayer];       // Update Khronos pointer
-    pPatternProfile->layers[0]->CopyLayer(pKhronosLayer);  // Copy pattern into the new layer
+    // Reset just specific layer settings
+    for(int i = 0; i < pProfile->layers[nKhronosLayer]->layerSettings.size(); i++) {
+        if(pKhronosLayer->layerSettings[i]->settingsName == QString("disables") ||
+               pKhronosLayer->layerSettings[i]->settingsName == QString("enables"))
+            pKhronosLayer->layerSettings[i]->settingsValue =
+                    pPatternProfile->layers[0]->layerSettings[i]->settingsValue;
+
+
+        }
+
     delete pPatternProfile;                                // Delete the pattern
     pProfile->nPresetIndex = nIndex;
 
@@ -354,13 +368,14 @@ void CSettingsTreeManager::khronosPresetChanged(int nIndex) {
     delete pAdvancedKhronosEditor;
 
     QByteArray savedState;
-    GetTreeState(savedState, pKhronosPresetItem);
+    QTreeWidgetItem *pKhronosParent = pKhronosPresetItem->parent();
+    GetTreeState(savedState, pKhronosParent);
 
     int nChildren = pKhronosTree->childCount();
     for (int i = 0; i < nChildren; i++) pKhronosTree->takeChild(0);
 
     BuildKhronosTree();
-    SetTreeState(savedState, 0, pKhronosPresetItem);
+    SetTreeState(savedState, 0, pKhronosParent);
     pEditorTree->blockSignals(false);
     profileEdited();
 }

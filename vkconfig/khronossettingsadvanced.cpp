@@ -152,6 +152,7 @@ QString GetSettingDetails(QString qsSetting, QString &url) {
 KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *pMainTree, QTreeWidgetItem *parent,
                                                  QVector<TLayerSettings *> &layerSettings) {
     pMainTreeWidget = pMainTree;
+    pMainParent = parent;
 
     // Find the enables
     pEnables = nullptr;

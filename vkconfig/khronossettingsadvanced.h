@@ -41,6 +41,7 @@ class KhronosSettingsAdvanced : public QObject {
 
    private:
     QTreeWidget *pMainTreeWidget;
+    QTreeWidgetItem *pMainParent;
     QTreeWidgetItem *pCoreChecksParent;
 
     TLayerSettings *pDisables;

@@ -88,8 +88,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->actionCustom_Layer_Paths, SIGNAL(triggered(bool)), this, SLOT(toolsSetCustomPaths(bool)));
 
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
-    connect(ui->actionSet_Test_Application, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanTestApp(bool)));
-    connect(ui->actionLog_API_Dump, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanAPIDump(bool)));
     connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
 
     connect(ui->profileTree, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(profileItemChanged(QTreeWidgetItem *, int)));
@@ -948,16 +946,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
     // Pass it on
     return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-// TBD... Toggles writing from HKEY_CURRENT_USER to HKEY_LOCAL_MACHINE
-void MainWindow::on_checkBoxApplyAll_clicked(void) {
-    QMessageBox alert(this);
-    alert.setText("This will toggle having overrides apply to all users, or just the current user.");
-    alert.setIcon(QMessageBox::Warning);
-    alert.setWindowTitle(tr("TBD: To Be Done..."));
-    alert.exec();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
