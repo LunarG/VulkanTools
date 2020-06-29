@@ -1,9 +1,9 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2015-2018 The Khronos Group Inc.
-# Copyright (c) 2015-2018 Valve Corporation
-# Copyright (c) 2015-2018 LunarG, Inc.
-# Copyright (c) 2015-2018 Google Inc.
+# Copyright (c) 2015-2020 The Khronos Group Inc.
+# Copyright (c) 2015-2020 Valve Corporation
+# Copyright (c) 2015-2020 LunarG, Inc.
+# Copyright (c) 2015-2020 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ class ToolHelperFileOutputGeneratorOptions(GeneratorOptions):
                  conventions = None,
                  filename = None,
                  directory = '.',
+                 genpath = None,
                  apiname = None,
                  profile = None,
                  versions = '.*',
@@ -54,9 +55,20 @@ class ToolHelperFileOutputGeneratorOptions(GeneratorOptions):
                  alignFuncParam = 0,
                  library_name = '',
                  helper_file_type = ''):
-        GeneratorOptions.__init__(self, conventions, filename, directory, apiname, profile,
-                                  versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, emitExtensions, sortProcedure)
+        GeneratorOptions.__init__(self,
+                 conventions = conventions,
+                 filename = filename,
+                 directory = directory,
+                 genpath = genpath,
+                 apiname = apiname,
+                 profile = profile,
+                 versions = versions,
+                 emitversions = emitversions,
+                 defaultExtensions = defaultExtensions,
+                 addExtensions = addExtensions,
+                 removeExtensions = removeExtensions,
+                 emitExtensions = emitExtensions,
+                 sortProcedure = sortProcedure)
         self.prefixText       = prefixText
         self.genFuncPointers  = genFuncPointers
         self.protectFile      = protectFile
@@ -120,10 +132,10 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
         copyright += '\n'
         copyright += '/***************************************************************************\n'
         copyright += ' *\n'
-        copyright += ' * Copyright (c) 2015-2018 The Khronos Group Inc.\n'
-        copyright += ' * Copyright (c) 2015-2018 Valve Corporation\n'
-        copyright += ' * Copyright (c) 2015-2018 LunarG, Inc.\n'
-        copyright += ' * Copyright (c) 2015-2018 Google Inc.\n'
+        copyright += ' * Copyright (c) 2015-2020 The Khronos Group Inc.\n'
+        copyright += ' * Copyright (c) 2015-2020 Valve Corporation\n'
+        copyright += ' * Copyright (c) 2015-2020 LunarG, Inc.\n'
+        copyright += ' * Copyright (c) 2015-2020 Google Inc.\n'
         copyright += ' *\n'
         copyright += ' * Licensed under the Apache License, Version 2.0 (the "License");\n'
         copyright += ' * you may not use this file except in compliance with the License.\n'
