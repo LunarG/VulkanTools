@@ -37,7 +37,10 @@ class dlgCreateAssociation : public QDialog {
     explicit dlgCreateAssociation(QWidget *parent = nullptr);
     ~dlgCreateAssociation();
 
+    int nLastSelectedApp;
+
     static void GetExecutableFromAppBundle(QString &csPath);
+
 
    private:
     Ui::dlgCreateAssociation *ui;

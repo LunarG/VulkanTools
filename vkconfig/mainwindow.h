@@ -87,7 +87,7 @@ class MainWindow : public QMainWindow {
     QComboBox *pLaunchAppsCombo;
     QLineEdit *pLaunchArguments;
     QLineEdit *pLaunchWorkingFolder;
-    QLineEdit *pLaunchLogFile;
+    QLineEdit *pLaunchLogFileEdit;
     QPushButton *pLuanchAppBrowseButton;
     QPushButton *pLaunchWorkingFolderButton;
     QPushButton *pLaunchLogFilebutton;
@@ -119,7 +119,6 @@ class MainWindow : public QMainWindow {
     void launchItemExpanded(QTreeWidgetItem *pItem);
     void launchItemCollapsed(QTreeWidgetItem *pItem);
     void launchItemChanged(int nIndex);
-    void launchAddProgram(void);
     void launchSetLogFile(void);
     void launchArgsEdited(const QString &newText);
     void on_pushButtonLaunch_clicked(void);

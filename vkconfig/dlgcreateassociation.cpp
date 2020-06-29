@@ -28,6 +28,7 @@
 dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCreateAssociation) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    nLastSelectedApp = -1;
 
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     bool enabledOnlyToList = !pVulkanConfig->bHasOldLoader && pVulkanConfig->bApplyOnlyToList;
@@ -130,6 +131,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
         pVulkanConfig->SaveAppList();
         pVulkanConfig->RefreshProfile();
         ui->treeWidget->setCurrentItem(pItem);
+        nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pItem);
         connect(pCheck, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
     }
 }
@@ -139,12 +141,12 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
 /// Easy enough, just remove the selected program from the list
 void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
-    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if (iRow < 0) return;
+    nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if (nLastSelectedApp < 0) return;
 
-    ui->treeWidget->takeTopLevelItem(iRow);
+    ui->treeWidget->takeTopLevelItem(nLastSelectedApp);
     ui->treeWidget->setCurrentItem(nullptr);
-    pVulkanConfig->appList.removeAt(iRow);
+    pVulkanConfig->appList.removeAt(nLastSelectedApp);
 
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);
@@ -154,6 +156,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
 
     pVulkanConfig->SaveAppList();
     pVulkanConfig->RefreshProfile();
+    nLastSelectedApp = -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,8 +164,8 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
 /// be removed. Also the working folder and command line arguments are updated
 void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious) {
     (void)pPrevious;
-    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if (iRow < 0) {
+    nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if (nLastSelectedApp < 0) {
         ui->groupLaunchInfo->setEnabled(false);
         ui->pushButtonRemove->setEnabled(false);
         ui->lineEditCmdArgs->setText("");
@@ -173,16 +176,16 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeW
 
     ui->groupLaunchInfo->setEnabled(true);
     ui->pushButtonRemove->setEnabled(true);
-    ui->lineEditWorkingFolder->setText(pVulkanConfig->appList[iRow]->qsWorkingFolder);
-    ui->lineEditCmdArgs->setText(pVulkanConfig->appList[iRow]->qsArguments);
-    ui->lineEditLogFile->setText(pVulkanConfig->appList[iRow]->qsLogFile);
+    ui->lineEditWorkingFolder->setText(pVulkanConfig->appList[nLastSelectedApp]->qsWorkingFolder);
+    ui->lineEditCmdArgs->setText(pVulkanConfig->appList[nLastSelectedApp]->qsArguments);
+    ui->lineEditLogFile->setText(pVulkanConfig->appList[nLastSelectedApp]->qsLogFile);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void dlgCreateAssociation::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
-    int iRow = ui->treeWidget->indexOfTopLevelItem(pItem);
+    nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pItem);
     QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, nColumn));
-    if (pCheckBox != nullptr) pVulkanConfig->appList[iRow]->bExcludeFromGlobalList = pCheckBox->isChecked();
+    if (pCheckBox != nullptr) pVulkanConfig->appList[nLastSelectedApp]->bExcludeFromGlobalList = pCheckBox->isChecked();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -204,28 +207,28 @@ void dlgCreateAssociation::itemClicked(bool bClicked) {
 ///////////////////////////////////////////////////////////////////////////////
 void dlgCreateAssociation::editCommandLine(const QString &cmdLine) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
-    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if (iRow < 0) return;
+    nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if (nLastSelectedApp < 0) return;
 
-    pVulkanConfig->appList[iRow]->qsArguments = cmdLine;
+    pVulkanConfig->appList[nLastSelectedApp]->qsArguments = cmdLine;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
-    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if (iRow < 0) return;
+    nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if (nLastSelectedApp < 0) return;
 
-    pVulkanConfig->appList[iRow]->qsWorkingFolder = workingFolder;
+    pVulkanConfig->appList[nLastSelectedApp]->qsWorkingFolder = workingFolder;
 }
 
 
 void dlgCreateAssociation::editLogFile(const QString &logFile) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
-    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if(iRow < 0) return;
+    nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if(nLastSelectedApp < 0) return;
 
-    pVulkanConfig->appList[iRow]->qsLogFile = logFile;
+    pVulkanConfig->appList[nLastSelectedApp]->qsLogFile = logFile;
 }
 
 

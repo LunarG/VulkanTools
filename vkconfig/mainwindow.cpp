@@ -51,6 +51,7 @@ bool bBeenWarnedAboutOldLoader = false;
 static const int LAUNCH_COLUMN0_SIZE = 240;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
+static const int LAUNCH_ROW_HEIGHT = 28;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -463,7 +464,6 @@ void MainWindow::resizeEvent(QResizeEvent *pEvent) {
 /////////////////////////////////////////////////////////////
 void MainWindow::showEvent(QShowEvent *event) {
     //  resizeEvent(nullptr); // Fake to get controls to do the right thing
-
     event->accept();
 }
 
@@ -473,6 +473,9 @@ void MainWindow::showEvent(QShowEvent *event) {
 void MainWindow::on_pushButtonAppList_clicked(void) {
     dlgCreateAssociation dlg(this);
     dlg.exec();
+    if(dlg.nLastSelectedApp >= 0)
+        pVulkanConfig->qsLastLaunchApplicationWPath = pVulkanConfig->appList[dlg.nLastSelectedApp]->qsAppNameWithPath;
+
     pVulkanConfig->SaveAppList();
     ResetLaunchOptions();
 }
@@ -659,7 +662,7 @@ void MainWindow::ResetLaunchOptions(void) {
     if (pVulkanConfig->appList.size() == 0) {
         pLaunchArguments->setText("");
         pLaunchWorkingFolder->setText("");
-        pLaunchLogFile->setText("");
+        pLaunchLogFileEdit->setText("");
         return;
     }
 
@@ -668,7 +671,7 @@ void MainWindow::ResetLaunchOptions(void) {
     // Reset working folder and command line choices
     pLaunchArguments->setText(pVulkanConfig->appList[nFoundLast]->qsArguments);
     pLaunchWorkingFolder->setText(pVulkanConfig->appList[nFoundLast]->qsWorkingFolder);
-    pLaunchLogFile->setText(pVulkanConfig->appList[nFoundLast]->qsLogFile);
+    pLaunchLogFileEdit->setText(pVulkanConfig->appList[nFoundLast]->qsLogFile);
     pLaunchAppsCombo->blockSignals(false);
 }
 
@@ -683,15 +686,19 @@ void MainWindow::SetupLaunchTree(void) {
     ui->launchTree->addTopLevelItem(pLauncherParent);
 
     pLaunchAppsCombo = new QComboBox();
+    pLaunchAppsCombo->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    pLaunchAppsCombo->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launchTree->setItemWidget(pLauncherParent, 1, pLaunchAppsCombo);
 
     pLuanchAppBrowseButton = new QPushButton();
     pLuanchAppBrowseButton->setText("...");
     pLuanchAppBrowseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     pLuanchAppBrowseButton->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+    pLuanchAppBrowseButton->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    pLuanchAppBrowseButton->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launchTree->setItemWidget(pLauncherParent, 2, pLuanchAppBrowseButton);
     connect(pLaunchAppsCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
-    connect(pLuanchAppBrowseButton, SIGNAL(clicked()), this, SLOT(launchAddProgram()));
+    connect(pLuanchAppBrowseButton, SIGNAL(clicked()), this, SLOT(on_pushButtonAppList_clicked()));
 
     //////////////////////////////////////////////////////////////////
     // Working folder
@@ -700,6 +707,8 @@ void MainWindow::SetupLaunchTree(void) {
     pLauncherParent->addChild(pLauncherFolder);
 
     pLaunchWorkingFolder = new QLineEdit();
+    pLaunchWorkingFolder->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    pLaunchWorkingFolder->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launchTree->setItemWidget(pLauncherFolder, 1, pLaunchWorkingFolder);
     pLaunchWorkingFolder->setReadOnly(false);
 
@@ -716,6 +725,8 @@ void MainWindow::SetupLaunchTree(void) {
     pLauncherParent->addChild(pLauncherCMD);
 
     pLaunchArguments = new QLineEdit();
+    pLaunchArguments->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    pLaunchArguments->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launchTree->setItemWidget(pLauncherCMD, 1, pLaunchArguments);
     connect(pLaunchArguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
 
@@ -730,8 +741,10 @@ void MainWindow::SetupLaunchTree(void) {
     pLauncherLogFile->setText(0, "Output Log");
     pLauncherParent->addChild(pLauncherLogFile);
 
-    pLaunchLogFile = new QLineEdit();
-    ui->launchTree->setItemWidget(pLauncherLogFile, 1, pLaunchLogFile);
+    pLaunchLogFileEdit = new QLineEdit();
+    pLaunchLogFileEdit->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    pLaunchLogFileEdit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui->launchTree->setItemWidget(pLauncherLogFile, 1, pLaunchLogFileEdit);
 
     pLaunchLogFilebutton = new QPushButton();
     pLaunchLogFilebutton->setText("...");
@@ -741,9 +754,8 @@ void MainWindow::SetupLaunchTree(void) {
     connect(pLaunchLogFilebutton, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
 
     //////////////////////////////////////////////////////////////////
-    QRect rect = ui->launchTree->visualItemRect(pLauncherParent);
-    ui->launchTree->setMinimumHeight(rect.height() * 4);
-    ui->launchTree->setMaximumHeight(rect.height() * 4);
+    ui->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
+    ui->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT* 4 + 6);
 
     ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
     ui->launchTree->setColumnWidth(
@@ -760,9 +772,9 @@ void MainWindow::SetupLaunchTree(void) {
 ////////////////////////////////////////////////////////////////////
 // Expanding the tree also grows the tree to match
 void MainWindow::launchItemExpanded(QTreeWidgetItem *pItem) {
-    QRect rect = ui->launchTree->visualItemRect(pItem);
-    ui->launchTree->setMinimumHeight((rect.height() * 4));
-    ui->launchTree->setMaximumHeight((rect.height() * 4));
+    (void)pItem;
+    ui->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
+    ui->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT* 4 + 6);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -772,15 +784,6 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *pItem) {
     QRect rect = ui->launchTree->visualItemRect(pItem);
     ui->launchTree->setMinimumHeight(rect.height());
     ui->launchTree->setMaximumHeight(rect.height());
-}
-
-/////////////////////////////////////////////////////////////////////
-void MainWindow::launchAddProgram(void) {
-    dlgCreateAssociation dlg(this);
-    dlg.exec();
-    pVulkanConfig->SaveAppList();
-
-    ResetLaunchOptions();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -794,9 +797,9 @@ void MainWindow::launchSetLogFile(void) {
     pVulkanConfig->appList[nLaunchIndex]->qsLogFile = logFile;
 
     if (logFile.isEmpty())
-        pLaunchLogFile->setText("");
+        pLaunchLogFileEdit->setText("");
     else
-        pLaunchLogFile->setText(logFile);
+        pLaunchLogFileEdit->setText(logFile);
 
     pVulkanConfig->SaveAppList();
 }
@@ -810,7 +813,7 @@ void MainWindow::launchItemChanged(int nIndex) {
 
     pLaunchArguments->setText(pVulkanConfig->appList[nIndex]->qsArguments);
     pLaunchWorkingFolder->setText(pVulkanConfig->appList[nIndex]->qsWorkingFolder);
-    pLaunchLogFile->setText(pVulkanConfig->appList[nIndex]->qsLogFile);
+    pLaunchLogFileEdit->setText(pVulkanConfig->appList[nIndex]->qsLogFile);
 
     // Update last used settings too. I'm saving this way instead of an index, because
     // in the future there will be more than one set of working directories and argument lists
@@ -846,6 +849,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
             ui->launchTree->setColumnWidth(1, rect.width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
             ui->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
+            return false;
         }
     }
 
