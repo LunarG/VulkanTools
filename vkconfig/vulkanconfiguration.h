@@ -78,6 +78,7 @@ class CPathFinder {
 #define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT "keepActiveOnExit"
 #define VKCONFIG_KEY_FIRST_RUN "firstRun"
 #define VKCONFIG_KEY_APPLY_ALL "applytoall"
+#define VKCONFIG_HIDE_RESTART_WARNING "restartWarning"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -199,9 +200,10 @@ class CVulkanConfiguration {
 
     QString GetProfilePath(void) { return qsProfileFilesPath; }
 
-   protected:
     void CheckApplicationRestart(void);
 
+
+   protected:
     CVulkanConfiguration();
     static CVulkanConfiguration* pMe;
 

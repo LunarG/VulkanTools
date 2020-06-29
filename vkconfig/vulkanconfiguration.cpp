@@ -553,7 +553,7 @@ void CVulkanConfiguration::LoadAppList(void) {
 void CVulkanConfiguration::CheckApplicationRestart(void) {
     // Display warning for configuration changes
     QSettings settings;
-    if (!settings.value("VKCONFIG_HIDE_RESTART_WARNING").toBool()) {
+    if (!settings.value(VKCONFIG_HIDE_RESTART_WARNING).toBool()) {
         QMessageBox alert;
         alert.setText(
             "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application "
@@ -566,16 +566,14 @@ void CVulkanConfiguration::CheckApplicationRestart(void) {
         alert.setCheckBox(pCheckBox);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
-        if (pCheckBox->isChecked()) settings.setValue("VKCONFIG_HIDE_RESTART_WARNING", true);
+        if (pCheckBox->isChecked()) settings.setValue(VKCONFIG_HIDE_RESTART_WARNING, true);
     }
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief CVulkanConfiguration::saveAppList
-/// Save the custom applicaiton list in a .json file
+/// Save the custom application list in a .json file
 void CVulkanConfiguration::SaveAppList(void) {
-    CheckApplicationRestart();
-
     QJsonObject root;
 
     for (int i = 0; i < appList.size(); i++) {
@@ -961,9 +959,9 @@ CProfileDef *CVulkanConfiguration::LoadProfile(QString pathToProfile) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+// This saves or resaves a configuration. Bear in mind it is called everytime
+// any edit is made to a configuration at all.
 bool CVulkanConfiguration::SaveProfile(CProfileDef *pProfile) {
-    CheckApplicationRestart();
-
     // Build the json document
     QJsonArray blackList;
     for (int i = 0; i < pProfile->blacklistedLayers.size(); i++) blackList.append(pProfile->blacklistedLayers[i]);

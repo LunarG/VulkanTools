@@ -232,6 +232,8 @@ void MainWindow::on_radioOverride_clicked(void) {
         ChangeActiveProfile(nullptr);
     else
         ChangeActiveProfile(pProfileItem->pProfilePointer);
+
+    pVulkanConfig->CheckApplicationRestart();
 }
 
 ///////////////////////////////////////////////////////////////////////
