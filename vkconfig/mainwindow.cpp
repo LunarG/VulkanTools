@@ -1019,7 +1019,8 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     pVulkanApp->setWorkingDirectory(pVulkanConfig->appList[nIndex]->qsWorkingFolder);
 
     if (!pVulkanConfig->appList[nIndex]->qsArguments.isEmpty()) {
-        pVulkanApp->setArguments(QStringList() << pVulkanConfig->appList[nIndex]->qsArguments);
+        QStringList args = pVulkanConfig->appList[nIndex]->qsArguments.split(" ");
+        pVulkanApp->setArguments(args);
         pVulkanConfig->qsLaunchApplicationArgs = pVulkanConfig->appList[nIndex]->qsArguments;
     }
 
