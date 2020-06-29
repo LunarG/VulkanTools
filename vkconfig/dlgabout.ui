@@ -34,7 +34,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>About Vulkan Configuration Tool</string>
+   <string>About Vulkan Configurator</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
