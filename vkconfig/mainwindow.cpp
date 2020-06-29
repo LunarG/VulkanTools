@@ -834,7 +834,10 @@ void MainWindow::launchArgsEdited(const QString &newText) {
 
 //////////////////////////////////////////////////////////////////////
 // Clear the browser window
-void MainWindow::on_pushButtonClearLog_clicked(void) { ui->logBrowser->clear(); }
+void MainWindow::on_pushButtonClearLog_clicked(void) {
+    ui->logBrowser->clear();
+    ui->logBrowser->update();
+}
 
 //////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
