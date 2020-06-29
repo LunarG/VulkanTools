@@ -59,6 +59,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), u
     connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
     connect(ui->lineEditCmdArgs, SIGNAL(textEdited(const QString &)), this, SLOT(editCommandLine(const QString &)));
     connect(ui->lineEditWorkingFolder, SIGNAL(textEdited(const QString &)), this, SLOT(editWorkingFolder(const QString &)));
+    connect(ui->lineEditLogFile, SIGNAL(textEdited(const QString &)), this, SLOT(editLogFile(const QString &)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,6 +120,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
         pNewApp->qsAppNameWithPath = appWithPath;
         pNewApp->qsWorkingFolder = QDir::toNativeSeparators(QFileInfo(appWithPath).path());
         pNewApp->bExcludeFromGlobalList = false;
+        pNewApp->qsLogFile = QDir::toNativeSeparators(ui->lineEditLogFile->text());
         pVulkanConfig->appList.push_back(pNewApp);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, appWithPath);
@@ -148,6 +150,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
     ui->pushButtonRemove->setEnabled(false);
     ui->lineEditCmdArgs->setText("");
     ui->lineEditWorkingFolder->setText("");
+    ui->lineEditWorkingFolder->setText("");
 
     pVulkanConfig->SaveAppList();
     pVulkanConfig->RefreshProfile();
@@ -164,6 +167,7 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeW
         ui->pushButtonRemove->setEnabled(false);
         ui->lineEditCmdArgs->setText("");
         ui->lineEditWorkingFolder->setText("");
+        ui->lineEditWorkingFolder->setText("");
         return;
     }
 
@@ -171,6 +175,7 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeW
     ui->pushButtonRemove->setEnabled(true);
     ui->lineEditWorkingFolder->setText(pVulkanConfig->appList[iRow]->qsWorkingFolder);
     ui->lineEditCmdArgs->setText(pVulkanConfig->appList[iRow]->qsArguments);
+    ui->lineEditLogFile->setText(pVulkanConfig->appList[iRow]->qsLogFile);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -213,6 +218,16 @@ void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
 
     pVulkanConfig->appList[iRow]->qsWorkingFolder = workingFolder;
 }
+
+
+void dlgCreateAssociation::editLogFile(const QString &logFile) {
+    QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
+    int iRow = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if(iRow < 0) return;
+
+    pVulkanConfig->appList[iRow]->qsLogFile = logFile;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCreateAssociation::GetExecutableFromAppBundle

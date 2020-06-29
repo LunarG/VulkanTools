@@ -23,7 +23,6 @@
 #include <QCheckBox>
 
 #include "mainwindow.h"
-#include "dlgbetamessage.h"
 
 int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName("LunarG");

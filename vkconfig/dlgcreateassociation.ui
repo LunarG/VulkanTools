@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>606</width>
-    <height>327</height>
+    <height>375</height>
    </rect>
   </property>
   <property name="font">
@@ -38,6 +38,16 @@
       <string>Monitored Launch Info</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Working Folder:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -51,18 +61,21 @@
       <item row="0" column="1">
        <widget class="QLineEdit" name="lineEditWorkingFolder"/>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEditCmdArgs"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Working Folder:</string>
+         <string>Log File</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEditCmdArgs"/>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEditLogFile"/>
       </item>
      </layout>
     </widget>

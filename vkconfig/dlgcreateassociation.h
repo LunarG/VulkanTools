@@ -54,6 +54,7 @@ class dlgCreateAssociation : public QDialog {
 
     void editCommandLine(const QString &cmdLine);
     void editWorkingFolder(const QString &workingFolder);
+    void editLogFile(const QString &logFile);
 };
 
 #endif  // DLGCREATEASSOCIATION_H

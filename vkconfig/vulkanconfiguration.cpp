@@ -427,10 +427,7 @@ void CVulkanConfiguration::RemoveRegistryEntriesForLayers(QString qsJSONFile, QS
 void CVulkanConfiguration::LoadAppSettings(void) {
     // Load the launch app name from the last session
     QSettings settings;
-    qsLaunchApplicationWPath = settings.value(VKCONFIG_KEY_LAUNCHAPP).toString();
-    qsLaunchApplicationArgs = settings.value(VKCONFIG_KEY_LAUNCHAPP_ARGS).toString();
-    qsLaunchApplicationWorkingDir = settings.value(VKCONFIG_KEY_LAUNCHAPP_CWD).toString();
-    qsLogFileWPath = settings.value(VKCONFIG_KEY_LOGFILE, QString("vkconfig_log.txt")).toString();
+    qsLastLaunchApplicationWPath = settings.value(VKCONFIG_KEY_LAUNCHAPP).toString();
     bOverrideActive = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE, true).toBool();
     bApplyOnlyToList = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
     bKeepActiveOnExit = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
@@ -440,10 +437,7 @@ void CVulkanConfiguration::LoadAppSettings(void) {
 /// This is for the local application settings, not the system Vulkan settings
 void CVulkanConfiguration::SaveAppSettings(void) {
     QSettings settings;
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP, qsLaunchApplicationWPath);
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, qsLaunchApplicationArgs);
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_CWD, qsLaunchApplicationWorkingDir);
-    settings.setValue(VKCONFIG_KEY_LOGFILE, qsLogFileWPath);
+    settings.setValue(VKCONFIG_KEY_LAUNCHAPP, qsLastLaunchApplicationWPath);
     settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, bOverrideActive);
     settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, bApplyOnlyToList);
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, bKeepActiveOnExit);
@@ -452,9 +446,6 @@ void CVulkanConfiguration::SaveAppSettings(void) {
 void CVulkanConfiguration::ResetToDefaultAppSettings(void) {
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP, "");
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_ARGS, "");
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP_CWD, "");
-    settings.setValue(VKCONFIG_KEY_LOGFILE, QString("vkconfig_log.txt"));
     settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, true);
     settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, false);
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, false);
@@ -514,6 +505,7 @@ void CVulkanConfiguration::FindVkCube(void) {
     appEntry->qsAppNameWithPath = local.absoluteFilePath();
     appEntry->qsArguments = QString("--suppress_popups");
     appEntry->bExcludeFromGlobalList = false;
+    appEntry->qsLogFile = "vkcube_out.txt";
     appList.push_back(appEntry);
 }
 
@@ -548,6 +540,7 @@ void CVulkanConfiguration::LoadAppList(void) {
                 appEntry->qsWorkingFolder = appObject.value("app_folder").toString();
                 appEntry->qsAppNameWithPath = appObject.value("app_path").toString();
                 appEntry->bExcludeFromGlobalList = appObject.value("exclude_override").toBool();
+                appEntry->qsLogFile = appObject.value("log_file").toString();
 
                 // Arguments are in an array to make room for adding more in a future version
                 QJsonArray args = appObject.value("command_lines").toArray();
@@ -596,6 +589,7 @@ void CVulkanConfiguration::SaveAppList(void) {
         applicationObject.insert("app_path", appList[i]->qsAppNameWithPath);
         applicationObject.insert("app_folder", appList[i]->qsWorkingFolder);
         applicationObject.insert("exclude_override", appList[i]->bExcludeFromGlobalList);
+        applicationObject.insert("log_file", appList[i]->qsLogFile);
 
         // Ground work for mulitiple sets of command line arguments
         QJsonArray argsArray;

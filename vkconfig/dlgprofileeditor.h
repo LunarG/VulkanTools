@@ -64,9 +64,7 @@ class dlgProfileEditor : public QDialog {
     void customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn);
 
     void on_pushButtonResetLayers_clicked();
-    void on_pushButtonLaunchTest_clicked();
     void on_pushButtonAddLayers_clicked();
-    void on_pushButtonRemoveLayers_clicked();
 
     void on_toolButtonUp_clicked();
     void on_toolButtonDown_clicked();

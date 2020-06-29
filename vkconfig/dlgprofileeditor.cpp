@@ -27,7 +27,6 @@
 
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
-#include "dlglayeroutput.h"
 
 #ifdef _WIN32
 ///////////////////////////////////////////////////////////////////////////
@@ -228,29 +227,6 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
     PopulateCustomTree();
 }
 
-////////////////////////////////////////////////////////////
-// Remove the selected item.
-void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
-    // Which one is selected? We need the top item too
-    QTreeWidgetItem *pSelected = ui->treeWidget->currentItem();
-    if (pSelected == nullptr) return;
-
-    while (pSelected->parent() != nullptr) pSelected = pSelected->parent();
-
-    for (int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
-        if (pVulkanConfig->additionalSearchPaths[i] == pSelected->text(0)) {
-            pVulkanConfig->additionalSearchPaths.removeAt(i);
-            break;
-        }
-    }
-
-    pVulkanConfig->SaveAdditionalSearchPaths();
-    pVulkanConfig->FindAllInstalledLayers();
-    pThisProfile->CollapseProfile();
-    AddMissingLayers(pThisProfile);
-    LoadLayerDisplay();
-    PopulateCustomTree();
-}
 
 void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn) {
     (void)nColumn;
@@ -382,20 +358,6 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked(void) {
     LoadLayerDisplay();
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// \brief dlgProfileEditor::on_pushButtonLaunchTest_clicked
-/// Test environment
-void dlgProfileEditor::on_pushButtonLaunchTest_clicked() {
-    // Push the current working environment on the stack
-    pVulkanConfig->pushProfile(pThisProfile);
-
-    dlgLayerOutput dlg(this);
-    dlg.bTempEnvironment = true;
-    dlg.exec();
-
-    // Pop the current working environmetn off the stack
-    pVulkanConfig->popProfile();
-}
 
 /////////////////////////////////////////////////////////////////////
 /// \brief currentLayerChanged

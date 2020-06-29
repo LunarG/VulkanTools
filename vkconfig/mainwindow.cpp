@@ -60,7 +60,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     pLastSelectedProfileItem = nullptr;
     pVKVia = nullptr;
     pVulkanInfo = nullptr;
-    pTestEnv = nullptr;
     pDlgHelp = nullptr;
     pVulkanApp = nullptr;
     pLogFile = nullptr;
@@ -133,7 +132,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 }
 
 MainWindow::~MainWindow() {
-    delete pTestEnv;
     delete ui;
 }
 
@@ -423,29 +421,7 @@ void MainWindow::toolsVulkanInstallation(bool bChecked) {
     pVKVia->RunTool();
 }
 
-/////////////////////////////////////////////////////////////
-void MainWindow::toolsVulkanTestApp(bool bChecked) {
-    (void)bChecked;
-    if (pTestEnv == nullptr) pTestEnv = new dlgLayerOutput(nullptr);
 
-    pTestEnv->show();
-    pTestEnv->raise();
-    pTestEnv->setFocus();
-}
-
-//////////////////////////////////////////////////////////////
-void MainWindow::toolsVulkanAPIDump(bool bChecked) {
-    (void)bChecked;
-
-    dlgLayerOutput apiDump(this);
-
-    CProfileDef *pAPIDump = pVulkanConfig->LoadProfile(":/resourcefiles/API dump.json");
-    pVulkanConfig->pushProfile(pAPIDump);
-    apiDump.bAPIDump = true;
-
-    apiDump.exec();
-    pVulkanConfig->popProfile();
-}
 
 ////////////////////////////////////////////////////////////////
 /// \brief MainWindow::helpShowHelp
@@ -675,7 +651,7 @@ void MainWindow::ResetLaunchOptions(void) {
     pLaunchAppsCombo->clear();
     for (int i = 0; i < pVulkanConfig->appList.size(); i++) {
         pLaunchAppsCombo->addItem(pVulkanConfig->appList[i]->qsAppNameWithPath);
-        if (pVulkanConfig->appList[i]->qsAppNameWithPath == pVulkanConfig->qsLaunchApplicationWPath) nFoundLast = i;
+        if (pVulkanConfig->appList[i]->qsAppNameWithPath == pVulkanConfig->qsLastLaunchApplicationWPath) nFoundLast = i;
     }
 
     if (nFoundLast < 0) nFoundLast = 0;
@@ -683,6 +659,7 @@ void MainWindow::ResetLaunchOptions(void) {
     if (pVulkanConfig->appList.size() == 0) {
         pLaunchArguments->setText("");
         pLaunchWorkingFolder->setText("");
+        pLaunchLogFile->setText("");
         return;
     }
 
@@ -691,6 +668,7 @@ void MainWindow::ResetLaunchOptions(void) {
     // Reset working folder and command line choices
     pLaunchArguments->setText(pVulkanConfig->appList[nFoundLast]->qsArguments);
     pLaunchWorkingFolder->setText(pVulkanConfig->appList[nFoundLast]->qsWorkingFolder);
+    pLaunchLogFile->setText(pVulkanConfig->appList[nFoundLast]->qsLogFile);
     pLaunchAppsCombo->blockSignals(false);
 }
 
@@ -754,7 +732,6 @@ void MainWindow::SetupLaunchTree(void) {
 
     pLaunchLogFile = new QLineEdit();
     ui->launchTree->setItemWidget(pLauncherLogFile, 1, pLaunchLogFile);
-    pLaunchLogFile->setText(pVulkanConfig->qsLogFileWPath);
 
     pLaunchLogFilebutton = new QPushButton();
     pLaunchLogFilebutton->setText("...");
@@ -808,16 +785,20 @@ void MainWindow::launchAddProgram(void) {
 
 ////////////////////////////////////////////////////////////////////
 void MainWindow::launchSetLogFile(void) {
-    pVulkanConfig->qsLogFileWPath = QFileDialog::getSaveFileName(this, tr("Set Log File To..."), ".", tr("Log text(*.txt)"));
+    int nLaunchIndex = pLaunchAppsCombo->currentIndex();
+    Q_ASSERT(nLaunchIndex >= 0);
 
-    pVulkanConfig->qsLogFileWPath = QDir::toNativeSeparators(pVulkanConfig->qsLogFileWPath);
+    QString logFile = QFileDialog::getSaveFileName(this, tr("Set Log File To..."), ".", tr("Log text(*.txt)"));
 
-    if (pVulkanConfig->qsLogFileWPath.isEmpty())
+    logFile = QDir::toNativeSeparators(logFile);
+    pVulkanConfig->appList[nLaunchIndex]->qsLogFile = logFile;
+
+    if (logFile.isEmpty())
         pLaunchLogFile->setText("");
     else
-        pLaunchLogFile->setText(pVulkanConfig->qsLogFileWPath);
+        pLaunchLogFile->setText(logFile);
 
-    pVulkanConfig->SaveAppSettings();
+    pVulkanConfig->SaveAppList();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -829,12 +810,11 @@ void MainWindow::launchItemChanged(int nIndex) {
 
     pLaunchArguments->setText(pVulkanConfig->appList[nIndex]->qsArguments);
     pLaunchWorkingFolder->setText(pVulkanConfig->appList[nIndex]->qsWorkingFolder);
+    pLaunchLogFile->setText(pVulkanConfig->appList[nIndex]->qsLogFile);
 
     // Update last used settings too. I'm saving this way instead of an index, because
     // in the future there will be more than one set of working directories and argument lists
-    pVulkanConfig->qsLaunchApplicationWPath = pVulkanConfig->appList[nIndex]->qsAppNameWithPath;
-    pVulkanConfig->qsLaunchApplicationArgs = pVulkanConfig->appList[nIndex]->qsArguments;
-    pVulkanConfig->qsLaunchApplicationWorkingDir = pVulkanConfig->appList[nIndex]->qsWorkingFolder;
+    pVulkanConfig->qsLastLaunchApplicationWPath = pVulkanConfig->appList[nIndex]->qsAppNameWithPath;
     pVulkanConfig->SaveAppSettings();
 }
 
@@ -846,8 +826,9 @@ void MainWindow::launchArgsEdited(const QString &newText) {
     int nIndex = pLaunchAppsCombo->currentIndex();
     if (nIndex < 0) return;
 
-    pVulkanConfig->qsLaunchApplicationArgs = newText;
+    pVulkanConfig->qsLastLaunchApplicationWPath = newText;
     pVulkanConfig->appList[nIndex]->qsArguments = newText;
+    pVulkanConfig->SaveAppList();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1010,14 +991,11 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     connect(pVulkanApp, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
     pVulkanApp->setProgram(pVulkanConfig->appList[nIndex]->qsAppNameWithPath);
-    pVulkanConfig->qsLaunchApplicationWPath = pVulkanConfig->appList[nIndex]->qsAppNameWithPath;
-    pVulkanConfig->qsLaunchApplicationWorkingDir = pVulkanConfig->appList[nIndex]->qsWorkingFolder;
     pVulkanApp->setWorkingDirectory(pVulkanConfig->appList[nIndex]->qsWorkingFolder);
 
     if (!pVulkanConfig->appList[nIndex]->qsArguments.isEmpty()) {
         QStringList args = pVulkanConfig->appList[nIndex]->qsArguments.split(" ");
         pVulkanApp->setArguments(args);
-        pVulkanConfig->qsLaunchApplicationArgs = pVulkanConfig->appList[nIndex]->qsArguments;
     }
 
     // Some of these may have changed
@@ -1029,13 +1007,13 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
 
     // We are logging, let's add that we've launched a new application
     QString outApplication =
-        QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+        QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
     QString outFolder =
-        QString().asprintf("Working folder: %s\n", pVulkanConfig->qsLaunchApplicationWorkingDir.toUtf8().constData());
+        QString().asprintf("Working folder: %s\n", pVulkanConfig->appList[nIndex]->qsWorkingFolder.toUtf8().constData());
     QString outArgs =
-        QString().asprintf("Command line arguments: %s\n", pVulkanConfig->qsLaunchApplicationArgs.toUtf8().constData());
+        QString().asprintf("Command line arguments: %s\n", pVulkanConfig->appList[nIndex]->qsArguments.toUtf8().constData());
 
-    if (!pVulkanConfig->qsLogFileWPath.isEmpty()) {
+    if (!pVulkanConfig->appList[nIndex]->qsLogFile.isEmpty()) {
         // This should never happen... but things that should never happen do in
         // fact happen... so just a sanity check.
         if (pLogFile != nullptr) {
@@ -1046,13 +1024,13 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         if (ui->checkBoxClearOnLaunch->isChecked()) ui->logBrowser->clear();
 
         // Start logging
-        pLogFile = new QFile(pVulkanConfig->qsLogFileWPath);
+        pLogFile = new QFile(pVulkanConfig->appList[nIndex]->qsLogFile);
 
         // Open and append, or open and truncate?
         QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
         if (!ui->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
 
-        if (!pVulkanConfig->qsLogFileWPath.isEmpty()) {
+        if (!pVulkanConfig->appList[nIndex]->qsLogFile.isEmpty()) {
             if (!pLogFile->open(mode)) {
                 QMessageBox err;
                 err.setText(tr("Warning: Cannot open log file"));
@@ -1062,9 +1040,11 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
             }
         }
 
-        pLogFile->write(outApplication.toUtf8().constData(), outApplication.length());
-        pLogFile->write(outFolder.toUtf8().constData(), outFolder.length());
-        pLogFile->write(outArgs.toUtf8().constData(), outArgs.length());
+        if(pLogFile) {
+            pLogFile->write(outApplication.toUtf8().constData(), outApplication.length());
+            pLogFile->write(outFolder.toUtf8().constData(), outFolder.length());
+            pLogFile->write(outArgs.toUtf8().constData(), outArgs.length());
+        }
     }
 
     ui->logBrowser->append(outApplication);
@@ -1078,22 +1058,17 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         pVulkanApp = nullptr;
 
         QString outFailed =
-            QString().asprintf("Failed to launch %s!\n", pVulkanConfig->qsLaunchApplicationWPath.toUtf8().constData());
+            QString().asprintf("Failed to launch %s!\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
 
         ui->logBrowser->append(outFailed);
-        pLogFile->write(outFailed.toUtf8().constData(), outFailed.length());
+        if(pLogFile)
+            pLogFile->write(outFailed.toUtf8().constData(), outFailed.length());
 
         return;
     }
 
     // We are off to the races....
     ui->pushButtonLaunch->setText(tr("Terminate"));
-
-    // No log file is set, just bail
-    if (pLaunchLogFile->text() != pVulkanConfig->qsLogFileWPath) {
-        pVulkanConfig->qsLogFileWPath = pLaunchLogFile->text();
-        pVulkanConfig->SaveAppSettings();
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

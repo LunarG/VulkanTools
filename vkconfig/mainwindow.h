@@ -25,12 +25,12 @@
 #include <QRadioButton>
 #include <QShowEvent>
 #include <QResizeEvent>
+#include <QProcess>
 
 #include "vulkanconfiguration.h"
 #include "settingstreemanager.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
-#include "dlglayeroutput.h"
 #include "dlghelp.h"
 
 QT_BEGIN_NAMESPACE
@@ -76,7 +76,6 @@ class MainWindow : public QMainWindow {
 
     dlgVulkanAnalysis *pVKVia;
     dlgVulkanInfo *pVulkanInfo;
-    dlgLayerOutput *pTestEnv;
     dlgHelp *pDlgHelp;
 
    private:
@@ -108,8 +107,6 @@ class MainWindow : public QMainWindow {
     void aboutVkConfig(bool bChecked);
     void toolsVulkanInfo(bool bChecked);
     void toolsVulkanInstallation(bool bChecked);
-    void toolsVulkanTestApp(bool bChecked);
-    void toolsVulkanAPIDump(bool bChecked);
     void toolsSetCustomPaths(bool bChecked);
     void toolsResetToDefault(bool bChecked);
 

@@ -68,9 +68,6 @@ class CPathFinder {
 
 // Saved settings for the application
 #define VKCONFIG_KEY_LAUNCHAPP "launchApp"
-#define VKCONFIG_KEY_LAUNCHAPP_CWD "launchAppCWD"
-#define VKCONFIG_KEY_LAUNCHAPP_ARGS "launchAppARGS"
-#define VKCONFIG_KEY_LOGFILE "logFileName"
 #define VKCONFIG_KEY_ACTIVEPROFILE "activeProfile"
 #define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
 #define VKCONFIG_KEY_OVERRIDE_ACTIVE "overrideActive"
@@ -100,6 +97,7 @@ struct TAppListEntry {
     QString qsAppNameWithPath;
     QString qsWorkingFolder;
     QString qsArguments;
+    QString qsLogFile;
     bool bExcludeFromGlobalList;
 };
 
@@ -127,10 +125,7 @@ class CVulkanConfiguration {
     void LoadAppSettings(void);
     void SaveAppSettings(void);
     void ResetToDefaultAppSettings(void);
-    QString qsLaunchApplicationWPath;
-    QString qsLaunchApplicationArgs;
-    QString qsLaunchApplicationWorkingDir;
-    QString qsLogFileWPath;
+    QString qsLastLaunchApplicationWPath;   // This is to match up with the application list
     bool bOverrideActive;    // Do we have an active override?
     bool bApplyOnlyToList;   // Apply the overide only to the application list
     bool bKeepActiveOnExit;  // Stay active when app closes

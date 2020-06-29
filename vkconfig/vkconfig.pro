@@ -27,11 +27,9 @@ linux: QMAKE_CXXFLAGS += -Wunused-variable
 SOURCES += \
     boolsettingwidget.cpp \
     dlgabout.cpp \
-    dlgbetamessage.cpp \
     dlgcreateassociation.cpp \
     dlgcustompaths.cpp \
     dlghelp.cpp \
-    dlglayeroutput.cpp \
     dlgprofileeditor.cpp \
     dlgvulkananalysis.cpp \
     dlgvulkaninfo.cpp \
@@ -54,11 +52,9 @@ SOURCES += \
 HEADERS += \
     boolsettingwidget.h \
     dlgabout.h \
-    dlgbetamessage.h \
     dlgcreateassociation.h \
     dlgcustompaths.h \
     dlghelp.h \
-    dlglayeroutput.h \
     dlgprofileeditor.h \
     dlgvulkananalysis.h \
     dlgvulkaninfo.h \
@@ -79,11 +75,9 @@ HEADERS += \
 
 FORMS += \
     dlgabout.ui \
-    dlgbetamessage.ui \
     dlgcreateassociation.ui \
     dlgcustompaths.ui \
     dlghelp.ui \
-    dlglayeroutput.ui \
     dlgprofileeditor.ui \
     dlgvulkananalysis.ui \
     dlgvulkaninfo.ui \
