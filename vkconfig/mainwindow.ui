@@ -75,7 +75,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="groupBox_2">
+          <widget class="QGroupBox" name="groupBoxMgmnt">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>4</horstretch>
@@ -85,7 +85,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>160</height>
+             <height>135</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -175,19 +175,6 @@
             </property>
             <property name="text">
              <string>Make layers override persistent on exit</string>
-            </property>
-           </widget>
-           <widget class="QCheckBox" name="checkBoxApplyAll">
-            <property name="geometry">
-             <rect>
-              <x>30</x>
-              <y>130</y>
-              <width>321</width>
-              <height>17</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Apply for all users on this machine</string>
             </property>
            </widget>
           </widget>

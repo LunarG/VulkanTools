@@ -105,13 +105,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->radioOverride->setChecked(true);
         ui->checkBoxApplyList->setEnabled(true);
         ui->checkBoxPersistent->setEnabled(true);
-        ui->checkBoxApplyAll->setEnabled(true);
     } else {
         ui->radioFully->setChecked(true);
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxPersistent->setEnabled(false);
         ui->pushButtonAppList->setEnabled(false);
-        ui->checkBoxApplyAll->setEnabled(false);
     }
 
     ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
@@ -184,7 +182,6 @@ void MainWindow::LoadProfileList(void) {
 void MainWindow::on_radioFully_clicked(void) {
     ui->checkBoxApplyList->setEnabled(false);
     ui->checkBoxPersistent->setEnabled(false);
-    ui->checkBoxApplyAll->setEnabled(false);
     pVulkanConfig->bOverrideActive = false;
 
     ui->pushButtonAppList->setEnabled(false);
@@ -221,7 +218,6 @@ void MainWindow::on_radioOverride_clicked(void) {
     ui->checkBoxApplyList->setEnabled(bUse);
     ui->pushButtonAppList->setEnabled(bUse && pVulkanConfig->bApplyOnlyToList);
 
-    ui->checkBoxApplyAll->setEnabled(true);
     ui->checkBoxPersistent->setEnabled(true);
     pVulkanConfig->bOverrideActive = true;
     pVulkanConfig->SaveAppSettings();

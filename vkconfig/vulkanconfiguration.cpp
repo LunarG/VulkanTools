@@ -29,6 +29,10 @@
 #include <QMessageBox>
 #include <QCheckBox>
 
+#ifdef _WIN32
+#include <shlobj_core.h>
+#endif
+
 #include <vulkan/vulkan.h>
 
 #include <profiledef.h>
@@ -103,6 +107,12 @@ CVulkanConfiguration::CVulkanConfiguration() {
     pSavedProfile = nullptr;
     bHasOldLoader = false;
     bFirstRun = true;
+
+#ifdef _WIN32
+    bRunningAsAdministrator = IsUserAnAdmin();
+#else
+    bRunningAsAdministrator = false;
+#endif
 
     // Where is stuff
 #ifdef _WIN32
@@ -358,8 +368,10 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
 void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
     // Layer override json file
     HKEY key;
+    HKEY userKey = (bRunningAsAdministrator) ? HKEY_LOCAL_MACHINE: HKEY_CURRENT_USER;
+
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL,
+    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL,
                                  REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
@@ -371,7 +383,7 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
     RegCloseKey(key);
 
     // Layer settings file
-    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access,
+    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access,
                          NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
@@ -389,8 +401,10 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
 void CVulkanConfiguration::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
     // Layer override json file
     HKEY key;
+    HKEY userKey = (bRunningAsAdministrator) ? HKEY_LOCAL_MACHINE: HKEY_CURRENT_USER;
+
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL,
+    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL,
                                  REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
@@ -398,7 +412,7 @@ void CVulkanConfiguration::RemoveRegistryEntriesForLayers(QString qsJSONFile, QS
     RegCloseKey(key);
 
     // Layer settings file
-    err = RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access,
+    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access,
                          NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
@@ -1267,13 +1281,6 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile) {
 
     // On Windows only, we need to write these values to the registry
 #ifdef _WIN32
-    // I'm leaving this here as a warning... the Qt wrappers WILL NOT allow the file path seperators in a key
-    // so you MUST use the native API to override this policy.
-    /*    QSettings registry("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", QSettings::NativeFormat);
-        registry.setValue(qsOverrideJsonPath, 0);
-        QSettings overrideSettings("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\Settings", QSettings::NativeFormat);
-        //overrideSettings.setValue(qsOverrideSettingsPath, QVariant()::DWORD(0));
-    */
     AddRegistryEntriesForLayers(qsOverrideJsonPath, qsOverrideSettingsPath);
 #endif
 }

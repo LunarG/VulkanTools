@@ -191,6 +191,8 @@ class CVulkanConfiguration {
 
     void FindVkCube(void);
 
+    bool IsRunningAsAdministrator(void) { return bRunningAsAdministrator; }
+
     // Set this as the current override profile
     void SetCurrentActiveProfile(CProfileDef* pProfile);
     CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
@@ -210,7 +212,8 @@ class CVulkanConfiguration {
     // Currently active profile
     CProfileDef* pActiveProfile;
 
-    bool bFirstRun;  // This is used for populating the initial set of profiles/configurations
+    bool bRunningAsAdministrator;   // Are we being "Run as Administrator"
+    bool bFirstRun;                 // This is used for populating the initial set of profiles/configurations
     void ClearLayerLists(void);
 
 #ifdef WIN32
