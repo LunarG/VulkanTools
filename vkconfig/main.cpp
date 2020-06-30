@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 //    QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
 //    QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
-    QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
+//    QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 
     QApplication app(argc, argv);
 

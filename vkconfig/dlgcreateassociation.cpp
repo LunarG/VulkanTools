@@ -141,12 +141,12 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
 /// Easy enough, just remove the selected program from the list
 void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
-    nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if (nLastSelectedApp < 0) return;
+    int iSel = ui->treeWidget->indexOfTopLevelItem(pCurrent);
+    if (iSel < 0) return;
 
-    ui->treeWidget->takeTopLevelItem(nLastSelectedApp);
+    ui->treeWidget->takeTopLevelItem(iSel);
     ui->treeWidget->setCurrentItem(nullptr);
-    pVulkanConfig->appList.removeAt(nLastSelectedApp);
+    pVulkanConfig->appList.removeAt(iSel);
 
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);
@@ -156,6 +156,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
 
     pVulkanConfig->SaveAppList();
     pVulkanConfig->RefreshProfile();
+    ui->treeWidget->update();
     nLastSelectedApp = -1;
 }
 
