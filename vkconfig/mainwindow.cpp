@@ -1020,8 +1020,6 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
             pLogFile = nullptr;
         }
 
-        if (ui->checkBoxClearOnLaunch->isChecked()) ui->logBrowser->clear();
-
         // Start logging
         pLogFile = new QFile(pVulkanConfig->appList[nIndex]->qsLogFile);
 
@@ -1044,6 +1042,7 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         }
     }
 
+    if (ui->checkBoxClearOnLaunch->isChecked()) ui->logBrowser->clear();
     ui->logBrowser->append(launchLog);
     ui->pushButtonClearLog->setEnabled(true);
 
