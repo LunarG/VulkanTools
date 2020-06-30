@@ -134,6 +134,7 @@ Roadmap
 - Add a search field for the launcher log area and button to open the launcher log file, make it possible to browse the log.
 - Make vkconfig a service to add an icon in the taskbar when running.
 - Add a dedicated Vulkan Configurator layer to capture all the debug messages directly.
+- Add display of a detailed description of each layer.
 
 Known Issues
 --------------

@@ -306,7 +306,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
         ui->layerTree->setItemWidget(pItem, 1, pUse);
         pItem->setSizeHint(1, QSize(comboWidth, comboHeight));
 
-        pUse->addItem("Application Controlled");
+        pUse->addItem("Application-Controlled");
         pUse->addItem("Overridden / Forced On");
         pUse->addItem("Excluded / Forced Off");
 
