@@ -89,6 +89,7 @@ void dlgVulkanAnalysis::RunTool(void) {
 
     if (parseError.error != QJsonParseError::NoError) {
         QMessageBox msgBox;
+        msgBox.setWindowTitle("Cannot parse vkvia output.");
         msgBox.setText(parseError.errorString());
         msgBox.exec();
         return;

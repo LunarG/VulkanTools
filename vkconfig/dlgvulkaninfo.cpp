@@ -63,26 +63,6 @@ void dlgVulkanInfo::RunTool(void) {
     args << "--vkconfig_output";
     args << filePath;
 
-#ifdef __APPLE__
-    //    char *path = getenv("PATH");
-    //    printf("Path: %s\n", path);
-
-    ////    QStringList oldEnv = vulkan_info->environment();
-
-    //    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-
-    //    QString newPath = QString(path);
-    //    newPath += ":/usr/local/bin";
-
-    //    QStringList oldEnv = env.toStringList();
-    //    env.insert("PATH", newPath);
-    //    env.insert("VULKAN_SDK", "/Developer/vulkansdk/macOS");
-    //    env.insert("VK_LAYER_PATH", "/share/vulkan/explicit_layer.d");
-    //    env.insert("VK_ICD_FILENAMES", "/Developer/vulkansdk/macOS/share/vulkan/icd.d/MoltenVK_icd.json");
-    //    vulkan_info->setProcessEnvironment(env);
-    //    oldEnv = env.toStringList();
-
-#endif
     // Wait... make sure we don't pick up the old one!
     filePath += "/vulkaninfo.json";
     remove(filePath.toUtf8().constData());
@@ -114,6 +94,7 @@ void dlgVulkanInfo::RunTool(void) {
     jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
         QMessageBox msgBox;
+        msgBox.setWindowTitle("Cannot parse vulkaninfo output.");
         msgBox.setText(parseError.errorString());
         msgBox.exec();
         return;
