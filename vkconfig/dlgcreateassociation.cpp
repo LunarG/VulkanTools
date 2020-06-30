@@ -222,15 +222,13 @@ void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
     pVulkanConfig->appList[nLastSelectedApp]->qsWorkingFolder = workingFolder;
 }
 
-
 void dlgCreateAssociation::editLogFile(const QString &logFile) {
     QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
     nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if(nLastSelectedApp < 0) return;
+    if (nLastSelectedApp < 0) return;
 
     pVulkanConfig->appList[nLastSelectedApp]->qsLogFile = logFile;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief dlgCreateAssociation::GetExecutableFromAppBundle

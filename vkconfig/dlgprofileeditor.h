@@ -69,7 +69,7 @@ class dlgProfileEditor : public QDialog {
     void on_toolButtonUp_clicked();
     void on_toolButtonDown_clicked();
 
-    void layerUseChanged(QTreeWidgetItem* pItem, int nSelection);
+    void layerUseChanged(QTreeWidgetItem *pItem, int nSelection);
 };
 
 #endif  // DLGPROFILEEDITOR_H

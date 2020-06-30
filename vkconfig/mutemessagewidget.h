@@ -46,7 +46,7 @@ class CMuteMessageWidget : public QWidget {
     void removePushed(void);      // Remove button
 
    Q_SIGNALS:
-     void itemChanged(void);
+    void itemChanged(void);
 };
 
 #endif  // CMUTEMESSAGEWIDGET_H

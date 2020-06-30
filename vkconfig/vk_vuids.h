@@ -17,11 +17,11 @@
  * limitations under the License.
  *
  * Author: Christophe <christophe@lunarg.com>
-  */
+ */
 
 #pragma once
 
-static const char * vuids[] = {
+static const char* vuids[] = {
     "VUID-VkAabbPositionsKHR-minX-03546",
     "VUID-VkAabbPositionsKHR-minY-03547",
     "VUID-VkAabbPositionsKHR-minZ-03548",

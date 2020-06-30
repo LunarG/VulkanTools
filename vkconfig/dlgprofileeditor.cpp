@@ -227,7 +227,6 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
     PopulateCustomTree();
 }
 
-
 void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn) {
     (void)nColumn;
     (void)pItem;
@@ -357,7 +356,6 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked(void) {
     //    settingsEditor.CleanupGUI();
     LoadLayerDisplay();
 }
-
 
 /////////////////////////////////////////////////////////////////////
 /// \brief currentLayerChanged

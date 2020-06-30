@@ -41,7 +41,6 @@ class dlgCreateAssociation : public QDialog {
 
     static void GetExecutableFromAppBundle(QString &csPath);
 
-
    private:
     Ui::dlgCreateAssociation *ui;
     CVulkanConfiguration *pVulkanConfig;

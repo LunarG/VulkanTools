@@ -30,7 +30,10 @@
 #include "profiledef.h"
 #include "vulkanconfiguration.h"
 
-CProfileDef::CProfileDef() { nPresetIndex = 0; bAllLayersAvailable = true; }
+CProfileDef::CProfileDef() {
+    nPresetIndex = 0;
+    bAllLayersAvailable = true;
+}
 
 CProfileDef::~CProfileDef() {
     qDeleteAll(layers.begin(), layers.end());
@@ -114,4 +117,3 @@ void CProfileDef::CollapseProfile() {
         iCurrent++;
     }
 }
-

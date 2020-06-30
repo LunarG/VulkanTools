@@ -69,7 +69,7 @@ class CSettingsTreeManager : QObject {
     KhronosSettingsAdvanced *pAdvancedKhronosEditor;
     CMuteMessageWidget *pMuteMessageWidget;
     CVUIDSearchWidget *pVUIDSearchWidget;
-    QTreeWidgetItem* pMuteMessageSearchItem;
+    QTreeWidgetItem *pMuteMessageSearchItem;
 
    public Q_SLOTS:
     //    void itemCollapsed(QTreeWidgetItem *);
