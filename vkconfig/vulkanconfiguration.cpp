@@ -63,7 +63,14 @@ CPathFinder::CPathFinder(const QString &qsPath, bool bForceFileSystem) {
 //////////////////////////////////////////////////////////////////////////////
 // These are the built-in configurations that are pulled in from the resource
 // file.
+#ifdef __APPLE__
+int CVulkanConfiguration::nNumCannedProfiles = 6;
+#else
 int CVulkanConfiguration::nNumCannedProfiles = 8;
+#endif
+
+// If any new profiles are added, make sure the graphics reconstruct based config
+// are last. Account for this in the number set for nNumCannedProfiles
 const char *CVulkanConfiguration::szCannedProfiles[8] = {"Validation - Standard",
                                                          "Validation - Best Practices",
                                                          "Validation - GPU-Assisted",
@@ -72,6 +79,7 @@ const char *CVulkanConfiguration::szCannedProfiles[8] = {"Validation - Standard"
                                                          "API dump",
                                                          "Frame Capture - First two frames",
                                                          "Frame Capture - Range (F10 to start and to stop)"};
+
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
