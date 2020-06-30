@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>200</height>
+    <width>444</width>
+    <height>226</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,13 +24,14 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
-    <height>200</height>
+    <width>500</width>
+    <height>3000</height>
    </size>
   </property>
   <property name="font">
    <font>
     <family>Arial</family>
+    <pointsize>10</pointsize>
    </font>
   </property>
   <property name="windowTitle">
@@ -57,15 +58,16 @@
     <rect>
      <x>180</x>
      <y>20</y>
-     <width>201</width>
-     <height>31</height>
+     <width>241</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Arial</family>
-     <weight>75</weight>
-     <bold>true</bold>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="layoutDirection">
@@ -84,17 +86,18 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>40</y>
-     <width>201</width>
+     <x>170</x>
+     <y>50</y>
+     <width>251</width>
      <height>31</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Arial</family>
-     <weight>75</weight>
-     <bold>true</bold>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="text">
@@ -128,15 +131,16 @@
     <rect>
      <x>130</x>
      <y>100</y>
-     <width>201</width>
-     <height>31</height>
+     <width>231</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Arial</family>
-     <weight>75</weight>
-     <bold>true</bold>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="text">
@@ -150,7 +154,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>140</y>
+     <y>150</y>
      <width>81</width>
      <height>32</height>
     </rect>

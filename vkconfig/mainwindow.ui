@@ -224,7 +224,7 @@
               <property name="font">
                <font>
                 <family>Arial</family>
-                <pointsize>13</pointsize>
+                <pointsize>10</pointsize>
                </font>
               </property>
               <property name="alternatingRowColors">
@@ -284,7 +284,7 @@
           <widget class="QTextBrowser" name="logBrowser">
            <property name="font">
             <font>
-             <pointsize>13</pointsize>
+             <pointsize>10</pointsize>
             </font>
            </property>
           </widget>
@@ -312,7 +312,7 @@
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>13</pointsize>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="autoScroll">
@@ -412,7 +412,7 @@
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>13</pointsize>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="horizontalScrollBarPolicy">
@@ -494,7 +494,7 @@
              <property name="font">
               <font>
                <family>Arial</family>
-               <pointsize>13</pointsize>
+               <pointsize>10</pointsize>
               </font>
              </property>
              <property name="text">
@@ -513,7 +513,7 @@
              <property name="font">
               <font>
                <family>Arial</family>
-               <pointsize>13</pointsize>
+               <pointsize>10</pointsize>
               </font>
              </property>
              <property name="text">
@@ -535,7 +535,7 @@
              <property name="font">
               <font>
                <family>Arial</family>
-               <pointsize>13</pointsize>
+               <pointsize>10</pointsize>
               </font>
              </property>
              <property name="text">
@@ -570,7 +570,7 @@
      <x>0</x>
      <y>0</y>
      <width>1122</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
