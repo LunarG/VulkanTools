@@ -23,7 +23,7 @@
 
 #include <QSettings>
 #include <QMessageBox>
-#include <QCheckbox>
+#include <QCheckBox>
 #include "khronossettingsadvanced.h"
 
 // Keep track of tree/setting correlations
