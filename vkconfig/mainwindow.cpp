@@ -1005,10 +1005,11 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
 
     // We are logging, let's add that we've launched a new application
     QString launchLog = "Launching Vulkan Application:\n";
-    launchLog += QString().asprintf("- Executable Path: %s\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
+    launchLog +=
+        QString().asprintf("- Executable Path: %s\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
     launchLog +=
         QString().asprintf("- Working Directory: %s\n", pVulkanConfig->appList[nIndex]->qsWorkingFolder.toUtf8().constData());
-    launchLog += 
+    launchLog +=
         QString().asprintf("- Command-line Arguments: %s\n", pVulkanConfig->appList[nIndex]->qsArguments.toUtf8().constData());
 
     if (!pVulkanConfig->appList[nIndex]->qsLogFile.isEmpty()) {
