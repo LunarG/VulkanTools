@@ -1032,6 +1032,9 @@ CProfileDef *CVulkanConfiguration::LoadProfile(QString pathToProfile) {
     QStringList layerList = layerObjects.keys();
 
     // Build the list of layers with their settings
+    if(layerList.length() == 0)
+        pProfile->bAllLayersAvailable = false;
+
     for (int iLayer = 0; iLayer < layerList.length(); iLayer++) {
         const CLayerFile *pLayer = nullptr;
         QJsonValue layerValue = layerObjects.value(layerList[iLayer]);

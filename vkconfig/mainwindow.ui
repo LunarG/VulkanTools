@@ -232,6 +232,9 @@
                 <pointsize>10</pointsize>
                </font>
               </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
               <property name="alternatingRowColors">
                <bool>false</bool>
               </property>
@@ -327,6 +330,9 @@
            </property>
            <property name="autoScroll">
             <bool>false</bool>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
            </property>
            <property name="columnCount">
             <number>3</number>
@@ -440,6 +446,9 @@
            </property>
            <property name="sizeAdjustPolicy">
             <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
            </property>
            <property name="alternatingRowColors">
             <bool>false</bool>

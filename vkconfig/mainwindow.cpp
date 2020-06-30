@@ -51,7 +51,11 @@ bool bBeenWarnedAboutOldLoader = false;
 static const int LAUNCH_COLUMN0_SIZE = 240;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
+#ifdef __APPLE__
+static const int LAUNCH_ROW_HEIGHT = 24;
+#else
 static const int LAUNCH_ROW_HEIGHT = 28;
+#endif
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
