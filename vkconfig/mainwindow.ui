@@ -314,7 +314,7 @@
          <item row="1" column="1">
           <widget class="QPushButton" name="pushButtonClearLog">
            <property name="text">
-            <string>Clear This</string>
+            <string>Clear</string>
            </property>
           </widget>
          </item>

@@ -12,6 +12,6 @@
         <file>resourcefiles/Validation - Shader Printf.json</file>
         <file>resourcefiles/Validation - Standard.json</file>
         <file>resourcefiles/Frame Capture - First two frames.json</file>
-        <file>resourcefiles/Frame Capture - Range F10 to start and to stop.json</file>
+        <file>resourcefiles/Frame Capture - Range (F10 to start and to stop).json</file>
     </qresource>
 </RCC>

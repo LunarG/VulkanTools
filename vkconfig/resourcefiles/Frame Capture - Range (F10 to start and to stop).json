@@ -1,16 +1,11 @@
 {
-    "Frame Capture - Range F10 to start and to stop": {
+    "Frame Capture - Range (F10 to start and to stop)": {
         "blacklisted_layers": [
         ],
-        "description": "Capture the application first two frames",
+        "description": "Capture a range of frames",
+        "editor_state": "011111111111111111111111111",
         "layer_options": {
             "VK_LAYER_LUNARG_gfxreconstruct": {
-                "capture_file": {
-                    "default": "gfxrecon_capture.gfxr",
-                    "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
-                    "name": "Capture File Name",
-                    "type": "save_file"
-                },
                 "capture_compression_type": {
                     "default": "LZ4",
                     "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
@@ -22,6 +17,12 @@
                         "ZSTD": "ZSTD"
                     },
                     "type": "enum"
+                },
+                "capture_file": {
+                    "default": "gfxrecon_capture.gfxr",
+                    "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
+                    "name": "Capture File Name",
+                    "type": "save_file"
                 },
                 "capture_file_flush": {
                     "default": "TRUE",
@@ -64,6 +65,7 @@
                     },
                     "type": "enum"
                 },
+                "layer_path": "C:/VulkanSDK/1.2.141.0/Bin/VkLayer_gfxreconstruct.json",
                 "layer_rank": 0,
                 "log_break_on_error": {
                     "default": "FALSE",
@@ -150,6 +152,7 @@
                     "type": "bool"
                 }
             }
-        }
+        },
+        "preset": 0
     }
 }

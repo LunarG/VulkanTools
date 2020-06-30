@@ -72,7 +72,7 @@ const char *CVulkanConfiguration::szCannedProfiles[8] = {"Validation - Standard"
                                                          "Validation - Reduced-Overhead",
                                                          "API dump",
                                                          "Frame Capture - First two frames",
-                                                         "Frame Capture - Range F10 to start and to stop"};
+                                                         "Frame Capture - Range (F10 to start and to stop)"};
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.

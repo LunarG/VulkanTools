@@ -839,6 +839,7 @@ void MainWindow::launchArgsEdited(const QString &newText) {
 void MainWindow::on_pushButtonClearLog_clicked(void) {
     ui->logBrowser->clear();
     ui->logBrowser->update();
+    ui->pushButtonClearLog->setEnabled(false);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1047,6 +1048,7 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     ui->logBrowser->append(outApplication);
     ui->logBrowser->append(outFolder);
     ui->logBrowser->append(outArgs);
+    ui->pushButtonClearLog->setEnabled(true);
 
     // Wait... did we start? Give it 4 seconds, more than enough time
     if (!pVulkanApp->waitForStarted(4000)) {
@@ -1112,6 +1114,7 @@ void MainWindow::standardOutputAvailable(void) {
 
     QString inFromApp = pVulkanApp->readAllStandardOutput();
     ui->logBrowser->append(inFromApp);
+    ui->pushButtonClearLog->setEnabled(true);
 
     // Are we logging?
     if (pLogFile) pLogFile->write(inFromApp.toUtf8().constData(), inFromApp.length());
@@ -1123,6 +1126,7 @@ void MainWindow::errorOutputAvailable(void) {
 
     QString inFromApp = pVulkanApp->readAllStandardError();
     ui->logBrowser->append(inFromApp);
+    ui->pushButtonClearLog->setEnabled(true);
 
     // Are we logging?
     if (pLogFile) pLogFile->write(inFromApp.toUtf8().constData(), inFromApp.length());
