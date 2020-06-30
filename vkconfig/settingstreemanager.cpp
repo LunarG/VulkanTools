@@ -202,13 +202,6 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
         if (pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_VUID_FILTER) {
             QTreeWidgetItem *pMuteMessageItem = new QTreeWidgetItem;
 
-            QTreeWidgetItem *pListItem = new QTreeWidgetItem();
-            pMuteMessageItem->addChild(pListItem);
-            pListItem->setSizeHint(0, QSize(350, 200));
-            pMuteMessageWidget = new CMuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
-            compoundWidgets.push_back(pListItem);
-            pEditorTree->setItemWidget(pListItem, 0, pMuteMessageWidget);
-
             pMuteMessageItem->setText(0, "Mute Message VUIDs");
             pKhronosTree->addChild(pMuteMessageItem);
 
@@ -221,6 +214,13 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
             pMuteMessageItem->addChild(pNextLine);
             pEditorTree->setItemWidget(pNextLine, 0, pVUIDSearchWidget);
             compoundWidgets.push_back(pNextLine);
+
+            QTreeWidgetItem *pListItem = new QTreeWidgetItem();
+            pMuteMessageItem->addChild(pListItem);
+            pListItem->setSizeHint(0, QSize(350, 200));
+            pMuteMessageWidget = new CMuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
+            compoundWidgets.push_back(pListItem);
+            pEditorTree->setItemWidget(pListItem, 0, pMuteMessageWidget);
 
             connect(pVUIDSearchWidget, SIGNAL(itemSelected(QString &)), pMuteMessageWidget, SLOT(addItem(QString &)));
             connect(pMuteMessageWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
