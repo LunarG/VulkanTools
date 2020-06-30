@@ -1030,7 +1030,8 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         if (!pVulkanConfig->appList[nIndex]->qsLogFile.isEmpty()) {
             if (!pLogFile->open(mode)) {
                 QMessageBox err;
-                err.setText(tr("Warning: Cannot open log file"));
+                err.setText(tr("Cannot open log file"));
+                err.setIcon(QMessageBox::Warning);
                 err.exec();
                 delete pLogFile;
                 pLogFile = nullptr;
