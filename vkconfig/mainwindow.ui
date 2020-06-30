@@ -109,6 +109,11 @@
               <height>20</height>
              </rect>
             </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+             </font>
+            </property>
             <property name="text">
              <string>Fully controlled by the Vulkan applications (no override)</string>
             </property>
@@ -121,6 +126,11 @@
               <width>491</width>
               <height>20</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+             </font>
             </property>
             <property name="text">
              <string>Overriden by the Vulkan Configurator</string>
@@ -147,6 +157,11 @@
               <height>26</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+             </font>
+            </property>
             <property name="text">
              <string>Edit...</string>
             </property>
@@ -160,6 +175,11 @@
               <height>20</height>
              </rect>
             </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+             </font>
+            </property>
             <property name="text">
              <string>Apply only to the selected list of Vulkan applications</string>
             </property>
@@ -172,6 +192,11 @@
               <width>451</width>
               <height>20</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+             </font>
             </property>
             <property name="text">
              <string>Make layers override persistent on exit</string>
@@ -196,6 +221,12 @@
             </property>
             <item row="0" column="0">
              <widget class="QTreeWidget" name="profileTree">
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>13</pointsize>
+               </font>
+              </property>
               <property name="alternatingRowColors">
                <bool>false</bool>
               </property>
@@ -250,7 +281,13 @@
           </widget>
          </item>
          <item row="2" column="0" colspan="4">
-          <widget class="QTextBrowser" name="logBrowser"/>
+          <widget class="QTextBrowser" name="logBrowser">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+          </widget>
          </item>
          <item row="0" column="0" colspan="4">
           <widget class="QTreeWidget" name="launchTree">
@@ -271,6 +308,12 @@
              <width>16777215</width>
              <height>98</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>13</pointsize>
+            </font>
            </property>
            <property name="autoScroll">
             <bool>false</bool>
@@ -366,6 +409,12 @@
          </property>
          <item row="1" column="0">
           <widget class="QTreeWidget" name="layerSettingsTree">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
            <property name="horizontalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
@@ -402,6 +451,11 @@
          </item>
          <item row="0" column="0">
           <widget class="QPushButton" name="pushButtonEditProfile">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+            </font>
+           </property>
            <property name="text">
             <string>Select Vulkan Layers to Override and Execution Order</string>
            </property>
@@ -437,6 +491,12 @@
            </item>
            <item>
             <widget class="QLabel" name="label_2">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Welcome to the LunarG Vulkan Configurator</string>
              </property>
@@ -450,6 +510,12 @@
            </item>
            <item>
             <widget class="QLabel" name="label_3">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>This tool allows overriding the Vulkan Layers configuration of Vulkan applications.</string>
              </property>
@@ -466,6 +532,12 @@
            </item>
            <item>
             <widget class="QLabel" name="label_4">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Development of this tool is &amp;quot;work in progress&amp;quot;. Please report your issues on the &lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
@@ -498,7 +570,7 @@
      <x>0</x>
      <y>0</y>
      <width>1122</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
