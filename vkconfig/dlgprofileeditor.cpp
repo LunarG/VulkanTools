@@ -360,9 +360,6 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked(void) {
 /// The currently selected layer has changed.
 void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious) {
     (void)pPrevious;
-    // These are always safe to call
-    //    settingsEditor.CollectSettings();
-    //    settingsEditor.CleanupGUI();
 
     // New settings
     QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pCurrent);
@@ -383,6 +380,8 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
 
     //    // Is this layer Force on?
     //    settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
+
+    ui->lineEditDesc->setText(pLayerItem->pLayer->description);
 
     /////////////////////////////////////////////////////////////////////
     // Populate the side label
