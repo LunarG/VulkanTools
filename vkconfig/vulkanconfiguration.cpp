@@ -211,7 +211,7 @@ CVulkanConfiguration::CVulkanConfiguration() {
     if (allLayers.size() == 0) {
         QMessageBox alert;
         alert.setText(
-            "No Vulkan Layers were found in standard paths or in the SDK path.\n"
+            "No Vulkan Layers were found in standard paths or in the SDK path.\n\n"
             "Vulkan Layers are required in order to proceed. Please select the path where you have your layers installed.");
         alert.setWindowTitle("No layers found");
         alert.setIcon(QMessageBox::Warning);
@@ -764,6 +764,7 @@ void CVulkanConfiguration::FindAllInstalledLayers(void) {
     // Any custom paths? All layers from all paths are appended together here
     for (int i = 0; i < additionalSearchPaths.size(); i++)
         LoadLayersFromPath(additionalSearchPaths[i], allLayers, LAYER_TYPE_CUSTOM);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
