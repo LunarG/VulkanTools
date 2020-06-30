@@ -27,7 +27,7 @@
 #include <QString>
 #include <QStringList>
 
-#include <layerfile.h>
+#include "layerfile.h"
 
 class CProfileDef {
    public:

@@ -128,6 +128,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 }
         }
     }
+
+    ui->logBrowser->append("Vulkan Development Status:");
+    ui->logBrowser->append(pVulkanConfig->CheckVulkanSetup());
 }
 
 MainWindow::~MainWindow() {

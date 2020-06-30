@@ -36,10 +36,11 @@
 
 #include <vulkan/vulkan.h>
 
-#include <layerfile.h>
+#include "layerfile.h"
 #include "profiledef.h"
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
+#define APP_SHORT_NAME "vkconfig"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief The CPathFinder class
@@ -125,12 +126,12 @@ class CVulkanConfiguration {
     void LoadAppSettings(void);
     void SaveAppSettings(void);
     void ResetToDefaultAppSettings(void);
-    QString qsLastLaunchApplicationWPath;   // This is to match up with the application list
-    bool bOverrideActive;    // Do we have an active override?
-    bool bApplyOnlyToList;   // Apply the overide only to the application list
-    bool bKeepActiveOnExit;  // Stay active when app closes
-    bool bHasOldLoader;      // Older loader does not support per-application overrides
-    bool bApplyToAllUsers;   // Apply to all users, not just the current user
+    QString qsLastLaunchApplicationWPath;  // This is to match up with the application list
+    bool bOverrideActive;                  // Do we have an active override?
+    bool bApplyOnlyToList;                 // Apply the overide only to the application list
+    bool bKeepActiveOnExit;                // Stay active when app closes
+    bool bHasOldLoader;                    // Older loader does not support per-application overrides
+    bool bApplyToAllUsers;                 // Apply to all users, not just the current user
 
     QString qsProfileFilesPath;      // Where config working files live
     QString qsOverrideSettingsPath;  // Where settings go when profile is active
@@ -197,8 +198,8 @@ class CVulkanConfiguration {
 
     QString GetProfilePath(void) { return qsProfileFilesPath; }
 
+    QString CheckVulkanSetup(void);
     void CheckApplicationRestart(void);
-
 
    protected:
     CVulkanConfiguration();
@@ -207,8 +208,8 @@ class CVulkanConfiguration {
     // Currently active profile
     CProfileDef* pActiveProfile;
 
-    bool bRunningAsAdministrator;   // Are we being "Run as Administrator"
-    bool bFirstRun;                 // This is used for populating the initial set of profiles/configurations
+    bool bRunningAsAdministrator;  // Are we being "Run as Administrator"
+    bool bFirstRun;                // This is used for populating the initial set of profiles/configurations
     void ClearLayerLists(void);
 
 #ifdef WIN32

@@ -35,9 +35,14 @@
 
 #include <vulkan/vulkan.h>
 
-#include <profiledef.h>
+#include "profiledef.h"
 #include "vulkanconfiguration.h"
 #include "dlgcustompaths.h"
+
+const char* GetPhysicalDeviceType(VkPhysicalDeviceType type) {
+    const char *translation[] = {"Other", "Integrated GPU", "Discrete GPU", "Virtual GPU", "CPU"};
+    return translation[type];
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work. Abstracts away instances where we might
@@ -179,8 +184,8 @@ CVulkanConfiguration::CVulkanConfiguration() {
 #endif
     if (!(library.load())) {
         QMessageBox dlg(NULL);
-        dlg.setText("Warning: Could not find a vulkan loader!");
-        dlg.setIcon(QMessageBox::Warning);
+        dlg.setText("Could not find a Vulkan Loader!");
+        dlg.setIcon(QMessageBox::Critical);
         dlg.exec();
     } else {
         // Now is a good time to see if we have the old loader
@@ -232,6 +237,132 @@ CVulkanConfiguration::~CVulkanConfiguration() {
     ClearLayerLists();
     qDeleteAll(profileList.begin(), profileList.end());
     profileList.clear();
+}
+
+QString CVulkanConfiguration::CheckVulkanSetup(void) {
+    uint32_t version = vulkanInstanceVersion;
+    QString logVersion = QString().asprintf("- Vulkan Loader version: % d.% d.%d\n", VK_VERSION_MAJOR(version),
+                                            VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+
+    QString searchPath = std::getenv("VULKAN_SDK");
+    QFileInfo local(searchPath);
+
+    QString logVulkanSDK = "- SDK path: Not detected\n";
+    if (local.exists()) logVulkanSDK = QString().asprintf("- SDK path: %s\n", searchPath.toUtf8().constData());
+
+    QString logLayerPaths = "- Custom Layers Paths: None\n";
+    if (additionalSearchPaths.count() > 0) {
+        logLayerPaths = "- Custom Layers Paths:\n";
+        for (int i = 0, n = additionalSearchPaths.count(); i < n; ++i)
+            logLayerPaths += QString().asprintf("    - %s\n", additionalSearchPaths[i].toUtf8().constData());
+    }
+
+    QString logLayers;
+    QString logDevices;
+
+    // Check loader version
+#ifdef WIN32
+    QLibrary library("vulkan-1.dll");
+#else
+    QLibrary library("libvulkan");
+#endif
+    if (!(library.load())) {
+        QMessageBox dlg(NULL);
+        dlg.setText("Could not find a Vulkan Loader!");
+        dlg.setIcon(QMessageBox::Critical);
+        dlg.exec();
+    } else {
+        PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
+            (PFN_vkEnumerateInstanceLayerProperties)library.resolve("vkEnumerateInstanceLayerProperties");
+
+        std::uint32_t instance_layer_count = 0;
+        VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
+        assert(!err);
+
+        std::vector<VkLayerProperties> layers_properties;
+        layers_properties.resize(instance_layer_count);
+
+        err = vkEnumerateInstanceLayerProperties(&instance_layer_count, &layers_properties[0]);
+        assert(!err);
+
+        logLayers = "- Available Layers:\n";
+        for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
+            logLayers += QString().asprintf("    - %s\n", layers_properties[i].layerName);
+        }
+
+        VkApplicationInfo app;
+        app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        app.pNext = NULL;
+        app.pApplicationName = APP_SHORT_NAME;
+        app.applicationVersion = 0;
+        app.pEngineName = APP_SHORT_NAME;
+        app.engineVersion = 0;
+        app.apiVersion = VK_API_VERSION_1_0;
+
+        VkInstanceCreateInfo inst_info;
+        inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        inst_info.pNext = NULL;
+        inst_info.pApplicationInfo = &app;
+        inst_info.enabledLayerCount = 0;
+        inst_info.ppEnabledLayerNames = NULL;
+        inst_info.enabledExtensionCount = 0;
+        inst_info.ppEnabledExtensionNames = NULL;
+
+        uint32_t gpu_count;
+
+        VkInstance inst;
+        PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)library.resolve("vkCreateInstance");
+        err = vkCreateInstance(&inst_info, NULL, &inst);
+        /*
+        if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
+            ERR_EXIT(
+                "Cannot find a compatible Vulkan installable client driver (ICD).\n\n"
+                "Please look at the Getting Started guide for additional information.\n",
+                "vkCreateInstance Failure");
+        } else if (err == VK_ERROR_EXTENSION_NOT_PRESENT) {
+            ERR_EXIT(
+                "Cannot find a specified extension library.\n"
+                "Make sure your layers path is set appropriately.\n",
+                "vkCreateInstance Failure");
+        } else if (err) {
+            ERR_EXIT(
+                "vkCreateInstance failed.\n\n"
+                "Do you have a compatible Vulkan installable client driver (ICD) installed?\n"
+                "Please look at the Getting Started guide for additional information.\n",
+                "vkCreateInstance Failure");
+        }
+        */
+
+        PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
+            (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
+        err = vkEnumeratePhysicalDevices(inst, &gpu_count, NULL);
+        assert(!err);
+
+        std::vector<VkPhysicalDevice> devices;
+        devices.resize(gpu_count);
+
+        err = vkEnumeratePhysicalDevices(inst, &gpu_count, &devices[0]);
+        assert(!err);
+
+        logDevices = "- Vulkan Devices:\n";
+        for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
+            VkPhysicalDeviceProperties properties;
+            PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
+                (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
+            vkGetPhysicalDeviceProperties(devices[i], &properties);
+            logDevices += QString().asprintf("    - %s (%s) - Vulkan % d.% d.%d\n", 
+                properties.deviceName, 
+                GetPhysicalDeviceType(properties.deviceType),
+                VK_VERSION_MAJOR(properties.apiVersion),
+                VK_VERSION_MINOR(properties.apiVersion),
+                VK_VERSION_PATCH(properties.apiVersion));
+        }
+
+        PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
+        vkDestroyInstance(inst, NULL);
+    }
+
+    return logVersion + logVulkanSDK + logLayerPaths + logLayers + logDevices;
 }
 
 void CVulkanConfiguration::ClearLayerLists(void) {
