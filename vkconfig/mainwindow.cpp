@@ -325,7 +325,10 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
 
     pVulkanConfig->FindVkCube();
     ResetLaunchOptions();
-    pVulkanConfig->CheckVulkanSetup();
+
+    ui->logBrowser->clear();
+    ui->logBrowser->append("Vulkan Development Status:");
+    ui->logBrowser->append(pVulkanConfig->CheckVulkanSetup());
 }
 
 ////////////////////////////////////////////////////////////////////////////
