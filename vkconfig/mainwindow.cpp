@@ -1004,12 +1004,12 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     pVulkanApp->closeWriteChannel();
 
     // We are logging, let's add that we've launched a new application
-    QString outApplication = QString().asprintf("Starting Vulkan Application: %s\n",
-                                                pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
-    QString outFolder =
-        QString().asprintf("Working folder: %s\n", pVulkanConfig->appList[nIndex]->qsWorkingFolder.toUtf8().constData());
-    QString outArgs =
-        QString().asprintf("Command line arguments: %s\n", pVulkanConfig->appList[nIndex]->qsArguments.toUtf8().constData());
+    QString launchLog = "Launching Vulkan Application:\n";
+    launchLog += QString().asprintf("- Executable Path: %s\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
+    launchLog +=
+        QString().asprintf("- Working Directory: %s\n", pVulkanConfig->appList[nIndex]->qsWorkingFolder.toUtf8().constData());
+    launchLog += 
+        QString().asprintf("- Command-line Arguments: %s\n", pVulkanConfig->appList[nIndex]->qsArguments.toUtf8().constData());
 
     if (!pVulkanConfig->appList[nIndex]->qsLogFile.isEmpty()) {
         // This should never happen... but things that should never happen do in
@@ -1039,15 +1039,11 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
         }
 
         if (pLogFile) {
-            pLogFile->write(outApplication.toUtf8().constData(), outApplication.length());
-            pLogFile->write(outFolder.toUtf8().constData(), outFolder.length());
-            pLogFile->write(outArgs.toUtf8().constData(), outArgs.length());
+            pLogFile->write((launchLog + "\n").toUtf8().constData(), launchLog.length());
         }
     }
 
-    ui->logBrowser->append(outApplication);
-    ui->logBrowser->append(outFolder);
-    ui->logBrowser->append(outArgs);
+    ui->logBrowser->append(launchLog);
     ui->pushButtonClearLog->setEnabled(true);
 
     // Wait... did we start? Give it 4 seconds, more than enough time
