@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>444</width>
-    <height>226</height>
+    <width>417</width>
+    <height>205</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>200</height>
+    <width>417</width>
+    <height>205</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>500</width>
-    <height>3000</height>
+    <width>417</width>
+    <height>205</height>
    </size>
   </property>
   <property name="font">
@@ -77,7 +77,7 @@
     <string>Copyright 2020 LunarG, Inc.</string>
    </property>
    <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
    <property name="wordWrap">
     <bool>true</bool>
@@ -86,7 +86,7 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>180</x>
      <y>50</y>
      <width>251</width>
      <height>31</height>
@@ -104,7 +104,7 @@
     <string>Licensed under Apache 2.0</string>
    </property>
    <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
    <property name="wordWrap">
     <bool>true</bool>
@@ -132,7 +132,7 @@
      <x>130</x>
      <y>100</y>
      <width>231</width>
-     <height>51</height>
+     <height>41</height>
     </rect>
    </property>
    <property name="font">

@@ -112,6 +112,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="text">
@@ -130,6 +131,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="text">
@@ -160,6 +162,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="text">
@@ -178,6 +181,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="text">
@@ -196,6 +200,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="text">
@@ -272,6 +277,11 @@
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="1" column="0">
           <widget class="QCheckBox" name="checkBoxClearOnLaunch">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Clear log at launch</string>
            </property>
@@ -349,6 +359,11 @@
          </item>
          <item row="1" column="3">
           <widget class="QPushButton" name="pushButtonLaunch">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Launch</string>
            </property>
@@ -356,6 +371,11 @@
          </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="pushButtonClearLog">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Clear</string>
            </property>
@@ -454,6 +474,7 @@
            <property name="font">
             <font>
              <family>Arial</family>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="text">
@@ -570,7 +591,7 @@
      <x>0</x>
      <y>0</y>
      <width>1122</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
