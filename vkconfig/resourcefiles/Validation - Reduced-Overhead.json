@@ -1,7 +1,7 @@
 {
     "Validation - Reduced-Overhead": {
         "preset" : 5,
-        "description" : "This configuration disableds some of the checks of Standard Validation in the interest of performance.",
+        "description" : "This configuration disables some of the checks of Standard Validation in the interest of performance.",
         "blacklisted_layers": [],
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {

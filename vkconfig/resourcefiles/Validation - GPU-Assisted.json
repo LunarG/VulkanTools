@@ -1,7 +1,7 @@
 {
     "Validation - GPU-Assisted": {
         "preset" : 3,
-        "description" : "Provides easy access to gpu-assisted validation tools and debug-printf functionality.",
+        "description" : "Provides easy access to gpu-assisted validation tools.",
         "blacklisted_layers": [],
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {

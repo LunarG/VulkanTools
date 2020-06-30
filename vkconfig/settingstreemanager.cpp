@@ -229,7 +229,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
     }
 
     // This really does go way down here.
-    connect(pAdvancedKhronosEditor, SIGNAL(settipMainParentngChanged()), this, SLOT(khronosPresetEdited()));
+    connect(pAdvancedKhronosEditor, SIGNAL(settingChanged()), this, SLOT(khronosPresetEdited()));
     pKhronosPresets->blockSignals(false);
 
     //////// Add the preset item

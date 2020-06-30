@@ -1,7 +1,7 @@
 {
     "Validation - Shader Printf": {
         "preset" : 4,
-        "description" : "Provides easy access to gpu-assisted validation tools and debug-printf functionality.",
+        "description" : "Provides easy access to debug-printf functionality.",
         "blacklisted_layers": [],
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {

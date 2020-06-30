@@ -64,7 +64,6 @@ CPathFinder::CPathFinder(const QString &qsPath, bool bForceFileSystem) {
 // These are the built-in configurations that are pulled in from the resource
 // file.
 int CVulkanConfiguration::nNumCannedProfiles = 8;
-int CVulkanConfiguration::nNumKhronosPreConfigs = 5;
 const char *CVulkanConfiguration::szCannedProfiles[8] = {"Validation - Standard",
                                                          "Validation - Best Practices",
                                                          "Validation - GPU-Assisted",

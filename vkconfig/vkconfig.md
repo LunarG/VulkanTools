@@ -1,4 +1,4 @@
-<p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=198 height=85 /></p>
+<p align="left"><img src="./images/NewLunarGLogoBlack.png" width=198 /></p>
 <p align="center"><img src="./images/vulkan_configurator.png" width=400 /></p>
 
 [![Creative Commons][3]][4]

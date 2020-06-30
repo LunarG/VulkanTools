@@ -951,6 +951,37 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                     return true;
                 }
             }
+           else {   // Right click in open area  just adds new and import.
+                // Create context menu here
+                QMenu menu(ui->profileTree);
+                QAction *pNewAction = new QAction("New Layers Configuration...");
+                menu.addAction(pNewAction);
+
+                menu.addSeparator();
+
+                QAction *pImportAction = new QAction("Import a Layers Configuration...");
+                menu.addAction(pImportAction);
+
+                QPoint point(pRightClick->globalX(), pRightClick->globalY());
+                QAction *pAction = menu.exec(point);
+
+                // Import a profile (copy a json)
+                if (pAction == pImportAction) {
+                    settingsTreeManager.CleanupGUI();
+                    ImportClicked(pItem);
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                    return true;
+                }
+
+                if (pAction == pNewAction) {
+                    settingsTreeManager.CleanupGUI();
+                    NewClicked();
+                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                    return true;
+                }
+
+
+            }
 
             // Do not pass on
             return true;
