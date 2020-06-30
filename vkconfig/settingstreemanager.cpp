@@ -328,6 +328,8 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
 ////////////////////////////////////////////////////////////////////////////////////
 /// The user has selected a preset for this layer
 void CSettingsTreeManager::khronosPresetChanged(int nIndex) {
+    CVulkanConfiguration::getVulkanConfig()->CheckApplicationRestart();
+
     // We really just don't care (and the value is zero)
     if (nIndex == KHRONOS_PRESET_USER_DEFINED) return;
 
@@ -463,6 +465,7 @@ void CSettingsTreeManager::profileEdited(void) {
     // Resave this profile
     CVulkanConfiguration *pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     pVulkanConfig->SaveProfile(pProfile);
+    pVulkanConfig->CheckApplicationRestart();
 
     // If this profile is active, we need to reset the override files too
     // Just resetting with the same parent pointer will do the trick

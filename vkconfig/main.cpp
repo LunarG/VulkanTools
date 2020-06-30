@@ -43,8 +43,6 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    pModel->CheckApplicationRestart();
-
     // The main GUI is driven here
     MainWindow mainWindow;
     mainWindow.show();

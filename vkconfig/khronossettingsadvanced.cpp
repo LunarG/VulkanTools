@@ -23,6 +23,7 @@
 
 #include <QSettings>
 #include "khronossettingsadvanced.h"
+#include "vulkanconfiguration.h"
 
 // Keep track of tree/setting correlations
 struct TREE_SETTING {

@@ -39,7 +39,7 @@
 #include "vulkanconfiguration.h"
 #include "dlgcustompaths.h"
 
-const char* GetPhysicalDeviceType(VkPhysicalDeviceType type) {
+const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
     const char *translation[] = {"Other", "Integrated GPU", "Discrete GPU", "Virtual GPU", "CPU"};
     return translation[type];
 }
@@ -208,11 +208,11 @@ CVulkanConfiguration::CVulkanConfiguration() {
     FindAllInstalledLayers();
 
     // If no layers are found, give the user another chance to add some custom paths
-    if(allLayers.size() == 0) {
+    if (allLayers.size() == 0) {
         QMessageBox alert;
         alert.setText(
             "No Vulkan Layers were found in standard paths or in the SDK path.\n"
-                    "Vulkan Layers are required in order to proceed. Please select the path where you have your layers installed.");
+            "Vulkan Layers are required in order to proceed. Please select the path where you have your layers installed.");
         alert.setWindowTitle("No layers found");
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
@@ -222,8 +222,7 @@ CVulkanConfiguration::CVulkanConfiguration() {
 
         // Give it one more chance... If there are still no layers, bail
         FindAllInstalledLayers();
-        if(allLayers.size() == 0)
-            return;
+        if (allLayers.size() == 0) return;
     }
 
     LoadAllProfiles();
@@ -240,15 +239,14 @@ CVulkanConfiguration::~CVulkanConfiguration() {
 }
 
 QString CVulkanConfiguration::CheckVulkanSetup(void) {
+    QString searchPath = std::getenv("VULKAN_SDK");
+    QFileInfo local(searchPath);
+    QString logVulkanSDK = "- SDK path: Not detected\n";
+    if (local.exists()) logVulkanSDK = QString().asprintf("- SDK path: %s\n", searchPath.toUtf8().constData());
+
     uint32_t version = vulkanInstanceVersion;
     QString logVersion = QString().asprintf("- Vulkan Loader version: % d.% d.%d\n", VK_VERSION_MAJOR(version),
                                             VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
-
-    QString searchPath = std::getenv("VULKAN_SDK");
-    QFileInfo local(searchPath);
-
-    QString logVulkanSDK = "- SDK path: Not detected\n";
-    if (local.exists()) logVulkanSDK = QString().asprintf("- SDK path: %s\n", searchPath.toUtf8().constData());
 
     QString logLayerPaths = "- Custom Layers Paths: None\n";
     if (additionalSearchPaths.count() > 0) {
@@ -350,19 +348,16 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
             PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
                 (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
             vkGetPhysicalDeviceProperties(devices[i], &properties);
-            logDevices += QString().asprintf("    - %s (%s) - Vulkan % d.% d.%d\n", 
-                properties.deviceName, 
-                GetPhysicalDeviceType(properties.deviceType),
-                VK_VERSION_MAJOR(properties.apiVersion),
-                VK_VERSION_MINOR(properties.apiVersion),
-                VK_VERSION_PATCH(properties.apiVersion));
+            logDevices += QString().asprintf("    - %s (%s) with Vulkan % d.% d.%d\n", properties.deviceName,
+                                             GetPhysicalDeviceType(properties.deviceType), VK_VERSION_MAJOR(properties.apiVersion),
+                                             VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
         }
 
         PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
         vkDestroyInstance(inst, NULL);
     }
 
-    return logVersion + logVulkanSDK + logLayerPaths + logLayers + logDevices;
+    return logVulkanSDK + logVersion + logLayerPaths + logLayers + logDevices;
 }
 
 void CVulkanConfiguration::ClearLayerLists(void) {
@@ -499,11 +494,11 @@ void CVulkanConfiguration::LoadRegistryLayers(const QString &path, QVector<CLaye
 void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
     // Layer override json file
     HKEY key;
-    HKEY userKey = (bRunningAsAdministrator) ? HKEY_LOCAL_MACHINE: HKEY_CURRENT_USER;
+    HKEY userKey = (bRunningAsAdministrator) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL,
-                                 REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
+                                 access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
     QString file_path;
@@ -514,8 +509,8 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
     RegCloseKey(key);
 
     // Layer settings file
-    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access,
-                         NULL, &key, NULL);
+    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key,
+                         NULL);
     if (err != ERROR_SUCCESS) return;
 
     RegQueryInfoKeyW(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
@@ -532,19 +527,19 @@ void CVulkanConfiguration::AddRegistryEntriesForLayers(QString qsJSONFile, QStri
 void CVulkanConfiguration::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
     // Layer override json file
     HKEY key;
-    HKEY userKey = (bRunningAsAdministrator) ? HKEY_LOCAL_MACHINE: HKEY_CURRENT_USER;
+    HKEY userKey = (bRunningAsAdministrator) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL,
-                                 REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
+    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
+                                 access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
     RegDeleteValueW(key, (LPCWSTR)qsJSONFile.utf16());
     RegCloseKey(key);
 
     // Layer settings file
-    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access,
-                         NULL, &key, NULL);
+    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key,
+                         NULL);
     if (err != ERROR_SUCCESS) return;
 
     RegDeleteValueW(key, (LPCWSTR)qsSettingsFile.utf16());
@@ -697,14 +692,10 @@ void CVulkanConfiguration::CheckApplicationRestart(void) {
             "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application "
             "start.\n\n"
             "For changes to take effect, running Vulkan Applications should be restarted.");
-        QCheckBox *pCheckBox = new QCheckBox();
-        pCheckBox->setText(DONT_SHOW_AGAIN_MESSAGE);
-        pCheckBox->setChecked(true);
         alert.setWindowTitle("Any change requires Vulkan Applications restart");
-        alert.setCheckBox(pCheckBox);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
-        if (pCheckBox->isChecked()) settings.setValue(VKCONFIG_HIDE_RESTART_WARNING, true);
+        settings.setValue(VKCONFIG_HIDE_RESTART_WARNING, true);
     }
 }
 
@@ -760,7 +751,7 @@ void CVulkanConfiguration::FindAllInstalledLayers(void) {
     // (Go ahead and let macOS do this as well).
     // This will create duplicate entries if the layers ARE installed, so only do this if
     // No layers have been found yet.
-    if(allLayers.size() == 0) {
+    if (allLayers.size() == 0) {
         char *vulkanSDK = getenv("VULKAN_SDK");
         if (vulkanSDK != nullptr) {
             QString searchPath = vulkanSDK;
@@ -1054,10 +1045,10 @@ CProfileDef *CVulkanConfiguration::LoadProfile(QString pathToProfile) {
         if (layerPath.isEmpty()) {  // No layer path exists
             // Find this in our lookup of layers. The standard layers are listed first
             pLayer = FindLayerNamed(layerList[iLayer]);
-            if (pLayer == nullptr) { // If not found, we have a layer missing....
+            if (pLayer == nullptr) {  // If not found, we have a layer missing....
                 pProfile->bAllLayersAvailable = false;
                 continue;
-                }
+            }
         } else {
             // We have a layer path, find the exact match. If an exact match doesn't
             // exist, allow just the name to match

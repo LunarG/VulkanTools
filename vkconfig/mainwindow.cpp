@@ -133,9 +133,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->logBrowser->append(pVulkanConfig->CheckVulkanSetup());
 }
 
-MainWindow::~MainWindow() {
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Load or refresh the list of profiles. Any profile that uses a layer that
@@ -228,8 +226,6 @@ void MainWindow::on_radioOverride_clicked(void) {
         ChangeActiveProfile(nullptr);
     else
         ChangeActiveProfile(pProfileItem->pProfilePointer);
-
-    pVulkanConfig->CheckApplicationRestart();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -329,6 +325,7 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
 
     pVulkanConfig->FindVkCube();
     ResetLaunchOptions();
+    pVulkanConfig->CheckVulkanSetup();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -344,7 +341,10 @@ void MainWindow::profileItemClicked(bool bChecked) {
     if (pProfileItem == nullptr) return;
 
     // Do we go ahead and activate it?
-    if (pVulkanConfig->bOverrideActive) ChangeActiveProfile(pProfileItem->pProfilePointer);
+    if (pVulkanConfig->bOverrideActive) {
+        ChangeActiveProfile(pProfileItem->pProfilePointer);
+        pVulkanConfig->CheckApplicationRestart();
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -365,6 +365,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol) {
         pProfileItem->pProfilePointer->qsProfileName = pProfileItem->text(1);
         pProfileItem->pProfilePointer->qsFileName = pProfileItem->text(1) + QString(".json");
         pVulkanConfig->SaveProfile(pProfileItem->pProfilePointer);
+        pVulkanConfig->CheckApplicationRestart();
     }
 }
 
@@ -423,8 +424,6 @@ void MainWindow::toolsVulkanInstallation(bool bChecked) {
     pVKVia->RunTool();
 }
 
-
-
 ////////////////////////////////////////////////////////////////
 /// \brief MainWindow::helpShowHelp
 /// \param bChecked
@@ -474,7 +473,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 void MainWindow::on_pushButtonAppList_clicked(void) {
     dlgCreateAssociation dlg(this);
     dlg.exec();
-    if(dlg.nLastSelectedApp >= 0)
+    if (dlg.nLastSelectedApp > 0)
         pVulkanConfig->qsLastLaunchApplicationWPath = pVulkanConfig->appList[dlg.nLastSelectedApp]->qsAppNameWithPath;
 
     pVulkanConfig->SaveAppList();
@@ -756,7 +755,7 @@ void MainWindow::SetupLaunchTree(void) {
 
     //////////////////////////////////////////////////////////////////
     ui->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
-    ui->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT* 4 + 6);
+    ui->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
 
     ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
     ui->launchTree->setColumnWidth(
@@ -775,7 +774,7 @@ void MainWindow::SetupLaunchTree(void) {
 void MainWindow::launchItemExpanded(QTreeWidgetItem *pItem) {
     (void)pItem;
     ui->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
-    ui->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT* 4 + 6);
+    ui->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -1004,8 +1003,8 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     pVulkanApp->closeWriteChannel();
 
     // We are logging, let's add that we've launched a new application
-    QString outApplication =
-        QString().asprintf("Starting Vulkan Application: %s\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
+    QString outApplication = QString().asprintf("Starting Vulkan Application: %s\n",
+                                                pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
     QString outFolder =
         QString().asprintf("Working folder: %s\n", pVulkanConfig->appList[nIndex]->qsWorkingFolder.toUtf8().constData());
     QString outArgs =
@@ -1038,7 +1037,7 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
             }
         }
 
-        if(pLogFile) {
+        if (pLogFile) {
             pLogFile->write(outApplication.toUtf8().constData(), outApplication.length());
             pLogFile->write(outFolder.toUtf8().constData(), outFolder.length());
             pLogFile->write(outArgs.toUtf8().constData(), outArgs.length());
@@ -1059,8 +1058,7 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
             QString().asprintf("Failed to launch %s!\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
 
         ui->logBrowser->append(outFailed);
-        if(pLogFile)
-            pLogFile->write(outFailed.toUtf8().constData(), outFailed.length());
+        if (pLogFile) pLogFile->write(outFailed.toUtf8().constData(), outFailed.length());
 
         return;
     }
