@@ -152,7 +152,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
     ui->pushButtonRemove->setEnabled(false);
     ui->lineEditCmdArgs->setText("");
     ui->lineEditWorkingFolder->setText("");
-    ui->lineEditWorkingFolder->setText("");
+    ui->lineEditLogFile->setText("");
 
     pVulkanConfig->SaveAppList();
     pVulkanConfig->RefreshProfile();
