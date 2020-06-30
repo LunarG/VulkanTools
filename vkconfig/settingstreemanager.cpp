@@ -190,6 +190,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
                 pControl->setText(pKhronosLayer->layerSettings[iSetting]->settingsListInclusivePrompt[i]);
                 pSubCategory->addChild(pChild);
                 pEditorTree->setItemWidget(pChild, 0, pControl);
+                pControl->setFont(pEditorTree->font());
                 connect(pControl, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             }
 
@@ -256,6 +257,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting]);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
+            pBoolWidget->setFont(pEditorTree->font());
             connect(pBoolWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
         }
@@ -265,6 +267,7 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
             CBoolSettingWidget *pBoolWidget = new CBoolSettingWidget(pLayer->layerSettings[iSetting], true);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
+            pBoolWidget->setFont(pEditorTree->font());
             connect(pBoolWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
         }
