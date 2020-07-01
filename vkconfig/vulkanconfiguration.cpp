@@ -80,7 +80,6 @@ const char *CVulkanConfiguration::szCannedProfiles[8] = {"Validation - Standard"
                                                          "Frame Capture - First two frames",
                                                          "Frame Capture - Range (F10 to start and to stop)"};
 
-
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
 #ifdef _WIN32
@@ -218,7 +217,8 @@ CVulkanConfiguration::CVulkanConfiguration() {
     if (allLayers.size() == 0) {
         QMessageBox alert;
         alert.setText(
-            "No Vulkan Layers were found in standard paths or in the SDK path. Vulkan Layers are required in order to use Vulkan Configurator.\n\n"
+            "No Vulkan Layers were found in standard paths or in the SDK path. Vulkan Layers are required in order to use Vulkan "
+            "Configurator.\n\n"
             "Please select the path where you have your layers located.");
         alert.setWindowTitle("No Vulkan Layers found");
         alert.setIcon(QMessageBox::Warning);
@@ -251,10 +251,12 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
     // Check Vulkan SDK path
     QString searchPath = std::getenv("VULKAN_SDK");
     QFileInfo local(searchPath);
-    if (local.exists()) log += QString().asprintf("- SDK path: %s\n", searchPath.toUtf8().constData());
-    else log += "- SDK path: Not detected\n";
+    if (local.exists())
+        log += QString().asprintf("- SDK path: %s\n", searchPath.toUtf8().constData());
+    else
+        log += "- SDK path: Not detected\n";
 
-    // Check loader version
+        // Check loader version
 #ifdef WIN32
     QLibrary library("vulkan-1.dll");
 #else
@@ -262,8 +264,8 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
 #endif
 
     uint32_t version = vulkanInstanceVersion;
-    log += QString().asprintf("- Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version),
-                                            VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+    log += QString().asprintf("- Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version),
+                              VK_VERSION_PATCH(version));
 
     if (!(library.load())) {
         QMessageBox alert(NULL);
@@ -336,7 +338,7 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
 
         log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
         return log;
-    } 
+    }
 
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
         (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
@@ -355,10 +357,9 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
         PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
             (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
         vkGetPhysicalDeviceProperties(devices[i], &properties);
-        log +=
-            QString().asprintf("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName,
-                                GetPhysicalDeviceType(properties.deviceType), VK_VERSION_MAJOR(properties.apiVersion),
-                                VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
+        log += QString().asprintf("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName,
+                                  GetPhysicalDeviceType(properties.deviceType), VK_VERSION_MAJOR(properties.apiVersion),
+                                  VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
     }
 
     PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
@@ -771,7 +772,6 @@ void CVulkanConfiguration::FindAllInstalledLayers(void) {
     // Any custom paths? All layers from all paths are appended together here
     for (int i = 0; i < additionalSearchPaths.size(); i++)
         LoadLayersFromPath(additionalSearchPaths[i], allLayers, LAYER_TYPE_CUSTOM);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1040,8 +1040,7 @@ CProfileDef *CVulkanConfiguration::LoadProfile(QString pathToProfile) {
     QStringList layerList = layerObjects.keys();
 
     // Build the list of layers with their settings
-    if(layerList.length() == 0)
-        pProfile->bAllLayersAvailable = false;
+    if (layerList.length() == 0) pProfile->bAllLayersAvailable = false;
 
     for (int iLayer = 0; iLayer < layerList.length(); iLayer++) {
         const CLayerFile *pLayer = nullptr;

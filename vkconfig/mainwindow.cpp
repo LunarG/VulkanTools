@@ -1070,8 +1070,7 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     if (!pVulkanConfig->GetCurrentActiveProfile()->IsProfileUsable()) {
         launchLog += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                         pVulkanConfig->GetCurrentActiveProfile()->qsProfileName.toUtf8().constData());
-    }
-    else if (pVulkanConfig->bOverrideActive) {
+    } else if (pVulkanConfig->bOverrideActive) {
         launchLog += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
                                         pVulkanConfig->GetCurrentActiveProfile()->qsProfileName.toUtf8().constData());
     } else {
