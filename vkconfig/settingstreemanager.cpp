@@ -123,7 +123,7 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
     pKhronosPresets->addItem("User Defined");
     pKhronosPresets->addItem("Standard");
     pKhronosPresets->addItem("Best Practices");
-    pKhronosPresets->addItem("GPU Assisted");
+    pKhronosPresets->addItem("GPU-Assisted");
     pKhronosPresets->addItem("Shader Printf");
     pKhronosPresets->addItem("Reduced-Overhead");
 
@@ -134,8 +134,12 @@ void CSettingsTreeManager::BuildKhronosTree(void) {
     pKhronosPresetItem->addChild(pNextLine);
     pEditorTree->setItemWidget(pNextLine, 0, pKhronosPresets);
 
+    QTreeWidgetItem *pKhronosSettingsItem = new QTreeWidgetItem();
+    pKhronosSettingsItem->setText(0, "Individual Settings");
+    pKhronosPresetItem->addChild(pKhronosSettingsItem);
+
     // This just finds the enables and disables
-    pAdvancedKhronosEditor = new KhronosSettingsAdvanced(pEditorTree, pKhronosPresetItem, pKhronosLayer->layerSettings);
+    pAdvancedKhronosEditor = new KhronosSettingsAdvanced(pEditorTree, pKhronosSettingsItem, pKhronosLayer->layerSettings);
 
     // Look for the Debug Action and log file settings
     TLayerSettings *pDebugAction = nullptr;
