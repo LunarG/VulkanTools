@@ -262,7 +262,7 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
 #endif
 
     uint32_t version = vulkanInstanceVersion;
-    log += QString().asprintf("- Vulkan Loader version: % d.% d.%d\n", VK_VERSION_MAJOR(version),
+    log += QString().asprintf("- Vulkan Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version),
                                             VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
 
     if (!(library.load())) {
