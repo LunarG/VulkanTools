@@ -146,4 +146,5 @@ Known Issues
 - Layer execution order express in the "Select Vulkan Layers to override and execution order" window is not accurate, only ***forced on*** layers can be ordered.
 - Layers settings fields are not checked for syntax errors.
 - The user can't reorder the layers configurations in the list.
+- Custom Layer Paths in the layer window should be per configuration settings.
 

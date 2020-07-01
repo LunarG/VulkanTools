@@ -107,11 +107,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->radioOverride->setChecked(true);
         ui->checkBoxApplyList->setEnabled(true);
         ui->checkBoxPersistent->setEnabled(true);
+        ui->groupBoxProfiles->setEnabled(true);
+        ui->groupBoxEditor->setEnabled(true);
     } else {
         ui->radioFully->setChecked(true);
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxPersistent->setEnabled(false);
         ui->pushButtonAppList->setEnabled(false);
+        ui->groupBoxProfiles->setEnabled(false);
+        ui->groupBoxEditor->setEnabled(false);
     }
 
     ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
@@ -185,6 +189,8 @@ void MainWindow::on_radioFully_clicked(void) {
     ui->checkBoxApplyList->setEnabled(false);
     ui->checkBoxPersistent->setEnabled(false);
     pVulkanConfig->bOverrideActive = false;
+    ui->groupBoxProfiles->setEnabled(false);
+    ui->groupBoxEditor->setEnabled(false);
 
     ui->pushButtonAppList->setEnabled(false);
 
@@ -222,6 +228,8 @@ void MainWindow::on_radioOverride_clicked(void) {
 
     ui->checkBoxPersistent->setEnabled(true);
     pVulkanConfig->bOverrideActive = true;
+    ui->groupBoxProfiles->setEnabled(true);
+    ui->groupBoxEditor->setEnabled(true);
     pVulkanConfig->SaveAppSettings();
 
     // This just doesn't work. Make a function to look for the radio button checked.
@@ -333,6 +341,21 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
     ui->logBrowser->append(pVulkanConfig->CheckVulkanSetup());
+
+    if (pVulkanConfig->bOverrideActive) {
+        ui->radioOverride->setChecked(true);
+        ui->checkBoxApplyList->setEnabled(true);
+        ui->checkBoxPersistent->setEnabled(true);
+        ui->groupBoxProfiles->setEnabled(true);
+        ui->groupBoxEditor->setEnabled(true);
+    } else {
+        ui->radioFully->setChecked(true);
+        ui->checkBoxApplyList->setEnabled(false);
+        ui->checkBoxPersistent->setEnabled(false);
+        ui->pushButtonAppList->setEnabled(false);
+        ui->groupBoxProfiles->setEnabled(false);
+        ui->groupBoxEditor->setEnabled(false);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1017,6 +1040,14 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
 
     // We are logging, let's add that we've launched a new application
     QString launchLog = "Launching Vulkan Application:\n";
+
+    if (pVulkanConfig->bOverrideActive) {
+        launchLog += QString().asprintf("- Layers overridden by \"%s\" configuration:\n",
+                                        pVulkanConfig->GetCurrentActiveProfile()->qsFileName.toUtf8().constData());
+    } else {
+        launchLog += QString().asprintf("- Layers fully controlled by the application.\n");
+    }
+
     launchLog +=
         QString().asprintf("- Executable Path: %s\n", pVulkanConfig->appList[nIndex]->qsAppNameWithPath.toUtf8().constData());
     launchLog +=
