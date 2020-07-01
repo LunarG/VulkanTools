@@ -439,7 +439,6 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
     // we should alert the user to all three exactly/explicitly to what they are
     QSettings settings;
 
-    // Core checks and shader based
     if (pCoreChecksParent->checkState(0) == Qt::Checked && pShaderBasedBox->checkState(0) == Qt::Checked ||
         pCoreChecksParent->checkState(0) == Qt::Checked && bestPractices[0].pItem->checkState(0) == Qt::Checked ||
         pShaderBasedBox->checkState(0) == Qt::Checked && bestPractices[0].pItem->checkState(0) == Qt::Checked) {
