@@ -34,6 +34,9 @@ int main(int argc, char* argv[]) {
     //    QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 
     QApplication app(argc, argv);
+#ifdef __APPLE__
+    app.setStyleSheet("QWidget{font-size:13px;}");
+#endif
 
     // Get and initialize the application model, which is essentially the Vulkan
     // configuration of the system.

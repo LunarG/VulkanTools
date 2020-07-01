@@ -43,6 +43,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), u
 
         if (enabledOnlyToList) {
             QCheckBox *pCheckBox = new QCheckBox(tr("Exclude from Layers Override"));
+            pCheckBox->setFont(ui->treeWidget->font());
             pCheckBox->setChecked(pVulkanConfig->appList[i]->bExcludeFromGlobalList);
             ui->treeWidget->setItemWidget(pItem, 1, pCheckBox);
             connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
