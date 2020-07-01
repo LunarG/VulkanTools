@@ -356,7 +356,7 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
             (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
         vkGetPhysicalDeviceProperties(devices[i], &properties);
         log +=
-            QString().asprintf("    - %s (%s) with Vulkan % d.% d.%d\n", properties.deviceName,
+            QString().asprintf("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName,
                                 GetPhysicalDeviceType(properties.deviceType), VK_VERSION_MAJOR(properties.apiVersion),
                                 VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
     }
