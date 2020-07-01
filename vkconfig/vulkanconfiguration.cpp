@@ -218,9 +218,9 @@ CVulkanConfiguration::CVulkanConfiguration() {
     if (allLayers.size() == 0) {
         QMessageBox alert;
         alert.setText(
-            "No Vulkan Layers were found in standard paths or in the SDK path.\n\n"
-            "Vulkan Layers are required in order to proceed. Please select the path where you have your layers installed.");
-        alert.setWindowTitle("No layers found");
+            "No Vulkan Layers were found in standard paths or in the SDK path. Vulkan Layers are required in order to use Vulkan Configurator.\n\n"
+            "Please select the path where you have your layers located.");
+        alert.setWindowTitle("No Vulkan Layers found");
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
 
@@ -784,6 +784,7 @@ void CVulkanConfiguration::FindAllInstalledLayers(void) {
 void CVulkanConfiguration::LoadLayersFromPath(const QString &qsPath, QVector<CLayerFile *> &layerList, TLayerType type) {
     // On Windows custom files are in the file system. On non Windows all layers are
     // searched this way
+
 #ifdef _WIN32
     if (qsPath.contains("...")) {
         LoadRegistryLayers(qsPath, layerList, type);
