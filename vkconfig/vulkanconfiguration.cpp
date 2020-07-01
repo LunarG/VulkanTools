@@ -636,7 +636,7 @@ void CVulkanConfiguration::FindVkCube(void) {
     TAppListEntry *appEntry = new TAppListEntry;
     appEntry->qsWorkingFolder = local.absolutePath();
     appEntry->qsAppNameWithPath = local.absoluteFilePath();
-    appEntry->qsArguments = QString("--suppress_popups");
+    appEntry->qsArguments = QString("--suppress_popups --validate");
     appEntry->bExcludeFromGlobalList = false;
     appEntry->qsLogFile = "vkcube_out.txt";
     appList.push_back(appEntry);
