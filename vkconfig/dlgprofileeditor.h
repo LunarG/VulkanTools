@@ -65,6 +65,7 @@ class dlgProfileEditor : public QDialog {
 
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonAddLayers_clicked();
+    void on_pushButtonRemoveLayers_clicked();
 
     void on_toolButtonUp_clicked();
     void on_toolButtonDown_clicked();
