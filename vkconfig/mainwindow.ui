@@ -116,7 +116,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Fully controlled by the Vulkan applications (no override)</string>
+             <string>Fully controlled by the Vulkan applications</string>
             </property>
            </widget>
            <widget class="QRadioButton" name="radioOverride">
