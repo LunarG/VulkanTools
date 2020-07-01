@@ -171,7 +171,8 @@ void MainWindow::LoadProfileList(void) {
             pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
             pItem->pRadioButton->setEnabled(false);
             pItem->setToolTip(1, "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
-        } else if (activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) {
+        } 
+        if (activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) {
             pItem->pRadioButton->setChecked(true);
         }
 
