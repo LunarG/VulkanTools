@@ -1334,6 +1334,10 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile) {
         for (int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
             TLayerSettings *pSetting = pLayer->layerSettings[iSetting];
             stream << lcLayerName << "." << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
+
+            // Temporary hack due to a gfxrecontruct bug for 2020 July SDK only. Remove after that release.
+            if (lcLayerName == QString("lunarg_gfxreconstruct"))
+                stream << "lunarg_gfxrecon" << "." << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
         }
     }
     file.close();
