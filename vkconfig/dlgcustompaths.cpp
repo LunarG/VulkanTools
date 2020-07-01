@@ -33,6 +33,7 @@ dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dl
     pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
 
     RepopulateTree();
+    ui->buttonBox->setEnabled(!pVulkanConfig->allLayers.empty());
 }
 
 dlgCustomPaths::~dlgCustomPaths() { delete ui; }
@@ -78,6 +79,8 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
         bPathsChanged = true;
         RepopulateTree();
     }
+
+    ui->buttonBox->setEnabled(!pVulkanConfig->allLayers.empty());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -114,5 +117,6 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
     pVulkanConfig->SaveAdditionalSearchPaths();
     pVulkanConfig->FindAllInstalledLayers();
     pVulkanConfig->LoadAllProfiles();
+    ui->buttonBox->setEnabled(!pVulkanConfig->allLayers.empty());
     bPathsChanged = true;
 }
