@@ -110,12 +110,16 @@ In addition, Windows system create registry entries in the following locations:
 FAQ
 --------------
 
-### How do I use Vulkan Configurator to override only the Vulkan layers of a selected list of applications?
+### 1/ How do I use Vulkan Configurator to override only the Vulkan layers of a selected list of applications?
 
 This is typically done by enabling the "Apply only to the selected list of Vulkan applications" check box.
 <p align="center"><img src="./images/only_list.png" /></p>
 
 However, if this is not working it might be because the *Vulkan Loader* on the system is too old. Version 1.2.141 or newer of the Vulkan Loader is required. Update the *Vulkan Loader* by installing the latest *[Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)* to enable this feature.
+
+### 2/ How my local vk_layer_settings.txt file interacts with Vulkan Configurator override?
+
+When Vulkan Configurator is used to override layers, the local vk_layer_settings.txt file is ignored.
 
 Roadmap
 --------------
