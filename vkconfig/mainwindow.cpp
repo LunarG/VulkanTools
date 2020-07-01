@@ -166,9 +166,14 @@ void MainWindow::LoadProfileList(void) {
         pItem->setToolTip(1, pVulkanConfig->profileList[i]->qsDescription);
         pItem->pRadioButton = new QRadioButton();
         pItem->pRadioButton->setText("");
-        if (activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) pItem->pRadioButton->setChecked(true);
 
-        if (!pVulkanConfig->profileList[i]->IsProfileUsable()) pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
+        if (!pVulkanConfig->profileList[i]->IsProfileUsable()) {
+            pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
+            pItem->pRadioButton->setEnabled(false);
+            pItem->setToolTip(1, "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
+        } else if (activeProfileName == pVulkanConfig->profileList[i]->qsProfileName) {
+            pItem->pRadioButton->setChecked(true);
+        }
 
         pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
         ui->profileTree->setItemWidget(pItem, 0, pItem->pRadioButton);
@@ -637,6 +642,13 @@ void MainWindow::ExportClicked(CProfileListItem *pItem) {
     file.copy(qsSaveIt);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// Export a configuration file. Basically just a file copy
+void MainWindow::EditCustomPathsClicked(CProfileListItem *pItem) {
+    addCustomPaths();
+    LoadProfileList();  // Force a reload
+}
+
 void MainWindow::toolsSetCustomPaths(bool bChecked) {
     (void)bChecked;
     addCustomPaths();
@@ -924,6 +936,12 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             pExportAction->setEnabled(pItem != nullptr);
             menu.addAction(pExportAction);
 
+            menu.addSeparator();
+
+            QAction *pCustomPathAction = new QAction("Edit Layers Custom Path...");
+            pCustomPathAction->setEnabled(true);
+            menu.addAction(pCustomPathAction);
+
             QPoint point(pRightClick->globalX(), pRightClick->globalY());
             QAction *pAction = menu.exec(point);
 
@@ -976,6 +994,14 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             if (pAction == pImportAction) {
                 settingsTreeManager.CleanupGUI();
                 ImportClicked(pItem);
+                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                return true;
+            }
+
+            // Edit Layer custom paths
+            if (pAction == pCustomPathAction) {
+                settingsTreeManager.CleanupGUI();
+                EditCustomPathsClicked(pItem);
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
@@ -1041,8 +1067,12 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     // We are logging, let's add that we've launched a new application
     QString launchLog = "Launching Vulkan Application:\n";
 
-    if (pVulkanConfig->bOverrideActive) {
-        launchLog += QString().asprintf("- Layers overridden by \"%s\" configuration:\n",
+    if (!pVulkanConfig->GetCurrentActiveProfile()->IsProfileUsable()) {
+        launchLog += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
+                                        pVulkanConfig->GetCurrentActiveProfile()->qsProfileName.toUtf8().constData());
+    }
+    else if (pVulkanConfig->bOverrideActive) {
+        launchLog += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
                                         pVulkanConfig->GetCurrentActiveProfile()->qsProfileName.toUtf8().constData());
     } else {
         launchLog += QString().asprintf("- Layers fully controlled by the application.\n");

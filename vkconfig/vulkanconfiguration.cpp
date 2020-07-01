@@ -251,7 +251,7 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
     // Check Vulkan SDK path
     QString searchPath = std::getenv("VULKAN_SDK");
     QFileInfo local(searchPath);
-    if (local.exists()) log += QString().asprintf("- Vulkan SDK path: %s\n", searchPath.toUtf8().constData());
+    if (local.exists()) log += QString().asprintf("- SDK path: %s\n", searchPath.toUtf8().constData());
     else log += "- SDK path: Not detected\n";
 
     // Check loader version

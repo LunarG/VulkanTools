@@ -102,6 +102,7 @@ class MainWindow : public QMainWindow {
     void ImportClicked(CProfileListItem *pItem);
     void EditClicked(CProfileListItem *pItem);
     void RestoreClicked(CProfileListItem *pItem);
+    void EditCustomPathsClicked(CProfileListItem *pItem);
 
    public Q_SLOTS:
     void aboutVkConfig(bool bChecked);
