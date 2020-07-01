@@ -1381,9 +1381,17 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile) {
     for (int i = 0; i < pProfile->blacklistedLayers.size(); i++) json_blacklist.append(pProfile->blacklistedLayers[i]);
 
     // Only supply this list if an app list is specified
+    bool bHasAppList = false;
     QJsonArray json_applist;
-    if (this->bApplyOnlyToList)
-        for (int i = 0; i < appList.size(); i++) json_applist.append(QDir::toNativeSeparators(appList[i]->qsAppNameWithPath));
+    if (this->bApplyOnlyToList) {
+        for (int i = 0; i < appList.size(); i++)
+            if(!appList[i]->bExcludeFromGlobalList) {
+                json_applist.append(QDir::toNativeSeparators(appList[i]->qsAppNameWithPath));
+            }
+            else {
+                bHasAppList = true;
+            }
+    }
 
     QJsonObject disable;
     disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
@@ -1398,6 +1406,11 @@ void CVulkanConfiguration::SetCurrentActiveProfile(CProfileDef *pProfile) {
     layer.insert("component_layers", json_layers);
     layer.insert("blacklisted_layers", json_blacklist);
     layer.insert("disable_environment", disable);
+
+    // This has to contain something, or it will apply globally!
+    if(!bHasAppList == false && this->bApplyOnlyToList)
+        json_applist.append("");
+
     layer.insert("app_keys", json_applist);
 
     QJsonObject root;

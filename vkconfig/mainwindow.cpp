@@ -514,6 +514,12 @@ void MainWindow::on_pushButtonAppList_clicked(void) {
 
     pVulkanConfig->SaveAppList();
     ResetLaunchOptions();
+
+    // Also, we may have changed exclusion flags, so reset override
+    CProfileDef *pCurr = pVulkanConfig->GetCurrentActiveProfile();
+    if(pCurr != nullptr)
+        pVulkanConfig->SetCurrentActiveProfile(pCurr);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
