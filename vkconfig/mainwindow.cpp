@@ -871,116 +871,90 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Which item were we over?
             QTreeWidgetItem *pProfileItem = ui->profileTree->itemAt(pRightClick->pos());
             CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(pProfileItem);
-            if (pItem != nullptr) {
-                // Create context menu here
-                QMenu menu(ui->profileTree);
-                QAction *pNewAction = new QAction("New Layers Configuration...");
-                menu.addAction(pNewAction);
 
-                QAction *pRemoveAction = new QAction("Remove the Layers Configuration");
-                menu.addAction(pRemoveAction);
+            // Create context menu here
+            QMenu menu(ui->profileTree);
 
-                QAction *pDuplicateAction = new QAction("Duplicate the Layers Configuration");
-                menu.addAction(pDuplicateAction);
+            QAction *pNewAction = new QAction("New Layers Configuration...");
+            pNewAction->setEnabled(true);
+            menu.addAction(pNewAction);
 
-                menu.addSeparator();
+            QAction *pDuplicateAction = new QAction("Duplicate the Layers Configuration");
+            pDuplicateAction->setEnabled(pItem != nullptr);
+            menu.addAction(pDuplicateAction);
 
-                QAction *pRenameAction = new QAction("Rename the Layers Configuration");
-                menu.addAction(pRenameAction);
-                menu.addSeparator();
+            QAction *pRemoveAction = new QAction("Remove the Layers Configuration");
+            pRemoveAction->setEnabled(pItem != nullptr);
+            menu.addAction(pRemoveAction);
 
-                QAction *pExportAction = new QAction("Export the Layers Configuration...");
-                menu.addAction(pExportAction);
+            QAction *pRenameAction = new QAction("Rename the Layers Configuration");
+            pRenameAction->setEnabled(pItem != nullptr);
+            menu.addAction(pRenameAction);
 
-                QAction *pImportAction = new QAction("Import a Layers Configuration...");
-                menu.addAction(pImportAction);
+            menu.addSeparator();
 
-                QPoint point(pRightClick->globalX(), pRightClick->globalY());
-                QAction *pAction = menu.exec(point);
+            QAction *pImportAction = new QAction("Import a Layers Configuration...");
+            pImportAction->setEnabled(true);
+            menu.addAction(pImportAction);
 
-                // Pointer compares made me throw up in my mouth at least a little
-                // less than doing a full string compare. Setting up signal/slot for
-                // all of these just seemed ridiculous. Every problem is not a nail,
-                // put the hammer away....
-                // New Profile...
-                if (pAction == pNewAction) {
-                    settingsTreeManager.CleanupGUI();
-                    NewClicked();
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
+            QAction *pExportAction = new QAction("Export the Layers Configuration...");
+            pExportAction->setEnabled(pItem != nullptr);
+            menu.addAction(pExportAction);
 
-                // Duplicate
-                if (pAction == pDuplicateAction) {
-                    settingsTreeManager.CleanupGUI();
-                    DuplicateClicked(pItem);
-                    settingsTreeManager.CleanupGUI();
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
+            QPoint point(pRightClick->globalX(), pRightClick->globalY());
+            QAction *pAction = menu.exec(point);
 
-                // Remove this profile....
-                if (pAction == pRemoveAction) {
-                    settingsTreeManager.CleanupGUI();
-                    RemoveClicked(pItem);
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
-
-                // Rename this profile...
-                if (pAction == pRenameAction) {
-                    RenameClicked(pItem);
-                    settingsTreeManager.CleanupGUI();
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
-
-                // Export this profile (copy the .json)
-                if (pAction == pExportAction) {
-                    settingsTreeManager.CleanupGUI();
-                    ExportClicked(pItem);
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
-
-                // Import a profile (copy a json)
-                if (pAction == pImportAction) {
-                    settingsTreeManager.CleanupGUI();
-                    ImportClicked(pItem);
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
+            // Pointer compares made me throw up in my mouth at least a little
+            // less than doing a full string compare. Setting up signal/slot for
+            // all of these just seemed ridiculous. Every problem is not a nail,
+            // put the hammer away....
+            // New Profile...
+            if (pAction == pNewAction) {
+                settingsTreeManager.CleanupGUI();
+                NewClicked();
+                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                return true;
             }
-           else {   // Right click in open area  just adds new and import.
-                // Create context menu here
-                QMenu menu(ui->profileTree);
-                QAction *pNewAction = new QAction("New Layers Configuration...");
-                menu.addAction(pNewAction);
 
-                menu.addSeparator();
+            // Duplicate
+            if (pAction == pDuplicateAction) {
+                settingsTreeManager.CleanupGUI();
+                DuplicateClicked(pItem);
+                settingsTreeManager.CleanupGUI();
+                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                return true;
+            }
 
-                QAction *pImportAction = new QAction("Import a Layers Configuration...");
-                menu.addAction(pImportAction);
+            // Remove this profile....
+            if (pAction == pRemoveAction) {
+                settingsTreeManager.CleanupGUI();
+                RemoveClicked(pItem);
+                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                return true;
+            }
 
-                QPoint point(pRightClick->globalX(), pRightClick->globalY());
-                QAction *pAction = menu.exec(point);
+            // Rename this profile...
+            if (pAction == pRenameAction) {
+                RenameClicked(pItem);
+                settingsTreeManager.CleanupGUI();
+                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                return true;
+            }
 
-                // Import a profile (copy a json)
-                if (pAction == pImportAction) {
-                    settingsTreeManager.CleanupGUI();
-                    ImportClicked(pItem);
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
+            // Export this profile (copy the .json)
+            if (pAction == pExportAction) {
+                settingsTreeManager.CleanupGUI();
+                ExportClicked(pItem);
+                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                return true;
+            }
 
-                if (pAction == pNewAction) {
-                    settingsTreeManager.CleanupGUI();
-                    NewClicked();
-                    ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
-                    return true;
-                }
-
-
+            // Import a profile (copy a json)
+            if (pAction == pImportAction) {
+                settingsTreeManager.CleanupGUI();
+                ImportClicked(pItem);
+                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+                return true;
             }
 
             // Do not pass on
