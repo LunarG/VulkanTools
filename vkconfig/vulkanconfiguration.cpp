@@ -252,7 +252,7 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
     QString searchPath = std::getenv("VULKAN_SDK");
     QFileInfo local(searchPath);
     if (local.exists()) log += QString().asprintf("- Vulkan SDK path: %s\n", searchPath.toUtf8().constData());
-    else log += "- Vulkan SDK path: Not detected\n";
+    else log += "- SDK path: Not detected\n";
 
     // Check loader version
 #ifdef WIN32
@@ -262,7 +262,7 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
 #endif
 
     uint32_t version = vulkanInstanceVersion;
-    log += QString().asprintf("- Vulkan Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version),
+    log += QString().asprintf("- Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version),
                                             VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
 
     if (!(library.load())) {
@@ -349,7 +349,7 @@ QString CVulkanConfiguration::CheckVulkanSetup(void) {
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, &devices[0]);
     assert(!err);
 
-    log += "- Vulkan Devices:\n";
+    log += "- Physical Devices:\n";
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
         VkPhysicalDeviceProperties properties;
         PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
