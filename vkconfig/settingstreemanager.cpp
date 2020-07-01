@@ -96,7 +96,7 @@ void CSettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, CProfileDef *pProf
     // The last item is just the blacklisted layers
     if (!pProfileDef->blacklistedLayers.isEmpty()) {
         QTreeWidgetItem *pBlackList = new QTreeWidgetItem();
-        pBlackList->setText(0, "Disabled Layers");
+        pBlackList->setText(0, "Excluded Layers");
         pBuildTree->addTopLevelItem(pBlackList);
         for (int i = 0; i < pProfileDef->blacklistedLayers.size(); i++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
