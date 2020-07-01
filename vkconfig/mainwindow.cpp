@@ -1043,7 +1043,7 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
 
     if (pVulkanConfig->bOverrideActive) {
         launchLog += QString().asprintf("- Layers overridden by \"%s\" configuration:\n",
-                                        pVulkanConfig->GetCurrentActiveProfile()->qsFileName.toUtf8().constData());
+                                        pVulkanConfig->GetCurrentActiveProfile()->qsProfileName.toUtf8().constData());
     } else {
         launchLog += QString().asprintf("- Layers fully controlled by the application.\n");
     }
