@@ -1072,14 +1072,15 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
     // We are logging, let's add that we've launched a new application
     QString launchLog = "Launching Vulkan Application:\n";
 
+    if(pVulkanConfig->GetCurrentActiveProfile() == nullptr) {
+        launchLog += QString().asprintf("- Layers fully controlled by the application.\n");
+    } else
     if (!pVulkanConfig->GetCurrentActiveProfile()->IsProfileUsable()) {
         launchLog += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                         pVulkanConfig->GetCurrentActiveProfile()->qsProfileName.toUtf8().constData());
     } else if (pVulkanConfig->bOverrideActive) {
         launchLog += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
                                         pVulkanConfig->GetCurrentActiveProfile()->qsProfileName.toUtf8().constData());
-    } else {
-        launchLog += QString().asprintf("- Layers fully controlled by the application.\n");
     }
 
     launchLog +=
