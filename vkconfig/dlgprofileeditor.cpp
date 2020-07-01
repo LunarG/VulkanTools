@@ -214,6 +214,7 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
 
     if (customFolder.isEmpty()) return;
 
+    customFolder = QDir::toNativeSeparators(customFolder);
     pVulkanConfig->additionalSearchPaths.append(customFolder);
     pVulkanConfig->SaveAdditionalSearchPaths();
     pVulkanConfig->FindAllInstalledLayers();

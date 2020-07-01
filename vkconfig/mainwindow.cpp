@@ -103,10 +103,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->launchTree, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this, SLOT(launchItemCollapsed(QTreeWidgetItem *)));
     connect(ui->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(launchItemExpanded(QTreeWidgetItem *)));
 
+    ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
+    ui->checkBoxApplyList->setChecked(pVulkanConfig->bApplyOnlyToList);
+    ui->checkBoxPersistent->setChecked(pVulkanConfig->bKeepActiveOnExit);
+
     if (pVulkanConfig->bOverrideActive) {
         ui->radioOverride->setChecked(true);
-        ui->checkBoxApplyList->setEnabled(true);
-        ui->checkBoxPersistent->setEnabled(true);
         ui->groupBoxProfiles->setEnabled(true);
         ui->groupBoxEditor->setEnabled(true);
     } else {
@@ -118,9 +120,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->groupBoxEditor->setEnabled(false);
     }
 
-    ui->pushButtonAppList->setEnabled(pVulkanConfig->bApplyOnlyToList);
-    ui->checkBoxApplyList->setChecked(pVulkanConfig->bApplyOnlyToList);
-    ui->checkBoxPersistent->setChecked(pVulkanConfig->bKeepActiveOnExit);
 
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
@@ -414,7 +413,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol) {
 /// for the radio button, and one to change the editor/information at lower right.
 void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious) {
     (void)pPrevious;
-
+    settingsTreeManager.CleanupGUI();
     // This pointer will only be valid if it's one of the elements with
     // the radio button
     CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pCurrent);
@@ -648,13 +647,13 @@ void MainWindow::ExportClicked(CProfileListItem *pItem) {
     // Copy away
     QString fullSourceName = pVulkanConfig->qsProfileFilesPath + "/";
     fullSourceName += pItem->pProfilePointer->qsFileName;
-    QFile file(fullSourceName);
-    file.copy(qsSaveIt);
+    pVulkanConfig->ExportProfile(fullSourceName, qsSaveIt);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // Export a configuration file. Basically just a file copy
 void MainWindow::EditCustomPathsClicked(CProfileListItem *pItem) {
+    (void)pItem;
     addCustomPaths();
     LoadProfileList();  // Force a reload
 }

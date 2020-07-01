@@ -421,7 +421,10 @@ int CSettingsTreeManager::SetTreeState(QByteArray &byteArray, int nIndex, QTreeW
     if (nIndex > byteArray.length())
         pTopItem->setExpanded(true);
     else {
-        if (byteArray[nIndex++] == '1') pTopItem->setExpanded(true);
+        if (byteArray[nIndex++] == '1')
+            pTopItem->setExpanded(true);
+        else
+            pTopItem->setExpanded(false);
     }
 
     // Walk the children

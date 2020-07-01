@@ -183,6 +183,7 @@ class CVulkanConfiguration {
     void LoadAllProfiles(void);                       // Load all the .profile files found
     bool SaveProfile(CProfileDef* pProfile);          // Write .profile descriptor
     void ImportProfile(QString qsFullPathToSource);
+    void ExportProfile(QString qsFullPathToSource, QString qsFullPathToDest);
 
     void FindVkCube(void);
 

@@ -125,7 +125,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
         pVulkanConfig->appList.push_back(pNewApp);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, appWithPath);
-        QCheckBox *pCheck = new QCheckBox();
+        QCheckBox *pCheck = new QCheckBox(tr("Exclude from Layers Override"));
         ui->treeWidget->addTopLevelItem(pItem);
         ui->treeWidget->setItemWidget(pItem, 1, pCheck);
         pVulkanConfig->SaveAppList();

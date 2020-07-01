@@ -635,8 +635,8 @@ void CVulkanConfiguration::FindVkCube(void) {
     }
 
     TAppListEntry *appEntry = new TAppListEntry;
-    appEntry->qsWorkingFolder = local.absolutePath();
-    appEntry->qsAppNameWithPath = local.absoluteFilePath();
+    appEntry->qsWorkingFolder = QDir::toNativeSeparators(local.absolutePath());
+    appEntry->qsAppNameWithPath = QDir::toNativeSeparators(local.absoluteFilePath());
     appEntry->qsArguments = QString("--suppress_popups --validate");
     appEntry->bExcludeFromGlobalList = false;
     appEntry->qsLogFile = "vkcube_out.txt";
@@ -1501,4 +1501,41 @@ void CVulkanConfiguration::ImportProfile(QString qsFullPathToSource) {
     output.close();
     input.close();
     LoadAllProfiles();
+}
+
+
+void CVulkanConfiguration::ExportProfile(QString qsFullPathToSource, QString qsFullPathToDest) {
+    QFile input(qsFullPathToSource);
+    if (!input.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("File Error");
+        msg.setText("Cannot access the configuration file.");
+        msg.exec();
+        return;
+    }
+
+    QFile output(qsFullPathToDest);
+    if (!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("File Error");
+        msg.setText("Cannot create the destination file.");
+        msg.exec();
+        return;
+    }
+
+    QTextStream in(&input);
+    QTextStream out(&output);
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+
+        if (line.contains("layer_path")) continue;
+
+        out << line << "\n";
+    }
+
+    output.close();
+    input.close();
 }
