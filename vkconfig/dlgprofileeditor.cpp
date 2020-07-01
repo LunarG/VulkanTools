@@ -223,6 +223,23 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
     PopulateCustomTree();
 }
 
+
+////////////////////////////////////////////////////////////////
+// Remove the selected layer path and update everything accordingly
+void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
+    QTreeWidgetItem *pSelectedItem = ui->layerTree->currentItem();
+    int nRow = ui->layerTree->indexOfTopLevelItem(pSelectedItem);
+
+    pVulkanConfig->additionalSearchPaths.removeAt(nRow);
+    pVulkanConfig->SaveAdditionalSearchPaths();
+    pVulkanConfig->FindAllInstalledLayers();
+    pThisProfile->CollapseProfile();
+    AddMissingLayers(pThisProfile);
+    LoadLayerDisplay();
+    PopulateCustomTree();
+}
+
+
 void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn) {
     (void)nColumn;
     (void)pItem;

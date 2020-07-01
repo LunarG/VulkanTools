@@ -563,6 +563,9 @@ void MainWindow::NewClicked() {
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
 void MainWindow::addCustomPaths() {
+    // Get the tree state and clear it.
+    settingsTreeManager.CleanupGUI();
+
     dlgCustomPaths dlg(this);
     dlg.exec();
     LoadProfileList();  // Force a reload
@@ -601,10 +604,10 @@ void MainWindow::RenameClicked(CProfileListItem *pItem) { ui->profileTree->editI
 void MainWindow::DuplicateClicked(CProfileListItem *pItem) {
     QString qsNewName = pItem->pProfilePointer->qsProfileName;
     qsNewName += "2";
+    settingsTreeManager.CleanupGUI();
     pItem->pProfilePointer->qsProfileName = qsNewName;
     pVulkanConfig->SaveProfile(pItem->pProfilePointer);
     pVulkanConfig->LoadAllProfiles();
-    settingsTreeManager.CleanupGUI();
     LoadProfileList();
 
     // Good enough? Nope, I want to select it and edit the name.
