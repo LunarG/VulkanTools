@@ -661,16 +661,17 @@ void MainWindow::toolsSetCustomPaths(bool bChecked) {
 void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile) {
     if (pNewProfile == nullptr || !pVulkanConfig->bOverrideActive) {
         pVulkanConfig->SetCurrentActiveProfile(nullptr);
+
         setWindowTitle("Vulkan Configurator <VULKAN APPLICATION CONTROLLED>");
-        return;
+    } else {
+        QString newCaption = pNewProfile->qsProfileName;
+        if (!pNewProfile->IsProfileUsable()) newCaption += " (DISABLED)";
+        newCaption += " - Vulkan Configurator ";
+        pVulkanConfig->SetCurrentActiveProfile(pNewProfile);
+        newCaption += "<VULKAN APPLICATIONS OVERRIDDEN>";
+
+        setWindowTitle(newCaption);
     }
-
-    QString newCaption = pNewProfile->qsProfileName;
-    newCaption += " - Vulkan Configurator ";
-    pVulkanConfig->SetCurrentActiveProfile(pNewProfile);
-    newCaption += "<VULKAN APPLICATIONS OVERRIDDEN>";
-
-    this->setWindowTitle(newCaption);
 }
 
 void MainWindow::editorExpanded(QTreeWidgetItem *pItem) {
