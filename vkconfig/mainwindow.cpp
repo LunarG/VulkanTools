@@ -42,6 +42,7 @@
 #include "dlgcreateassociation.h"
 #include "dlgcustompaths.h"
 #include "profiledef.h"
+#include "preferences.h"
 
 // This is what happens when programmers can touch type....
 bool bBeenWarnedAboutOldLoader = false;
@@ -418,6 +419,12 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *
     // the radio button
     CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pCurrent);
     if (pProfileItem == nullptr) return;
+
+    if (!Preferences::Get().use_separated_select_and_activate) {
+        pProfileItem->pRadioButton->setChecked(true);
+        ChangeActiveProfile(pProfileItem->pProfilePointer);
+        pVulkanConfig->CheckApplicationRestart();
+    }
 
     settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfileItem->pProfilePointer);
     QString title = pProfileItem->pProfilePointer->qsProfileName;

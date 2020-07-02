@@ -139,6 +139,7 @@ Roadmap
 - Make vkconfig a service to add an icon in the taskbar when running.
 - Add a dedicated Vulkan Configurator layer to capture all the debug messages directly.
 - Add display of a detailed description of each layer.
+- Add preferences to customize Vulkan Configurator behavior.
 
 Known Issues
 --------------
