@@ -121,6 +121,14 @@ However, if this is not working it might be because the *Vulkan Loader* on the s
 
 When Vulkan Configurator is used to override layers, the local vk_layer_settings.txt file is ignored.
 
+### 3/ How environment variables settings interact with Vulkan Configurator?
+
+The short answer is that environment variables and Vulkan Configurator layers settings are mutually exclusive and the interaction between both is undefined.
+
+This is because the interaction between environment variables and Vulkan Configuration layers settings are handled by the layers directly so the responsability of the layers developers.
+
+We are working on defining layers development conventions to resolve this issue properly but in the meantime we highly recommend to use exclusively either environment variables or Vulkan Configurator.
+
 Roadmap
 --------------
 
