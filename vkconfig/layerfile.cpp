@@ -58,14 +58,14 @@ void AddString(QString& delimitedString, QString value) {
 }
 
 LayerFile::LayerFile() {
-    bActive = false;
-    bDisabled = false;
-    nRank = 0;
+    enabled = false;
+    disabled = false;
+    rank = 0;
 }
 
 LayerFile::~LayerFile() {
-    qDeleteAll(layerSettings.begin(), layerSettings.end());
-    layerSettings.clear();
+    qDeleteAll(layer_settings.begin(), layer_settings.end());
+    layer_settings.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ LayerFile::~LayerFile() {
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
 bool LayerFile::ReadLayerFile(QString qsFullPathToFile, LayerType layerKind) {
-    layerType = layerKind;  // Set layer type, no way to know this from the json file
+    layer_type = layerKind;  // Set layer type, no way to know this from the json file
 
     // Open the file, should be text. Read it into a
     // temporary string.
@@ -93,7 +93,7 @@ bool LayerFile::ReadLayerFile(QString qsFullPathToFile, LayerType layerKind) {
     QString jsonText = file.readAll();
     file.close();
 
-    qsLayerPath = qsFullPathToFile;
+    layer_path = qsFullPathToFile;
 
     //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it.

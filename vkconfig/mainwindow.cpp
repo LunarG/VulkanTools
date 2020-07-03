@@ -234,7 +234,7 @@ ContigurationListItem *MainWindow::GetCheckedItem(void) {
 void MainWindow::on_radioOverride_clicked(void) {
     Configurator &configurator = Configurator::Get();
 
-    bool bUse = (!configurator.bHasOldLoader || !bBeenWarnedAboutOldLoader);
+    bool bUse = (!configurator.has_old_loader || !bBeenWarnedAboutOldLoader);
     ui->checkBoxApplyList->setEnabled(bUse);
     ui->pushButtonAppList->setEnabled(bUse && configurator.override_application_list_only);
 
@@ -258,7 +258,7 @@ void MainWindow::on_radioOverride_clicked(void) {
 void MainWindow::on_checkBoxApplyList_clicked(void) {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.bHasOldLoader && !bBeenWarnedAboutOldLoader) {
+    if (configurator.has_old_loader && !bBeenWarnedAboutOldLoader) {
         uint32_t version = configurator.vulkan_instance_version;
         QString message;
         message = QString().asprintf(
@@ -323,11 +323,11 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     QDir dir(configurator.configuration_path_);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
-    QFileInfoList profileFiles = dir.entryInfoList();
+    QFileInfoList configuration_files = dir.entryInfoList();
 
     // Loop through all the profiles found and remove them
-    for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
-        QFileInfo info = profileFiles.at(iProfile);
+    for (int i = 0; i < configuration_files.size(); i++) {
+        QFileInfo info = configuration_files.at(i);
         if (info.absoluteFilePath().contains("applist.json")) continue;
         remove(info.filePath().toUtf8().constData());
     }

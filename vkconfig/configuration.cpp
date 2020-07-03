@@ -40,7 +40,7 @@ Configuration::~Configuration() {
 // Find the layer if it exists.
 LayerFile* Configuration::FindLayer(const QString& layer_name, const QString& full_path) const {
     for (int i = 0; i < layers.size(); i++)
-        if (layers[i]->name == layer_name && layers[i]->qsLayerPath == full_path) return layers[i];
+        if (layers[i]->name == layer_name && layers[i]->layer_path == full_path) return layers[i];
 
     return nullptr;
 }
@@ -61,7 +61,7 @@ LayerFile* Configuration::GetKhronosLayer() { return FindLayerNamed("VK_LAYER_KH
 
 ////////////////////////////////////////////////////////////
 // Copy a profile so we can mess with it.
-Configuration* Configuration::DuplicateProfile() {
+Configuration* Configuration::DuplicateConfiguration() {
     Configuration* pDuplicate = new Configuration;
     pDuplicate->name = name;
     pDuplicate->file = file;
@@ -84,7 +84,7 @@ Configuration* Configuration::DuplicateProfile() {
 /// \brief CProfileDef::CollapseProfile
 /// Remove unused layers and build the list of
 /// black listed layers.
-void Configuration::CollapseProfile() {
+void Configuration::CollapseConfiguration() {
     excluded_layers.clear();
 
     // Look for black listed layers, add them to the
@@ -94,7 +94,7 @@ void Configuration::CollapseProfile() {
     int nNewRank = 0;
     while (iCurrent < layers.size()) {
         // Remove this layer?
-        if (layers[iCurrent]->bDisabled) {
+        if (layers[iCurrent]->disabled) {
             excluded_layers << layers[iCurrent]->name;
             layers.removeAt(iCurrent);
             continue;
@@ -102,13 +102,13 @@ void Configuration::CollapseProfile() {
 
         // If the layer is not active, also remove it
         // Important to do black list test FIRST
-        if (!layers[iCurrent]->bActive) {
+        if (!layers[iCurrent]->enabled) {
             layers.removeAt(iCurrent);
             continue;
         }
 
         // We are keeping this layer, reset it's rank
-        layers[iCurrent]->nRank = nNewRank++;
+        layers[iCurrent]->rank = nNewRank++;
 
         iCurrent++;
     }

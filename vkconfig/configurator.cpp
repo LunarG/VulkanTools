@@ -52,9 +52,10 @@ PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
         file_list_ = files.allKeys();
     } else {
         QDir dir(qsPath);
-        QFileInfoList fileInfoList = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
+        QFileInfoList file_info_list = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
 
-        for (int iFile = 0; iFile < fileInfoList.size(); iFile++) file_list_ << fileInfoList[iFile].filePath();
+        for (int file_index = 0; file_index < file_info_list.size(); file_index++)
+            file_list_ << file_info_list[file_index].filePath();
     }
 }
 
@@ -70,13 +71,13 @@ const int Configurator::default_configurations_count = 8;
 // If any new profiles are added, make sure the graphics reconstruct based config
 // are last. Account for this in the number set for DefaultConfigurationCount
 const char *Configurator::default_configurations[8] = {"Validation - Standard",
-                                                      "Validation - Best Practices",
-                                                      "Validation - GPU-Assisted",
-                                                      "Validation - Shader Printf",
-                                                      "Validation - Reduced-Overhead",
-                                                      "API dump",
-                                                      "Frame Capture - First two frames",
-                                                      "Frame Capture - Range (F10 to start and to stop)"};
+                                                       "Validation - Best Practices",
+                                                       "Validation - GPU-Assisted",
+                                                       "Validation - Shader Printf",
+                                                       "Validation - Reduced-Overhead",
+                                                       "API dump",
+                                                       "Frame Capture - First two frames",
+                                                       "Frame Capture - Range (F10 to start and to stop)"};
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
@@ -112,7 +113,7 @@ Configurator::Configurator() {
     available_Layers.reserve(10);
     active_configuration_ = nullptr;
     saved_configuration = nullptr;
-    bHasOldLoader = false;
+    has_old_loader = false;
     first_run_ = true;
 
 #ifdef _WIN32
@@ -124,13 +125,13 @@ Configurator::Configurator() {
     // Where is stuff
 #ifdef _WIN32
     // Assemble the path name where the overide .json file goes
-    QDir tempPath = QDir::temp();
-    if (!tempPath.cd("VulkanLayerManager")) {
-        tempPath.mkpath("VulkanLayerManager");
-        tempPath.cd("VulkanLayerManager");
+    QDir temp_path = QDir::temp();
+    if (!temp_path.cd("VulkanLayerManager")) {
+        temp_path.mkpath("VulkanLayerManager");
+        temp_path.cd("VulkanLayerManager");
     }
-    override_json_path = QDir::toNativeSeparators(tempPath.absoluteFilePath("VkLayer_override.json"));
-    override_settings_path = QDir::toNativeSeparators(tempPath.absoluteFilePath("vk_layer_settings.txt"));
+    override_json_path = QDir::toNativeSeparators(temp_path.absoluteFilePath("VkLayer_override.json"));
+    override_settings_path = QDir::toNativeSeparators(temp_path.absoluteFilePath("vk_layer_settings.txt"));
 
     QDir home = QDir::home();
     configuration_path_ = home.path() + QString("/AppData/Local/");
@@ -173,9 +174,9 @@ Configurator::Configurator() {
     }
 
     home = QDir::home();
-    qsProfileFilesPath = home.path() + QString("/.local/share/vulkan/");  // TBD, where do profiles go if not here...
-    qsOverrideSettingsPath = qsProfileFilesPath + "settings.d/vk_layer_settings.txt";
-    qsOverrideJsonPath = qsProfileFilesPath + "implicit_layer.d/VkLayer_override.json";
+    configuration_path_ = home.path() + QString("/.local/share/vulkan/");  // TBD, where do profiles go if not here...
+    override_settings_path = configuration_path_ + "settings.d/vk_layer_settings.txt";
+    override_json_path = configuration_path_ + "implicit_layer.d/VkLayer_override.json";
 #endif
 
     // Check loader version
@@ -195,7 +196,7 @@ Configurator::Configurator() {
         vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
         if (VK_SUCCESS == vkEnumerateInstanceVersion(&vulkan_instance_version)) {
             if (vulkan_instance_version < 4202633) {
-                bHasOldLoader = true;
+                has_old_loader = true;
             }
         }
     }
@@ -247,10 +248,10 @@ QString Configurator::CheckVulkanSetup() const {
     QString log;
 
     // Check Vulkan SDK path
-    QString searchPath = std::getenv("VULKAN_SDK");
-    QFileInfo local(searchPath);
+    QString search_path = std::getenv("VULKAN_SDK");
+    QFileInfo local(search_path);
     if (local.exists())
-        log += QString().asprintf("- SDK path: %s\n", searchPath.toUtf8().constData());
+        log += QString().asprintf("- SDK path: %s\n", search_path.toUtf8().constData());
     else
         log += "- SDK path: Not detected\n";
 
@@ -373,11 +374,6 @@ void Configurator::ClearLayerLists() {
 
 #ifdef _WIN32
 ///////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::LoadDeviceRegistry
-/// \param id
-/// \param entry
-/// \param layerList
-/// \param type
 /// Look for device specific layers
 void Configurator::LoadDeviceRegistry(DEVINST id, const QString &entry, QVector<LayerFile *> &layerList, LayerType type) {
     HKEY key;
@@ -492,9 +488,6 @@ void Configurator::LoadRegistryLayers(const QString &path, QVector<LayerFile *> 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::AddRegistryEntriesForLayers
-/// \param qsJSONFile
-/// \param qsSettingsFile
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
 void Configurator::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
@@ -525,9 +518,6 @@ void Configurator::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSet
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::AddRegistryEntriesForLayers
-/// \param qsJSONFile
-/// \param qsSettingsFile
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
 void Configurator::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
@@ -584,7 +574,6 @@ void Configurator::ResetToDefaultSettings() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::loadAdditionalSearchPaths
 /// We may have additional paths where we want to search for layers.
 /// Load the list of paths here.
 void Configurator::LoadCustomLayersPaths() {
@@ -593,7 +582,6 @@ void Configurator::LoadCustomLayersPaths() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-/// \brief saveAdditionalSearchPaths
 /// We may have additional paths where we want to search for layers.
 /// Save the list of paths here.
 void Configurator::SaveCustomLayersPaths() {
@@ -665,23 +653,23 @@ void Configurator::FindVkCube() {
 
                 // One of these must be true, or we just aren't going to compile!
 #ifdef _WIN32
-    QString appName("./vkcube.exe");
+    QString application_name("./vkcube.exe");
 #endif
 
 #ifdef __APPLE__
-    QString appName("../../vkcube.app");
+    QString application_name("../../vkcube.app");
 #endif
 
 #ifdef __linux__
-    QString appName("./vkcube");
+    QString application_name("./vkcube");
 #endif
 
-    QString searchPath = appName;
-    QFileInfo local(searchPath);
+    QString search_path = application_name;
+    QFileInfo local(search_path);
     if (!local.exists()) {
-        searchPath = std::getenv("VULKAN_SDK");
-        searchPath = searchPath + "/bin/" + appName;
-        QFileInfo local2(searchPath);
+        search_path = std::getenv("VULKAN_SDK");
+        search_path = search_path + "/bin/" + application_name;
+        QFileInfo local2(search_path);
         if (!local2.exists()) return;
         local = local2;
     }
@@ -696,43 +684,42 @@ void Configurator::FindVkCube() {
 }
 
 ///////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::loadAppList
 /// Load the custom application list. This is maintained as a json database
 /// file.
 void Configurator::LoadOverriddenApplicationList() {
     /////////////////////////////////////////////////////////////
     // Now, use the list
-    QString appListJson = configuration_path_ + "/applist.json";
-    QFile file(appListJson);
+    QString application_list_json = configuration_path_ + "/applist.json";
+    QFile file(application_list_json);
     file.open(QFile::ReadOnly);
     QString data = file.readAll();
     file.close();
 
-    QJsonDocument jsonAppList;
-    jsonAppList = QJsonDocument::fromJson(data.toLocal8Bit());
-    if (jsonAppList.isObject())
-        if (!jsonAppList.isEmpty()) {
+    QJsonDocument json_app_list;
+    json_app_list = QJsonDocument::fromJson(data.toLocal8Bit());
+    if (json_app_list.isObject())
+        if (!json_app_list.isEmpty()) {
             // Get the list of apps
-            QStringList appKeys;
-            QJsonObject jsonDocObject = jsonAppList.object();
-            appKeys = jsonDocObject.keys();
+            QStringList app_keys;
+            QJsonObject json_doc_object = json_app_list.object();
+            app_keys = json_doc_object.keys();
 
             // Get them...
-            for (int i = 0; i < appKeys.length(); i++) {
-                QJsonValue appValue = jsonDocObject.value(appKeys[i]);
-                QJsonObject appObject = appValue.toObject();
+            for (int i = 0; i < app_keys.length(); i++) {
+                QJsonValue app_value = json_doc_object.value(app_keys[i]);
+                QJsonObject app_object = app_value.toObject();
 
-                Application *appEntry = new Application;
-                appEntry->working_folder = appObject.value("app_folder").toString();
-                appEntry->executable_path = appObject.value("app_path").toString();
-                appEntry->override_layers = !appObject.value("exclude_override").toBool();
-                appEntry->log_file = appObject.value("log_file").toString();
+                Application *app_entry = new Application;
+                app_entry->working_folder = app_object.value("app_folder").toString();
+                app_entry->executable_path = app_object.value("app_path").toString();
+                app_entry->override_layers = !app_object.value("exclude_override").toBool();
+                app_entry->log_file = app_object.value("log_file").toString();
 
                 // Arguments are in an array to make room for adding more in a future version
-                QJsonArray args = appObject.value("command_lines").toArray();
-                appEntry->arguments = args[0].toString();
+                QJsonArray args = app_object.value("command_lines").toArray();
+                app_entry->arguments = args[0].toString();
 
-                overridden_application_list.push_back(appEntry);
+                overridden_application_list.push_back(app_entry);
             }
         }
 
@@ -760,29 +747,28 @@ void Configurator::CheckApplicationRestart() const {
 }
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::saveAppList
 /// Save the custom application list in a .json file
 void Configurator::SaveOverriddenApplicationList() {
     QJsonObject root;
 
     for (int i = 0; i < overridden_application_list.size(); i++) {
         // Build an array of appnames with associated data
-        QJsonObject applicationObject;
-        applicationObject.insert("app_path", overridden_application_list[i]->executable_path);
-        applicationObject.insert("app_folder", overridden_application_list[i]->working_folder);
-        applicationObject.insert("exclude_override", !overridden_application_list[i]->override_layers);
-        applicationObject.insert("log_file", overridden_application_list[i]->log_file);
+        QJsonObject application_object;
+        application_object.insert("app_path", overridden_application_list[i]->executable_path);
+        application_object.insert("app_folder", overridden_application_list[i]->working_folder);
+        application_object.insert("exclude_override", !overridden_application_list[i]->override_layers);
+        application_object.insert("log_file", overridden_application_list[i]->log_file);
 
         // Ground work for mulitiple sets of command line arguments
         QJsonArray argsArray;
         argsArray.append(QJsonValue(overridden_application_list[i]->arguments));  // [J] PROBABLY
 
-        applicationObject.insert("command_lines", argsArray);
-        root.insert(QFileInfo(overridden_application_list[i]->executable_path).fileName(), applicationObject);
+        application_object.insert("command_lines", argsArray);
+        root.insert(QFileInfo(overridden_application_list[i]->executable_path).fileName(), application_object);
     }
 
-    QString appListJson = configuration_path_ + "/applist.json";
-    QFile file(appListJson);
+    QString app_list_json = configuration_path_ + "/applist.json";
+    QFile file(app_list_json);
     file.open(QFile::WriteOnly);
     QJsonDocument doc(root);
     file.write(doc.toJson());
@@ -827,59 +813,53 @@ void Configurator::LoadAllInstalledLayers() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::loadLayersFromPath
-/// \param szPath
-/// \param layerList
 /// Search a folder and load up all the layers found there. This does NOT
 /// load the default settings for each layer. This is just a master list of
 /// settings to be copied from, and referenced.
-void Configurator::LoadLayersFromPath(const QString &qsPath, QVector<LayerFile *> &layerList, LayerType type) {
+void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> &layer_list, LayerType type) {
     // On Windows custom files are in the file system. On non Windows all layers are
     // searched this way
 
 #ifdef _WIN32
-    if (qsPath.contains("...")) {
-        LoadRegistryLayers(qsPath, layerList, type);
+    if (path.contains("...")) {
+        LoadRegistryLayers(path, layer_list, type);
         return;
     }
 
-    PathFinder fileList(qsPath, (type == LAYER_TYPE_CUSTOM));
+    PathFinder file_list(path, (type == LAYER_TYPE_CUSTOM));
 #else
     // On Linux/Mac, we also need the home folder
-    QString searchPath = qsPath;
-    if (qsPath[0] == '.') {
-        searchPath = QDir().homePath();
-        searchPath += "/";
-        searchPath += qsPath;
+    QString search_path = path;
+    if (path[0] == '.') {
+        search_path = QDir().homePath();
+        search_path += "/";
+        search_path += path;
     }
 
-    CPathFinder fileList(searchPath, true);
+    CPathFinder file_list(search_path, true);
 #endif
-    if (fileList.FileCount() == 0) return;
+    if (file_list.FileCount() == 0) return;
 
-    for (int iFile = 0; iFile < fileList.FileCount(); iFile++) {
-        LayerFile *pLayerFile = new LayerFile();
-        if (pLayerFile->ReadLayerFile(fileList.GetFileName(iFile), type)) {
+    for (int file_index = 0; file_index < file_list.FileCount(); file_index++) {
+        LayerFile *layer_file = new LayerFile();
+        if (layer_file->ReadLayerFile(file_list.GetFileName(file_index), type)) {
             // Do not load VK_LAYER_LUNARG_override
-            for (int i = 0; i < layerList.size(); i++)
-                if (QString("VK_LAYER_LUNARG_override") == pLayerFile->name) {
-                    delete pLayerFile;
-                    pLayerFile = nullptr;
+            for (int i = 0; i < layer_list.size(); i++)
+                if (QString("VK_LAYER_LUNARG_override") == layer_file->name) {
+                    delete layer_file;
+                    layer_file = nullptr;
                     break;
                 }
 
             // We have a layer! See if we need to add the settings list to it, and then add it to our list
-            if (pLayerFile != nullptr) layerList.push_back(pLayerFile);
+            if (layer_file != nullptr) layer_list.push_back(layer_file);
         }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::findSettingsFor
-/// \param layerName
-/// \return
 /// Find the settings for this named layer. If none found, return nullptr
-const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString& layer_name) const {
+const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &layer_name) const {
     for (int i = 0; i < default_layers_settings.size(); i++)
         if (layer_name == default_layers_settings[i]->layer_name) return default_layers_settings[i];
 
@@ -887,16 +867,14 @@ const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString& laye
 }
 
 //////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::FindConfiguration
 /// Search the list of loaded profiles and return a pointer
-Configuration *Configurator::FindConfiguration(const QString& configuration_name) const {
+Configuration *Configurator::FindConfiguration(const QString &configuration_name) const {
     for (int i = 0; i < available_configurations.size(); i++)
         if (available_configurations[i]->name == configuration_name) return available_configurations[i];
     return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::loadProfiles
 /// Load all the  profiles. If the canned profiles don't exist,
 /// they are created from the embedded json files
 void Configurator::LoadAllConfigurations() {
@@ -915,22 +893,22 @@ void Configurator::LoadAllConfigurations() {
         QDir dir(configuration_path_);
         dir.setFilter(QDir::Files | QDir::NoSymLinks);
         dir.setNameFilters(QStringList() << "*.json");
-        QFileInfoList profileFiles = dir.entryInfoList();
+        QFileInfoList configuration_files = dir.entryInfoList();
 
         // Loop through all the profiles found and remove them
-        for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
-            QFileInfo info = profileFiles.at(iProfile);
+        for (int i = 0; i < configuration_files.size(); i++) {
+            QFileInfo info = configuration_files.at(i);
             if (info.absoluteFilePath().contains("applist.json")) continue;
             remove(info.filePath().toUtf8().constData());
         }
 
         for (int i = 0; i < default_configurations_count; i += 1) {
             // Search the list of loaded profiles
-            QString qsFile = ":/resourcefiles/";
-            qsFile += default_configurations[i];
-            qsFile += ".json";
-            Configuration *pProfile = LoadConfiguration(qsFile);
-            if (pProfile != nullptr) SaveConfiguration(pProfile);
+            QString file = ":/resourcefiles/";
+            file += default_configurations[i];
+            file += ".json";
+            Configuration *configuration = LoadConfiguration(file);
+            if (configuration != nullptr) SaveConfiguration(configuration);
         }
 
         first_run_ = false;
@@ -942,29 +920,30 @@ void Configurator::LoadAllConfigurations() {
     QDir dir(configuration_path_);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
-    QFileInfoList profileFiles = dir.entryInfoList();
+    QFileInfoList configuration_files = dir.entryInfoList();
 
     // Loop through all the profiles found and load them
-    for (int iProfile = 0; iProfile < profileFiles.size(); iProfile++) {
-        QFileInfo info = profileFiles.at(iProfile);
+    for (int i = 0; i < configuration_files.size(); i++) {
+        QFileInfo info = configuration_files.at(i);
         if (info.absoluteFilePath().contains("applist.json")) continue;
 
-        Configuration *pProfile = LoadConfiguration(info.absoluteFilePath());
-        if (pProfile != nullptr) {
-            pProfile->file = info.fileName();  // Easier than parsing it myself ;-)
-            available_configurations.push_back(pProfile);
+        Configuration *configuration = LoadConfiguration(info.absoluteFilePath());
+        if (configuration != nullptr) {
+            configuration->file = info.fileName();  // Easier than parsing it myself ;-)
+            available_configurations.push_back(configuration);
         }
     }
 
     //////////////////////////////////////////////////////////////////////////
     // Which of these profiles is currently active?
     active_configuration_ = nullptr;
-    QString qsActiveProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
-    for (int i = 0; i < available_configurations.size(); i++)
-        if (available_configurations[i]->name == qsActiveProfile) {
+    QString active_configuration_name = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+    for (int i = 0; i < available_configurations.size(); i++) {
+        if (available_configurations[i]->name == active_configuration_name) {
             active_configuration_ = available_configurations[i];
             break;
         }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -978,14 +957,14 @@ void Configurator::LoadDefaultLayerSettings() {
     QString data = file.readAll();
     file.close();
 
-    QJsonDocument jsonlayerInfoDoc;
-    jsonlayerInfoDoc = QJsonDocument::fromJson(data.toLocal8Bit());
-    if (!jsonlayerInfoDoc.isObject()) return;
+    QJsonDocument json_layer_info_doc;
+    json_layer_info_doc = QJsonDocument::fromJson(data.toLocal8Bit());
+    if (!json_layer_info_doc.isObject()) return;
 
     // Isolate the Json object for each layer
-    QJsonObject docObject = jsonlayerInfoDoc.object();
-    QJsonValue layerOptionsValue = docObject.value("layer_options");
-    QJsonObject layersOptionsObject = layerOptionsValue.toObject();
+    QJsonObject doc_object = json_layer_info_doc.object();
+    QJsonValue layer_options_value = doc_object.value("layer_options");
+    QJsonObject layers_options_object = layer_options_value.toObject();
 
     // This is a list of layers for which we have user editable settings.
     // there are nine as of this writing, but this code should accomodate
@@ -993,22 +972,22 @@ void Configurator::LoadDefaultLayerSettings() {
     // All the layers have been loaded, so we can look for matches
     // and let the layers parse the json data to create their own list
     // of settings.
-    QStringList layersWithSettings = layersOptionsObject.keys();
-    for (int i = 0; i < layersWithSettings.size(); i++) {  // For each setting
-        LayerSettingsDefaults *pDefaults = new LayerSettingsDefaults();
-        pDefaults->layer_name = layersWithSettings[i];
+    QStringList layers_with_settings = layers_options_object.keys();
+    for (int i = 0; i < layers_with_settings.size(); i++) {  // For each setting
+        LayerSettingsDefaults *settings_defaults = new LayerSettingsDefaults();
+        settings_defaults->layer_name = layers_with_settings[i];
 
         // Save the name of the layer, and by default none are read only
-        pDefaults->layer_name = layersWithSettings[i];
+        settings_defaults->layer_name = layers_with_settings[i];
 
         // Get the object for just this layer
-        QJsonValue layerValue = layersOptionsObject.value(layersWithSettings[i]);
+        QJsonValue layerValue = layers_options_object.value(layers_with_settings[i]);
         QJsonObject layerObject = layerValue.toObject();
 
-        LayerFile::LoadSettingsFromJson(layerObject, pDefaults->default_settings);
+        LayerFile::LoadSettingsFromJson(layerObject, settings_defaults->default_settings);
 
         // Add to my list of layer settings
-        default_layers_settings.push_back(pDefaults);
+        default_layers_settings.push_back(settings_defaults);
     }
 }
 
@@ -1033,7 +1012,7 @@ const LayerFile *Configurator::FindLayerNamed(QString qsLayerName, const char *l
 
     // Match both
     for (int i = 0; i < available_Layers.size(); i++)
-        if (qsLayerName == available_Layers[i]->name && QString(location) == available_Layers[i]->qsLayerPath)
+        if (qsLayerName == available_Layers[i]->name && QString(location) == available_Layers[i]->layer_path)
             return available_Layers[i];
 
     return nullptr;
@@ -1041,7 +1020,7 @@ const LayerFile *Configurator::FindLayerNamed(QString qsLayerName, const char *l
 
 ///////////////////////////////////////////////////////////////////////////////
 // Load from a .profile file (.json really)
-Configuration *Configurator::LoadConfiguration(const QString& path_to_configuration) {
+Configuration *Configurator::LoadConfiguration(const QString &path_to_configuration) {
     // Just load the name for now, and if it's read only
     if (path_to_configuration.isEmpty()) return nullptr;
 
@@ -1051,17 +1030,17 @@ Configuration *Configurator::LoadConfiguration(const QString& path_to_configurat
     file.close();
 
     // Tease it apart, get the name of the profile
-    QJsonDocument jsonDoc;
-    QJsonParseError parseError;
-    jsonDoc = QJsonDocument::fromJson(json_text.toUtf8(), &parseError);
+    QJsonDocument json_doc;
+    QJsonParseError parse_error;
+    json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
 
-    if (parseError.error != QJsonParseError::NoError) return nullptr;
+    if (parse_error.error != QJsonParseError::NoError) return nullptr;
 
     // Allocate a new profile container
     Configuration *configuration = new Configuration();
     configuration->file = QFileInfo(path_to_configuration).fileName();
 
-    QJsonObject json_top_object = jsonDoc.object();
+    QJsonObject json_top_object = json_doc.object();
     QStringList key = json_top_object.keys();
 
     // The file name overrides the stored name. Otherwise
@@ -1084,29 +1063,29 @@ Configuration *Configurator::LoadConfiguration(const QString& path_to_configurat
     QJsonValue description = configuration_entry_object.value("description");
     configuration->description = description.toString();
 
-    QJsonValue optionsValue = configuration_entry_object.value("layer_options");
+    QJsonValue options_value = configuration_entry_object.value("layer_options");
 
-    QJsonObject layerObjects = optionsValue.toObject();
-    QStringList layerList = layerObjects.keys();
+    QJsonObject layer_objects = options_value.toObject();
+    QStringList layer_list = layer_objects.keys();
 
     // Build the list of layers with their settings
-    if (layerList.length() == 0) configuration->all_layers_available = false;
+    if (layer_list.length() == 0) configuration->all_layers_available = false;
 
-    for (int iLayer = 0; iLayer < layerList.length(); iLayer++) {
-        const LayerFile *pLayer = nullptr;
-        QJsonValue layerValue = layerObjects.value(layerList[iLayer]);
-        QJsonObject layerObject = layerValue.toObject();
+    for (int layer_index = 0; layer_index < layer_list.length(); layer_index++) {
+        const LayerFile *layer_file = nullptr;
+        QJsonValue layer_value = layer_objects.value(layer_list[layer_index]);
+        QJsonObject layer_object = layer_value.toObject();
 
         // To match the layer we need not just the name, but the path
         // If the path doesn't exist, assume it's from the standard layer locations
         // Get the path of this layer
-        QJsonValue layerPathValue = layerObject.value("layer_path");
-        QString layerPath = layerPathValue.toString();
+        QJsonValue layer_path_value = layer_object.value("layer_path");
+        QString layer_path = layer_path_value.toString();
 
-        if (layerPath.isEmpty()) {  // No layer path exists
+        if (layer_path.isEmpty()) {  // No layer path exists
             // Find this in our lookup of layers. The standard layers are listed first
-            pLayer = FindLayerNamed(layerList[iLayer]);
-            if (pLayer == nullptr) {  // If not found, we have a layer missing....
+            layer_file = FindLayerNamed(layer_list[layer_index]);
+            if (layer_file == nullptr) {  // If not found, we have a layer missing....
                 configuration->all_layers_available = false;
                 continue;
             }
@@ -1115,36 +1094,39 @@ Configuration *Configurator::LoadConfiguration(const QString& path_to_configurat
             // exist, allow just the name to match
             // (this fixes the problem with the API dump tool)
             // WAIT? Why both checking for path then?
-            pLayer = FindLayerNamed(layerList[iLayer], layerPath.toUtf8().constData());
-            if (pLayer == nullptr) {
+            layer_file = FindLayerNamed(layer_list[layer_index], layer_path.toUtf8().constData());
+            if (layer_file == nullptr) {
                 configuration->all_layers_available = false;
                 continue;  // We still can't find the layer
             }
         }
 
         // Make a copy add it to this layer
-        LayerFile *pProfileLayer = new LayerFile();
-        pLayer->CopyLayer(pProfileLayer);
-        configuration->layers.push_back(pProfileLayer);
+        LayerFile *layer_copy = new LayerFile();
+        layer_file->CopyLayer(layer_copy);
+        configuration->layers.push_back(layer_copy);
 
-        QJsonValue layerRank = layerObject.value("layer_rank");
-        pProfileLayer->nRank = layerRank.toInt();
-        pProfileLayer->bActive = true;  // Always because it's present in the file
+        QJsonValue layerRank = layer_object.value("layer_rank");
+        layer_copy->rank = layerRank.toInt();
+        layer_copy->enabled = true;  // Always because it's present in the file
 
         // Load the layer
-        LayerFile::LoadSettingsFromJson(layerObject, pProfileLayer->layerSettings);
+        LayerFile::LoadSettingsFromJson(layer_object, layer_copy->layer_settings);
     }
 
     // We need to sort the layers by their rank. The json sorts alphebetically and we
     // need to undo it.... A bubble quick sort is fine, it's a small list
-    if (configuration->layers.size() > 1)
-        for (int i = 0; i < configuration->layers.size() - 1; i++)
-            for (int j = i + 1; j < configuration->layers.size(); j++)
-                if (configuration->layers[i]->nRank > configuration->layers[j]->nRank) {
-                    LayerFile *pTemp = configuration->layers[i];
+    if (configuration->layers.size() > 1) {
+        for (int i = 0; i < configuration->layers.size() - 1; i++) {
+            for (int j = i + 1; j < configuration->layers.size(); j++) {
+                if (configuration->layers[i]->rank > configuration->layers[j]->rank) {
+                    LayerFile *temp = configuration->layers[i];
                     configuration->layers[i] = configuration->layers[j];
-                    configuration->layers[j] = pTemp;
+                    configuration->layers[j] = temp;
                 }
+            }
+        }
+    }
 
     return configuration;
 }
@@ -1152,85 +1134,85 @@ Configuration *Configurator::LoadConfiguration(const QString& path_to_configurat
 /////////////////////////////////////////////////////////////////////////////////////
 // This saves or resaves a configuration. Bear in mind it is called everytime
 // any edit is made to a configuration at all.
-bool Configurator::SaveConfiguration(Configuration *pProfile) {
+bool Configurator::SaveConfiguration(Configuration *configuration) {
     // Build the json document
-    QJsonArray blackList;
-    for (int i = 0; i < pProfile->excluded_layers.size(); i++) blackList.append(pProfile->excluded_layers[i]);
+    QJsonArray excluded_list;
+    for (int i = 0; i < configuration->excluded_layers.size(); i++) excluded_list.append(configuration->excluded_layers[i]);
 
-    QJsonObject layerList;  // This list of layers
+    QJsonObject layer_list;  // This list of layers
 
-    for (int iLayer = 0; iLayer < pProfile->layers.size(); iLayer++) {
-        LayerFile *pLayer = pProfile->layers[iLayer];
+    for (int layer_index = 0; layer_index < configuration->layers.size(); layer_index++) {
+        LayerFile *pLayer = configuration->layers[layer_index];
 
-        QJsonObject jsonSettings;
+        QJsonObject json_settings;
 
         // Rank goes in here with settings
-        jsonSettings.insert("layer_rank", pLayer->nRank);
+        json_settings.insert("layer_rank", pLayer->rank);
 
         // We also need the path to the layer
-        jsonSettings.insert("layer_path", pLayer->qsLayerPath);
+        json_settings.insert("layer_path", pLayer->layer_path);
 
         // Loop through the actual settings
-        for (int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
+        for (int setting_index = 0; setting_index < pLayer->layer_settings.size(); setting_index++) {
             QJsonObject setting;
-            LayerSettings *pSettingsDetails = pLayer->layerSettings[iSetting];
+            LayerSettings *layer_settings = pLayer->layer_settings[setting_index];
 
-            setting.insert("name", pSettingsDetails->settingsPrompt);
-            setting.insert("description", pSettingsDetails->settingsDesc);
+            setting.insert("name", layer_settings->settingsPrompt);
+            setting.insert("description", layer_settings->settingsDesc);
 
-            switch (pSettingsDetails->settingsType) {
+            switch (layer_settings->settingsType) {
                 case LAYER_SETTINGS_STRING:
                     setting.insert("type", "string");
-                    setting.insert("default", pSettingsDetails->settingsValue);
+                    setting.insert("default", layer_settings->settingsValue);
                     break;
 
                 case LAYER_SETTINGS_FILE:
                     setting.insert("type", "save_file");
-                    setting.insert("default", pSettingsDetails->settingsValue);
+                    setting.insert("default", layer_settings->settingsValue);
                     break;
 
                 case LAYER_SETTINGS_SAVE_FOLDER:
                     setting.insert("type", "save_folder");
-                    setting.insert("default", pSettingsDetails->settingsValue);
+                    setting.insert("default", layer_settings->settingsValue);
                     break;
 
                 case LAYER_SETTINGS_BOOL:
                     setting.insert("type", "bool");
-                    setting.insert("default", pSettingsDetails->settingsValue);
+                    setting.insert("default", layer_settings->settingsValue);
                     break;
 
                 case LAYER_SETTINGS_BOOL_NUMERIC:
                     setting.insert("type", "bool_numeric");
-                    setting.insert("default", pSettingsDetails->settingsValue);
+                    setting.insert("default", layer_settings->settingsValue);
                     break;
 
                 case LAYER_SETTINGS_VUID_FILTER:
                     setting.insert("type", "vuid_exclude");
-                    setting.insert("default", pSettingsDetails->settingsValue);
+                    setting.insert("default", layer_settings->settingsValue);
                     break;
 
                 case LAYER_SETTINGS_EXCLUSIVE_LIST: {
                     setting.insert("type", "enum");
-                    setting.insert("default", pSettingsDetails->settingsValue);
+                    setting.insert("default", layer_settings->settingsValue);
 
                     QJsonObject options;
-                    for (int i = 0; i < pSettingsDetails->settingsListExclusivePrompt.size(); i++)
-                        options.insert(pSettingsDetails->settingsListExclusiveValue[i],
-                                       pSettingsDetails->settingsListExclusivePrompt[i]);
+                    for (int i = 0; i < layer_settings->settingsListExclusivePrompt.size(); i++)
+                        options.insert(layer_settings->settingsListExclusiveValue[i],
+                                       layer_settings->settingsListExclusivePrompt[i]);
                     setting.insert("options", options);
                 } break;
 
                 case LAYER_SETTINGS_INCLUSIVE_LIST: {
                     setting.insert("type", "multi_enum");
                     QJsonObject options;
-                    for (int i = 0; i < pSettingsDetails->settingsListInclusivePrompt.size(); i++)
-                        options.insert(pSettingsDetails->settingsListInclusiveValue[i],
-                                       pSettingsDetails->settingsListInclusivePrompt[i]);
+                    for (int i = 0; i < layer_settings->settingsListInclusivePrompt.size(); i++)
+                        options.insert(layer_settings->settingsListInclusiveValue[i],
+                                       layer_settings->settingsListInclusivePrompt[i]);
                     setting.insert("options", options);
 
                     QJsonArray defaults;
-                    if (!pSettingsDetails->settingsValue.isEmpty()) {
-                        QStringList list = pSettingsDetails->settingsValue.split(",");
+                    if (!layer_settings->settingsValue.isEmpty()) {
+                        QStringList list = layer_settings->settingsValue.split(",");
                         for (int i = 0; i < list.size(); i++) defaults.append(list[i]);
                     }
 
@@ -1249,37 +1231,37 @@ bool Configurator::SaveConfiguration(Configuration *pProfile) {
                     setting.insert("default", "unknown data");
             }
 
-            jsonSettings.insert(pSettingsDetails->settingsName, setting);
+            json_settings.insert(layer_settings->settingsName, setting);
         }
 
-        layerList.insert(pLayer->name, jsonSettings);
+        layer_list.insert(pLayer->name, json_settings);
     }
 
     //////////////////////////////////////////////////////////
     // Assemble the json
     QJsonObject root;
-    QJsonObject json_profile;
-    json_profile.insert("blacklisted_layers", blackList);
-    json_profile.insert("description", pProfile->description);
-    json_profile.insert("preset", pProfile->preset_index);
-    json_profile.insert("editor_state", pProfile->settingTreeState.data());
-    json_profile.insert("layer_options", layerList);
-    root.insert(pProfile->name, json_profile);
+    QJsonObject json_configuration;
+    json_configuration.insert("blacklisted_layers", excluded_list);
+    json_configuration.insert("description", configuration->description);
+    json_configuration.insert("preset", configuration->preset_index);
+    json_configuration.insert("editor_state", configuration->settingTreeState.data());
+    json_configuration.insert("layer_options", layer_list);
+    root.insert(configuration->name, json_configuration);
     QJsonDocument doc(root);
 
     ///////////////////////////////////////////////////////////
     // Write it out - file name is same as name. If it's been
     // changed, this corrects the behavior.
-    QString pathToProfile = configuration_path_;
-    pathToProfile += "/";
-    pathToProfile += pProfile->name;
-    pathToProfile += QString(".json");
+    QString path_to_configuration = configuration_path_;
+    path_to_configuration += "/";
+    path_to_configuration += configuration->name;
+    path_to_configuration += QString(".json");
 
-    QFile jsonFile(pathToProfile);
+    QFile jsonFile(path_to_configuration);
     if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox alert;
         alert.setText("Could not save configuration file!");
-        alert.setWindowTitle(pProfile->name);
+        alert.setWindowTitle(configuration->name);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return false;
@@ -1297,23 +1279,23 @@ bool Configurator::SaveConfiguration(Configuration *pProfile) {
 /// All settings are the default, and the layer order is just the order at
 /// which they have come.
 Configuration *Configurator::CreateEmptyConfiguration() {
-    Configuration *pNewProfile = new Configuration();
+    Configuration *new_configuration = new Configuration();
 
-    LayerFile *pTempLayer;
+    LayerFile *temp_layer;
     int nRank = 0;
 
     // Add layers
     for (int i = 0; i < available_Layers.size(); i++) {
-        pTempLayer = new LayerFile();
-        available_Layers[i]->CopyLayer(pTempLayer);
-        pTempLayer->nRank = nRank++;
-        pNewProfile->layers.push_back(pTempLayer);
+        temp_layer = new LayerFile();
+        available_Layers[i]->CopyLayer(temp_layer);
+        temp_layer->rank = nRank++;
+        new_configuration->layers.push_back(temp_layer);
     }
 
     // Now grab settings defaults
-    for (int i = 0; i < pNewProfile->layers.size(); i++) LoadDefaultSettings(pNewProfile->layers[i]);
+    for (int i = 0; i < new_configuration->layers.size(); i++) LoadDefaultSettings(new_configuration->layers[i]);
 
-    return pNewProfile;
+    return new_configuration;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1321,16 +1303,16 @@ Configuration *Configurator::CreateEmptyConfiguration() {
 /// \param pBlankLayer
 /// Load the default settings into an empty layer file container
 void Configurator::LoadDefaultSettings(LayerFile *pBlankLayer) {
-    const LayerSettingsDefaults *pDefaults = FindLayerSettings(pBlankLayer->name);
+    const LayerSettingsDefaults *layer_settings_defaults = FindLayerSettings(pBlankLayer->name);
 
-    if (pDefaults == nullptr)  // Did we find any?
+    if (layer_settings_defaults == nullptr)  // Did we find any?
         return;
 
     // Create and pop them in....
-    for (int s = 0; s < pDefaults->default_settings.size(); s++) {
-        LayerSettings *pSetting = new LayerSettings();
-        *pSetting = *pDefaults->default_settings[s];
-        pBlankLayer->layerSettings.push_back(pSetting);
+    for (int s = 0; s < layer_settings_defaults->default_settings.size(); s++) {
+        LayerSettings *layer_settings = new LayerSettings();
+        *layer_settings = *layer_settings_defaults->default_settings[s];
+        pBlankLayer->layer_settings.push_back(layer_settings);
     }
 }
 
@@ -1338,13 +1320,12 @@ void Configurator::LoadDefaultSettings(LayerFile *pBlankLayer) {
 // Set this as the current override profile. The profile definition passed in
 // is used to construct the override and settings files.
 // Passing in nullptr IS valid, and will clear the current profile
-void Configurator::SetActiveConfiguration(Configuration *pProfile) {
-    active_configuration_ = pProfile;
-    QString profileName;
+void Configurator::SetActiveConfiguration(Configuration *configuration) {
+    active_configuration_ = configuration;
     QSettings settings;
 
     // Clear the profile if null
-    if (pProfile == nullptr) {
+    if (configuration == nullptr) {
         // Delete a bunch of stuff
         remove(override_settings_path.toUtf8().constData());
         remove(override_json_path.toUtf8().constData());
@@ -1372,23 +1353,23 @@ void Configurator::SetActiveConfiguration(Configuration *pProfile) {
     QTextStream stream(&file);
 
     // Loop through all the layers
-    for (int iLayer = 0; iLayer < pProfile->layers.size(); iLayer++) {
-        LayerFile *pLayer = pProfile->layers[iLayer];
+    for (int layer_index = 0; layer_index < configuration->layers.size(); layer_index++) {
+        LayerFile *layer_file = configuration->layers[layer_index];
         stream << endl;
-        stream << "# " << pLayer->name << endl;
+        stream << "# " << layer_file->name << endl;
 
-        QString shortLayerName = pLayer->name;
-        shortLayerName.remove("VK_LAYER_");
-        QString lcLayerName = shortLayerName.toLower();
+        QString short_layer_name = layer_file->name;
+        short_layer_name.remove("VK_LAYER_");
+        QString lc_layer_name = short_layer_name.toLower();
 
-        for (int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
-            LayerSettings *pSetting = pLayer->layerSettings[iSetting];
-            stream << lcLayerName << "." << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
+        for (int setting_index = 0; setting_index < layer_file->layer_settings.size(); setting_index++) {
+            LayerSettings *layer_settings = layer_file->layer_settings[setting_index];
+            stream << lc_layer_name << "." << layer_settings->settingsName << " = " << layer_settings->settingsValue << endl;
 
             // Temporary hack due to a gfxrecontruct bug for 2020 July SDK only. Remove after that release.
-            if (lcLayerName == QString("lunarg_gfxreconstruct"))
+            if (lc_layer_name == QString("lunarg_gfxreconstruct"))
                 stream << "lunarg_gfxrecon"
-                       << "." << pSetting->settingsName << " = " << pSetting->settingsValue << endl;
+                       << "." << layer_settings->settingsName << " = " << layer_settings->settingsValue << endl;
         }
     }
     file.close();
@@ -1404,20 +1385,20 @@ void Configurator::SetActiveConfiguration(Configuration *pProfile) {
     QJsonArray json_paths;
 
     // See if any of the included layers are custom?
-    bool bHaveCustom = false;
-    for (int i = 0; i < pProfile->layers.size(); i++)
-        if (pProfile->layers[i]->layerType == LAYER_TYPE_CUSTOM) bHaveCustom = true;
+    bool have_custom_layers = false;
+    for (int i = 0; i < configuration->layers.size(); i++)
+        if (configuration->layers[i]->layer_type == LAYER_TYPE_CUSTOM) have_custom_layers = true;
 
     // Only if we have custom paths...
-    if (bHaveCustom) {
+    if (have_custom_layers) {
         // Don't use the additional search paths list, only use the paths
         // used by the layers themsevles. All the paths are included so
         // we can use standard SDK layers and custom layers at the same time.
         // The order of the search paths should match the order of the layers
         // in the profile.
-        for (int i = 0; i < pProfile->layers.size(); i++) {
+        for (int i = 0; i < configuration->layers.size(); i++) {
             // Extract just the path
-            QFileInfo file(pProfile->layers[i]->qsLayerPath);
+            QFileInfo file(configuration->layers[i]->layer_path);
             QString qsPath = QDir().toNativeSeparators(file.absolutePath());
 
             // Okay, add to the list
@@ -1426,10 +1407,10 @@ void Configurator::SetActiveConfiguration(Configuration *pProfile) {
     }
 
     QJsonArray json_layers;
-    for (int i = 0; i < pProfile->layers.size(); i++) json_layers.append(pProfile->layers[i]->name);
+    for (int i = 0; i < configuration->layers.size(); i++) json_layers.append(configuration->layers[i]->name);
 
     QJsonArray json_blacklist;
-    for (int i = 0; i < pProfile->excluded_layers.size(); i++) json_blacklist.append(pProfile->excluded_layers[i]);
+    for (int i = 0; i < configuration->excluded_layers.size(); i++) json_blacklist.append(configuration->excluded_layers[i]);
 
     // Only supply this list if an app list is specified
     bool bHasAppList = false;
@@ -1485,21 +1466,22 @@ void Configurator::SetActiveConfiguration(Configuration *pProfile) {
 void Configurator::PushConfiguration(Configuration *pNew) {
     // Copy the working profile
     saved_configuration = active_configuration_;
-    Configuration *pCopy = pNew->DuplicateProfile();
-    pCopy->CollapseProfile();
+    Configuration *copy = pNew->DuplicateConfiguration();
+    copy->CollapseConfiguration();
 
-    for (int iLayer = 0; iLayer < pCopy->layers.size(); iLayer++)  // For each layer
-        for (int iSetting = 0; iSetting < pCopy->layers[iLayer]->layerSettings.size(); iSetting++) {
+    for (int layer_index = 0; layer_index < copy->layers.size(); layer_index++) {  // For each layer
+        for (int setting_index = 0; setting_index < copy->layers[layer_index]->layer_settings.size(); setting_index++) {
             // Change to stdout if not already so it will get captured.
-            if (pCopy->layers[iLayer]->layerSettings[iSetting]->settingsName == QString("log_filename"))
-                pCopy->layers[iLayer]->layerSettings[iSetting]->settingsValue = QString("stdout");
+            if (copy->layers[layer_index]->layer_settings[setting_index]->settingsName == QString("log_filename"))
+                copy->layers[layer_index]->layer_settings[setting_index]->settingsValue = QString("stdout");
 
             // API Dump also has this setting
-            if (pCopy->layers[iLayer]->layerSettings[iSetting]->settingsName == QString("file"))
-                pCopy->layers[iLayer]->layerSettings[iSetting]->settingsValue = QString("false");
+            if (copy->layers[layer_index]->layer_settings[setting_index]->settingsName == QString("file"))
+                copy->layers[layer_index]->layer_settings[setting_index]->settingsValue = QString("false");
         }
+    }
 
-    SetActiveConfiguration(pCopy);
+    SetActiveConfiguration(copy);
 }
 
 /////////////////////////////////////////////////////////////
@@ -1510,7 +1492,7 @@ void Configurator::PopConfiguration() {
     saved_configuration = nullptr;
 }
 
-void Configurator::ImportConfiguration(const QString& qsFullPathToSource) {
+void Configurator::ImportConfiguration(const QString &qsFullPathToSource) {
     QFile input(qsFullPathToSource);
     QString qsFullDestName = configuration_path_ + "/";
     qsFullDestName += QFileInfo(qsFullPathToSource).fileName();
@@ -1550,7 +1532,7 @@ void Configurator::ImportConfiguration(const QString& qsFullPathToSource) {
     LoadAllConfigurations();
 }
 
-void Configurator::ExportConfiguration(const QString& qsFullPathToSource, const QString& qsFullPathToDest) const {
+void Configurator::ExportConfiguration(const QString &qsFullPathToSource, const QString &qsFullPathToDest) const {
     QFile input(qsFullPathToSource);
     if (!input.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox msg;

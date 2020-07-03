@@ -79,17 +79,17 @@ class LayerFile : public QObject {
     QString implementation_version;
     QString description;
 
-    QString qsLayerPath;  // Actual path to the folder that contains the layer (this is important!)
-    LayerType layerType;
+    QString layer_path;  // Actual path to the folder that contains the layer (this is important!)
+    LayerType layer_type;
 
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    QVector<LayerSettings*> layerSettings;
+    QVector<LayerSettings*> layer_settings;
 
-    bool bActive;    // When used in a profile, is this one active?
-    bool bDisabled;  // When used in a profile, is this one disabled?
-    int nRank;       // When used in a profile, what is the rank? (0 being first layer)
+    bool enabled;    // When used in a profile, is this one active?
+    bool disabled;  // When used in a profile, is this one disabled?
+    int rank;       // When used in a profile, what is the rank? (0 being first layer)
 
    public:
     LayerFile();
@@ -105,22 +105,22 @@ class LayerFile : public QObject {
         destinationLayer->api_version = api_version;
         destinationLayer->implementation_version = implementation_version;
         destinationLayer->description = description;
-        destinationLayer->layerType = layerType;
-        destinationLayer->bActive = bActive;
-        destinationLayer->nRank = nRank;
-        destinationLayer->bDisabled = bDisabled;
-        destinationLayer->qsLayerPath = qsLayerPath;
+        destinationLayer->layer_type = layer_type;
+        destinationLayer->enabled = enabled;
+        destinationLayer->rank = rank;
+        destinationLayer->disabled = disabled;
+        destinationLayer->layer_path = layer_path;
 
-        for (int i = 0; i < layerSettings.length(); i++) {
+        for (int i = 0; i < layer_settings.length(); i++) {
             LayerSettings* pSettings = new LayerSettings();
-            *pSettings = *layerSettings[i];
-            destinationLayer->layerSettings.push_back(pSettings);
+            *pSettings = *layer_settings[i];
+            destinationLayer->layer_settings.push_back(pSettings);
         }
     }
 
     // File based layers
-    bool ReadLayerFile(QString qsFullPathToFile, LayerType layerKind);
+    bool ReadLayerFile(QString full_path_to_file, LayerType layer_type);
 
     // Utility, may move outside this class....
-    static void LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<LayerSettings*>& layers);
+    static void LoadSettingsFromJson(QJsonObject& layer_settings_descriptors, QVector<LayerSettings*>& layers);
 };

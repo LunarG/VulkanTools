@@ -46,9 +46,9 @@ class Configuration {
     LayerFile *FindLayer(const QString &qsLayerName, const QString &qsFullPath) const;  // Find the layer if it exists
     LayerFile *FindLayerNamed(const QString &qsLayerName) const;  // Find the layer if it exists, only care about the name
 
-    Configuration *DuplicateProfile();  // Copy a profile so we can mess with it
+    Configuration *DuplicateConfiguration();  // Copy a profile so we can mess with it
 
-    void CollapseProfile();  // Remove unused layers and settings, set blacklist
+    void CollapseConfiguration();  // Remove unused layers and settings, set blacklist
 
     LayerFile *GetKhronosLayer();  // Retrieve the Khronos validation layer if it is included
 

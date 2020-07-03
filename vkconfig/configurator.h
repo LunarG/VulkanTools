@@ -108,7 +108,7 @@ class Configurator {
 
     // Need this to check vulkan loader version
     uint32_t vulkan_instance_version;
-    bool bHasOldLoader;  // Older loader does not support per-application overrides
+    bool has_old_loader;  // Older loader does not support per-application overrides
 
     QString configuration_path_;      // Where config working files live
     QString override_settings_path;  // Where settings go when profile is active
@@ -124,7 +124,7 @@ class Configurator {
     void LoadSettings();
     void SaveSettings();
     void ResetToDefaultSettings();
-    bool HasActiveOverrideOnApplicationListOnly() const { return !bHasOldLoader && override_application_list_only; }
+    bool HasActiveOverrideOnApplicationListOnly() const { return !has_old_loader && override_application_list_only; }
 
     bool override_active;                 // Do we have active layers override?
     bool override_application_list_only;  // Apply the override only to the application list

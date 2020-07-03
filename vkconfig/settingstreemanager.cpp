@@ -71,7 +71,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, Configuration *pPro
         layerItems.push_back(pLayerItem);
 
         // Handle the case were we get off easy. No settings.
-        if (pProfile->layers[iLayer]->layerSettings.size() == 0) {
+        if (pProfile->layers[iLayer]->layer_settings.size() == 0) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
             pChild->setText(0, "No User Settings");
             pLayerItem->addChild(pChild);
@@ -139,16 +139,16 @@ void SettingsTreeManager::BuildKhronosTree(void) {
     pKhronosPresetItem->addChild(pKhronosSettingsItem);
 
     // This just finds the enables and disables
-    pAdvancedKhronosEditor = new KhronosSettingsAdvanced(pEditorTree, pKhronosSettingsItem, pKhronosLayer->layerSettings);
+    pAdvancedKhronosEditor = new KhronosSettingsAdvanced(pEditorTree, pKhronosSettingsItem, pKhronosLayer->layer_settings);
 
     // Look for the Debug Action and log file settings
     LayerSettings *pDebugAction = nullptr;
     LayerSettings *pLogFile = nullptr;
-    for (int i = 0; i < pKhronosLayer->layerSettings.size(); i++) {
-        if (pKhronosLayer->layerSettings[i]->settingsName == QString("debug_action"))
-            pDebugAction = pKhronosLayer->layerSettings[i];
+    for (int i = 0; i < pKhronosLayer->layer_settings.size(); i++) {
+        if (pKhronosLayer->layer_settings[i]->settingsName == QString("debug_action"))
+            pDebugAction = pKhronosLayer->layer_settings[i];
 
-        if (pKhronosLayer->layerSettings[i]->settingsName == QString("log_filename")) pLogFile = pKhronosLayer->layerSettings[i];
+        if (pKhronosLayer->layer_settings[i]->settingsName == QString("log_filename")) pLogFile = pKhronosLayer->layer_settings[i];
     }
 
     Q_ASSERT(pLogFile != nullptr);
@@ -178,20 +178,20 @@ void SettingsTreeManager::BuildKhronosTree(void) {
     }
 
     // This is looking for the report flags
-    for (int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
+    for (int iSetting = 0; iSetting < pKhronosLayer->layer_settings.size(); iSetting++) {
         // Multi-enum - report flags only
-        if (pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_INCLUSIVE_LIST &&
-            pKhronosLayer->layerSettings[iSetting]->settingsName == QString("report_flags")) {
+        if (pKhronosLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_INCLUSIVE_LIST &&
+            pKhronosLayer->layer_settings[iSetting]->settingsName == QString("report_flags")) {
             QTreeWidgetItem *pSubCategory = new QTreeWidgetItem;
-            pSubCategory->setText(0, pKhronosLayer->layerSettings[iSetting]->settingsPrompt);
-            pSubCategory->setToolTip(0, pKhronosLayer->layerSettings[iSetting]->settingsDesc);
+            pSubCategory->setText(0, pKhronosLayer->layer_settings[iSetting]->settingsPrompt);
+            pSubCategory->setToolTip(0, pKhronosLayer->layer_settings[iSetting]->settingsDesc);
             pKhronosTree->addChild(pSubCategory);
 
-            for (int i = 0; i < pKhronosLayer->layerSettings[iSetting]->settingsListInclusiveValue.size(); i++) {
+            for (int i = 0; i < pKhronosLayer->layer_settings[iSetting]->settingsListInclusiveValue.size(); i++) {
                 QTreeWidgetItem *pChild = new QTreeWidgetItem();
                 MultiEnumSetting *pControl = new MultiEnumSetting(
-                    pKhronosLayer->layerSettings[iSetting], pKhronosLayer->layerSettings[iSetting]->settingsListInclusiveValue[i]);
-                pControl->setText(pKhronosLayer->layerSettings[iSetting]->settingsListInclusivePrompt[i]);
+                    pKhronosLayer->layer_settings[iSetting], pKhronosLayer->layer_settings[iSetting]->settingsListInclusiveValue[i]);
+                pControl->setText(pKhronosLayer->layer_settings[iSetting]->settingsListInclusivePrompt[i]);
                 pSubCategory->addChild(pChild);
                 pEditorTree->setItemWidget(pChild, 0, pControl);
                 pControl->setFont(pEditorTree->font());
@@ -203,8 +203,8 @@ void SettingsTreeManager::BuildKhronosTree(void) {
     }
 
     //////////////////////////////// VUID message filtering
-    for (int iSetting = 0; iSetting < pKhronosLayer->layerSettings.size(); iSetting++) {
-        if (pKhronosLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_VUID_FILTER) {
+    for (int iSetting = 0; iSetting < pKhronosLayer->layer_settings.size(); iSetting++) {
+        if (pKhronosLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_VUID_FILTER) {
             QTreeWidgetItem *pMuteMessageItem = new QTreeWidgetItem;
 
             pMuteMessageItem->setText(0, "Mute Message VUIDs");
@@ -223,7 +223,7 @@ void SettingsTreeManager::BuildKhronosTree(void) {
             QTreeWidgetItem *pListItem = new QTreeWidgetItem();
             pMuteMessageItem->addChild(pListItem);
             pListItem->setSizeHint(0, QSize(350, 200));
-            pMuteMessageWidget = new MuteMessageWidget(pKhronosLayer->layerSettings[iSetting]);
+            pMuteMessageWidget = new MuteMessageWidget(pKhronosLayer->layer_settings[iSetting]);
             compoundWidgets.push_back(pListItem);
             pEditorTree->setItemWidget(pListItem, 0, pMuteMessageWidget);
 
@@ -253,12 +253,12 @@ void SettingsTreeManager::khronosDebugChanged(int nIndex) {
 }
 
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, LayerFile *pLayer) {
-    for (int iSetting = 0; iSetting < pLayer->layerSettings.size(); iSetting++) {
+    for (int iSetting = 0; iSetting < pLayer->layer_settings.size(); iSetting++) {
         QTreeWidgetItem *pSettingItem = new QTreeWidgetItem();
 
         // True false?
-        if (pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_BOOL) {
-            BoolSettingWidget *pBoolWidget = new BoolSettingWidget(pLayer->layerSettings[iSetting]);
+        if (pLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_BOOL) {
+            BoolSettingWidget *pBoolWidget = new BoolSettingWidget(pLayer->layer_settings[iSetting]);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
             pBoolWidget->setFont(pEditorTree->font());
@@ -267,8 +267,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, LayerFile *
         }
 
         // True false? (with numeric output instead of text)
-        if (pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_BOOL_NUMERIC) {
-            BoolSettingWidget *pBoolWidget = new BoolSettingWidget(pLayer->layerSettings[iSetting], true);
+        if (pLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_BOOL_NUMERIC) {
+            BoolSettingWidget *pBoolWidget = new BoolSettingWidget(pLayer->layer_settings[iSetting], true);
             pParent->addChild(pSettingItem);
             pEditorTree->setItemWidget(pSettingItem, 0, pBoolWidget);
             pBoolWidget->setFont(pEditorTree->font());
@@ -277,21 +277,21 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, LayerFile *
         }
 
         // Combobox - enum - just one thing
-        if (pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
+        if (pLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_EXCLUSIVE_LIST) {
             pParent->addChild(pSettingItem);
-            pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
+            pSettingItem->setText(0, pLayer->layer_settings[iSetting]->settingsPrompt);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
             pSettingItem->addChild(pPlaceHolder);
 
-            EnumSettingWidget *pEnumWidget = new EnumSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+            EnumSettingWidget *pEnumWidget = new EnumSettingWidget(pSettingItem, pLayer->layer_settings[iSetting]);
             pEditorTree->setItemWidget(pPlaceHolder, 0, pEnumWidget);
             connect(pEnumWidget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
         }
 
         // Raw text field?
-        if (pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_STRING) {
-            StringSettingWidget *pStringWidget = new StringSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+        if (pLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_STRING) {
+            StringSettingWidget *pStringWidget = new StringSettingWidget(pSettingItem, pLayer->layer_settings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
             pSettingItem->addChild(pPlaceHolder);
@@ -301,8 +301,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, LayerFile *
         }
 
         // Select a file?
-        if (pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_FILE) {
-            FilenameSettingWidget *pWidget = new FilenameSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+        if (pLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_FILE) {
+            FilenameSettingWidget *pWidget = new FilenameSettingWidget(pSettingItem, pLayer->layer_settings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
             pPlaceHolder->setSizeHint(0, QSize(0, 28));
@@ -314,8 +314,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, LayerFile *
         }
 
         // Save to folder?
-        if (pLayer->layerSettings[iSetting]->settingsType == LAYER_SETTINGS_SAVE_FOLDER) {
-            FolderSettingWidget *pWidget = new FolderSettingWidget(pSettingItem, pLayer->layerSettings[iSetting]);
+        if (pLayer->layer_settings[iSetting]->settingsType == LAYER_SETTINGS_SAVE_FOLDER) {
+            FolderSettingWidget *pWidget = new FolderSettingWidget(pSettingItem, pLayer->layer_settings[iSetting]);
             pParent->addChild(pSettingItem);
             QTreeWidgetItem *pPlaceHolder = new QTreeWidgetItem();
             pPlaceHolder->setSizeHint(0, QSize(0, 28));
@@ -328,8 +328,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, LayerFile *
 
         ///////////////////////////////////////////////////////////////////////////
         // Undefined... at least gracefuly display what the setting is
-        pSettingItem->setText(0, pLayer->layerSettings[iSetting]->settingsPrompt);
-        pSettingItem->setToolTip(0, pLayer->layerSettings[iSetting]->settingsDesc);
+        pSettingItem->setText(0, pLayer->layer_settings[iSetting]->settingsPrompt);
+        pSettingItem->setToolTip(0, pLayer->layer_settings[iSetting]->settingsDesc);
         pParent->addChild(pSettingItem);
     }
 }
@@ -363,11 +363,11 @@ void SettingsTreeManager::khronosPresetChanged(int nIndex) {
     Q_ASSERT(nKhronosLayer != -1);
 
     // Reset just specific layer settings
-    for(int i = 0; i < pProfile->layers[nKhronosLayer]->layerSettings.size(); i++) {
-        if(pKhronosLayer->layerSettings[i]->settingsName == QString("disables") ||
-               pKhronosLayer->layerSettings[i]->settingsName == QString("enables"))
-            pKhronosLayer->layerSettings[i]->settingsValue =
-                    pPatternProfile->layers[0]->layerSettings[i]->settingsValue;
+    for(int i = 0; i < pProfile->layers[nKhronosLayer]->layer_settings.size(); i++) {
+        if(pKhronosLayer->layer_settings[i]->settingsName == QString("disables") ||
+               pKhronosLayer->layer_settings[i]->settingsName == QString("enables"))
+            pKhronosLayer->layer_settings[i]->settingsValue =
+                    pPatternProfile->layers[0]->layer_settings[i]->settingsValue;
 
 
         }
