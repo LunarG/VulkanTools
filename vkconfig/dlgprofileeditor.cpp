@@ -180,8 +180,8 @@ void dlgProfileEditor::AddMissingLayers(Configuration *pProfile) {
 
     Configurator &configurator = Configurator::Get();
 
-    for (int iAvailable = 0, n = configurator.allLayers.size(); iAvailable < n; iAvailable++) {
-        LayerFile *pLayerThatMightBeMissing = configurator.allLayers[iAvailable];
+    for (int iAvailable = 0, n = configurator.available_Layers.size(); iAvailable < n; iAvailable++) {
+        LayerFile *pLayerThatMightBeMissing = configurator.available_Layers[iAvailable];
 
         // Look for through all layers
         LayerFile *pAreYouAlreadyThere =
@@ -220,8 +220,8 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
     customFolder = QDir::toNativeSeparators(customFolder);
 
     Configurator &configurator = Configurator::Get();
-    configurator.additionalSearchPaths.append(customFolder);
-    configurator.SaveAdditionalSearchPaths();
+    configurator.custom_layers_paths.append(customFolder);
+    configurator.SaveCustomLayersPaths();
     configurator.FindAllInstalledLayers();
 
     pThisProfile->CollapseProfile();
@@ -237,8 +237,8 @@ void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
     int nRow = ui->layerTree->indexOfTopLevelItem(pSelectedItem);
 
     Configurator &configurator = Configurator::Get();
-    configurator.additionalSearchPaths.removeAt(nRow);
-    configurator.SaveAdditionalSearchPaths();
+    configurator.custom_layers_paths.removeAt(nRow);
+    configurator.SaveCustomLayersPaths();
     configurator.FindAllInstalledLayers();
 
     pThisProfile->CollapseProfile();
@@ -261,14 +261,14 @@ void dlgProfileEditor::PopulateCustomTree(void) {
     Configurator &configurator = Configurator::Get();
 
     // Populate the tree
-    for (int i = 0; i < configurator.additionalSearchPaths.size(); i++) {
+    for (int i = 0; i < configurator.custom_layers_paths.size(); i++) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, configurator.additionalSearchPaths[i]);
+        pItem->setText(0, configurator.custom_layers_paths[i]);
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
         QVector<LayerFile *> customLayers;
-        configurator.LoadLayersFromPath(configurator.additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
+        configurator.LoadLayersFromPath(configurator.custom_layers_paths[i], customLayers, LAYER_TYPE_CUSTOM);
 
         for (int j = 0; j < customLayers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
@@ -374,7 +374,7 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked(void) {
     // TBD, needs to reset which layers are active, settings, etc.
     ui->groupBoxSettings->setTitle(tr("Layer Settings"));
     delete pThisProfile;
-    pThisProfile = Configurator::Get().CreateEmptyProfile();
+    pThisProfile = Configurator::Get().CreateEmptyConfiguration();
     //    settingsEditor.CleanupGUI();
     LoadLayerDisplay();
 }
@@ -541,7 +541,7 @@ void dlgProfileEditor::accept() {
 
     // Prepare... get fully qualified file name, and double check if overwriting
     pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
-    QString savePath = Configurator::Get().GetProfilePath();
+    QString savePath = Configurator::Get().GetConfigurationPath();
     savePath += "/" + pThisProfile->qsFileName;
 
     if (QDir().exists(savePath)) {
@@ -555,7 +555,7 @@ void dlgProfileEditor::accept() {
 
     // Collapse the profile and remove unused layers and write
     pThisProfile->CollapseProfile();
-    if (!Configurator::Get().SaveProfile(pThisProfile)) {
+    if (!Configurator::Get().SaveConfiguration(pThisProfile)) {
         AddMissingLayers(pThisProfile);
         LoadLayerDisplay(0);
         return;

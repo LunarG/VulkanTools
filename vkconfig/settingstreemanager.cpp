@@ -346,9 +346,9 @@ void SettingsTreeManager::khronosPresetChanged(int nIndex) {
 
     // The easiest way to do this is to create a new profile, and copy the layer over
     QString preDefined = ":/resourcefiles/";
-    preDefined += Configurator::szCannedProfiles[nIndex - 1];
+    preDefined += Configurator::DefaultConfigurations[nIndex - 1];
     preDefined += ".json";
-    Configuration *pPatternProfile = configuration.LoadProfile(preDefined);
+    Configuration *pPatternProfile = configuration.LoadConfiguration(preDefined);
     if (pPatternProfile == nullptr) return;
 
     // Copy it all into the real layer and delete it
@@ -443,7 +443,7 @@ void SettingsTreeManager::CleanupGUI(void) {
     // Get the state of the last tree, and save it!
     pProfile->settingTreeState.clear();
     GetTreeState(pProfile->settingTreeState, pEditorTree->invisibleRootItem());
-    Configurator::Get().SaveProfile(pProfile);
+    Configurator::Get().SaveConfiguration(pProfile);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
@@ -478,10 +478,10 @@ void SettingsTreeManager::CleanupGUI(void) {
 void SettingsTreeManager::profileEdited(void) {
     // Resave this profile
     Configurator& configuration = Configurator::Get();
-    configuration.SaveProfile(pProfile);
+    configuration.SaveConfiguration(pProfile);
     configuration.CheckApplicationRestart();
 
     // If this profile is active, we need to reset the override files too
     // Just resetting with the same parent pointer will do the trick
-    if (pProfile == configuration.GetCurrentActiveProfile()) configuration.SetCurrentActiveProfile(pProfile);
+    if (pProfile == configuration.GetActiveConfiguration()) configuration.SetActiveConfiguration(pProfile);
 }

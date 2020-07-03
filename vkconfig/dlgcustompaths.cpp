@@ -44,14 +44,14 @@ void dlgCustomPaths::RepopulateTree(void) {
     Configurator &configurator = Configurator::Get();
 
     // Populate the tree
-    for (int i = 0; i < configurator.additionalSearchPaths.size(); i++) {
+    for (int i = 0; i < configurator.custom_layers_paths.size(); i++) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, configurator.additionalSearchPaths[i]);
+        pItem->setText(0, configurator.custom_layers_paths[i]);
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
         QVector<LayerFile *> customLayers;
-        configurator.LoadLayersFromPath(configurator.additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
+        configurator.LoadLayersFromPath(configurator.custom_layers_paths[i], customLayers, LAYER_TYPE_CUSTOM);
 
         for (int j = 0; j < customLayers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
@@ -72,14 +72,14 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();
 
     if (!customFolder.isEmpty()) {
-        configurator.additionalSearchPaths.append(customFolder);
+        configurator.custom_layers_paths.append(customFolder);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, customFolder);
         ui->treeWidget->addTopLevelItem(pItem);
 
-        configurator.SaveAdditionalSearchPaths();
+        configurator.SaveCustomLayersPaths();
         configurator.FindAllInstalledLayers();
-        configurator.LoadAllProfiles();
+        configurator.LoadAllConfigurations();
         bPathsChanged = true;
         RepopulateTree();
     }
@@ -111,18 +111,18 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
     Configurator &configurator = Configurator::Get();
 
     // Now actually remove it.
-    for (int i = 0; i < configurator.additionalSearchPaths.size(); i++) {
-        if (configurator.additionalSearchPaths[i] == pSelected->text(0)) {
-            configurator.additionalSearchPaths.removeAt(i);
+    for (int i = 0; i < configurator.custom_layers_paths.size(); i++) {
+        if (configurator.custom_layers_paths[i] == pSelected->text(0)) {
+            configurator.custom_layers_paths.removeAt(i);
             break;
         }
     }
 
     // Update GUI and save
     RepopulateTree();
-    configurator.SaveAdditionalSearchPaths();
+    configurator.SaveCustomLayersPaths();
     configurator.FindAllInstalledLayers();
-    configurator.LoadAllProfiles();
+    configurator.LoadAllConfigurations();
     ui->buttonBox->setEnabled(configurator.HasLayers());
     bPathsChanged = true;
 }

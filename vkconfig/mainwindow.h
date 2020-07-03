@@ -139,7 +139,7 @@ class MainWindow : public QMainWindow {
 
     void on_pushButtonEditProfile_clicked();
 
-    void standardOutputAvailable();                             // stdout output is available
-    void errorOutputAvailable();                                // Layeroutput is available
+    void standardOutputAvailable();                                 // stdout output is available
+    void errorOutputAvailable();                                    // Layeroutput is available
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
 };

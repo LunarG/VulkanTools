@@ -42,4 +42,3 @@ class BoolSettingWidget : public QCheckBox {
    Q_SIGNALS:
     void itemChanged();
 };
-
