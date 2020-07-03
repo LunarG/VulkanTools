@@ -21,7 +21,7 @@
 
 #include "foldersettingwidget.h"
 
-CFolderSettingWidget::CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr) {
+FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) : QWidget(nullptr) {
     pSetting = pLayerSetting;
 
     pItem->setText(0, pLayerSetting->settingsPrompt);
@@ -39,7 +39,7 @@ CFolderSettingWidget::CFolderSettingWidget(QTreeWidgetItem* pItem, TLayerSetting
     connect(pLineEdit, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 }
 
-void CFolderSettingWidget::resizeEvent(QResizeEvent* event) {
+void FolderSettingWidget::resizeEvent(QResizeEvent* event) {
     if (pLineEdit == nullptr) return;
 
     QSize parentSize = event->size();
@@ -51,7 +51,7 @@ void CFolderSettingWidget::resizeEvent(QResizeEvent* event) {
     pPushButton->setGeometry(buttonRect);
 }
 
-void CFolderSettingWidget::browseButtonClicked(void) {
+void FolderSettingWidget::browseButtonClicked(void) {
     QString file = QFileDialog::getExistingDirectory(pPushButton, tr("Select Folder"), ".");
 
     if (!file.isEmpty()) {
@@ -62,7 +62,7 @@ void CFolderSettingWidget::browseButtonClicked(void) {
     }
 }
 
-void CFolderSettingWidget::textFieldChanged(const QString& newText) {
+void FolderSettingWidget::textFieldChanged(const QString& newText) {
     pSetting->settingsValue = newText;
     emit itemChanged();
 }

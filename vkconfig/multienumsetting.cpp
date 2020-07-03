@@ -21,7 +21,7 @@
 
 #include "multienumsetting.h"
 
-CMultiEnumSetting::CMultiEnumSetting(TLayerSettings *pLayerSetting, QString thisSetting) {
+MultiEnumSetting::MultiEnumSetting(LayerSettings *pLayerSetting, QString thisSetting) {
     pSetting = pLayerSetting;
     mySetting = thisSetting;
 
@@ -30,7 +30,7 @@ CMultiEnumSetting::CMultiEnumSetting(TLayerSettings *pLayerSetting, QString this
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
-void CMultiEnumSetting::itemChecked(bool bChecked) {
+void MultiEnumSetting::itemChecked(bool bChecked) {
     if (bChecked)
         AddString(pSetting->settingsValue, mySetting);
     else

@@ -42,12 +42,13 @@ SOURCES += \
     mainwindow.cpp \
     multienumsetting.cpp \
     mutemessagewidget.cpp \
-    profiledef.cpp \
+    configuration.cpp \
+    preferences.cpp \
     settingstreemanager.cpp \
     stringsettingwidget.cpp \
     treefriendlycombobox.cpp \
     vuidsearchwidget.cpp \
-    vulkanconfiguration.cpp
+    configurator.cpp
 
 HEADERS += \
     boolsettingwidget.h \
@@ -66,12 +67,13 @@ HEADERS += \
     mainwindow.h \
     multienumsetting.h \
     mutemessagewidget.h \
-    profiledef.h \
+    configuration.h \
+    preferences.h \
     settingstreemanager.h \
     stringsettingwidget.h \
     treefriendlycombobox.h \
     vuidsearchwidget.h \
-    vulkanconfiguration.h
+    configurator.h
 
 FORMS += \
     dlgabout.ui \

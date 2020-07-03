@@ -20,7 +20,7 @@
  */
 #include "mutemessagewidget.h"
 
-CMuteMessageWidget::CMuteMessageWidget(TLayerSettings *pLayerSetting) : QWidget(nullptr) {
+MuteMessageWidget::MuteMessageWidget(LayerSettings *pLayerSetting) : QWidget(nullptr) {
     pSetting = pLayerSetting;
     pListWidget = new QListWidget(this);
     pListWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -40,14 +40,14 @@ CMuteMessageWidget::CMuteMessageWidget(TLayerSettings *pLayerSetting) : QWidget(
     connect(pRemovebutton, SIGNAL(pressed()), this, SLOT(removePushed()));
 }
 
-void CMuteMessageWidget::resizeEvent(QResizeEvent *event) {
+void MuteMessageWidget::resizeEvent(QResizeEvent *event) {
     int nButtonHeight = 26;
     QSize parentSize = event->size();
     pListWidget->setGeometry(0, 0, parentSize.width(), parentSize.height() - nButtonHeight);
     pRemovebutton->setGeometry(0, parentSize.height() - nButtonHeight, parentSize.width(), nButtonHeight);
 }
 
-void CMuteMessageWidget::addItem(QString &item) {
+void MuteMessageWidget::addItem(QString &item) {
     pListWidget->addItem(item);
     pListWidget->setCurrentRow(pListWidget->count() - 1);
 
@@ -57,7 +57,7 @@ void CMuteMessageWidget::addItem(QString &item) {
     emit itemChanged();
 }
 
-void CMuteMessageWidget::removePushed(void) {
+void MuteMessageWidget::removePushed(void) {
     int nRow = pListWidget->currentRow();
     if (nRow <= 0) return;
 

@@ -1,5 +1,3 @@
-#ifndef CFILENAMESETTINGWIDGET_H
-#define CFILENAMESETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QWidget>
 #include <QTreeWidgetItem>
@@ -30,24 +30,22 @@
 
 #include "layerfile.h"
 
-class CFilenameSettingWidget : public QWidget {
+class FilenameSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit CFilenameSettingWidget(QTreeWidgetItem *pItem, TLayerSettings *pLayerSetting);
+    explicit FilenameSettingWidget(QTreeWidgetItem *pItem, LayerSettings *pLayerSetting);
 
    private:
     virtual void resizeEvent(QResizeEvent *event) override;
 
-    TLayerSettings *pSetting;
+    LayerSettings *pSetting;
     QLineEdit *pLineEdit;
     QPushButton *pPushButton;
 
    public Q_SLOTS:
-    void browseButtonClicked(void);
+    void browseButtonClicked();
     void textFieldChanged(const QString &newText);
 
    Q_SIGNALS:
-    void itemChanged(void);
+    void itemChanged();
 };
-
-#endif  // CFILENAMESETTINGWIDGET_H

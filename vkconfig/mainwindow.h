@@ -18,6 +18,7 @@
  */
 
 #pragma once
+
 #include <QVector>
 #include <QMainWindow>
 #include <QListWidgetItem>
@@ -27,7 +28,7 @@
 #include <QResizeEvent>
 #include <QProcess>
 
-#include "vulkanconfiguration.h"
+#include "configurator.h"
 #include "settingstreemanager.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
@@ -43,9 +44,9 @@ QT_END_NAMESPACE
 /// \brief The CProfileListItem class
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
-class CProfileListItem : public QTreeWidgetItem {
+class ProfileListItem : public QTreeWidgetItem {
    public:
-    CProfileDef *pProfilePointer;
+    Configuration *pProfilePointer;
     QRadioButton *pRadioButton;
 };
 
@@ -57,15 +58,15 @@ class MainWindow : public QMainWindow {
     ~MainWindow();
 
    protected:
-    CSettingsTreeManager settingsTreeManager;
+    SettingsTreeManager settingsTreeManager;
 
     QProcess *pVulkanApp;  // Keeps track of the monitored app
     QFile *pLogFile;       // Log file for layer output
 
-    void LoadProfileList(void);
-    void SetupLaunchTree(void);
+    void LoadProfileList();
+    void SetupLaunchTree();
 
-    void ChangeActiveProfile(CProfileDef *pNewProfile);
+    void ChangeActiveProfile(Configuration *pNewProfile);
 
     virtual void closeEvent(QCloseEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
@@ -80,8 +81,8 @@ class MainWindow : public QMainWindow {
    private:
     Ui::MainWindow *ui;
 
-    CProfileListItem *pLastSelectedProfileItem;
-    CProfileListItem *GetCheckedItem(void);
+    ProfileListItem *pLastSelectedProfileItem;
+    ProfileListItem *GetCheckedItem();
 
     QComboBox *pLaunchAppsCombo;
     QLineEdit *pLaunchArguments;
@@ -91,17 +92,17 @@ class MainWindow : public QMainWindow {
     QPushButton *pLaunchWorkingFolderButton;
     QPushButton *pLaunchLogFilebutton;
 
-    void ResetLaunchOptions(void);
+    void ResetLaunchOptions();
 
-    void RemoveClicked(CProfileListItem *pItem);
-    void RenameClicked(CProfileListItem *pItem);
-    void NewClicked(void);
-    void DuplicateClicked(CProfileListItem *pItem);
-    void ExportClicked(CProfileListItem *pItem);
-    void ImportClicked(CProfileListItem *pItem);
-    void EditClicked(CProfileListItem *pItem);
-    void RestoreClicked(CProfileListItem *pItem);
-    void EditCustomPathsClicked(CProfileListItem *pItem);
+    void RemoveClicked(ProfileListItem *pItem);
+    void RenameClicked(ProfileListItem *pItem);
+    void NewClicked();
+    void DuplicateClicked(ProfileListItem *pItem);
+    void ExportClicked(ProfileListItem *pItem);
+    void ImportClicked(ProfileListItem *pItem);
+    void EditClicked(ProfileListItem *pItem);
+    void RestoreClicked(ProfileListItem *pItem);
+    void EditCustomPathsClicked(ProfileListItem *pItem);
 
    public Q_SLOTS:
     void aboutVkConfig(bool bChecked);
@@ -119,26 +120,26 @@ class MainWindow : public QMainWindow {
     void launchItemExpanded(QTreeWidgetItem *pItem);
     void launchItemCollapsed(QTreeWidgetItem *pItem);
     void launchItemChanged(int nIndex);
-    void launchSetLogFile(void);
+    void launchSetLogFile();
     void launchArgsEdited(const QString &newText);
     void on_pushButtonLaunch_clicked(void);
     void on_pushButtonClearLog_clicked(void);
 
-    void on_radioFully_clicked(void);
-    void on_radioOverride_clicked(void);
-    void on_checkBoxApplyList_clicked(void);
-    void on_checkBoxPersistent_clicked(void);
+    void on_radioFully_clicked();
+    void on_radioOverride_clicked();
+    void on_checkBoxApplyList_clicked();
+    void on_checkBoxPersistent_clicked();
 
-    void on_pushButtonAppList_clicked(void);
+    void on_pushButtonAppList_clicked();
 
     void profileItemChanged(QTreeWidgetItem *pItem, int nCol);
     void profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
     void profileItemClicked(bool bChecked);
     void profileItemExpanded(QTreeWidgetItem *pItem);
 
-    void on_pushButtonEditProfile_clicked(void);
+    void on_pushButtonEditProfile_clicked();
 
-    void standardOutputAvailable(void);                             // stdout output is available
-    void errorOutputAvailable(void);                                // Layeroutput is available
+    void standardOutputAvailable();                             // stdout output is available
+    void errorOutputAvailable();                                // Layeroutput is available
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
 };

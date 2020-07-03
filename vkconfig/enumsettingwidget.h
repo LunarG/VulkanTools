@@ -1,5 +1,3 @@
-#ifndef CENUMSETTINGWIDGET_H
-#define CENUMSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QObject>
 #include <QWidget>
@@ -27,19 +27,17 @@
 #include <QTreeWidgetItem>
 #include "layerfile.h"
 
-class CEnumSettingWidget : public QComboBox {
+class EnumSettingWidget : public QComboBox {
     Q_OBJECT
    public:
-    CEnumSettingWidget(QTreeWidgetItem *pTreeItem, TLayerSettings *pLayerSetting);
+    EnumSettingWidget(QTreeWidgetItem *pTreeItem, LayerSettings *pLayerSetting);
 
    private:
-    TLayerSettings *pSetting;
+    LayerSettings *pSetting;
 
    public Q_SLOTS:
     void indexChanged(int nIndex);
 
    Q_SIGNALS:
-    void itemChanged(void);
+    void itemChanged();
 };
-
-#endif  // CENUMSETTINGWIDGET_H

@@ -28,6 +28,8 @@
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
 
+#include "configurator.h"
+
 #ifdef _WIN32
 ///////////////////////////////////////////////////////////////////////////
 // I totally just stole this from Stack Overflow.
@@ -109,7 +111,7 @@ bool isDLL32Bit(QString qsFileAndPath) {
 // items contain a pointer to the actual layer.
 class QTreeWidgetItemWithLayer : public QTreeWidgetItem {
    public:
-    CLayerFile *pLayer;
+    LayerFile *pLayer;
 };
 
 #define LAYER_APP_CONTROLLED 0
@@ -128,7 +130,7 @@ class QTreeWidgetItemWithLayer : public QTreeWidgetItem {
 ///         contains settings that have already been specified and previously saved.
 ///         The file name is not blank. User can save or abandon the changes.
 ///////////////////////////////////////////////////////////////////////////////
-dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef *pProfileToEdit) : QDialog(parent), ui(new Ui::dlgProfileEditor) {
+dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *pProfileToEdit) : QDialog(parent), ui(new Ui::dlgProfileEditor) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     pThisProfile = pProfileToEdit;
@@ -173,22 +175,22 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef *pProfileToEdit)
     PopulateCustomTree();
 }
 
-void dlgProfileEditor::AddMissingLayers(CProfileDef *pProfile) {
+void dlgProfileEditor::AddMissingLayers(Configuration *pProfile) {
     int nRank = pProfile->layers.size();  // Next rank starts here
 
     Configurator &configurator = Configurator::Get();
 
     for (int iAvailable = 0, n = configurator.allLayers.size(); iAvailable < n; iAvailable++) {
-        CLayerFile *pLayerThatMightBeMissing = configurator.allLayers[iAvailable];
+        LayerFile *pLayerThatMightBeMissing = configurator.allLayers[iAvailable];
 
         // Look for through all layers
-        CLayerFile *pAreYouAlreadyThere =
+        LayerFile *pAreYouAlreadyThere =
             pProfile->FindLayer(pLayerThatMightBeMissing->name, pLayerThatMightBeMissing->qsLayerPath);
         if (pAreYouAlreadyThere != nullptr)  // It's in the list already
             continue;
 
         // Nope, add it to the end
-        CLayerFile *pNextLayer = new CLayerFile();
+        LayerFile *pNextLayer = new LayerFile();
         pLayerThatMightBeMissing->CopyLayer(pNextLayer);
 
         // Add default settings to the layer...
@@ -265,7 +267,7 @@ void dlgProfileEditor::PopulateCustomTree(void) {
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
-        QVector<CLayerFile *> customLayers;
+        QVector<LayerFile *> customLayers;
         configurator.LoadLayersFromPath(configurator.additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
         for (int j = 0; j < customLayers.size(); j++) {
@@ -322,7 +324,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
         if (iLayer == nSelection) ui->layerTree->setCurrentItem(pItem);
 
         // Add a combo box. Default has gray background which looks hidious
-        CTreeFriendlyComboBox *pUse = new CTreeFriendlyComboBox(pItem);
+        TreeFriendlyComboBox *pUse = new TreeFriendlyComboBox(pItem);
         ui->layerTree->setItemWidget(pItem, 1, pUse);
         pItem->setSizeHint(1, QSize(comboWidth, comboHeight));
 
@@ -455,7 +457,7 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *pItem, int nSelection) {
     QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pItem);
     Q_ASSERT(pLayerItem != nullptr);
 
-    CLayerFile *pLayer = pLayerItem->pLayer;
+    LayerFile *pLayer = pLayerItem->pLayer;
     Q_ASSERT(pLayer != nullptr);
 
     // Okay, easy now, just set the flags appropriately
@@ -580,7 +582,7 @@ void dlgProfileEditor::on_toolButtonUp_clicked() {
     if (pPreviousItem != nullptr) pPreviousItem->pLayer->nRank++;
 
     // The two rank positons should also by their location in the QVector layers. Swap them
-    CLayerFile *pTemp = pThisProfile->layers[nBumped];
+    LayerFile *pTemp = pThisProfile->layers[nBumped];
     pThisProfile->layers[nBumped] = pThisProfile->layers[nBumped - 1];
     pThisProfile->layers[nBumped - 1] = pTemp;
 
@@ -605,7 +607,7 @@ void dlgProfileEditor::on_toolButtonDown_clicked() {
     if (pPreviousItem != nullptr) pPreviousItem->pLayer->nRank--;
 
     // The two rank positons should also by their location in the QVector layers. Swap them
-    CLayerFile *pTemp = pThisProfile->layers[nBumped];
+    LayerFile *pTemp = pThisProfile->layers[nBumped];
     pThisProfile->layers[nBumped] = pThisProfile->layers[nBumped + 1];
     pThisProfile->layers[nBumped + 1] = pTemp;
 

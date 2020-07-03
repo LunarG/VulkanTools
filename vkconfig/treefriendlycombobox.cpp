@@ -21,10 +21,10 @@
  */
 
 #include "treefriendlycombobox.h"
-CTreeFriendlyComboBox::CTreeFriendlyComboBox(QTreeWidgetItem *pItem) : QComboBox() {
+TreeFriendlyComboBox::TreeFriendlyComboBox(QTreeWidgetItem *pItem) : QComboBox() {
     pTreeWidget = pItem;
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
 ///////////////////////////////////////////////////////////////////
-void CTreeFriendlyComboBox::indexChanged(int nIndex) { emit selectionMade(pTreeWidget, nIndex); }
+void TreeFriendlyComboBox::indexChanged(int nIndex) { emit selectionMade(pTreeWidget, nIndex); }

@@ -1,5 +1,3 @@
-#ifndef DLGPROFILEEDITOR_H
-#define DLGPROFILEEDITOR_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,8 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QDialog>
 #include <QTreeWidgetItem>
@@ -25,8 +27,7 @@
 #include <QShowEvent>
 
 #include "treefriendlycombobox.h"
-#include "profiledef.h"
-#include <vulkanconfiguration.h>
+#include "configuration.h"
 
 namespace Ui {
 class dlgProfileEditor;
@@ -36,7 +37,7 @@ class dlgProfileEditor : public QDialog {
     Q_OBJECT
 
    public:
-    explicit dlgProfileEditor(QWidget *parent, CProfileDef *pProfileToEdit);
+    explicit dlgProfileEditor(QWidget *parent, Configuration *pProfileToEdit);
     ~dlgProfileEditor();
 
     // Load all layers into the list box
@@ -45,14 +46,14 @@ class dlgProfileEditor : public QDialog {
    private:
     Ui::dlgProfileEditor *ui;
 
-    CProfileDef *pThisProfile;
+    Configuration *pThisProfile;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;
 
-    void AddMissingLayers(CProfileDef *pProfile);
+    void AddMissingLayers(Configuration *pProfile);
 
-    void PopulateCustomTree(void);
+    void PopulateCustomTree();
 
    public Q_SLOTS:
     virtual void accept() override;
@@ -70,5 +71,3 @@ class dlgProfileEditor : public QDialog {
 
     void layerUseChanged(QTreeWidgetItem *pItem, int nSelection);
 };
-
-#endif  // DLGPROFILEEDITOR_H

@@ -1,5 +1,3 @@
-#ifndef DLGCUSTOMPATHS_H
-#define DLGCUSTOMPATHS_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include <QDialog>
+#pragma once
 
-#include <vulkanconfiguration.h>
+#include <QDialog>
 
 namespace Ui {
 class dlgCustomPaths;
@@ -39,12 +39,10 @@ class dlgCustomPaths : public QDialog {
    private:
     Ui::dlgCustomPaths *ui;
 
-    void RepopulateTree(void);
+    void RepopulateTree();
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();
     void on_pushButtonRemove_clicked();
     void on_treeWidget_itemSelectionChanged();
 };
-
-#endif  // DLGCUSTOMPATHS_H

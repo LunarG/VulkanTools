@@ -30,14 +30,14 @@
 
 #include "layerfile.h"
 
-class CFolderSettingWidget : public QWidget {
+class FolderSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit CFolderSettingWidget(QTreeWidgetItem *pItem, TLayerSettings *pLayerSetting);
+    explicit FolderSettingWidget(QTreeWidgetItem *pItem, LayerSettings *pLayerSetting);
 
     virtual void resizeEvent(QResizeEvent *event) override;
 
-    TLayerSettings *pSetting;
+    LayerSettings *pSetting;
     QLineEdit *pLineEdit;
     QPushButton *pPushButton;
 

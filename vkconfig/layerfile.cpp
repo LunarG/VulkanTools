@@ -57,13 +57,13 @@ void AddString(QString& delimitedString, QString value) {
     delimitedString += value;
 }
 
-CLayerFile::CLayerFile() {
+LayerFile::LayerFile() {
     bActive = false;
     bDisabled = false;
     nRank = 0;
 }
 
-CLayerFile::~CLayerFile() {
+LayerFile::~LayerFile() {
     qDeleteAll(layerSettings.begin(), layerSettings.end());
     layerSettings.clear();
 }
@@ -74,7 +74,7 @@ CLayerFile::~CLayerFile() {
 /// \return true on success, false on failure.
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
-bool CLayerFile::ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind) {
+bool LayerFile::ReadLayerFile(QString qsFullPathToFile, LayerType layerKind) {
     layerType = layerKind;  // Set layer type, no way to know this from the json file
 
     // Open the file, should be text. Read it into a
@@ -147,7 +147,7 @@ bool CLayerFile::ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings*>& layers) {
+void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<LayerSettings*>& layers) {
     // Okay, how many settings do we have?
     QStringList settingsNames = layerSettingsDescriptors.keys();
 
@@ -160,7 +160,7 @@ void CLayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVe
         // it is also not a user editable setting.
         if (settingsNames[iSetting] == QString("layer_path")) continue;
 
-        TLayerSettings* pLayerSettings = new TLayerSettings;
+        LayerSettings* pLayerSettings = new LayerSettings;
         pLayerSettings->settingsName = settingsNames[iSetting];
 
         QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[iSetting]);

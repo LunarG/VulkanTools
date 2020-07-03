@@ -1,5 +1,3 @@
-#ifndef CSTRINGSETTINGWIDGET_H
-#define CSTRINGSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
+
 #include <QObject>
 #include <QWidget>
 #include <QLineEdit>
@@ -27,19 +28,17 @@
 
 #include "layerfile.h"
 
-class CStringSettingWidget : public QLineEdit {
+class StringSettingWidget : public QLineEdit {
     Q_OBJECT
    public:
-    CStringSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting);
+    StringSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting);
 
    private:
-    TLayerSettings* pSetting;
+    LayerSettings* pSetting;
 
    public Q_SLOTS:
     void itemEdited(const QString& newString);
 
    Q_SIGNALS:
-    void itemChanged(void);
+    void itemChanged();
 };
-
-#endif  // CSTRINGSETTINGWIDGET_H

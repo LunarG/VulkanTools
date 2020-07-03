@@ -27,22 +27,21 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-#include "profiledef.h"
-#include "vulkanconfiguration.h"
+#include "configurator.h"
 
-CProfileDef::CProfileDef() {
+Configuration::Configuration() {
     nPresetIndex = 0;
     bAllLayersAvailable = true;
 }
 
-CProfileDef::~CProfileDef() {
+Configuration::~Configuration() {
     qDeleteAll(layers.begin(), layers.end());
     layers.clear();
 }
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
-CLayerFile* CProfileDef::FindLayer(QString qsLayerName, QString qsFullPath) {
+LayerFile* Configuration::FindLayer(QString qsLayerName, QString qsFullPath) {
     for (int i = 0; i < layers.size(); i++)
         if (layers[i]->name == qsLayerName && layers[i]->qsLayerPath == qsFullPath) return layers[i];
 
@@ -51,7 +50,7 @@ CLayerFile* CProfileDef::FindLayer(QString qsLayerName, QString qsFullPath) {
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists. Only care about the name
-CLayerFile* CProfileDef::FindLayerNamed(QString qsLayerName) {
+LayerFile* Configuration::FindLayerNamed(QString qsLayerName) {
     for (int i = 0; i < layers.size(); i++)
         if (layers[i]->name == qsLayerName) return layers[i];
 
@@ -61,12 +60,12 @@ CLayerFile* CProfileDef::FindLayerNamed(QString qsLayerName) {
 ///////////////////////////////////////////////////////////
 // Convienience function
 // Retrieve the Khronos validation layer if it is included
-CLayerFile* CProfileDef::GetKhronosLayer(void) { return FindLayerNamed("VK_LAYER_KHRONOS_validation"); }
+LayerFile* Configuration::GetKhronosLayer() { return FindLayerNamed("VK_LAYER_KHRONOS_validation"); }
 
 ////////////////////////////////////////////////////////////
 // Copy a profile so we can mess with it.
-CProfileDef* CProfileDef::DuplicateProfile(void) {
-    CProfileDef* pDuplicate = new CProfileDef;
+Configuration* Configuration::DuplicateProfile() {
+    Configuration* pDuplicate = new Configuration;
     pDuplicate->qsProfileName = qsProfileName;
     pDuplicate->qsFileName = qsFileName;
     pDuplicate->qsDescription = qsDescription;
@@ -76,7 +75,7 @@ CProfileDef* CProfileDef::DuplicateProfile(void) {
     // Do not copy ->bFixedProfile
 
     for (int i = 0; i < layers.size(); i++) {
-        CLayerFile* pLayer = new CLayerFile;
+        LayerFile* pLayer = new LayerFile;
         layers[i]->CopyLayer(pLayer);
         pDuplicate->layers.push_back(pLayer);
     }
@@ -88,7 +87,7 @@ CProfileDef* CProfileDef::DuplicateProfile(void) {
 /// \brief CProfileDef::CollapseProfile
 /// Remove unused layers and build the list of
 /// black listed layers.
-void CProfileDef::CollapseProfile() {
+void Configuration::CollapseProfile() {
     blacklistedLayers.clear();
 
     // Look for black listed layers, add them to the

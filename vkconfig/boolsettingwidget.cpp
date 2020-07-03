@@ -21,7 +21,7 @@
 
 #include "boolsettingwidget.h"
 
-CBoolSettingWidget::CBoolSettingWidget(TLayerSettings *pLayerSetting, bool bNumeric) {
+BoolSettingWidget::BoolSettingWidget(LayerSettings *pLayerSetting, bool bNumeric) {
     bNumericOutput = bNumeric;
     pSetting = pLayerSetting;
     setText(pLayerSetting->settingsPrompt);
@@ -30,7 +30,7 @@ CBoolSettingWidget::CBoolSettingWidget(TLayerSettings *pLayerSetting, bool bNume
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
-void CBoolSettingWidget::itemToggled(void) {
+void BoolSettingWidget::itemToggled(void) {
     if (bNumericOutput) {
         if (isChecked())
             pSetting->settingsValue = QString("1");

@@ -1,6 +1,3 @@
-#ifndef DLGABOUT_H
-#define DLGABOUT_H
-
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -17,8 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QDialog>
 
@@ -30,7 +31,7 @@ class dlgAbout : public QDialog {
     Q_OBJECT
 
    public Q_SLOTS:
-    void aboutQt(void);
+    void aboutQt();
 
    public:
     explicit dlgAbout(QWidget *parent = nullptr);
@@ -39,5 +40,3 @@ class dlgAbout : public QDialog {
    private:
     Ui::dlgAbout *ui;
 };
-
-#endif  // DLGABOUT_H

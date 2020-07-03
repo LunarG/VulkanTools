@@ -22,7 +22,7 @@
 #include "vuidsearchwidget.h"
 #include "vk_vuids.h"
 
-CVUIDSearchWidget::CVUIDSearchWidget(QWidget *parent) : QWidget(parent) {
+VUIDSearchWidget::VUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     int nNumElements = sizeof(vuids) / sizeof(vuids[0]);
     for (int i = 0; i < nNumElements; i++) list << vuids[i];
 
@@ -49,20 +49,20 @@ CVUIDSearchWidget::CVUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     connect(pUserBox, SIGNAL(currentIndexChanged(int)), this, SLOT(itemSelected(int)));
 }
 
-void CVUIDSearchWidget::resizeEvent(QResizeEvent *event) {
+void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
     QSize parentSize = event->size();
     pUserBox->setGeometry(0, 0, parentSize.width() - 2, parentSize.height());
 }
 
 ///////////////////////////////////////////////////////////////////////
 // Emit a signal so we can send this to the list box
-void CVUIDSearchWidget::itemSelected(int nIndex) {
+void VUIDSearchWidget::itemSelected(int nIndex) {
     emit itemSelected(list[nIndex]);
     pUserBox->setCurrentText("");
 }
 
 // Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's
-bool CVUIDSearchWidget::eventFilter(QObject *target, QEvent *event) {
+bool VUIDSearchWidget::eventFilter(QObject *target, QEvent *event) {
     (void)target;
     if (event->type() == QEvent::Wheel) {
         event->ignore();

@@ -120,7 +120,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
         Configurator &configurator = Configurator::Get();
 
         appWithPath = QDir::toNativeSeparators(appWithPath);
-        TAppListEntry *pNewApp = new TAppListEntry;
+        AppListEntry *pNewApp = new AppListEntry;
         pNewApp->qsAppNameWithPath = appWithPath;
         pNewApp->qsWorkingFolder = QDir::toNativeSeparators(QFileInfo(appWithPath).path());
         pNewApp->bExcludeFromGlobalList = false;

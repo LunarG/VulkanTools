@@ -1,5 +1,3 @@
-#ifndef CBOOLSETTINGWIDGET_H
-#define CBOOLSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QObject>
 #include <QWidget>
@@ -27,20 +27,19 @@
 
 #include "layerfile.h"
 
-class CBoolSettingWidget : public QCheckBox {
+class BoolSettingWidget : public QCheckBox {
     Q_OBJECT
    public:
-    CBoolSettingWidget(TLayerSettings *pLayerSetting, bool bNumeric = false);
+    BoolSettingWidget(LayerSettings *pLayerSetting, bool bNumeric = false);
 
    private:
     bool bNumericOutput;
-    TLayerSettings *pSetting;
+    LayerSettings *pSetting;
 
    public Q_SLOTS:
-    void itemToggled(void);
+    void itemToggled();
 
    Q_SIGNALS:
-    void itemChanged(void);
+    void itemChanged();
 };
 
-#endif  // CBOOLSETTINGWIDGET_H

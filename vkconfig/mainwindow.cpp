@@ -41,7 +41,7 @@
 #include "dlgprofileeditor.h"
 #include "dlgcreateassociation.h"
 #include "dlgcustompaths.h"
-#include "profiledef.h"
+#include "configurator.h"
 #include "preferences.h"
 
 // This is what happens when programmers can touch type....
@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // We need to resetup the new profile for consistency sake.
     QSettings settings;
     QString lastProfile = settings.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Validation - Standard")).toString();
-    CProfileDef *pCurrentProfile = configurator.FindProfile(lastProfile);
+    Configuration *pCurrentProfile = configurator.FindProfile(lastProfile);
     if (configurator.bOverrideActive) ChangeActiveProfile(pCurrentProfile);
 
     LoadProfileList();
@@ -123,10 +123,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     restoreState(settings.value("windowState").toByteArray());
 
     // All else is done, highlight and activeate the current profile on startup
-    CProfileDef *pActive = configurator.GetCurrentActiveProfile();
+    Configuration *pActive = configurator.GetCurrentActiveProfile();
     if (pActive != nullptr) {
         for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-            CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+            ProfileListItem *pItem = dynamic_cast<ProfileListItem *>(ui->profileTree->topLevelItem(i));
             if (pItem != nullptr)
                 if (pItem->pProfilePointer == pActive) {  // Ding ding ding... we have a winner
                     ui->profileTree->setCurrentItem(pItem);
@@ -158,7 +158,7 @@ void MainWindow::LoadProfileList(void) {
 
     for (int i = 0; i < configurator.profileList.size(); i++) {
         // Add to list
-        CProfileListItem *pItem = new CProfileListItem();
+        ProfileListItem *pItem = new ProfileListItem();
         pItem->pProfilePointer = configurator.profileList[i];
         ui->profileTree->addTopLevelItem(pItem);
         pItem->setText(1, configurator.profileList[i]->qsProfileName);
@@ -214,10 +214,10 @@ void MainWindow::on_radioFully_clicked(void) {
 /// always get an accurate answer to the currently selected
 /// item, but we do often need to know what has been checked
 /// when an event occurs. This unambigously answers that question.
-CProfileListItem *MainWindow::GetCheckedItem(void) {
+ProfileListItem *MainWindow::GetCheckedItem(void) {
     // Just go through all the top level items
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+        ProfileListItem *pItem = dynamic_cast<ProfileListItem *>(ui->profileTree->topLevelItem(i));
 
         if (pItem != nullptr)
             if (pItem->pRadioButton->isChecked()) return pItem;
@@ -243,7 +243,7 @@ void MainWindow::on_radioOverride_clicked(void) {
     configurator.SaveAppSettings();
 
     // This just doesn't work. Make a function to look for the radio button checked.
-    CProfileListItem *pProfileItem = GetCheckedItem();
+    ProfileListItem *pProfileItem = GetCheckedItem();
     if (pProfileItem == nullptr)
         ChangeActiveProfile(nullptr);
     else
@@ -339,14 +339,14 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     configurator.LoadAllProfiles();
 
     // Find the Standard Validation and make it current if we are active
-    CProfileDef *pNewActiveProfile = configurator.FindProfile(QString("Validation - Standard"));
+    Configuration *pNewActiveProfile = configurator.FindProfile(QString("Validation - Standard"));
     if (configurator.bOverrideActive) ChangeActiveProfile(pNewActiveProfile);
 
     LoadProfileList();
 
     // Active or not, set it in the tree so we can see the settings.
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+        ProfileListItem *pItem = dynamic_cast<ProfileListItem *>(ui->profileTree->topLevelItem(i));
         if (pItem != nullptr)
             if (pItem->pProfilePointer == pNewActiveProfile) ui->profileTree->setCurrentItem(pItem);
     }
@@ -383,7 +383,7 @@ void MainWindow::profileItemClicked(bool bChecked) {
     // Someone just got checked, they are now the current profile
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    CProfileListItem *pProfileItem = GetCheckedItem();
+    ProfileListItem *pProfileItem = GetCheckedItem();
     if (pProfileItem == nullptr) return;
 
     Configurator &configurator = Configurator::Get();
@@ -400,7 +400,7 @@ void MainWindow::profileItemClicked(bool bChecked) {
 void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol) {
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pItem);
+    ProfileListItem *pProfileItem = dynamic_cast<ProfileListItem *>(pItem);
     if (pProfileItem == nullptr) return;
 
     if (nCol == 1) {  // Profile name
@@ -431,7 +431,7 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *
     settingsTreeManager.CleanupGUI();
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    CProfileListItem *pProfileItem = dynamic_cast<CProfileListItem *>(pCurrent);
+    ProfileListItem *pProfileItem = dynamic_cast<ProfileListItem *>(pCurrent);
     if (pProfileItem == nullptr) return;
 
     if (!Preferences::Get().use_separated_select_and_activate) {
@@ -540,7 +540,7 @@ void MainWindow::on_pushButtonAppList_clicked(void) {
     ResetLaunchOptions();
 
     // Also, we may have changed exclusion flags, so reset override
-    CProfileDef *pCurr = configurator.GetCurrentActiveProfile();
+    Configuration *pCurr = configurator.GetCurrentActiveProfile();
     if (pCurr != nullptr) configurator.SetCurrentActiveProfile(pCurr);
 }
 
@@ -549,7 +549,7 @@ void MainWindow::on_pushButtonAppList_clicked(void) {
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEditProfile_clicked() {
     // Who is selected?
-    CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->currentItem());
+    ProfileListItem *pItem = dynamic_cast<ProfileListItem *>(ui->profileTree->currentItem());
     if (pItem == nullptr) return;
 
     // Save current state before we go in
@@ -566,7 +566,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 
     // Reset the current item
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+        pItem = dynamic_cast<ProfileListItem *>(ui->profileTree->topLevelItem(i));
         if (pItem != nullptr)
             if (pItem->pProfilePointer->qsProfileName == editedProfileName) {
                 ui->profileTree->setCurrentItem(pItem);
@@ -581,7 +581,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 void MainWindow::NewClicked() {
     Configurator &configurator = Configurator::Get();
 
-    CProfileDef *pNewProfile = configurator.CreateEmptyProfile();
+    Configuration *pNewProfile = configurator.CreateEmptyProfile();
     dlgProfileEditor dlg(this, pNewProfile);
     if (QDialog::Accepted == dlg.exec()) {
         configurator.LoadAllProfiles();
@@ -604,7 +604,7 @@ void MainWindow::addCustomPaths() {
 
 //////////////////////////////////////////////////////////////////////////////
 /// Remove the currently selected user defined profile.
-void MainWindow::RemoveClicked(CProfileListItem *pItem) {
+void MainWindow::RemoveClicked(ProfileListItem *pItem) {
     // Let make sure...
     QMessageBox msg;
     msg.setInformativeText(pItem->pProfilePointer->qsProfileName);
@@ -629,11 +629,11 @@ void MainWindow::RemoveClicked(CProfileListItem *pItem) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void MainWindow::RenameClicked(CProfileListItem *pItem) { ui->profileTree->editItem(pItem, 1); }
+void MainWindow::RenameClicked(ProfileListItem *pItem) { ui->profileTree->editItem(pItem, 1); }
 
 /////////////////////////////////////////////////////////////////////////////
 // Copy the current configuration
-void MainWindow::DuplicateClicked(CProfileListItem *pItem) {
+void MainWindow::DuplicateClicked(ProfileListItem *pItem) {
     QString qsNewName = pItem->pProfilePointer->qsProfileName;
     qsNewName += "2";
     settingsTreeManager.CleanupGUI();
@@ -647,7 +647,7 @@ void MainWindow::DuplicateClicked(CProfileListItem *pItem) {
     // Good enough? Nope, I want to select it and edit the name.
     // Find it.
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(ui->profileTree->topLevelItem(i));
+        ProfileListItem *pItem = dynamic_cast<ProfileListItem *>(ui->profileTree->topLevelItem(i));
         if (pItem->pProfilePointer->qsProfileName == qsNewName) {
             ui->profileTree->editItem(pItem, 1);
             return;
@@ -657,7 +657,7 @@ void MainWindow::DuplicateClicked(CProfileListItem *pItem) {
 
 /////////////////////////////////////////////////////////////////////////////
 // Import a configuration file. File copy followed by a reload.
-void MainWindow::ImportClicked(CProfileListItem *pItem) {
+void MainWindow::ImportClicked(ProfileListItem *pItem) {
     (void)pItem;  // We don't need this
     QString qsGetIt = QFileDialog::getOpenFileName(this, "Import Layers Configuration File", QDir::homePath(), "*.json");
     if (qsGetIt.isEmpty()) return;
@@ -668,7 +668,7 @@ void MainWindow::ImportClicked(CProfileListItem *pItem) {
 
 /////////////////////////////////////////////////////////////////////////////
 // Export a configuration file. Basically just a file copy
-void MainWindow::ExportClicked(CProfileListItem *pItem) {
+void MainWindow::ExportClicked(ProfileListItem *pItem) {
     // Where to put it and what to call it
     QString qsSaveIt = QFileDialog::getSaveFileName(this, "Export Layers Configuration File", QDir::homePath(), "*.json");
     if (qsSaveIt.isEmpty()) return;
@@ -682,7 +682,7 @@ void MainWindow::ExportClicked(CProfileListItem *pItem) {
 
 /////////////////////////////////////////////////////////////////////////////
 // Export a configuration file. Basically just a file copy
-void MainWindow::EditCustomPathsClicked(CProfileListItem *pItem) {
+void MainWindow::EditCustomPathsClicked(ProfileListItem *pItem) {
     (void)pItem;
     addCustomPaths();
     LoadProfileList();  // Force a reload
@@ -697,7 +697,7 @@ void MainWindow::toolsSetCustomPaths(bool bChecked) {
 /////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::UpdateActiveDecorations
 /// Update "decorations": window caption, (Active) status in list
-void MainWindow::ChangeActiveProfile(CProfileDef *pNewProfile) {
+void MainWindow::ChangeActiveProfile(Configuration *pNewProfile) {
     Configurator &configurator = Configurator::Get();
 
     if (pNewProfile == nullptr || !configurator.bOverrideActive) {
@@ -953,7 +953,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         if (pRightClick && event->type() == QEvent::ContextMenu) {
             // Which item were we over?
             QTreeWidgetItem *pProfileItem = ui->profileTree->itemAt(pRightClick->pos());
-            CProfileListItem *pItem = dynamic_cast<CProfileListItem *>(pProfileItem);
+            ProfileListItem *pItem = dynamic_cast<ProfileListItem *>(pProfileItem);
 
             // Create context menu here
             QMenu menu(ui->profileTree);

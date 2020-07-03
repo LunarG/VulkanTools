@@ -1,5 +1,3 @@
-#ifndef CVUIDSEARCHWIDGET_H
-#define CVUIDSEARCHWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Search with completer for VUID's
- *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
+
 #include <QWidget>
 #include <QComboBox>
 #include <QLabel>
@@ -28,10 +29,10 @@
 #include <QStringList>
 #include <QLineEdit>
 
-class CVUIDSearchWidget : public QWidget {
+class VUIDSearchWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit CVUIDSearchWidget(QWidget *parent = nullptr);
+    explicit VUIDSearchWidget(QWidget *parent = nullptr);
 
    private:
     QStringList list;
@@ -47,5 +48,3 @@ class CVUIDSearchWidget : public QWidget {
    Q_SIGNALS:
     void itemSelected(QString &textSelected);
 };
-
-#endif  // CVUIDSEARCHWIDGET_H

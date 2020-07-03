@@ -1,5 +1,3 @@
-#ifndef DLGCREATEASSOCIATION_H
-#define DLGCREATEASSOCIATION_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,15 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
- *
- * A list of applicaitons can be maintained that when enabled
- * the profile will only affect those in the list.
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
+
 #include <QDialog>
 #include <QTreeWidgetItem>
 
-#include <vulkanconfiguration.h>
+#include <configurator.h>
 
 namespace Ui {
 class dlgCreateAssociation;
@@ -57,5 +57,3 @@ class dlgCreateAssociation : public QDialog {
     void editWorkingFolder(const QString &workingFolder);
     void editLogFile(const QString &logFile);
 };
-
-#endif  // DLGCREATEASSOCIATION_H

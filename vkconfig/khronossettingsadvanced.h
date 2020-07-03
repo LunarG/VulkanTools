@@ -34,7 +34,7 @@ class KhronosSettingsAdvanced : public QObject {
     Q_OBJECT
 
    public:
-    explicit KhronosSettingsAdvanced(QTreeWidget *pMainTree, QTreeWidgetItem *parent, QVector<TLayerSettings *> &layerSettings);
+    explicit KhronosSettingsAdvanced(QTreeWidget *pMainTree, QTreeWidgetItem *parent, QVector<LayerSettings *> &layerSettings);
     ~KhronosSettingsAdvanced();
 
     bool CollectSettings(void);
@@ -44,8 +44,8 @@ class KhronosSettingsAdvanced : public QObject {
     QTreeWidgetItem *pMainParent;
     QTreeWidgetItem *pCoreChecksParent;
 
-    TLayerSettings *pDisables;
-    TLayerSettings *pEnables;
+    LayerSettings *pDisables;
+    LayerSettings *pEnables;
 
     QTreeWidgetItem *pShaderBasedBox;
     QTreeWidgetItem *pGPUAssistBox;
@@ -53,7 +53,7 @@ class KhronosSettingsAdvanced : public QObject {
     QTreeWidgetItem *pReserveBox;
     QTreeWidgetItem *pDebugPrintfBox;
     QRadioButton *pDebugRadio;
-    CMuteMessageWidget *pMuteMessageWidget;
+    MuteMessageWidget *pMuteMessageWidget;
 
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *pItem, int nColumn);

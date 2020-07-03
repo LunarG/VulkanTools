@@ -1,5 +1,3 @@
-#ifndef CMUTEMESSAGEWIDGET_H
-#define CMUTEMESSAGEWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates a list box that displays all the filtered
- * message ids.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
+
 #include <QWidget>
 #include <QListWidget>
 #include <QLineEdit>
@@ -28,13 +29,13 @@
 
 #include <layerfile.h>
 
-class CMuteMessageWidget : public QWidget {
+class MuteMessageWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit CMuteMessageWidget(TLayerSettings *pLayerSetting);
+    explicit MuteMessageWidget(LayerSettings *pLayerSetting);
 
    private:
-    TLayerSettings *pSetting;
+    LayerSettings *pSetting;
     QListWidget *pListWidget;
     QPushButton *pAddButton;
     QPushButton *pRemovebutton;
@@ -43,10 +44,8 @@ class CMuteMessageWidget : public QWidget {
 
    public Q_SLOTS:
     void addItem(QString &item);  // Added from combo box
-    void removePushed(void);      // Remove button
+    void removePushed();      // Remove button
 
    Q_SIGNALS:
-    void itemChanged(void);
+    void itemChanged();
 };
-
-#endif  // CMUTEMESSAGEWIDGET_H

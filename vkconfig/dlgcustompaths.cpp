@@ -23,6 +23,8 @@
 #include "dlgcustompaths.h"
 #include "ui_dlgcustompaths.h"
 
+#include "configurator.h"
+
 dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCustomPaths) {
     bPathsChanged = false;
     ui->setupUi(this);
@@ -48,7 +50,7 @@ void dlgCustomPaths::RepopulateTree(void) {
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
-        QVector<CLayerFile *> customLayers;
+        QVector<LayerFile *> customLayers;
         configurator.LoadLayersFromPath(configurator.additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
         for (int j = 0; j < customLayers.size(); j++) {

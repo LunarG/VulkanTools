@@ -1,5 +1,3 @@
-#ifndef CTREEFRIENDLYCOMBOBOX_H
-#define CTREEFRIENDLYCOMBOBOX_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,20 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates a combobox that can be used in a tree widget.
- * The new functionality from this derived class is the signal emitted
- * will contain a pointer ot the tree item from which it came.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QWidget>
 #include <QComboBox>
 #include <QTreeWidgetItem>
 
-class CTreeFriendlyComboBox : public QComboBox {
+class TreeFriendlyComboBox : public QComboBox {
     Q_OBJECT
    public:
-    CTreeFriendlyComboBox(QTreeWidgetItem *pItem);
+    TreeFriendlyComboBox(QTreeWidgetItem *pItem);
 
    protected:
     QTreeWidgetItem *pTreeWidget;
@@ -40,5 +39,3 @@ class CTreeFriendlyComboBox : public QComboBox {
    Q_SIGNALS:
     void selectionMade(QTreeWidgetItem *pTreeItem, int nIndex);
 };
-
-#endif  // CTREEFRIENDLYCOMBOBOX_H

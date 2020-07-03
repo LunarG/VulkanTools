@@ -1,5 +1,3 @@
-#ifndef CLAYERFILE_H
-#define CLAYERFILE_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,13 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * The vkConfig2 program monitors and adjusts the Vulkan configuration
+ * environment. These settings are wrapped in this class, which serves
+ * as the "model" of the system.
  *
- * Layer files are JSON documents, so a layer file object is derived
- * from QJsonDocument and is given several useful utility access methods
- * for querying and manipulating layer .json files.
- *
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QObject>
 #include <QJsonDocument>
@@ -33,7 +34,7 @@
 #include <QVector>
 #include <QVariant>
 
-typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT, LAYER_TYPE_CUSTOM } TLayerType;
+typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT, LAYER_TYPE_CUSTOM } LayerType;
 
 typedef enum {
     LAYER_SETTINGS_STRING = 0,
@@ -45,15 +46,15 @@ typedef enum {
     LAYER_SETTINGS_INCLUSIVE_LIST,
     LAYER_SETTINGS_RANGE_INT,
     LAYER_SETTINGS_VUID_FILTER,
-} TLayerSettingsType;
+} LayerSettingsType;
 
 // This structure is copied by assignment elsewhere, so do not add
 // any pointers to it please...
-struct TLayerSettings {
+struct LayerSettings {
     QString settingsName;                     // Name of the setting the layer looks for (programatic variable name)
     QString settingsPrompt;                   // Short name to prompt end user
     QString settingsDesc;                     // Human version, describes the setting
-    TLayerSettingsType settingsType;          // The data type
+    LayerSettingsType settingsType;          // The data type
     QVariant settingsMaxValue;                // For range based
     QVariant settingsMinValue;                // For range based
     QStringList settingsListExclusiveValue;   // List of exclusive items
@@ -66,7 +67,7 @@ struct TLayerSettings {
 void RemoveString(QString& delimitedString, QString value);
 void AddString(QString& delimitedString, QString value);
 
-class CLayerFile : public QObject {
+class LayerFile : public QObject {
     Q_OBJECT
    public:
     // Standard pieces of a layer
@@ -79,24 +80,24 @@ class CLayerFile : public QObject {
     QString description;
 
     QString qsLayerPath;  // Actual path to the folder that contains the layer (this is important!)
-    TLayerType layerType;
+    LayerType layerType;
 
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    QVector<TLayerSettings*> layerSettings;
+    QVector<LayerSettings*> layerSettings;
 
     bool bActive;    // When used in a profile, is this one active?
     bool bDisabled;  // When used in a profile, is this one disabled?
     int nRank;       // When used in a profile, what is the rank? (0 being first layer)
 
    public:
-    CLayerFile();
-    ~CLayerFile();
+    LayerFile();
+    ~LayerFile();
 
     // No.. I do not like operator overloading. It's a bad idea.
     // Inlined here just so I can see all the variables that need to be copied.
-    void CopyLayer(CLayerFile* destinationLayer) const {
+    void CopyLayer(LayerFile* destinationLayer) const {
         destinationLayer->file_format_version = file_format_version;
         destinationLayer->name = name;
         destinationLayer->type = type;
@@ -111,17 +112,15 @@ class CLayerFile : public QObject {
         destinationLayer->qsLayerPath = qsLayerPath;
 
         for (int i = 0; i < layerSettings.length(); i++) {
-            TLayerSettings* pSettings = new TLayerSettings();
+            LayerSettings* pSettings = new LayerSettings();
             *pSettings = *layerSettings[i];
             destinationLayer->layerSettings.push_back(pSettings);
         }
     }
 
     // File based layers
-    bool ReadLayerFile(QString qsFullPathToFile, TLayerType layerKind);
+    bool ReadLayerFile(QString qsFullPathToFile, LayerType layerKind);
 
     // Utility, may move outside this class....
-    static void LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<TLayerSettings*>& layers);
+    static void LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVector<LayerSettings*>& layers);
 };
-
-#endif  // CLAYERFILE_H

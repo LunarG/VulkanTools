@@ -1,5 +1,3 @@
-#ifndef CMULTIENUMSETTING_H
-#define CMULTIENUMSETTING_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QWidget>
 #include <QCheckBox>
@@ -28,20 +28,18 @@
 
 #include "layerfile.h"
 
-class CMultiEnumSetting : public QCheckBox {
+class MultiEnumSetting : public QCheckBox {
     Q_OBJECT
    public:
-    CMultiEnumSetting(TLayerSettings *pLayerSetting, QString thisSetting);
+    MultiEnumSetting(LayerSettings *pLayerSetting, QString thisSetting);
 
    private:
-    TLayerSettings *pSetting;
+    LayerSettings *pSetting;
     QString mySetting;
 
    public Q_SLOTS:
     void itemChecked(bool bChecked);
 
    Q_SIGNALS:
-    void itemChanged(void);
+    void itemChanged();
 };
-
-#endif  // CMULTIENUMSETTING_H

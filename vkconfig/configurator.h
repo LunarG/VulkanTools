@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * The vkConfig2 program monitors and adjusts the Vulkan configuration
- * environment. These settings are wrapped in this class, which serves
- * as the "model" of the system.
- *
  * Authors:
  * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
@@ -39,7 +35,7 @@
 #include <vulkan/vulkan.h>
 
 #include "layerfile.h"
-#include "profiledef.h"
+#include "configuration.h"
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 #define APP_SHORT_NAME "vkconfig"
@@ -53,14 +49,14 @@
 /// This is a little weird because generally QSettings is for going back
 /// and forth between the Registry or .ini files. Here, I'm going from
 /// the registry to directory entries.
-class CPathFinder {
+class PathFinder {
    public:
 #ifdef _WIN32
-    CPathFinder(const QString& qsPath, bool bForceFileSystem = false);
+    PathFinder(const QString& qsPath, bool bForceFileSystem = false);
 #else
-    CPathFinder(const QString& qsPath, bool bForceFileSystem = true);
+    PathFinder(const QString& qsPath, bool bForceFileSystem = true);
 #endif
-    int FileCount(void) { return fileList.size(); }
+    int FileCount() { return fileList.size(); }
     QString GetFileName(int iIndex) { return fileList[iIndex]; }
 
    protected:
@@ -89,14 +85,14 @@ class CPathFinder {
 class LayerSettingsDefaults {
    public:
     QString layerName;                         // Name of layer
-    QVector<TLayerSettings*> defaultSettings;  // Default settings for this layer
+    QVector<LayerSettings*> defaultSettings;  // Default settings for this layer
 };
 
 //////////////////////////////////////////////////////////
 // We will maintain a list of applicitons, each can have
 // it's own working folder (when run in test mode), and
 // it's own set of command line arguments
-struct TAppListEntry {
+struct AppListEntry {
     QString qsAppNameWithPath;
     QString qsWorkingFolder;
     QString qsArguments;
@@ -118,9 +114,9 @@ class Configurator {
 
     /////////////////////////////////////////////////////////////////////////
     // Just local app settings
-    void LoadAppSettings(void);
-    void SaveAppSettings(void);
-    void ResetToDefaultAppSettings(void);
+    void LoadAppSettings();
+    void SaveAppSettings();
+    void ResetToDefaultAppSettings();
     QString qsLastLaunchApplicationWPath;  // This is to match up with the application list
     bool bOverrideActive;                  // Do we have an active override?
     bool bApplyOnlyToList;                 // Apply the overide only to the application list
@@ -134,24 +130,24 @@ class Configurator {
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
-    void LoadAdditionalSearchPaths(void);
-    void SaveAdditionalSearchPaths(void);
+    void LoadAdditionalSearchPaths();
+    void SaveAdditionalSearchPaths();
     QStringList additionalSearchPaths;
 
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
-    QVector<TAppListEntry*> appList;
-    void LoadAppList(void);
-    void SaveAppList(void);
+    QVector<AppListEntry*> appList;
+    void LoadAppList();
+    void SaveAppList();
 
     ////////////////////////////////////////////////////////////////////////
     // A readonly list of layer names with the associated settings
     // and their default values. This is for reference by individual profile
     // objects.
     QVector<LayerSettingsDefaults*> defaultLayerSettings;
-    void LoadDefaultLayerSettings(void);
+    void LoadDefaultLayerSettings();
     const LayerSettingsDefaults* FindSettingsFor(QString layerName);
-    void LoadDefaultSettings(CLayerFile* pBlankLayer);
+    void LoadDefaultSettings(LayerFile* pBlankLayer);
 
     ////////////////////////////////////////////////////////////////////////
     // Look for all installed layers. This contains their path, version info, etc.
@@ -159,58 +155,58 @@ class Configurator {
     // in the above (defaultLayerSettings). The binding of a layer with it's
     // particular settings is done in the profile (CProfileDef - in profile list).
     // This includes all found implicit, explicit, or layers found in custom folders
-    QVector<CLayerFile*> allLayers;  // All the found layers, lumped together
-    void FindAllInstalledLayers(void);
-    void LoadLayersFromPath(const QString& qsPath, QVector<CLayerFile*>& layerList, TLayerType type);
-    const CLayerFile* FindLayerNamed(QString qsLayerName, const char* location = nullptr);
+    QVector<LayerFile*> allLayers;  // All the found layers, lumped together
+    void FindAllInstalledLayers();
+    void LoadLayersFromPath(const QString& qsPath, QVector<LayerFile*>& layerList, LayerType type);
+    const LayerFile* FindLayerNamed(QString qsLayerName, const char* location = nullptr);
 
-    QVector<CProfileDef*> profileList;  // List and details about current profiles
+    QVector<Configuration*> profileList;  // List and details about current profiles
 
     // We need to push and pop a temporary environment.
     // The stack is only one deep...
-    CProfileDef* pSavedProfile;
+    Configuration* pSavedProfile;
 
-    void pushProfile(CProfileDef* pNew);
-    void popProfile(void);
+    void pushProfile(Configuration* pNew);
+    void popProfile();
 
-    CProfileDef* CreateEmptyProfile(void);
-    CProfileDef* FindProfile(QString profileName);
-    CProfileDef* LoadProfile(QString pathToProfile);  // Load .profile descriptor
-    void LoadAllProfiles(void);                       // Load all the .profile files found
-    bool SaveProfile(CProfileDef* pProfile);          // Write .profile descriptor
+    Configuration* CreateEmptyProfile();
+    Configuration* FindProfile(QString profileName);
+    Configuration* LoadProfile(QString pathToProfile);  // Load .profile descriptor
+    void LoadAllProfiles();                       // Load all the .profile files found
+    bool SaveProfile(Configuration* pProfile);          // Write .profile descriptor
     void ImportProfile(QString qsFullPathToSource);
     void ExportProfile(QString qsFullPathToSource, QString qsFullPathToDest);
 
-    void FindVkCube(void);
+    void FindVkCube();
 
     bool HasLayers() const;
-    bool IsRunningAsAdministrator(void) { return bRunningAsAdministrator; }
+    bool IsRunningAsAdministrator() { return bRunningAsAdministrator; }
 
     // Set this as the current override profile
-    void SetCurrentActiveProfile(CProfileDef* pProfile);
-    CProfileDef* GetCurrentActiveProfile(void) { return pActiveProfile; }
-    void RefreshProfile(void) {
+    void SetCurrentActiveProfile(Configuration* pProfile);
+    Configuration* GetCurrentActiveProfile() { return pActiveProfile; }
+    void RefreshProfile() {
         if (pActiveProfile) SetCurrentActiveProfile(pActiveProfile);
     }
 
-    QString GetProfilePath(void) { return qsProfileFilesPath; }
+    QString GetProfilePath() { return qsProfileFilesPath; }
 
-    QString CheckVulkanSetup(void);
-    void CheckApplicationRestart(void);
+    QString CheckVulkanSetup();
+    void CheckApplicationRestart();
 
    protected:
     Configurator();
 
     // Currently active profile
-    CProfileDef* pActiveProfile;
+    Configuration* pActiveProfile;
 
     bool bRunningAsAdministrator;  // Are we being "Run as Administrator"
     bool bFirstRun;                // This is used for populating the initial set of profiles/configurations
-    void ClearLayerLists(void);
+    void ClearLayerLists();
 
 #ifdef WIN32
-    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<CLayerFile*>& layerList, TLayerType type);
-    void LoadRegistryLayers(const QString& path, QVector<CLayerFile*>& layerList, TLayerType type);
+    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<LayerFile*>& layerList, LayerType type);
+    void LoadRegistryLayers(const QString& path, QVector<LayerFile*>& layerList, LayerType type);
 
     void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
     void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);

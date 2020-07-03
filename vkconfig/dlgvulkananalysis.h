@@ -1,6 +1,3 @@
-#ifndef DLGVULKANANALYSIS_H
-#define DLGVULKANANALYSIS_H
-
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -17,8 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QDialog>
 #include <QTreeWidgetItem>
@@ -40,12 +41,10 @@ class dlgVulkanAnalysis : public QDialog {
     explicit dlgVulkanAnalysis(QWidget* parent = nullptr);
     ~dlgVulkanAnalysis();
 
-    void RunTool(void);
+    void RunTool();
 
    private:
     void LoadTable(QJsonObject& jsonParent, QTableWidget* pTable);
 
     Ui::dlgVulkanAnalysis* ui;
 };
-
-#endif  // DLGVULKANANALYSIS_H

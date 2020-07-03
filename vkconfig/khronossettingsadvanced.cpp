@@ -152,7 +152,7 @@ QString GetSettingDetails(QString qsSetting, QString &url) {
 
 ///////////////////////////////////////////////////////////////////////////////
 KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *pMainTree, QTreeWidgetItem *parent,
-                                                 QVector<TLayerSettings *> &layerSettings) {
+                                                 QVector<LayerSettings *> &layerSettings) {
     pMainTreeWidget = pMainTree;
     pMainParent = parent;
 

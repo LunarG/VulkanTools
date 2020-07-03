@@ -21,7 +21,7 @@
 
 #include "filenamesettingwidget.h"
 
-CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSettings* pLayerSetting) : QWidget(nullptr) {
+FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) : QWidget(nullptr) {
     pSetting = pLayerSetting;
 
     pItem->setText(0, pLayerSetting->settingsPrompt);
@@ -39,7 +39,7 @@ CFilenameSettingWidget::CFilenameSettingWidget(QTreeWidgetItem* pItem, TLayerSet
     connect(pLineEdit, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 }
 
-void CFilenameSettingWidget::resizeEvent(QResizeEvent* event) {
+void FilenameSettingWidget::resizeEvent(QResizeEvent* event) {
     if (pLineEdit == nullptr) return;
 
     QSize parentSize = event->size();
@@ -51,7 +51,7 @@ void CFilenameSettingWidget::resizeEvent(QResizeEvent* event) {
     pPushButton->setGeometry(buttonRect);
 }
 
-void CFilenameSettingWidget::browseButtonClicked(void) {
+void FilenameSettingWidget::browseButtonClicked(void) {
     QString file = QFileDialog::getSaveFileName(pPushButton, tr("Select File"), ".");
 
     if (!file.isEmpty()) {
@@ -62,7 +62,7 @@ void CFilenameSettingWidget::browseButtonClicked(void) {
     }
 }
 
-void CFilenameSettingWidget::textFieldChanged(const QString& newText) {
+void FilenameSettingWidget::textFieldChanged(const QString& newText) {
     pSetting->settingsValue = newText;
     emit itemChanged();
 }
