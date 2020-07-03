@@ -94,13 +94,13 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, Configuration *pPro
 
     ///////////////////////////////////////////////////////////////////
     // The last item is just the blacklisted layers
-    if (!pProfileDef->blacklistedLayers.isEmpty()) {
+    if (!pProfileDef->excluded_layers.isEmpty()) {
         QTreeWidgetItem *pBlackList = new QTreeWidgetItem();
         pBlackList->setText(0, "Excluded Layers");
         pBuildTree->addTopLevelItem(pBlackList);
-        for (int i = 0; i < pProfileDef->blacklistedLayers.size(); i++) {
+        for (int i = 0; i < pProfileDef->excluded_layers.size(); i++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
-            pChild->setText(0, pProfileDef->blacklistedLayers[i]);
+            pChild->setText(0, pProfileDef->excluded_layers[i]);
             pBlackList->addChild(pChild);
         }
     }
@@ -127,7 +127,7 @@ void SettingsTreeManager::BuildKhronosTree(void) {
     pKhronosPresets->addItem("Shader Printf");
     pKhronosPresets->addItem("Reduced-Overhead");
 
-    pKhronosPresets->setCurrentIndex(pProfile->nPresetIndex);
+    pKhronosPresets->setCurrentIndex(pProfile->preset_index);
 
     connect(pKhronosPresets, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     pKhronosTree->addChild(pKhronosPresetItem);
@@ -346,7 +346,7 @@ void SettingsTreeManager::khronosPresetChanged(int nIndex) {
 
     // The easiest way to do this is to create a new profile, and copy the layer over
     QString preDefined = ":/resourcefiles/";
-    preDefined += Configurator::DefaultConfigurations[nIndex - 1];
+    preDefined += Configurator::default_configurations[nIndex - 1];
     preDefined += ".json";
     Configuration *pPatternProfile = configuration.LoadConfiguration(preDefined);
     if (pPatternProfile == nullptr) return;
@@ -373,7 +373,7 @@ void SettingsTreeManager::khronosPresetChanged(int nIndex) {
         }
 
     delete pPatternProfile;                                // Delete the pattern
-    pProfile->nPresetIndex = nIndex;
+    pProfile->preset_index = nIndex;
 
     // Now we need to reload the Khronos tree item.
     pEditorTree->blockSignals(true);
@@ -399,7 +399,7 @@ void SettingsTreeManager::khronosPresetChanged(int nIndex) {
 void SettingsTreeManager::khronosPresetEdited(void) {
     pKhronosPresets->blockSignals(true);
     pKhronosPresets->setCurrentIndex(KHRONOS_PRESET_USER_DEFINED);
-    pProfile->nPresetIndex = KHRONOS_PRESET_USER_DEFINED;
+    pProfile->preset_index = KHRONOS_PRESET_USER_DEFINED;
     pKhronosPresets->blockSignals(false);
     profileEdited();
 }

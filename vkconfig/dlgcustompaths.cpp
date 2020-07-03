@@ -17,13 +17,13 @@
  * Author: Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#include <QFileDialog>
-#include <QMessageBox>
+#include "configurator.h"
 
 #include "dlgcustompaths.h"
 #include "ui_dlgcustompaths.h"
 
-#include "configurator.h"
+#include <QFileDialog>
+#include <QMessageBox>
 
 dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCustomPaths) {
     bPathsChanged = false;
@@ -44,42 +44,41 @@ void dlgCustomPaths::RepopulateTree(void) {
     Configurator &configurator = Configurator::Get();
 
     // Populate the tree
-    for (int i = 0; i < configurator.custom_layers_paths.size(); i++) {
+    for (int custom_path_index = 0, n = configurator.GetCustomLayersPathSize(); custom_path_index < n; ++custom_path_index) {
+        const QString &custom_path = configurator.GetCustomLayersPath(custom_path_index);
+
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, configurator.custom_layers_paths[i]);
+        pItem->setText(0, custom_path);
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
-        QVector<LayerFile *> customLayers;
-        configurator.LoadLayersFromPath(configurator.custom_layers_paths[i], customLayers, LAYER_TYPE_CUSTOM);
+        QVector<LayerFile *> custom_layers;
+        configurator.LoadLayersFromPath(custom_path, custom_layers, LAYER_TYPE_CUSTOM);
 
-        for (int j = 0; j < customLayers.size(); j++) {
+        for (int j = 0; j < custom_layers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
-            pChild->setText(0, customLayers[j]->name);
+            pChild->setText(0, custom_layers[j]->name);
             pItem->addChild(pChild);
         }
 
         // Free the dynamic memory, the rest passes out of scope
-        qDeleteAll(customLayers.begin(), customLayers.end());
+        qDeleteAll(custom_layers.begin(), custom_layers.end());
     }
 }
 
 void dlgCustomPaths::on_pushButtonAdd_clicked() {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
-    QString customFolder = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
+    QString custom_folder = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
 
     Configurator &configurator = Configurator::Get();
 
-    if (!customFolder.isEmpty()) {
-        configurator.custom_layers_paths.append(customFolder);
+    if (!custom_folder.isEmpty()) {
+        configurator.AppendCustomLayersPath(custom_folder);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, customFolder);
+        pItem->setText(0, custom_folder);
         ui->treeWidget->addTopLevelItem(pItem);
 
-        configurator.SaveCustomLayersPaths();
-        configurator.FindAllInstalledLayers();
-        configurator.LoadAllConfigurations();
         bPathsChanged = true;
         RepopulateTree();
     }
@@ -111,18 +110,10 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
     Configurator &configurator = Configurator::Get();
 
     // Now actually remove it.
-    for (int i = 0; i < configurator.custom_layers_paths.size(); i++) {
-        if (configurator.custom_layers_paths[i] == pSelected->text(0)) {
-            configurator.custom_layers_paths.removeAt(i);
-            break;
-        }
-    }
+    configurator.RemoveCustomLayersPath(pSelected->text(0));
 
     // Update GUI and save
     RepopulateTree();
-    configurator.SaveCustomLayersPaths();
-    configurator.FindAllInstalledLayers();
-    configurator.LoadAllConfigurations();
     ui->buttonBox->setEnabled(configurator.HasLayers());
     bPathsChanged = true;
 }

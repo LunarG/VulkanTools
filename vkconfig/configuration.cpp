@@ -14,12 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
- *
- * Layer files are JSON documents, so a layer file object is derived
- * from QJsonDocument and is given several useful utility access methods
- * for querying and manipulating layer .json files.
- *
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include <QFile>
@@ -27,11 +24,11 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-#include "configurator.h"
+#include "configuration.h"
 
 Configuration::Configuration() {
-    nPresetIndex = 0;
-    bAllLayersAvailable = true;
+    preset_index = 0;
+    all_layers_available = true;
 }
 
 Configuration::~Configuration() {
@@ -41,18 +38,18 @@ Configuration::~Configuration() {
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
-LayerFile* Configuration::FindLayer(QString qsLayerName, QString qsFullPath) {
+LayerFile* Configuration::FindLayer(const QString& layer_name, const QString& full_path) const {
     for (int i = 0; i < layers.size(); i++)
-        if (layers[i]->name == qsLayerName && layers[i]->qsLayerPath == qsFullPath) return layers[i];
+        if (layers[i]->name == layer_name && layers[i]->qsLayerPath == full_path) return layers[i];
 
     return nullptr;
 }
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists. Only care about the name
-LayerFile* Configuration::FindLayerNamed(QString qsLayerName) {
+LayerFile* Configuration::FindLayerNamed(const QString& layer_name) const {
     for (int i = 0; i < layers.size(); i++)
-        if (layers[i]->name == qsLayerName) return layers[i];
+        if (layers[i]->name == layer_name) return layers[i];
 
     return nullptr;
 }
@@ -66,12 +63,12 @@ LayerFile* Configuration::GetKhronosLayer() { return FindLayerNamed("VK_LAYER_KH
 // Copy a profile so we can mess with it.
 Configuration* Configuration::DuplicateProfile() {
     Configuration* pDuplicate = new Configuration;
-    pDuplicate->qsProfileName = qsProfileName;
-    pDuplicate->qsFileName = qsFileName;
-    pDuplicate->qsDescription = qsDescription;
-    pDuplicate->blacklistedLayers = blacklistedLayers;
-    pDuplicate->nPresetIndex = nPresetIndex;
-    pDuplicate->bAllLayersAvailable = bAllLayersAvailable;
+    pDuplicate->name = name;
+    pDuplicate->file = file;
+    pDuplicate->description = description;
+    pDuplicate->excluded_layers = excluded_layers;
+    pDuplicate->preset_index = preset_index;
+    pDuplicate->all_layers_available = all_layers_available;
     // Do not copy ->bFixedProfile
 
     for (int i = 0; i < layers.size(); i++) {
@@ -88,7 +85,7 @@ Configuration* Configuration::DuplicateProfile() {
 /// Remove unused layers and build the list of
 /// black listed layers.
 void Configuration::CollapseProfile() {
-    blacklistedLayers.clear();
+    excluded_layers.clear();
 
     // Look for black listed layers, add them to the
     // string list of names, but remove them from
@@ -98,7 +95,7 @@ void Configuration::CollapseProfile() {
     while (iCurrent < layers.size()) {
         // Remove this layer?
         if (layers[iCurrent]->bDisabled) {
-            blacklistedLayers << layers[iCurrent]->name;
+            excluded_layers << layers[iCurrent]->name;
             layers.removeAt(iCurrent);
             continue;
         }

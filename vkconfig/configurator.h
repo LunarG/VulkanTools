@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include "layerfile.h"
+#include "configuration.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #include <winreg.h>
@@ -33,9 +36,6 @@
 #include <QDir>
 
 #include <vulkan/vulkan.h>
-
-#include "layerfile.h"
-#include "configuration.h"
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 #define APP_SHORT_NAME "vkconfig"
@@ -99,41 +99,64 @@ struct Application {
     bool override_layers;
 };
 
-struct Settings {};
-
 class Configurator {
    public:
     static Configurator& Get();
 
-    static const int DefaultConfigurationsCount;
-    static const char* DefaultConfigurations[8];
+    static const int default_configurations_count;
+    static const char* default_configurations[8];
 
     // Need this to check vulkan loader version
     uint32_t vulkan_instance_version;
+    bool bHasOldLoader;  // Older loader does not support per-application overrides
+
+    QString configuration_path_;      // Where config working files live
+    QString override_settings_path;  // Where settings go when profile is active
+    QString override_json_path;      // Where json goes when profile is active
+
+   private:
+    bool running_as_administrator_;  // Are we being "Run as Administrator"
+    bool first_run_;                 // This is used for populating the initial set of configurations
 
     /////////////////////////////////////////////////////////////////////////
     // Just Vulkan Configurator settings
+   public:
     void LoadSettings();
     void SaveSettings();
     void ResetToDefaultSettings();
-    QString qsLastLaunchApplicationWPath;  // This is to match up with the application list
-    bool bOverrideActive;                  // Do we have an active override?
-    bool bApplyOnlyToList;                 // Apply the overide only to the application list
-    bool bKeepActiveOnExit;                // Stay active when app closes
-    bool bHasOldLoader;                    // Older loader does not support per-application overrides
+    bool HasActiveOverrideOnApplicationListOnly() const { return !bHasOldLoader && override_application_list_only; }
 
-    QString qsProfileFilesPath;      // Where config working files live
-    QString qsOverrideSettingsPath;  // Where settings go when profile is active
-    QString qsOverrideJsonPath;      // Where json goes when profile is active
+    bool override_active;                 // Do we have active layers override?
+    bool override_application_list_only;  // Apply the override only to the application list
+    bool override_permanent;              // The override remains active when Vulkan Configurator closes
+
+    /////////////////////////////////////////////////////////////////////////
+    // Application Launcher
+   public:
+    void SelectLaunchApplication(int application_index);
+    int GetLaunchApplicationIndex() const;
+    void FindVkCube();
+
+   private:
+    QString active_launch_executable_path_;  // This is to match up with the application list
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
+   public:
     void LoadCustomLayersPaths();
     void SaveCustomLayersPaths();
-    QStringList custom_layers_paths;
+    void RemoveCustomLayersPath(int path_index);
+    void RemoveCustomLayersPath(const QString& path);
+    void AppendCustomLayersPath(const QString& path);
+    int GetCustomLayersPathSize() const;
+    const QString& GetCustomLayersPath(int path_index) const;
+
+   private:
+    QStringList custom_layers_paths_;
 
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
+   public:
     QVector<Application*> overridden_application_list;
     void LoadOverriddenApplicationList();
     void SaveOverriddenApplicationList();
@@ -144,7 +167,7 @@ class Configurator {
     // objects.
     QVector<LayerSettingsDefaults*> default_layers_settings;
     void LoadDefaultLayerSettings();
-    const LayerSettingsDefaults* FindLayerSettings(QString layer_name);
+    const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
     void LoadDefaultSettings(LayerFile* empty_layer);
 
     ////////////////////////////////////////////////////////////////////////
@@ -154,9 +177,9 @@ class Configurator {
     // particular settings is done in the profile (Configuration - in configuration list).
     // This includes all found implicit, explicit, or layers found in custom folders
     QVector<LayerFile*> available_Layers;  // All the found layers, lumped together
-    void FindAllInstalledLayers();
-    void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list, LayerType type);
+    void LoadAllInstalledLayers();
     const LayerFile* FindLayerNamed(QString layer_name, const char* location = nullptr);
+    void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list, LayerType type);
 
     QVector<Configuration*> available_configurations;
 
@@ -168,14 +191,12 @@ class Configurator {
     void PopConfiguration();
 
     Configuration* CreateEmptyConfiguration();
-    Configuration* FindConfiguration(QString configuration_name);
-    Configuration* LoadConfiguration(QString path_configuration);  // Load .profile descriptor
+    Configuration* FindConfiguration(const QString& configuration_name) const;
+    Configuration* LoadConfiguration(const QString& path_configuration);  // Load .profile descriptor
     void LoadAllConfigurations();                                  // Load all the .profile files found
     bool SaveConfiguration(Configuration* configuration);          // Write .profile descriptor
-    void ImportConfiguration(QString full_path_to_source);
-    void ExportConfiguration(QString full_path_to_source, QString full_path_to_dest);
-
-    void FindVkCube();
+    void ImportConfiguration(const QString& full_path_to_source);
+    void ExportConfiguration(const QString& full_path_to_source, const QString& full_path_to_dest) const;
 
     bool HasLayers() const;
     bool IsRunningAsAdministrator() { return running_as_administrator_; }
@@ -187,10 +208,10 @@ class Configurator {
         if (active_configuration_) SetActiveConfiguration(active_configuration_);
     }
 
-    QString GetConfigurationPath() { return qsProfileFilesPath; }
+    const QString& GetConfigurationPath() const { return configuration_path_; }
 
-    QString CheckVulkanSetup();
-    void CheckApplicationRestart();
+    QString CheckVulkanSetup() const;
+    void CheckApplicationRestart() const;
 
    private:
     Configurator();
@@ -199,9 +220,6 @@ class Configurator {
     Configurator& operator=(const Configurator&) = delete;
 
     Configuration* active_configuration_;
-
-    bool running_as_administrator_;  // Are we being "Run as Administrator"
-    bool first_run_;                 // This is used for populating the initial set of configurations
 
     void ClearLayerLists();
 

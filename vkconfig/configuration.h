@@ -31,20 +31,20 @@ class Configuration {
     Configuration();
     ~Configuration();
 
-    QString qsProfileName;        // User readable display of the profile name (may contain spaces)
+    QString name;                 // User readable display of the profile name (may contain spaces)
                                   // This is the same as the filename, but with the .json stripped off.
-    QString qsFileName;           // Root file name without path (by convention, no spaces and .profile suffix)
-    QString qsDescription;        // A friendly description of what this profile does
+    QString file;                 // Root file name without path (by convention, no spaces and .profile suffix)
+    QString description;          // A friendly description of what this profile does
     QByteArray settingTreeState;  // Recall editor tree state
-    int nPresetIndex;             // Khronos layer presets. 0 = none or user defined
+    int preset_index;             // Khronos layer presets. 0 = none or user defined
 
     // A profile is nothing but a list of layers and their settings in truth
     QVector<LayerFile *> layers;
 
-    QStringList blacklistedLayers;  // Just the names of blacklisted layers
+    QStringList excluded_layers;  // Just the names of blacklisted layers
 
-    LayerFile *FindLayer(QString qsLayerName, QString qsFullPath);  // Find the layer if it exists
-    LayerFile *FindLayerNamed(QString qsLayerName);                 // Find the layer if it exists, only care about the name
+    LayerFile *FindLayer(const QString &qsLayerName, const QString &qsFullPath) const;  // Find the layer if it exists
+    LayerFile *FindLayerNamed(const QString &qsLayerName) const;  // Find the layer if it exists, only care about the name
 
     Configuration *DuplicateProfile();  // Copy a profile so we can mess with it
 
@@ -52,6 +52,7 @@ class Configuration {
 
     LayerFile *GetKhronosLayer();  // Retrieve the Khronos validation layer if it is included
 
-    bool IsProfileUsable() { return bAllLayersAvailable; }
-    bool bAllLayersAvailable;
+    bool IsValid() { return all_layers_available; }
+
+    bool all_layers_available;
 };

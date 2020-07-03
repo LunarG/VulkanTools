@@ -139,7 +139,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *pProfileToEdi
     setWindowTitle("Creating New Profile");
 
     // Case 1: New profile (easiest case)
-    if (pProfileToEdit->qsProfileName.isEmpty()) {
+    if (pProfileToEdit->name.isEmpty()) {
         setWindowTitle(tr("Create new layer configuration"));
     } else {
         // We are editing an exisitng profile. Make a copy of it
@@ -156,8 +156,8 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *pProfileToEdi
         setWindowTitle(title);
     }
 
-    ui->lineEditName->setText(pThisProfile->qsProfileName);
-    ui->lineEditDesc->setText(pThisProfile->qsDescription);
+    ui->lineEditName->setText(pThisProfile->name);
+    ui->lineEditDesc->setText(pThisProfile->description);
 
     QTreeWidgetItem *pHeader = ui->layerTree->headerItem();
 
@@ -184,8 +184,7 @@ void dlgProfileEditor::AddMissingLayers(Configuration *pProfile) {
         LayerFile *pLayerThatMightBeMissing = configurator.available_Layers[iAvailable];
 
         // Look for through all layers
-        LayerFile *pAreYouAlreadyThere =
-            pProfile->FindLayer(pLayerThatMightBeMissing->name, pLayerThatMightBeMissing->qsLayerPath);
+        LayerFile *pAreYouAlreadyThere = pProfile->FindLayer(pLayerThatMightBeMissing->name, pLayerThatMightBeMissing->qsLayerPath);
         if (pAreYouAlreadyThere != nullptr)  // It's in the list already
             continue;
 
@@ -200,7 +199,7 @@ void dlgProfileEditor::AddMissingLayers(Configuration *pProfile) {
         pNextLayer->bActive = false;  // Layers read from file are already active
 
         // Check the blacklist
-        if (pProfile->blacklistedLayers.contains(pNextLayer->name)) pNextLayer->bDisabled = true;
+        if (pProfile->excluded_layers.contains(pNextLayer->name)) pNextLayer->bDisabled = true;
 
         pProfile->layers.push_back(pNextLayer);
     }
@@ -214,15 +213,12 @@ dlgProfileEditor::~dlgProfileEditor() { delete ui; }
 void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
-    QString customFolder = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
+    QString custom_path = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
 
-    if (customFolder.isEmpty()) return;
-    customFolder = QDir::toNativeSeparators(customFolder);
+    if (custom_path.isEmpty()) return;
+    custom_path = QDir::toNativeSeparators(custom_path);
 
-    Configurator &configurator = Configurator::Get();
-    configurator.custom_layers_paths.append(customFolder);
-    configurator.SaveCustomLayersPaths();
-    configurator.FindAllInstalledLayers();
+    Configurator::Get().AppendCustomLayersPath(custom_path);
 
     pThisProfile->CollapseProfile();
     AddMissingLayers(pThisProfile);
@@ -233,13 +229,10 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
 ////////////////////////////////////////////////////////////////
 // Remove the selected layer path and update everything accordingly
 void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
-    QTreeWidgetItem *pSelectedItem = ui->layerTree->currentItem();
-    int nRow = ui->layerTree->indexOfTopLevelItem(pSelectedItem);
+    QTreeWidgetItem *selected_item = ui->layerTree->currentItem();
 
-    Configurator &configurator = Configurator::Get();
-    configurator.custom_layers_paths.removeAt(nRow);
-    configurator.SaveCustomLayersPaths();
-    configurator.FindAllInstalledLayers();
+    int path_index = ui->layerTree->indexOfTopLevelItem(selected_item);
+    Configurator::Get().RemoveCustomLayersPath(path_index);
 
     pThisProfile->CollapseProfile();
     AddMissingLayers(pThisProfile);
@@ -247,37 +240,38 @@ void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
     PopulateCustomTree();
 }
 
-void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn) {
-    (void)nColumn;
-    (void)pItem;
+void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *item, int column_index) {
+    (void)column_index;
+    (void)item;
     ui->pushButtonRemoveLayers->setEnabled(true);
 }
 
 ////////////////////////////////////////////////////////////
 // Custom layer paths and the layers found therein
-void dlgProfileEditor::PopulateCustomTree(void) {
+void dlgProfileEditor::PopulateCustomTree() {
     ui->treeWidget->clear();
 
     Configurator &configurator = Configurator::Get();
 
     // Populate the tree
-    for (int i = 0; i < configurator.custom_layers_paths.size(); i++) {
-        QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, configurator.custom_layers_paths[i]);
-        ui->treeWidget->addTopLevelItem(pItem);
+    for (int path_index = 0; path_index < configurator.GetCustomLayersPathSize(); ++path_index) {
+        const QString custom_path = configurator.GetCustomLayersPath(path_index);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, custom_path);
+        ui->treeWidget->addTopLevelItem(item);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
-        QVector<LayerFile *> customLayers;
-        configurator.LoadLayersFromPath(configurator.custom_layers_paths[i], customLayers, LAYER_TYPE_CUSTOM);
+        QVector<LayerFile *> custom_layers;
+        configurator.LoadLayersFromPath(custom_path, custom_layers, LAYER_TYPE_CUSTOM);
 
-        for (int j = 0; j < customLayers.size(); j++) {
-            QTreeWidgetItem *pChild = new QTreeWidgetItem();
-            pChild->setText(0, customLayers[j]->name);
-            pItem->addChild(pChild);
+        for (int layer_index = 0; layer_index < custom_layers.size(); ++layer_index) {
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0, custom_layers[layer_index]->name);
+            item->addChild(child);
         }
 
         // Free the dynamic memory, the rest passes out of scope
-        qDeleteAll(customLayers.begin(), customLayers.end());
+        qDeleteAll(custom_layers.begin(), custom_layers.end());
     }
 
     ui->pushButtonRemoveLayers->setEnabled(false);
@@ -486,8 +480,8 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *pItem, int nSelection) {
 /// This is actually the save button.
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept() {
-    pThisProfile->qsProfileName = ui->lineEditName->text();
-    pThisProfile->qsDescription = ui->lineEditDesc->text();
+    pThisProfile->name = ui->lineEditName->text();
+    pThisProfile->description = ui->lineEditDesc->text();
 
     // Hard Fail: Cannot use two layers with the same name
     bool bSameName = false;
@@ -511,7 +505,7 @@ void dlgProfileEditor::accept() {
     }
 
     // Hard Fail: Name must not be blank
-    if (pThisProfile->qsProfileName.isEmpty()) {
+    if (pThisProfile->name.isEmpty()) {
         QMessageBox msg;
         msg.setInformativeText(tr("Configuration must have a name."));
         msg.setText(tr("Name your new config!"));
@@ -540,14 +534,14 @@ void dlgProfileEditor::accept() {
     }
 
     // Prepare... get fully qualified file name, and double check if overwriting
-    pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
+    pThisProfile->file = pThisProfile->name + ".json";
     QString savePath = Configurator::Get().GetConfigurationPath();
-    savePath += "/" + pThisProfile->qsFileName;
+    savePath += "/" + pThisProfile->file;
 
     if (QDir().exists(savePath)) {
         QMessageBox warning;
         warning.setInformativeText(tr("Are you sure you want to overwrite this configuration?"));
-        warning.setText(pThisProfile->qsProfileName);
+        warning.setText(pThisProfile->name);
         warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         warning.setDefaultButton(QMessageBox::No);
         if (QMessageBox::No == warning.exec()) return;  // No harm, no foul

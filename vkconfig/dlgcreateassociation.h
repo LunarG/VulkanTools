@@ -37,23 +37,24 @@ class dlgCreateAssociation : public QDialog {
     explicit dlgCreateAssociation(QWidget *parent = nullptr);
     ~dlgCreateAssociation();
 
-    int nLastSelectedApp;
-
-    static void GetExecutableFromAppBundle(QString &csPath);
+    static void GetExecutableFromAppBundle(QString &path);
+    int GetSelectedLaunchApplicationIndex() const { return last_selected_application_index; }
 
    private:
-    Ui::dlgCreateAssociation *ui;
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-   public Q_SLOTS:
-    void on_pushButtonAdd_clicked();                                                  // Pick the application
-    void on_pushButtonRemove_clicked();                                               // Remove
-    void selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);  // Used to enable remove button
-    void itemChanged(QTreeWidgetItem *pItem, int nColumn);
-    void itemClicked(bool bClicked);
+    Ui::dlgCreateAssociation *ui;
+    int last_selected_application_index;
 
-    void editCommandLine(const QString &cmdLine);
-    void editWorkingFolder(const QString &workingFolder);
-    void editLogFile(const QString &logFile);
+   public Q_SLOTS:
+    void on_pushButtonAdd_clicked();                                                // Pick the application
+    void on_pushButtonRemove_clicked();                                             // Remove
+    void selectedPathChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);  // Used to enable remove button
+    void itemChanged(QTreeWidgetItem *item, int column_index);
+    void itemClicked(bool clicked);
+
+    void editCommandLine(const QString &cmd_line);
+    void editWorkingFolder(const QString &working_folder);
+    void editLogFile(const QString &log_file);
 };

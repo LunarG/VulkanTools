@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -41,13 +43,13 @@ class MainWindow;
 QT_END_NAMESPACE
 
 //////////////////////////////////////////////////
-/// \brief The CProfileListItem class
+/// \brief The ContigurationListItem class
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
-class ProfileListItem : public QTreeWidgetItem {
+class ContigurationListItem : public QTreeWidgetItem {
    public:
-    Configuration *pProfilePointer;
-    QRadioButton *pRadioButton;
+    Configuration *configuration;
+    QRadioButton *radio_button;
 };
 
 class MainWindow : public QMainWindow {
@@ -58,15 +60,15 @@ class MainWindow : public QMainWindow {
     ~MainWindow();
 
    protected:
-    SettingsTreeManager settingsTreeManager;
+    SettingsTreeManager settings_tree_manager_;
 
-    QProcess *pVulkanApp;  // Keeps track of the monitored app
-    QFile *pLogFile;       // Log file for layer output
+    QProcess *launch_application_;  // Keeps track of the monitored app
+    QFile *log_file_;               // Log file for layer output
 
-    void LoadProfileList();
+    void LoadConfigurationList();
     void SetupLaunchTree();
 
-    void ChangeActiveProfile(Configuration *pNewProfile);
+    void ChangeActiveConfiguration(Configuration *configuration);
 
     virtual void closeEvent(QCloseEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
@@ -81,8 +83,8 @@ class MainWindow : public QMainWindow {
    private:
     Ui::MainWindow *ui;
 
-    ProfileListItem *pLastSelectedProfileItem;
-    ProfileListItem *GetCheckedItem();
+    ContigurationListItem *selected_configuration_item_;
+    ContigurationListItem *GetCheckedItem();
 
     QComboBox *pLaunchAppsCombo;
     QLineEdit *pLaunchArguments;
@@ -94,15 +96,15 @@ class MainWindow : public QMainWindow {
 
     void ResetLaunchOptions();
 
-    void RemoveClicked(ProfileListItem *pItem);
-    void RenameClicked(ProfileListItem *pItem);
+    void RemoveClicked(ContigurationListItem *pItem);
+    void RenameClicked(ContigurationListItem *pItem);
     void NewClicked();
-    void DuplicateClicked(ProfileListItem *pItem);
-    void ExportClicked(ProfileListItem *pItem);
-    void ImportClicked(ProfileListItem *pItem);
-    void EditClicked(ProfileListItem *pItem);
-    void RestoreClicked(ProfileListItem *pItem);
-    void EditCustomPathsClicked(ProfileListItem *pItem);
+    void DuplicateClicked(ContigurationListItem *pItem);
+    void ExportClicked(ContigurationListItem *pItem);
+    void ImportClicked(ContigurationListItem *pItem);
+    void EditClicked(ContigurationListItem *pItem);
+    void RestoreClicked(ContigurationListItem *pItem);
+    void EditCustomPathsClicked(ContigurationListItem *pItem);
 
    public Q_SLOTS:
     void aboutVkConfig(bool bChecked);
