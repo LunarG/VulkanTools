@@ -30,21 +30,22 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), u
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     nLastSelectedApp = -1;
 
-    pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    bool enabledOnlyToList = !pVulkanConfig->bHasOldLoader && pVulkanConfig->bApplyOnlyToList;
+    Configurator &configurator = Configurator::Get();
+
+    bool enabledOnlyToList = !configurator.bHasOldLoader && configurator.bApplyOnlyToList;
 
     if (!enabledOnlyToList) setWindowTitle(tr("Applications Launcher Shortcuts"));
 
     // Show the current list
-    for (int i = 0; i < pVulkanConfig->appList.size(); i++) {
+    for (int i = 0; i < configurator.appList.size(); i++) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, pVulkanConfig->appList[i]->qsAppNameWithPath);
+        pItem->setText(0, configurator.appList[i]->qsAppNameWithPath);
         ui->treeWidget->addTopLevelItem(pItem);
 
         if (enabledOnlyToList) {
             QCheckBox *pCheckBox = new QCheckBox(tr("Exclude from Layers Override"));
             pCheckBox->setFont(ui->treeWidget->font());
-            pCheckBox->setChecked(pVulkanConfig->appList[i]->bExcludeFromGlobalList);
+            pCheckBox->setChecked(configurator.appList[i]->bExcludeFromGlobalList);
             ui->treeWidget->setItemWidget(pItem, 1, pCheckBox);
             connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
         }
@@ -85,7 +86,7 @@ bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event) {
 ///////////////////////////////////////////////////////////////////////////////
 /// Make sure any changes are saved
 void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent) {
-    pVulkanConfig->SaveAppList();
+    Configurator::Get().SaveAppList();
     pEvent->accept();
 }
 
@@ -115,6 +116,8 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
             // Start by drilling down
             GetExecutableFromAppBundle(appWithPath);
         }
+        
+        Configurator &configurator = Configurator::Get();
 
         appWithPath = QDir::toNativeSeparators(appWithPath);
         TAppListEntry *pNewApp = new TAppListEntry;
@@ -122,14 +125,14 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
         pNewApp->qsWorkingFolder = QDir::toNativeSeparators(QFileInfo(appWithPath).path());
         pNewApp->bExcludeFromGlobalList = false;
         pNewApp->qsLogFile = QDir::toNativeSeparators(ui->lineEditLogFile->text());
-        pVulkanConfig->appList.push_back(pNewApp);
+        Configurator::Get().appList.push_back(pNewApp);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, appWithPath);
         QCheckBox *pCheck = new QCheckBox(tr("Exclude from Layers Override"));
         ui->treeWidget->addTopLevelItem(pItem);
         ui->treeWidget->setItemWidget(pItem, 1, pCheck);
-        pVulkanConfig->SaveAppList();
-        pVulkanConfig->RefreshProfile();
+        configurator.SaveAppList();
+        configurator.RefreshProfile();
         ui->treeWidget->setCurrentItem(pItem);
         nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pItem);
         connect(pCheck, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
@@ -144,9 +147,11 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
     int iSel = ui->treeWidget->indexOfTopLevelItem(pCurrent);
     if (iSel < 0) return;
 
+    Configurator &configurator = Configurator::Get();
+
     ui->treeWidget->takeTopLevelItem(iSel);
     ui->treeWidget->setCurrentItem(nullptr);
-    pVulkanConfig->appList.removeAt(iSel);
+    configurator.appList.removeAt(iSel);
 
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);
@@ -154,8 +159,8 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
     ui->lineEditWorkingFolder->setText("");
     ui->lineEditLogFile->setText("");
 
-    pVulkanConfig->SaveAppList();
-    pVulkanConfig->RefreshProfile();
+    configurator.SaveAppList();
+    configurator.RefreshProfile();
     ui->treeWidget->update();
     nLastSelectedApp = -1;
 }
@@ -177,16 +182,22 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeW
 
     ui->groupLaunchInfo->setEnabled(true);
     ui->pushButtonRemove->setEnabled(true);
-    ui->lineEditWorkingFolder->setText(pVulkanConfig->appList[nLastSelectedApp]->qsWorkingFolder);
-    ui->lineEditCmdArgs->setText(pVulkanConfig->appList[nLastSelectedApp]->qsArguments);
-    ui->lineEditLogFile->setText(pVulkanConfig->appList[nLastSelectedApp]->qsLogFile);
+
+    Configurator &configurator = Configurator::Get();
+
+    ui->lineEditWorkingFolder->setText(configurator.appList[nLastSelectedApp]->qsWorkingFolder);
+    ui->lineEditCmdArgs->setText(configurator.appList[nLastSelectedApp]->qsArguments);
+    ui->lineEditLogFile->setText(configurator.appList[nLastSelectedApp]->qsLogFile);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void dlgCreateAssociation::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
     nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pItem);
     QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, nColumn));
-    if (pCheckBox != nullptr) pVulkanConfig->appList[nLastSelectedApp]->bExcludeFromGlobalList = pCheckBox->isChecked();
+    if (pCheckBox != nullptr) {
+        Configurator &configurator = Configurator::Get();
+        configurator.appList[nLastSelectedApp]->bExcludeFromGlobalList = pCheckBox->isChecked();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -201,7 +212,8 @@ void dlgCreateAssociation::itemClicked(bool bClicked) {
         QTreeWidgetItem *pItem = ui->treeWidget->topLevelItem(i);
         QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, 1));
         Q_ASSERT(pCheckBox != nullptr);
-        pVulkanConfig->appList[i]->bExcludeFromGlobalList = pCheckBox->isChecked();
+        Configurator &configurator = Configurator::Get();
+        configurator.appList[i]->bExcludeFromGlobalList = pCheckBox->isChecked();
     }
 }
 
@@ -211,7 +223,7 @@ void dlgCreateAssociation::editCommandLine(const QString &cmdLine) {
     nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
     if (nLastSelectedApp < 0) return;
 
-    pVulkanConfig->appList[nLastSelectedApp]->qsArguments = cmdLine;
+    Configurator::Get().appList[nLastSelectedApp]->qsArguments = cmdLine;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -220,7 +232,7 @@ void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
     nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
     if (nLastSelectedApp < 0) return;
 
-    pVulkanConfig->appList[nLastSelectedApp]->qsWorkingFolder = workingFolder;
+    Configurator::Get().appList[nLastSelectedApp]->qsWorkingFolder = workingFolder;
 }
 
 void dlgCreateAssociation::editLogFile(const QString &logFile) {
@@ -228,7 +240,7 @@ void dlgCreateAssociation::editLogFile(const QString &logFile) {
     nLastSelectedApp = ui->treeWidget->indexOfTopLevelItem(pCurrent);
     if (nLastSelectedApp < 0) return;
 
-    pVulkanConfig->appList[nLastSelectedApp]->qsLogFile = logFile;
+    Configurator::Get().appList[nLastSelectedApp]->qsLogFile = logFile;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

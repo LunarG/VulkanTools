@@ -39,8 +39,6 @@ class dlgCustomPaths : public QDialog {
    private:
     Ui::dlgCustomPaths *ui;
 
-    CVulkanConfiguration *pVulkanConfig;
-
     void RepopulateTree(void);
 
    public Q_SLOTS:

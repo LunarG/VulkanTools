@@ -134,7 +134,6 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef *pProfileToEdit)
     pThisProfile = pProfileToEdit;
 
     // We never edit a profile directly, we only edit a copy of it.
-    pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
     setWindowTitle("Creating New Profile");
 
     // Case 1: New profile (easiest case)
@@ -176,8 +175,11 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, CProfileDef *pProfileToEdit)
 
 void dlgProfileEditor::AddMissingLayers(CProfileDef *pProfile) {
     int nRank = pProfile->layers.size();  // Next rank starts here
-    for (int iAvailable = 0; iAvailable < pVulkanConfig->allLayers.size(); iAvailable++) {
-        CLayerFile *pLayerThatMightBeMissing = pVulkanConfig->allLayers[iAvailable];
+
+    Configurator &configurator = Configurator::Get();
+
+    for (int iAvailable = 0, n = configurator.allLayers.size(); iAvailable < n; iAvailable++) {
+        CLayerFile *pLayerThatMightBeMissing = configurator.allLayers[iAvailable];
 
         // Look for through all layers
         CLayerFile *pAreYouAlreadyThere =
@@ -190,7 +192,7 @@ void dlgProfileEditor::AddMissingLayers(CProfileDef *pProfile) {
         pLayerThatMightBeMissing->CopyLayer(pNextLayer);
 
         // Add default settings to the layer...
-        pVulkanConfig->LoadDefaultSettings(pNextLayer);
+        configurator.LoadDefaultSettings(pNextLayer);
 
         pNextLayer->nRank = nRank++;
         pNextLayer->bActive = false;  // Layers read from file are already active
@@ -213,17 +215,18 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
     QString customFolder = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
 
     if (customFolder.isEmpty()) return;
-
     customFolder = QDir::toNativeSeparators(customFolder);
-    pVulkanConfig->additionalSearchPaths.append(customFolder);
-    pVulkanConfig->SaveAdditionalSearchPaths();
-    pVulkanConfig->FindAllInstalledLayers();
+
+    Configurator &configurator = Configurator::Get();
+    configurator.additionalSearchPaths.append(customFolder);
+    configurator.SaveAdditionalSearchPaths();
+    configurator.FindAllInstalledLayers();
+
     pThisProfile->CollapseProfile();
     AddMissingLayers(pThisProfile);
     LoadLayerDisplay();
     PopulateCustomTree();
 }
-
 
 ////////////////////////////////////////////////////////////////
 // Remove the selected layer path and update everything accordingly
@@ -231,15 +234,16 @@ void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
     QTreeWidgetItem *pSelectedItem = ui->layerTree->currentItem();
     int nRow = ui->layerTree->indexOfTopLevelItem(pSelectedItem);
 
-    pVulkanConfig->additionalSearchPaths.removeAt(nRow);
-    pVulkanConfig->SaveAdditionalSearchPaths();
-    pVulkanConfig->FindAllInstalledLayers();
+    Configurator &configurator = Configurator::Get();
+    configurator.additionalSearchPaths.removeAt(nRow);
+    configurator.SaveAdditionalSearchPaths();
+    configurator.FindAllInstalledLayers();
+
     pThisProfile->CollapseProfile();
     AddMissingLayers(pThisProfile);
     LoadLayerDisplay();
     PopulateCustomTree();
 }
-
 
 void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn) {
     (void)nColumn;
@@ -252,15 +256,17 @@ void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *pItem, int nColu
 void dlgProfileEditor::PopulateCustomTree(void) {
     ui->treeWidget->clear();
 
+    Configurator &configurator = Configurator::Get();
+
     // Populate the tree
-    for (int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
+    for (int i = 0; i < configurator.additionalSearchPaths.size(); i++) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, pVulkanConfig->additionalSearchPaths[i]);
+        pItem->setText(0, configurator.additionalSearchPaths[i]);
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
         QVector<CLayerFile *> customLayers;
-        pVulkanConfig->LoadLayersFromPath(pVulkanConfig->additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
+        configurator.LoadLayersFromPath(configurator.additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
         for (int j = 0; j < customLayers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
@@ -366,7 +372,7 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked(void) {
     // TBD, needs to reset which layers are active, settings, etc.
     ui->groupBoxSettings->setTitle(tr("Layer Settings"));
     delete pThisProfile;
-    pThisProfile = pVulkanConfig->CreateEmptyProfile();
+    pThisProfile = Configurator::Get().CreateEmptyProfile();
     //    settingsEditor.CleanupGUI();
     LoadLayerDisplay();
 }
@@ -533,7 +539,7 @@ void dlgProfileEditor::accept() {
 
     // Prepare... get fully qualified file name, and double check if overwriting
     pThisProfile->qsFileName = pThisProfile->qsProfileName + ".json";
-    QString savePath = pVulkanConfig->GetProfilePath();
+    QString savePath = Configurator::Get().GetProfilePath();
     savePath += "/" + pThisProfile->qsFileName;
 
     if (QDir().exists(savePath)) {
@@ -547,7 +553,7 @@ void dlgProfileEditor::accept() {
 
     // Collapse the profile and remove unused layers and write
     pThisProfile->CollapseProfile();
-    if (!pVulkanConfig->SaveProfile(pThisProfile)) {
+    if (!Configurator::Get().SaveProfile(pThisProfile)) {
         AddMissingLayers(pThisProfile);
         LoadLayerDisplay(0);
         return;

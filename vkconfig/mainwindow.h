@@ -57,7 +57,6 @@ class MainWindow : public QMainWindow {
     ~MainWindow();
 
    protected:
-    CVulkanConfiguration *pVulkanConfig;
     CSettingsTreeManager settingsTreeManager;
 
     QProcess *pVulkanApp;  // Keeps track of the monitored app

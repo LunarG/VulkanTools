@@ -337,16 +337,18 @@ void CSettingsTreeManager::BuildGenericTree(QTreeWidgetItem *pParent, CLayerFile
 ////////////////////////////////////////////////////////////////////////////////////
 /// The user has selected a preset for this layer
 void CSettingsTreeManager::khronosPresetChanged(int nIndex) {
-    CVulkanConfiguration::getVulkanConfig()->CheckApplicationRestart();
+    Configurator& configuration = Configurator::Get();
+
+    configuration.CheckApplicationRestart();
 
     // We really just don't care (and the value is zero)
     if (nIndex == KHRONOS_PRESET_USER_DEFINED) return;
 
     // The easiest way to do this is to create a new profile, and copy the layer over
     QString preDefined = ":/resourcefiles/";
-    preDefined += CVulkanConfiguration::szCannedProfiles[nIndex - 1];
+    preDefined += Configurator::szCannedProfiles[nIndex - 1];
     preDefined += ".json";
-    CProfileDef *pPatternProfile = CVulkanConfiguration::getVulkanConfig()->LoadProfile(preDefined);
+    CProfileDef *pPatternProfile = configuration.LoadProfile(preDefined);
     if (pPatternProfile == nullptr) return;
 
     // Copy it all into the real layer and delete it
@@ -441,7 +443,7 @@ void CSettingsTreeManager::CleanupGUI(void) {
     // Get the state of the last tree, and save it!
     pProfile->settingTreeState.clear();
     GetTreeState(pProfile->settingTreeState, pEditorTree->invisibleRootItem());
-    CVulkanConfiguration::getVulkanConfig()->SaveProfile(pProfile);
+    Configurator::Get().SaveProfile(pProfile);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
@@ -475,11 +477,11 @@ void CSettingsTreeManager::CleanupGUI(void) {
 // The profile has been edited and should be saved
 void CSettingsTreeManager::profileEdited(void) {
     // Resave this profile
-    CVulkanConfiguration *pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-    pVulkanConfig->SaveProfile(pProfile);
-    pVulkanConfig->CheckApplicationRestart();
+    Configurator& configuration = Configurator::Get();
+    configuration.SaveProfile(pProfile);
+    configuration.CheckApplicationRestart();
 
     // If this profile is active, we need to reset the override files too
     // Just resetting with the same parent pointer will do the trick
-    if (pProfile == pVulkanConfig->GetCurrentActiveProfile()) pVulkanConfig->SetCurrentActiveProfile(pProfile);
+    if (pProfile == configuration.GetCurrentActiveProfile()) configuration.SetCurrentActiveProfile(pProfile);
 }

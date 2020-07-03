@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include <QApplication>
-#include <QSettings>
-#include <QMessageBox>
 #include <QCheckBox>
 
 #include "mainwindow.h"
@@ -35,21 +35,12 @@ int main(int argc, char* argv[]) {
     app.setStyleSheet("QWidget{font-size:13px;}");
 #endif
 
-    // Get and initialize the application model, which is essentially the Vulkan
-    // configuration of the system.
-    CVulkanConfiguration* pModel = CVulkanConfiguration::getVulkanConfig();
-
-    // Double check, we simply cannot run without any layers
-    if (pModel->allLayers.size() == 0) {
-        delete pModel;
-        return -1;
-    }
+    // We simply cannot run without any layers
+    if (!Configurator::Get().HasLayers()) return -1;
 
     // The main GUI is driven here
-    MainWindow mainWindow;
-    mainWindow.show();
-    int nRet = app.exec();
+    MainWindow main_window;
+    main_window.show();
 
-    delete pModel;  // Cleanup everything when app terminates
-    return nRet;
+    return app.exec();
 }

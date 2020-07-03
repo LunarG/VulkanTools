@@ -30,10 +30,8 @@ dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dl
 
     ui->treeWidget->headerItem()->setText(0, tr("Custom Search Paths & Layers"));
 
-    pVulkanConfig = CVulkanConfiguration::getVulkanConfig();
-
     RepopulateTree();
-    ui->buttonBox->setEnabled(!pVulkanConfig->allLayers.empty());
+    ui->buttonBox->setEnabled(Configurator::Get().HasLayers());
 }
 
 dlgCustomPaths::~dlgCustomPaths() { delete ui; }
@@ -41,15 +39,17 @@ dlgCustomPaths::~dlgCustomPaths() { delete ui; }
 void dlgCustomPaths::RepopulateTree(void) {
     ui->treeWidget->clear();
 
+    Configurator &configurator = Configurator::Get();
+
     // Populate the tree
-    for (int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
+    for (int i = 0; i < configurator.additionalSearchPaths.size(); i++) {
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, pVulkanConfig->additionalSearchPaths[i]);
+        pItem->setText(0, configurator.additionalSearchPaths[i]);
         ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
         QVector<CLayerFile *> customLayers;
-        pVulkanConfig->LoadLayersFromPath(pVulkanConfig->additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
+        configurator.LoadLayersFromPath(configurator.additionalSearchPaths[i], customLayers, LAYER_TYPE_CUSTOM);
 
         for (int j = 0; j < customLayers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
@@ -67,20 +67,22 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
     dialog.setFileMode(QFileDialog::Directory);
     QString customFolder = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
 
+    Configurator &configurator = Configurator::Get();
+
     if (!customFolder.isEmpty()) {
-        pVulkanConfig->additionalSearchPaths.append(customFolder);
+        configurator.additionalSearchPaths.append(customFolder);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, customFolder);
         ui->treeWidget->addTopLevelItem(pItem);
 
-        pVulkanConfig->SaveAdditionalSearchPaths();
-        pVulkanConfig->FindAllInstalledLayers();
-        pVulkanConfig->LoadAllProfiles();
+        configurator.SaveAdditionalSearchPaths();
+        configurator.FindAllInstalledLayers();
+        configurator.LoadAllProfiles();
         bPathsChanged = true;
         RepopulateTree();
     }
 
-    ui->buttonBox->setEnabled(!pVulkanConfig->allLayers.empty());
+    ui->buttonBox->setEnabled(configurator.HasLayers());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -104,19 +106,21 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
     msg.setDefaultButton(QMessageBox::Yes);
     if (msg.exec() == QMessageBox::No) return;
 
+    Configurator &configurator = Configurator::Get();
+
     // Now actually remove it.
-    for (int i = 0; i < pVulkanConfig->additionalSearchPaths.size(); i++) {
-        if (pVulkanConfig->additionalSearchPaths[i] == pSelected->text(0)) {
-            pVulkanConfig->additionalSearchPaths.removeAt(i);
+    for (int i = 0; i < configurator.additionalSearchPaths.size(); i++) {
+        if (configurator.additionalSearchPaths[i] == pSelected->text(0)) {
+            configurator.additionalSearchPaths.removeAt(i);
             break;
         }
     }
 
     // Update GUI and save
     RepopulateTree();
-    pVulkanConfig->SaveAdditionalSearchPaths();
-    pVulkanConfig->FindAllInstalledLayers();
-    pVulkanConfig->LoadAllProfiles();
-    ui->buttonBox->setEnabled(!pVulkanConfig->allLayers.empty());
+    configurator.SaveAdditionalSearchPaths();
+    configurator.FindAllInstalledLayers();
+    configurator.LoadAllProfiles();
+    ui->buttonBox->setEnabled(configurator.HasLayers());
     bPathsChanged = true;
 }

@@ -45,8 +45,6 @@ class dlgProfileEditor : public QDialog {
    private:
     Ui::dlgProfileEditor *ui;
 
-    CVulkanConfiguration *pVulkanConfig;
-
     CProfileDef *pThisProfile;
 
     virtual void resizeEvent(QResizeEvent *event) override;

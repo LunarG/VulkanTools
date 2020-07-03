@@ -18,10 +18,12 @@
  * environment. These settings are wrapped in this class, which serves
  * as the "model" of the system.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
-#ifndef CVULKANCONFIGURATION_H
-#define CVULKANCONFIGURATION_H
+
+#pragma once
 
 #ifdef _WIN32
 #include <windows.h>
@@ -102,17 +104,11 @@ struct TAppListEntry {
     bool bExcludeFromGlobalList;
 };
 
-class CVulkanConfiguration {
+class Configurator {
    public:
-    static CVulkanConfiguration* getVulkanConfig(void) {
-        // Just a note... pMe is also set inside the constructor
-        // to prevent recusion when no layers are found.
-        if (pMe == nullptr) pMe = new CVulkanConfiguration();
+    static Configurator& Get();
 
-        return pMe;
-    }
-
-    ~CVulkanConfiguration();
+    ~Configurator();
 
     static int nNumCannedProfiles;
     static const char* szCannedProfiles[8];
@@ -187,6 +183,7 @@ class CVulkanConfiguration {
 
     void FindVkCube(void);
 
+    bool HasLayers() const;
     bool IsRunningAsAdministrator(void) { return bRunningAsAdministrator; }
 
     // Set this as the current override profile
@@ -202,8 +199,7 @@ class CVulkanConfiguration {
     void CheckApplicationRestart(void);
 
    protected:
-    CVulkanConfiguration();
-    static CVulkanConfiguration* pMe;
+    Configurator();
 
     // Currently active profile
     CProfileDef* pActiveProfile;
@@ -218,8 +214,9 @@ class CVulkanConfiguration {
 
     void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
     void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
-
 #endif
-};
 
-#endif  // CVULKANCONFIGURATION_H
+   private:
+    Configurator(const Configurator&) = delete;
+    Configurator& operator=(const Configurator&) = delete;
+};

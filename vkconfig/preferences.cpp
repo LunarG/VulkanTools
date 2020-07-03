@@ -18,7 +18,9 @@
  * environment. These settings are wrapped in this class, which serves
  * as the "model" of the system.
  *
- * Author: Christophe Riccio <christophe@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "preferences.h"

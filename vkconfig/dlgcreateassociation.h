@@ -43,7 +43,6 @@ class dlgCreateAssociation : public QDialog {
 
    private:
     Ui::dlgCreateAssociation *ui;
-    CVulkanConfiguration *pVulkanConfig;
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
