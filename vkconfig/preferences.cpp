@@ -30,6 +30,6 @@ const Preferences& Preferences::Get() {
     return instance;
 }
 
-Preferences::Preferences() : use_separated_select_and_activate(false) {}
+Preferences::Preferences() : use_separated_select_and_activate(false), use_last_selected_application_in_launcher(false) {}
 
 Preferences::~Preferences() {}

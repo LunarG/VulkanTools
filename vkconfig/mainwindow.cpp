@@ -533,8 +533,11 @@ void MainWindow::on_pushButtonAppList_clicked(void) {
 
     Configurator &configurator = Configurator::Get();
 
-    if (dlg.nLastSelectedApp > 0)
-        configurator.qsLastLaunchApplicationWPath = configurator.overridden_application_list[dlg.nLastSelectedApp]->executable_path;
+    if (Preferences::Get().use_last_selected_application_in_launcher) {
+        if (dlg.nLastSelectedApp > 0)
+            configurator.qsLastLaunchApplicationWPath =
+                configurator.overridden_application_list[dlg.nLastSelectedApp]->executable_path;
+    }
 
     configurator.SaveOverriddenApplicationList();
     ResetLaunchOptions();
