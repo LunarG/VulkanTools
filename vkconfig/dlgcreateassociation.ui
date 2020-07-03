@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Applications to Override &amp; Applications Launcher Shortcuts</string>
+   <string>Applications to Override</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0" colspan="2">
@@ -118,7 +118,7 @@
       <bool>true</bool>
      </property>
      <property name="columnCount">
-      <number>2</number>
+      <number>1</number>
      </property>
      <attribute name="headerVisible">
       <bool>false</bool>
@@ -129,11 +129,6 @@
      <column>
       <property name="text">
        <string notr="true">1</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string notr="true">2</string>
       </property>
      </column>
     </widget>

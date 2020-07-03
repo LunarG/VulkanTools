@@ -32,28 +32,27 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), u
 
     Configurator &configurator = Configurator::Get();
 
-    bool enabledOnlyToList = !configurator.bHasOldLoader && configurator.bApplyOnlyToList;
+    bool need_checkbox = !configurator.bHasOldLoader && configurator.bApplyOnlyToList;
 
-    if (!enabledOnlyToList) setWindowTitle(tr("Applications Launcher Shortcuts"));
+    if (!need_checkbox) setWindowTitle("Applications Launcher Shortcuts");
 
     // Show the current list
     for (int i = 0; i < configurator.overridden_application_list.size(); i++) {
-        QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, configurator.overridden_application_list[i]->executable_path);
-        ui->treeWidget->addTopLevelItem(pItem);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        ui->treeWidget->addTopLevelItem(item);
 
-        if (enabledOnlyToList) {
-            QCheckBox *pCheckBox = new QCheckBox(tr("Override Layers"));
+        if (need_checkbox) {
+            item->setText(0, tr("    ") + configurator.overridden_application_list[i]->executable_path);
+            QCheckBox *pCheckBox = new QCheckBox("");
             pCheckBox->setFont(ui->treeWidget->font());
             pCheckBox->setChecked(configurator.overridden_application_list[i]->override_layers);
-            ui->treeWidget->setItemWidget(pItem, 1, pCheckBox);
+            ui->treeWidget->setItemWidget(item, 0, pCheckBox);
             connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
+        } else {
+            item->setText(0, configurator.overridden_application_list[i]->executable_path);
         }
     }
 
-    QTreeWidgetItem *pHeader = ui->treeWidget->headerItem();
-    pHeader->setText(0, tr("Application Executables"));
-    pHeader->setText(1, tr("Exclude from Layers Override"));
     ui->treeWidget->installEventFilter(this);
 
     connect(ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
@@ -207,12 +206,15 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
 void dlgCreateAssociation::itemClicked(bool bClicked) {
     (void)bClicked;
 
+    Configurator &configurator = Configurator::Get();
+    bool enabledOnlyToList = !configurator.bHasOldLoader && configurator.bApplyOnlyToList;
+    if (!enabledOnlyToList) return;
+
     // Loop through the whole list and reset the checkboxes
     for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *pItem = ui->treeWidget->topLevelItem(i);
-        QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, 1));
+        QCheckBox *pCheckBox = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(pItem, 0));
         Q_ASSERT(pCheckBox != nullptr);
-        Configurator &configurator = Configurator::Get();
         configurator.overridden_application_list[i]->override_layers = pCheckBox->isChecked();
     }
 }
