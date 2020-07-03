@@ -22,7 +22,7 @@
 #include "stringsettingwidget.h"
 
 StringSettingWidget::StringSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) {
-    pSetting = pLayerSetting;
+    layer_settings_ = pLayerSetting;
     pItem->setText(0, pLayerSetting->settingsPrompt);
     pItem->setToolTip(0, pLayerSetting->settingsDesc);
     this->setText(pLayerSetting->settingsValue);
@@ -30,6 +30,6 @@ StringSettingWidget::StringSettingWidget(QTreeWidgetItem* pItem, LayerSettings* 
 }
 
 void StringSettingWidget::itemEdited(const QString& newString) {
-    pSetting->settingsValue = newString;
+    layer_settings_->settingsValue = newString;
     emit itemChanged();
 }

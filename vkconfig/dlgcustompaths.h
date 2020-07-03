@@ -37,7 +37,7 @@ class dlgCustomPaths : public QDialog {
     bool bPathsChanged;
 
    private:
-    Ui::dlgCustomPaths *ui;
+    Ui::dlgCustomPaths *ui_;
 
     void RepopulateTree();
 

@@ -20,12 +20,12 @@
 #include "dlgabout.h"
 #include "ui_dlgabout.h"
 
-dlgAbout::dlgAbout(QWidget *parent) : QDialog(parent), ui(new Ui::dlgAbout) {
-    ui->setupUi(this);
+dlgAbout::dlgAbout(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgAbout) {
+    ui_->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    connect(ui->pbAboutQt, SIGNAL(clicked()), this, SLOT(aboutQt()));
+    connect(ui_->pbAboutQt, SIGNAL(clicked()), this, SLOT(aboutQt()));
 }
 
-dlgAbout::~dlgAbout() { delete ui; }
+dlgAbout::~dlgAbout() { delete ui_; }
 
 void dlgAbout::aboutQt(void) { qApp->aboutQt(); }

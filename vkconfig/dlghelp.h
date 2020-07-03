@@ -35,5 +35,5 @@ class dlgHelp : public QWidget {
     ~dlgHelp();
 
    private:
-    Ui::dlgHelp *ui;
+    Ui::dlgHelp *ui_;
 };

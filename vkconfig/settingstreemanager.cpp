@@ -106,7 +106,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *pBuildTree, Configuration *pPro
     }
 
     // Walk the tree, and restore the expanded state of all the items
-    SetTreeState(pProfile->settingTreeState, 0, pEditorTree->invisibleRootItem());
+    SetTreeState(pProfile->setting_tree_state, 0, pEditorTree->invisibleRootItem());
 
     // Everyone is expanded.
     pBuildTree->resizeColumnToContents(0);
@@ -441,8 +441,8 @@ void SettingsTreeManager::CleanupGUI(void) {
     if (pEditorTree == nullptr || pProfile == nullptr) return;
 
     // Get the state of the last tree, and save it!
-    pProfile->settingTreeState.clear();
-    GetTreeState(pProfile->settingTreeState, pEditorTree->invisibleRootItem());
+    pProfile->setting_tree_state.clear();
+    GetTreeState(pProfile->setting_tree_state, pEditorTree->invisibleRootItem());
     Configurator::Get().SaveConfiguration(pProfile);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before

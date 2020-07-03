@@ -30,11 +30,11 @@
 class BoolSettingWidget : public QCheckBox {
     Q_OBJECT
    public:
-    BoolSettingWidget(LayerSettings *pLayerSetting, bool bNumeric = false);
+    BoolSettingWidget(LayerSettings *layer_settings, bool numeric = false);
 
    private:
-    bool bNumericOutput;
-    LayerSettings *pSetting;
+    bool numeric_output_;
+    LayerSettings *layer_settings_;
 
    public Q_SLOTS:
     void itemToggled();

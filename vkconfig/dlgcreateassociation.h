@@ -44,7 +44,7 @@ class dlgCreateAssociation : public QDialog {
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-    Ui::dlgCreateAssociation *ui;
+    Ui::dlgCreateAssociation *ui_;
     int last_selected_application_index;
 
    public Q_SLOTS:

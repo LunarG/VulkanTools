@@ -35,7 +35,7 @@ class Configuration {
                                   // This is the same as the filename, but with the .json stripped off.
     QString file;                 // Root file name without path (by convention, no spaces and .profile suffix)
     QString description;          // A friendly description of what this profile does
-    QByteArray settingTreeState;  // Recall editor tree state
+    QByteArray setting_tree_state;  // Recall editor tree state
     int preset_index;             // Khronos layer presets. 0 = none or user defined
 
     // A profile is nothing but a list of layers and their settings in truth
@@ -43,8 +43,8 @@ class Configuration {
 
     QStringList excluded_layers;  // Just the names of blacklisted layers
 
-    LayerFile *FindLayer(const QString &qsLayerName, const QString &qsFullPath) const;  // Find the layer if it exists
-    LayerFile *FindLayerNamed(const QString &qsLayerName) const;  // Find the layer if it exists, only care about the name
+    LayerFile *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
+    LayerFile *FindLayerNamed(const QString &layer_name) const;  // Find the layer if it exists, only care about the name
 
     Configuration *DuplicateConfiguration();  // Copy a profile so we can mess with it
 

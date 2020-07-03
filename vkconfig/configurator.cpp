@@ -797,7 +797,7 @@ void Configurator::LoadAllInstalledLayers() {
     // (Go ahead and let macOS do this as well).
     // This will create duplicate entries if the layers ARE installed, so only do this if
     // No layers have been found yet.
-    if (allLayers.size() == 0) {
+    if (allLayers.empty()) {
         char *vulkanSDK = getenv("VULKAN_SDK");
         if (vulkanSDK != nullptr) {
             QString searchPath = vulkanSDK;
@@ -1058,7 +1058,7 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
     configuration->preset_index = preset_index.toInt();
 
     QJsonValue editorState = configuration_entry_object.value("editor_state");
-    configuration->settingTreeState = editorState.toVariant().toByteArray();
+    configuration->setting_tree_state = editorState.toVariant().toByteArray();
 
     QJsonValue description = configuration_entry_object.value("description");
     configuration->description = description.toString();
@@ -1244,7 +1244,7 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
     json_configuration.insert("blacklisted_layers", excluded_list);
     json_configuration.insert("description", configuration->description);
     json_configuration.insert("preset", configuration->preset_index);
-    json_configuration.insert("editor_state", configuration->settingTreeState.data());
+    json_configuration.insert("editor_state", configuration->setting_tree_state.data());
     json_configuration.insert("layer_options", layer_list);
     root.insert(configuration->name, json_configuration);
     QJsonDocument doc(root);
