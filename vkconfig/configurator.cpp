@@ -63,7 +63,7 @@ PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
 // These are the built-in configurations that are pulled in from the resource
 // file.
 #ifdef __APPLE__
-const int Configurator::DefaultConfigurationsCount = 6;
+const int Configurator::default_configurations_count = 6;
 #else
 const int Configurator::default_configurations_count = 8;
 #endif
@@ -119,7 +119,7 @@ Configurator::Configurator() {
 #ifdef _WIN32
     running_as_administrator_ = IsUserAnAdmin();
 #else
-    bRunningAsAdministrator = false;
+    running_as_administrator_ = false;
 #endif
 
     // Where is stuff
@@ -797,12 +797,12 @@ void Configurator::LoadAllInstalledLayers() {
     // (Go ahead and let macOS do this as well).
     // This will create duplicate entries if the layers ARE installed, so only do this if
     // No layers have been found yet.
-    if (allLayers.empty()) {
+    if (available_Layers.empty()) {
         char *vulkanSDK = getenv("VULKAN_SDK");
         if (vulkanSDK != nullptr) {
             QString searchPath = vulkanSDK;
             searchPath += "/etc/vulkan/explicit_layer.d";
-            LoadLayersFromPath(searchPath, allLayers, LAYER_TYPE_EXPLICIT);
+            LoadLayersFromPath(searchPath, available_Layers, LAYER_TYPE_EXPLICIT);
         }
     }
 #endif
@@ -836,7 +836,7 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> 
         search_path += path;
     }
 
-    CPathFinder file_list(search_path, true);
+    PathFinder file_list(search_path, true);
 #endif
     if (file_list.FileCount() == 0) return;
 
