@@ -31,7 +31,7 @@
 
 The technical project lead for this repository is:
 
-* **David Pinedo** [david@lunarg.com](mailto:david@lunarg.com)
+* **Tony Barbour** [tony@lunarg.com](mailto:tony@lunarg.com)
 
 ## **Acceptance Criteria and Process**
 

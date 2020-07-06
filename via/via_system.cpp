@@ -1327,22 +1327,15 @@ void ViaSystem::StartOutputHTML(const std::string& title) {
                   // image loads fail.  In this way, a user will see their local copy on
                   // their machine, while a person they share it with will see the web
                   // images (or the background color).
-                  << "            background-image: url(\"file:///" << _exe_path << "/images/lunarg_via.png\"), "
-                  << "url(\"https://vulkan.lunarg.com/img/lunarg_via.png\"), "
-                     "url(\"file:///"
-                  << _exe_path << "/images/bg-starfield.jpg\"), "
-                  << "url(\"https://vulkan.lunarg.com/img/bg-starfield.jpg\");" << std::endl
-                  << "            background-position: center top, center top, center, "
-                     "center;"
-                  << std::endl
-                  << "            -webkit-background-size: auto, auto, cover, cover;" << std::endl
-                  << "            -moz-background-size: auto, auto, cover, cover;" << std::endl
-                  << "            -o-background-size: auto, auto, cover, cover;" << std::endl
-                  << "            background-size: auto, auto, cover, cover;" << std::endl
-                  << "            background-attachment: scroll, scroll, fixed, fixed;" << std::endl
-                  << "            background-repeat: no-repeat, no-repeat, no-repeat, "
-                     "no-repeat;"
-                  << std::endl
+                  << "            background-image: url(\"https://vulkan.lunarg.com/img/VIATitle.png\"), "
+                  << "url(\"https://vulkan.lunarg.com/img/VIABackground.jpg\");" << std::endl
+                  << "            background-position: center top, center;" << std::endl
+                  << "            -webkit-background-size: auto, cover;" << std::endl
+                  << "            -moz-background-size: auto, cover;" << std::endl
+                  << "            -o-background-size: auto, cover;" << std::endl
+                  << "            background-size: auto, cover;" << std::endl
+                  << "            background-attachment: scroll, fixed;" << std::endl
+                  << "            background-repeat: no-repeat, no-repeat;" << std::endl
                   << "        }"
                   << std::endl
                   // h1.section is used for section headers, and h1.version is used to
@@ -1360,7 +1353,7 @@ void ViaSystem::StartOutputHTML(const std::string& title) {
                   << "        }" << std::endl
                   << "        h2.note {" << std::endl
                   << "            font-family: sans-serif;" << std::endl
-                  << "            font-size: 22px;" << std::endl
+                  << "            font-size: 12px;" << std::endl
                   << "            color: #FFFFFF;" << std::endl
                   << "        }" << std::endl
                   << "        table {" << std::endl
@@ -1389,7 +1382,7 @@ void ViaSystem::StartOutputHTML(const std::string& title) {
                   << "            color: rgb(220, 220, 220);" << std::endl
                   << "        }" << std::endl
                   << "        tr.header {" << std::endl
-                  << "            background-color: rgba(255,255,255,0.5);" << std::endl
+                  << "            background-color: rgba(64,64,64,0.75);" << std::endl
                   << "        }" << std::endl
                   << "        tr.odd {" << std::endl
                   << "            background-color: rgba(0,0,0,0.6);" << std::endl
@@ -1418,13 +1411,6 @@ void ViaSystem::StartOutputHTML(const std::string& title) {
     for (uint32_t space = 0; space < 15; space++) {
         _out_ofstream << "    <BR />" << std::endl;
     }
-    // All the silly "&nbsp;" are to make sure the version lines up directly
-    // under the  VIA portion of the log.
-    _out_ofstream << "    <H1 class=\"version\"><center>";
-    for (uint32_t space = 0; space < 65; space++) {
-        _out_ofstream << "&nbsp;";
-    }
-    _out_ofstream << _app_version << "</center></h1>" << std::endl << "    <BR />" << std::endl;
 
     _out_ofstream << "<center><h2 class=\"note\">< NOTE: Click on section name to expand "
                      "table ></h2></center>"
@@ -2043,10 +2029,12 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
                 path += "/bin";
             }
 #elif VIA_MACOS_TARGET
+            cube_exe = "./" + cube_exe;
             if (!_is_system_installed_sdk) {
-                cube_exe = "./" + cube_exe;
                 path = _sdk_path;
                 path += "/../Applications/vkcube.app/Contents/MacOS";
+            } else {
+                path = "/Applications/vkcube.app/Contents/MacOS";
             }
 #endif
 

@@ -138,7 +138,7 @@ script:
 notifications:
   email:
     recipients:
-      - david@lunarg.com
+      - tony@lunarg.com
       - cnorthrop@google.com
     on_success: change
     on_failure: always

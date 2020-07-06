@@ -68,6 +68,9 @@ def makeGenOpts(args):
     # Output target directory
     directory = args.directory
 
+    # Path to generated files, particularly api.py
+    genpath = args.genpath
+
     # Descriptive names for various regexp patterns used to select
     # versions and extensions
     allFeatures     = allExtensions = '.*'
@@ -89,7 +92,7 @@ def makeGenOpts(args):
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
         '/*',
-        '** Copyright (c) 2015-2017 The Khronos Group Inc.',
+        '** Copyright (c) 2015-2020 The Khronos Group Inc.',
         '**',
         '** Licensed under the Apache License, Version 2.0 (the "License");',
         '** you may not use this file except in compliance with the License.',
@@ -128,6 +131,7 @@ def makeGenOpts(args):
             conventions       = conventions,
             filename          = 'layer_factory.h',
             directory         = directory,
+            genpath           = None,
             apiname           = 'vulkan',
             profile           = None,
             versions          = featuresPat,
@@ -152,6 +156,7 @@ def makeGenOpts(args):
             conventions       = conventions,
             filename          = 'layer_factory.cpp',
             directory         = directory,
+            genpath           = None,
             apiname           = 'vulkan',
             profile           = None,
             versions          = featuresPat,
@@ -177,6 +182,7 @@ def makeGenOpts(args):
             input             = COMMON_CODEGEN,
             filename          = 'api_dump.cpp',
             apiname           = 'vulkan',
+            genpath           = None,
             profile           = None,
             versions          = featuresPat,
             emitversions      = featuresPat,
@@ -205,6 +211,7 @@ def makeGenOpts(args):
             input             = TEXT_CODEGEN,
             filename          = 'api_dump_text.h',
             apiname           = 'vulkan',
+            genpath           = None,
             profile           = None,
             versions          = featuresPat,
             emitversions      = featuresPat,
@@ -233,6 +240,7 @@ def makeGenOpts(args):
             input             = HTML_CODEGEN,
             filename          = 'api_dump_html.h',
             apiname           = 'vulkan',
+            genpath           = None,
             profile           = None,
             versions          = featuresPat,
             emitversions      = featuresPat,
@@ -261,6 +269,7 @@ def makeGenOpts(args):
             input             = JSON_CODEGEN,
             filename          = 'api_dump_json.h',
             apiname           = 'vulkan',
+            genpath           = None,
             profile           = None,
             versions          = featuresPat,
             emitversions      = featuresPat,
@@ -289,6 +298,7 @@ def makeGenOpts(args):
             filename          = 'vk_struct_size_helper.h',
             directory         = directory,
             apiname           = 'vulkan',
+            genpath           = None,
             profile           = None,
             versions          = featuresPat,
             emitversions      = featuresPat,
@@ -313,6 +323,7 @@ def makeGenOpts(args):
             filename          = 'vk_struct_size_helper.c',
             directory         = directory,
             apiname           = 'vulkan',
+            genpath           = None,
             profile           = None,
             versions          = featuresPat,
             emitversions      = featuresPat,
@@ -412,6 +423,8 @@ if __name__ == '__main__':
                         help='Enable timing')
     parser.add_argument('-validate', action='store_true',
                         help='Enable group validation')
+    parser.add_argument('-genpath', action='store', default='gen',
+                        help='Path to generated files')
     parser.add_argument('-o', action='store', dest='directory',
                         default='.',
                         help='Create target and related files in specified directory')
