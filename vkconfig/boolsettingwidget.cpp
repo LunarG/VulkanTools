@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "boolsettingwidget.h"
 
-BoolSettingWidget::BoolSettingWidget(LayerSettings *pLayerSetting, bool bNumeric) {
-    numeric_output_ = bNumeric;
-    layer_settings_ = pLayerSetting;
-    setText(pLayerSetting->settings_prompt);
-    setToolTip(pLayerSetting->settings_desc);
-    setChecked(pLayerSetting->settings_value == QString("TRUE"));
+BoolSettingWidget::BoolSettingWidget(LayerSettings *layer_settings, bool numeric) {
+    numeric_output_ = numeric;
+    layer_settings_ = layer_settings;
+    setText(layer_settings->settings_prompt);
+    setToolTip(layer_settings->settings_desc);
+    setChecked(layer_settings->settings_value == QString("TRUE"));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
-void BoolSettingWidget::itemToggled(void) {
+void BoolSettingWidget::itemToggled() {
     if (numeric_output_) {
         if (isChecked())
             layer_settings_->settings_value = QString("1");

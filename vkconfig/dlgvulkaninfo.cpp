@@ -42,7 +42,7 @@ dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) : QDialog(parent), ui_(new Ui::dlg
 
 dlgVulkanInfo::~dlgVulkanInfo() { delete ui_; }
 
-void dlgVulkanInfo::RunTool(void) {
+void dlgVulkanInfo::RunTool() {
     ui_->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);

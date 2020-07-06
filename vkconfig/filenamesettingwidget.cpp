@@ -14,18 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Lenny Komow <lenny@lunarg.com>
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "filenamesettingwidget.h"
 
-FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) : QWidget(nullptr) {
-    layer_settings_ = pLayerSetting;
+FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings) : QWidget(nullptr) {
+    layer_settings_ = layer_settings;
 
-    pItem->setText(0, pLayerSetting->settings_prompt);
-    pItem->setToolTip(0, pLayerSetting->settings_desc);
+    item->setText(0, layer_settings->settings_prompt);
+    item->setToolTip(0, layer_settings->settings_desc);
 
     line_edit_ = new QLineEdit(this);
     line_edit_->setText(layer_settings_->settings_value);
@@ -51,7 +52,7 @@ void FilenameSettingWidget::resizeEvent(QResizeEvent* event) {
     push_button_->setGeometry(buttonRect);
 }
 
-void FilenameSettingWidget::browseButtonClicked(void) {
+void FilenameSettingWidget::browseButtonClicked() {
     QString file = QFileDialog::getSaveFileName(push_button_, tr("Select File"), ".");
 
     if (!file.isEmpty()) {

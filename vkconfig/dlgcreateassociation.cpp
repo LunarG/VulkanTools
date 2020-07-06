@@ -19,16 +19,17 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "dlgcreateassociation.h"
+#include "ui_dlgcreateassociation.h"
+
 #include <QFileDialog>
 #include <QTextStream>
 #include <QCloseEvent>
 #include <QCheckBox>
 
-#include "dlgcreateassociation.h"
-#include "ui_dlgcreateassociation.h"
-
 //////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::dlgCreateAssociation(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgCreateAssociation), last_selected_application_index_(-1) {
+dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
+    : QDialog(parent), ui_(new Ui::dlgCreateAssociation), last_selected_application_index_(-1) {
     ui_->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -92,7 +93,6 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCreateAssociation::on_pushButtonAdd_clicked
 /// Browse for and select an executable file to add to the list.
 void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test application
 {
@@ -117,7 +117,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
             // Start by drilling down
             GetExecutableFromAppBundle(appWithPath);
         }
-        
+
         Configurator &configurator = Configurator::Get();
 
         appWithPath = QDir::toNativeSeparators(appWithPath);
@@ -141,9 +141,8 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCreateAssociation::on_pushButtonRemove_clicked
 /// Easy enough, just remove the selected program from the list
-void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
+void dlgCreateAssociation::on_pushButtonRemove_clicked() {
     QTreeWidgetItem *pCurrent = ui_->treeWidget->currentItem();
     int iSel = ui_->treeWidget->indexOfTopLevelItem(pCurrent);
     if (iSel < 0) return;
@@ -169,9 +168,9 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked(void) {
 ///////////////////////////////////////////////////////////////////////////////
 /// The remove button is disabled until/unless something is selected that can
 /// be removed. Also the working folder and command line arguments are updated
-void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious) {
-    (void)pPrevious;
-    last_selected_application_index_ = ui_->treeWidget->indexOfTopLevelItem(pCurrent);
+void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *current_item, QTreeWidgetItem *previous_item) {
+    (void)previous_item;
+    last_selected_application_index_ = ui_->treeWidget->indexOfTopLevelItem(current_item);
     if (last_selected_application_index_ < 0) {
         ui_->groupLaunchInfo->setEnabled(false);
         ui_->pushButtonRemove->setEnabled(false);
@@ -192,9 +191,9 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *pCurrent, QTreeW
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void dlgCreateAssociation::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
-    last_selected_application_index_ = ui_->treeWidget->indexOfTopLevelItem(pItem);
-    QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui_->treeWidget->itemWidget(pItem, nColumn));
+void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
+    last_selected_application_index_ = ui_->treeWidget->indexOfTopLevelItem(item);
+    QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui_->treeWidget->itemWidget(item, column));
     if (check_box != nullptr) {
         Configurator &configurator = Configurator::Get();
         configurator.overridden_application_list[last_selected_application_index_]->override_layers = check_box->isChecked();
@@ -205,8 +204,8 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
 /// Something was clicked. We don't know what, and short of setting up a new
 /// signal/slot for each button, this seemed a reasonable approach. Just poll
 /// all of them. There aren't that many, so KISS (keep it simple stupid)
-void dlgCreateAssociation::itemClicked(bool bClicked) {
-    (void)bClicked;
+void dlgCreateAssociation::itemClicked(bool clicked) {
+    (void)clicked;
 
     Configurator &configurator = Configurator::Get();
     bool need_checkbox = configurator.HasActiveOverrideOnApplicationListOnly();
@@ -248,8 +247,6 @@ void dlgCreateAssociation::editLogFile(const QString &logFile) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCreateAssociation::GetExecutableFromAppBundle
-/// \param csPath
 /// This is only used on macOS to extract the executable from the bundle.
 /// You have to look at the plist.info file, you can't just assume whatever
 /// you find in the /MacOS folder is the executable.

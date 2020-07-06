@@ -19,6 +19,18 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "mainwindow.h"
+#include "dlgabout.h"
+#include "dlgvulkananalysis.h"
+#include "dlgvulkaninfo.h"
+#include "dlgprofileeditor.h"
+#include "dlgcreateassociation.h"
+#include "dlgcustompaths.h"
+#include "configurator.h"
+#include "preferences.h"
+
+#include "ui_mainwindow.h"
+
 #include <QProcess>
 #include <QDir>
 #include <QMessageBox>
@@ -34,17 +46,6 @@
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "dlgabout.h"
-#include "dlgvulkananalysis.h"
-#include "dlgvulkaninfo.h"
-#include "dlgprofileeditor.h"
-#include "dlgcreateassociation.h"
-#include "dlgcustompaths.h"
-#include "configurator.h"
-#include "preferences.h"
 
 // This is what happens when programmers can touch type....
 bool been_warned_about_old_loader = false;
@@ -193,9 +194,8 @@ void MainWindow::LoadConfigurationList() {
 }
 
 //////////////////////////////////////////////////////////
-/// \brief MainWindow::on_radioFully_clicked
 // No override at all, fully controlled by the application
-void MainWindow::on_radioFully_clicked(void) {
+void MainWindow::on_radioFully_clicked() {
     ui_->checkBoxApplyList->setEnabled(false);
     ui_->checkBoxPersistent->setEnabled(false);
 
@@ -212,20 +212,18 @@ void MainWindow::on_radioFully_clicked(void) {
 }
 
 //////////////////////////////////////////////////////////
-/// \brief MainWindow::GetCheckedItem
-/// \return
 /// Okay, because we are using custom controls, some of
 /// the signaling is not happening as expected. So, we cannot
 /// always get an accurate answer to the currently selected
 /// item, but we do often need to know what has been checked
 /// when an event occurs. This unambigously answers that question.
-ContigurationListItem *MainWindow::GetCheckedItem(void) {
+ContigurationListItem *MainWindow::GetCheckedItem() {
     // Just go through all the top level items
     for (int i = 0; i < ui_->profileTree->topLevelItemCount(); i++) {
-        ContigurationListItem *pItem = dynamic_cast<ContigurationListItem *>(ui_->profileTree->topLevelItem(i));
+        ContigurationListItem *item = dynamic_cast<ContigurationListItem *>(ui_->profileTree->topLevelItem(i));
 
-        if (pItem != nullptr)
-            if (pItem->radio_button->isChecked()) return pItem;
+        if (item != nullptr)
+            if (item->radio_button->isChecked()) return item;
     }
 
     return nullptr;
@@ -236,9 +234,9 @@ ContigurationListItem *MainWindow::GetCheckedItem(void) {
 void MainWindow::on_radioOverride_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    bool bUse = (!configurator.has_old_loader || !been_warned_about_old_loader);
-    ui_->checkBoxApplyList->setEnabled(bUse);
-    ui_->pushButtonAppList->setEnabled(bUse && configurator.override_application_list_only);
+    bool use = (!configurator.has_old_loader || !been_warned_about_old_loader);
+    ui_->checkBoxApplyList->setEnabled(use);
+    ui_->pushButtonAppList->setEnabled(use && configurator.override_application_list_only);
 
     ui_->checkBoxPersistent->setEnabled(true);
     configurator.override_active = true;
@@ -247,11 +245,11 @@ void MainWindow::on_radioOverride_clicked() {
     configurator.SaveSettings();
 
     // This just doesn't work. Make a function to look for the radio button checked.
-    ContigurationListItem *pProfileItem = GetCheckedItem();
-    if (pProfileItem == nullptr)
+    ContigurationListItem *configuration_item = GetCheckedItem();
+    if (configuration_item == nullptr)
         ChangeActiveConfiguration(nullptr);
     else
-        ChangeActiveConfiguration(pProfileItem->configuration);
+        ChangeActiveConfiguration(configuration_item->configuration);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -293,7 +291,7 @@ void MainWindow::on_checkBoxApplyList_clicked() {
 }
 
 //////////////////////////////////////////////////////////
-void MainWindow::on_checkBoxPersistent_clicked(void) {
+void MainWindow::on_checkBoxPersistent_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.override_permanent = ui_->checkBoxPersistent->isChecked();
@@ -301,8 +299,8 @@ void MainWindow::on_checkBoxPersistent_clicked(void) {
 }
 
 //////////////////////////////////////////////////////////
-void MainWindow::toolsResetToDefault(bool bChecked) {
-    (void)bChecked;
+void MainWindow::toolsResetToDefault(bool checked) {
+    (void)checked;
 
     // Let make sure...
     QMessageBox msg;
@@ -382,8 +380,8 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
 /// \brief MainWindow::profileItemClicked
 /// \param bChecked
 /// Thist signal actually comes from the radio button
-void MainWindow::profileItemClicked(bool bChecked) {
-    (void)bChecked;
+void MainWindow::profileItemClicked(bool checked) {
+    (void)checked;
     // Someone just got checked, they are now the current profile
     // This pointer will only be valid if it's one of the elements with
     // the radio button
@@ -399,14 +397,14 @@ void MainWindow::profileItemClicked(bool bChecked) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-/// An item has been changed. Check for edit of the items name (profile name)
-void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol) {
+/// An item has been changed. Check for edit of the items name (configuration name)
+void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    ContigurationListItem *configuration_item = dynamic_cast<ContigurationListItem *>(pItem);
+    ContigurationListItem *configuration_item = dynamic_cast<ContigurationListItem *>(item);
     if (configuration_item == nullptr) return;
 
-    if (nCol == 1) {  // Profile name
+    if (column == 1) {  // Profile name
         Configurator &configurator = Configurator::Get();
 
         // We are renaming the file. Just delete the old one and save this

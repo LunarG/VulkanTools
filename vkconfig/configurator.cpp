@@ -109,7 +109,8 @@ Configurator &Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator() : active_configuration_(nullptr), saved_configuration(nullptr), has_old_loader(false), first_run_(true) {
+Configurator::Configurator()
+    : active_configuration_(nullptr), saved_configuration(nullptr), has_old_loader(false), first_run_(true) {
     available_Layers.reserve(10);
 
 #ifdef _WIN32
@@ -602,12 +603,12 @@ QString Configurator::GetPath(Path requested_path) const {
     }
 }
 
-void Configurator::SetPath(Path requested_path, QString path) { 
-    assert(requested_path >= FirstPath && requested_path <= LastPath); 
+void Configurator::SetPath(Path requested_path, QString path) {
+    assert(requested_path >= FirstPath && requested_path <= LastPath);
     assert(!path.isEmpty());
-    
+
     path = QDir::toNativeSeparators(path);
-    
+
     if (requested_path == LastImportPath || requested_path == LastExportPath) {
         QDir directory = QFileInfo(path).absoluteDir();
         path = directory.absolutePath();

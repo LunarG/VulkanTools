@@ -19,17 +19,14 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "configuration.h"
+
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 
-#include "configuration.h"
-
-Configuration::Configuration() {
-    preset_index = 0;
-    all_layers_available = true;
-}
+Configuration::Configuration() : preset_index(0), all_layers_available(true) {}
 
 Configuration::~Configuration() {
     qDeleteAll(layers.begin(), layers.end());
@@ -72,9 +69,9 @@ Configuration* Configuration::DuplicateConfiguration() {
     // Do not copy ->bFixedProfile
 
     for (int i = 0; i < layers.size(); i++) {
-        LayerFile* pLayer = new LayerFile;
-        layers[i]->CopyLayer(pLayer);
-        duplicate->layers.push_back(pLayer);
+        LayerFile* layer_file = new LayerFile;
+        layers[i]->CopyLayer(layer_file);
+        duplicate->layers.push_back(layer_file);
     }
 
     return duplicate;
@@ -89,26 +86,26 @@ void Configuration::CollapseConfiguration() {
     // Look for black listed layers, add them to the
     // string list of names, but remove them from
     // the list of layers
-    int iCurrent = 0;
+    int layer_index = 0;
     int nNewRank = 0;
-    while (iCurrent < layers.size()) {
+    while (layer_index < layers.size()) {
         // Remove this layer?
-        if (layers[iCurrent]->disabled) {
-            excluded_layers << layers[iCurrent]->name;
-            layers.removeAt(iCurrent);
+        if (layers[layer_index]->disabled) {
+            excluded_layers << layers[layer_index]->name;
+            layers.removeAt(layer_index);
             continue;
         }
 
         // If the layer is not active, also remove it
         // Important to do black list test FIRST
-        if (!layers[iCurrent]->enabled) {
-            layers.removeAt(iCurrent);
+        if (!layers[layer_index]->enabled) {
+            layers.removeAt(layer_index);
             continue;
         }
 
         // We are keeping this layer, reset it's rank
-        layers[iCurrent]->rank = nNewRank++;
+        layers[layer_index]->rank = nNewRank++;
 
-        iCurrent++;
+        layer_index++;
     }
 }

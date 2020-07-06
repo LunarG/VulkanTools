@@ -21,10 +21,6 @@
 
 #pragma once
 
-#include <QObject>
-#include <QTreeWidget>
-#include <QComboBox>
-
 #include "configuration.h"
 #include "khronossettingsadvanced.h"
 #include "filenamesettingwidget.h"
@@ -36,16 +32,20 @@
 #include "mutemessagewidget.h"
 #include "vuidsearchwidget.h"
 
+#include <QObject>
+#include <QTreeWidget>
+#include <QComboBox>
+
 class SettingsTreeManager : QObject {
     Q_OBJECT
    public:
     SettingsTreeManager();
 
-    void CreateGUI(QTreeWidget *pBuildTree, Configuration *configuration);
+    void CreateGUI(QTreeWidget *build_tree, Configuration *configuration);
     void CleanupGUI();
 
-    void GetTreeState(QByteArray &byteArray, QTreeWidgetItem *top_item);
-    int SetTreeState(QByteArray &byteArray, int nIndex, QTreeWidgetItem *top_item);
+    void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
+    int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
    protected:
     QTreeWidget *configuration_settings_tree_;
@@ -57,27 +57,27 @@ class SettingsTreeManager : QObject {
 
     QVector<QTreeWidgetItem *> layer_items_;  // These parallel the  profiles layers
 
-    QComboBox *pKhronosPresets;
-    LayerFile *pKhronosLayer;
-    QTreeWidgetItem *pKhronosTree;
-    QTreeWidgetItem *pKhronosFileItem;
-    QTreeWidgetItem *pKhronosPresetItem;
-    QTreeWidgetItem *pKhronosLogFileItem;
-    FilenameSettingWidget *pKhronosLogFileWidget;
-    EnumSettingWidget *pKhronosDebugAction;
-    KhronosSettingsAdvanced *pAdvancedKhronosEditor;
-    MuteMessageWidget *pMuteMessageWidget;
-    VUIDSearchWidget *pVUIDSearchWidget;
-    QTreeWidgetItem *pMuteMessageSearchItem;
+    QComboBox *validation_presets_combo_box_;
+    LayerFile *validation_layer_file_;
+    QTreeWidgetItem *validation_tree_item_;
+    QTreeWidgetItem *validation_file_item_;
+    QTreeWidgetItem *validation_preset_item_;
+    QTreeWidgetItem *validation_log_file_item_;
+    FilenameSettingWidget *validation_log_file_widget_;
+    EnumSettingWidget *validation_debug_action_;
+    KhronosSettingsAdvanced *validation_settings_;
+    MuteMessageWidget *mute_message_widget_;
+    VUIDSearchWidget *vuid_search_widget_;
+    QTreeWidgetItem *mute_message_search_item_;
 
    public Q_SLOTS:
     //    void itemCollapsed(QTreeWidgetItem *);
     //    void itemExpanded(QTreeWidgetItem *);
 
-    void khronosDebugChanged(int nIndex);
-    void khronosPresetChanged(int nIndex);  // Okay, is this a custom guy HERE, or do we move it out
-                                            // It really forces a reload of the entire branch of this tree
-                                            // Reset layer defaults for the profile, and then call BuildKhronosTree again
-    void khronosPresetEdited();             // The user has changed something from a preset, and we are now a custom setting
-    void profileEdited();                   // The profile has been edited and should be saved
+    void khronosDebugChanged(int index);
+    void khronosPresetChanged(int index);  // Okay, is this a custom guy HERE, or do we move it out
+                                           // It really forces a reload of the entire branch of this tree
+                                           // Reset layer defaults for the profile, and then call BuildKhronosTree again
+    void khronosPresetEdited();            // The user has changed something from a preset, and we are now a custom setting
+    void profileEdited();                  // The profile has been edited and should be saved
 };

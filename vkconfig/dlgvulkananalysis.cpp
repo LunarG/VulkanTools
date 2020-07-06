@@ -35,7 +35,7 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui_(new
 
 dlgVulkanAnalysis::~dlgVulkanAnalysis() { delete ui_; }
 
-void dlgVulkanAnalysis::RunTool(void) {
+void dlgVulkanAnalysis::RunTool() {
     ui_->envTable->clear();
     ui_->cleanupTable->clear();
     ui_->hardwareTable->clear();

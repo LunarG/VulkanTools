@@ -38,7 +38,7 @@ dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui_(new Ui::d
 
 dlgCustomPaths::~dlgCustomPaths() { delete ui_; }
 
-void dlgCustomPaths::RepopulateTree(void) {
+void dlgCustomPaths::RepopulateTree() {
     ui_->treeWidget->clear();
 
     Configurator &configurator = Configurator::Get();

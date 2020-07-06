@@ -28,4 +28,4 @@ dlgAbout::dlgAbout(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgAbout) {
 
 dlgAbout::~dlgAbout() { delete ui_; }
 
-void dlgAbout::aboutQt(void) { qApp->aboutQt(); }
+void dlgAbout::aboutQt() { qApp->aboutQt(); }

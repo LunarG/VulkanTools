@@ -57,7 +57,7 @@ void MuteMessageWidget::addItem(QString &item) {
     emit itemChanged();
 }
 
-void MuteMessageWidget::removePushed(void) {
+void MuteMessageWidget::removePushed() {
     int nRow = list_widget_->currentRow();
     if (nRow <= 0) return;
 

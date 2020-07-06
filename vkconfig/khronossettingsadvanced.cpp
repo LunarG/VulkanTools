@@ -431,7 +431,8 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *pItem, int nColumn) {
     }
 
     // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
-    if (pItem == debug_printf_box_ && debug_printf_radio_->isChecked()) reserve_box_->setFlags(reserve_box_->flags() & ~Qt::ItemIsEnabled);
+    if (pItem == debug_printf_box_ && debug_printf_radio_->isChecked())
+        reserve_box_->setFlags(reserve_box_->flags() & ~Qt::ItemIsEnabled);
 
     main_tree_widget_->blockSignals(false);
 
@@ -480,7 +481,7 @@ void KhronosSettingsAdvanced::printfToggled(bool toggle) {
 /// \brief KhronosSettingsAdvanced::CollectSettings
 /// \return
 /// Collect all the settings
-bool KhronosSettingsAdvanced::CollectSettings(void) {
+bool KhronosSettingsAdvanced::CollectSettings() {
     QString enables;
     QString disables;
 
