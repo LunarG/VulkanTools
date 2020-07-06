@@ -110,7 +110,11 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : active_configuration_(nullptr), saved_configuration(nullptr), has_old_loader(false), first_run_(true) {
+    : active_configuration_(nullptr),
+      saved_configuration(nullptr),
+      has_old_loader(false),
+      first_run_(true),
+      override_application_list_updated(false) {
     available_Layers.reserve(10);
 
 #ifdef _WIN32
@@ -821,6 +825,8 @@ void Configurator::SaveOverriddenApplicationList() {
     QJsonDocument doc(root);
     file.write(doc.toJson());
     file.close();
+
+    override_application_list_updated = true;
 }
 
 bool Configurator::HasOverriddenApplications() const {

@@ -138,9 +138,11 @@ class Configurator {
     QString GetPath(Path requested_path) const;
     void SetPath(Path requested_path, QString path);
 
-    bool override_active;                 // Do we have active layers override?
-    bool override_application_list_only;  // Apply the override only to the application list
-    bool override_permanent;              // The override remains active when Vulkan Configurator closes
+    bool override_active;                    // Do we have active layers override?
+    bool override_application_list_only;     // Apply the override only to the application list
+    bool override_permanent;                 // The override remains active when Vulkan Configurator closes
+    bool override_application_list_updated;  // The list of applications to override has possibly been updated
+
    private:
     QString paths_[PathCount];
 

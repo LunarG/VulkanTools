@@ -22,6 +22,7 @@
 #include "dlgcreateassociation.h"
 #include "ui_dlgcreateassociation.h"
 
+#include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
 #include <QCloseEvent>
@@ -34,6 +35,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     Configurator &configurator = Configurator::Get();
+    configurator.override_application_list_updated = false;
 
     bool need_checkbox = configurator.HasActiveOverrideOnApplicationListOnly();
 
@@ -87,9 +89,21 @@ bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event) {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Make sure any changes are saved
-void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent) {
-    Configurator::Get().SaveOverriddenApplicationList();
-    pEvent->accept();
+void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
+    Configurator &configurator = Configurator::Get();
+
+    configurator.SaveOverriddenApplicationList();
+    event->accept();
+
+    if (configurator.overridden_application_list.empty() || !configurator.HasOverriddenApplications()) {
+        QMessageBox alert;
+        alert.setIcon(QMessageBox::Warning);
+        alert.setWindowTitle("Vulkan Layers overriding will apply globally.");
+        alert.setText(
+            "The application list to override is empty. Restricting layers overriding to the selected list is disabled.");
+        alert.setInformativeText("As a result, Vulkan Layers overriding will apply globally, to all Vulkan applications.");
+        alert.exec();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -109,6 +109,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     connect(ui_->launchTree, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this, SLOT(launchItemCollapsed(QTreeWidgetItem *)));
     connect(ui_->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(launchItemExpanded(QTreeWidgetItem *)));
 
+    if (!configurator.HasOverriddenApplications() || configurator.overridden_application_list.empty())
+        configurator.override_application_list_only = false;
+
     ui_->pushButtonAppList->setEnabled(configurator.override_application_list_only);
     ui_->checkBoxApplyList->setChecked(configurator.override_application_list_only);
     ui_->checkBoxPersistent->setChecked(configurator.override_permanent);
@@ -371,12 +374,14 @@ void MainWindow::toolsResetToDefault(bool checked) {
     if (configurator.override_active) {
         ui_->radioOverride->setChecked(true);
         ui_->checkBoxApplyList->setEnabled(true);
+        ui_->pushButtonAppList->setEnabled(false);
         ui_->checkBoxPersistent->setEnabled(true);
         ui_->groupBoxProfiles->setEnabled(true);
         ui_->groupBoxEditor->setEnabled(true);
     } else {
         ui_->radioFully->setChecked(true);
         ui_->checkBoxApplyList->setEnabled(false);
+        ui_->pushButtonAppList->setEnabled(false);
         ui_->checkBoxPersistent->setEnabled(false);
         ui_->pushButtonAppList->setEnabled(false);
         ui_->groupBoxProfiles->setEnabled(false);
@@ -385,8 +390,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::profileItemClicked
-/// \param bChecked
 /// Thist signal actually comes from the radio button
 void MainWindow::profileItemClicked(bool checked) {
     (void)checked;
@@ -505,8 +508,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 ////////////////////////////////////////////////////////////////
-/// \brief MainWindow::resizeEvent
-/// \param pEvent
 /// Resizing needs a little help. Yes please, there has to be
 /// a better way of doing this.
 void MainWindow::resizeEvent(QResizeEvent *event) {
@@ -937,6 +938,21 @@ void MainWindow::on_pushButtonClearLog_clicked() {
 
 //////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
+    Configurator &configurator = Configurator::Get();
+
+    // When no application are overridden in the application list,
+    // we disable override_application_list_only to reflect to the
+    // user that overrides will apply to all applications.
+    if (configurator.override_application_list_updated && configurator.override_application_list_only) {
+        configurator.override_application_list_updated = false;
+
+        if (!configurator.HasOverriddenApplications()) {
+            configurator.override_application_list_only = false;
+            ui_->checkBoxApplyList->setChecked(false);
+            ui_->pushButtonAppList->setEnabled(false);
+        }
+    }
+
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just relay on the resize method
     // of this window.
