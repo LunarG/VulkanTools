@@ -174,6 +174,7 @@ class Configurator {
     QVector<Application*> overridden_application_list;
     void LoadOverriddenApplicationList();
     void SaveOverriddenApplicationList();
+    bool HasOverriddenApplications() const;
 
     ////////////////////////////////////////////////////////////////////////
     // A readonly list of layer names with the associated settings

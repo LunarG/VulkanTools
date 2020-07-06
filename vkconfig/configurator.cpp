@@ -722,13 +722,13 @@ void Configurator::FindVkCube() {
         local = local2;
     }
 
-    Application *appEntry = new Application;
-    appEntry->working_folder = QDir::toNativeSeparators(local.absolutePath());
-    appEntry->executable_path = QDir::toNativeSeparators(local.absoluteFilePath());
-    appEntry->arguments = QString("--suppress_popups --validate");
-    appEntry->override_layers = true;
-    appEntry->log_file = "vkcube_out.txt";
-    overridden_application_list.push_back(appEntry);
+    Application *new_application = new Application;
+    new_application->working_folder = QDir::toNativeSeparators(local.absolutePath());
+    new_application->executable_path = QDir::toNativeSeparators(local.absoluteFilePath());
+    new_application->arguments = QString("--suppress_popups --validate");
+    new_application->override_layers = true;
+    new_application->log_file = "vkcube_out.txt";
+    overridden_application_list.push_back(new_application);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -821,6 +821,14 @@ void Configurator::SaveOverriddenApplicationList() {
     QJsonDocument doc(root);
     file.write(doc.toJson());
     file.close();
+}
+
+bool Configurator::HasOverriddenApplications() const {
+    for (int i = 0, n = overridden_application_list.size(); i < n; i++) {
+        if (overridden_application_list[i]->override_layers) return true;
+    }
+
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1321,8 +1329,6 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::CreateEmptyProfile
-/// \return
 /// Create an empty profile definition that contains all available layers.
 /// All settings are the default, and the layer order is just the order at
 /// which they have come.
@@ -1347,8 +1353,6 @@ Configuration *Configurator::CreateEmptyConfiguration() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::LoadDefaultSettings
-/// \param pBlankLayer
 /// Load the default settings into an empty layer file container
 void Configurator::LoadDefaultSettings(LayerFile *pBlankLayer) {
     const LayerSettingsDefaults *layer_settings_defaults = FindLayerSettings(pBlankLayer->name);
@@ -1460,19 +1464,15 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     QJsonArray json_layers;
     for (int i = 0; i < configuration->layers.size(); i++) json_layers.append(configuration->layers[i]->name);
 
-    QJsonArray json_blacklist;
-    for (int i = 0; i < configuration->excluded_layers.size(); i++) json_blacklist.append(configuration->excluded_layers[i]);
+    QJsonArray json_excluded_layer_list;
+    for (int i = 0; i < configuration->excluded_layers.size(); i++)
+        json_excluded_layer_list.append(configuration->excluded_layers[i]);
 
     // Only supply this list if an app list is specified
-    bool bHasAppList = false;
     QJsonArray json_applist;
-    if (this->override_application_list_only) {
-        for (int i = 0; i < overridden_application_list.size(); i++) {
-            if (overridden_application_list[i]->override_layers) {
-                json_applist.append(QDir::toNativeSeparators(overridden_application_list[i]->executable_path));
-            } else {
-                bHasAppList = true;
-            }
+    for (int i = 0, n = overridden_application_list.size(); i < n; i++) {
+        if (overridden_application_list[i]->override_layers) {
+            json_applist.append(QDir::toNativeSeparators(overridden_application_list[i]->executable_path));
         }
     }
 
@@ -1487,13 +1487,13 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     layer.insert("description", QString("LunarG Override Layer"));
     layer.insert("override_paths", json_paths);
     layer.insert("component_layers", json_layers);
-    layer.insert("blacklisted_layers", json_blacklist);
+    layer.insert("blacklisted_layers", json_excluded_layer_list);
     layer.insert("disable_environment", disable);
 
     // This has to contain something, or it will apply globally!
-    if (!bHasAppList == false && this->override_application_list_only) json_applist.append("");
-
-    layer.insert("app_keys", json_applist);
+    if (override_application_list_only) {
+        layer.insert("app_keys", json_applist);
+    }
 
     QJsonObject root;
     root.insert("file_format_version", QJsonValue(QString("1.1.2")));
@@ -1514,10 +1514,10 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 ///////////////////////////////////////////////////////////////
 /// Make a temporary copy of this configuration and activate it.
 /// Any layer output settings need to be set to stderr
-void Configurator::PushConfiguration(Configuration *pNew) {
+void Configurator::PushConfiguration(Configuration *new_configuration) {
     // Copy the working profile
     saved_configuration = active_configuration_;
-    Configuration *copy = pNew->DuplicateConfiguration();
+    Configuration *copy = new_configuration->DuplicateConfiguration();
     copy->CollapseConfiguration();
 
     for (int layer_index = 0; layer_index < copy->layers.size(); layer_index++) {  // For each layer

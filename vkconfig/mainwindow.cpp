@@ -288,6 +288,9 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     configurator.override_application_list_only = ui_->checkBoxApplyList->isChecked();
     configurator.SaveSettings();
     ui_->pushButtonAppList->setEnabled(configurator.override_application_list_only);
+
+    // Checking the list, the configuration need to be updated to the system
+    if (configurator.GetActiveConfiguration()) ChangeActiveConfiguration(configurator.GetActiveConfiguration());
 }
 
 //////////////////////////////////////////////////////////
@@ -1112,27 +1115,29 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     // We are logging, let's add that we've launched a new application
     QString launch_log = "Launching Vulkan Application:\n";
 
+    const Application &current_application = *configurator.overridden_application_list[current_application_index];
+
     if (configurator.GetActiveConfiguration() == nullptr) {
         launch_log += QString().asprintf("- Layers fully controlled by the application.\n");
     } else if (!configurator.GetActiveConfiguration()->IsValid()) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                          configurator.GetActiveConfiguration()->name.toUtf8().constData());
     } else if (configurator.override_active) {
-        launch_log += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
-                                         configurator.GetActiveConfiguration()->name.toUtf8().constData());
+        if (configurator.override_application_list_only && configurator.HasOverriddenApplications() &&
+            !current_application.override_layers) {
+            launch_log +=
+                QString().asprintf("- Layers fully controlled by the application. Application excluded from layers override.\n");
+        } else {
+            launch_log += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
+                                             configurator.GetActiveConfiguration()->name.toUtf8().constData());
+        }
     }
 
-    launch_log += QString().asprintf(
-        "- Executable Path: %s\n",
-        configurator.overridden_application_list[current_application_index]->executable_path.toUtf8().constData());
-    launch_log += QString().asprintf(
-        "- Working Directory: %s\n",
-        configurator.overridden_application_list[current_application_index]->working_folder.toUtf8().constData());
-    launch_log +=
-        QString().asprintf("- Command-line Arguments: %s\n",
-                           configurator.overridden_application_list[current_application_index]->arguments.toUtf8().constData());
+    launch_log += QString().asprintf("- Executable Path: %s\n", current_application.executable_path.toUtf8().constData());
+    launch_log += QString().asprintf("- Working Directory: %s\n", current_application.working_folder.toUtf8().constData());
+    launch_log += QString().asprintf("- Command-line Arguments: %s\n", current_application.arguments.toUtf8().constData());
 
-    if (!configurator.overridden_application_list[current_application_index]->log_file.isEmpty()) {
+    if (!current_application.log_file.isEmpty()) {
         // This should never happen... but things that should never happen do in
         // fact happen... so just a sanity check.
         if (log_file_ != nullptr) {
@@ -1141,13 +1146,13 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         }
 
         // Start logging
-        log_file_ = new QFile(configurator.overridden_application_list[current_application_index]->log_file);
+        log_file_ = new QFile(current_application.log_file);
 
         // Open and append, or open and truncate?
         QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
         if (!ui_->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
 
-        if (!configurator.overridden_application_list[current_application_index]->log_file.isEmpty()) {
+        if (!current_application.log_file.isEmpty()) {
             if (!log_file_->open(mode)) {
                 QMessageBox err;
                 err.setText(tr("Cannot open log file"));
@@ -1173,12 +1178,10 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         launch_application_->deleteLater();
         launch_application_ = nullptr;
 
-        QString outFailed = QString().asprintf(
-            "Failed to launch %s!\n",
-            configurator.overridden_application_list[current_application_index]->executable_path.toUtf8().constData());
+        QString failed_log = QString().asprintf("Failed to launch %s!\n", current_application.executable_path.toUtf8().constData());
 
-        ui_->logBrowser->append(outFailed);
-        if (log_file_) log_file_->write(outFailed.toUtf8().constData(), outFailed.length());
+        ui_->logBrowser->append(failed_log);
+        if (log_file_) log_file_->write(failed_log.toUtf8().constData(), failed_log.length());
 
         return;
     }

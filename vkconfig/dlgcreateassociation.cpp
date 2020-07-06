@@ -96,47 +96,48 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *pEvent) {
 /// Browse for and select an executable file to add to the list.
 void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test application
 {
-    QString fileWildcard = ("Applications (*)");  // Linux default
+    QString filter = ("Applications (*)");  // Linux default
 
 #ifdef __APPLE__
-    fileWildcard = QString("Applications (*.app, *");
+    filter = QString("Applications (*.app, *");
 #endif
 
 #ifdef _WIN32
-    fileWildcard = QString("Applications (*.exe)");
+    filter = QString("Applications (*.exe)");
 #endif
 
     // Go get it.
-    QString appWithPath = QFileDialog::getOpenFileName(this, tr("Select a Vulkan Executable"), "/", fileWildcard);
+    QString executable_full_path = QFileDialog::getOpenFileName(this, tr("Select a Vulkan Executable"), "/", filter);
 
     // If they have selected something!
-    if (!appWithPath.isEmpty()) {
+    if (!executable_full_path.isEmpty()) {
         // On macOS, they may have selected a binary, or they may have selected an app bundle.
         // If the later, we need to drill down to the actuall applicaiton
-        if (appWithPath.right(4) == QString(".app")) {
+        if (executable_full_path.right(4) == QString(".app")) {
             // Start by drilling down
-            GetExecutableFromAppBundle(appWithPath);
+            GetExecutableFromAppBundle(executable_full_path);
         }
 
         Configurator &configurator = Configurator::Get();
 
-        appWithPath = QDir::toNativeSeparators(appWithPath);
-        Application *pNewApp = new Application;
-        pNewApp->executable_path = appWithPath;
-        pNewApp->working_folder = QDir::toNativeSeparators(QFileInfo(appWithPath).path());
-        pNewApp->override_layers = true;
-        pNewApp->log_file = QDir::toNativeSeparators(ui_->lineEditLogFile->text());
-        Configurator::Get().overridden_application_list.push_back(pNewApp);
-        QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, appWithPath);
-        QCheckBox *pCheck = new QCheckBox(tr("Exclude from Layers Override"));
-        ui_->treeWidget->addTopLevelItem(pItem);
-        ui_->treeWidget->setItemWidget(pItem, 1, pCheck);
+        executable_full_path = QDir::toNativeSeparators(executable_full_path);
+        Application *new_application = new Application;
+        new_application->executable_path = executable_full_path;
+        new_application->working_folder = QDir::toNativeSeparators(QFileInfo(executable_full_path).path());
+        new_application->override_layers = true;
+        new_application->log_file = QDir::toNativeSeparators(ui_->lineEditLogFile->text());
+
+        Configurator::Get().overridden_application_list.push_back(new_application);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, executable_full_path);
+        QCheckBox *checkbox = new QCheckBox(tr("Exclude from Layers Override"));
+        ui_->treeWidget->addTopLevelItem(item);
+        ui_->treeWidget->setItemWidget(item, 1, checkbox);
         configurator.SaveOverriddenApplicationList();
         configurator.RefreshConfiguration();
-        ui_->treeWidget->setCurrentItem(pItem);
-        last_selected_application_index_ = ui_->treeWidget->indexOfTopLevelItem(pItem);
-        connect(pCheck, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
+        ui_->treeWidget->setCurrentItem(item);
+        last_selected_application_index_ = ui_->treeWidget->indexOfTopLevelItem(item);
+        connect(checkbox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
     }
 }
 
