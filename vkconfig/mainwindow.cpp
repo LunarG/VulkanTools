@@ -71,8 +71,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     help_ = nullptr;
     launch_application_ = nullptr;
     log_file_ = nullptr;
-    pLaunchAppsCombo = nullptr;
-    pLaunchArguments = nullptr;
+    launcher_apps_combo = nullptr;
+    launch_arguments = nullptr;
 
     ///////////////////////////////////////////////
     Configurator &configurator = Configurator::Get();
@@ -343,16 +343,16 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     configurator.LoadAllConfigurations();
 
     // Find the Standard Validation and make it current if we are active
-    Configuration *pNewActiveProfile = configurator.FindConfiguration(QString("Validation - Standard"));
-    if (configurator.override_active) ChangeActiveConfiguration(pNewActiveProfile);
+    Configuration *active_configuration = configurator.FindConfiguration(QString("Validation - Standard"));
+    if (configurator.override_active) ChangeActiveConfiguration(active_configuration);
 
     LoadConfigurationList();
 
     // Active or not, set it in the tree so we can see the settings.
     for (int i = 0; i < ui_->profileTree->topLevelItemCount(); i++) {
-        ContigurationListItem *pItem = dynamic_cast<ContigurationListItem *>(ui_->profileTree->topLevelItem(i));
-        if (pItem != nullptr)
-            if (pItem->configuration == pNewActiveProfile) ui_->profileTree->setCurrentItem(pItem);
+        ContigurationListItem *item = dynamic_cast<ContigurationListItem *>(ui_->profileTree->topLevelItem(i));
+        if (item != nullptr)
+            if (item->configuration == active_configuration) ui_->profileTree->setCurrentItem(item);
     }
 
     configurator.FindVkCube();
@@ -387,14 +387,14 @@ void MainWindow::profileItemClicked(bool bChecked) {
     // Someone just got checked, they are now the current profile
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    ContigurationListItem *pProfileItem = GetCheckedItem();
-    if (pProfileItem == nullptr) return;
+    ContigurationListItem *configuration_item = GetCheckedItem();
+    if (configuration_item == nullptr) return;
 
     Configurator &configurator = Configurator::Get();
 
     // Do we go ahead and activate it?
     if (configurator.override_active) {
-        ChangeActiveConfiguration(pProfileItem->configuration);
+        ChangeActiveConfiguration(configuration_item->configuration);
     }
 }
 
@@ -429,16 +429,16 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *p
     settings_tree_manager_.CleanupGUI();
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    ContigurationListItem *pProfileItem = dynamic_cast<ContigurationListItem *>(current);
-    if (pProfileItem == nullptr) return;
+    ContigurationListItem *configuration_item = dynamic_cast<ContigurationListItem *>(current);
+    if (configuration_item == nullptr) return;
 
     if (!Preferences::Get().use_separated_select_and_activate) {
-        pProfileItem->radio_button->setChecked(true);
-        ChangeActiveConfiguration(pProfileItem->configuration);
+        configuration_item->radio_button->setChecked(true);
+        ChangeActiveConfiguration(configuration_item->configuration);
     }
 
-    settings_tree_manager_.CreateGUI(ui_->layerSettingsTree, pProfileItem->configuration);
-    QString title = pProfileItem->configuration->name;
+    settings_tree_manager_.CreateGUI(ui_->layerSettingsTree, configuration_item->configuration);
+    QString title = configuration_item->configuration->name;
     title += " Settings";
     ui_->groupBoxEditor->setTitle(title);
     ui_->layerSettingsTree->resizeColumnToContents(0);
@@ -546,9 +546,9 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 
     dlgProfileEditor dlg(this, item->configuration);
     dlg.exec();
-    // pItem will be invalid after LoadProfileList, but I still
-    // need the pointer to the profile
-    QString editedProfileName = item->configuration->name;
+
+    // 'item' will be invalid after LoadAllConfigurations, but I still -  // need the pointer to the configuration
+    const QString edited_configuration_name = item->configuration->name;
 
     Configurator::Get().LoadAllConfigurations();
     LoadConfigurationList();
@@ -557,7 +557,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     for (int i = 0; i < ui_->profileTree->topLevelItemCount(); i++) {
         item = dynamic_cast<ContigurationListItem *>(ui_->profileTree->topLevelItem(i));
         if (item != nullptr)
-            if (item->configuration->name == editedProfileName) {
+            if (item->configuration->name == edited_configuration_name) {
                 ui_->profileTree->setCurrentItem(item);
                 //                settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfile);
                 break;
@@ -570,8 +570,8 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 void MainWindow::NewClicked() {
     Configurator &configurator = Configurator::Get();
 
-    Configuration *pNewProfile = configurator.CreateEmptyConfiguration();
-    dlgProfileEditor dlg(this, pNewProfile);
+    Configuration *configuration = configurator.CreateEmptyConfiguration();
+    dlgProfileEditor dlg(this, configuration);
     if (QDialog::Accepted == dlg.exec()) {
         configurator.LoadAllConfigurations();
         LoadConfigurationList();
@@ -621,10 +621,10 @@ void MainWindow::RenameClicked(ContigurationListItem *item) { ui_->profileTree->
 /////////////////////////////////////////////////////////////////////////////
 // Copy the current configuration
 void MainWindow::DuplicateClicked(ContigurationListItem *item) {
-    QString qsNewName = item->configuration->name;
-    qsNewName += "2";
+    QString new_name = item->configuration->name;
+    new_name += "2";
     settings_tree_manager_.CleanupGUI();
-    item->configuration->name = qsNewName;
+    item->configuration->name = new_name;
 
     Configurator &configurator = Configurator::Get();
     configurator.SaveConfiguration(item->configuration);
@@ -635,7 +635,7 @@ void MainWindow::DuplicateClicked(ContigurationListItem *item) {
     // Find it.
     for (int i = 0; i < ui_->profileTree->topLevelItemCount(); i++) {
         ContigurationListItem *pItem = dynamic_cast<ContigurationListItem *>(ui_->profileTree->topLevelItem(i));
-        if (pItem->configuration->name == qsNewName) {
+        if (pItem->configuration->name == new_name) {
             ui_->profileTree->editItem(pItem, 1);
             return;
         }
@@ -740,17 +740,17 @@ void MainWindow::ResetLaunchOptions() {
     ui_->pushButtonLaunch->setEnabled(!configurator.overridden_application_list.empty());
 
     // Reload launch apps selections
-    pLaunchAppsCombo->blockSignals(true);
-    pLaunchAppsCombo->clear();
+    launcher_apps_combo->blockSignals(true);
+    launcher_apps_combo->clear();
 
     for (int i = 0; i < configurator.overridden_application_list.size(); i++) {
-        pLaunchAppsCombo->addItem(configurator.overridden_application_list[i]->executable_path);
+        launcher_apps_combo->addItem(configurator.overridden_application_list[i]->executable_path);
     }
 
     if (configurator.overridden_application_list.isEmpty()) {
-        pLaunchArguments->setText("");
-        pLaunchWorkingFolder->setText("");
-        pLaunchLogFileEdit->setText("");
+        launch_arguments->setText("");
+        launcher_working->setText("");
+        launcher_log_file_edit->setText("");
         return;
     }
 
@@ -758,13 +758,13 @@ void MainWindow::ResetLaunchOptions() {
     assert(launch_application_index >= 0);
 
     configurator.SelectLaunchApplication(launch_application_index);
-    pLaunchAppsCombo->setCurrentIndex(launch_application_index);
+    launcher_apps_combo->setCurrentIndex(launch_application_index);
 
     // Reset working folder and command line choices
-    pLaunchArguments->setText(configurator.overridden_application_list[launch_application_index]->arguments);
-    pLaunchWorkingFolder->setText(configurator.overridden_application_list[launch_application_index]->working_folder);
-    pLaunchLogFileEdit->setText(configurator.overridden_application_list[launch_application_index]->log_file);
-    pLaunchAppsCombo->blockSignals(false);
+    launch_arguments->setText(configurator.overridden_application_list[launch_application_index]->arguments);
+    launcher_working->setText(configurator.overridden_application_list[launch_application_index]->working_folder);
+    launcher_log_file_edit->setText(configurator.overridden_application_list[launch_application_index]->log_file);
+    launcher_apps_combo->blockSignals(false);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -772,36 +772,36 @@ void MainWindow::ResetLaunchOptions() {
 void MainWindow::SetupLaunchTree() {
     /////////////////////////////////////////////////////////////////
     // Executable
-    QTreeWidgetItem *pLauncherParent = new QTreeWidgetItem();
-    pLauncherParent->setText(0, "Executable Path");
-    ui_->launchTree->addTopLevelItem(pLauncherParent);
+    QTreeWidgetItem *launcher_parent = new QTreeWidgetItem();
+    launcher_parent->setText(0, "Executable Path");
+    ui_->launchTree->addTopLevelItem(launcher_parent);
 
-    pLaunchAppsCombo = new QComboBox();
-    pLaunchAppsCombo->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    pLaunchAppsCombo->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(pLauncherParent, 1, pLaunchAppsCombo);
+    launcher_apps_combo = new QComboBox();
+    launcher_apps_combo->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_apps_combo->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_parent, 1, launcher_apps_combo);
 
-    pLuanchAppBrowseButton = new QPushButton();
-    pLuanchAppBrowseButton->setText("...");
-    pLuanchAppBrowseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    pLuanchAppBrowseButton->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    pLuanchAppBrowseButton->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    pLuanchAppBrowseButton->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(pLauncherParent, 2, pLuanchAppBrowseButton);
-    connect(pLaunchAppsCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
-    connect(pLuanchAppBrowseButton, SIGNAL(clicked()), this, SLOT(on_pushButtonAppList_clicked()));
+    launcher_apps_browse_button = new QPushButton();
+    launcher_apps_browse_button->setText("...");
+    launcher_apps_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    launcher_apps_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+    launcher_apps_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_apps_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_parent, 2, launcher_apps_browse_button);
+    connect(launcher_apps_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
+    connect(launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_pushButtonAppList_clicked()));
 
     //////////////////////////////////////////////////////////////////
     // Working folder
-    QTreeWidgetItem *pLauncherFolder = new QTreeWidgetItem();
-    pLauncherFolder->setText(0, "Working Directory");
-    pLauncherParent->addChild(pLauncherFolder);
+    QTreeWidgetItem *launcher_folder_item = new QTreeWidgetItem();
+    launcher_folder_item->setText(0, "Working Directory");
+    launcher_parent->addChild(launcher_folder_item);
 
-    pLaunchWorkingFolder = new QLineEdit();
-    pLaunchWorkingFolder->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    pLaunchWorkingFolder->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(pLauncherFolder, 1, pLaunchWorkingFolder);
-    pLaunchWorkingFolder->setReadOnly(false);
+    launcher_working = new QLineEdit();
+    launcher_working->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_working->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_folder_item, 1, launcher_working);
+    launcher_working->setReadOnly(false);
 
     // Comming soon
     //    pLaunchWorkingFolderButton = new QPushButton();
@@ -811,15 +811,15 @@ void MainWindow::SetupLaunchTree() {
 
     //////////////////////////////////////////////////////////////////
     // Command line arguments
-    QTreeWidgetItem *pLauncherCMD = new QTreeWidgetItem();
-    pLauncherCMD->setText(0, "Command-line Arguments");
-    pLauncherParent->addChild(pLauncherCMD);
+    QTreeWidgetItem *launcher_arguments_item = new QTreeWidgetItem();
+    launcher_arguments_item->setText(0, "Command-line Arguments");
+    launcher_parent->addChild(launcher_arguments_item);
 
-    pLaunchArguments = new QLineEdit();
-    pLaunchArguments->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    pLaunchArguments->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(pLauncherCMD, 1, pLaunchArguments);
-    connect(pLaunchArguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
+    launch_arguments = new QLineEdit();
+    launch_arguments->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launch_arguments->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_arguments_item, 1, launch_arguments);
+    connect(launch_arguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
 
     // Comming soon
     //    pButton = new QPushButton();
@@ -828,21 +828,21 @@ void MainWindow::SetupLaunchTree() {
 
     //////////////////////////////////////////////////////////////////
     // LOG FILE
-    QTreeWidgetItem *pLauncherLogFile = new QTreeWidgetItem();
-    pLauncherLogFile->setText(0, "Output Log");
-    pLauncherParent->addChild(pLauncherLogFile);
+    QTreeWidgetItem *launcher_log_file_item = new QTreeWidgetItem();
+    launcher_log_file_item->setText(0, "Output Log");
+    launcher_parent->addChild(launcher_log_file_item);
 
-    pLaunchLogFileEdit = new QLineEdit();
-    pLaunchLogFileEdit->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    pLaunchLogFileEdit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(pLauncherLogFile, 1, pLaunchLogFileEdit);
+    launcher_log_file_edit = new QLineEdit();
+    launcher_log_file_edit->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_log_file_edit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_log_file_item, 1, launcher_log_file_edit);
 
-    pLaunchLogFilebutton = new QPushButton();
-    pLaunchLogFilebutton->setText("...");
-    pLaunchLogFilebutton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    pLaunchLogFilebutton->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    ui_->launchTree->setItemWidget(pLauncherLogFile, 2, pLaunchLogFilebutton);
-    connect(pLaunchLogFilebutton, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
+    launcher_log_file_button = new QPushButton();
+    launcher_log_file_button->setText("...");
+    launcher_log_file_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    launcher_log_file_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+    ui_->launchTree->setItemWidget(launcher_log_file_item, 2, launcher_log_file_button);
+    connect(launcher_log_file_button, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
 
     //////////////////////////////////////////////////////////////////
     ui_->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
@@ -853,7 +853,7 @@ void MainWindow::SetupLaunchTree() {
         1, ui_->launchTree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
     ui_->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
 
-    ui_->launchTree->expandItem(pLauncherParent);
+    ui_->launchTree->expandItem(launcher_parent);
     ui_->launchTree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui_->launchTree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -879,20 +879,19 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
 
 ////////////////////////////////////////////////////////////////////
 void MainWindow::launchSetLogFile() {
-    int nLaunchIndex = pLaunchAppsCombo->currentIndex();
-    Q_ASSERT(nLaunchIndex >= 0);
+    int current_application_index = launcher_apps_combo->currentIndex();
+    Q_ASSERT(current_application_index >= 0);
 
-    QString logFile = QFileDialog::getSaveFileName(this, tr("Set Log File To..."), ".", tr("Log text(*.txt)"));
-
-    logFile = QDir::toNativeSeparators(logFile);
+    const QString log_file =
+        QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, tr("Set Log File To..."), ".", tr("Log text(*.txt)")));
 
     Configurator &configurator = Configurator::Get();
-    configurator.overridden_application_list[nLaunchIndex]->log_file = logFile;
+    configurator.overridden_application_list[current_application_index]->log_file = log_file;
 
-    if (logFile.isEmpty())
-        pLaunchLogFileEdit->setText("");
+    if (log_file.isEmpty())
+        launcher_log_file_edit->setText("");
     else
-        pLaunchLogFileEdit->setText(logFile);
+        launcher_log_file_edit->setText(log_file);
 
     configurator.SaveOverriddenApplicationList();
 }
@@ -902,24 +901,20 @@ void MainWindow::launchSetLogFile() {
 void MainWindow::launchItemChanged(int application_index) {
     Configurator &configurator = Configurator::Get();
 
-    if (application_index >= configurator.overridden_application_list.size()) return;
+    if (application_index < 0 || application_index >= configurator.overridden_application_list.size()) return;
 
-    if (application_index < 0) return;
-
-    pLaunchArguments->setText(configurator.overridden_application_list[application_index]->arguments);
-    pLaunchWorkingFolder->setText(configurator.overridden_application_list[application_index]->working_folder);
-    pLaunchLogFileEdit->setText(configurator.overridden_application_list[application_index]->log_file);
+    launch_arguments->setText(configurator.overridden_application_list[application_index]->arguments);
+    launcher_working->setText(configurator.overridden_application_list[application_index]->working_folder);
+    launcher_log_file_edit->setText(configurator.overridden_application_list[application_index]->log_file);
 
     configurator.SelectLaunchApplication(application_index);
     configurator.SaveSettings();
 }
 
 /////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::launchArgsEdited
-/// \param newText
 /// New command line arguments. Update them.
 void MainWindow::launchArgsEdited(const QString &arguments) {
-    int application_index = pLaunchAppsCombo->currentIndex();
+    int application_index = launcher_apps_combo->currentIndex();
     if (application_index < 0) return;
 
     Configurator &configurator = Configurator::Get();
@@ -961,37 +956,37 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Create context menu here
             QMenu menu(ui_->profileTree);
 
-            QAction *pNewAction = new QAction("New Layers Configuration...");
-            pNewAction->setEnabled(true);
-            menu.addAction(pNewAction);
+            QAction *new_action = new QAction("New Layers Configuration...");
+            new_action->setEnabled(true);
+            menu.addAction(new_action);
 
-            QAction *pDuplicateAction = new QAction("Duplicate the Layers Configuration");
-            pDuplicateAction->setEnabled(item != nullptr);
-            menu.addAction(pDuplicateAction);
+            QAction *duplicate_action = new QAction("Duplicate the Layers Configuration");
+            duplicate_action->setEnabled(item != nullptr);
+            menu.addAction(duplicate_action);
 
-            QAction *pRemoveAction = new QAction("Remove the Layers Configuration");
-            pRemoveAction->setEnabled(item != nullptr);
-            menu.addAction(pRemoveAction);
+            QAction *remove_action = new QAction("Remove the Layers Configuration");
+            remove_action->setEnabled(item != nullptr);
+            menu.addAction(remove_action);
 
-            QAction *pRenameAction = new QAction("Rename the Layers Configuration");
-            pRenameAction->setEnabled(item != nullptr);
-            menu.addAction(pRenameAction);
-
-            menu.addSeparator();
-
-            QAction *pImportAction = new QAction("Import a Layers Configuration...");
-            pImportAction->setEnabled(true);
-            menu.addAction(pImportAction);
-
-            QAction *pExportAction = new QAction("Export the Layers Configuration...");
-            pExportAction->setEnabled(item != nullptr);
-            menu.addAction(pExportAction);
+            QAction *rename_action = new QAction("Rename the Layers Configuration");
+            rename_action->setEnabled(item != nullptr);
+            menu.addAction(rename_action);
 
             menu.addSeparator();
 
-            QAction *pCustomPathAction = new QAction("Edit Layers Custom Path...");
-            pCustomPathAction->setEnabled(true);
-            menu.addAction(pCustomPathAction);
+            QAction *import_action = new QAction("Import a Layers Configuration...");
+            import_action->setEnabled(true);
+            menu.addAction(import_action);
+
+            QAction *export_action = new QAction("Export the Layers Configuration...");
+            export_action->setEnabled(item != nullptr);
+            menu.addAction(export_action);
+
+            menu.addSeparator();
+
+            QAction *custom_path_action = new QAction("Edit Layers Custom Path...");
+            custom_path_action->setEnabled(true);
+            menu.addAction(custom_path_action);
 
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
@@ -1001,7 +996,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // all of these just seemed ridiculous. Every problem is not a nail,
             // put the hammer away....
             // New Profile...
-            if (action == pNewAction) {
+            if (action == new_action) {
                 settings_tree_manager_.CleanupGUI();
                 NewClicked();
                 ui_->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -1009,7 +1004,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             }
 
             // Duplicate
-            if (action == pDuplicateAction) {
+            if (action == duplicate_action) {
                 settings_tree_manager_.CleanupGUI();
                 DuplicateClicked(item);
                 settings_tree_manager_.CleanupGUI();
@@ -1018,7 +1013,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             }
 
             // Remove this profile....
-            if (action == pRemoveAction) {
+            if (action == remove_action) {
                 settings_tree_manager_.CleanupGUI();
                 RemoveClicked(item);
                 ui_->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -1026,7 +1021,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             }
 
             // Rename this profile...
-            if (action == pRenameAction) {
+            if (action == rename_action) {
                 RenameClicked(item);
                 settings_tree_manager_.CleanupGUI();
                 ui_->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -1034,7 +1029,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             }
 
             // Export this profile (copy the .json)
-            if (action == pExportAction) {
+            if (action == export_action) {
                 settings_tree_manager_.CleanupGUI();
                 ExportClicked(item);
                 ui_->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -1042,7 +1037,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             }
 
             // Import a profile (copy a json)
-            if (action == pImportAction) {
+            if (action == import_action) {
                 settings_tree_manager_.CleanupGUI();
                 ImportClicked(item);
                 ui_->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -1050,7 +1045,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             }
 
             // Edit Layer custom paths
-            if (action == pCustomPathAction) {
+            if (action == custom_path_action) {
                 settings_tree_manager_.CleanupGUI();
                 EditCustomPathsClicked(item);
                 ui_->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -1090,7 +1085,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     }
 
     // Is there an app selected?
-    int nIndex = pLaunchAppsCombo->currentIndex();
+    int current_application_index = launcher_apps_combo->currentIndex();
 
     // Launch the test application
     launch_application_ = new QProcess(this);
@@ -1101,11 +1096,11 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     connect(launch_application_, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
     Configurator &configurator = Configurator::Get();
-    launch_application_->setProgram(configurator.overridden_application_list[nIndex]->executable_path);
-    launch_application_->setWorkingDirectory(configurator.overridden_application_list[nIndex]->working_folder);
+    launch_application_->setProgram(configurator.overridden_application_list[current_application_index]->executable_path);
+    launch_application_->setWorkingDirectory(configurator.overridden_application_list[current_application_index]->working_folder);
 
-    if (!configurator.overridden_application_list[nIndex]->arguments.isEmpty()) {
-        QStringList args = configurator.overridden_application_list[nIndex]->arguments.split(" ");
+    if (!configurator.overridden_application_list[current_application_index]->arguments.isEmpty()) {
+        const QStringList args = configurator.overridden_application_list[current_application_index]->arguments.split(" ");
         launch_application_->setArguments(args);
     }
 
@@ -1117,26 +1112,29 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     launch_application_->closeWriteChannel();
 
     // We are logging, let's add that we've launched a new application
-    QString launchLog = "Launching Vulkan Application:\n";
+    QString launch_log = "Launching Vulkan Application:\n";
 
     if (configurator.GetActiveConfiguration() == nullptr) {
-        launchLog += QString().asprintf("- Layers fully controlled by the application.\n");
+        launch_log += QString().asprintf("- Layers fully controlled by the application.\n");
     } else if (!configurator.GetActiveConfiguration()->IsValid()) {
-        launchLog += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
-                                        configurator.GetActiveConfiguration()->name.toUtf8().constData());
+        launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
+                                         configurator.GetActiveConfiguration()->name.toUtf8().constData());
     } else if (configurator.override_active) {
-        launchLog += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
-                                        configurator.GetActiveConfiguration()->name.toUtf8().constData());
+        launch_log += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
+                                         configurator.GetActiveConfiguration()->name.toUtf8().constData());
     }
 
-    launchLog += QString().asprintf("- Executable Path: %s\n",
-                                    configurator.overridden_application_list[nIndex]->executable_path.toUtf8().constData());
-    launchLog += QString().asprintf("- Working Directory: %s\n",
-                                    configurator.overridden_application_list[nIndex]->working_folder.toUtf8().constData());
-    launchLog += QString().asprintf("- Command-line Arguments: %s\n",
-                                    configurator.overridden_application_list[nIndex]->arguments.toUtf8().constData());
+    launch_log += QString().asprintf(
+        "- Executable Path: %s\n",
+        configurator.overridden_application_list[current_application_index]->executable_path.toUtf8().constData());
+    launch_log += QString().asprintf(
+        "- Working Directory: %s\n",
+        configurator.overridden_application_list[current_application_index]->working_folder.toUtf8().constData());
+    launch_log +=
+        QString().asprintf("- Command-line Arguments: %s\n",
+                           configurator.overridden_application_list[current_application_index]->arguments.toUtf8().constData());
 
-    if (!configurator.overridden_application_list[nIndex]->log_file.isEmpty()) {
+    if (!configurator.overridden_application_list[current_application_index]->log_file.isEmpty()) {
         // This should never happen... but things that should never happen do in
         // fact happen... so just a sanity check.
         if (log_file_ != nullptr) {
@@ -1145,13 +1143,13 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         }
 
         // Start logging
-        log_file_ = new QFile(configurator.overridden_application_list[nIndex]->log_file);
+        log_file_ = new QFile(configurator.overridden_application_list[current_application_index]->log_file);
 
         // Open and append, or open and truncate?
         QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
         if (!ui_->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
 
-        if (!configurator.overridden_application_list[nIndex]->log_file.isEmpty()) {
+        if (!configurator.overridden_application_list[current_application_index]->log_file.isEmpty()) {
             if (!log_file_->open(mode)) {
                 QMessageBox err;
                 err.setText(tr("Cannot open log file"));
@@ -1163,12 +1161,12 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         }
 
         if (log_file_) {
-            log_file_->write((launchLog + "\n").toUtf8().constData(), launchLog.length());
+            log_file_->write((launch_log + "\n").toUtf8().constData(), launch_log.length());
         }
     }
 
     if (ui_->checkBoxClearOnLaunch->isChecked()) ui_->logBrowser->clear();
-    ui_->logBrowser->append(launchLog);
+    ui_->logBrowser->append(launch_log);
     ui_->pushButtonClearLog->setEnabled(true);
 
     // Wait... did we start? Give it 4 seconds, more than enough time
@@ -1178,7 +1176,8 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         launch_application_ = nullptr;
 
         QString outFailed = QString().asprintf(
-            "Failed to launch %s!\n", configurator.overridden_application_list[nIndex]->executable_path.toUtf8().constData());
+            "Failed to launch %s!\n",
+            configurator.overridden_application_list[current_application_index]->executable_path.toUtf8().constData());
 
         ui_->logBrowser->append(outFailed);
         if (log_file_) log_file_->write(outFailed.toUtf8().constData(), outFailed.length());
@@ -1230,22 +1229,22 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
 void MainWindow::standardOutputAvailable() {
     if (launch_application_ == nullptr) return;
 
-    QString inFromApp = launch_application_->readAllStandardOutput();
-    ui_->logBrowser->append(inFromApp);
+    QString log = launch_application_->readAllStandardOutput();
+    ui_->logBrowser->append(log);
     ui_->pushButtonClearLog->setEnabled(true);
 
     // Are we logging?
-    if (log_file_) log_file_->write(inFromApp.toUtf8().constData(), inFromApp.length());
+    if (log_file_) log_file_->write(log.toUtf8().constData(), log.length());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void MainWindow::errorOutputAvailable() {
     if (launch_application_ == nullptr) return;
 
-    QString inFromApp = launch_application_->readAllStandardError();
-    ui_->logBrowser->append(inFromApp);
+    QString log = launch_application_->readAllStandardError();
+    ui_->logBrowser->append(log);
     ui_->pushButtonClearLog->setEnabled(true);
 
     // Are we logging?
-    if (log_file_) log_file_->write(inFromApp.toUtf8().constData(), inFromApp.length());
+    if (log_file_) log_file_->write(log.toUtf8().constData(), log.length());
 }

@@ -85,13 +85,13 @@ class MainWindow : public QMainWindow {
     ContigurationListItem *selected_configuration_item_;
     ContigurationListItem *GetCheckedItem();
 
-    QComboBox *pLaunchAppsCombo;
-    QLineEdit *pLaunchArguments;
-    QLineEdit *pLaunchWorkingFolder;
-    QLineEdit *pLaunchLogFileEdit;
-    QPushButton *pLuanchAppBrowseButton;
+    QComboBox *launcher_apps_combo;
+    QLineEdit *launch_arguments;
+    QLineEdit *launcher_working;
+    QLineEdit *launcher_log_file_edit;
+    QPushButton *launcher_apps_browse_button;
     QPushButton *pLaunchWorkingFolderButton;
-    QPushButton *pLaunchLogFilebutton;
+    QPushButton *launcher_log_file_button;
 
     void ResetLaunchOptions();
 
