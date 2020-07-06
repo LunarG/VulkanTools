@@ -26,39 +26,39 @@ VUIDSearchWidget::VUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     int nNumElements = sizeof(vuids) / sizeof(vuids[0]);
     for (int i = 0; i < nNumElements; i++) list << vuids[i];
 
-    pUserBox = new QComboBox(this);
-    pUserBox->setEditable(true);
-    pUserBox->setFocusPolicy(Qt::StrongFocus);
-    pUserBox->addItems(list);
+    user_box_ = new QComboBox(this);
+    user_box_->setEditable(true);
+    user_box_->setFocusPolicy(Qt::StrongFocus);
+    user_box_->addItems(list);
 
-    pSearchMe = new QCompleter(list, this);
-    pSearchMe->setCaseSensitivity(Qt::CaseSensitive);
+    search_vuid_ = new QCompleter(list, this);
+    search_vuid_->setCaseSensitivity(Qt::CaseSensitive);
 
-    pSearchMe->setCompletionMode(QCompleter::PopupCompletion);
-    pSearchMe->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-    pSearchMe->setFilterMode(Qt::MatchContains);
-    pSearchMe->setMaxVisibleItems(15);
-    pSearchMe->setCaseSensitivity(Qt::CaseInsensitive);
+    search_vuid_->setCompletionMode(QCompleter::PopupCompletion);
+    search_vuid_->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    search_vuid_->setFilterMode(Qt::MatchContains);
+    search_vuid_->setMaxVisibleItems(15);
+    search_vuid_->setCaseSensitivity(Qt::CaseInsensitive);
 
-    pUserBox->setCompleter(pSearchMe);
-    pUserBox->show();
-    pUserBox->setCurrentText("");
+    user_box_->setCompleter(search_vuid_);
+    user_box_->show();
+    user_box_->setCurrentText("");
 
-    pUserBox->installEventFilter(this);
+    user_box_->installEventFilter(this);
 
-    connect(pUserBox, SIGNAL(currentIndexChanged(int)), this, SLOT(itemSelected(int)));
+    connect(user_box_, SIGNAL(currentIndexChanged(int)), this, SLOT(itemSelected(int)));
 }
 
 void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
     QSize parentSize = event->size();
-    pUserBox->setGeometry(0, 0, parentSize.width() - 2, parentSize.height());
+    user_box_->setGeometry(0, 0, parentSize.width() - 2, parentSize.height());
 }
 
 ///////////////////////////////////////////////////////////////////////
 // Emit a signal so we can send this to the list box
 void VUIDSearchWidget::itemSelected(int nIndex) {
     emit itemSelected(list[nIndex]);
-    pUserBox->setCurrentText("");
+    user_box_->setCurrentText("");
 }
 
 // Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's
@@ -69,5 +69,5 @@ bool VUIDSearchWidget::eventFilter(QObject *target, QEvent *event) {
         return true;
     }
 
-    return pUserBox->eventFilter(target, event);
+    return user_box_->eventFilter(target, event);
 }

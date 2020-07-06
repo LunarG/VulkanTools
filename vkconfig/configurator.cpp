@@ -1204,62 +1204,62 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
             QJsonObject setting;
             LayerSettings *layer_settings = pLayer->layer_settings[setting_index];
 
-            setting.insert("name", layer_settings->settingsPrompt);
-            setting.insert("description", layer_settings->settingsDesc);
+            setting.insert("name", layer_settings->settings_prompt);
+            setting.insert("description", layer_settings->settings_desc);
 
-            switch (layer_settings->settingsType) {
+            switch (layer_settings->settings_type) {
                 case LAYER_SETTINGS_STRING:
                     setting.insert("type", "string");
-                    setting.insert("default", layer_settings->settingsValue);
+                    setting.insert("default", layer_settings->settings_value);
                     break;
 
                 case LAYER_SETTINGS_FILE:
                     setting.insert("type", "save_file");
-                    setting.insert("default", layer_settings->settingsValue);
+                    setting.insert("default", layer_settings->settings_value);
                     break;
 
                 case LAYER_SETTINGS_SAVE_FOLDER:
                     setting.insert("type", "save_folder");
-                    setting.insert("default", layer_settings->settingsValue);
+                    setting.insert("default", layer_settings->settings_value);
                     break;
 
                 case LAYER_SETTINGS_BOOL:
                     setting.insert("type", "bool");
-                    setting.insert("default", layer_settings->settingsValue);
+                    setting.insert("default", layer_settings->settings_value);
                     break;
 
                 case LAYER_SETTINGS_BOOL_NUMERIC:
                     setting.insert("type", "bool_numeric");
-                    setting.insert("default", layer_settings->settingsValue);
+                    setting.insert("default", layer_settings->settings_value);
                     break;
 
                 case LAYER_SETTINGS_VUID_FILTER:
                     setting.insert("type", "vuid_exclude");
-                    setting.insert("default", layer_settings->settingsValue);
+                    setting.insert("default", layer_settings->settings_value);
                     break;
 
                 case LAYER_SETTINGS_EXCLUSIVE_LIST: {
                     setting.insert("type", "enum");
-                    setting.insert("default", layer_settings->settingsValue);
+                    setting.insert("default", layer_settings->settings_value);
 
                     QJsonObject options;
-                    for (int i = 0; i < layer_settings->settingsListExclusivePrompt.size(); i++)
-                        options.insert(layer_settings->settingsListExclusiveValue[i],
-                                       layer_settings->settingsListExclusivePrompt[i]);
+                    for (int i = 0; i < layer_settings->settings_list_exclusive_prompt.size(); i++)
+                        options.insert(layer_settings->settings_list_exclusive_value[i],
+                                       layer_settings->settings_list_exclusive_prompt[i]);
                     setting.insert("options", options);
                 } break;
 
                 case LAYER_SETTINGS_INCLUSIVE_LIST: {
                     setting.insert("type", "multi_enum");
                     QJsonObject options;
-                    for (int i = 0; i < layer_settings->settingsListInclusivePrompt.size(); i++)
-                        options.insert(layer_settings->settingsListInclusiveValue[i],
-                                       layer_settings->settingsListInclusivePrompt[i]);
+                    for (int i = 0; i < layer_settings->settings_list_inclusive_prompt.size(); i++)
+                        options.insert(layer_settings->settings_list_inclusive_value[i],
+                                       layer_settings->settings_list_inclusive_prompt[i]);
                     setting.insert("options", options);
 
                     QJsonArray defaults;
-                    if (!layer_settings->settingsValue.isEmpty()) {
-                        QStringList list = layer_settings->settingsValue.split(",");
+                    if (!layer_settings->settings_value.isEmpty()) {
+                        QStringList list = layer_settings->settings_value.split(",");
                         for (int i = 0; i < list.size(); i++) defaults.append(list[i]);
                     }
 
@@ -1278,7 +1278,7 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
                     setting.insert("default", "unknown data");
             }
 
-            json_settings.insert(layer_settings->settingsName, setting);
+            json_settings.insert(layer_settings->settings_name, setting);
         }
 
         layer_list.insert(pLayer->name, json_settings);
@@ -1414,12 +1414,12 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 
         for (int setting_index = 0; setting_index < layer_file->layer_settings.size(); setting_index++) {
             LayerSettings *layer_settings = layer_file->layer_settings[setting_index];
-            stream << lc_layer_name << "." << layer_settings->settingsName << " = " << layer_settings->settingsValue << endl;
+            stream << lc_layer_name << "." << layer_settings->settings_name << " = " << layer_settings->settings_value << endl;
 
             // Temporary hack due to a gfxrecontruct bug for 2020 July SDK only. Remove after that release.
             if (lc_layer_name == QString("lunarg_gfxreconstruct"))
                 stream << "lunarg_gfxrecon"
-                       << "." << layer_settings->settingsName << " = " << layer_settings->settingsValue << endl;
+                       << "." << layer_settings->settings_name << " = " << layer_settings->settings_value << endl;
         }
     }
     file.close();
@@ -1522,12 +1522,12 @@ void Configurator::PushConfiguration(Configuration *pNew) {
     for (int layer_index = 0; layer_index < copy->layers.size(); layer_index++) {  // For each layer
         for (int setting_index = 0; setting_index < copy->layers[layer_index]->layer_settings.size(); setting_index++) {
             // Change to stdout if not already so it will get captured.
-            if (copy->layers[layer_index]->layer_settings[setting_index]->settingsName == QString("log_filename"))
-                copy->layers[layer_index]->layer_settings[setting_index]->settingsValue = QString("stdout");
+            if (copy->layers[layer_index]->layer_settings[setting_index]->settings_name == QString("log_filename"))
+                copy->layers[layer_index]->layer_settings[setting_index]->settings_value = QString("stdout");
 
             // API Dump also has this setting
-            if (copy->layers[layer_index]->layer_settings[setting_index]->settingsName == QString("file"))
-                copy->layers[layer_index]->layer_settings[setting_index]->settingsValue = QString("false");
+            if (copy->layers[layer_index]->layer_settings[setting_index]->settings_name == QString("file"))
+                copy->layers[layer_index]->layer_settings[setting_index]->settings_value = QString("false");
         }
     }
 

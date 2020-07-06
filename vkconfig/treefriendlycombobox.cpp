@@ -22,9 +22,9 @@
 
 #include "treefriendlycombobox.h"
 TreeFriendlyComboBox::TreeFriendlyComboBox(QTreeWidgetItem *pItem) : QComboBox() {
-    pTreeWidget = pItem;
+    tree_widget_ = pItem;
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
 ///////////////////////////////////////////////////////////////////
-void TreeFriendlyComboBox::indexChanged(int nIndex) { emit selectionMade(pTreeWidget, nIndex); }
+void TreeFriendlyComboBox::indexChanged(int nIndex) { emit selectionMade(tree_widget_, nIndex); }

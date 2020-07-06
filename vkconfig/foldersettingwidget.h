@@ -1,5 +1,3 @@
-#ifndef CFOLDERSETTINGWIDGET_H
-#define CFOLDERSETTINGWIDGET_H
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -16,10 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
+
+#include "layerfile.h"
 
 #include <QWidget>
 #include <QTreeWidgetItem>
@@ -28,25 +30,22 @@
 #include <QResizeEvent>
 #include <QFileDialog>
 
-#include "layerfile.h"
-
 class FolderSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit FolderSettingWidget(QTreeWidgetItem *pItem, LayerSettings *pLayerSetting);
+    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSettings *layer_settings);
 
     virtual void resizeEvent(QResizeEvent *event) override;
 
-    LayerSettings *pSetting;
-    QLineEdit *pLineEdit;
-    QPushButton *pPushButton;
+   private:
+    LayerSettings *layer_settings_;
+    QLineEdit *line_edit_;
+    QPushButton *push_button_;
 
    public Q_SLOTS:
-    void browseButtonClicked(void);
-    void textFieldChanged(const QString &newText);
+    void browseButtonClicked();
+    void textFieldChanged(const QString &new_text);
 
    Q_SIGNALS:
-    void itemChanged(void);
+    void itemChanged();
 };
-
-#endif  // CFOLDERSETTINGWIDGET_H

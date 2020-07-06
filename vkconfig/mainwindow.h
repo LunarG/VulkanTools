@@ -21,6 +21,12 @@
 
 #pragma once
 
+#include "configurator.h"
+#include "settingstreemanager.h"
+#include "dlgvulkananalysis.h"
+#include "dlgvulkaninfo.h"
+#include "dlghelp.h"
+
 #include <QVector>
 #include <QMainWindow>
 #include <QListWidgetItem>
@@ -29,12 +35,6 @@
 #include <QShowEvent>
 #include <QResizeEvent>
 #include <QProcess>
-
-#include "configurator.h"
-#include "settingstreemanager.h"
-#include "dlgvulkananalysis.h"
-#include "dlgvulkaninfo.h"
-#include "dlghelp.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -76,12 +76,12 @@ class MainWindow : public QMainWindow {
 
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-    dlgVulkanAnalysis *pVKVia;
-    dlgVulkanInfo *pVulkanInfo;
-    dlgHelp *pDlgHelp;
+    dlgVulkanAnalysis *vk_via_;
+    dlgVulkanInfo *vk_info_;
+    dlgHelp *help_;
 
    private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui_;
     ContigurationListItem *selected_configuration_item_;
     ContigurationListItem *GetCheckedItem();
 

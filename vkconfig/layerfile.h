@@ -51,17 +51,17 @@ typedef enum {
 // This structure is copied by assignment elsewhere, so do not add
 // any pointers to it please...
 struct LayerSettings {
-    QString settingsName;                     // Name of the setting the layer looks for (programatic variable name)
-    QString settingsPrompt;                   // Short name to prompt end user
-    QString settingsDesc;                     // Human version, describes the setting
-    LayerSettingsType settingsType;          // The data type
-    QVariant settingsMaxValue;                // For range based
-    QVariant settingsMinValue;                // For range based
-    QStringList settingsListExclusiveValue;   // List of exclusive items
-    QStringList settingsListExclusivePrompt;  // List of exclusive item prompts
-    QStringList settingsListInclusiveValue;   // List of non-exclusive items (more than one item can be selected)
-    QStringList settingsListInclusivePrompt;  // List of non-exclusive item prompts (more than one item can be selected)
-    QString settingsValue;                    // Default value as a string
+    QString settings_name;                       // Name of the setting the layer looks for (programatic variable name)
+    QString settings_prompt;                     // Short name to prompt end user
+    QString settings_desc;                       // Human version, describes the setting
+    LayerSettingsType settings_type;             // The data type
+    QVariant settings_max_value;                 // For range based
+    QVariant settings_min_value;                 // For range based
+    QStringList settings_list_exclusive_value;   // List of exclusive items
+    QStringList settings_list_exclusive_prompt;  // List of exclusive item prompts
+    QStringList settings_list_inclusive_value;   // List of non-exclusive items (more than one item can be selected)
+    QStringList settings_list_inclusive_prompt;  // List of non-exclusive item prompts (more than one item can be selected)
+    QString settings_value;                      // Default value as a string
 };
 
 void RemoveString(QString& delimitedString, QString value);
@@ -87,7 +87,7 @@ class LayerFile : public QObject {
     // layer doens't have any settings.
     QVector<LayerSettings*> layer_settings;
 
-    bool enabled;    // When used in a profile, is this one active?
+    bool enabled;   // When used in a profile, is this one active?
     bool disabled;  // When used in a profile, is this one disabled?
     int rank;       // When used in a profile, what is the rank? (0 being first layer)
 

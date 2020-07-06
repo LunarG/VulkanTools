@@ -21,22 +21,23 @@
 
 #pragma once
 
+#include "layerfile.h"
+
 #include <QObject>
 #include <QWidget>
 #include <QComboBox>
 #include <QTreeWidgetItem>
-#include "layerfile.h"
 
 class EnumSettingWidget : public QComboBox {
     Q_OBJECT
    public:
-    EnumSettingWidget(QTreeWidgetItem *pTreeItem, LayerSettings *pLayerSetting);
+    EnumSettingWidget(QTreeWidgetItem *item, LayerSettings *layer_settings);
 
    private:
-    LayerSettings *pSetting;
+    LayerSettings *layer_settings_;
 
    public Q_SLOTS:
-    void indexChanged(int nIndex);
+    void indexChanged(int index);
 
    Q_SIGNALS:
     void itemChanged();

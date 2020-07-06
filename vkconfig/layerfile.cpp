@@ -161,17 +161,17 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
         if (settingsNames[iSetting] == QString("layer_path")) continue;
 
         LayerSettings* pLayerSettings = new LayerSettings;
-        pLayerSettings->settingsName = settingsNames[iSetting];
+        pLayerSettings->settings_name = settingsNames[iSetting];
 
         QJsonValue settingValue = layerSettingsDescriptors.value(settingsNames[iSetting]);
         QJsonObject settingObject = settingValue.toObject();
 
         // The easy stuff...
         QJsonValue value = settingObject.value("description");
-        pLayerSettings->settingsDesc = value.toString();
+        pLayerSettings->settings_desc = value.toString();
 
         value = settingObject.value("name");
-        pLayerSettings->settingsPrompt = value.toString();
+        pLayerSettings->settings_prompt = value.toString();
 
         // This is either a single value, or a comma delimted set of strings
         // selected from a nonexclusive list
@@ -179,12 +179,12 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
         if (value.isArray()) {
             QJsonArray array = value.toArray();
             for (int a = 0; a < array.size(); a++) {
-                pLayerSettings->settingsValue += array[a].toString();
-                if (a != array.size() - 1) pLayerSettings->settingsValue += ",";
+                pLayerSettings->settings_value += array[a].toString();
+                if (a != array.size() - 1) pLayerSettings->settings_value += ",";
             }
 
         } else
-            pLayerSettings->settingsValue = value.toString();
+            pLayerSettings->settings_value = value.toString();
 
         ///////////////////////////////////////////////////////////////////////
         // Everything from here down revolves around the data type
@@ -194,7 +194,7 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
         QString typeString = value.toString();
         ///////////////////////////////////////////////// Exclusive Enums
         if (typeString == QString("enum")) {
-            pLayerSettings->settingsType = LAYER_SETTINGS_EXCLUSIVE_LIST;
+            pLayerSettings->settings_type = LAYER_SETTINGS_EXCLUSIVE_LIST;
 
             // Now we have a list of options, both the enum for the settings file, and the prompts
             value = settingObject.value("options");
@@ -202,8 +202,8 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
             QStringList keys, values;
             keys = object.keys();
             for (int v = 0; v < keys.size(); v++) {
-                pLayerSettings->settingsListExclusiveValue << keys[v];
-                pLayerSettings->settingsListExclusivePrompt << object.value(keys[v]).toString();
+                pLayerSettings->settings_list_exclusive_value << keys[v];
+                pLayerSettings->settings_list_exclusive_prompt << object.value(keys[v]).toString();
             }
 
             layers.push_back(pLayerSettings);
@@ -212,7 +212,7 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
 
         /////////////////////////////////////////////////// Pick one or more from a list
         if (typeString == QString("multi_enum")) {
-            pLayerSettings->settingsType = LAYER_SETTINGS_INCLUSIVE_LIST;
+            pLayerSettings->settings_type = LAYER_SETTINGS_INCLUSIVE_LIST;
 
             // Now we have a list of options, both the enum for the settings file, and the prompts
             value = settingObject.value("options");
@@ -220,8 +220,8 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
             QStringList keys, values;
             keys = object.keys();
             for (int v = 0; v < keys.size(); v++) {
-                pLayerSettings->settingsListInclusiveValue << keys[v];
-                pLayerSettings->settingsListInclusivePrompt << object.value(keys[v]).toString();
+                pLayerSettings->settings_list_inclusive_value << keys[v];
+                pLayerSettings->settings_list_inclusive_prompt << object.value(keys[v]).toString();
             }
 
             layers.push_back(pLayerSettings);
@@ -230,41 +230,41 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
 
         ////////////////////////////////////////////////////// Select a file. Nice and simple
         if (typeString == QString("save_file")) {
-            pLayerSettings->settingsType = LAYER_SETTINGS_FILE;
+            pLayerSettings->settings_type = LAYER_SETTINGS_FILE;
             layers.push_back(pLayerSettings);
             continue;
         }
 
         ////////////////////////////////////////////////////// Folder to put screen shots in
         if (typeString == QString("save_folder")) {
-            pLayerSettings->settingsType = LAYER_SETTINGS_SAVE_FOLDER;
+            pLayerSettings->settings_type = LAYER_SETTINGS_SAVE_FOLDER;
             layers.push_back(pLayerSettings);
             continue;
         }
 
         ////////////////////////////////////////////////////// Bool, also nice and simple ("true"/"false")
         if (typeString == QString("bool")) {
-            pLayerSettings->settingsType = LAYER_SETTINGS_BOOL;
+            pLayerSettings->settings_type = LAYER_SETTINGS_BOOL;
             layers.push_back(pLayerSettings);
             continue;
         }
 
         //////////////////////////////////////////////////// Bool, but written out as 0 or 1
         if (typeString == QString("bool_numeric")) {
-            pLayerSettings->settingsType = LAYER_SETTINGS_BOOL_NUMERIC;
+            pLayerSettings->settings_type = LAYER_SETTINGS_BOOL_NUMERIC;
             layers.push_back(pLayerSettings);
             continue;
         }
 
         //////////////////////////////////////////////////// VUID Filter List
         if (typeString == QString("vuid_exclude")) {
-            pLayerSettings->settingsType = LAYER_SETTINGS_VUID_FILTER;
+            pLayerSettings->settings_type = LAYER_SETTINGS_VUID_FILTER;
             layers.push_back(pLayerSettings);
             continue;
         }
 
         ////////////////////////////////////////////////////// Just a string please
-        if (typeString == QString("string")) pLayerSettings->settingsType = LAYER_SETTINGS_STRING;
+        if (typeString == QString("string")) pLayerSettings->settings_type = LAYER_SETTINGS_STRING;
 
         layers.push_back(pLayerSettings);
     }

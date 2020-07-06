@@ -44,7 +44,7 @@ class dlgVulkanAnalysis : public QDialog {
     void RunTool();
 
    private:
-    void LoadTable(QJsonObject& jsonParent, QTableWidget* pTable);
+    void LoadTable(QJsonObject& json_parent, QTableWidget* table);
 
-    Ui::dlgVulkanAnalysis* ui;
+    Ui::dlgVulkanAnalysis* ui_;
 };

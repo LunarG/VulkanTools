@@ -37,11 +37,11 @@ class dlgProfileEditor : public QDialog {
     Q_OBJECT
 
    public:
-    explicit dlgProfileEditor(QWidget *parent, Configuration *pProfileToEdit);
+    explicit dlgProfileEditor(QWidget *parent, Configuration *configuration);
     ~dlgProfileEditor();
 
     // Load all layers into the list box
-    void LoadLayerDisplay(int nSelection = -1);
+    void LoadLayerDisplay(int selection = -1);
 
    private:
     Ui::dlgProfileEditor *ui_;
@@ -51,16 +51,16 @@ class dlgProfileEditor : public QDialog {
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;
 
-    void AddMissingLayers(Configuration *pProfile);
+    void AddMissingLayers(Configuration *configuration);
 
     void PopulateCustomTree();
 
    public Q_SLOTS:
     virtual void accept() override;
 
-    void currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
+    void currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
-    void customTreeItemActivated(QTreeWidgetItem *pItem, int nColumn);
+    void customTreeItemActivated(QTreeWidgetItem *item, int column);
 
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonAddLayers_clicked();
@@ -69,5 +69,5 @@ class dlgProfileEditor : public QDialog {
     void on_toolButtonUp_clicked();
     void on_toolButtonDown_clicked();
 
-    void layerUseChanged(QTreeWidgetItem *pItem, int nSelection);
+    void layerUseChanged(QTreeWidgetItem *item, int selection);
 };

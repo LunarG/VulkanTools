@@ -38,14 +38,14 @@ class dlgCreateAssociation : public QDialog {
     ~dlgCreateAssociation();
 
     static void GetExecutableFromAppBundle(QString &path);
-    int GetSelectedLaunchApplicationIndex() const { return last_selected_application_index; }
+    int GetSelectedLaunchApplicationIndex() const { return last_selected_application_index_; }
 
    private:
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     Ui::dlgCreateAssociation *ui_;
-    int last_selected_application_index;
+    int last_selected_application_index_;
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();                                                // Pick the application

@@ -28,14 +28,14 @@
 class TreeFriendlyComboBox : public QComboBox {
     Q_OBJECT
    public:
-    TreeFriendlyComboBox(QTreeWidgetItem *pItem);
+    TreeFriendlyComboBox(QTreeWidgetItem *item);
 
    protected:
-    QTreeWidgetItem *pTreeWidget;
+    QTreeWidgetItem *tree_widget_;
 
    public Q_SLOTS:
     void indexChanged(int nIndex);
 
    Q_SIGNALS:
-    void selectionMade(QTreeWidgetItem *pTreeItem, int nIndex);
+    void selectionMade(QTreeWidgetItem *tree_item, int index);
 };

@@ -31,12 +31,12 @@ class Configuration {
     Configuration();
     ~Configuration();
 
-    QString name;                 // User readable display of the profile name (may contain spaces)
-                                  // This is the same as the filename, but with the .json stripped off.
-    QString file;                 // Root file name without path (by convention, no spaces and .profile suffix)
-    QString description;          // A friendly description of what this profile does
+    QString name;                   // User readable display of the profile name (may contain spaces)
+                                    // This is the same as the filename, but with the .json stripped off.
+    QString file;                   // Root file name without path (by convention, no spaces and .profile suffix)
+    QString description;            // A friendly description of what this profile does
     QByteArray setting_tree_state;  // Recall editor tree state
-    int preset_index;             // Khronos layer presets. 0 = none or user defined
+    int preset_index;               // Khronos layer presets. 0 = none or user defined
 
     // A profile is nothing but a list of layers and their settings in truth
     QVector<LayerFile *> layers;

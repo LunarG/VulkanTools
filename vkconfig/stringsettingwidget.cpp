@@ -23,13 +23,13 @@
 
 StringSettingWidget::StringSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) {
     layer_settings_ = pLayerSetting;
-    pItem->setText(0, pLayerSetting->settingsPrompt);
-    pItem->setToolTip(0, pLayerSetting->settingsDesc);
-    this->setText(pLayerSetting->settingsValue);
+    pItem->setText(0, pLayerSetting->settings_prompt);
+    pItem->setToolTip(0, pLayerSetting->settings_desc);
+    this->setText(pLayerSetting->settings_value);
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
 void StringSettingWidget::itemEdited(const QString& newString) {
-    layer_settings_->settingsValue = newString;
+    layer_settings_->settings_value = newString;
     emit itemChanged();
 }

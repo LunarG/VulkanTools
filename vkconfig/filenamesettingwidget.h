@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "layerfile.h"
+
 #include <QWidget>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
@@ -28,19 +30,17 @@
 #include <QResizeEvent>
 #include <QFileDialog>
 
-#include "layerfile.h"
-
 class FilenameSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit FilenameSettingWidget(QTreeWidgetItem *pItem, LayerSettings *pLayerSetting);
+    explicit FilenameSettingWidget(QTreeWidgetItem *item, LayerSettings *layer_settings);
 
    private:
     virtual void resizeEvent(QResizeEvent *event) override;
 
-    LayerSettings *pSetting;
-    QLineEdit *pLineEdit;
-    QPushButton *pPushButton;
+    LayerSettings *layer_settings_;
+    QLineEdit *line_edit_;
+    QPushButton *push_button_;
 
    public Q_SLOTS:
     void browseButtonClicked();

@@ -41,21 +41,21 @@ class SettingsTreeManager : QObject {
    public:
     SettingsTreeManager();
 
-    void CreateGUI(QTreeWidget *pBuildTree, Configuration *pProfileDef);
+    void CreateGUI(QTreeWidget *pBuildTree, Configuration *configuration);
     void CleanupGUI();
 
-    void GetTreeState(QByteArray &byteArray, QTreeWidgetItem *pTopItem);
-    int SetTreeState(QByteArray &byteArray, int nIndex, QTreeWidgetItem *pTopItem);
+    void GetTreeState(QByteArray &byteArray, QTreeWidgetItem *top_item);
+    int SetTreeState(QByteArray &byteArray, int nIndex, QTreeWidgetItem *top_item);
 
    protected:
-    QTreeWidget *pEditorTree;
-    Configuration *pProfile;
-    QVector<QTreeWidgetItem *> compoundWidgets;  // These have special cleanup requirements
+    QTreeWidget *configuration_settings_tree_;
+    Configuration *configuration_;
+    QVector<QTreeWidgetItem *> compound_widgets_;  // These have special cleanup requirements
 
     void BuildKhronosTree();
-    void BuildGenericTree(QTreeWidgetItem *pParent, LayerFile *pLayer);
+    void BuildGenericTree(QTreeWidgetItem *parent, LayerFile *layer_file);
 
-    QVector<QTreeWidgetItem *> layerItems;  // These parallel the  profiles layers
+    QVector<QTreeWidgetItem *> layer_items_;  // These parallel the  profiles layers
 
     QComboBox *pKhronosPresets;
     LayerFile *pKhronosLayer;
@@ -78,6 +78,6 @@ class SettingsTreeManager : QObject {
     void khronosPresetChanged(int nIndex);  // Okay, is this a custom guy HERE, or do we move it out
                                             // It really forces a reload of the entire branch of this tree
                                             // Reset layer defaults for the profile, and then call BuildKhronosTree again
-    void khronosPresetEdited();         // The user has changed something from a preset, and we are now a custom setting
-    void profileEdited();               // The profile has been edited and should be saved
+    void khronosPresetEdited();             // The user has changed something from a preset, and we are now a custom setting
+    void profileEdited();                   // The profile has been edited and should be saved
 };

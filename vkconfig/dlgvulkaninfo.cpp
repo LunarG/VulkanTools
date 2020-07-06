@@ -35,15 +35,15 @@
 #include <QMessageBox>
 #include <QStringList>
 
-dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanInfo) {
-    ui->setupUi(this);
+dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgVulkanInfo) {
+    ui_->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-dlgVulkanInfo::~dlgVulkanInfo() { delete ui; }
+dlgVulkanInfo::~dlgVulkanInfo() { delete ui_; }
 
 void dlgVulkanInfo::RunTool(void) {
-    ui->treeWidget->clear();
+    ui_->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
 #ifdef _WIN32
@@ -113,7 +113,7 @@ void dlgVulkanInfo::RunTool(void) {
     QJsonValue instance = jsonTopObject.value(QString("Vulkan Instance Version"));
     QString output = "Vulkan Instance Version: " + instance.toString();
 
-    QTreeWidgetItem *header = ui->treeWidget->headerItem();
+    QTreeWidgetItem *header = ui_->treeWidget->headerItem();
     header->setText(0, output);
 
     ////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void dlgVulkanInfo::RunTool(void) {
     QJsonValue rootObject = jsonTopObject.value(QString("Instance Extensions"));
     QTreeWidgetItem *pParentNode = new QTreeWidgetItem();
     pParentNode->setText(0, tr("Instance Extensions"));
-    ui->treeWidget->addTopLevelItem(pParentNode);
+    ui_->treeWidget->addTopLevelItem(pParentNode);
     BuildExtensions(rootObject, pParentNode);
 
     rootObject = jsonTopObject.value("Layer Properties");
@@ -240,7 +240,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     output += QString().asprintf("%d", layersCount);
 
     pRoot->setText(0, output);
-    ui->treeWidget->addTopLevelItem(pRoot);
+    ui_->treeWidget->addTopLevelItem(pRoot);
 
     // Loop through all the layers
     QStringList layers = layersObject.keys();
@@ -314,7 +314,7 @@ void dlgVulkanInfo::BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot)
     QStringList GPUs = surfaces.keys();
 
     pRoot->setText(0, tr("Presentable Surfaces"));
-    ui->treeWidget->addTopLevelItem(pRoot);
+    ui_->treeWidget->addTopLevelItem(pRoot);
 
     for (int i = 0; i < surfaceCount; i++) {
         TraverseGenericProperties(jsonValue, pRoot);
@@ -330,7 +330,7 @@ void dlgVulkanInfo::BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot)
 void dlgVulkanInfo::BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     QJsonObject groupsObject = jsonValue.toObject();
     pRoot->setText(0, tr("Device Groups"));
-    ui->treeWidget->addTopLevelItem(pRoot);
+    ui_->treeWidget->addTopLevelItem(pRoot);
 
     TraverseGenericProperties(jsonValue, pRoot);
 }
@@ -347,7 +347,7 @@ void dlgVulkanInfo::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) 
     QJsonObject gpuObject = jsonValue.toObject();
 
     pRoot->setText(0, tr("Device Properties and Extensions"));
-    ui->treeWidget->addTopLevelItem(pRoot);
+    ui_->treeWidget->addTopLevelItem(pRoot);
 
     // For each like GPU0 object
     QStringList gpuList = gpuObject.keys();

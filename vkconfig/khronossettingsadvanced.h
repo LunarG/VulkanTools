@@ -1,6 +1,3 @@
-#ifndef KHRONOSSETTINGSADVANCED_H
-#define KHRONOSSETTINGSADVANCED_H
-
 /*
  * Copyright (c) 2020 Valve Corporation
  * Copyright (c) 2020 LunarG, Inc.
@@ -17,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
- *
- * Khronos layer advanced settings tree.
- *
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
 
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -34,35 +32,33 @@ class KhronosSettingsAdvanced : public QObject {
     Q_OBJECT
 
    public:
-    explicit KhronosSettingsAdvanced(QTreeWidget *pMainTree, QTreeWidgetItem *parent, QVector<LayerSettings *> &layerSettings);
+    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, QVector<LayerSettings *> &layer_Settings);
     ~KhronosSettingsAdvanced();
 
-    bool CollectSettings(void);
+    bool CollectSettings();
 
    private:
-    QTreeWidget *pMainTreeWidget;
-    QTreeWidgetItem *pMainParent;
-    QTreeWidgetItem *pCoreChecksParent;
+    QTreeWidget *main_tree_widget_;
+    QTreeWidgetItem *main_parent_;
+    QTreeWidgetItem *core_checks_parent_;
 
-    LayerSettings *pDisables;
-    LayerSettings *pEnables;
+    LayerSettings *disables_;
+    LayerSettings *enables_;
 
-    QTreeWidgetItem *pShaderBasedBox;
-    QTreeWidgetItem *pGPUAssistBox;
-    QRadioButton *pGPURadio;
-    QTreeWidgetItem *pReserveBox;
-    QTreeWidgetItem *pDebugPrintfBox;
-    QRadioButton *pDebugRadio;
-    MuteMessageWidget *pMuteMessageWidget;
+    QTreeWidgetItem *shader_based_box_;
+    QTreeWidgetItem *gpu_assisted_box_;
+    QRadioButton *gpu_assisted_ratio_;
+    QTreeWidgetItem *reserve_box_;
+    QTreeWidgetItem *debug_printf_box_;
+    QRadioButton *debug_printf_radio_;
+    MuteMessageWidget *mute_message_widget_;
 
    public Q_SLOTS:
-    void itemChanged(QTreeWidgetItem *pItem, int nColumn);
-    void itemClicked(QTreeWidgetItem *pItem, int nColumn);
+    void itemChanged(QTreeWidgetItem *item, int column);
+    void itemClicked(QTreeWidgetItem *item, int column);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
 
    Q_SIGNALS:
-    void settingChanged(void);
+    void settingChanged();
 };
-
-#endif  // KHRONOSSETTINGSADVANCED_H

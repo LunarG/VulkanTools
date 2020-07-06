@@ -35,15 +35,15 @@ class dlgVulkanInfo : public QDialog {
     explicit dlgVulkanInfo(QWidget *parent = nullptr);
     ~dlgVulkanInfo();
 
-    void BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
-    void BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
-    void BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
-    void BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
-    void BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *pRoot);
-    void TraverseGenericProperties(QJsonValue &parentJson, QTreeWidgetItem *pParentTreeItem);
+    void BuildExtensions(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildLayers(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildSurfaces(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildGroups(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildDevices(QJsonValue &json_value, QTreeWidgetItem *root);
+    void TraverseGenericProperties(QJsonValue &parent_json, QTreeWidgetItem *parent_tree_item);
 
     void RunTool();
 
    private:
-    Ui::dlgVulkanInfo *ui;
+    Ui::dlgVulkanInfo *ui_;
 };

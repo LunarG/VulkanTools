@@ -24,23 +24,23 @@
 BoolSettingWidget::BoolSettingWidget(LayerSettings *pLayerSetting, bool bNumeric) {
     numeric_output_ = bNumeric;
     layer_settings_ = pLayerSetting;
-    setText(pLayerSetting->settingsPrompt);
-    setToolTip(pLayerSetting->settingsDesc);
-    setChecked(pLayerSetting->settingsValue == QString("TRUE"));
+    setText(pLayerSetting->settings_prompt);
+    setToolTip(pLayerSetting->settings_desc);
+    setChecked(pLayerSetting->settings_value == QString("TRUE"));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
 void BoolSettingWidget::itemToggled(void) {
     if (numeric_output_) {
         if (isChecked())
-            layer_settings_->settingsValue = QString("1");
+            layer_settings_->settings_value = QString("1");
         else
-            layer_settings_->settingsValue = QString("0");
+            layer_settings_->settings_value = QString("0");
     } else {
         if (isChecked())
-            layer_settings_->settingsValue = QString("TRUE");
+            layer_settings_->settings_value = QString("TRUE");
         else
-            layer_settings_->settingsValue = QString("FALSE");
+            layer_settings_->settings_value = QString("FALSE");
     }
 
     emit itemChanged();

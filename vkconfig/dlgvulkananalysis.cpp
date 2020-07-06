@@ -28,27 +28,27 @@
 
 #include <QMessageBox>
 
-dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanAnalysis) {
-    ui->setupUi(this);
+dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgVulkanAnalysis) {
+    ui_->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-dlgVulkanAnalysis::~dlgVulkanAnalysis() { delete ui; }
+dlgVulkanAnalysis::~dlgVulkanAnalysis() { delete ui_; }
 
 void dlgVulkanAnalysis::RunTool(void) {
-    ui->envTable->clear();
-    ui->cleanupTable->clear();
-    ui->hardwareTable->clear();
-    ui->instanceTable->clear();
-    ui->lunarGSDKTable->clear();
-    ui->executableTable->clear();
-    ui->vkRuntimesTable->clear();
-    ui->externalTestsTable->clear();
-    ui->layerSettingsTable->clear();
-    ui->explicitLayersTable->clear();
-    ui->implicitLayersTable->clear();
-    ui->logicalDevicesTable->clear();
-    ui->physicalDevicesTable->clear();
+    ui_->envTable->clear();
+    ui_->cleanupTable->clear();
+    ui_->hardwareTable->clear();
+    ui_->instanceTable->clear();
+    ui_->lunarGSDKTable->clear();
+    ui_->executableTable->clear();
+    ui_->vkRuntimesTable->clear();
+    ui_->externalTestsTable->clear();
+    ui_->layerSettingsTable->clear();
+    ui_->explicitLayersTable->clear();
+    ui_->implicitLayersTable->clear();
+    ui_->logicalDevicesTable->clear();
+    ui_->physicalDevicesTable->clear();
 
     QProcess *via = new QProcess(this);
 #ifdef __APPLE__
@@ -106,67 +106,67 @@ void dlgVulkanAnalysis::RunTool(void) {
     // Get the extensions object and process it's members
     QJsonValue environmentValue = jsonObject.value(QString(tr("Environment")));
     QJsonObject environmentObject = environmentValue.toObject();
-    LoadTable(environmentObject, ui->envTable);
+    LoadTable(environmentObject, ui_->envTable);
 
     QJsonValue hardwareValue = jsonObject.value(QString(tr("Hardware")));
     QJsonObject hardwareObject = hardwareValue.toObject();
-    LoadTable(hardwareObject, ui->hardwareTable);
+    LoadTable(hardwareObject, ui_->hardwareTable);
 
     QJsonValue executableValue = jsonObject.value(QString(tr("Executable Info")));
     QJsonObject executableObject = executableValue.toObject();
-    LoadTable(executableObject, ui->executableTable);
+    LoadTable(executableObject, ui_->executableTable);
 
     QJsonValue vkDriverInfo = jsonObject.value(QString(tr("Vulkan Driver Info")));
     QJsonObject vkDriverObject = vkDriverInfo.toObject();
-    LoadTable(vkDriverObject, ui->vkDriverInfoTable);
+    LoadTable(vkDriverObject, ui_->vkDriverInfoTable);
 
     QJsonValue vkRunTimeValue = jsonObject.value(QString(tr("Vulkan Runtimes")));
     QJsonObject vkRunTimeObject = vkRunTimeValue.toObject();
-    LoadTable(vkRunTimeObject, ui->vkRuntimesTable);
+    LoadTable(vkRunTimeObject, ui_->vkRuntimesTable);
 
     QJsonValue lunarGSDKValue = jsonObject.value(QString(tr("LunarG Vulkan SDKs")));
     QJsonObject lunarGSDKObject = lunarGSDKValue.toObject();
-    LoadTable(lunarGSDKObject, ui->lunarGSDKTable);
+    LoadTable(lunarGSDKObject, ui_->lunarGSDKTable);
 
     QJsonValue vkImplicitValue = jsonObject.value(QString(tr("Vulkan Implicit Layers")));
     QJsonObject vkImplicitObject = vkImplicitValue.toObject();
-    LoadTable(vkImplicitObject, ui->implicitLayersTable);
+    LoadTable(vkImplicitObject, ui_->implicitLayersTable);
 
     QJsonValue vkExplicitValue = jsonObject.value(QString(tr("Vulkan Explicit Layers")));
     QJsonObject vkExplicitObject = vkExplicitValue.toObject();
-    LoadTable(vkExplicitObject, ui->explicitLayersTable);
+    LoadTable(vkExplicitObject, ui_->explicitLayersTable);
 
     QJsonValue vkLayerSettingsValue = jsonObject.value(QString(tr("Vulkan Layer Settings File")));
     QJsonObject vkLayerSettingsObject = vkLayerSettingsValue.toObject();
-    LoadTable(vkLayerSettingsObject, ui->layerSettingsTable);
+    LoadTable(vkLayerSettingsObject, ui_->layerSettingsTable);
 
     /////////////////////////// Vulkan API Calls
     QJsonValue instanceValue = jsonObject.value(QString(tr("Instance")));
     QJsonObject instanceObject = instanceValue.toObject();
-    LoadTable(instanceObject, ui->instanceTable);
+    LoadTable(instanceObject, ui_->instanceTable);
 
     QJsonObject devicesObject = jsonObject.value(QString(tr("Physical Devices"))).toObject();
-    LoadTable(devicesObject, ui->physicalDevicesTable);
+    LoadTable(devicesObject, ui_->physicalDevicesTable);
 
     QJsonObject logicalObject = jsonObject.value(QString(tr("Logical Devices"))).toObject();
-    LoadTable(logicalObject, ui->logicalDevicesTable);
+    LoadTable(logicalObject, ui_->logicalDevicesTable);
 
     QJsonObject cleanupObject = jsonObject.value(QString(tr("Cleanup"))).toObject();
-    LoadTable(cleanupObject, ui->cleanupTable);
+    LoadTable(cleanupObject, ui_->cleanupTable);
 
     /////////////////////////////////// External Tests
     QJsonValue cubeValue = jsonObject.value(QString(tr("Cube"))).toObject();
     QJsonObject cubeObject = cubeValue.toObject();
     if (!cubeObject.isEmpty())
-        LoadTable(cubeObject, ui->externalTestsTable);
+        LoadTable(cubeObject, ui_->externalTestsTable);
     else {
-        ui->externalTestsTable->setRowCount(1);
-        ui->externalTestsTable->setColumnCount(1);
-        ui->externalTestsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-        ui->externalTestsTable->setShowGrid(false);
+        ui_->externalTestsTable->setRowCount(1);
+        ui_->externalTestsTable->setColumnCount(1);
+        ui_->externalTestsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        ui_->externalTestsTable->setShowGrid(false);
         QTableWidgetItem *pItem = new QTableWidgetItem();
         pItem->setText(tr("No SDK found by VIA, skipping test section"));
-        ui->externalTestsTable->setItem(0, 0, pItem);
+        ui_->externalTestsTable->setItem(0, 0, pItem);
     }
 
     show();

@@ -36,8 +36,8 @@ class VUIDSearchWidget : public QWidget {
 
    private:
     QStringList list;
-    QCompleter *pSearchMe;
-    QComboBox *pUserBox;
+    QCompleter *search_vuid_;
+    QComboBox *user_box_;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;

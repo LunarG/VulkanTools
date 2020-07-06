@@ -26,7 +26,7 @@
 #include <QMessageBox>
 
 dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgCustomPaths) {
-    bPathsChanged = false;
+    paths_changed_ = false;
     ui_->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -79,7 +79,7 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
         pItem->setText(0, custom_folder);
         ui_->treeWidget->addTopLevelItem(pItem);
 
-        bPathsChanged = true;
+        paths_changed_ = true;
         RepopulateTree();
     }
 
@@ -115,5 +115,5 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
     // Update GUI and save
     RepopulateTree();
     ui_->buttonBox->setEnabled(configurator.HasLayers());
-    bPathsChanged = true;
+    paths_changed_ = true;
 }
