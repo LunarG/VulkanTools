@@ -289,10 +289,10 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     configurator.SaveSettings();
     ui_->pushButtonAppList->setEnabled(configurator.override_application_list_only);
 
-    if (configurator.override_application_list_only && (configurator.overridden_application_list.empty() || !configurator.HasOverriddenApplications())) {
+    if (configurator.override_application_list_only &&
+        (configurator.overridden_application_list.empty() || !configurator.HasOverriddenApplications())) {
         on_pushButtonAppList_clicked();
-    }
-    else {
+    } else {
         // Checking the list, the configuration need to be updated to the system
         if (configurator.GetActiveConfiguration()) ChangeActiveConfiguration(configurator.GetActiveConfiguration());
     }
