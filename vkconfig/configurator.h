@@ -75,6 +75,8 @@ class PathFinder {
 #define VKCONFIG_KEY_FIRST_RUN "firstRun"
 #define VKCONFIG_KEY_APPLY_ALL "applytoall"
 #define VKCONFIG_HIDE_RESTART_WARNING "restartWarning"
+#define VKCONFIG_KEY_LAST_EXPORT_PATH "lastExportPath"
+#define VKCONFIG_KEY_LAST_IMPORT_PATH "lastImportPath"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -101,6 +103,18 @@ struct Application {
 
 class Configurator {
    public:
+    enum Path {
+        ConfigurationPath = 0,     // Where config working files live
+        OverrideSettingsPath = 1,  // Where settings go when profile is active
+        OverrideLayersPath = 2,    // Where json goes when profile is active
+        LastImportPath = 3,        // The last path used by the user to import a configuration
+        LastExportPath = 4,        // The last path used by the user to export a configuration
+
+        FirstPath = ConfigurationPath,
+        LastPath = LastExportPath
+    };
+    enum { PathCount = LastPath - FirstPath + 1 };
+
     static Configurator& Get();
 
     static const int default_configurations_count;
@@ -109,10 +123,6 @@ class Configurator {
     // Need this to check vulkan loader version
     uint32_t vulkan_instance_version;
     bool has_old_loader;  // Older loader does not support per-application overrides
-
-    QString configuration_path_;      // Where config working files live
-    QString override_settings_path;  // Where settings go when profile is active
-    QString override_json_path;      // Where json goes when profile is active
 
    private:
     bool running_as_administrator_;  // Are we being "Run as Administrator"
@@ -125,10 +135,14 @@ class Configurator {
     void SaveSettings();
     void ResetToDefaultSettings();
     bool HasActiveOverrideOnApplicationListOnly() const { return !has_old_loader && override_application_list_only; }
+    QString GetPath(Path requested_path) const;
+    void SetPath(Path requested_path, QString path);
 
     bool override_active;                 // Do we have active layers override?
     bool override_application_list_only;  // Apply the override only to the application list
     bool override_permanent;              // The override remains active when Vulkan Configurator closes
+   private:
+    QString paths_[PathCount];
 
     /////////////////////////////////////////////////////////////////////////
     // Application Launcher
@@ -193,10 +207,10 @@ class Configurator {
     Configuration* CreateEmptyConfiguration();
     Configuration* FindConfiguration(const QString& configuration_name) const;
     Configuration* LoadConfiguration(const QString& path_configuration);  // Load .profile descriptor
-    void LoadAllConfigurations();                                  // Load all the .profile files found
-    bool SaveConfiguration(Configuration* configuration);          // Write .profile descriptor
-    void ImportConfiguration(const QString& full_path_to_source);
-    void ExportConfiguration(const QString& full_path_to_source, const QString& full_path_to_dest) const;
+    void LoadAllConfigurations();                                         // Load all the .profile files found
+    bool SaveConfiguration(Configuration* configuration);                 // Write .profile descriptor
+    void ImportConfiguration(const QString& full_import_path);
+    void ExportConfiguration(const QString& source_file, const QString& full_export_path);
 
     bool HasLayers() const;
     bool IsRunningAsAdministrator() { return running_as_administrator_; }
@@ -207,8 +221,6 @@ class Configurator {
     void RefreshConfiguration() {
         if (active_configuration_) SetActiveConfiguration(active_configuration_);
     }
-
-    const QString& GetConfigurationPath() const { return configuration_path_; }
 
     QString CheckVulkanSetup() const;
     void CheckApplicationRestart() const;

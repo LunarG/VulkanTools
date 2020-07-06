@@ -47,7 +47,7 @@
 #include "preferences.h"
 
 // This is what happens when programmers can touch type....
-bool bBeenWarnedAboutOldLoader = false;
+bool been_warned_about_old_loader = false;
 
 #define EDITOR_CAPTION_EMPTY "Configuration Layer Settings"
 
@@ -98,8 +98,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->profileTree, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(profileItemChanged(QTreeWidgetItem *, int)));
     connect(ui->profileTree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
             SLOT(profileTreeChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+    connect(ui->profileTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
+            SLOT(OnConfigurationTreeClicked(QTreeWidgetItem *, int)));
 
     connect(ui->layerSettingsTree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(editorExpanded(QTreeWidgetItem *)));
+    connect(ui->layerSettingsTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
+            SLOT(OnConfigurationSettingsTreeClicked(QTreeWidgetItem *, int)));
 
     connect(ui->launchTree, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this, SLOT(launchItemCollapsed(QTreeWidgetItem *)));
     connect(ui->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(launchItemExpanded(QTreeWidgetItem *)));
@@ -145,7 +149,7 @@ MainWindow::~MainWindow() { delete ui; }
 ///////////////////////////////////////////////////////////////////////////////
 // Load or refresh the list of profiles. Any profile that uses a layer that
 // is not detected on the system is disabled.
-void MainWindow::LoadConfigurationList(void) {
+void MainWindow::LoadConfigurationList() {
     // There are lots of ways into this, and in none of them
     // can we have an active editor running.
     settings_tree_manager_.CleanupGUI();
@@ -160,27 +164,26 @@ void MainWindow::LoadConfigurationList(void) {
 
     for (int i = 0; i < configurator.available_configurations.size(); i++) {
         // Add to list
-        ContigurationListItem *pItem = new ContigurationListItem();
-        pItem->configuration = configurator.available_configurations[i];
-        ui->profileTree->addTopLevelItem(pItem);
-        pItem->setText(1, configurator.available_configurations[i]->name);
-        pItem->setToolTip(1, configurator.available_configurations[i]->description);
-        pItem->radio_button = new QRadioButton();
-        pItem->radio_button->setText("");
+        ContigurationListItem *item = new ContigurationListItem();
+        item->configuration = configurator.available_configurations[i];
+        ui->profileTree->addTopLevelItem(item);
+        item->setText(1, configurator.available_configurations[i]->name);
+        item->setToolTip(1, configurator.available_configurations[i]->description);
+        item->radio_button = new QRadioButton();
+        item->radio_button->setText("");
 
         if (!configurator.available_configurations[i]->IsValid()) {
-            pItem->setFlags(pItem->flags() & ~Qt::ItemIsEnabled);
-            pItem->radio_button->setEnabled(false);
-            pItem->setToolTip(1, "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
+            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+            item->radio_button->setEnabled(false);
+            item->setToolTip(1, "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
         }
         if (active_configuration_name == configurator.available_configurations[i]->name) {
-            pItem->radio_button->setChecked(true);
+            item->radio_button->setChecked(true);
         }
 
-        pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
-        ui->profileTree->setItemWidget(pItem, 0, pItem->radio_button);
-        // ui->profileTree->setColumnWidth(0, 50);
-        connect(pItem->radio_button, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+        ui->profileTree->setItemWidget(item, 0, item->radio_button);
+        connect(item->radio_button, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
     }
 
     ui->profileTree->blockSignals(false);
@@ -229,12 +232,11 @@ ContigurationListItem *MainWindow::GetCheckedItem(void) {
 }
 
 //////////////////////////////////////////////////////////
-/// \brief MainWindow::on_radioOverride_clicked
 /// Use the active profile as the override
-void MainWindow::on_radioOverride_clicked(void) {
+void MainWindow::on_radioOverride_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    bool bUse = (!configurator.has_old_loader || !bBeenWarnedAboutOldLoader);
+    bool bUse = (!configurator.has_old_loader || !been_warned_about_old_loader);
     ui->checkBoxApplyList->setEnabled(bUse);
     ui->pushButtonAppList->setEnabled(bUse && configurator.override_application_list_only);
 
@@ -255,10 +257,10 @@ void MainWindow::on_radioOverride_clicked(void) {
 ///////////////////////////////////////////////////////////////////////
 // We want to apply to just the app list... hang on there. Doe we have
 // the new loader?
-void MainWindow::on_checkBoxApplyList_clicked(void) {
+void MainWindow::on_checkBoxApplyList_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.has_old_loader && !bBeenWarnedAboutOldLoader) {
+    if (configurator.has_old_loader && !been_warned_about_old_loader) {
         uint32_t version = configurator.vulkan_instance_version;
         QString message;
         message = QString().asprintf(
@@ -282,7 +284,7 @@ void MainWindow::on_checkBoxApplyList_clicked(void) {
                                VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
         ui->checkBoxApplyList->setToolTip(messageToolTip);
         ui->pushButtonAppList->setToolTip(messageToolTip);
-        bBeenWarnedAboutOldLoader = true;
+        been_warned_about_old_loader = true;
     }
 
     configurator.override_application_list_only = ui->checkBoxApplyList->isChecked();
@@ -320,7 +322,7 @@ void MainWindow::toolsResetToDefault(bool bChecked) {
     configurator.SetActiveConfiguration(nullptr);
 
     // Delete all the *.json files in the storage folder
-    QDir dir(configurator.configuration_path_);
+    QDir dir(configurator.GetPath(Configurator::ConfigurationPath));
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList configuration_files = dir.entryInfoList();
@@ -393,7 +395,6 @@ void MainWindow::profileItemClicked(bool bChecked) {
     // Do we go ahead and activate it?
     if (configurator.override_active) {
         ChangeActiveConfiguration(pProfileItem->configuration);
-        configurator.CheckApplicationRestart();
     }
 }
 
@@ -402,44 +403,38 @@ void MainWindow::profileItemClicked(bool bChecked) {
 void MainWindow::profileItemChanged(QTreeWidgetItem *pItem, int nCol) {
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    ContigurationListItem *pProfileItem = dynamic_cast<ContigurationListItem *>(pItem);
-    if (pProfileItem == nullptr) return;
+    ContigurationListItem *configuration_item = dynamic_cast<ContigurationListItem *>(pItem);
+    if (configuration_item == nullptr) return;
 
     if (nCol == 1) {  // Profile name
         Configurator &configurator = Configurator::Get();
 
         // We are renaming the file. Just delete the old one and save this
-        QString completePath = configurator.GetConfigurationPath();
-        completePath += "/";
-        completePath += pProfileItem->configuration->file;
-        remove(completePath.toUtf8().constData());
+        const QString full_path =
+            configurator.GetPath(Configurator::ConfigurationPath) + "/" + configuration_item->configuration->file;
+        remove(full_path.toUtf8().constData());
 
-        pProfileItem->configuration->name = pProfileItem->text(1);
-        pProfileItem->configuration->file = pProfileItem->text(1) + QString(".json");
-        configurator.SaveConfiguration(pProfileItem->configuration);
-        configurator.CheckApplicationRestart();
+        configuration_item->configuration->name = configuration_item->text(1);
+        configuration_item->configuration->file = configuration_item->text(1) + QString(".json");
+        configurator.SaveConfiguration(configuration_item->configuration);
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::profileTreeChanged
-/// \param pCurrent
-/// \param pPrevious
 /// This gets called with keyboard selections and clicks that do not necessarily
 /// result in a radio button change (but it may). So we need to do two checks here, one
 /// for the radio button, and one to change the editor/information at lower right.
-void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious) {
-    (void)pPrevious;
+void MainWindow::profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous) {
+    (void)previous;
     settings_tree_manager_.CleanupGUI();
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    ContigurationListItem *pProfileItem = dynamic_cast<ContigurationListItem *>(pCurrent);
+    ContigurationListItem *pProfileItem = dynamic_cast<ContigurationListItem *>(current);
     if (pProfileItem == nullptr) return;
 
     if (!Preferences::Get().use_separated_select_and_activate) {
         pProfileItem->radio_button->setChecked(true);
         ChangeActiveConfiguration(pProfileItem->configuration);
-        Configurator::Get().CheckApplicationRestart();
     }
 
     settings_tree_manager_.CreateGUI(ui->layerSettingsTree, pProfileItem->configuration);
@@ -451,19 +446,17 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *
 
 ////////////////////////////////////////////////////
 // Unused flag, just display the about Qt dialog
-void MainWindow::aboutVkConfig(bool bChecked) {
-    (void)bChecked;
+void MainWindow::aboutVkConfig(bool checked) {
+    (void)checked;
     dlgAbout dlg(this);
     dlg.exec();
 }
 
 //////////////////////////////////////////////////////////
-/// \brief MainWindow::toolsVulkanInfo
-/// \param bChecked
 /// Create the VulkanInfo dialog if it doesn't already
 /// exits & show it.
-void MainWindow::toolsVulkanInfo(bool bChecked) {
-    (void)bChecked;
+void MainWindow::toolsVulkanInfo(bool checked) {
+    (void)checked;
 
     if (pVulkanInfo == nullptr) pVulkanInfo = new dlgVulkanInfo(this);
 
@@ -471,31 +464,25 @@ void MainWindow::toolsVulkanInfo(bool bChecked) {
 }
 
 //////////////////////////////////////////////////////////
-/// \brief MainWindow::toolsVulkanInstallation
-/// \param bChecked
 /// Create the VulkanTools dialog if it doesn't already
 /// exist & show it.
-void MainWindow::toolsVulkanInstallation(bool bChecked) {
-    (void)bChecked;
+void MainWindow::toolsVulkanInstallation(bool checked) {
+    (void)checked;
     if (pVKVia == nullptr) pVKVia = new dlgVulkanAnalysis(this);
 
     pVKVia->RunTool();
 }
 
 ////////////////////////////////////////////////////////////////
-/// \brief MainWindow::helpShowHelp
-/// \param bChecked
 /// Show help, which is just a rich text file
-void MainWindow::helpShowHelp(bool bChecked) {
-    (void)bChecked;
+void MainWindow::helpShowHelp(bool checked) {
+    (void)checked;
     if (pDlgHelp == nullptr) pDlgHelp = new dlgHelp(nullptr);
 
     pDlgHelp->show();
 }
 
 ////////////////////////////////////////////////////////////////
-/// \brief MainWindow::closeEvent
-/// \param event
 /// The only thing we need to do here is clear the profile if
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -516,8 +503,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 /// \param pEvent
 /// Resizing needs a little help. Yes please, there has to be
 /// a better way of doing this.
-void MainWindow::resizeEvent(QResizeEvent *pEvent) {
-    if (pEvent != nullptr) pEvent->accept();
+void MainWindow::resizeEvent(QResizeEvent *event) {
+    if (event != nullptr) event->accept();
 }
 
 /////////////////////////////////////////////////////////////
@@ -529,7 +516,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief MainWindow::on_pushButtonAppList_clicked
 /// Edit the list of apps that can be filtered.
-void MainWindow::on_pushButtonAppList_clicked(void) {
+void MainWindow::on_pushButtonAppList_clicked() {
     dlgCreateAssociation dlg(this);
     dlg.exec();
 
@@ -552,27 +539,27 @@ void MainWindow::on_pushButtonAppList_clicked(void) {
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEditProfile_clicked() {
     // Who is selected?
-    ContigurationListItem *pItem = dynamic_cast<ContigurationListItem *>(ui->profileTree->currentItem());
-    if (pItem == nullptr) return;
+    ContigurationListItem *item = dynamic_cast<ContigurationListItem *>(ui->profileTree->currentItem());
+    if (item == nullptr) return;
 
     // Save current state before we go in
     settings_tree_manager_.CleanupGUI();
 
-    dlgProfileEditor dlg(this, pItem->configuration);
+    dlgProfileEditor dlg(this, item->configuration);
     dlg.exec();
     // pItem will be invalid after LoadProfileList, but I still
     // need the pointer to the profile
-    QString editedProfileName = pItem->configuration->name;
+    QString editedProfileName = item->configuration->name;
 
     Configurator::Get().LoadAllConfigurations();
     LoadConfigurationList();
 
     // Reset the current item
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        pItem = dynamic_cast<ContigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (pItem != nullptr)
-            if (pItem->configuration->name == editedProfileName) {
-                ui->profileTree->setCurrentItem(pItem);
+        item = dynamic_cast<ContigurationListItem *>(ui->profileTree->topLevelItem(i));
+        if (item != nullptr)
+            if (item->configuration->name == editedProfileName) {
+                ui->profileTree->setCurrentItem(item);
                 //                settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfile);
                 break;
             }
@@ -607,10 +594,10 @@ void MainWindow::addCustomPaths() {
 
 //////////////////////////////////////////////////////////////////////////////
 /// Remove the currently selected user defined profile.
-void MainWindow::RemoveClicked(ContigurationListItem *pItem) {
+void MainWindow::RemoveClicked(ContigurationListItem *item) {
     // Let make sure...
     QMessageBox msg;
-    msg.setInformativeText(pItem->configuration->name);
+    msg.setInformativeText(item->configuration->name);
     msg.setText(tr("Are you sure you want to remove this configuration?"));
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msg.setDefaultButton(QMessageBox::Yes);
@@ -618,13 +605,11 @@ void MainWindow::RemoveClicked(ContigurationListItem *pItem) {
 
     // What if this is the active profile? We will go boom boom soon...
     Configurator &configurator = Configurator::Get();
-    if (configurator.GetActiveConfiguration() == pItem->configuration) configurator.SetActiveConfiguration(nullptr);
+    if (configurator.GetActiveConfiguration() == item->configuration) configurator.SetActiveConfiguration(nullptr);
 
     // Delete the file
-    QString completePath = configurator.GetConfigurationPath();
-    completePath += "/";
-    completePath += pItem->configuration->file;
-    remove(completePath.toUtf8().constData());
+    const QString full_path = configurator.GetPath(Configurator::ConfigurationPath) + "/" + item->configuration->file;
+    remove(full_path.toUtf8().constData());
 
     // Reload profiles
     configurator.LoadAllConfigurations();
@@ -632,18 +617,18 @@ void MainWindow::RemoveClicked(ContigurationListItem *pItem) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void MainWindow::RenameClicked(ContigurationListItem *pItem) { ui->profileTree->editItem(pItem, 1); }
+void MainWindow::RenameClicked(ContigurationListItem *item) { ui->profileTree->editItem(item, 1); }
 
 /////////////////////////////////////////////////////////////////////////////
 // Copy the current configuration
-void MainWindow::DuplicateClicked(ContigurationListItem *pItem) {
-    QString qsNewName = pItem->configuration->name;
+void MainWindow::DuplicateClicked(ContigurationListItem *item) {
+    QString qsNewName = item->configuration->name;
     qsNewName += "2";
     settings_tree_manager_.CleanupGUI();
-    pItem->configuration->name = qsNewName;
+    item->configuration->name = qsNewName;
 
     Configurator &configurator = Configurator::Get();
-    configurator.SaveConfiguration(pItem->configuration);
+    configurator.SaveConfiguration(item->configuration);
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
 
@@ -660,33 +645,41 @@ void MainWindow::DuplicateClicked(ContigurationListItem *pItem) {
 
 /////////////////////////////////////////////////////////////////////////////
 // Import a configuration file. File copy followed by a reload.
-void MainWindow::ImportClicked(ContigurationListItem *pItem) {
-    (void)pItem;  // We don't need this
-    QString qsGetIt = QFileDialog::getOpenFileName(this, "Import Layers Configuration File", QDir::homePath(), "*.json");
-    if (qsGetIt.isEmpty()) return;
-    settings_tree_manager_.CleanupGUI();
-    Configurator::Get().ImportConfiguration(qsGetIt);
-    LoadConfigurationList();
-}
+void MainWindow::ImportClicked(ContigurationListItem *item) {
+    (void)item;  // We don't need this
 
-/////////////////////////////////////////////////////////////////////////////
-// Export a configuration file. Basically just a file copy
-void MainWindow::ExportClicked(ContigurationListItem *pItem) {
-    // Where to put it and what to call it
-    QString qsSaveIt = QFileDialog::getSaveFileName(this, "Export Layers Configuration File", QDir::homePath(), "*.json");
-    if (qsSaveIt.isEmpty()) return;
-
-    // Copy away
     Configurator &configurator = Configurator::Get();
-    QString fullSourceName = configurator.configuration_path_ + "/";
-    fullSourceName += pItem->configuration->file;
-    configurator.ExportConfiguration(fullSourceName, qsSaveIt);
+
+    QString full_suggested_path = configurator.GetPath(Configurator::LastImportPath);
+    QString full_import_path =
+        QFileDialog::getOpenFileName(this, "Import Layers Configuration File", full_suggested_path, "*.json");
+    if (full_import_path.isEmpty()) return;
+
+    settings_tree_manager_.CleanupGUI();
+    Configurator::Get().ImportConfiguration(full_import_path);
+    LoadConfigurationList();
+    configurator.SaveSettings();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // Export a configuration file. Basically just a file copy
-void MainWindow::EditCustomPathsClicked(ContigurationListItem *pItem) {
-    (void)pItem;
+void MainWindow::ExportClicked(ContigurationListItem *item) {
+    Configurator &configurator = Configurator::Get();
+
+    // Where to put it and what to call it
+    QString full_suggested_path = configurator.GetPath(Configurator::LastExportPath) + "/" + item->configuration->file;
+    QString full_export_path =
+        QFileDialog::getSaveFileName(this, "Export Layers Configuration File", full_suggested_path, "*.json");
+    if (full_export_path.isEmpty()) return;
+
+    configurator.ExportConfiguration(item->configuration->file, full_export_path);
+    configurator.SaveSettings();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Export a configuration file. Basically just a file copy
+void MainWindow::EditCustomPathsClicked(ContigurationListItem *item) {
+    (void)item;
     addCustomPaths();
     LoadConfigurationList();  // Force a reload
 }
@@ -698,41 +691,52 @@ void MainWindow::toolsSetCustomPaths(bool bChecked) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::UpdateActiveDecorations
 /// Update "decorations": window caption, (Active) status in list
-void MainWindow::ChangeActiveConfiguration(Configuration *pNewProfile) {
+void MainWindow::ChangeActiveConfiguration(Configuration *configuration) {
     Configurator &configurator = Configurator::Get();
 
-    if (pNewProfile == nullptr || !configurator.override_active) {
+    if (configuration == nullptr || !configurator.override_active) {
         configurator.SetActiveConfiguration(nullptr);
 
         setWindowTitle("Vulkan Configurator <VULKAN APPLICATION CONTROLLED>");
     } else {
-        QString newCaption = pNewProfile->name;
-        if (!pNewProfile->IsValid()) newCaption += " (DISABLED)";
+        QString newCaption = configuration->name;
+        if (!configuration->IsValid()) newCaption += " (DISABLED)";
         newCaption += " - Vulkan Configurator ";
-        configurator.SetActiveConfiguration(pNewProfile);
+        configurator.SetActiveConfiguration(configuration);
         newCaption += "<VULKAN APPLICATIONS OVERRIDDEN>";
 
         setWindowTitle(newCaption);
     }
 }
 
-void MainWindow::editorExpanded(QTreeWidgetItem *pItem) {
-    (void)pItem;
+void MainWindow::editorExpanded(QTreeWidgetItem *item) {
+    (void)item;
     ui->layerSettingsTree->resizeColumnToContents(0);
 }
 
-void MainWindow::profileItemExpanded(QTreeWidgetItem *pItem) {
-    (void)pItem;
+void MainWindow::profileItemExpanded(QTreeWidgetItem *item) {
+    (void)item;
     ui->layerSettingsTree->resizeColumnToContents(0);
     ui->layerSettingsTree->resizeColumnToContents(1);
 }
 
+void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
+    (void)item;
+
+    Configurator::Get().CheckApplicationRestart();
+}
+
+void MainWindow::OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int column) {
+    (void)item;
+    (void)column;
+
+    Configurator::Get().CheckApplicationRestart();
+}
+
 ///////////////////////////////////////////////////////////////////
-/// \brief MainWindow::ResetLaunchOptions
 /// Reload controls for launch control
-void MainWindow::ResetLaunchOptions(void) {
+void MainWindow::ResetLaunchOptions() {
     Configurator &configurator = Configurator::Get();
     ui->pushButtonLaunch->setEnabled(!configurator.overridden_application_list.empty());
 
@@ -744,7 +748,7 @@ void MainWindow::ResetLaunchOptions(void) {
         pLaunchAppsCombo->addItem(configurator.overridden_application_list[i]->executable_path);
     }
 
-    if (configurator.overridden_application_list.size() == 0) {
+    if (configurator.overridden_application_list.isEmpty()) {
         pLaunchArguments->setText("");
         pLaunchWorkingFolder->setText("");
         pLaunchLogFileEdit->setText("");
@@ -754,6 +758,7 @@ void MainWindow::ResetLaunchOptions(void) {
     int launch_application_index = configurator.GetLaunchApplicationIndex();
     assert(launch_application_index >= 0);
 
+    configurator.SelectLaunchApplication(launch_application_index);
     pLaunchAppsCombo->setCurrentIndex(launch_application_index);
 
     // Reset working folder and command line choices
@@ -764,9 +769,8 @@ void MainWindow::ResetLaunchOptions(void) {
 }
 
 ///////////////////////////////////////////////////////////////////
-/// \brief MainWindow::SetupLaunchTree
 /// Launch and log area
-void MainWindow::SetupLaunchTree(void) {
+void MainWindow::SetupLaunchTree() {
     /////////////////////////////////////////////////////////////////
     // Executable
     QTreeWidgetItem *pLauncherParent = new QTreeWidgetItem();
@@ -859,8 +863,8 @@ void MainWindow::SetupLaunchTree(void) {
 
 ////////////////////////////////////////////////////////////////////
 // Expanding the tree also grows the tree to match
-void MainWindow::launchItemExpanded(QTreeWidgetItem *pItem) {
-    (void)pItem;
+void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
+    (void)item;
     ui->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
     ui->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
 }
@@ -868,14 +872,14 @@ void MainWindow::launchItemExpanded(QTreeWidgetItem *pItem) {
 ////////////////////////////////////////////////////////////////////
 // Collapsing the tree also shrinks the tree to match and show only
 // the first line
-void MainWindow::launchItemCollapsed(QTreeWidgetItem *pItem) {
-    QRect rect = ui->launchTree->visualItemRect(pItem);
+void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
+    QRect rect = ui->launchTree->visualItemRect(item);
     ui->launchTree->setMinimumHeight(rect.height());
     ui->launchTree->setMaximumHeight(rect.height());
 }
 
 ////////////////////////////////////////////////////////////////////
-void MainWindow::launchSetLogFile(void) {
+void MainWindow::launchSetLogFile() {
     int nLaunchIndex = pLaunchAppsCombo->currentIndex();
     Q_ASSERT(nLaunchIndex >= 0);
 
@@ -949,11 +953,11 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
     // Context menus for layer configuration files
     if (target == ui->profileTree) {
-        QContextMenuEvent *pRightClick = dynamic_cast<QContextMenuEvent *>(event);
-        if (pRightClick && event->type() == QEvent::ContextMenu) {
+        QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
+        if (right_click && event->type() == QEvent::ContextMenu) {
             // Which item were we over?
-            QTreeWidgetItem *pProfileItem = ui->profileTree->itemAt(pRightClick->pos());
-            ContigurationListItem *pItem = dynamic_cast<ContigurationListItem *>(pProfileItem);
+            QTreeWidgetItem *configuration_item = ui->profileTree->itemAt(right_click->pos());
+            ContigurationListItem *item = dynamic_cast<ContigurationListItem *>(configuration_item);
 
             // Create context menu here
             QMenu menu(ui->profileTree);
@@ -963,15 +967,15 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             menu.addAction(pNewAction);
 
             QAction *pDuplicateAction = new QAction("Duplicate the Layers Configuration");
-            pDuplicateAction->setEnabled(pItem != nullptr);
+            pDuplicateAction->setEnabled(item != nullptr);
             menu.addAction(pDuplicateAction);
 
             QAction *pRemoveAction = new QAction("Remove the Layers Configuration");
-            pRemoveAction->setEnabled(pItem != nullptr);
+            pRemoveAction->setEnabled(item != nullptr);
             menu.addAction(pRemoveAction);
 
             QAction *pRenameAction = new QAction("Rename the Layers Configuration");
-            pRenameAction->setEnabled(pItem != nullptr);
+            pRenameAction->setEnabled(item != nullptr);
             menu.addAction(pRenameAction);
 
             menu.addSeparator();
@@ -981,7 +985,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             menu.addAction(pImportAction);
 
             QAction *pExportAction = new QAction("Export the Layers Configuration...");
-            pExportAction->setEnabled(pItem != nullptr);
+            pExportAction->setEnabled(item != nullptr);
             menu.addAction(pExportAction);
 
             menu.addSeparator();
@@ -990,15 +994,15 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             pCustomPathAction->setEnabled(true);
             menu.addAction(pCustomPathAction);
 
-            QPoint point(pRightClick->globalX(), pRightClick->globalY());
-            QAction *pAction = menu.exec(point);
+            QPoint point(right_click->globalX(), right_click->globalY());
+            QAction *action = menu.exec(point);
 
             // Pointer compares made me throw up in my mouth at least a little
             // less than doing a full string compare. Setting up signal/slot for
             // all of these just seemed ridiculous. Every problem is not a nail,
             // put the hammer away....
             // New Profile...
-            if (pAction == pNewAction) {
+            if (action == pNewAction) {
                 settings_tree_manager_.CleanupGUI();
                 NewClicked();
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
@@ -1006,50 +1010,50 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             }
 
             // Duplicate
-            if (pAction == pDuplicateAction) {
+            if (action == pDuplicateAction) {
                 settings_tree_manager_.CleanupGUI();
-                DuplicateClicked(pItem);
+                DuplicateClicked(item);
                 settings_tree_manager_.CleanupGUI();
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
 
             // Remove this profile....
-            if (pAction == pRemoveAction) {
+            if (action == pRemoveAction) {
                 settings_tree_manager_.CleanupGUI();
-                RemoveClicked(pItem);
+                RemoveClicked(item);
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
 
             // Rename this profile...
-            if (pAction == pRenameAction) {
-                RenameClicked(pItem);
+            if (action == pRenameAction) {
+                RenameClicked(item);
                 settings_tree_manager_.CleanupGUI();
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
 
             // Export this profile (copy the .json)
-            if (pAction == pExportAction) {
+            if (action == pExportAction) {
                 settings_tree_manager_.CleanupGUI();
-                ExportClicked(pItem);
+                ExportClicked(item);
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
 
             // Import a profile (copy a json)
-            if (pAction == pImportAction) {
+            if (action == pImportAction) {
                 settings_tree_manager_.CleanupGUI();
-                ImportClicked(pItem);
+                ImportClicked(item);
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
 
             // Edit Layer custom paths
-            if (pAction == pCustomPathAction) {
+            if (action == pCustomPathAction) {
                 settings_tree_manager_.CleanupGUI();
-                EditCustomPathsClicked(pItem);
+                EditCustomPathsClicked(item);
                 ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
@@ -1076,7 +1080,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 ///
 /// If logging is enbabled (by setting a logging file), then the log file
 /// is also opened.
-void MainWindow::on_pushButtonLaunch_clicked(void) {
+void MainWindow::on_pushButtonLaunch_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (launch_application_ != nullptr) {
         launch_application_->terminate();
@@ -1188,15 +1192,12 @@ void MainWindow::on_pushButtonLaunch_clicked(void) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-/// \brief dlgLayerOutput::processClosed
-/// \param exitCode
-/// \param status
 /// The process we are following is closed. We don't actually care about the
 /// exit status/code, we just need to know to destroy the QProcess object
 /// and set it back to nullptr so that we know we can launch a new app.
 /// Also, if we are logging, it's time to close the log file.
-void MainWindow::processClosed(int exitCode, QProcess::ExitStatus status) {
-    (void)exitCode;
+void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
+    (void)exit_code;
     (void)status;
 
     // Not likely, but better to be sure...
@@ -1222,13 +1223,12 @@ void MainWindow::processClosed(int exitCode, QProcess::ExitStatus status) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief dlgLayerOutput::standardOutputAvailable
 /// This signal get's raised whenever the spawned Vulkan appliction writes
 /// to stdout and there is data to be read. The layers flush after all stdout
 /// writes, so we should see layer output here in realtime, as we just read
 /// the string and append it to the text browser.
 /// If a log file is open, we also write the output to the log.
-void MainWindow::standardOutputAvailable(void) {
+void MainWindow::standardOutputAvailable() {
     if (launch_application_ == nullptr) return;
 
     QString inFromApp = launch_application_->readAllStandardOutput();
@@ -1240,7 +1240,7 @@ void MainWindow::standardOutputAvailable(void) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void MainWindow::errorOutputAvailable(void) {
+void MainWindow::errorOutputAvailable() {
     if (launch_application_ == nullptr) return;
 
     QString inFromApp = launch_application_->readAllStandardError();

@@ -62,26 +62,25 @@ LayerFile* Configuration::GetKhronosLayer() { return FindLayerNamed("VK_LAYER_KH
 ////////////////////////////////////////////////////////////
 // Copy a profile so we can mess with it.
 Configuration* Configuration::DuplicateConfiguration() {
-    Configuration* pDuplicate = new Configuration;
-    pDuplicate->name = name;
-    pDuplicate->file = file;
-    pDuplicate->description = description;
-    pDuplicate->excluded_layers = excluded_layers;
-    pDuplicate->preset_index = preset_index;
-    pDuplicate->all_layers_available = all_layers_available;
+    Configuration* duplicate = new Configuration;
+    duplicate->name = name;
+    duplicate->file = file;
+    duplicate->description = description;
+    duplicate->excluded_layers = excluded_layers;
+    duplicate->preset_index = preset_index;
+    duplicate->all_layers_available = all_layers_available;
     // Do not copy ->bFixedProfile
 
     for (int i = 0; i < layers.size(); i++) {
         LayerFile* pLayer = new LayerFile;
         layers[i]->CopyLayer(pLayer);
-        pDuplicate->layers.push_back(pLayer);
+        duplicate->layers.push_back(pLayer);
     }
 
-    return pDuplicate;
+    return duplicate;
 }
 
 ///////////////////////////////////////////////////////////
-/// \brief CProfileDef::CollapseProfile
 /// Remove unused layers and build the list of
 /// black listed layers.
 void Configuration::CollapseConfiguration() {

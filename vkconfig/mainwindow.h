@@ -82,7 +82,6 @@ class MainWindow : public QMainWindow {
 
    private:
     Ui::MainWindow *ui;
-
     ContigurationListItem *selected_configuration_item_;
     ContigurationListItem *GetCheckedItem();
 
@@ -96,36 +95,34 @@ class MainWindow : public QMainWindow {
 
     void ResetLaunchOptions();
 
-    void RemoveClicked(ContigurationListItem *pItem);
-    void RenameClicked(ContigurationListItem *pItem);
+    void RemoveClicked(ContigurationListItem *item);
+    void RenameClicked(ContigurationListItem *item);
     void NewClicked();
-    void DuplicateClicked(ContigurationListItem *pItem);
-    void ExportClicked(ContigurationListItem *pItem);
-    void ImportClicked(ContigurationListItem *pItem);
-    void EditClicked(ContigurationListItem *pItem);
-    void RestoreClicked(ContigurationListItem *pItem);
-    void EditCustomPathsClicked(ContigurationListItem *pItem);
+    void DuplicateClicked(ContigurationListItem *item);
+    void ExportClicked(ContigurationListItem *item);
+    void ImportClicked(ContigurationListItem *item);
+    void EditCustomPathsClicked(ContigurationListItem *item);
 
    public Q_SLOTS:
-    void aboutVkConfig(bool bChecked);
-    void toolsVulkanInfo(bool bChecked);
-    void toolsVulkanInstallation(bool bChecked);
-    void toolsSetCustomPaths(bool bChecked);
-    void toolsResetToDefault(bool bChecked);
+    void aboutVkConfig(bool checked);
+    void toolsVulkanInfo(bool checked);
+    void toolsVulkanInstallation(bool checked);
+    void toolsSetCustomPaths(bool checked);
+    void toolsResetToDefault(bool checked);
 
-    void helpShowHelp(bool bChecked);
+    void helpShowHelp(bool checked);
 
     void addCustomPaths();  // Fired by menu
 
-    void editorExpanded(QTreeWidgetItem *pItem);
+    void editorExpanded(QTreeWidgetItem *item);
 
-    void launchItemExpanded(QTreeWidgetItem *pItem);
-    void launchItemCollapsed(QTreeWidgetItem *pItem);
-    void launchItemChanged(int nIndex);
+    void launchItemExpanded(QTreeWidgetItem *item);
+    void launchItemCollapsed(QTreeWidgetItem *item);
+    void launchItemChanged(int index);
     void launchSetLogFile();
-    void launchArgsEdited(const QString &newText);
-    void on_pushButtonLaunch_clicked(void);
-    void on_pushButtonClearLog_clicked(void);
+    void launchArgsEdited(const QString &new_text);
+    void on_pushButtonLaunch_clicked();
+    void on_pushButtonClearLog_clicked();
 
     void on_radioFully_clicked();
     void on_radioOverride_clicked();
@@ -134,10 +131,13 @@ class MainWindow : public QMainWindow {
 
     void on_pushButtonAppList_clicked();
 
-    void profileItemChanged(QTreeWidgetItem *pItem, int nCol);
-    void profileTreeChanged(QTreeWidgetItem *pCurrent, QTreeWidgetItem *pPrevious);
-    void profileItemClicked(bool bChecked);
-    void profileItemExpanded(QTreeWidgetItem *pItem);
+    void profileItemChanged(QTreeWidgetItem *item, int column);
+    void profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void profileItemClicked(bool checked);
+    void profileItemExpanded(QTreeWidgetItem *item);
+
+    void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
+    void OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int column);
 
     void on_pushButtonEditProfile_clicked();
 

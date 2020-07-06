@@ -476,7 +476,6 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *pItem, int nSelection) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief dlgProfileEditor::accept()
 /// This is actually the save button.
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept() {
@@ -535,10 +534,9 @@ void dlgProfileEditor::accept() {
 
     // Prepare... get fully qualified file name, and double check if overwriting
     configuration_->file = configuration_->name + ".json";
-    QString savePath = Configurator::Get().GetConfigurationPath();
-    savePath += "/" + configuration_->file;
+    const QString save_path = Configurator::Get().GetPath(Configurator::ConfigurationPath) + "/" + configuration_->file;
 
-    if (QDir().exists(savePath)) {
+    if (QDir().exists(save_path)) {
         QMessageBox warning;
         warning.setInformativeText(tr("Are you sure you want to overwrite this configuration?"));
         warning.setText(configuration_->name);
@@ -559,7 +557,6 @@ void dlgProfileEditor::accept() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief dlgProfileEditor::on_toolButtonUp_clicked
 /// Move the selected layer up in the list
 void dlgProfileEditor::on_toolButtonUp_clicked() {
     // Get the item, see if it's a top level item suitable for movement
