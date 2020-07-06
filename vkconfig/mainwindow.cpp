@@ -289,8 +289,13 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     configurator.SaveSettings();
     ui_->pushButtonAppList->setEnabled(configurator.override_application_list_only);
 
-    // Checking the list, the configuration need to be updated to the system
-    if (configurator.GetActiveConfiguration()) ChangeActiveConfiguration(configurator.GetActiveConfiguration());
+    if (configurator.override_application_list_only && (configurator.overridden_application_list.empty() || !configurator.HasOverriddenApplications())) {
+        on_pushButtonAppList_clicked();
+    }
+    else {
+        // Checking the list, the configuration need to be updated to the system
+        if (configurator.GetActiveConfiguration()) ChangeActiveConfiguration(configurator.GetActiveConfiguration());
+    }
 }
 
 //////////////////////////////////////////////////////////
@@ -515,7 +520,6 @@ void MainWindow::showEvent(QShowEvent *event) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::on_pushButtonAppList_clicked
 /// Edit the list of apps that can be filtered.
 void MainWindow::on_pushButtonAppList_clicked() {
     dlgCreateAssociation dlg(this);
@@ -531,8 +535,8 @@ void MainWindow::on_pushButtonAppList_clicked() {
     ResetLaunchOptions();
 
     // Also, we may have changed exclusion flags, so reset override
-    Configuration *pCurr = configurator.GetActiveConfiguration();
-    if (pCurr != nullptr) configurator.SetActiveConfiguration(pCurr);
+    Configuration *active_configuration = configurator.GetActiveConfiguration();
+    if (active_configuration != nullptr) configurator.SetActiveConfiguration(active_configuration);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
