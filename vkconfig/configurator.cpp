@@ -695,15 +695,11 @@ void Configurator::SelectLaunchApplication(int application_index) {
 }
 
 int Configurator::GetLaunchApplicationIndex() const {
-    // If no active launch path is set, we auto select the first one
-    if (active_launch_executable_path_.isEmpty() && !overridden_application_list.isEmpty()) return 0;
-
     for (int i = 0; i < overridden_application_list.size(); i++) {
         if (overridden_application_list[i]->executable_path == active_launch_executable_path_) return i;
     }
 
-    Q_ASSERT(0);
-    return -1;  // Not found
+    return 0;  // Not found, but the list is present, so return the first item.
 }
 
 /////////////////////////////////////////////////////////////////////////////
