@@ -108,6 +108,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
 
     // Everyone is expanded.
     build_tree->resizeColumnToContents(0);
+    // Curious... this should work...
+   // build_tree->scrollToItem(build_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
+
 }
 
 //////////////////////////////////////////////////////////////////////////

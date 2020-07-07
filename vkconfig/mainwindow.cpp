@@ -56,7 +56,7 @@ static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
 #ifdef __APPLE__
-static const int LAUNCH_ROW_HEIGHT = 24;
+static const int LAUNCH_ROW_HEIGHT = 26;
 #else
 static const int LAUNCH_ROW_HEIGHT = 28;
 #endif
@@ -131,6 +131,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
 
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+    ui_->splitter->restoreState(settings.value("splitter1State").toByteArray());
+    ui_->splitter_2->restoreState(settings.value("splitter2State").toByteArray());
+    ui_->splitter_3->restoreState(settings.value("splitter3State").toByteArray());
 
     // All else is done, highlight and activeate the current profile on startup
     Configuration *pActive = configurator.GetActiveConfiguration();
@@ -194,6 +197,7 @@ void MainWindow::LoadConfigurationList() {
     ChangeActiveConfiguration(configurator.GetActiveConfiguration());
     ui_->profileTree->setColumnWidth(0, 24);
     ui_->profileTree->resizeColumnToContents(1);
+    //ui_->profileTree->scrollToItem(ui_->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 }
 
 //////////////////////////////////////////////////////////
@@ -504,6 +508,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     QSettings settings;
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
+    settings.setValue("splitter1State", ui_->splitter->saveState());
+    settings.setValue("splitter2State", ui_->splitter_2->saveState());
+    settings.setValue("splitter3State", ui_->splitter_3->saveState());
+
     QMainWindow::closeEvent(event);
 }
 
@@ -728,7 +736,7 @@ void MainWindow::profileItemExpanded(QTreeWidgetItem *item) {
 
 void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     (void)item;
-
+    (void)column;
     Configurator::Get().CheckApplicationRestart();
 }
 
@@ -778,6 +786,7 @@ void MainWindow::ResetLaunchOptions() {
 void MainWindow::SetupLaunchTree() {
     /////////////////////////////////////////////////////////////////
     // Executable
+    QSettings settings;
     QTreeWidgetItem *launcher_parent = new QTreeWidgetItem();
     launcher_parent->setText(0, "Executable Path");
     ui_->launchTree->addTopLevelItem(launcher_parent);
@@ -859,7 +868,11 @@ void MainWindow::SetupLaunchTree() {
         1, ui_->launchTree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
     ui_->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
 
-    ui_->launchTree->expandItem(launcher_parent);
+    if(settings.value("launcherCollapsed").toBool())
+        launchItemCollapsed(nullptr);
+    else
+      ui_->launchTree->expandItem(launcher_parent);
+
     ui_->launchTree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui_->launchTree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -870,17 +883,22 @@ void MainWindow::SetupLaunchTree() {
 // Expanding the tree also grows the tree to match
 void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
     (void)item;
+    QSettings settings;
     ui_->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
     ui_->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
+    settings.setValue("launcherCollapsed", false);
+
 }
 
 ////////////////////////////////////////////////////////////////////
 // Collapsing the tree also shrinks the tree to match and show only
 // the first line
 void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
-    QRect rect = ui_->launchTree->visualItemRect(item);
-    ui_->launchTree->setMinimumHeight(rect.height());
-    ui_->launchTree->setMaximumHeight(rect.height());
+    (void)item;
+    QSettings settings;
+    ui_->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT + 6);
+    ui_->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT + 6);
+    settings.setValue("launcherCollapsed", true);
 }
 
 ////////////////////////////////////////////////////////////////////
