@@ -99,8 +99,7 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
         QMessageBox alert;
         alert.setIcon(QMessageBox::Warning);
         alert.setWindowTitle("Vulkan Layers overriding will apply globally.");
-        alert.setText(
-            "The application list to override is empty. Restricting layers overriding to the selected list is disabled.");
+        alert.setText("The application list to override is empty. Restricting layers overriding to the selected list is disabled.");
         alert.setInformativeText("As a result, Vulkan Layers overriding will apply globally, to all Vulkan applications.");
         alert.exec();
     }
