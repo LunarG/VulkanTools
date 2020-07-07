@@ -308,13 +308,13 @@ QString Configurator::CheckVulkanSetup() const {
 
     std::uint32_t instance_layer_count = 0;
     VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
-    assert(!err);
+    Q_ASSERT(!err);
 
     std::vector<VkLayerProperties> layers_properties;
     layers_properties.resize(instance_layer_count);
 
     err = vkEnumerateInstanceLayerProperties(&instance_layer_count, &layers_properties[0]);
-    assert(!err);
+    Q_ASSERT(!err);
 
     log += "- Available Layers:\n";
     for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
@@ -360,13 +360,13 @@ QString Configurator::CheckVulkanSetup() const {
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
         (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, NULL);
-    assert(!err);
+    Q_ASSERT(!err);
 
     std::vector<VkPhysicalDevice> devices;
     devices.resize(gpu_count);
 
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, &devices[0]);
-    assert(!err);
+    Q_ASSERT(!err);
 
     log += "- Physical Devices:\n";
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
@@ -601,7 +601,7 @@ void Configurator::ResetToDefaultSettings() {
 }
 
 QString Configurator::GetPath(Path requested_path) const {
-    assert(requested_path >= FirstPath && requested_path <= LastPath);
+    Q_ASSERT(requested_path >= FirstPath && requested_path <= LastPath);
     const QString path = paths_[requested_path];
 
     if (!path.isEmpty()) {
@@ -619,8 +619,8 @@ QString Configurator::GetPath(Path requested_path) const {
 }
 
 void Configurator::SetPath(Path requested_path, QString path) {
-    assert(requested_path >= FirstPath && requested_path <= LastPath);
-    assert(!path.isEmpty());
+    Q_ASSERT(requested_path >= FirstPath && requested_path <= LastPath);
+    Q_ASSERT(!path.isEmpty());
 
     path = QDir::toNativeSeparators(path);
 
@@ -650,7 +650,7 @@ void Configurator::SaveCustomLayersPaths() {
 }
 
 void Configurator::RemoveCustomLayersPath(int path_index) {
-    assert(path_index > 0 && path_index < custom_layers_paths_.size());
+    Q_ASSERT(path_index > 0 && path_index < custom_layers_paths_.size());
 
     custom_layers_paths_.removeAt(path_index);
 
@@ -660,7 +660,7 @@ void Configurator::RemoveCustomLayersPath(int path_index) {
 }
 
 void Configurator::RemoveCustomLayersPath(const QString &path) {
-    assert(!path.isEmpty());
+    Q_ASSERT(!path.isEmpty());
 
     for (int i = 0; i < custom_layers_paths_.size(); ++i) {
         if (custom_layers_paths_[i] != path) continue;
@@ -671,7 +671,7 @@ void Configurator::RemoveCustomLayersPath(const QString &path) {
 }
 
 void Configurator::AppendCustomLayersPath(const QString &path) {
-    assert(!path.isEmpty());
+    Q_ASSERT(!path.isEmpty());
 
     custom_layers_paths_.append(path);
 
@@ -683,7 +683,7 @@ void Configurator::AppendCustomLayersPath(const QString &path) {
 int Configurator::GetCustomLayersPathSize() const { return custom_layers_paths_.size(); }
 
 const QString &Configurator::GetCustomLayersPath(int path_index) const {
-    assert(path_index >= 0 && path_index < custom_layers_paths_.size());
+    Q_ASSERT(path_index >= 0 && path_index < custom_layers_paths_.size());
 
     return custom_layers_paths_[path_index];
 }
@@ -702,7 +702,7 @@ int Configurator::GetLaunchApplicationIndex() const {
         if (overridden_application_list[i]->executable_path == active_launch_executable_path_) return i;
     }
 
-    assert(0);
+    Q_ASSERT(0);
     return -1;  // Not found
 }
 
