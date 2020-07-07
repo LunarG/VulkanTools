@@ -60,6 +60,8 @@ class MainWindow : public QMainWindow {
 
    protected:
     SettingsTreeManager settings_tree_manager_;
+    QSettings settings_;
+
 
     QProcess *launch_application_;  // Keeps track of the monitored app
     QFile *log_file_;               // Log file for layer output

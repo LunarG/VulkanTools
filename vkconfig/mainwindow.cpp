@@ -79,8 +79,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     Configurator &configurator = Configurator::Get();
 
     // We need to resetup the new profile for consistency sake.
-    QSettings settings;
-    QString last_configuration = settings.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Validation - Standard")).toString();
+    QString last_configuration = settings_.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Validation - Standard")).toString();
     Configuration *current_configuration = configurator.FindConfiguration(last_configuration);
     if (configurator.override_active) ChangeActiveConfiguration(current_configuration);
 
@@ -129,11 +128,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
         ui_->groupBoxEditor->setEnabled(false);
     }
 
-    restoreGeometry(settings.value("geometry").toByteArray());
-    restoreState(settings.value("windowState").toByteArray());
-    ui_->splitter->restoreState(settings.value("splitter1State").toByteArray());
-    ui_->splitter_2->restoreState(settings.value("splitter2State").toByteArray());
-    ui_->splitter_3->restoreState(settings.value("splitter3State").toByteArray());
+    restoreGeometry(settings_.value("geometry").toByteArray());
+    restoreState(settings_.value("windowState").toByteArray());
+    ui_->splitter->restoreState(settings_.value("splitter1State").toByteArray());
+    ui_->splitter_2->restoreState(settings_.value("splitter2State").toByteArray());
+    ui_->splitter_3->restoreState(settings_.value("splitter3State").toByteArray());
 
     // All else is done, highlight and activeate the current profile on startup
     Configuration *pActive = configurator.GetActiveConfiguration();
@@ -149,6 +148,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
 
     ui_->logBrowser->append("Vulkan Development Status:");
     ui_->logBrowser->append(configurator.CheckVulkanSetup());
+    ui_->profileTree->scrollToItem(ui_->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 }
 
 MainWindow::~MainWindow() { delete ui_; }
@@ -164,8 +164,7 @@ void MainWindow::LoadConfigurationList() {
     ui_->profileTree->clear();
 
     // Who is the currently active profile?
-    QSettings settings;
-    QString active_configuration_name = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+    QString active_configuration_name = settings_.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
 
     Configurator &configurator = Configurator::Get();
 
@@ -197,7 +196,6 @@ void MainWindow::LoadConfigurationList() {
     ChangeActiveConfiguration(configurator.GetActiveConfiguration());
     ui_->profileTree->setColumnWidth(0, 24);
     ui_->profileTree->resizeColumnToContents(1);
-    //ui_->profileTree->scrollToItem(ui_->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 }
 
 //////////////////////////////////////////////////////////
@@ -348,8 +346,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     }
 
     // Reset to recopy from resource file
-    QSettings settings;
-    settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
+    settings_.setValue(VKCONFIG_KEY_FIRST_RUN, true);
 
     // Now we need to kind of restart everything
     settings_tree_manager_.CleanupGUI();
@@ -505,12 +502,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     configurator.SaveOverriddenApplicationList();
     configurator.SaveSettings();
 
-    QSettings settings;
-    settings.setValue("geometry", saveGeometry());
-    settings.setValue("windowState", saveState());
-    settings.setValue("splitter1State", ui_->splitter->saveState());
-    settings.setValue("splitter2State", ui_->splitter_2->saveState());
-    settings.setValue("splitter3State", ui_->splitter_3->saveState());
+    settings_.setValue("geometry", saveGeometry());
+    settings_.setValue("windowState", saveState());
+    settings_.setValue("splitter1State", ui_->splitter->saveState());
+    settings_.setValue("splitter2State", ui_->splitter_2->saveState());
+    settings_.setValue("splitter3State", ui_->splitter_3->saveState());
 
     QMainWindow::closeEvent(event);
 }
@@ -573,7 +569,6 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
         if (item != nullptr)
             if (item->configuration->name == edited_configuration_name) {
                 ui_->profileTree->setCurrentItem(item);
-                //                settingsTreeManager.CreateGUI(ui->layerSettingsTree, pProfile);
                 break;
             }
     }
@@ -786,7 +781,6 @@ void MainWindow::ResetLaunchOptions() {
 void MainWindow::SetupLaunchTree() {
     /////////////////////////////////////////////////////////////////
     // Executable
-    QSettings settings;
     QTreeWidgetItem *launcher_parent = new QTreeWidgetItem();
     launcher_parent->setText(0, "Executable Path");
     ui_->launchTree->addTopLevelItem(launcher_parent);
@@ -868,7 +862,7 @@ void MainWindow::SetupLaunchTree() {
         1, ui_->launchTree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
     ui_->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
 
-    if(settings.value("launcherCollapsed").toBool())
+    if(settings_.value("launcherCollapsed").toBool())
         launchItemCollapsed(nullptr);
     else
       ui_->launchTree->expandItem(launcher_parent);
@@ -883,10 +877,9 @@ void MainWindow::SetupLaunchTree() {
 // Expanding the tree also grows the tree to match
 void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
     (void)item;
-    QSettings settings;
     ui_->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
     ui_->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
-    settings.setValue("launcherCollapsed", false);
+    settings_.setValue("launcherCollapsed", false);
 
 }
 
@@ -895,10 +888,9 @@ void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
 // the first line
 void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
     (void)item;
-    QSettings settings;
     ui_->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT + 6);
     ui_->launchTree->setMaximumHeight(LAUNCH_ROW_HEIGHT + 6);
-    settings.setValue("launcherCollapsed", true);
+    settings_.setValue("launcherCollapsed", true);
 }
 
 ////////////////////////////////////////////////////////////////////
