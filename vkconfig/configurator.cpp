@@ -37,6 +37,13 @@
 
 #include <vulkan/vulkan.h>
 
+Application::Application(const QString &executable_full_path, const QString &arguments)
+    : executable_path(QDir::toNativeSeparators(executable_full_path)),
+      working_folder(QDir::toNativeSeparators(QFileInfo(executable_full_path).path())),
+      arguments(arguments),
+      log_file(QDir::toNativeSeparators(working_folder + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
+      override_layers(true) {}
+
 const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
     const char *translation[] = {"Other", "Integrated GPU", "Discrete GPU", "Virtual GPU", "CPU"};
     return translation[type];
@@ -565,6 +572,7 @@ void Configurator::LoadSettings() {
     override_permanent = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
     paths_[LastExportPath] = settings.value(VKCONFIG_KEY_LAST_EXPORT_PATH).toString();
     paths_[LastImportPath] = settings.value(VKCONFIG_KEY_LAST_IMPORT_PATH).toString();
+    paths_[LastExecutablePath] = settings.value(VKCONFIG_KEY_LAST_EXECUTABLE_PATH).toString();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -577,6 +585,7 @@ void Configurator::SaveSettings() {
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, override_permanent);
     settings.setValue(VKCONFIG_KEY_LAST_EXPORT_PATH, paths_[LastExportPath]);
     settings.setValue(VKCONFIG_KEY_LAST_IMPORT_PATH, paths_[LastImportPath]);
+    settings.setValue(VKCONFIG_KEY_LAST_EXECUTABLE_PATH, paths_[LastExecutablePath]);
 }
 
 void Configurator::ResetToDefaultSettings() {
@@ -587,6 +596,7 @@ void Configurator::ResetToDefaultSettings() {
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, false);
     settings.setValue(VKCONFIG_KEY_LAST_EXPORT_PATH, "");
     settings.setValue(VKCONFIG_KEY_LAST_IMPORT_PATH, "");
+    settings.setValue(VKCONFIG_KEY_LAST_EXECUTABLE_PATH, "");
 }
 
 QString Configurator::GetPath(Path requested_path) const {
@@ -613,7 +623,7 @@ void Configurator::SetPath(Path requested_path, QString path) {
 
     path = QDir::toNativeSeparators(path);
 
-    if (requested_path == LastImportPath || requested_path == LastExportPath) {
+    if (requested_path == LastImportPath || requested_path == LastExportPath || requested_path == LastExecutablePath) {
         QDir directory = QFileInfo(path).absoluteDir();
         path = directory.absolutePath();
     }
@@ -726,13 +736,8 @@ void Configurator::FindVkCube() {
         local = local2;
     }
 
-    Application *new_application = new Application;
-    new_application->working_folder = QDir::toNativeSeparators(local.absolutePath());
-    new_application->executable_path = QDir::toNativeSeparators(local.absoluteFilePath());
-    new_application->arguments = QString("--suppress_popups --validate");
-    new_application->override_layers = true;
-    new_application->log_file = "vkcube_out.txt";
-    overridden_application_list.push_back(new_application);
+    Application *application = new Application(local.absoluteFilePath(), "--suppress_popups --validate");
+    overridden_application_list.push_back(application);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -761,17 +766,17 @@ void Configurator::LoadOverriddenApplicationList() {
                 QJsonValue app_value = json_doc_object.value(app_keys[i]);
                 QJsonObject app_object = app_value.toObject();
 
-                Application *app_entry = new Application;
-                app_entry->working_folder = app_object.value("app_folder").toString();
-                app_entry->executable_path = app_object.value("app_path").toString();
-                app_entry->override_layers = !app_object.value("exclude_override").toBool();
-                app_entry->log_file = app_object.value("log_file").toString();
+                Application *application = new Application;
+                application->working_folder = app_object.value("app_folder").toString();
+                application->executable_path = app_object.value("app_path").toString();
+                application->override_layers = !app_object.value("exclude_override").toBool();
+                application->log_file = app_object.value("log_file").toString();
 
                 // Arguments are in an array to make room for adding more in a future version
                 QJsonArray args = app_object.value("command_lines").toArray();
-                app_entry->arguments = args[0].toString();
+                application->arguments = args[0].toString();
 
-                overridden_application_list.push_back(app_entry);
+                overridden_application_list.push_back(application);
             }
         }
 

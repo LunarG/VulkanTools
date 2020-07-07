@@ -1156,6 +1156,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     launch_log += QString().asprintf("- Executable Path: %s\n", current_application.executable_path.toUtf8().constData());
     launch_log += QString().asprintf("- Working Directory: %s\n", current_application.working_folder.toUtf8().constData());
     launch_log += QString().asprintf("- Command-line Arguments: %s\n", current_application.arguments.toUtf8().constData());
+    launch_log += QString().asprintf("- Log file: %s\n", current_application.log_file.toUtf8().constData());
 
     if (!current_application.log_file.isEmpty()) {
         // This should never happen... but things that should never happen do in

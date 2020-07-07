@@ -95,6 +95,8 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
 /// Browse for and select an executable file to add to the list.
 void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test application
 {
+    Configurator &configurator = Configurator::Get();
+
     QString filter = ("Applications (*)");  // Linux default
 
 #ifdef __APPLE__
@@ -106,10 +108,13 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
 #endif
 
     // Go get it.
-    QString executable_full_path = QFileDialog::getOpenFileName(this, tr("Select a Vulkan Executable"), "/", filter);
+    QString full_suggested_path = configurator.GetPath(Configurator::LastExecutablePath);
+    QString executable_full_path = QFileDialog::getOpenFileName(this, "Select a Vulkan Executable", full_suggested_path, filter);
 
     // If they have selected something!
     if (!executable_full_path.isEmpty()) {
+        configurator.SetPath(Configurator::LastExecutablePath, executable_full_path);
+
         // On macOS, they may have selected a binary, or they may have selected an app bundle.
         // If the later, we need to drill down to the actuall applicaiton
         if (executable_full_path.right(4) == QString(".app")) {
@@ -117,19 +122,12 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
             GetExecutableFromAppBundle(executable_full_path);
         }
 
-        executable_full_path = QDir::toNativeSeparators(executable_full_path);
-
-        Configurator &configurator = Configurator::Get();
-
-        Application *new_application = new Application;
-        new_application->executable_path = executable_full_path;
-        new_application->working_folder = QDir::toNativeSeparators(QFileInfo(executable_full_path).path());
-        new_application->override_layers = true;
-        new_application->log_file = QDir::toNativeSeparators(ui_->lineEditLogFile->text());
+        Application *new_application = new Application(executable_full_path, "");
         configurator.overridden_application_list.push_back(new_application);
 
         QTreeWidgetItem *item = CreateApplicationItem(*new_application);
 
+        configurator.SaveSettings();
         configurator.SaveOverriddenApplicationList();
         configurator.RefreshConfiguration();
         ui_->treeWidget->setCurrentItem(item);

@@ -76,6 +76,7 @@ class PathFinder {
 #define VKCONFIG_HIDE_RESTART_WARNING "restartWarning"
 #define VKCONFIG_KEY_LAST_EXPORT_PATH "lastExportPath"
 #define VKCONFIG_KEY_LAST_IMPORT_PATH "lastImportPath"
+#define VKCONFIG_KEY_LAST_EXECUTABLE_PATH "lastExecutablePath"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -93,6 +94,9 @@ struct LayerSettingsDefaults {
 // it's own working folder (when run in test mode), and
 // it's own set of command line arguments
 struct Application {
+    Application() {}
+    Application(const QString& executable_full_path, const QString& arguments);
+
     QString executable_path;
     QString working_folder;
     QString arguments;
@@ -108,9 +112,10 @@ class Configurator {
         OverrideLayersPath = 2,    // Where json goes when profile is active
         LastImportPath = 3,        // The last path used by the user to import a configuration
         LastExportPath = 4,        // The last path used by the user to export a configuration
+        LastExecutablePath = 5,    // The last path used by the user when adding an executable to the application list
 
         FirstPath = ConfigurationPath,
-        LastPath = LastExportPath
+        LastPath = LastExecutablePath
     };
     enum { PathCount = LastPath - FirstPath + 1 };
 
