@@ -52,7 +52,7 @@ bool been_warned_about_old_loader = false;
 
 #define EDITOR_CAPTION_EMPTY "Configuration Layer Settings"
 
-static const int LAUNCH_COLUMN0_SIZE = 240;
+static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
 #ifdef __APPLE__
