@@ -306,7 +306,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
 
         item->setText(0, decoratedName);
         item->setFlags(item->flags() | Qt::ItemIsSelectable);
-        item->setText(1, "App Controlled");  // Fake out for width of column
+//        item->setText(1, "App Controlled");  // Fake out for width of column (leaves artifacts on macOS... testing on other platforms)
 
         // Add the top level item
         ui_->layerTree->addTopLevelItem(item);
@@ -360,7 +360,6 @@ void dlgProfileEditor::resizeEvent(QResizeEvent *event) {
 /// start over.
 void dlgProfileEditor::on_pushButtonResetLayers_clicked() {
     // TBD, needs to reset which layers are active, settings, etc.
-    ui_->groupBoxSettings->setTitle(tr("Layer Settings"));
     delete configuration_;
     configuration_ = Configurator::Get().CreateEmptyConfiguration();
     //    settingsEditor.CleanupGUI();
@@ -375,7 +374,6 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     // New settings
     QTreeWidgetItemWithLayer *pLayerItem = dynamic_cast<QTreeWidgetItemWithLayer *>(pCurrent);
     if (pLayerItem == nullptr) {
-        ui_->groupBoxSettings->setTitle(tr("Layer Settings"));
         ui_->labelLayerDetails->setText("");
         return;
     }
