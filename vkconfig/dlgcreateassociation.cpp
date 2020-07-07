@@ -37,25 +37,11 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     Configurator &configurator = Configurator::Get();
     configurator.override_application_list_updated = false;
 
-    bool need_checkbox = configurator.HasActiveOverrideOnApplicationListOnly();
-
-    if (!need_checkbox) setWindowTitle("Applications Launcher Shortcuts");
+    if (!configurator.HasActiveOverrideOnApplicationListOnly()) setWindowTitle("Applications Launcher Shortcuts");
 
     // Show the current list
     for (int i = 0; i < configurator.overridden_application_list.size(); i++) {
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        ui_->treeWidget->addTopLevelItem(item);
-
-        if (need_checkbox) {
-            item->setText(0, tr("    ") + configurator.overridden_application_list[i]->executable_path);
-            QCheckBox *check_box = new QCheckBox("");
-            check_box->setFont(ui_->treeWidget->font());
-            check_box->setChecked(configurator.overridden_application_list[i]->override_layers);
-            ui_->treeWidget->setItemWidget(item, 0, check_box);
-            connect(check_box, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
-        } else {
-            item->setText(0, configurator.overridden_application_list[i]->executable_path);
-        }
+        QTreeWidgetItem *item = CreateNewApplicationItem(*configurator.overridden_application_list[i]);
     }
 
     ui_->treeWidget->installEventFilter(this);
@@ -131,27 +117,43 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
             GetExecutableFromAppBundle(executable_full_path);
         }
 
+        executable_full_path = QDir::toNativeSeparators(executable_full_path);
+
         Configurator &configurator = Configurator::Get();
 
-        executable_full_path = QDir::toNativeSeparators(executable_full_path);
         Application *new_application = new Application;
         new_application->executable_path = executable_full_path;
         new_application->working_folder = QDir::toNativeSeparators(QFileInfo(executable_full_path).path());
         new_application->override_layers = true;
         new_application->log_file = QDir::toNativeSeparators(ui_->lineEditLogFile->text());
+        configurator.overridden_application_list.push_back(new_application);
 
-        Configurator::Get().overridden_application_list.push_back(new_application);
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, executable_full_path);
-        QCheckBox *checkbox = new QCheckBox(tr("Exclude from Layers Override"));
-        ui_->treeWidget->addTopLevelItem(item);
-        ui_->treeWidget->setItemWidget(item, 1, checkbox);
+        QTreeWidgetItem *item = CreateNewApplicationItem(*new_application);
+
         configurator.SaveOverriddenApplicationList();
         configurator.RefreshConfiguration();
         ui_->treeWidget->setCurrentItem(item);
         last_selected_application_index_ = ui_->treeWidget->indexOfTopLevelItem(item);
-        connect(checkbox, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
     }
+}
+
+QTreeWidgetItem *dlgCreateAssociation::CreateNewApplicationItem(const Application &application) const {
+    Configurator &configurator = Configurator::Get();
+
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    ui_->treeWidget->addTopLevelItem(item);
+
+    if (configurator.HasActiveOverrideOnApplicationListOnly()) {
+        item->setText(0, tr("    ") + application.executable_path);
+        QCheckBox *check_box = new QCheckBox("");
+        check_box->setChecked(application.override_layers);
+        ui_->treeWidget->setItemWidget(item, 0, check_box);
+        connect(check_box, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
+    } else {
+        item->setText(0, application.executable_path);
+    }
+
+    return item;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

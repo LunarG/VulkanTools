@@ -21,10 +21,10 @@
 
 #pragma once
 
+#include "configurator.h"
+
 #include <QDialog>
 #include <QTreeWidgetItem>
-
-#include <configurator.h>
 
 namespace Ui {
 class dlgCreateAssociation;
@@ -41,6 +41,8 @@ class dlgCreateAssociation : public QDialog {
     int GetSelectedLaunchApplicationIndex() const { return last_selected_application_index_; }
 
    private:
+    QTreeWidgetItem *CreateNewApplicationItem(const Application &application) const;
+
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
