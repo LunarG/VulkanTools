@@ -30,6 +30,7 @@
 #include <QLibrary>
 #include <QMessageBox>
 #include <QCheckBox>
+#include <QDebug>
 
 #ifdef _WIN32
 #include <shlobj_core.h>
@@ -183,7 +184,7 @@ Configurator::Configurator()
     home = QDir::home();
     const QString configuration_path = home.path() + QString("/.local/share/vulkan/");
     SetPath(ConfigurationPath, configuration_path);  // TBD, where do configuration file go if not here...
-    SetPath(OverrideLayersPath, configuration_path + "implicit_layer.d/VkLayer_override.json";
+    SetPath(OverrideLayersPath, configuration_path + "implicit_layer.d/VkLayer_override.json");
     SetPath(OverrideSettingsPath, configuration_path + "settings.d/vk_layer_settings.txt");
 #endif
 
@@ -628,7 +629,7 @@ void Configurator::SetPath(Path requested_path, QString path) {
         path = directory.absolutePath();
     }
 
-    OutputDebugString((path + "\n").toUtf8().constData());
+    qDebug() << ((path + "\n").toUtf8().constData());
     paths_[requested_path] = path;
 }
 

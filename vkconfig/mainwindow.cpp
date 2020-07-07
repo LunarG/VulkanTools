@@ -761,7 +761,7 @@ void MainWindow::ResetLaunchOptions() {
     }
 
     int launch_application_index = configurator.GetLaunchApplicationIndex();
-    assert(launch_application_index >= 0);
+    Q_ASSERT(launch_application_index >= 0);
 
     configurator.SelectLaunchApplication(launch_application_index);
     launcher_apps_combo_->setCurrentIndex(launch_application_index);
