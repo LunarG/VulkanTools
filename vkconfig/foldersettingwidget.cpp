@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "foldersettingwidget.h"
 
-FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) : QWidget(nullptr) {
-    layer_settings_ = pLayerSetting;
+FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings) : QWidget(nullptr) {
+    layer_settings_ = layer_settings;
 
-    pItem->setText(0, pLayerSetting->settings_prompt);
-    pItem->setToolTip(0, pLayerSetting->settings_desc);
+    item->setText(0, layer_settings->settings_prompt);
+    item->setToolTip(0, layer_settings->settings_desc);
 
     line_edit_ = new QLineEdit(this);
     line_edit_->setText(layer_settings_->settings_value);

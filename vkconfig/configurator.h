@@ -41,7 +41,6 @@
 #define APP_SHORT_NAME "vkconfig"
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief The CPathFinder class
 /// Going back and forth between the Windows registry and looking for files
 /// in specific folders is just a mess. This class consolidates all that into
 /// one single abstraction that knows whether to look in the registry or in

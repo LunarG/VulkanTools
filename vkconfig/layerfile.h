@@ -97,24 +97,24 @@ class LayerFile : public QObject {
 
     // No.. I do not like operator overloading. It's a bad idea.
     // Inlined here just so I can see all the variables that need to be copied.
-    void CopyLayer(LayerFile* destinationLayer) const {
-        destinationLayer->file_format_version = file_format_version;
-        destinationLayer->name = name;
-        destinationLayer->type = type;
-        destinationLayer->library_path = library_path;
-        destinationLayer->api_version = api_version;
-        destinationLayer->implementation_version = implementation_version;
-        destinationLayer->description = description;
-        destinationLayer->layer_type = layer_type;
-        destinationLayer->enabled = enabled;
-        destinationLayer->rank = rank;
-        destinationLayer->disabled = disabled;
-        destinationLayer->layer_path = layer_path;
+    void CopyLayer(LayerFile* destination_layer_file) const {
+        destination_layer_file->file_format_version = file_format_version;
+        destination_layer_file->name = name;
+        destination_layer_file->type = type;
+        destination_layer_file->library_path = library_path;
+        destination_layer_file->api_version = api_version;
+        destination_layer_file->implementation_version = implementation_version;
+        destination_layer_file->description = description;
+        destination_layer_file->layer_type = layer_type;
+        destination_layer_file->enabled = enabled;
+        destination_layer_file->rank = rank;
+        destination_layer_file->disabled = disabled;
+        destination_layer_file->layer_path = layer_path;
 
         for (int i = 0; i < layer_settings.length(); i++) {
             LayerSettings* pSettings = new LayerSettings();
             *pSettings = *layer_settings[i];
-            destinationLayer->layer_settings.push_back(pSettings);
+            destination_layer_file->layer_settings.push_back(pSettings);
         }
     }
 

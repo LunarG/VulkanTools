@@ -72,8 +72,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     help_ = nullptr;
     launch_application_ = nullptr;
     log_file_ = nullptr;
-    launcher_apps_combo = nullptr;
-    launch_arguments = nullptr;
+    launcher_apps_combo_ = nullptr;
+    launch_arguments_ = nullptr;
 
     ///////////////////////////////////////////////
     Configurator &configurator = Configurator::Get();
@@ -746,17 +746,17 @@ void MainWindow::ResetLaunchOptions() {
     ui_->pushButtonLaunch->setEnabled(!configurator.overridden_application_list.empty());
 
     // Reload launch apps selections
-    launcher_apps_combo->blockSignals(true);
-    launcher_apps_combo->clear();
+    launcher_apps_combo_->blockSignals(true);
+    launcher_apps_combo_->clear();
 
     for (int i = 0; i < configurator.overridden_application_list.size(); i++) {
-        launcher_apps_combo->addItem(configurator.overridden_application_list[i]->executable_path);
+        launcher_apps_combo_->addItem(configurator.overridden_application_list[i]->executable_path);
     }
 
     if (configurator.overridden_application_list.isEmpty()) {
-        launch_arguments->setText("");
-        launcher_working->setText("");
-        launcher_log_file_edit->setText("");
+        launch_arguments_->setText("");
+        launcher_working_->setText("");
+        launcher_log_file_edit_->setText("");
         return;
     }
 
@@ -764,13 +764,13 @@ void MainWindow::ResetLaunchOptions() {
     assert(launch_application_index >= 0);
 
     configurator.SelectLaunchApplication(launch_application_index);
-    launcher_apps_combo->setCurrentIndex(launch_application_index);
+    launcher_apps_combo_->setCurrentIndex(launch_application_index);
 
     // Reset working folder and command line choices
-    launch_arguments->setText(configurator.overridden_application_list[launch_application_index]->arguments);
-    launcher_working->setText(configurator.overridden_application_list[launch_application_index]->working_folder);
-    launcher_log_file_edit->setText(configurator.overridden_application_list[launch_application_index]->log_file);
-    launcher_apps_combo->blockSignals(false);
+    launch_arguments_->setText(configurator.overridden_application_list[launch_application_index]->arguments);
+    launcher_working_->setText(configurator.overridden_application_list[launch_application_index]->working_folder);
+    launcher_log_file_edit_->setText(configurator.overridden_application_list[launch_application_index]->log_file);
+    launcher_apps_combo_->blockSignals(false);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -782,20 +782,20 @@ void MainWindow::SetupLaunchTree() {
     launcher_parent->setText(0, "Executable Path");
     ui_->launchTree->addTopLevelItem(launcher_parent);
 
-    launcher_apps_combo = new QComboBox();
-    launcher_apps_combo->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    launcher_apps_combo->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(launcher_parent, 1, launcher_apps_combo);
+    launcher_apps_combo_ = new QComboBox();
+    launcher_apps_combo_->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_apps_combo_->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_parent, 1, launcher_apps_combo_);
 
-    launcher_apps_browse_button = new QPushButton();
-    launcher_apps_browse_button->setText("...");
-    launcher_apps_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    launcher_apps_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    launcher_apps_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    launcher_apps_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(launcher_parent, 2, launcher_apps_browse_button);
-    connect(launcher_apps_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
-    connect(launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_pushButtonAppList_clicked()));
+    launcher_apps_browse_button_ = new QPushButton();
+    launcher_apps_browse_button_->setText("...");
+    launcher_apps_browse_button_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    launcher_apps_browse_button_->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+    launcher_apps_browse_button_->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_apps_browse_button_->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_parent, 2, launcher_apps_browse_button_);
+    connect(launcher_apps_combo_, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
+    connect(launcher_apps_browse_button_, SIGNAL(clicked()), this, SLOT(on_pushButtonAppList_clicked()));
 
     //////////////////////////////////////////////////////////////////
     // Working folder
@@ -803,11 +803,11 @@ void MainWindow::SetupLaunchTree() {
     launcher_folder_item->setText(0, "Working Directory");
     launcher_parent->addChild(launcher_folder_item);
 
-    launcher_working = new QLineEdit();
-    launcher_working->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    launcher_working->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(launcher_folder_item, 1, launcher_working);
-    launcher_working->setReadOnly(false);
+    launcher_working_ = new QLineEdit();
+    launcher_working_->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_working_->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_folder_item, 1, launcher_working_);
+    launcher_working_->setReadOnly(false);
 
     // Comming soon
     //    pLaunchWorkingFolderButton = new QPushButton();
@@ -821,11 +821,11 @@ void MainWindow::SetupLaunchTree() {
     launcher_arguments_item->setText(0, "Command-line Arguments");
     launcher_parent->addChild(launcher_arguments_item);
 
-    launch_arguments = new QLineEdit();
-    launch_arguments->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    launch_arguments->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(launcher_arguments_item, 1, launch_arguments);
-    connect(launch_arguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
+    launch_arguments_ = new QLineEdit();
+    launch_arguments_->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launch_arguments_->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_arguments_item, 1, launch_arguments_);
+    connect(launch_arguments_, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
 
     // Comming soon
     //    pButton = new QPushButton();
@@ -838,17 +838,17 @@ void MainWindow::SetupLaunchTree() {
     launcher_log_file_item->setText(0, "Output Log");
     launcher_parent->addChild(launcher_log_file_item);
 
-    launcher_log_file_edit = new QLineEdit();
-    launcher_log_file_edit->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    launcher_log_file_edit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui_->launchTree->setItemWidget(launcher_log_file_item, 1, launcher_log_file_edit);
+    launcher_log_file_edit_ = new QLineEdit();
+    launcher_log_file_edit_->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    launcher_log_file_edit_->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui_->launchTree->setItemWidget(launcher_log_file_item, 1, launcher_log_file_edit_);
 
-    launcher_log_file_button = new QPushButton();
-    launcher_log_file_button->setText("...");
-    launcher_log_file_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    launcher_log_file_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    ui_->launchTree->setItemWidget(launcher_log_file_item, 2, launcher_log_file_button);
-    connect(launcher_log_file_button, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
+    launcher_log_file_button_ = new QPushButton();
+    launcher_log_file_button_->setText("...");
+    launcher_log_file_button_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    launcher_log_file_button_->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+    ui_->launchTree->setItemWidget(launcher_log_file_item, 2, launcher_log_file_button_);
+    connect(launcher_log_file_button_, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
 
     //////////////////////////////////////////////////////////////////
     ui_->launchTree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
@@ -885,7 +885,7 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
 
 ////////////////////////////////////////////////////////////////////
 void MainWindow::launchSetLogFile() {
-    int current_application_index = launcher_apps_combo->currentIndex();
+    int current_application_index = launcher_apps_combo_->currentIndex();
     Q_ASSERT(current_application_index >= 0);
 
     const QString log_file =
@@ -895,9 +895,9 @@ void MainWindow::launchSetLogFile() {
     configurator.overridden_application_list[current_application_index]->log_file = log_file;
 
     if (log_file.isEmpty())
-        launcher_log_file_edit->setText("");
+        launcher_log_file_edit_->setText("");
     else
-        launcher_log_file_edit->setText(log_file);
+        launcher_log_file_edit_->setText(log_file);
 
     configurator.SaveOverriddenApplicationList();
 }
@@ -909,9 +909,9 @@ void MainWindow::launchItemChanged(int application_index) {
 
     if (application_index < 0 || application_index >= configurator.overridden_application_list.size()) return;
 
-    launch_arguments->setText(configurator.overridden_application_list[application_index]->arguments);
-    launcher_working->setText(configurator.overridden_application_list[application_index]->working_folder);
-    launcher_log_file_edit->setText(configurator.overridden_application_list[application_index]->log_file);
+    launch_arguments_->setText(configurator.overridden_application_list[application_index]->arguments);
+    launcher_working_->setText(configurator.overridden_application_list[application_index]->working_folder);
+    launcher_log_file_edit_->setText(configurator.overridden_application_list[application_index]->log_file);
 
     configurator.SelectLaunchApplication(application_index);
     configurator.SaveSettings();
@@ -920,7 +920,7 @@ void MainWindow::launchItemChanged(int application_index) {
 /////////////////////////////////////////////////////////////////////
 /// New command line arguments. Update them.
 void MainWindow::launchArgsEdited(const QString &arguments) {
-    int application_index = launcher_apps_combo->currentIndex();
+    int application_index = launcher_apps_combo_->currentIndex();
     if (application_index < 0) return;
 
     Configurator &configurator = Configurator::Get();
@@ -1106,7 +1106,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     }
 
     // Is there an app selected?
-    int current_application_index = launcher_apps_combo->currentIndex();
+    int current_application_index = launcher_apps_combo_->currentIndex();
 
     // Launch the test application
     launch_application_ = new QProcess(this);

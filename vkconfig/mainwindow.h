@@ -43,7 +43,6 @@ class MainWindow;
 QT_END_NAMESPACE
 
 //////////////////////////////////////////////////
-/// \brief The ContigurationListItem class
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
 class ContigurationListItem : public QTreeWidgetItem {
@@ -85,13 +84,13 @@ class MainWindow : public QMainWindow {
     ContigurationListItem *selected_configuration_item_;
     ContigurationListItem *GetCheckedItem();
 
-    QComboBox *launcher_apps_combo;
-    QLineEdit *launch_arguments;
-    QLineEdit *launcher_working;
-    QLineEdit *launcher_log_file_edit;
-    QPushButton *launcher_apps_browse_button;
-    QPushButton *pLaunchWorkingFolderButton;
-    QPushButton *launcher_log_file_button;
+    QComboBox *launcher_apps_combo_;
+    QLineEdit *launch_arguments_;
+    QLineEdit *launcher_working_;
+    QLineEdit *launcher_log_file_edit_;
+    QPushButton *launcher_apps_browse_button_;
+    QPushButton *pLaunchWorkingFolderButton_;
+    QPushButton *launcher_log_file_button_;
 
     void ResetLaunchOptions();
 

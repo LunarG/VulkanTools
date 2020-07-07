@@ -21,12 +21,12 @@
 
 #pragma once
 
+#include "layerfile.h"
+
 #include <QObject>
 #include <QWidget>
 #include <QLineEdit>
 #include <QTreeWidgetItem>
-
-#include "layerfile.h"
 
 class StringSettingWidget : public QLineEdit {
     Q_OBJECT

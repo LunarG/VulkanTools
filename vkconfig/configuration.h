@@ -21,10 +21,10 @@
 
 #pragma once
 
+#include "layerfile.h"
+
 #include <QString>
 #include <QStringList>
-
-#include "layerfile.h"
 
 class Configuration {
    public:

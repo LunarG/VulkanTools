@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "enumsettingwidget.h"
 
-EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* pTreeItem, LayerSettings* pLayerSetting) {
-    layer_settings_ = pLayerSetting;
-    pTreeItem->setText(0, pLayerSetting->settings_prompt);
-    pTreeItem->setToolTip(0, pLayerSetting->settings_desc);
+EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSettings* layers_settings) {
+    layer_settings_ = layers_settings;
+    item->setText(0, layers_settings->settings_prompt);
+    item->setToolTip(0, layers_settings->settings_desc);
 
     int nCurrSel = 0;
-    for (int i = 0; i < pLayerSetting->settings_list_exclusive_prompt.size(); i++) {
-        this->addItem(pLayerSetting->settings_list_exclusive_prompt[i]);
-        if (pLayerSetting->settings_list_exclusive_value[i] == pLayerSetting->settings_value) nCurrSel = i;
+    for (int i = 0; i < layers_settings->settings_list_exclusive_prompt.size(); i++) {
+        this->addItem(layers_settings->settings_list_exclusive_prompt[i]);
+        if (layers_settings->settings_list_exclusive_value[i] == layers_settings->settings_value) nCurrSel = i;
     }
 
     setCurrentIndex(nCurrSel);
@@ -37,7 +37,7 @@ EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* pTreeItem, LayerSettings* 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
-void EnumSettingWidget::indexChanged(int nIndex) {
-    layer_settings_->settings_value = layer_settings_->settings_list_exclusive_value[nIndex];
+void EnumSettingWidget::indexChanged(int index) {
+    layer_settings_->settings_value = layer_settings_->settings_list_exclusive_value[index];
     emit itemChanged();
 }

@@ -21,13 +21,13 @@
 
 #pragma once
 
+#include "treefriendlycombobox.h"
+#include "configuration.h"
+
 #include <QDialog>
 #include <QTreeWidgetItem>
 #include <QResizeEvent>
 #include <QShowEvent>
-
-#include "treefriendlycombobox.h"
-#include "configuration.h"
 
 namespace Ui {
 class dlgProfileEditor;

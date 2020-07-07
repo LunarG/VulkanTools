@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates a combobox that can be used in a tree widget.
- * The new functionality from this derived class is the signal emitted
- * will contain a pointer ot the tree item from which it came.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "treefriendlycombobox.h"

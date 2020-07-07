@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates a list box that displays all the filtered
- * message ids.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
 #include "mutemessagewidget.h"
 
-MuteMessageWidget::MuteMessageWidget(LayerSettings *pLayerSetting) : QWidget(nullptr) {
-    layer_settings_ = pLayerSetting;
+MuteMessageWidget::MuteMessageWidget(LayerSettings *layer_settings) : QWidget(nullptr) {
+    layer_settings_ = layer_settings;
     list_widget_ = new QListWidget(this);
     list_widget_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list_widget_->show();

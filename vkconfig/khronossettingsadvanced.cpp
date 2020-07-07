@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
- *
- * Khronos layer advanced settings dialog.
- * The whole lookup description things really needs to be refactored.
- * so much in flux, I just put this in quickly.
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include <QSettings>

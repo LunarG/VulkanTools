@@ -41,7 +41,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
 
     // Show the current list
     for (int i = 0; i < configurator.overridden_application_list.size(); i++) {
-        QTreeWidgetItem *item = CreateNewApplicationItem(*configurator.overridden_application_list[i]);
+        QTreeWidgetItem *item = CreateApplicationItem(*configurator.overridden_application_list[i]);
     }
 
     ui_->treeWidget->installEventFilter(this);
@@ -128,7 +128,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
         new_application->log_file = QDir::toNativeSeparators(ui_->lineEditLogFile->text());
         configurator.overridden_application_list.push_back(new_application);
 
-        QTreeWidgetItem *item = CreateNewApplicationItem(*new_application);
+        QTreeWidgetItem *item = CreateApplicationItem(*new_application);
 
         configurator.SaveOverriddenApplicationList();
         configurator.RefreshConfiguration();
@@ -137,7 +137,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
     }
 }
 
-QTreeWidgetItem *dlgCreateAssociation::CreateNewApplicationItem(const Application &application) const {
+QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &application) const {
     Configurator &configurator = Configurator::Get();
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -268,23 +268,23 @@ void dlgCreateAssociation::editLogFile(const QString &logFile) {
 /// you find in the /MacOS folder is the executable.
 /// The initial path is the folder where info.plist resides, and the
 /// path is completed to the executable upon completion.
-void dlgCreateAssociation::GetExecutableFromAppBundle(QString &csPath) {
-    csPath += "/Contents/";
-    QString pListFile = csPath + "Info.plist";
-    QFile file(pListFile);
+void dlgCreateAssociation::GetExecutableFromAppBundle(QString &path) {
+    path += "/Contents/";
+    QString list_file = path + "Info.plist";
+    QFile file(list_file);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
 
     QTextStream stream(&file);
 
     // Read a line at a time looking for the executable tag
-    QString lineBuffer;
+    QString line_buffer;
     while (!stream.atEnd()) {
-        lineBuffer = stream.readLine();
-        if (lineBuffer.contains("<key>CFBundleExecutable</key>")) {  // Exe follows this
-            lineBuffer = stream.readLine();                          // <string>Qt Creator</string>
-            char *cExeName = new char[lineBuffer.length()];          // Prevent buffer overrun
+        line_buffer = stream.readLine();
+        if (line_buffer.contains("<key>CFBundleExecutable</key>")) {  // Exe follows this
+            line_buffer = stream.readLine();                          // <string>Qt Creator</string>
+            char *cExeName = new char[line_buffer.length()];          // Prevent buffer overrun
 
-            const char *pStart = strstr(lineBuffer.toUtf8().constData(), "<string>");
+            const char *pStart = strstr(line_buffer.toUtf8().constData(), "<string>");
             if (pStart == nullptr) return;
 
             // We found it, now extract it out
@@ -296,8 +296,8 @@ void dlgCreateAssociation::GetExecutableFromAppBundle(QString &csPath) {
             cExeName[iIndex] = '\0';
 
             // Complete the partial path
-            csPath += QString("MacOS/");
-            csPath += QString(cExeName);
+            path += QString("MacOS/");
+            path += QString(cExeName);
             delete[] cExeName;
             break;
         }

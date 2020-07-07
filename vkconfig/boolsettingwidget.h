@@ -21,11 +21,11 @@
 
 #pragma once
 
+#include "layerfile.h"
+
 #include <QObject>
 #include <QWidget>
 #include <QCheckBox>
-
-#include "layerfile.h"
 
 class BoolSettingWidget : public QCheckBox {
     Q_OBJECT

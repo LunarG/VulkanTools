@@ -14,12 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
- *
- * Layer files are JSON documents, so a layer file object is derived
- * from QJsonDocument and is given several useful utility access methods
- * for querying and manipulating layer .json files.
- *
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "layerfile.h"

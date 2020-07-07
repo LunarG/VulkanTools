@@ -41,7 +41,7 @@ class dlgCreateAssociation : public QDialog {
     int GetSelectedLaunchApplicationIndex() const { return last_selected_application_index_; }
 
    private:
-    QTreeWidgetItem *CreateNewApplicationItem(const Application &application) const;
+    QTreeWidgetItem *CreateApplicationItem(const Application &application) const;
 
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;

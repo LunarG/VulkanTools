@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "configurator.h"
@@ -87,12 +89,10 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCustomPaths::on_treeWidget_itemSelectionChanged
 /// Don't make remove button accessable unless an item has been selected
 void dlgCustomPaths::on_treeWidget_itemSelectionChanged() { ui_->pushButtonRemove->setEnabled(true); }
 
 //////////////////////////////////////////////////////////////////////////////
-/// \brief dlgCustomPaths::on_pushButtonRemove_clicked
 /// Remove the selected custom search path
 void dlgCustomPaths::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
