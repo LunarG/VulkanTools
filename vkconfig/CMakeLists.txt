@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.10.2)
 project(vkconfig)
 
@@ -6,28 +5,29 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-find_package(Qt5 COMPONENTS Core Gui Widgets OPTIONAL_COMPONENTS WebEngineWidgets QUIET)
+set(CMAKE_AUTOUIC ON)
+find_package(Qt5 COMPONENTS Core Gui Widgets QUIET)
 
 if(NOT Qt5_FOUND)
-    message("WARNING: vkconfig will be excluded because Qt5 was not found.")
+    message("WARNING: vkconfig will be excluded because Qt5 was not found. Please add Qt5 into the PATH environment variable")
+elseif(Qt5_VERSION VERSION_LESS 5.6)
+    message("WARNING: vkconfig will be excluded because the found Qt version is too old. vkconfig requires version 5.6.")
 else()
-    set(LAYERMGR_SRCS
-        active_layers_widget.cpp
-        layer_locations_widget.cpp
-        layer_manifest.cpp
-        layer_settings_widget.cpp
-        override_settings.cpp
-        vkconfig.cpp
-        data.qrc
-    )
+    file(GLOB FILES_RESSOURCE ./resourcefiles/*.json)
 
-    if(NOT Qt5WebEngineWidgets_FOUND)
-        message("WARNING: vkconfig will not include vulkaninfo or via because Qt Web Engine Widgets was not found.")
-        set(VKCONFIG_DEFINITIONS -DNO_HTML)
-    else()
-        message("vkconfig will be built with html viewer")
-        set(VKCONFIG_HTML_LIBS Qt5::WebEngineWidgets)
-    endif()
+    source_group("Resources Files" FILES ${FILES_RESSOURCE})
+
+    file(GLOB FILES_UI ./*.ui)
+
+    source_group("UI Files" FILES ${FILES_UI})
+
+    file(GLOB FILES_SOURCE ./*.cpp)
+    file(GLOB FILES_HEADER ./*.h)
+    file(GLOB FILES_DOCS ./*.md)
+
+    source_group("Docs Files" FILES ${FILES_DOCS})
+
+    set(FILES_ALL ${FILES_RESSOURCE} ${FILES_UI} ${FILES_SOURCE} ${FILES_HEADER} ${FILES_DOCS} resources.qrc)
 
     if(NOT APPLE)
         if (NOT DEFINED CMAKE_INSTALL_BINDIR)
@@ -35,13 +35,14 @@ else()
         endif()
 
         if(WIN32)
-            add_executable(vkconfig WIN32 ${LAYERMGR_SRCS})
+            add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+            add_executable(vkconfig WIN32 ${FILES_ALL} ${CMAKE_CURRENT_SOURCE_DIR}/resourcefiles/vkconfig.rc)
             target_link_libraries(vkconfig Cfgmgr32)
         else()
-            add_executable(vkconfig ${LAYERMGR_SRCS})
+            add_executable(vkconfig ${FILES_ALL} ${FILES_UI})
         endif()
         target_include_directories(vkconfig PRIVATE "${Vulkan_INCLUDE_DIR}")
-        target_link_libraries(vkconfig Qt5::Core Qt5::Gui Qt5::Widgets ${VKCONFIG_HTML_LIBS})
+        target_link_libraries(vkconfig Qt5::Core Qt5::Gui Qt5::Widgets)
         target_compile_definitions(vkconfig PRIVATE ${VKCONFIG_DEFINITIONS})
 
         install(TARGETS vkconfig DESTINATION ${CMAKE_INSTALL_BINDIR})

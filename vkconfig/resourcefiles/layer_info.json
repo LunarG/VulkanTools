@@ -1,0 +1,389 @@
+{
+    "layer_authors": {
+        "LUNARG": {
+            "name": "LunarG",
+            "logo": "lunarg_small.png"
+        },
+        "GOOGLE": {
+            "name": "Google"
+        },
+        "KHRONOS": {
+            "name": "Khronos"
+        },
+        "NV": {
+            "name": "Nvidia"
+        },
+        "RENDERDOC": {
+            "name": "RenderDoc"
+        },
+        "VALVE": {
+            "name": "Valve"
+        }
+    },
+    "layer_options": {
+        "VK_LAYER_KHRONOS_validation": {
+            "debug_action": {
+                "name": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            "report_flags": {
+                "name": "Message Severity",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            },
+            "message_id_filter": {
+                "name": "Message Filter",
+                "description": "VUID's to ignore",
+                "type": "vuid_exclude",
+                "default": ""
+            },
+            "disables": {
+                "name": "Disables",
+                "description": "Setting an option here will disable areas of validation",
+                "type": "multi_enum",
+                "options": {
+                "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety checks",
+                "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter checks",
+                "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Object lifetime validation",
+                "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core validation checks",
+                "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping",
+                "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT": "Disable Shaders",
+                "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE": "Command Buffer State",
+                "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION": "Image Layout Validation",
+                "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION": "Query Validation",
+                "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE": "Push Constant Range",
+                "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE": "Object in Use",
+                "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET": "Idle Descritor Set"
+                },
+                "default": []
+            },
+            "enables": {
+                "name": "Enables",
+                "description": "Setting an option here will enable specialized areas of validation",
+                "type": "multi_enum",
+                "options": {
+                "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT": "Debug printf",
+                "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
+                "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
+                "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
+                "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM-specific validation"
+                },
+                "default": []
+            }
+        },
+        "VK_LAYER_LUNARG_api_dump": {
+            "output_format": {
+                "name": "Output Format",
+                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
+                "type": "enum",
+                "options": {
+                    "Text": "Text",
+                    "Html": "Html",
+                    "Json": "Json"
+                },
+                "default": "Text"
+            },
+            "detailed": {
+                "name": "Detailed Output",
+                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
+                "type": "bool",
+                "default": true
+            },
+            "no_addr": {
+                "name": "Hide Addresses",
+                "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
+                "type": "bool",
+                "default": false
+            },
+            "file": {
+                "name": "Output to File",
+                "description": "Setting this to true indicates that output should be written to file instead of stdout",
+                "type": "bool",
+                "default": false
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the file to dump to when output files are enabled",
+                "type": "save_file",
+                "default": "vk_apidump.txt"
+            },
+            "flush": {
+                "name": "Log Flush After Write",
+                "description": "Setting this to true causes IO to be flushed after each API call that is written",
+                "type": "bool",
+                "default": true
+            },
+            "indent_size": {
+                "name": "Indent Size",
+                "description": "Specifies the number of spaces that a tab is equal to",
+                "type": "string",
+                "default": "4"
+            },
+            "show_types": {
+                "name": "Show Types",
+                "description": "Setting this to true causes types to be dumped in addition to values",
+                "type": "bool",
+                "default": true
+            },
+            "name_size": {
+                "name": "Name Size",
+                "description": "The number of characters the name of a variable should consume, assuming more are not required",
+                "type": "string",
+                "default": "32"
+            },
+            "type_size": {
+                "name": "Type Size",
+                "description": "The number of characters the name of a type should consume, assuming more are not required",
+                "type": "string",
+                "default": "0"
+            },
+            "use_spaces": {
+                "name": "Use Spaces",
+                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                "type": "bool",
+                "default": true
+            },
+            "show_timestamp": {
+                "name": "Show Timestamp",
+                "description": "Show the timestamp of function calls since start in microseconds",
+                "type": "bool",
+                "default": false
+            },
+            "show_shader": {
+                "name": "Show Shader",
+                "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
+                "type": "bool",
+                "default": false
+            },
+            "output_range": {
+                "name": "Output Range",
+                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "string",
+                "default": "0-0"
+            }
+        },
+        "VK_LAYER_LUNARG_screenshot": {
+            "frames": {
+                "name": "Frames",
+                "description": "Comma separated list of frames to output as screen shots or a range of frames with a start, count, and optional interval separated by a dash. Setting the variable to \"all\" will output every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "string",
+                "default": ""
+            },
+            "dir": {
+                "name": "Directory",
+                "description": "This can be set to specify the directory in which to create the screenshot files.",
+                "type": "save_folder",
+                "default": ""
+            },
+            "format": {
+                "name": "Format",
+                "description": "This can be set to a color space for the output.",
+                "type": "enum",
+                "options": {
+                    "UNORM": "UNORM",
+                    "SNORM": "SNORM",
+                    "USCALED": "USCALED",
+                    "SSCALED": "SSCALED",
+                    "UINT": "UINT",
+                    "SINT": "SINT",
+                    "SRGB": "SRGB",
+                    "USE_SWAPCHAIN_COLORSPACE": "USE_SWAPCHAIN_COLORSPACE"
+                },
+                "default": "USE_SWAPCHAIN_COLORSPACE"
+            }
+        },
+        "VK_LAYER_LUNARG_device_simulation": {
+            "filename": {
+                "name": "Filename",
+                "description": "Name of one or more configuration file(s) to load.",
+                "type": "save_file",
+                "default": ""
+            },
+            "debug_enable": {
+                "name": "Debug Enable",
+                "description": "Enables debug message output.",
+                "type": "bool_numeric",
+                "default": "0"
+            },
+            "exit_on_error": {
+                "name": "Exit On Error",
+                "description": "Enables exit-on-error.",
+                "type": "bool_numeric",
+                "default": "0"
+            }
+        },
+        "VK_LAYER_LUNARG_gfxreconstruct": {
+            "capture_trigger": {
+                "name": "Hotkey Capture Trigger",
+                "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
+                "type": "enum",
+                "options": {
+                    "": "None",
+                    "F1": "F1",
+                    "F2": "F2",
+                    "F3": "F3",
+                    "F4": "F4",
+                    "F5": "F5",
+                    "F6": "F6",
+                    "F7": "F7",
+                    "F8": "F8",
+                    "F9": "F9",
+                    "F10": "F10",
+                    "F11": "F11",
+                    "F12": "F12",
+                    "TAB": "TAB",
+                    "CONTROL": "CONTROL"
+                },
+                "default": ""
+            },
+            "capture_frames": {
+                "name": "Capture Specific Frames",
+                "description": "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. Default is: Empty string (all frames are captured).",
+                "type": "string",
+                "default": ""
+            },
+            "capture_file": {
+                "name": "Capture File Name",
+                "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
+                "type": "save_file",
+                "default": "gfxrecon_capture.gfxr"
+            },
+            "capture_file_timestamp": {
+                "name": "Capture File Name with Timestamp",
+                "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
+                "type": "bool",
+                "default": true
+            },
+            "capture_file_flush": {
+                "name": "Capture File Flush After Write",
+                "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
+                "type": "bool",
+                "default": true
+            },
+            "capture_compression_type": {
+                "name": "Compression Format",
+                "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
+                "type": "enum",
+                "options": {
+                    "LZ4": "LZ4",
+                    "ZLIB": "ZLIB",
+                    "ZSTD": "ZSTD",
+                    "NONE": "NONE"
+                },
+                "default": "LZ4"
+            },
+            "log_output_to_console": {
+                "name": "Log Output to Console / stdout",
+                "description": "Log messages will be written to stdout.",
+                "type": "bool",
+                "default": true
+            },
+            "log_break_on_error": {
+                "name": "Trigger Debug Break on Error",
+                "description": "Trigger a debug break when logging an error.",
+                "type": "bool",
+                "default": false
+            },
+            "log_output_to_os_debug_string": {
+                "name": "Log Output to Debug Console",
+                "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
+                "type": "bool",
+                "default": false
+            },
+
+            "log_file": {
+                "name": "Log File",
+                "description": "When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).",
+                "type": "save_file",
+                "default": ""
+            },
+            "log_file_flush_after_write": {
+                "name": "Log File Flush After Write",
+                "description": "Flush the log file to disk after each write when true.",
+                "type": "bool",
+                "default": false
+            },
+            "log_file_keep_open": {
+                "name": "Log File Keep Open",
+                "description": "Keep the log file open between log messages when true, or close and reopen the log file for each message when false.",
+                "type": "bool",
+                "default": true
+            },
+            "log_file_create_new": {
+                "name": "Log File Overwrite",
+                "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
+                "type": "bool",
+                "default": true
+            },
+            "log_level": {
+                "name": "Log Level",
+                "description": "Specify the highest level message to log. Options are: debug, info, warning, error, and fatal. The specified level and all levels listed after it will be enabled for logging. For example, choosing the warning level will also enable the error and fatal levels.",
+                "type": "enum",
+                "options": {
+                    "debug": "debug, info, warning, error",
+                    "info": "info, warning, error, fatal",
+                    "warning": "warning, error, fatal",
+                    "error": "error, fatal",
+                    "fatal": "fatal"
+                },
+                "default": "info"
+            },
+            "memory_tracking_mode": {
+                "name": "Memory Tracking Mode",
+                "description": "Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: page_guard, assisted, and unassisted.",
+                "type": "enum",
+                "options": {
+                    "page_guard": "page_guard",
+                    "assisted": "assisted",
+                    "unassisted": "unassisted"
+                },
+                "default": "page_guard"
+            },
+            "page_guard_copy_on_map": {
+                "name": "Page Guard Copy on Map",
+                "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
+                "type": "bool",
+                "default": true
+            },
+            "page_guard_separate_read": {
+                "name": "Page Guard Separate Read Tracking",
+                "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
+                "type": "bool",
+                "default": true
+            },
+            "page_guard_external_memory": {
+                "name": "Page Guard External Memory",
+                "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
+                "type": "bool",
+                "default": false
+            }
+        }
+    }
+}
