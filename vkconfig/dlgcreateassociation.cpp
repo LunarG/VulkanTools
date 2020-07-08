@@ -81,6 +81,9 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
     configurator.SaveOverriddenApplicationList();
     event->accept();
 
+    // When we don't use overridden list only, no need to alert the user about empty list cases.
+    if (!configurator.overridden_application_list_only) return;
+
     if (configurator.overridden_application_list.empty() || !configurator.HasOverriddenApplications()) {
         QMessageBox alert;
         alert.setIcon(QMessageBox::Warning);

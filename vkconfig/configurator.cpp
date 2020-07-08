@@ -569,7 +569,7 @@ void Configurator::LoadSettings() {
     QSettings settings;
     active_launch_executable_path_ = settings.value(VKCONFIG_KEY_LAUNCHAPP).toString();
     override_active = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE, true).toBool();
-    override_application_list_only = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
+    overridden_application_list_only = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
     override_permanent = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
     paths_[LastExportPath] = settings.value(VKCONFIG_KEY_LAST_EXPORT_PATH).toString();
     paths_[LastImportPath] = settings.value(VKCONFIG_KEY_LAST_IMPORT_PATH).toString();
@@ -582,7 +582,7 @@ void Configurator::SaveSettings() {
     QSettings settings;
     settings.setValue(VKCONFIG_KEY_LAUNCHAPP, active_launch_executable_path_);
     settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, override_active);
-    settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, override_application_list_only);
+    settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, overridden_application_list_only);
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, override_permanent);
     settings.setValue(VKCONFIG_KEY_LAST_EXPORT_PATH, paths_[LastExportPath]);
     settings.setValue(VKCONFIG_KEY_LAST_IMPORT_PATH, paths_[LastImportPath]);
@@ -1499,7 +1499,7 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     layer.insert("disable_environment", disable);
 
     // This has to contain something, or it will apply globally!
-    if (override_application_list_only) {
+    if (overridden_application_list_only) {
         layer.insert("app_keys", json_applist);
     }
 

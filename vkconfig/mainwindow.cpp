@@ -109,10 +109,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     connect(ui_->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(launchItemExpanded(QTreeWidgetItem *)));
 
     if (!configurator.HasOverriddenApplications() || configurator.overridden_application_list.empty())
-        configurator.override_application_list_only = false;
+        configurator.overridden_application_list_only = false;
 
-    ui_->pushButtonAppList->setEnabled(configurator.override_application_list_only);
-    ui_->checkBoxApplyList->setChecked(configurator.override_application_list_only);
+    ui_->pushButtonAppList->setEnabled(configurator.overridden_application_list_only);
+    ui_->checkBoxApplyList->setChecked(configurator.overridden_application_list_only);
     ui_->checkBoxPersistent->setChecked(configurator.override_permanent);
 
     if (configurator.override_active) {
@@ -241,7 +241,7 @@ void MainWindow::on_radioOverride_clicked() {
 
     bool use = (!configurator.has_old_loader || !been_warned_about_old_loader);
     ui_->checkBoxApplyList->setEnabled(use);
-    ui_->pushButtonAppList->setEnabled(use && configurator.override_application_list_only);
+    ui_->pushButtonAppList->setEnabled(use && configurator.overridden_application_list_only);
 
     ui_->checkBoxPersistent->setEnabled(true);
     configurator.override_active = true;
@@ -290,11 +290,11 @@ void MainWindow::on_checkBoxApplyList_clicked() {
         been_warned_about_old_loader = true;
     }
 
-    configurator.override_application_list_only = ui_->checkBoxApplyList->isChecked();
+    configurator.overridden_application_list_only = ui_->checkBoxApplyList->isChecked();
     configurator.SaveSettings();
-    ui_->pushButtonAppList->setEnabled(configurator.override_application_list_only);
+    ui_->pushButtonAppList->setEnabled(configurator.overridden_application_list_only);
 
-    if (configurator.override_application_list_only &&
+    if (configurator.overridden_application_list_only &&
         (configurator.overridden_application_list.empty() || !configurator.HasOverriddenApplications())) {
         on_pushButtonAppList_clicked();
     } else {
@@ -953,11 +953,11 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     // When no application are overridden in the application list,
     // we disable override_application_list_only to reflect to the
     // user that overrides will apply to all applications.
-    if (configurator.override_application_list_updated && configurator.override_application_list_only) {
+    if (configurator.override_application_list_updated && configurator.overridden_application_list_only) {
         configurator.override_application_list_updated = false;
 
         if (!configurator.HasOverriddenApplications()) {
-            configurator.override_application_list_only = false;
+            configurator.overridden_application_list_only = false;
             ui_->checkBoxApplyList->setChecked(false);
             ui_->pushButtonAppList->setEnabled(false);
         }
@@ -1153,7 +1153,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                          configurator.GetActiveConfiguration()->name.toUtf8().constData());
     } else if (configurator.override_active) {
-        if (configurator.override_application_list_only && configurator.HasOverriddenApplications() &&
+        if (configurator.overridden_application_list_only && configurator.HasOverriddenApplications() &&
             !current_application.override_layers) {
             launch_log +=
                 QString().asprintf("- Layers fully controlled by the application. Application excluded from layers override.\n");
