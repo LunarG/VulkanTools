@@ -12,7 +12,7 @@ version: "{build}"
 max_jobs: 4
 
 os:
-  - Visual Studio 2015
+  - Visual Studio 2017
 
 environment:
   PYTHON_PATH: "C:/Python35"
@@ -28,6 +28,10 @@ install:
   - 7z x cmake.zip -oC:\cmake > nul
   - set path=C:\cmake\bin;%path%
   - cmake --version
+  - if %PLATFORM% == x64 (set QTDIR=C:\Qt\5.9.9\msvc2017_64)
+  - if %PLATFORM% == Win32 (set QTDIR=C:\Qt\5.9.9\msvc2017)
+  - set PATH=%PATH%;%QTDIR%\bin
+  - choco install windows-sdk-10-version-1809-all
 
 before_build:
   - "SET PATH=C:\\Python35;C:\\Python35\\Scripts;%PATH%"

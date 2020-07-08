@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>vkconfig.md</file>
+        <file>images/NewLunarGLogoBlack.png</file>
+        <file>images/launcher_320px.png</file>
+        <file>images/launcher.png</file>
+        <file>images/layers_selection_and_ordering_320px.png</file>
+        <file>images/layers_selection_and_ordering.png</file>
+        <file>images/main_window_320px.png</file>
+        <file>images/main_window.png</file>
+        <file>images/multiple_layers_320px.png</file>
+        <file>images/multiple_layers.png</file>
+        <file>images/only_list.png</file>
+        <file>images/vulkan_configurator.png</file>
+        <file>images/vulkan_layers_order_small.png</file>
+        <file>images/vulkan_layers_order.png</file>
+        <file>images/vulkan_loader.png</file>
+        <file>images/vulkan_loader_640px.png</file>        
+        <file>resourcefiles/lunarg_logo.png</file>
+        <file>resourcefiles/lunargLogo.png</file>
+        <file>resourcefiles/qt_logo.png</file>
+        <file>resourcefiles/layer_info.json</file>
+        <file>resourcefiles/presets_info.json</file>
+        <file>resourcefiles/API dump.json</file>
+        <file>resourcefiles/Validation - Best Practices.json</file>
+        <file>resourcefiles/Validation - GPU-Assisted.json</file>
+        <file>resourcefiles/Validation - Reduced-Overhead.json</file>
+        <file>resourcefiles/Validation - Shader Printf.json</file>
+        <file>resourcefiles/Validation - Standard.json</file>
+        <file>resourcefiles/Validation - Synchronization (Beta).json</file>
+        <file>resourcefiles/Frame Capture - First two frames.json</file>
+        <file>resourcefiles/Frame Capture - Range (F10 to start and to stop).json</file>
+    </qresource>
+</RCC>

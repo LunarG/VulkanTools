@@ -27,6 +27,8 @@ build-android/external
 *.config
 *.creator
 *.creator.user
+*.user
+*.autosave
 *.files
 *.includes
 .vscode/
