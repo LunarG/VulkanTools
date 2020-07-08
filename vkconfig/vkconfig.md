@@ -1,119 +1,93 @@
 <!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
+<p align="center"><img src="./images/vulkan_configurator.png" width=400 /></p>
 
 [![Creative Commons][3]][4]
 
 [3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
+*Vulkan Configurator* allows overriding the [layers configuration](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers) used by Vulkan applications at runtime.
+
+A Vulkan application may configure layers when creating a Vulkan Instance. This layers configuration may be overridden using *Vulkan Configurator* globally or for a selected list of Vulkan applications.
+
+Finally *Vulkan Configurator* allows using layers from user-defined directories.
+
+* **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
+* **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
+* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
+* **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](../BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
+
+Screenshots
+--------------
+
+| [ ![Main Window](./images/main_window_320px.png) ](./images/main_window.png) | [ ![Overriding multiple layers](./images/multiple_layers_320px.png) ](./images/multiple_layers.png) |
+| --- | --- |
+| [ ![Vulkan Applications launchers](./images/launcher_320px.png) ](./images/launcher.png) | [ ![Vulkan Layers slection and ordering ](./images/layers_selection_and_ordering_320px.png) ](./images/layers_selection_and_ordering.png) |
+
+Platform Support
+--------------
+
+| Windows                  | Linux                    | macOS                    |
+| ------------------------ | ------------------------ | ------------------------ |
+| :heavy_check_mark:       | :heavy_check_mark:       | :heavy_check_mark:       |
+
+Downloads
+--------------
+
+*Vulkan Configurator* is delivered with the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home).
+
+License
+--------------
+*Vulkan Configurator* is part of Vulkan Tools released under the [Apache 2.0 license](../LICENSE.txt).
+
 Copyright &copy; 2015-2020 LunarG, Inc.
 
-# Vulkan Configurator (vkconfig)
+Using the Vulkan Configurator
+--------------
+The Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig`.
 
-The Vulkan Configurator is a graphical application that allows a user to specify which layers will be loaded by Vulkan applications at runtime.
-It provides an alternative to setting layers through environment variables or an application's layer selection.
-In addition, it allows using layers from non-standard locations, selecting the ordering for implicit layers, and specifying settings for layers that Vulkan Configurator supports.
-
-## Using the Vulkan Configurator
-
-The Vulkan Configurator is a graphical user interface (GUI), and does not support any functionality through the system console. It may be launched from the console (as `vkconfig`), but no further functionality will be available from the console. The tool is distributed differently, depending on the platform:
+The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
-- Linux tarball: After extracting the SDK, run `./vulkansdk lunarg-tools` to build `vkconfig`. Note that the Core, GUI, and Widgets modules of Qt5 must be installed prior to running the build script.
-- Windows: The tool will be present on the start menu, in the Vulkan SDK menu. It will be called `vkconfig`.
-- MacOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
+- Linux tarball: The vkconfig executable comes pre-built. Run vkconfig on the command line. 
+- Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
+- macOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
-The configurator is divided into the following three sections.
+Glossary
+--------------
+***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is an optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultanously.
 
-### Layer Locations
+***Vulkan Layers Configuration***: A collection of Vulkan Layers executed in [a specific order](./vkconfig.md#vulkan-layers-execution-order-overview) with specific settings for each layer.
 
-At the top is the layer location selector.
-By default, this list will display each of the standard system directories (or registries, on Windows) where a Vulkan application will search for layers.
-Each location is labeled with either an "E", denoting that this location contains explicit layers, or an "I", denoting that this location contains implicit layers.
-At the top of the layer locations selector is a checkbox labelled "Use custom layer paths".
-When this checkbox is selected, the user gains the ability to choose the locations where layers will be searched.
-The user can then add or remove paths with the "Add", "Remove", and "Clear" buttons on the right.
-In addition, the "Search" button will allow the user to select a directory and Vulkan Configurator will scan that directory for json files that look like Vulkan layers, then prompt the user to ask if each path should actually be added.
-This can be helpful when a user does not wish to manually find the exact location of layers.
-When selecting layers manually, the selected layers will be saved each time the application is run, making it unnecessary to reset them every time.
+***Vulkan [Explicit Layers vs Implicit Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#implicit-vs-explicit-layers)***: An explicit layer has to be explicitly activated by the user from source in `vkCreateInstance`, using Vulkan Configurator or `VK_INSTANCE_LAYERS` environment variable. Implicit layers are enabled by their existence on the system by default.
 
-### Active Layers
+***Vulkan [Meta-Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#meta-layers)***: Meta-layers are a special kind of layer which is only available through the desktop [Vulkan Loader](https://github.com/KhronosGroup/Vulkan-Loader). While usual layers are associated with one particular library, a meta-layer is actually a collection layer which contains an ordered list of other layers called *component layers*. 
 
-The bottom of Vulkan Configurator is the active layer selector.
-This section allows a user to choose which layers are active for Vulkan applications, as well as selecting the order of those layers.
-Any layers specified in this section will be active on any Vulkan application that is run on the current machine, with the current user.
-The layer selector consists of three lists and a few other options.
-The list on the left is the list of enabled layers.
-The two lists on the right are the lists of disabled layers.
-The top of those lists contains explicit layers, while the bottom contains implicit layers.
-To enable a disabled layer, select it in one of the disabled layer lists and press the arrow button immediately to the left of that list.
-The layer will be added to the bottom of the enabled layer list.
-The layer can now be reordered by selecting it and pressing the up/down arrow buttons immediately to the left of the active layer list.
-Layers at the top of the list will be enabled closest to the Vulkan application, while layers at the bottom will be enabled closest to the Vulkan driver.
-This is indicated by the "Application Side" and "Driver Side" labels above and below the list.
-In addition, right below the up/down buttons, there is also a "Remove" button and a "Clear" button below that.
-The "Remove" button will remove all selected layers from the enabled layer list, putting them back in the disabled layer lists.
-The "Clear" button will disable all layers, regardless of selection.
+***[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override`. It is the mechanism used by *Vulkan Configurator* to override Vulkan applications layers. This layer contains:
+- The ordered list of layers to activate
+- The list of layers to exclude from execution
+- The list of paths to executables that the layers override applies to. If this list is empty, the override is applied to every application upon startup. This feature can be configured with Vulkan Configurator when 
 
-There are two more tools at the top of the active layer selector: the expiration duration and the refresh button.
-The refresh button is the simpler of these tools &mdash; it simply searches the paths specified by the layer locations widget for layers.
-This can be useful when adding or removing layers in these locations while Vulkan Configurator is running, since it will not pick up these changes by default.
-The expiration duration is a little more complex.
-The expiration provides a mechanism so that the layer selections provided by Vulkan Configurator will expire (that is, they will stop having any effect) after a given time.
-The prevents a user from setting specific layers as overrides and forgetting that these layers will still be enabled, days, months, or even years later.
-The default expiration is 12 hours, meaning that all layer selections will no longer work 12 hours after the layer selections are saved.
-Resaving layer selections does extend the expiration to 12 hours from the new save.
-The expiration can be set to any number value, and the dropdown menu lets the user select an expiration in minutes, hours, or days.
-In addition, the expiration can be disabled entirely by selecting "Never" from the dropdown.
-Note that disabling the expiration entirely is not recommended as it makes it very easy to leave settings active and forget about them days or weeks into the future.
-It's no fun debugging issues only to find that the wrong layers were enabled.
+***Vulkan Layer settings***: Per layer settings loaded by each layer library and stored in the `vk_layer_settings.txt` file. This file is located either next to the Vulkan application executable or set globally, applied to all Vulkan applications. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
-### Layer Settings
+Vulkan Layers execution order overview
+--------------
 
-The pane on the right side is the layer settings selector.
-Currently, Vulkan Configurator provides support for changing the settings of all LunarG layers, as well as other layers in standard validation.
-Support for changing settings for other layers may be added in the future.
+[ ![Vulkan Loader](./images/vulkan_layers_order_small.png) ](./images/vulkan_layers_order.png)
 
-The panel provides a list of layers for which settings can be selected.
-If the "Show enabled layers only" button is not checked, this will show all supported layers that are found.
-If the checkbox is selected, the panel will only show settings for each layer that is currently in the enabled list from the active layers selector. A layer may be selected by clicking on it, to open the details for that layer.
-Different layers will provide different settings, so it is impractical to give a list of settings for each layer, but a layer can have five types of settings:
+Vulkan Loader and Layers design overview
+--------------
+[ ![Vulkan Loader](./images/vulkan_loader_640px.png) ](./images/vulkan_loader.png)
 
-* A true/false pairing &mdash; The user can select either true or false, but not both.
-* A dropdown box &mdash; The user can select any one from a number of options.
-* A multi-selection dropdown box &mdash; The user can select any number of options from a dropdown menu.
-* A text field &mdash; The user can enter any text.
-* A file &mdash; The user can enter any text as a filename, but a file selector button is present for convenience.
+For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
-At the present time, layer settings will only work for layers written by Khronos or LunarG.
-In the future, settings may work for other layers, but this feature has not currently been developed.
+OS User-Specific Modifications
+--------------
 
-## Saving and Restoring
-
-Finally, at the bottom of Vulkan Configurator, there are four buttons to control the tool: "Save", "Restore", "Clear", and "Exit".
-The "Save" button saves all changes that have been made in the tool.
-No changes made in Vulkan Configurator will have any effect until the user hits that save button.
-The "Restore" button does the opposite.
-It discards all changes made since the last time the user saved.
-The "Clear" button will remove all of the files that the Vulkan Configurator saves to change an application's behavior.
-After using this button, Vulkan applications will behave as if Vulkan Configurator were never run.
-Finally, the "Exit" button will quit the application (without saving).
-It is effectively the same as pressing the "Reset" button and exiting the application.
-Note that while all unsaved changes will be lost, all saved settings in the tool will be remembered the next time Vulkan Configurator is run.
-
-When any of these buttons is run, a timestamped message will appear at the bottom of the Vulkan Configurator indicating the action that was taken.
-This can be useful as a confirmation of what you did.
-In addition, it can give you information like when you last saved, since the message will stay there until another command is given.
-
-Keep in mind that any changes made to a system will persist indefinitely (unless an expiration is set).
-As a result, it is very important that the user remember to clear the state of the tool when finishing using it.
-Otherwise, applications will continue to run with the layers that were specified by the configurator.
-
-## System Modifications
-
-The Vulkan Configurator does not make any system-wide changes to a system, but it does make user-specific changes.
+The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
 
-### Linux/Mac
+### Linux and macOS
 
 Unix systems store files in the following paths:
 
@@ -126,10 +100,66 @@ Unix systems store files in the following paths:
 Windows systems store files in the following paths:
 
 - `%TEMP%\VulkanLayerManager\VkLayerOverride.json` tells a Vulkan application which layers to use
-- `%TEMP%\VulkanLayerManager\vk_layer_settings.json` tells Vulkan layers which settings to use
+- `%TEMP%\VulkanLayerManager\vk_layer_settings.txt` tells Vulkan layers which settings to use
 
 In addition, Windows system create registry entries in the following locations:
 
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\ImplicitLayers` will have an entry that points to the JSON file above
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
+
+FAQ
+--------------
+
+### 1/ How do I use Vulkan Configurator to override only the Vulkan layers of a selected list of applications?
+
+This is typically done by enabling the "Apply only to the selected list of Vulkan applications" check box.
+<p align="center"><img src="./images/only_list.png" /></p>
+
+However, if this is not working it might be because the *Vulkan Loader* on the system is too old. Version 1.2.141 or newer of the Vulkan Loader is required. Update the *Vulkan Loader* by installing the latest *[Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)* to enable this feature.
+
+### 2/ How my local vk_layer_settings.txt file interacts with Vulkan Configurator override?
+
+When Vulkan Configurator is used to override layers, the local vk_layer_settings.txt file is ignored.
+
+### 3/ How environment variables settings interact with Vulkan Configurator?
+
+The short answer is that environment variables and Vulkan Configurator layers settings are mutually exclusive and the interaction between both is undefined.
+
+This is because the interaction between environment variables and Vulkan Configuration layers settings are handled by the layers directly so the responsability of the layers developers.
+
+We are working on defining layers development conventions to resolve this issue properly but in the meantime we highly recommend to use exclusively either environment variables or Vulkan Configurator.
+
+Roadmap
+--------------
+
+- Use Private Settings Layer Extension new APIs categorize settings and allow layers by developers integration of settings in vkconfig https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/1920
+- Improve the layer settings representation and organization.
+- Full coverage of [VK_EXT_debug_utils](https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VK_EXT_debug_utils.html) for message filtering.
+- Refactor the loader to replace `vk_layer_settings.txt` and `VkLayer_override.json` by json files generated by `Vulkan Configurator`.
+	- Global layers overriding file is placed in `VulkanLayerManager` directory.
+	- Local layers overriding file / selected Vulkan application is placed the application directory.
+- Add full command line arguments to use `Vulkan Configurator` features and add a test framework.
+- Add a test to check Vulkan is working fine on the machine and display the review in the log at Vulkan Configurator start up.
+- Improve layer ordering representation and accuracy.
+- Add Import and export of layers configurations.
+- Add multiple command line arguments and environment variables per application.
+- Add a search field for the launcher log area and button to open the launcher log file, make it possible to browse the log.
+- Make vkconfig a service to add an icon in the taskbar when running.
+- Add a dedicated Vulkan Configurator layer to capture all the debug messages directly.
+- Add display of a detailed description of each layer.
+- Add preferences to customize Vulkan Configurator UI.
+- Add a reset to default menu entry
+
+Known Issues
+--------------
+
+- The UI still feels a little clunky... Need more polish.
+- Message filtering using VUID name and index is not yet fully implemented.
+- Layers will use the override layer settings and ignore the local file with no warning to the user.
+- Layer paths may not be duplicated in the layer override json file. They currently are.
+- Layer execution order express in the "Select Vulkan Layers to override and execution order" window is not accurate, only ***forced on*** layers can be ordered.
+- Layers settings fields are not checked for syntax errors.
+- The user can't reorder the layers configurations in the list.
+- Custom Layer Paths in the layer window should be per configuration settings.
+

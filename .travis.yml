@@ -28,6 +28,13 @@ matrix:
     # Check for proper clang formatting in the pull request.
     - env: CHECK_FORMAT=ON
 
+# Qt support
+#services: 
+#    - xvfb
+#
+#env:
+#    - QT_CI_PACKAGES=qt.qt5.5132.gcc_64 PATH="$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64/bin:${PATH}"
+
 cache: ccache
 
 # Use set -e so that the build fails when a command fails.
@@ -83,6 +90,10 @@ before_install:
   - set +e
 
 script:
+# Qt support
+#  - git clone https://github.com/benlau/qtci.git
+#  - source qtci/path.env
+#  - install-qt 5.13.2
   - set -e
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
