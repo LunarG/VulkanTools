@@ -26,8 +26,6 @@
 #include <QString>
 #include <QStringList>
 
-#define ENABLE_VALIDATION_SYNC 0
-
 // json file preset_index must match the preset enum values
 enum ValidationPreset {
     ValidationPresetNone = 0,
@@ -37,17 +35,10 @@ enum ValidationPreset {
     ValidationPresetShaderPrintf = 3,
     ValidationPresetReducedOverhead = 4,
     ValidationPresetBestPractices = 5,
-
-#if ENABLE_VALIDATION_SYNC
     ValidationPresetSynchronization = 6,
-#endif
 
     ValidationPresetFirst = ValidationPresetUserDefined,
-#if ENABLE_VALIDATION_SYNC
-    ValidationPresetLast = ValidationPresetSynchronization,
-#else
-    ValidationPresetLast = ValidationPresetBestPractices,
-#endif
+    ValidationPresetLast = ValidationPresetSynchronization
 };
 
 enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };

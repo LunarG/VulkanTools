@@ -74,14 +74,12 @@ PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
 // These are the built-in configurations that are pulled in from the resource
 // file.
 
-static const char *const default_configurations[] = {"Validation - Standard",          // Preset 1 in JSON file
-                                                     "Validation - GPU-Assisted",      // Preset 2 in JSON file
-                                                     "Validation - Shader Printf",     // Preset 3 in JSON file
-                                                     "Validation - Reduced-Overhead",  // Preset 4 in JSON file
-                                                     "Validation - Best Practices",    // Preset 5 in JSON file
-#if ENABLE_VALIDATION_SYNC
+static const char *const default_configurations[] = {"Validation - Standard",                // Preset 1 in JSON file
+                                                     "Validation - GPU-Assisted",            // Preset 2 in JSON file
+                                                     "Validation - Shader Printf",           // Preset 3 in JSON file
+                                                     "Validation - Reduced-Overhead",        // Preset 4 in JSON file
+                                                     "Validation - Best Practices",          // Preset 5 in JSON file
                                                      "Validation - Synchronization (Beta)",  // Preset 6 in JSON file
-#endif
 #ifndef __APPLE__
                                                      "Frame Capture - First two frames",
                                                      "Frame Capture - Range (F10 to start and to stop)",
@@ -98,13 +96,8 @@ const char *Configurator::GetValidationPresetName(ValidationPreset preset) const
 const char *Configurator::GetValidationPresetLabel(ValidationPreset preset) const {
     assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
 
-#if ENABLE_VALIDATION_SYNC
     static const char *table[] = {"User Defined",     "Standard",       "GPU-Assisted",          "Shader Printf",
                                   "Reduced-Overhead", "Best Practices", "Synchronization (Beta)"};
-#else
-    static const char *table[] = {"User Defined",  "Standard",         "GPU-Assisted",
-                                  "Shader Printf", "Reduced-Overhead", "Best Practices"};
-#endif
 
     static_assert(countof(table) == ValidationPresetCount, "Invalid array size");
 
