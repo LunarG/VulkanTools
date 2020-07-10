@@ -154,7 +154,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     }
 
     ui_->lineEditName->setText(configuration_->name);
-    ui_->lineEditDesc->setText(configuration_->description);
+    //ui_->lineEditDesc->setText(configuration_->description);
 
     QTreeWidgetItem *header_item = ui_->layerTree->headerItem();
 
@@ -391,7 +391,7 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
     //    // Is this layer Force on?
     //    settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
 
-    ui_->lineEditDesc->setText(pLayerItem->layer_file->description);
+    //ui_->lineEditDesc->setText(pLayerItem->layer_file->description);
 
     /////////////////////////////////////////////////////////////////////
     // Populate the side label
@@ -468,7 +468,7 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept() {
     configuration_->name = ui_->lineEditName->text();
-    configuration_->description = ui_->lineEditDesc->text();
+    //configuration_->description = ui_->lineEditDesc->text();
 
     // Hard Fail: Cannot use two layers with the same name
     bool bSameName = false;

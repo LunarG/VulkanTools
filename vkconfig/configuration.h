@@ -64,7 +64,7 @@ class Configuration {
     QByteArray setting_tree_state;  // Recall editor tree state
     ValidationPreset preset;        // Khronos layer presets. 0 = none or user defined
 
-    // A profile is nothing but a list of layers and their settings in truth
+    // A configuration is nothing but a list of layers and their settings in truth
     QVector<LayerFile *> layers;
 
     QStringList excluded_layers;  // Just the names of blacklisted layers
