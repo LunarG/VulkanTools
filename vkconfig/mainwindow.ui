@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1122</width>
-    <height>842</height>
+    <width>1024</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>1024</width>
-    <height>768</height>
+    <height>640</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -141,7 +141,7 @@
            <widget class="QPushButton" name="pushButtonAppList">
             <property name="geometry">
              <rect>
-              <x>460</x>
+              <x>410</x>
               <y>70</y>
               <width>81</width>
               <height>26</height>
@@ -418,7 +418,19 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>300</height>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>400</width>
+          <height>0</height>
          </size>
         </property>
         <property name="title">
@@ -600,7 +612,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1122</width>
+     <width>1024</width>
      <height>21</height>
     </rect>
    </property>

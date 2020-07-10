@@ -131,23 +131,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
         ui_->groupBoxEditor->setEnabled(false);
     }
 
-    restoreGeometry(settings_.value("geometry").toByteArray());
-    restoreState(settings_.value("windowState").toByteArray());
-    ui_->splitter->restoreState(settings_.value("splitter1State").toByteArray());
-    ui_->splitter_2->restoreState(settings_.value("splitter2State").toByteArray());
-    ui_->splitter_3->restoreState(settings_.value("splitter3State").toByteArray());
+    QSettings settings;
+    if (settings.value(VKCONFIG_KEY_RESTORE_GEOMETRY).toBool()){
+        restoreGeometry(settings_.value("geometry").toByteArray());
+        restoreState(settings_.value("windowState").toByteArray());
+        ui_->splitter->restoreState(settings_.value("splitter1State").toByteArray());
+        ui_->splitter_2->restoreState(settings_.value("splitter2State").toByteArray());
+        ui_->splitter_3->restoreState(settings_.value("splitter3State").toByteArray());
+    }
+    settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, true);
 
     // All else is done, highlight and activeate the current profile on startup
-    Configuration *pActive = configurator.GetActiveConfiguration();
-    if (pActive != nullptr) {
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
         for (int i = 0; i < ui_->profileTree->topLevelItemCount(); i++) {
             ContigurationListItem *pItem = dynamic_cast<ContigurationListItem *>(ui_->profileTree->topLevelItem(i));
             if (pItem != nullptr)
-                if (pItem->configuration == pActive) {  // Ding ding ding... we have a winner
+                if (pItem->configuration == configuration) {  // Ding ding ding... we have a winner
                     ui_->profileTree->setCurrentItem(pItem);
                 }
         }
     }
+    ui_->groupBoxEditor->setEnabled(configuration != nullptr);
 
     ui_->logBrowser->append("Vulkan Development Status:");
     ui_->logBrowser->append(configurator.CheckVulkanSetup());
@@ -205,6 +210,7 @@ void MainWindow::LoadConfigurationList() {
     ChangeActiveConfiguration(configurator.GetActiveConfiguration());
     ui_->profileTree->setColumnWidth(0, 24);
     ui_->profileTree->resizeColumnToContents(1);
+    ui_->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
 }
 
 //////////////////////////////////////////////////////////
@@ -264,6 +270,8 @@ void MainWindow::on_radioOverride_clicked() {
         ChangeActiveConfiguration(nullptr);
     else
         ChangeActiveConfiguration(configuration_item->configuration);
+
+    ui_->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -310,6 +318,8 @@ void MainWindow::on_checkBoxApplyList_clicked() {
         // Checking the list, the configuration need to be updated to the system
         if (configurator.GetActiveConfiguration()) ChangeActiveConfiguration(configurator.GetActiveConfiguration());
     }
+
+    ui_->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
 }
 
 //////////////////////////////////////////////////////////
@@ -551,6 +561,7 @@ void MainWindow::on_pushButtonAppList_clicked() {
     // Also, we may have changed exclusion flags, so reset override
     Configuration *active_configuration = configurator.GetActiveConfiguration();
     if (active_configuration != nullptr) configurator.SetActiveConfiguration(active_configuration);
+    ui_->groupBoxEditor->setEnabled(active_configuration != nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -701,8 +712,8 @@ void MainWindow::EditCustomPathsClicked(ContigurationListItem *item) {
     LoadConfigurationList();  // Force a reload
 }
 
-void MainWindow::toolsSetCustomPaths(bool bChecked) {
-    (void)bChecked;
+void MainWindow::toolsSetCustomPaths(bool checked) {
+    (void)checked;
     addCustomPaths();
     LoadConfigurationList();  // Force a reload
 }
@@ -725,6 +736,8 @@ void MainWindow::ChangeActiveConfiguration(Configuration *configuration) {
 
         setWindowTitle(newCaption);
     }
+
+    ui_->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
 }
 
 void MainWindow::editorExpanded(QTreeWidgetItem *item) {
