@@ -72,11 +72,12 @@ class PathFinder {
 #define VKCONFIG_KEY_APPLY_ONLY_TO_LIST "applyOnlyToList"
 #define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT "keepActiveOnExit"
 #define VKCONFIG_KEY_FIRST_RUN "firstRun"
-#define VKCONFIG_KEY_APPLY_ALL "applytoall"
 #define VKCONFIG_HIDE_RESTART_WARNING "restartWarning"
 #define VKCONFIG_KEY_LAST_EXPORT_PATH "lastExportPath"
 #define VKCONFIG_KEY_LAST_IMPORT_PATH "lastImportPath"
 #define VKCONFIG_KEY_LAST_EXECUTABLE_PATH "lastExecutablePath"
+#define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
+#define VKCONFIG_KEY_RESTORE_GEOMETRY "restaureGeometry"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -208,7 +209,7 @@ class Configurator {
     // This includes all found implicit, explicit, or layers found in custom folders
     QVector<LayerFile*> available_Layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
-    const LayerFile* FindLayerNamed(QString layer_name, const char* location = nullptr);
+    const LayerFile* FindLayerNamed(QString layer_name);
     void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list);
 
     QVector<Configuration*> available_configurations;

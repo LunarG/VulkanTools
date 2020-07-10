@@ -74,41 +74,72 @@ PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
 // These are the built-in configurations that are pulled in from the resource
 // file.
 
-static const char *const default_configurations[] = {"Validation - Standard",          // Preset 1 in JSON file
-                                                     "Validation - GPU-Assisted",      // Preset 2 in JSON file
-                                                     "Validation - Shader Printf",     // Preset 3 in JSON file
-                                                     "Validation - Reduced-Overhead",  // Preset 4 in JSON file
-                                                     "Validation - Best Practices",    // Preset 5 in JSON file
+struct DefaultConfiguration {
+    const char *name;
+    const char *required_layer;
+    Version required_api_version;
+    const char *preset_label;
+    ValidationPreset preset;
+};
+
+static const DefaultConfiguration default_configurations[] = {
+    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Standard", ValidationPresetStandard},
+    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "GPU-Assisted", ValidationPresetGPUAssisted},
+    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Shader Printf",
+     ValidationPresetShaderPrintf},
+    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Reduced-Overhead",
+     ValidationPresetReducedOverhead},
+    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Best Practices",
+     ValidationPresetBestPractices},
 #if ENABLE_VALIDATION_SYNC
-                                                     "Validation - Synchronization (Beta)",  // Preset 6 in JSON file
+    {"Validation - Synchronization (Beta)", "VK_LAYER_KHRONOS_validation", "1.2.145", "Synchronization (Beta)",
+     ValidationPresetSynchronization},
 #endif
 #ifndef __APPLE__
-                                                     "Frame Capture - First two frames",
-                                                     "Frame Capture - Range (F10 to start and to stop)",
+    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", "1.2.145", "", ValidationPresetNone},
+    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", "1.2.145", "", ValidationPresetNone},
 #endif
-                                                     "API dump"};
+    {"API dump", "VK_LAYER_LUNARG_api_dump", "1.1.126", "", ValidationPresetNone}};
+
+static const DefaultConfiguration *FindDefaultConfiguration(const char *name) {
+    assert(name);
+
+    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
+        if (strcmp(default_configurations[i].name, name) != 0) continue;
+        return &default_configurations[i];
+    }
+
+    return nullptr;  // Not found
+}
+
+static const DefaultConfiguration *FindDefaultConfiguration(ValidationPreset preset) {
+    assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
+
+    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
+        if (default_configurations[i].preset != preset) continue;
+        return &default_configurations[i];
+    }
+
+    return nullptr;  // Not found
+}
 
 const char *Configurator::GetValidationPresetName(ValidationPreset preset) const {
     // 0 is user defined, there is no file for that
-    assert(preset > ValidationPresetUserDefined && preset <= ValidationPresetLast);
+    assert(preset > ValidationPresetUserDefined);
 
-    return default_configurations[preset - 1];
+    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset);
+    if (configuration) return configuration->name;
+
+    assert(0);
+    return nullptr;
 }
 
 const char *Configurator::GetValidationPresetLabel(ValidationPreset preset) const {
-    assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
+    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset);
+    if (configuration) return configuration->preset_label;
 
-#if ENABLE_VALIDATION_SYNC
-    static const char *table[] = {"User Defined",     "Standard",       "GPU-Assisted",          "Shader Printf",
-                                  "Reduced-Overhead", "Best Practices", "Synchronization (Beta)"};
-#else
-    static const char *table[] = {"User Defined",  "Standard",         "GPU-Assisted",
-                                  "Shader Printf", "Reduced-Overhead", "Best Practices"};
-#endif
-
-    static_assert(countof(table) == ValidationPresetCount, "Invalid array size");
-
-    return table[preset];
+    assert(0);
+    return nullptr;
 }
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
@@ -145,6 +176,24 @@ Configurator::Configurator()
       saved_configuration(nullptr),
       active_configuration_(nullptr) {
     available_Layers.reserve(10);
+
+    {
+        QSettings settings;
+        const char *saved_version = settings.value(VKCONFIG_KEY_VKCONFIG_VERSION).toString().toUtf8().constData();
+        const char *current_version =
+            QString()
+                .asprintf("%d.%d.%d", VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
+                          VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE))
+                .toUtf8()
+                .constData();
+
+        if (Version(saved_version) != Version(current_version)) {
+            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, current_version);
+            settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
+            settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "Validation - Standard");
+            settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
+        }
+    }
 
 #if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     running_as_administrator_ = IsUserAnAdmin();
@@ -1013,7 +1062,7 @@ void Configurator::LoadAllConfigurations() {
         dir.setNameFilters(QStringList() << "*.json");
         QFileInfoList configuration_files = dir.entryInfoList();
 
-        // Loop through all the profiles found and remove them
+        // Loop through all the configurations found and remove them
         for (int i = 0, n = configuration_files.size(); i < n; i++) {
             QFileInfo info = configuration_files.at(i);
             if (info.absoluteFilePath().contains("applist.json")) continue;
@@ -1022,7 +1071,7 @@ void Configurator::LoadAllConfigurations() {
 
         for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
             // Search the list of loaded configurations
-            const QString file = QString(":/resourcefiles/") + default_configurations[i] + ".json";
+            const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
 
             qDebug() << file.toUtf8().constData();
 
@@ -1113,34 +1162,22 @@ void Configurator::LoadDefaultLayerSettings() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-/// \brief CVulkanConfiguration::findLayerNamed
-/// \param qsLayerName
-/// \param location
-/// \return
 /// To do a full match, not only the layer name, but the layer path/location
 /// must also be a match. It IS possible to have two layers with the same name
 /// as long as they are in different locations.
-const LayerFile *Configurator::FindLayerNamed(QString qsLayerName, const char *location) {
-    // Search just by name
-    if (location == nullptr) {
-        for (int i = 0; i < available_Layers.size(); i++)
-            if (qsLayerName == available_Layers[i]->name) {
-                return available_Layers[i];
-            }
+const LayerFile *Configurator::FindLayerNamed(QString layer_name) {
+    for (int i = 0; i < available_Layers.size(); ++i) {
+        const LayerFile *layer_file = available_Layers[i];
 
-        return nullptr;  // Not found
+        if (!(layer_name == layer_file->name)) continue;
+        return layer_file;
     }
-
-    // Match both
-    for (int i = 0; i < available_Layers.size(); i++)
-        if (qsLayerName == available_Layers[i]->name && QString(location) == available_Layers[i]->layer_path)
-            return available_Layers[i];
 
     return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Load from a .profile file (.json really)
+// Load from a configuration file (.json really)
 Configuration *Configurator::LoadConfiguration(const QString &path_to_configuration) {
     // Just load the name for now, and if it's read only
     if (path_to_configuration.isEmpty()) return nullptr;

@@ -210,7 +210,7 @@ void SettingsTreeManager::BuildKhronosTree() {
 
             QTreeWidgetItem *pListItem = new QTreeWidgetItem();
             mute_message_item->addChild(pListItem);
-            pListItem->setSizeHint(0, QSize(350, 200));
+            pListItem->setSizeHint(0, QSize(0, 200));
             mute_message_widget_ = new MuteMessageWidget(validation_layer_file_->layer_settings[settings_index]);
             compound_widgets_.push_back(pListItem);
             configuration_settings_tree_->setItemWidget(pListItem, 0, mute_message_widget_);
