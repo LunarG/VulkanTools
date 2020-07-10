@@ -3,7 +3,7 @@
         "blacklisted_layers": [
         ],
         "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
-        "editor_state": "0111011111111111111111101111111111111",
+        "editor_state": "01110111111111111111111001011111111110",
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {
                 "debug_action": {
@@ -21,6 +21,7 @@
                 },
                 "disables": {
                     "default": [
+                        "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
                     ],
                     "description": "Setting an option here will disable areas of validation",
                     "name": "Disables",
