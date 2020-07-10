@@ -27,7 +27,7 @@
         <file>resourcefiles/Validation - Reduced-Overhead.json</file>
         <file>resourcefiles/Validation - Shader Printf.json</file>
         <file>resourcefiles/Validation - Standard.json</file>
-        <file>resourcefiles/Validation - Synchronization (Beta).json</file>
+        <file>resourcefiles/Validation - Synchronization (Alpha).json</file>
         <file>resourcefiles/Frame Capture - First two frames.json</file>
         <file>resourcefiles/Frame Capture - Range (F10 to start and to stop).json</file>
     </qresource>

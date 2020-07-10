@@ -91,15 +91,14 @@ static const DefaultConfiguration default_configurations[] = {
      ValidationPresetReducedOverhead},
     {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Best Practices",
      ValidationPresetBestPractices},
-#if ENABLE_VALIDATION_SYNC
-    {"Validation - Synchronization (Beta)", "VK_LAYER_KHRONOS_validation", "1.2.145", "Synchronization (Beta)",
+    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", Version("1.2.147"), "Synchronization (Alpha)",
      ValidationPresetSynchronization},
-#endif
 #ifndef __APPLE__
-    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", "1.2.145", "", ValidationPresetNone},
-    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", "1.2.145", "", ValidationPresetNone},
+    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
+    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
+     ValidationPresetNone},
 #endif
-    {"API dump", "VK_LAYER_LUNARG_api_dump", "1.1.126", "", ValidationPresetNone}};
+    {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "", ValidationPresetNone}};
 
 static const DefaultConfiguration *FindDefaultConfiguration(const char *name) {
     assert(name);
