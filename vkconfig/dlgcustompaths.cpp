@@ -55,7 +55,7 @@ void dlgCustomPaths::RepopulateTree() {
 
         // Look for layers that are in this folder. If any are found, add them to the tree
         QVector<LayerFile *> custom_layers;
-        configurator.LoadLayersFromPath(custom_path, custom_layers, LAYER_TYPE_CUSTOM);
+        configurator.LoadLayersFromPath(custom_path, custom_layers);
 
         for (int j = 0; j < custom_layers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();

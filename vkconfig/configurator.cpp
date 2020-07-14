@@ -139,14 +139,15 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : active_configuration_(nullptr),
-      saved_configuration(nullptr),
-      has_old_loader(false),
+    : has_old_loader(false),
       first_run_(true),
-      override_application_list_updated(false) {
+      override_application_list_updated(false),
+      saved_configuration(nullptr),
+      active_configuration_(nullptr) {
     available_Layers.reserve(10);
 
-#if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#ifdef _WIN32
+    // Note: This is a Win32 function, not a Qt function
     running_as_administrator_ = IsUserAnAdmin();
 #else
     running_as_administrator_ = false;
@@ -231,13 +232,29 @@ Configurator::Configurator()
         }
     }
 
+    // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
+    // assemble a list of paths that take precidence for layer discovery.
+    QString layer_path = qgetenv("VK_LAYER_PATH");
+    if (!layer_path.isEmpty()) {
+#ifdef _WIN32
+        VK_LAYER_PATH = layer_path.split(";");  // Windows uses ; as seperator
+#else
+        VK_LAYER_PATH = layer_path.split(":");  // Linux/macOS uses : as seperator
+#endif
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+/// A good rule of C++ is to not put things in the constructor that can fail, or
+/// that might require recursion. This initializes
+///
+bool Configurator::InitializeConfigurator(void) {
     // Load simple app settings, the additional search paths, and the
     // override app list.
     LoadSettings();
     LoadCustomLayersPaths();
     LoadOverriddenApplicationList();
     LoadDefaultLayerSettings();  // findAllInstalledLayers uses the results of this.
-
     LoadAllInstalledLayers();
 
     // If no layers are found, give the user another chance to add some custom paths
@@ -260,12 +277,12 @@ Configurator::Configurator()
 
     if (available_Layers.empty()) {
         QMessageBox alert;
-        alert.setText(VKCONFIG_NAME);
-        alert.setWindowTitle("Initialization of Vulkan Configurator couldn't be done.");
+        alert.setText("Could not initialize Vulkan Configurator.");
+        alert.setWindowTitle(VKCONFIG_NAME);
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
 
-        return;
+        return false;
     }
 
     LoadAllConfigurations();
@@ -273,6 +290,8 @@ Configurator::Configurator()
     // This will reset or clear the current profile if the files have been
     // manually manipulated
     SetActiveConfiguration(active_configuration_);
+
+    return true;
 }
 
 Configurator::~Configurator() {
@@ -287,7 +306,7 @@ QString Configurator::CheckVulkanSetup() const {
     QString log;
 
     // Check Vulkan SDK path
-    QString search_path = std::getenv("VULKAN_SDK");
+    QString search_path = qgetenv("VULKAN_SDK");
     QFileInfo local(search_path);
     if (local.exists())
         log += QString().asprintf("- SDK path: %s\n", search_path.toUtf8().constData());
@@ -381,7 +400,18 @@ QString Configurator::CheckVulkanSetup() const {
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
         (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, NULL);
-    Q_ASSERT(!err);
+
+    // This can fail on a new Linux setup. Check and fail gracefully rather than crash.
+    if (err != VK_SUCCESS) {
+        QMessageBox alert(NULL);
+        alert.setWindowTitle("Vulkan Development Status failure...");
+        alert.setText("Cannot find any Vulkan Physical Devices.");
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
+
+        log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
+        return log;
+    }
 
     std::vector<VkPhysicalDevice> devices;
     devices.resize(gpu_count);
@@ -747,7 +777,7 @@ void Configurator::FindVkCube() {
     QString search_path = application_name;
     QFileInfo local(search_path);
     if (!local.exists()) {
-        search_path = std::getenv("VULKAN_SDK");
+        search_path = qgetenv("VULKAN_SDK");
         search_path = search_path + "/bin/" + application_name;
         QFileInfo local2(search_path);
         if (!local2.exists()) return;
@@ -867,43 +897,37 @@ void Configurator::LoadAllInstalledLayers() {
     // we need to clear out the old data and just do a clean refresh
     ClearLayerLists();
 
-    // Standard layer paths
-    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) {
-        LayerType type = (szSearchPaths[i].contains("implicit", Qt::CaseInsensitive)) ? LAYER_TYPE_IMPLICIT : LAYER_TYPE_EXPLICIT;
-        if (type == LAYER_TYPE_IMPLICIT)
-            LoadLayersFromPath(szSearchPaths[i], available_Layers, type);
-        else
-            LoadLayersFromPath(szSearchPaths[i], available_Layers, type);
-    }
+    // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
+    int lp = VK_LAYER_PATH.count();
+    if (lp != 0)
+        for (int i = 0; i < lp; i++) LoadLayersFromPath(VK_LAYER_PATH[i], available_Layers);
 
-#ifndef _WIN32
-    // On Linux systems, the path might also be an extracted tar ball at just about any arbitrary place. Use the environment
-    // variable VULKAN_SDK to look for additional layers.
-    // (Go ahead and let macOS do this as well).
-    // This will create duplicate entries if the layers ARE installed, so only do this if
-    // No layers have been found yet.
-    if (available_Layers.empty()) {
-        char *vulkanSDK = getenv("VULKAN_SDK");
-        if (vulkanSDK != nullptr) {
-            QString searchPath = vulkanSDK;
-            searchPath += "/etc/vulkan/explicit_layer.d";
-            LoadLayersFromPath(searchPath, available_Layers, LAYER_TYPE_EXPLICIT);
-        }
-    }
-#endif
+    // SECOND: Standard layer paths, in standard locations
+    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], available_Layers);
 
-    // Any custom paths? All layers from all paths are appended together here
-    for (int i = 0; i < custom_layers_paths_.size(); i++)
-        LoadLayersFromPath(custom_layers_paths_[i], available_Layers, LAYER_TYPE_CUSTOM);
+    // THIRD: Any custom paths? Search for those too
+    for (int i = 0; i < custom_layers_paths_.size(); i++) LoadLayersFromPath(custom_layers_paths_[i], available_Layers);
+
+    // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
+    QString vulkanSDK = qgetenv("VULKAN_SDK");
+    if (!vulkanSDK.isEmpty()) {
+        vulkanSDK += "/etc/vulkan/explicit_layer.d";
+        LoadLayersFromPath(vulkanSDK, available_Layers);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Search a folder and load up all the layers found there. This does NOT
 /// load the default settings for each layer. This is just a master list of
-/// settings to be copied from, and referenced.
-void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> &layer_list, LayerType type) {
+/// layers found. Do NOT load duplicate layer names. The type of layer (explicit or implicit) is
+/// determined from the path name.
+void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> &layer_list) {
     // On Windows custom files are in the file system. On non Windows all layers are
     // searched this way
+    LayerType type = LAYER_TYPE_CUSTOM;
+    if (path.contains("explicit", Qt::CaseInsensitive)) type = LAYER_TYPE_EXPLICIT;
+
+    if (path.contains("implicit", Qt::CaseInsensitive)) type = LAYER_TYPE_IMPLICIT;
 
 #ifdef _WIN32
     if (path.contains("...")) {
@@ -925,6 +949,8 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> 
 #endif
     if (file_list.FileCount() == 0) return;
 
+    // We have a list of layer files. Add to the list as long as the layer name has
+    // not already been added.
     for (int file_index = 0; file_index < file_list.FileCount(); file_index++) {
         LayerFile *layer_file = new LayerFile();
         if (layer_file->ReadLayerFile(file_list.GetFileName(file_index), type)) {
@@ -936,8 +962,16 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> 
                     break;
                 }
 
-            // We have a layer! See if we need to add the settings list to it, and then add it to our list
-            if (layer_file != nullptr) layer_list.push_back(layer_file);
+            if (layer_file == nullptr) continue;
+
+            // Make sure this layer name has not already been added
+            if (FindLayerNamed(layer_file->name)) {
+                delete layer_file;
+                continue;
+            }
+
+            // Good to go, add the layer
+            layer_list.push_back(layer_file);
         }
     }
 }
@@ -1008,7 +1042,7 @@ void Configurator::LoadAllConfigurations() {
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList configuration_files = dir.entryInfoList();
 
-    // Loop through all the profiles found and load them
+    // Loop through all the configurations found and load them
     for (int i = 0, n = configuration_files.size(); i < n; i++) {
         QFileInfo info = configuration_files.at(i);
         if (info.absoluteFilePath().contains("applist.json")) continue;
@@ -1165,29 +1199,13 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
         QJsonValue layer_value = layer_objects.value(layer_list[layer_index]);
         QJsonObject layer_object = layer_value.toObject();
 
-        // To match the layer we need not just the name, but the path
-        // If the path doesn't exist, assume it's from the standard layer locations
-        // Get the path of this layer
-        QJsonValue layer_path_value = layer_object.value("layer_path");
-        QString layer_path = layer_path_value.toString();
-
-        if (layer_path.isEmpty()) {  // No layer path exists
-            // Find this in our lookup of layers. The standard layers are listed first
-            layer_file = FindLayerNamed(layer_list[layer_index]);
-            if (layer_file == nullptr) {  // If not found, we have a layer missing....
-                configuration->all_layers_available = false;
-                continue;
-            }
-        } else {
-            // We have a layer path, find the exact match. If an exact match doesn't
-            // exist, allow just the name to match
-            // (this fixes the problem with the API dump tool)
-            // WAIT? Why both checking for path then?
-            layer_file = FindLayerNamed(layer_list[layer_index], layer_path.toUtf8().constData());
-            if (layer_file == nullptr) {
-                configuration->all_layers_available = false;
-                continue;  // We still can't find the layer
-            }
+        // To match the layer we just need the name, paths are not
+        // hard-matched to the configuration.
+        // Find this in our lookup of layers. The standard layers are listed first
+        layer_file = FindLayerNamed(layer_list[layer_index]);
+        if (layer_file == nullptr) {  // If not found, we have a layer missing....
+            configuration->all_layers_available = false;
+            continue;
         }
 
         // Make a copy add it to this layer
@@ -1237,9 +1255,6 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
 
         // Rank goes in here with settings
         json_settings.insert("layer_rank", pLayer->rank);
-
-        // We also need the path to the layer
-        json_settings.insert("layer_path", pLayer->layer_path);
 
         // Loop through the actual settings
         for (int setting_index = 0; setting_index < pLayer->layer_settings.size(); setting_index++) {
@@ -1466,33 +1481,29 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     // VkLayer_override.json
 
     ///////////////////////////////////////////////////////////////////////
-    // The paths are tricky... if no custom layers are being used, then
-    // this is left empty. If any custom paths are used, then we need to make
-    // sure if some of the standard layers are also selected that they
-    // can also be found. So, we add their paths as well to the list
-    QJsonArray json_paths;
+    // Paths are listed in the same order as the layers. Earlier, the value
+    // of VK_LAYER_PATH was used to discover layers, then the user override
+    // paths, then the standard paths, then the SDK path if the VULKAN_SDK
+    // environment variable was set. All these paths must go in the
+    // override_paths array, or the standard default system paths will be
+    // used instead. A major departure from vkConfig1 is that now ALL
+    // layer paths go in here.
+    QStringList layer_override_paths;
 
-    // See if any of the included layers are custom?
-    bool have_custom_layers = false;
-    for (int i = 0; i < configuration->layers.size(); i++)
-        if (configuration->layers[i]->layer_type == LAYER_TYPE_CUSTOM) have_custom_layers = true;
+    for (int i = 0; i < configuration->layers.size(); i++) {
+        // Extract just the path
+        QFileInfo file(configuration->layers[i]->layer_path);
+        QString qsPath = QDir().toNativeSeparators(file.absolutePath());
 
-    // Only if we have custom paths...
-    if (have_custom_layers) {
-        // Don't use the additional search paths list, only use the paths
-        // used by the layers themsevles. All the paths are included so
-        // we can use standard SDK layers and custom layers at the same time.
-        // The order of the search paths should match the order of the layers
-        // in the profile.
-        for (int i = 0; i < configuration->layers.size(); i++) {
-            // Extract just the path
-            QFileInfo file(configuration->layers[i]->layer_path);
-            QString qsPath = QDir().toNativeSeparators(file.absolutePath());
+        // Make sure the path is not already in the list
+        if (layer_override_paths.contains(qsPath)) continue;
 
-            // Okay, add to the list
-            json_paths.append(qsPath);
-        }
+        // Okay, add to the list
+        layer_override_paths << qsPath;
     }
+
+    QJsonArray json_paths;
+    for (int i = 0; i < layer_override_paths.count(); i++) json_paths.append(QDir::toNativeSeparators(layer_override_paths[i]));
 
     QJsonArray json_layers;
     for (int i = 0; i < configuration->layers.size(); i++) json_layers.append(configuration->layers[i]->name);
@@ -1606,9 +1617,6 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
 
     while (!in.atEnd()) {
         QString line = in.readLine();
-
-        if (line.contains("layer_path")) continue;
-
         out << line << "\n";
     }
 
@@ -1645,9 +1653,6 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
 
     while (!in.atEnd()) {
         QString line = in.readLine();
-
-        if (line.contains("layer_path")) continue;
-
         out << line << "\n";
     }
 
