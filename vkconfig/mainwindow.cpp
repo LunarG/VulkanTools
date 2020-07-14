@@ -78,6 +78,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     ///////////////////////////////////////////////
     Configurator &configurator = Configurator::Get();
 
+    if (!configurator.VK_LAYER_PATH.isEmpty())
+        ui_->groupBoxProfiles->setTitle("Vulkan Layers Configurations With VK_LAYER_PATH Precedence");
+
     // We need to resetup the new profile for consistency sake.
     QString last_configuration = settings_.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Validation - Standard")).toString();
     Configuration *current_configuration = configurator.FindConfiguration(last_configuration);

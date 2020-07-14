@@ -153,10 +153,6 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
         // user setting.
         if (settingsNames[iSetting] == QString("layer_rank")) continue;
 
-        // Layer path is in this JSON, do not add it as a setting,
-        // it is also not a user editable setting.
-        if (settingsNames[iSetting] == QString("layer_path")) continue;
-
         LayerSettings* pLayerSettings = new LayerSettings;
         pLayerSettings->settings_name = settingsNames[iSetting];
 
