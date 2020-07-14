@@ -146,8 +146,7 @@ Configurator::Configurator()
       active_configuration_(nullptr) {
     available_Layers.reserve(10);
 
-#ifdef _WIN32
-    // Note: This is a Win32 function, not a Qt function
+#if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     running_as_administrator_ = IsUserAnAdmin();
 #else
     running_as_administrator_ = false;
