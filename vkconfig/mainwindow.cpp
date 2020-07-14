@@ -152,6 +152,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     ui_->logBrowser->append("Vulkan Development Status:");
     ui_->logBrowser->append(configurator.CheckVulkanSetup());
     ui_->profileTree->scrollToItem(ui_->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
+
+    // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
+    // Whenever the control surpasses this block count, old blocks are discarded.
+    // Note: We could make this a user configurable setting down the road should this be
+    // insufficinet.
+    ui_->logBrowser->document()->setMaximumBlockCount(2048);
 }
 
 MainWindow::~MainWindow() { delete ui_; }
