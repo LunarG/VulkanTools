@@ -74,9 +74,6 @@ void dlgVulkanInfo::RunTool() {
     vulkan_info->start();
     vulkan_info->waitForFinished();
 
-    QProcess::ProcessError error = vulkan_info->error();
-    printf("Error code: %d\n", error);
-
     // Check for the output file
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {

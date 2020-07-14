@@ -120,6 +120,7 @@ class Configurator {
     enum { PathCount = LastPath - FirstPath + 1 };
 
     static Configurator& Get();
+    bool InitializeConfigurator(void);
 
     // Need this to check vulkan loader version
     uint32_t vulkan_instance_version;
@@ -174,6 +175,11 @@ class Configurator {
     int GetCustomLayersPathSize() const;
     const QString& GetCustomLayersPath(int path_index) const;
 
+    QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
+                                // a list of paths that should be searched first for
+                                // Vulkan layers. (Named as environment variable for
+                                // clarity as to where this comes from).
+
    private:
     QStringList custom_layers_paths_;
 
@@ -203,7 +209,7 @@ class Configurator {
     QVector<LayerFile*> available_Layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
     const LayerFile* FindLayerNamed(QString layer_name, const char* location = nullptr);
-    void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list, LayerType type);
+    void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list);
 
     QVector<Configuration*> available_configurations;
 
