@@ -154,7 +154,6 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     }
 
     ui_->lineEditName->setText(configuration_->name);
-    //ui_->lineEditDesc->setText(configuration_->description);
 
     QTreeWidgetItem *header_item = ui_->layerTree->headerItem();
 
@@ -379,20 +378,6 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *pCurrent, QTreeWidge
         return;
     }
 
-    //    // Get the name of the selected layer
-    //    QString qsTitle = "Layer Settings (" + pCurrent->text(0);
-    //    qsTitle += ")";
-    //    ui->groupBoxSettings->setTitle(qsTitle);
-    //    if(pLayerItem->pLayer->name == QString("VK_LAYER_KHRONOS_validation"))
-    //        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_kHRONOS_ADVANCED, "");
-    //    else
-    //        settingsEditor.CreateGUI(ui->scrollArea, pLayerItem->pLayer->layerSettings, EDITOR_TYPE_GENERAL, "");
-
-    //    // Is this layer Force on?
-    //    settingsEditor.SetEnabled(pLayerItem->pLayer->bActive);
-
-    //ui_->lineEditDesc->setText(pLayerItem->layer_file->description);
-
     /////////////////////////////////////////////////////////////////////
     // Populate the side label
     QString detailsText = pLayerItem->layer_file->description;
@@ -468,7 +453,6 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept() {
     configuration_->name = ui_->lineEditName->text();
-    //configuration_->description = ui_->lineEditDesc->text();
 
     // Hard Fail: Cannot use two layers with the same name
     bool bSameName = false;

@@ -1059,7 +1059,7 @@ void Configurator::LoadAllConfigurations() {
         dir.setNameFilters(QStringList() << "*.json");
         QFileInfoList configuration_files = dir.entryInfoList();
 
-        // Loop through all the configuration found and remove them
+        // Loop through all the configurations found and remove them
         for (int i = 0, n = configuration_files.size(); i < n; i++) {
             QFileInfo info = configuration_files.at(i);
             if (info.absoluteFilePath().contains("applist.json")) continue;
