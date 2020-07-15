@@ -61,5 +61,16 @@ struct Version
         return false;
     }
 
+    bool operator>(const Version &other_version)
+    {
+        if(major > other_version.major)
+            return true;
+        if(minor > other_version.minor)
+            return true;
+        if(patch > other_version.patch)
+            return true;
+        return false;
+    }
+
     int major, minor, patch;
 };
