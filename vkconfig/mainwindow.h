@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 //////////////////////////////////////////////////
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
-class ContigurationListItem : public QTreeWidgetItem {
+class ConfigurationListItem : public QTreeWidgetItem {
    public:
     Configuration *configuration;
     QRadioButton *radio_button;
@@ -82,8 +82,8 @@ class MainWindow : public QMainWindow {
 
    private:
     Ui::MainWindow *ui_;
-    ContigurationListItem *selected_configuration_item_;
-    ContigurationListItem *GetCheckedItem();
+    ConfigurationListItem *selected_configuration_item_;
+    ConfigurationListItem *GetCheckedItem();
 
     QComboBox *launcher_apps_combo_;
     QLineEdit *launch_arguments_;
@@ -95,13 +95,14 @@ class MainWindow : public QMainWindow {
 
     void ResetLaunchOptions();
 
-    void RemoveClicked(ContigurationListItem *item);
-    void RenameClicked(ContigurationListItem *item);
+    void RemoveClicked(ConfigurationListItem *item);
+    void RenameClicked(ConfigurationListItem *item);
+    void EditClicked(ConfigurationListItem *item);
     void NewClicked();
-    void DuplicateClicked(ContigurationListItem *item);
-    void ExportClicked(ContigurationListItem *item);
-    void ImportClicked(ContigurationListItem *item);
-    void EditCustomPathsClicked(ContigurationListItem *item);
+    void DuplicateClicked(ConfigurationListItem *item);
+    void ExportClicked(ConfigurationListItem *item);
+    void ImportClicked(ConfigurationListItem *item);
+    void EditCustomPathsClicked(ConfigurationListItem *item);
 
    public Q_SLOTS:
     void aboutVkConfig(bool checked);
