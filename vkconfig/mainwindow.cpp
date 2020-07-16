@@ -92,6 +92,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     connect(ui_->actionAbout, SIGNAL(triggered(bool)), this, SLOT(aboutVkConfig(bool)));
     connect(ui_->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
     connect(ui_->actionHelp, SIGNAL(triggered(bool)), this, SLOT(helpShowHelp(bool)));
+    connect(ui_->actionVulkan_specification, SIGNAL(triggered(bool)), this, SLOT(helpShowVulkanSpec(bool)));
+    connect(ui_->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(helpShowLayerSpec(bool)));
 
     connect(ui_->actionCustom_Layer_Paths, SIGNAL(triggered(bool)), this, SLOT(toolsSetCustomPaths(bool)));
 
@@ -515,9 +517,34 @@ void MainWindow::toolsVulkanInstallation(bool checked) {
 /// Show help, which is just a rich text file
 void MainWindow::helpShowHelp(bool checked) {
     (void)checked;
-    if (help_ == nullptr) help_ = new dlgHelp(nullptr);
 
-    help_->show();
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html"));
+}
+
+////////////////////////////////////////////////////////////////
+// Open the web browser to the Vulkan specification
+void MainWindow::helpShowVulkanSpec(bool checked) {
+    (void)checked;
+#ifdef _WIN32
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/1.2-extensions/vkspec.html"));
+#elif defined(__APPLE__)
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/1.2-extensions/vkspec.html"));
+#else
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/1.2-extensions/vkspec.html"));
+#endif
+}
+
+////////////////////////////////////////////////////////////////
+// Open the web browser to the Vulkan Layers specification
+void MainWindow::helpShowLayerSpec(bool checked) {
+    (void)checked;
+#ifdef _WIN32
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html"));
+#elif defined(__APPLE__)
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/layer_configuration.html"));
+#else
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/layer_configuration.html"));
+#endif
 }
 
 ////////////////////////////////////////////////////////////////
@@ -525,6 +552,40 @@ void MainWindow::helpShowHelp(bool checked) {
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
     Configurator &configurator = Configurator::Get();
+
+    // Alert the user to the current state of the vulkan configurator and
+    // give them the option to not shutdown.
+    if (settings_.value(VKCONFIG_WARN_SHUTDOWNSTATE).toBool() == false) {
+        QMessageBox alert(nullptr);
+        QString shut_down_state;
+
+        if (!configurator.override_permanent || !configurator.override_active)
+            shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
+        else {
+            shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
+
+            if (configurator.overridden_application_list_only)
+                shut_down_state += " Overrides will be applied only to the application list.";
+            else
+                shut_down_state += " Overrides will be applied to ALL Vulkan applications.";
+        }
+
+        shut_down_state += "\n\nAre you still ready to close Vulkan Configurator?";
+
+        alert.setText(shut_down_state);
+        alert.setWindowTitle("Vulkan layers override exit state");
+        alert.setIcon(QMessageBox::Question);
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setCheckBox(new QCheckBox("Do not show again."));
+
+        int ret_val = alert.exec();
+        if (alert.checkBox()->isChecked()) settings_.setValue(VKCONFIG_WARN_SHUTDOWNSTATE, true);
+        if (ret_val == QMessageBox::No) {
+            event->ignore();
+            return;
+        }
+    }
+
     if (!configurator.override_permanent) configurator.SetActiveConfiguration(nullptr);
 
     configurator.SaveOverriddenApplicationList();

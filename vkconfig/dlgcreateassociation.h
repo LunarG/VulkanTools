@@ -52,6 +52,7 @@ class dlgCreateAssociation : public QDialog {
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();                                                // Pick the application
     void on_pushButtonRemove_clicked();                                             // Remove
+    void on_pushButtonSelect_clicked();                                             // Make this the current launcher app
     void selectedPathChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);  // Used to enable remove button
     void itemChanged(QTreeWidgetItem *item, int column_index);
     void itemClicked(bool clicked);

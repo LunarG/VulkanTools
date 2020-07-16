@@ -21,34 +21,44 @@
 
 #pragma once
 
+#include <vulkan/vulkan.h>
 #include <cstddef>
-#include <cstdio>
+#include <string>
+
+namespace vku {
+
+std::string format(const char *message, ...);
 
 template <typename T, std::size_t N>
 inline constexpr std::size_t countof(T const (&)[N]) noexcept {
     return N;
 }
 
-struct Version {
-    Version(const char *version) { sscanf(version, "%d.%d.%d", &major, &minor, &patch); }
+struct version {
+    static const version header_version;
 
-    bool operator!=(const Version &other_version) { return !(*this == other_version); }
+    version(int major, int minor, int patch) : major(major), minor(minor), patch(patch) {}
+    version(const char *version);
 
-    bool operator==(const Version &other_version) {
+    std::string str() const;
+
+    bool operator!=(const version &other_version) const { return !(*this == other_version); }
+
+    bool operator==(const version &other_version) const {
         if (major != other_version.major) return false;
         if (minor != other_version.minor) return false;
         if (patch != other_version.patch) return false;
         return true;
     }
 
-    bool operator<(const Version &other_version) {
+    bool operator<(const version &other_version) const {
         if (major < other_version.major) return true;
         if (minor < other_version.minor) return true;
         if (patch < other_version.patch) return true;
         return false;
     }
 
-    bool operator>(const Version &other_version) {
+    bool operator>(const version &other_version) const {
         if (major > other_version.major) return true;
         if (minor > other_version.minor) return true;
         if (patch > other_version.patch) return true;
@@ -57,3 +67,5 @@ struct Version {
 
     int major, minor, patch;
 };
+
+}  // namespace vku
