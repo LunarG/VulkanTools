@@ -101,17 +101,6 @@ static const DefaultConfiguration default_configurations[] = {
 #endif
     {"API dump", "VK_LAYER_LUNARG_api_dump", "1.1.126", "", ValidationPresetNone}};
 
-static const DefaultConfiguration *FindDefaultConfiguration(const char *name) {
-    assert(name);
-
-    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-        if (strcmp(default_configurations[i].name, name) != 0) continue;
-        return &default_configurations[i];
-    }
-
-    return nullptr;  // Not found
-}
-
 static const DefaultConfiguration *FindDefaultConfiguration(ValidationPreset preset) {
     assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
 
@@ -162,7 +151,7 @@ static const QString szSearchPaths[] = {"/usr/local/etc/vulkan/explicit_layer.d"
                                         "/usr/share/vulkan/implicit_layer.d",
                                         ".local/share/vulkan/explicit_layer.d",
                                         ".local/share/vulkan/implicit_layer.d"};
-#endif  // QDir().homePath() + "./local...." do this inline?
+#endif
 
 Configurator &Configurator::Get() {
     static Configurator configurator;
@@ -176,24 +165,6 @@ Configurator::Configurator()
       saved_configuration(nullptr),
       active_configuration_(nullptr) {
     available_Layers.reserve(10);
-
-    {
-        QSettings settings;
-        const char *saved_version = settings.value(VKCONFIG_KEY_VKCONFIG_VERSION).toString().toUtf8().constData();
-        const char *current_version =
-            QString()
-                .asprintf("%d.%d.%d", VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                          VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE))
-                .toUtf8()
-                .constData();
-
-        if (Version(saved_version) != Version(current_version)) {
-            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, current_version);
-            settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
-            settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "Validation - Standard");
-            settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
-        }
-    }
 
 #if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     running_as_administrator_ = IsUserAnAdmin();
@@ -246,14 +217,14 @@ Configurator::Configurator()
     }
 
     home.cd("..");
-    if (!home.cd("implicit_layer.d")) {
-        home.mkpath("implicit_layer.d");
-        home.cd("implicit_layer.d");
+    if (!home.cd("lunarg-vkconfig")) {
+        home.mkpath("lunarg-vkconfig");
+        home.cd("lunarg-vkconfig");
     }
 
     home = QDir::home();
-    const QString configuration_path = home.path() + QString("/.local/share/vulkan/");
-    SetPath(ConfigurationPath, configuration_path);  // TBD, where do configuration file go if not here...
+    QString configuration_path = home.path() + QString("/.local/share/vulkan/lunarg-vkconfig");
+    SetPath(ConfigurationPath, configuration_path);
     SetPath(OverrideLayersPath, configuration_path + "implicit_layer.d/VkLayer_override.json");
     SetPath(OverrideSettingsPath, configuration_path + "settings.d/vk_layer_settings.txt");
 #endif

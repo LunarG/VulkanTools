@@ -631,6 +631,8 @@
      <string>Help</string>
     </property>
     <addaction name="actionHelp"/>
+    <addaction name="actionVulkan_specification"/>
+    <addaction name="actionVulkan_Layer_Specification"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -700,6 +702,16 @@
   <action name="actionRestore_Default_Configurations">
    <property name="text">
     <string>Reload Default Configurations</string>
+   </property>
+  </action>
+  <action name="actionVulkan_specification">
+   <property name="text">
+    <string>Vulkan Specification</string>
+   </property>
+  </action>
+  <action name="actionVulkan_Layer_Specification">
+   <property name="text">
+    <string>Vulkan Layer Specification</string>
    </property>
   </action>
  </widget>

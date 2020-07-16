@@ -78,6 +78,7 @@ class PathFinder {
 #define VKCONFIG_KEY_LAST_EXECUTABLE_PATH "lastExecutablePath"
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
 #define VKCONFIG_KEY_RESTORE_GEOMETRY "restaureGeometry"
+#define VKCONFIG_WARN_SHUTDOWNSTATE "warnAboutShutdownState"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains

@@ -198,9 +198,6 @@ void SettingsTreeManager::BuildKhronosTree() {
             mute_message_item->setText(0, "Mute Message VUIDs");
             validation_tree_item_->addChild(mute_message_item);
 
-            mute_message_search_item_ = new QTreeWidgetItem();
-            mute_message_search_item_->setText(0, "Search for:");
-            mute_message_item->addChild(mute_message_search_item_);
             vuid_search_widget_ = new VUIDSearchWidget();
             next_line = new QTreeWidgetItem();
             next_line->setSizeHint(0, QSize(0, 28));
@@ -215,7 +212,9 @@ void SettingsTreeManager::BuildKhronosTree() {
             compound_widgets_.push_back(pListItem);
             configuration_settings_tree_->setItemWidget(pListItem, 0, mute_message_widget_);
 
-            connect(vuid_search_widget_, SIGNAL(itemSelected(QString &)), mute_message_widget_, SLOT(addItem(QString &)));
+            connect(vuid_search_widget_, SIGNAL(itemSelected(const QString &)), mute_message_widget_,
+                    SLOT(addItem(const QString &)));
+            connect(vuid_search_widget_, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             connect(mute_message_widget_, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
         }
@@ -434,10 +433,7 @@ void SettingsTreeManager::CleanupGUI() {
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
-    if (validation_layer_file_) {
-        configuration_settings_tree_->setItemWidget(validation_file_item_, 1, nullptr);
-        configuration_settings_tree_->setItemWidget(mute_message_search_item_, 1, nullptr);
-    }
+    if (validation_layer_file_) configuration_settings_tree_->setItemWidget(validation_file_item_, 1, nullptr);
 
     validation_file_item_ = nullptr;
 

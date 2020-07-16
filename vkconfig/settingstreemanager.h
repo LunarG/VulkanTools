@@ -68,7 +68,6 @@ class SettingsTreeManager : QObject {
     KhronosSettingsAdvanced *validation_settings_;
     MuteMessageWidget *mute_message_widget_;
     VUIDSearchWidget *vuid_search_widget_;
-    QTreeWidgetItem *mute_message_search_item_;
 
    public Q_SLOTS:
     //    void itemCollapsed(QTreeWidgetItem *);
