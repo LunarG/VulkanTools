@@ -50,3 +50,69 @@ version::version(const char* version) { sscanf(version, "%d.%d.%d", &major, &min
 std::string version::str() const { return format("%d.%d.%d", major, minor, patch); }
 
 }  // namespace vku
+
+///////////////////////////////////
+// Tests
+
+int test_version_string() {
+    const std::string version_a("1.1.130");
+    const std::string version_b("1.2.145");
+
+    int error = 0;
+
+    error += vku::version(version_a.c_str()).str() == version_a ? 0 : 1;
+    error += vku::version(version_b.c_str()).str() == version_b ? 0 : 1;
+
+    return error;
+}
+
+int test_version_compare() {
+    const std::string version_a("1.1.130");
+    const std::string version_b("1.2.135");
+    const std::string version_c("1.2.145");
+
+    int error = 0;
+
+    error += version_a == version_a ? 0 : 1;
+    error += version_b == version_b ? 0 : 1;
+    error += version_c == version_c ? 0 : 1;
+
+    error += version_a != version_b ? 0 : 1;
+    error += version_b != version_c ? 0 : 1;
+    error += version_a != version_c ? 0 : 1;
+
+    error += version_a < version_b ? 0 : 1;
+    error += version_b < version_c ? 0 : 1;
+    error += version_a < version_c ? 0 : 1;
+
+    error += version_a <= version_a ? 0 : 1;
+    error += version_b <= version_b ? 0 : 1;
+    error += version_c <= version_c ? 0 : 1;
+
+    error += version_a <= version_b ? 0 : 1;
+    error += version_b <= version_c ? 0 : 1;
+    error += version_a <= version_c ? 0 : 1;
+
+    error += version_b > version_a ? 0 : 1;
+    error += version_c > version_b ? 0 : 1;
+    error += version_c > version_a ? 0 : 1;
+
+    error += version_a >= version_a ? 0 : 1;
+    error += version_b >= version_b ? 0 : 1;
+    error += version_c >= version_c ? 0 : 1;
+
+    error += version_b >= version_a ? 0 : 1;
+    error += version_c >= version_b ? 0 : 1;
+    error += version_c >= version_a ? 0 : 1;
+
+    return error;
+}
+
+int test_vku() {
+    int error = 0;
+
+    error += test_version_string();
+    error += test_version_compare();
+
+    return error;
+}

@@ -23,24 +23,39 @@
 #include <QCheckBox>
 
 #include "mainwindow.h"
+#include "command_line.h"
+#include "test.h"
 
 int main(int argc, char* argv[]) {
-    QCoreApplication::setOrganizationName("LunarG");
-    QCoreApplication::setOrganizationDomain("lunarg.com");
-    QCoreApplication::setApplicationName("vkconfig");
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    const CommandLine command_line(argc, argv);
 
-    QApplication app(argc, argv);
+    switch (command_line.mode) {
+        case CommandLine::ModeExecute: {
+            QCoreApplication::setOrganizationName("LunarG");
+            QCoreApplication::setOrganizationDomain("lunarg.com");
+            QCoreApplication::setApplicationName("Vulkan Configurator");
+            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+            QApplication app(argc, argv);
 #ifdef __APPLE__
-    app.setStyleSheet("QWidget{font-size:13px;}");
+            app.setStyleSheet("QWidget{font-size:13px;}");
 #endif
 
-    // We simply cannot run without any layers
-    if (Configurator::Get().InitializeConfigurator() == false) return -1;
+            // We simply cannot run without any layers
+            if (Configurator::Get().InitializeConfigurator() == false) return -1;
 
-    // The main GUI is driven here
-    MainWindow main_window;
-    main_window.show();
+            // The main GUI is driven here
+            MainWindow main_window;
+            main_window.show();
 
-    return app.exec();
+            return app.exec();
+        } break;
+        case CommandLine::ModeShowUsage: {
+            command_line.usage();
+            return 0;
+        }
+        case CommandLine::ModeRunTest: {
+            return test();
+        }
+    }
 }

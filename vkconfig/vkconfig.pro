@@ -47,7 +47,9 @@ SOURCES += \
     treefriendlycombobox.cpp \
     vuidsearchwidget.cpp \
     configurator.cpp \
-    vku.cpp
+    command_line.cpp \
+    vku.cpp \
+    test.cpp
 
 HEADERS += \
     boolsettingwidget.h \
@@ -73,7 +75,9 @@ HEADERS += \
     treefriendlycombobox.h \
     vuidsearchwidget.h \
     configurator.h \
-    vku.h
+    command_line.h \
+    vku.h \
+    test.h
 
 FORMS += \
     dlgabout.ui \

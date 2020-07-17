@@ -37,7 +37,8 @@ inline constexpr std::size_t countof(T const (&)[N]) noexcept {
 struct version {
     static const version header_version;
 
-    version(int major, int minor, int patch) : major(major), minor(minor), patch(patch) {}
+    version(int major_version, int minor_version, int patch_version)
+        : major(major_version), minor(minor_version), patch(patch_version) {}
     version(const char *version);
 
     std::string str() const;
@@ -58,6 +59,8 @@ struct version {
         return false;
     }
 
+    bool operator>=(const version &other_version) const { return !(*this < other_version); }
+
     bool operator>(const version &other_version) const {
         if (major > other_version.major) return true;
         if (minor > other_version.minor) return true;
@@ -65,7 +68,14 @@ struct version {
         return false;
     }
 
+    bool operator<=(const version &other_version) const { return !(*this > other_version); }
+
     int major, minor, patch;
 };
 
 }  // namespace vku
+
+///////////////////////////////////
+// Tests
+
+int test_vku();
