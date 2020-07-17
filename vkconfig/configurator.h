@@ -71,13 +71,14 @@ class PathFinder {
 #define VKCONFIG_KEY_OVERRIDE_ACTIVE "overrideActive"
 #define VKCONFIG_KEY_APPLY_ONLY_TO_LIST "applyOnlyToList"
 #define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT "keepActiveOnExit"
-#define VKCONFIG_KEY_FIRST_RUN "firstRun"
+#define VKCONFIG_KEY_INITIALIZE_FILES "ReInitializeFiles"
 #define VKCONFIG_HIDE_RESTART_WARNING "restartWarning"
 #define VKCONFIG_KEY_LAST_EXPORT_PATH "lastExportPath"
 #define VKCONFIG_KEY_LAST_IMPORT_PATH "lastImportPath"
 #define VKCONFIG_KEY_LAST_EXECUTABLE_PATH "lastExecutablePath"
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
 #define VKCONFIG_KEY_RESTORE_GEOMETRY "restaureGeometry"
+#define VKCONFIG_WARN_SHUTDOWNSTATE "warnAboutShutdownState"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains

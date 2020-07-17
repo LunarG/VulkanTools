@@ -28,6 +28,7 @@
 #include <QCompleter>
 #include <QStringList>
 #include <QLineEdit>
+#include <QPushButton>
 
 class VUIDSearchWidget : public QWidget {
     Q_OBJECT
@@ -35,16 +36,20 @@ class VUIDSearchWidget : public QWidget {
     explicit VUIDSearchWidget(QWidget *parent = nullptr);
 
    private:
-    QStringList list;
+    QStringList vuid_list_;
     QCompleter *search_vuid_;
-    QComboBox *user_box_;
+    QLineEdit *user_box_;
+    QPushButton *add_button_;
+
+    void ResetCompleter();
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
    public Q_SLOTS:
-    void itemSelected(int nIndex);
+    void addButtonPressed(void);
 
    Q_SIGNALS:
-    void itemSelected(QString &textSelected);
+    void itemSelected(const QString &textSelected);
+    void itemChanged();
 };

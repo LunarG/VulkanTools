@@ -112,6 +112,8 @@ class MainWindow : public QMainWindow {
     void toolsResetToDefault(bool checked);
 
     void helpShowHelp(bool checked);
+    void helpShowVulkanSpec(bool checked);
+    void helpShowLayerSpec(bool checked);
 
     void addCustomPaths();  // Fired by menu
 

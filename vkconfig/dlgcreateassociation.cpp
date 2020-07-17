@@ -40,9 +40,8 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     if (!configurator.HasActiveOverrideOnApplicationListOnly()) setWindowTitle("Applications Launcher Shortcuts");
 
     // Show the current list
-    for (int i = 0; i < configurator.overridden_application_list.size(); i++) {
-        QTreeWidgetItem *item = CreateApplicationItem(*configurator.overridden_application_list[i]);
-    }
+    for (int i = 0; i < configurator.overridden_application_list.size(); i++)
+        CreateApplicationItem(*configurator.overridden_application_list[i]);
 
     ui_->treeWidget->installEventFilter(this);
 
@@ -172,6 +171,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
 
     ui_->groupLaunchInfo->setEnabled(false);
     ui_->pushButtonRemove->setEnabled(false);
+    ui_->pushButtonSelect->setEnabled(false);
     ui_->lineEditCmdArgs->setText("");
     ui_->lineEditWorkingFolder->setText("");
     ui_->lineEditLogFile->setText("");
@@ -180,6 +180,17 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
     configurator.RefreshConfiguration();
     ui_->treeWidget->update();
     last_selected_application_index_ = -1;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Dismiss the dialog, and preserve app information so it can be set to
+// the launcher.
+void dlgCreateAssociation::on_pushButtonSelect_clicked() {
+    Configurator &configurator = Configurator::Get();
+    QTreeWidgetItem *pItem = ui_->treeWidget->currentItem();
+    if (pItem != nullptr) configurator.SelectLaunchApplication(ui_->treeWidget->indexOfTopLevelItem(pItem));
+
+    close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,6 +202,7 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *current_item, QT
     if (last_selected_application_index_ < 0) {
         ui_->groupLaunchInfo->setEnabled(false);
         ui_->pushButtonRemove->setEnabled(false);
+        ui_->pushButtonSelect->setEnabled(false);
         ui_->lineEditCmdArgs->setText("");
         ui_->lineEditWorkingFolder->setText("");
         ui_->lineEditWorkingFolder->setText("");
@@ -199,6 +211,7 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *current_item, QT
 
     ui_->groupLaunchInfo->setEnabled(true);
     ui_->pushButtonRemove->setEnabled(true);
+    ui_->pushButtonSelect->setEnabled(true);
 
     Configurator &configurator = Configurator::Get();
 
