@@ -38,7 +38,7 @@ struct Version {
     static const Version header_version;
 
     Version(int major_version, int minor_version, int patch_version)
-        : major(major_version), minor(minor_version), patch(patch_version) {}
+        : vku_major(major_version), vku_minor(minor_version), vku_patch(patch_version) {}
     Version(const char *version);
 
     std::string str() const;
@@ -46,31 +46,31 @@ struct Version {
     bool operator!=(const Version &other_version) const { return !(*this == other_version); }
 
     bool operator==(const Version &other_version) const {
-        if (major != other_version.major) return false;
-        if (minor != other_version.minor) return false;
-        if (patch != other_version.patch) return false;
+        if (vku_major != other_version.vku_major) return false;
+        if (vku_minor != other_version.vku_minor) return false;
+        if (vku_patch != other_version.vku_patch) return false;
         return true;
     }
 
     bool operator<(const Version &other_version) const {
-        if (major < other_version.major) return true;
-        if (minor < other_version.minor) return true;
-        if (patch < other_version.patch) return true;
+        if (vku_major < other_version.vku_major) return true;
+        if (vku_minor < other_version.vku_minor) return true;
+        if (vku_patch < other_version.vku_patch) return true;
         return false;
     }
 
     bool operator>=(const Version &other_version) const { return !(*this < other_version); }
 
     bool operator>(const Version &other_version) const {
-        if (major > other_version.major) return true;
-        if (minor > other_version.minor) return true;
-        if (patch > other_version.patch) return true;
+        if (vku_major > other_version.vku_major) return true;
+        if (vku_minor > other_version.vku_minor) return true;
+        if (vku_patch > other_version.vku_patch) return true;
         return false;
     }
 
     bool operator<=(const Version &other_version) const { return !(*this > other_version); }
 
-    int major, minor, patch;
+    int vku_major, vku_minor, vku_patch;
 };
 
 }  // namespace vku

@@ -20,6 +20,7 @@
  */
 
 #pragma once
+#include <cstring>
 
 class CommandLine {
    public:
