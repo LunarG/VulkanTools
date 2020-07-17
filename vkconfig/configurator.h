@@ -71,7 +71,7 @@ class PathFinder {
 #define VKCONFIG_KEY_OVERRIDE_ACTIVE "overrideActive"
 #define VKCONFIG_KEY_APPLY_ONLY_TO_LIST "applyOnlyToList"
 #define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT "keepActiveOnExit"
-#define VKCONFIG_KEY_FIRST_RUN "firstRun"
+#define VKCONFIG_KEY_INITIALIZE_FILES "ReInitializeFiles"
 #define VKCONFIG_HIDE_RESTART_WARNING "restartWarning"
 #define VKCONFIG_KEY_LAST_EXPORT_PATH "lastExportPath"
 #define VKCONFIG_KEY_LAST_IMPORT_PATH "lastImportPath"

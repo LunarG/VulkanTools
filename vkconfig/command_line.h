@@ -21,35 +21,15 @@
 
 #pragma once
 
-#include <QWidget>
-#include <QComboBox>
-#include <QLabel>
-#include <QResizeEvent>
-#include <QCompleter>
-#include <QStringList>
-#include <QLineEdit>
-#include <QPushButton>
-
-class VUIDSearchWidget : public QWidget {
-    Q_OBJECT
+class CommandLine {
    public:
-    explicit VUIDSearchWidget(QWidget *parent = nullptr);
+    enum Mode { ModeExecute, ModeShowUsage, ModeRunTest };
+
+    CommandLine(int argc, char* argv[]);
+    void usage() const;
+
+    const Mode& mode;
 
    private:
-    QStringList vuid_list_;
-    QCompleter *search_vuid_;
-    QLineEdit *user_box_;
-    QPushButton *add_button_;
-
-    void ResetCompleter();
-
-    virtual void resizeEvent(QResizeEvent *event) override;
-    virtual bool eventFilter(QObject *target, QEvent *event) override;
-
-   public Q_SLOTS:
-    void addButtonPressed(void);
-
-   Q_SIGNALS:
-    void itemSelected(const QString &textSelected);
-    void itemChanged();
+    Mode mode_;
 };

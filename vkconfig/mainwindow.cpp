@@ -376,7 +376,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     }
 
     // Reset to recopy from resource file
-    settings_.setValue(VKCONFIG_KEY_FIRST_RUN, true);
+    settings_.setValue(VKCONFIG_KEY_INITIALIZE_FILES, true);
 
     // Now we need to kind of restart everything
     settings_tree_manager_.CleanupGUI();

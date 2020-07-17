@@ -1,5 +1,5 @@
 {
-    "Validation - Synchronization (Beta)": {
+    "Validation - Synchronization (Alpha)": {
         "blacklisted_layers": [
         ],
         "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
@@ -21,7 +21,6 @@
                 },
                 "disables": {
                     "default": [
-                        "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
                         "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
                         "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
                         "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
