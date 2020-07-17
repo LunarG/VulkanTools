@@ -34,8 +34,9 @@ int main(int argc, char* argv[]) {
             QCoreApplication::setOrganizationName("LunarG");
             QCoreApplication::setOrganizationDomain("lunarg.com");
             QCoreApplication::setApplicationName("Vulkan Configurator");
+#ifndef Q_OS_LINUX   // Drop this out of Qt on Linux for maximum backwards compatibility
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
+#endif
             QApplication app(argc, argv);
 #ifdef __APPLE__
             app.setStyleSheet("QWidget{font-size:13px;}");
