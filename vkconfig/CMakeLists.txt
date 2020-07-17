@@ -10,8 +10,8 @@ find_package(Qt5 COMPONENTS Core Gui Widgets QUIET)
 
 if(NOT Qt5_FOUND)
     message("WARNING: vkconfig will be excluded because Qt5 was not found. Please add Qt5 into the PATH environment variable")
-elseif(Qt5_VERSION VERSION_LESS 5.6)
-    message("WARNING: vkconfig will be excluded because the found Qt version is too old. vkconfig requires version 5.6.")
+elseif(Qt5_VERSION VERSION_LESS 5.5)
+    message("WARNING: vkconfig will be excluded because the found Qt version is too old. vkconfig requires version 5.5.")
 else()
     file(GLOB FILES_RESSOURCE ./resourcefiles/*.json)
 
