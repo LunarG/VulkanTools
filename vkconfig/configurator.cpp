@@ -20,7 +20,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "util.h"
+#include "vku.h"
 #include "configurator.h"
 #include "dlgcustompaths.h"
 
@@ -77,33 +77,34 @@ PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
 struct DefaultConfiguration {
     const char *name;
     const char *required_layer;
-    Version required_api_version;
+    vku::version required_api_version;
     const char *preset_label;
     ValidationPreset preset;
 };
 
 static const DefaultConfiguration default_configurations[] = {
-    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Standard", ValidationPresetStandard},
-    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "GPU-Assisted", ValidationPresetGPUAssisted},
-    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Shader Printf",
+    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", vku::version("1.0.0"), "Standard", ValidationPresetStandard},
+    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", vku::version("1.1.126"), "GPU-Assisted",
+     ValidationPresetGPUAssisted},
+    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", vku::version("1.1.126"), "Shader Printf",
      ValidationPresetShaderPrintf},
-    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Reduced-Overhead",
+    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", vku::version("1.0.0"), "Reduced-Overhead",
      ValidationPresetReducedOverhead},
-    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Best Practices",
+    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", vku::version("1.1.126"), "Best Practices",
      ValidationPresetBestPractices},
-    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", Version("1.2.147"), "Synchronization (Alpha)",
+    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", vku::version("1.2.147"), "Synchronization (Alpha)",
      ValidationPresetSynchronization},
 #ifndef __APPLE__
-    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
-    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
+    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", vku::version("1.2.147"), "", ValidationPresetNone},
+    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", vku::version("1.2.147"), "",
      ValidationPresetNone},
 #endif
-    {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "", ValidationPresetNone}};
+    {"API dump", "VK_LAYER_LUNARG_api_dump", vku::version("1.1.126"), "", ValidationPresetNone}};
 
 static const DefaultConfiguration *FindDefaultConfiguration(const char *name) {
     assert(name);
 
-    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
+    for (std::size_t i = 0, n = vku::countof(default_configurations); i < n; ++i) {
         if (strcmp(default_configurations[i].name, name) != 0) continue;
         return &default_configurations[i];
     }
@@ -114,7 +115,7 @@ static const DefaultConfiguration *FindDefaultConfiguration(const char *name) {
 static const DefaultConfiguration *FindDefaultConfiguration(ValidationPreset preset) {
     assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
 
-    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
+    for (std::size_t i = 0, n = vku::countof(default_configurations); i < n; ++i) {
         if (default_configurations[i].preset != preset) continue;
         return &default_configurations[i];
     }
@@ -176,18 +177,15 @@ Configurator::Configurator()
       active_configuration_(nullptr) {
     available_Layers.reserve(10);
 
+    // Handling of versions compatibility
     {
         QSettings settings;
-        const char *saved_version = settings.value(VKCONFIG_KEY_VKCONFIG_VERSION).toString().toUtf8().constData();
-        const char *current_version =
-            QString()
-                .asprintf("%d.%d.%d", VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                          VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE))
-                .toUtf8()
-                .constData();
+        const vku::version saved_version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, "1.0.0").toString().toUtf8().constData());
 
-        if (Version(saved_version) != Version(current_version)) {
-            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, current_version);
+        // First release of Vulkan Configurator 2, version not backward compatible,
+        // We reinitialize state to reset any previous configuration and start fresh.
+        if (saved_version < vku::version(1, 2, 145)) {
+            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, vku::version::header_version.str().c_str());
             settings.setValue(VKCONFIG_KEY_FIRST_RUN, true);
             settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "Validation - Standard");
             settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
@@ -950,7 +948,7 @@ void Configurator::LoadAllInstalledLayers() {
         for (int i = 0; i < lp; i++) LoadLayersFromPath(VK_LAYER_PATH[i], available_Layers);
 
     // SECOND: Standard layer paths, in standard locations
-    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], available_Layers);
+    for (std::size_t i = 0, n = vku::countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], available_Layers);
 
     // THIRD: Any custom paths? Search for those too
     for (int i = 0; i < custom_layers_paths_.size(); i++) LoadLayersFromPath(custom_layers_paths_[i], available_Layers);
@@ -1068,7 +1066,7 @@ void Configurator::LoadAllConfigurations() {
             remove(info.filePath().toUtf8().constData());
         }
 
-        for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
+        for (std::size_t i = 0, n = vku::countof(default_configurations); i < n; ++i) {
             // Search the list of loaded configurations
             const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
 
