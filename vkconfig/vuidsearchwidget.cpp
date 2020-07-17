@@ -24,41 +24,55 @@
 
 VUIDSearchWidget::VUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     int nNumElements = sizeof(vuids) / sizeof(vuids[0]);
-    for (int i = 0; i < nNumElements; i++) list << vuids[i];
+    for (int i = 0; i < nNumElements; i++) vuid_list_ << vuids[i];
+    vuid_list_.sort();  // WIP, will make it faster to search and remove items from the list
 
-    user_box_ = new QComboBox(this);
-    user_box_->setEditable(true);
+    user_box_ = new QLineEdit(this);
     user_box_->setFocusPolicy(Qt::StrongFocus);
-    user_box_->addItems(list);
 
-    search_vuid_ = new QCompleter(list, this);
+    add_button_ = new QPushButton(this);
+    add_button_->setText("Add");
+
+    user_box_->show();
+    user_box_->setText("");
+    user_box_->installEventFilter(this);
+
+    search_vuid_ = nullptr;  // Safe to delete a pointer
+    ResetCompleter();
+
+    connect(add_button_, SIGNAL(pressed()), this, SLOT(addButtonPressed()));
+}
+
+void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
+    const int button_size = 32;
+    QSize parentSize = event->size();
+    user_box_->setGeometry(0, 0, parentSize.width() - 2 - button_size, parentSize.height());
+    add_button_->setGeometry(parentSize.width() - button_size, 0, button_size, parentSize.height());
+}
+
+/////////////////////////////////////////////////////////////////////
+/// Reload the completer with a revised list of VUID's.
+void VUIDSearchWidget::ResetCompleter(void) {
+    delete search_vuid_;
+    search_vuid_ = new QCompleter(vuid_list_, this);
     search_vuid_->setCaseSensitivity(Qt::CaseSensitive);
-
     search_vuid_->setCompletionMode(QCompleter::PopupCompletion);
     search_vuid_->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     search_vuid_->setFilterMode(Qt::MatchContains);
     search_vuid_->setMaxVisibleItems(15);
     search_vuid_->setCaseSensitivity(Qt::CaseInsensitive);
-
     user_box_->setCompleter(search_vuid_);
-    user_box_->show();
-    user_box_->setCurrentText("");
-
-    user_box_->installEventFilter(this);
-
-    connect(user_box_, SIGNAL(currentIndexChanged(int)), this, SLOT(itemSelected(int)));
-}
-
-void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
-    QSize parentSize = event->size();
-    user_box_->setGeometry(0, 0, parentSize.width() - 2, parentSize.height());
 }
 
 ///////////////////////////////////////////////////////////////////////
-// Emit a signal so we can send this to the list box
-void VUIDSearchWidget::itemSelected(int nIndex) {
-    emit itemSelected(list[nIndex]);
-    user_box_->setCurrentText("");
+// Add the text in the edit control to the list, and clear the control
+void VUIDSearchWidget::addButtonPressed(void) {
+    QString entry = user_box_->text();
+    if (entry.isEmpty()) return;
+
+    emit itemSelected(entry);  // Triggers update of GUI
+    user_box_->setText("");
+    emit itemChanged();  // Triggers save of profile
 }
 
 // Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's

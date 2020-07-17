@@ -20,31 +20,17 @@
  */
 
 #pragma once
+#include <cstring>
 
-#include <QWidget>
-#include <QListWidget>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QResizeEvent>
-
-#include <layerfile.h>
-
-class MuteMessageWidget : public QWidget {
-    Q_OBJECT
+class CommandLine {
    public:
-    explicit MuteMessageWidget(LayerSettings *layer_settings);
+    enum Mode { ModeExecute, ModeShowUsage, ModeRunTest };
+
+    CommandLine(int argc, char* argv[]);
+    void usage() const;
+
+    const Mode& mode;
 
    private:
-    LayerSettings *layer_settings_;
-    QListWidget *list_widget_;
-    QPushButton *remove_button_;
-
-    void resizeEvent(QResizeEvent *event) override;
-
-   public Q_SLOTS:
-    void addItem(const QString &item);  // Added from combo box
-    void removePushed();                // Remove button
-
-   Q_SIGNALS:
-    void itemChanged();
+    Mode mode_;
 };

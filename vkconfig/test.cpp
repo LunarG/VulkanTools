@@ -21,30 +21,12 @@
 
 #pragma once
 
-#include <QWidget>
-#include <QListWidget>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QResizeEvent>
+#include "vku.h"
 
-#include <layerfile.h>
+int test() {
+    int error = 0;
 
-class MuteMessageWidget : public QWidget {
-    Q_OBJECT
-   public:
-    explicit MuteMessageWidget(LayerSettings *layer_settings);
+    error += test_vku();
 
-   private:
-    LayerSettings *layer_settings_;
-    QListWidget *list_widget_;
-    QPushButton *remove_button_;
-
-    void resizeEvent(QResizeEvent *event) override;
-
-   public Q_SLOTS:
-    void addItem(const QString &item);  // Added from combo box
-    void removePushed();                // Remove button
-
-   Q_SIGNALS:
-    void itemChanged();
-};
+    return error;
+}

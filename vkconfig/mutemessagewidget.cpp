@@ -48,7 +48,7 @@ void MuteMessageWidget::resizeEvent(QResizeEvent *event) {
     remove_button_->setGeometry(0, parentSize.height() - nButtonHeight, parentSize.width(), nButtonHeight);
 }
 
-void MuteMessageWidget::addItem(QString &item) {
+void MuteMessageWidget::addItem(const QString &item) {
     list_widget_->addItem(item);
     list_widget_->setCurrentRow(list_widget_->count() - 1);
 
@@ -60,7 +60,7 @@ void MuteMessageWidget::addItem(QString &item) {
 
 void MuteMessageWidget::removePushed() {
     int nRow = list_widget_->currentRow();
-    if (nRow <= 0) return;
+    if (nRow < 0) return;
 
     QString itemName = list_widget_->currentItem()->text();
     list_widget_->takeItem(nRow);
