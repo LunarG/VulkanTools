@@ -240,8 +240,8 @@ Configurator::Configurator()
     }
 
     home = QDir::home();
-    QString configuration_path = home.path() + QString("/.local/share/vulkan/lunarg-vkconfig");
-    SetPath(ConfigurationPath, configuration_path);
+    QString configuration_path = home.path() + QString("/.local/share/vulkan/");
+    SetPath(ConfigurationPath, configuration_path + QString("lunarg-vkconfig/"));
     SetPath(OverrideLayersPath, configuration_path + "implicit_layer.d/VkLayer_override.json");
     SetPath(OverrideSettingsPath, configuration_path + "settings.d/vk_layer_settings.txt");
 #endif
