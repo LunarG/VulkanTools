@@ -951,6 +951,7 @@ void MainWindow::SetupLaunchTree() {
     launcher_log_file_edit_->setMinimumHeight(LAUNCH_ROW_HEIGHT);
     launcher_log_file_edit_->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui_->launchTree->setItemWidget(launcher_log_file_item, 1, launcher_log_file_edit_);
+    connect(launcher_log_file_edit_, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeLogFile(const QString &)));
 
     launcher_log_file_button_ = new QPushButton();
     launcher_log_file_button_->setText("...");
@@ -1014,6 +1015,17 @@ void MainWindow::launchSetLogFile() {
     else
         launcher_log_file_edit_->setText(log_file);
 
+    configurator.SaveOverriddenApplicationList();
+}
+
+///////////////////////////////////////////////////////////////////
+// Log file path edited manually.
+void MainWindow::launchChangeLogFile(const QString &new_text) {
+    int current_application_index = launcher_apps_combo_->currentIndex();
+    Q_ASSERT(current_application_index >= 0);
+
+    Configurator &configurator = Configurator::Get();
+    configurator.overridden_application_list[current_application_index]->log_file = new_text;
     configurator.SaveOverriddenApplicationList();
 }
 

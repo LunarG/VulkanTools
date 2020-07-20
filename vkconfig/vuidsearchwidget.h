@@ -48,6 +48,7 @@ class VUIDSearchWidget : public QWidget {
 
    public Q_SLOTS:
     void addButtonPressed(void);
+    void addCompleted(const QString &itemAdded);
 
    Q_SIGNALS:
     void itemSelected(const QString &textSelected);

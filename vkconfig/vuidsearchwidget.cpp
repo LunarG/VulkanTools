@@ -25,7 +25,9 @@
 VUIDSearchWidget::VUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     int nNumElements = sizeof(vuids) / sizeof(vuids[0]);
     for (int i = 0; i < nNumElements; i++) vuid_list_ << vuids[i];
-    vuid_list_.sort();  // WIP, will make it faster to search and remove items from the list
+
+    // Completer does not need this sorted, but we do
+    vuid_list_.sort();
 
     user_box_ = new QLineEdit(this);
     user_box_->setFocusPolicy(Qt::StrongFocus);
@@ -41,10 +43,11 @@ VUIDSearchWidget::VUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     ResetCompleter();
 
     connect(add_button_, SIGNAL(pressed()), this, SLOT(addButtonPressed()));
+    connect(user_box_, SIGNAL(returnPressed()), this, SLOT(addButtonPressed()));
 }
 
 void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
-    const int button_size = 32;
+    const int button_size = 52;
     QSize parentSize = event->size();
     user_box_->setGeometry(0, 0, parentSize.width() - 2 - button_size, parentSize.height());
     add_button_->setGeometry(parentSize.width() - button_size, 0, button_size, parentSize.height());
@@ -53,7 +56,8 @@ void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
 /////////////////////////////////////////////////////////////////////
 /// Reload the completer with a revised list of VUID's.
 void VUIDSearchWidget::ResetCompleter(void) {
-    delete search_vuid_;
+    if (search_vuid_ != nullptr) search_vuid_->deleteLater();
+
     search_vuid_ = new QCompleter(vuid_list_, this);
     search_vuid_->setCaseSensitivity(Qt::CaseSensitive);
     search_vuid_->setCompletionMode(QCompleter::PopupCompletion);
@@ -62,6 +66,7 @@ void VUIDSearchWidget::ResetCompleter(void) {
     search_vuid_->setMaxVisibleItems(15);
     search_vuid_->setCaseSensitivity(Qt::CaseInsensitive);
     user_box_->setCompleter(search_vuid_);
+    connect(search_vuid_, SIGNAL(activated(const QString &)), this, SLOT(addCompleted(const QString &)), Qt::QueuedConnection);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -71,8 +76,15 @@ void VUIDSearchWidget::addButtonPressed(void) {
     if (entry.isEmpty()) return;
 
     emit itemSelected(entry);  // Triggers update of GUI
+    emit itemChanged();        // Triggers save of profile
     user_box_->setText("");
-    emit itemChanged();  // Triggers save of profile
+}
+
+//////////////////////////////////////////////////////////////////////
+// Clear the edit control after the completer is finished.
+void VUIDSearchWidget::addCompleted(const QString &addedItem) {
+    (void)addedItem;
+    user_box_->setText("");
 }
 
 // Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's
