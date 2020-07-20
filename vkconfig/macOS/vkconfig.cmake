@@ -19,7 +19,7 @@
 
 add_executable(vkconfig
     MACOSX_BUNDLE
-    ${LAYERMGR_SRCS}
+    ${FILES_ALL}
     ${CMAKE_CURRENT_SOURCE_DIR}/macOS/vkconfig.sh
     ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Resources/LunarGIcon.icns
     )
