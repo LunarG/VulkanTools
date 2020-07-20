@@ -70,9 +70,6 @@ class SettingsTreeManager : QObject {
     VUIDSearchWidget *vuid_search_widget_;
 
    public Q_SLOTS:
-    //    void itemCollapsed(QTreeWidgetItem *);
-    //    void itemExpanded(QTreeWidgetItem *);
-
     void khronosDebugChanged(int index);
     void khronosPresetChanged(int index);  // Okay, is this a custom guy HERE, or do we move it out
                                            // It really forces a reload of the entire branch of this tree

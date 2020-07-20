@@ -47,4 +47,5 @@ class MuteMessageWidget : public QWidget {
 
    Q_SIGNALS:
     void itemChanged();
+    void itemRemoved(const QString &item);
 };

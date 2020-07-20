@@ -68,4 +68,5 @@ void MuteMessageWidget::removePushed() {
     // Update Setting
     RemoveString(layer_settings_->settings_value, itemName);
     emit itemChanged();
+    emit itemRemoved(itemName);
 }

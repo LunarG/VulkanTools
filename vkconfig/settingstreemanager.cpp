@@ -215,7 +215,7 @@ void SettingsTreeManager::BuildKhronosTree() {
             connect(vuid_search_widget_, SIGNAL(itemSelected(const QString &)), mute_message_widget_,
                     SLOT(addItem(const QString &)));
             connect(vuid_search_widget_, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            connect(mute_message_widget_, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            connect(mute_message_widget_, SIGNAL(itemChanged()), this, SLOT(profileEdited()), Qt::QueuedConnection);
             continue;
         }
     }
