@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
 
 CONFIG += c++11
 CONFIG += sdk_no_version_check
@@ -19,10 +19,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+Release: DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 
 linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
+    appsingleton.cpp \
     boolsettingwidget.cpp \
     dlgabout.cpp \
     dlgcreateassociation.cpp \
@@ -52,6 +54,7 @@ SOURCES += \
     test.cpp
 
 HEADERS += \
+    appsingleton.h \
     boolsettingwidget.h \
     dlgabout.h \
     dlgcreateassociation.h \

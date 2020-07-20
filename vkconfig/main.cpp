@@ -21,8 +21,10 @@
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QMessageBox>
 
 #include "mainwindow.h"
+#include "appsingleton.h"
 #include "command_line.h"
 #include "test.h"
 
@@ -41,6 +43,18 @@ int main(int argc, char* argv[]) {
 #ifdef __APPLE__
             app.setStyleSheet("QWidget{font-size:13px;}");
 #endif
+
+            // This has to go after the construction of QApplication in
+            // order to use a QMessageBox and avoid some QThread warnings.
+            AppSingleton singleApp("vkconifg_single_instance");
+            if (!singleApp.IsFirstApp()) {
+                QMessageBox alert(nullptr);
+                alert.setWindowTitle("Cannot start another instance of vkconfig");
+                alert.setIcon(QMessageBox::Critical);
+                alert.setText("Another copy of vkconfig is currently running. Please close the other instance and try again.");
+                alert.exec();
+                return -1;
+            }
 
             // We simply cannot run without any layers
             if (Configurator::Get().InitializeConfigurator() == false) return -1;
