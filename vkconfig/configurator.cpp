@@ -1203,9 +1203,8 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
     QJsonArray excluded_array = excluded_value.toArray();
     for (int i = 0; i < excluded_array.size(); i++) {
         configuration->excluded_layers << excluded_array[i].toString();
-        if(!FindLayerNamed(configuration->excluded_layers[i]))
-            configuration->all_layers_available = false;
-        }
+        if (!FindLayerNamed(configuration->excluded_layers[i])) configuration->all_layers_available = false;
+    }
 
     QJsonValue preset_index = configuration_entry_object.value("preset");
     configuration->preset = static_cast<ValidationPreset>(preset_index.toInt());
@@ -1223,8 +1222,7 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
 
     // Build the list of layers with their settings. If both the layers and
     // the blacklist are emtpy, then automatic fail
-    if (layer_list.length() == 0 && configuration->excluded_layers.length() == 0)
-        configuration->all_layers_available = false;
+    if (layer_list.length() == 0 && configuration->excluded_layers.length() == 0) configuration->all_layers_available = false;
 
     for (int layer_index = 0; layer_index < layer_list.length(); layer_index++) {
         const LayerFile *layer_file = nullptr;
