@@ -1197,9 +1197,15 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
     QJsonValue configuration_entry_value = json_top_object.value(key[0]);
     QJsonObject configuration_entry_object = configuration_entry_value.toObject();
 
+    // Build the list of blacklisted layers, check each one to see if it's present,
+    // If not present, don't add it to the list
     QJsonValue excluded_value = configuration_entry_object.value("blacklisted_layers");
     QJsonArray excluded_array = excluded_value.toArray();
-    for (int i = 0; i < excluded_array.size(); i++) configuration->excluded_layers << excluded_array[i].toString();
+    for (int i = 0; i < excluded_array.size(); i++) {
+        configuration->excluded_layers << excluded_array[i].toString();
+        if(!FindLayerNamed(configuration->excluded_layers[i]))
+            configuration->all_layers_available = false;
+        }
 
     QJsonValue preset_index = configuration_entry_object.value("preset");
     configuration->preset = static_cast<ValidationPreset>(preset_index.toInt());
@@ -1215,8 +1221,10 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
     QJsonObject layer_objects = options_value.toObject();
     QStringList layer_list = layer_objects.keys();
 
-    // Build the list of layers with their settings
-    if (layer_list.length() == 0) configuration->all_layers_available = false;
+    // Build the list of layers with their settings. If both the layers and
+    // the blacklist are emtpy, then automatic fail
+    if (layer_list.length() == 0 && configuration->excluded_layers.length() == 0)
+        configuration->all_layers_available = false;
 
     for (int layer_index = 0; layer_index < layer_list.length(); layer_index++) {
         const LayerFile *layer_file = nullptr;
