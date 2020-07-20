@@ -6,7 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-find_package(Qt5 COMPONENTS core gui widgets network QUIET)
+find_package(Qt5 COMPONENTS Core Gui QWidgets Network QUIET)
 
 if(NOT Qt5_FOUND)
     message("WARNING: vkconfig will be excluded because Qt5 was not found. Please add Qt5 into the PATH environment variable")
@@ -28,6 +28,9 @@ else()
     source_group("Docs Files" FILES ${FILES_DOCS})
 
     set(FILES_ALL ${FILES_RESSOURCE} ${FILES_UI} ${FILES_SOURCE} ${FILES_HEADER} ${FILES_DOCS} resources.qrc)
+
+    add_definitions(-DQT_NO_DEBUG_OUTPUT)
+    add_definitions(-DQT_NO_WARNING_OUTPUT)
 
     if(NOT APPLE)
         if (NOT DEFINED CMAKE_INSTALL_BINDIR)

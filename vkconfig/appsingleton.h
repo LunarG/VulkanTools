@@ -29,8 +29,8 @@
 #ifndef APPSINGLETON_H
 #define APPSINGLETON_H
 
-#include <QLocalServer>
-#include <QLocalSocket>
+#include <QtNetwork/QLocalServer>
+#include <QtNetwork/QLocalSocket>
 
 class AppSingleton {
    public:
