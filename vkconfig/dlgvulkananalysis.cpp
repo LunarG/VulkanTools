@@ -33,6 +33,10 @@
 dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgVulkanAnalysis) {
     ui_->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    // Hide the test widget as no test is actually run.
+    // This may be added back again later.
+    ui_->tabWidget->removeTab(2);
 }
 
 dlgVulkanAnalysis::~dlgVulkanAnalysis() { delete ui_; }
