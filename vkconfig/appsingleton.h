@@ -26,8 +26,7 @@
  * - Richard S. Wright Jr. <richard@lunarg.com>
  */
 
-#ifndef APPSINGLETON_H
-#define APPSINGLETON_H
+#pragma once
 
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
@@ -42,5 +41,3 @@ class AppSingleton {
     QLocalServer localServer_;
     bool is_first_app;
 };
-
-#endif  // APPSINGLETON_H
