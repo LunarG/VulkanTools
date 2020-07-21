@@ -6,7 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-find_package(Qt5 COMPONENTS Core Gui QWidgets Network QUIET)
+find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
 
 if(NOT Qt5_FOUND)
     message("WARNING: vkconfig will be excluded because Qt5 was not found. Please add Qt5 into the PATH environment variable")
