@@ -55,14 +55,14 @@ void AddString(QString& delimitedString, QString value) {
 }
 
 LayerFile::LayerFile() {
-    enabled = false;
-    disabled = false;
-    rank = 0;
+    _enabled = false;
+    _disabled = false;
+    _rank = 0;
 }
 
 LayerFile::~LayerFile() {
-    qDeleteAll(layer_settings.begin(), layer_settings.end());
-    layer_settings.clear();
+    qDeleteAll(_layer_settings.begin(), _layer_settings.end());
+    _layer_settings.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ LayerFile::~LayerFile() {
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
 bool LayerFile::ReadLayerFile(QString qsFullPathToFile, LayerType layerKind) {
-    layer_type = layerKind;  // Set layer type, no way to know this from the json file
+    _layer_type = layerKind;  // Set layer type, no way to know this from the json file
 
     // Open the file, should be text. Read it into a
     // temporary string.
@@ -90,7 +90,7 @@ bool LayerFile::ReadLayerFile(QString qsFullPathToFile, LayerType layerKind) {
     QString jsonText = file.readAll();
     file.close();
 
-    layer_path = qsFullPathToFile;
+    _layer_path = qsFullPathToFile;
 
     //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it.
@@ -116,28 +116,28 @@ bool LayerFile::ReadLayerFile(QString qsFullPathToFile, LayerType layerKind) {
     // Populate key items about the layer
     QJsonObject jsonObject = jsonDoc.object();
     QJsonValue jsonValue = jsonObject.value("file_format_version");
-    file_format_version = jsonValue.toString();
+    _file_format_version = jsonValue.toString();
 
     QJsonValue layerValue = jsonObject.value("layer");
     QJsonObject layerObject = layerValue.toObject();
 
     jsonValue = layerObject.value("name");
-    name = jsonValue.toString();
+    _name = jsonValue.toString();
 
     jsonValue = layerObject.value("type");
-    type = jsonValue.toString();
+    _type = jsonValue.toString();
 
     jsonValue = layerObject.value("library_path");
-    library_path = jsonValue.toString();
+    _library_path = jsonValue.toString();
 
     jsonValue = layerObject.value("api_version");
-    api_version = jsonValue.toString();
+    _api_version = jsonValue.toString();
 
     jsonValue = layerObject.value("implementation_version");
-    implementation_version = jsonValue.toString();
+    _implementation_version = jsonValue.toString();
 
     jsonValue = layerObject.value("description");
-    description = jsonValue.toString();
+    _description = jsonValue.toString();
 
     // The layer file is loaded
     return true;

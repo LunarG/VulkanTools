@@ -59,11 +59,11 @@ class MainWindow : public QMainWindow {
     ~MainWindow();
 
    protected:
-    SettingsTreeManager settings_tree_manager_;
-    QSettings settings_;
+    SettingsTreeManager _settings_tree_manager;
+    QSettings _settings;
 
-    QProcess *launch_application_;  // Keeps track of the monitored app
-    QFile *log_file_;               // Log file for layer output
+    QProcess *_launch_application;  // Keeps track of the monitored app
+    QFile *_log_file;               // Log file for layer output
 
     void LoadConfigurationList();
     void SetupLaunchTree();
@@ -76,24 +76,28 @@ class MainWindow : public QMainWindow {
 
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-    dlgVulkanAnalysis *vk_via_;
-    dlgVulkanInfo *vk_info_;
-    dlgHelp *help_;
+    dlgVulkanAnalysis *_vk_via;
+    dlgVulkanInfo *_vk_info;
+    dlgHelp *_help;
 
    private:
-    Ui::MainWindow *ui_;
-    ConfigurationListItem *selected_configuration_item_;
+    Ui::MainWindow *ui;
+    ConfigurationListItem *_selected_configuration_item;
     ConfigurationListItem *GetCheckedItem();
 
-    QComboBox *launcher_apps_combo_;
-    QLineEdit *launch_arguments_;
-    QLineEdit *launcher_working_;
-    QLineEdit *launcher_log_file_edit_;
-    QPushButton *launcher_apps_browse_button_;
-    QPushButton *pLaunchWorkingFolderButton_;
-    QPushButton *launcher_log_file_button_;
+    QComboBox *_launcher_apps_combo;
+    QLineEdit *_launch_arguments;
+    QLineEdit *_launcher_working;
+    QLineEdit *_launcher_log_file_edit;
+    QPushButton *_launcher_apps_browse_button;
+    QPushButton *_launchWorkingFolderButton;
+    QPushButton *_launcher_log_file_button;
 
     void ResetLaunchOptions();
+
+    ConfigurationListItem *PushCurrentItem(void);
+    bool PopCurrentItem(const char *szRenamed = nullptr);
+    QString _lastItem;
 
     void RemoveClicked(ConfigurationListItem *item);
     void RenameClicked(ConfigurationListItem *item);

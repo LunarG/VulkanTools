@@ -22,19 +22,19 @@
 #include "multienumsetting.h"
 
 MultiEnumSetting::MultiEnumSetting(LayerSettings *pLayerSetting, QString thisSetting) {
-    layer_settings_ = pLayerSetting;
-    my_setting_ = thisSetting;
+    _layer_settings = pLayerSetting;
+    _my_setting = thisSetting;
 
-    if (pLayerSetting->settings_value.contains(my_setting_)) this->setChecked(true);
+    if (pLayerSetting->settings_value.contains(_my_setting)) this->setChecked(true);
 
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
 void MultiEnumSetting::itemChecked(bool bChecked) {
     if (bChecked)
-        AddString(layer_settings_->settings_value, my_setting_);
+        AddString(_layer_settings->settings_value, _my_setting);
     else
-        RemoveString(layer_settings_->settings_value, my_setting_);
+        RemoveString(_layer_settings->settings_value, _my_setting);
 
     emit itemChanged();
 }

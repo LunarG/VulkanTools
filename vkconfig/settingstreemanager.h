@@ -48,26 +48,26 @@ class SettingsTreeManager : QObject {
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
    protected:
-    QTreeWidget *configuration_settings_tree_;
-    Configuration *configuration_;
-    QVector<QTreeWidgetItem *> compound_widgets_;  // These have special cleanup requirements
+    QTreeWidget *_configuration_settings_tree;
+    Configuration *_configuration;
+    QVector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
 
     void BuildKhronosTree();
     void BuildGenericTree(QTreeWidgetItem *parent, LayerFile *layer_file);
 
-    QVector<QTreeWidgetItem *> layer_items_;  // These parallel the  profiles layers
+    QVector<QTreeWidgetItem *> _layer_items;  // These parallel the  profiles layers
 
-    QComboBox *validation_presets_combo_box_;
-    LayerFile *validation_layer_file_;
-    QTreeWidgetItem *validation_tree_item_;
-    QTreeWidgetItem *validation_file_item_;
-    QTreeWidgetItem *validation_preset_item_;
-    QTreeWidgetItem *validation_log_file_item_;
-    FilenameSettingWidget *validation_log_file_widget_;
-    EnumSettingWidget *validation_debug_action_;
-    KhronosSettingsAdvanced *validation_settings_;
-    MuteMessageWidget *mute_message_widget_;
-    VUIDSearchWidget *vuid_search_widget_;
+    QComboBox *_validation_presets_combo_box;
+    LayerFile *_validation_layer_file;
+    QTreeWidgetItem *_validation_tree_item;
+    QTreeWidgetItem *_validation_file_item;
+    QTreeWidgetItem *_validation_preset_item;
+    QTreeWidgetItem *_validation_log_file_item;
+    FilenameSettingWidget *_validation_log_file_widget;
+    EnumSettingWidget *_validation_debug_action;
+    KhronosSettingsAdvanced *_validation_settings;
+    MuteMessageWidget *_mute_message_widget;
+    VUIDSearchWidget *_vuid_search_widget;
 
    public Q_SLOTS:
     void khronosDebugChanged(int index);

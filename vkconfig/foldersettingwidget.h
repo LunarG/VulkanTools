@@ -38,9 +38,9 @@ class FolderSettingWidget : public QWidget {
     virtual void resizeEvent(QResizeEvent *event) override;
 
    private:
-    LayerSettings *layer_settings_;
-    QLineEdit *line_edit_;
-    QPushButton *push_button_;
+    LayerSettings *_layer_settings;
+    QLineEdit *_line_edit;
+    QPushButton *_push_button;
 
    public Q_SLOTS:
     void browseButtonClicked();

@@ -32,14 +32,14 @@ AppSingleton::AppSingleton(QString singleAppName, int timeout) {
     QLocalSocket localSocket;
     localSocket.connectToServer(singleAppName);
     if (localSocket.waitForConnected(timeout)) {
-        is_first_app = false;
+        _is_first_app = false;
         localSocket.close();
         return;
     }
 
     // We are the first, start a server
-    is_first_app = true;
-    localServer_.listen(singleAppName);
+    _is_first_app = true;
+    _localServer.listen(singleAppName);
 }
 
-AppSingleton::~AppSingleton() { localServer_.close(); }
+AppSingleton::~AppSingleton() { _localServer.close(); }
