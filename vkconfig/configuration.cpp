@@ -26,18 +26,18 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-Configuration::Configuration() : preset(ValidationPresetNone), all_layers_available(true) {}
+Configuration::Configuration() : _preset(ValidationPresetNone), _all_layers_available(true) {}
 
 Configuration::~Configuration() {
-    qDeleteAll(layers.begin(), layers.end());
-    layers.clear();
+    qDeleteAll(_layers.begin(), _layers.end());
+    _layers.clear();
 }
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
 LayerFile* Configuration::FindLayer(const QString& layer_name, const QString& full_path) const {
-    for (int i = 0; i < layers.size(); i++)
-        if (layers[i]->name == layer_name && layers[i]->layer_path == full_path) return layers[i];
+    for (int i = 0; i < _layers.size(); i++)
+        if (_layers[i]->_name == layer_name && _layers[i]->_layer_path == full_path) return _layers[i];
 
     return nullptr;
 }
@@ -45,8 +45,8 @@ LayerFile* Configuration::FindLayer(const QString& layer_name, const QString& fu
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists. Only care about the name
 LayerFile* Configuration::FindLayerNamed(const QString& layer_name) const {
-    for (int i = 0; i < layers.size(); i++)
-        if (layers[i]->name == layer_name) return layers[i];
+    for (int i = 0; i < _layers.size(); i++)
+        if (_layers[i]->_name == layer_name) return _layers[i];
 
     return nullptr;
 }
@@ -60,18 +60,18 @@ LayerFile* Configuration::GetKhronosLayer() { return FindLayerNamed("VK_LAYER_KH
 // Copy a profile so we can mess with it.
 Configuration* Configuration::DuplicateConfiguration() {
     Configuration* duplicate = new Configuration;
-    duplicate->name = name;
-    duplicate->file = file;
-    duplicate->description = description;
-    duplicate->excluded_layers = excluded_layers;
-    duplicate->preset = preset;
-    duplicate->all_layers_available = all_layers_available;
+    duplicate->_name = _name;
+    duplicate->_file = _file;
+    duplicate->_description = _description;
+    duplicate->_excluded_layers = _excluded_layers;
+    duplicate->_preset = _preset;
+    duplicate->_all_layers_available = _all_layers_available;
     // Do not copy ->bFixedProfile
 
-    for (int i = 0; i < layers.size(); i++) {
+    for (int i = 0; i < _layers.size(); i++) {
         LayerFile* layer_file = new LayerFile;
-        layers[i]->CopyLayer(layer_file);
-        duplicate->layers.push_back(layer_file);
+        _layers[i]->CopyLayer(layer_file);
+        duplicate->_layers.push_back(layer_file);
     }
 
     return duplicate;
@@ -81,30 +81,30 @@ Configuration* Configuration::DuplicateConfiguration() {
 /// Remove unused layers and build the list of
 /// black listed layers.
 void Configuration::CollapseConfiguration() {
-    excluded_layers.clear();
+    _excluded_layers.clear();
 
     // Look for black listed layers, add them to the
     // string list of names, but remove them from
     // the list of layers
     int layer_index = 0;
     int nNewRank = 0;
-    while (layer_index < layers.size()) {
+    while (layer_index < _layers.size()) {
         // Remove this layer?
-        if (layers[layer_index]->disabled) {
-            excluded_layers << layers[layer_index]->name;
-            layers.removeAt(layer_index);
+        if (_layers[layer_index]->_disabled) {
+            _excluded_layers << _layers[layer_index]->_name;
+            _layers.removeAt(layer_index);
             continue;
         }
 
         // If the layer is not active, also remove it
         // Important to do black list test FIRST
-        if (!layers[layer_index]->enabled) {
-            layers.removeAt(layer_index);
+        if (!_layers[layer_index]->_enabled) {
+            _layers.removeAt(layer_index);
             continue;
         }
 
         // We are keeping this layer, reset it's rank
-        layers[layer_index]->rank = nNewRank++;
+        _layers[layer_index]->_rank = nNewRank++;
 
         layer_index++;
     }

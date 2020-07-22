@@ -45,5 +45,5 @@ class dlgVulkanInfo : public QDialog {
     void RunTool();
 
    private:
-    Ui::dlgVulkanInfo *ui_;
+    Ui::dlgVulkanInfo *ui;
 };

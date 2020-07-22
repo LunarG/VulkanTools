@@ -35,9 +35,9 @@ class AppSingleton {
    public:
     AppSingleton(QString singleAppName, int timeout = 500);
     ~AppSingleton();
-    bool IsFirstApp(void) { return is_first_app; }
+    bool IsFirstApp(void) { return _is_first_app; }
 
    protected:
-    QLocalServer localServer_;
-    bool is_first_app;
+    QLocalServer _localServer;
+    bool _is_first_app;
 };

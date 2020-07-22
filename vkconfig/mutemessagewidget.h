@@ -35,9 +35,9 @@ class MuteMessageWidget : public QWidget {
     explicit MuteMessageWidget(LayerSettings *layer_settings);
 
    private:
-    LayerSettings *layer_settings_;
-    QListWidget *list_widget_;
-    QPushButton *remove_button_;
+    LayerSettings *_layer_settings;
+    QListWidget *_list_widget;
+    QPushButton *_remove_button;
 
     void resizeEvent(QResizeEvent *event) override;
 
