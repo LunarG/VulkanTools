@@ -44,9 +44,9 @@ class dlgProfileEditor : public QDialog {
     void LoadLayerDisplay(int selection = -1);
 
    private:
-    Ui::dlgProfileEditor *ui_;
+    Ui::dlgProfileEditor *ui;
 
-    Configuration *configuration_;
+    Configuration *_configuration;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;

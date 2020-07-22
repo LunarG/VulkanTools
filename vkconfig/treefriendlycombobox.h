@@ -31,7 +31,7 @@ class TreeFriendlyComboBox : public QComboBox {
     TreeFriendlyComboBox(QTreeWidgetItem *item);
 
    protected:
-    QTreeWidgetItem *tree_widget_;
+    QTreeWidgetItem *_tree_widget;
 
    public Q_SLOTS:
     void indexChanged(int nIndex);

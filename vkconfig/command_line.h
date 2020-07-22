@@ -32,5 +32,5 @@ class CommandLine {
     const Mode& mode;
 
    private:
-    Mode mode_;
+    Mode _mode;
 };

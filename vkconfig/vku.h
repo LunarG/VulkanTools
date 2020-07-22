@@ -38,7 +38,7 @@ struct Version {
     static const Version header_version;
 
     Version(int major_version, int minor_version, int patch_version)
-        : vku_major(major_version), vku_minor(minor_version), vku_patch(patch_version) {}
+        : _vku_major(major_version), _vku_minor(minor_version), _vku_patch(patch_version) {}
     Version(const char *version);
 
     std::string str() const;
@@ -46,31 +46,31 @@ struct Version {
     bool operator!=(const Version &other_version) const { return !(*this == other_version); }
 
     bool operator==(const Version &other_version) const {
-        if (vku_major != other_version.vku_major) return false;
-        if (vku_minor != other_version.vku_minor) return false;
-        if (vku_patch != other_version.vku_patch) return false;
+        if (_vku_major != other_version._vku_major) return false;
+        if (_vku_minor != other_version._vku_minor) return false;
+        if (_vku_patch != other_version._vku_patch) return false;
         return true;
     }
 
     bool operator<(const Version &other_version) const {
-        if (vku_major < other_version.vku_major) return true;
-        if (vku_minor < other_version.vku_minor) return true;
-        if (vku_patch < other_version.vku_patch) return true;
+        if (_vku_major < other_version._vku_major) return true;
+        if (_vku_minor < other_version._vku_minor) return true;
+        if (_vku_patch < other_version._vku_patch) return true;
         return false;
     }
 
     bool operator>=(const Version &other_version) const { return !(*this < other_version); }
 
     bool operator>(const Version &other_version) const {
-        if (vku_major > other_version.vku_major) return true;
-        if (vku_minor > other_version.vku_minor) return true;
-        if (vku_patch > other_version.vku_patch) return true;
+        if (_vku_major > other_version._vku_major) return true;
+        if (_vku_minor > other_version._vku_minor) return true;
+        if (_vku_patch > other_version._vku_patch) return true;
         return false;
     }
 
     bool operator<=(const Version &other_version) const { return !(*this > other_version); }
 
-    int vku_major, vku_minor, vku_patch;
+    int _vku_major, _vku_minor, _vku_patch;
 };
 
 }  // namespace vku

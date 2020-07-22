@@ -46,9 +46,9 @@ std::string format(const char* message, ...) {
 const Version Version::header_version(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
                                       VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
-Version::Version(const char* version) { sscanf(version, "%d.%d.%d", &vku_major, &vku_minor, &vku_patch); }
+Version::Version(const char* version) { sscanf(version, "%d.%d.%d", &_vku_major, &_vku_minor, &_vku_patch); }
 
-std::string Version::str() const { return format("%d.%d.%d", vku_major, vku_minor, vku_patch); }
+std::string Version::str() const { return format("%d.%d.%d", _vku_major, _vku_minor, _vku_patch); }
 
 }  // namespace vku
 

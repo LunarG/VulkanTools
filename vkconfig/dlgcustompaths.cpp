@@ -27,21 +27,21 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui_(new Ui::dlgCustomPaths) {
-    paths_changed_ = false;
-    ui_->setupUi(this);
+dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCustomPaths) {
+    _paths_changed = false;
+    ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    ui_->treeWidget->headerItem()->setText(0, tr("Custom Search Paths & Layers"));
+    ui->treeWidget->headerItem()->setText(0, tr("Custom Search Paths & Layers"));
 
     RepopulateTree();
-    ui_->buttonBox->setEnabled(Configurator::Get().HasLayers());
+    ui->buttonBox->setEnabled(Configurator::Get().HasLayers());
 }
 
-dlgCustomPaths::~dlgCustomPaths() { delete ui_; }
+dlgCustomPaths::~dlgCustomPaths() { delete ui; }
 
 void dlgCustomPaths::RepopulateTree() {
-    ui_->treeWidget->clear();
+    ui->treeWidget->clear();
 
     Configurator &configurator = Configurator::Get();
 
@@ -51,7 +51,7 @@ void dlgCustomPaths::RepopulateTree() {
 
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, custom_path);
-        ui_->treeWidget->addTopLevelItem(pItem);
+        ui->treeWidget->addTopLevelItem(pItem);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
         QVector<LayerFile *> custom_layers;
@@ -59,7 +59,7 @@ void dlgCustomPaths::RepopulateTree() {
 
         for (int j = 0; j < custom_layers.size(); j++) {
             QTreeWidgetItem *pChild = new QTreeWidgetItem();
-            pChild->setText(0, custom_layers[j]->name);
+            pChild->setText(0, custom_layers[j]->_name);
             pItem->addChild(pChild);
         }
 
@@ -79,24 +79,24 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
         configurator.AppendCustomLayersPath(custom_folder);
         QTreeWidgetItem *pItem = new QTreeWidgetItem();
         pItem->setText(0, custom_folder);
-        ui_->treeWidget->addTopLevelItem(pItem);
+        ui->treeWidget->addTopLevelItem(pItem);
 
-        paths_changed_ = true;
+        _paths_changed = true;
         RepopulateTree();
     }
 
-    ui_->buttonBox->setEnabled(configurator.HasLayers());
+    ui->buttonBox->setEnabled(configurator.HasLayers());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 /// Don't make remove button accessable unless an item has been selected
-void dlgCustomPaths::on_treeWidget_itemSelectionChanged() { ui_->pushButtonRemove->setEnabled(true); }
+void dlgCustomPaths::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
 
 //////////////////////////////////////////////////////////////////////////////
 /// Remove the selected custom search path
 void dlgCustomPaths::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
-    QTreeWidgetItem *pSelected = ui_->treeWidget->currentItem();
+    QTreeWidgetItem *pSelected = ui->treeWidget->currentItem();
     while (pSelected->parent() != nullptr) pSelected = pSelected->parent();
 
     // Confirm?
@@ -114,6 +114,6 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
 
     // Update GUI and save
     RepopulateTree();
-    ui_->buttonBox->setEnabled(configurator.HasLayers());
-    paths_changed_ = true;
+    ui->buttonBox->setEnabled(configurator.HasLayers());
+    _paths_changed = true;
 }

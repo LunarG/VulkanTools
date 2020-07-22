@@ -38,21 +38,21 @@ class KhronosSettingsAdvanced : public QObject {
     bool CollectSettings();
 
    private:
-    QTreeWidget *main_tree_widget_;
-    QTreeWidgetItem *main_parent_;
-    QTreeWidgetItem *core_checks_parent_;
+    QTreeWidget *_main_tree_widget;
+    QTreeWidgetItem *_main_parent;
+    QTreeWidgetItem *_core_checks_parent;
 
-    LayerSettings *disables_;
-    LayerSettings *enables_;
+    LayerSettings *_disables;
+    LayerSettings *_enables;
 
-    QTreeWidgetItem *synchronization_box_;
-    QTreeWidgetItem *shader_based_box_;
-    QTreeWidgetItem *gpu_assisted_box_;
-    QRadioButton *gpu_assisted_ratio_;
-    QTreeWidgetItem *reserve_box_;
-    QTreeWidgetItem *debug_printf_box_;
-    QRadioButton *debug_printf_radio_;
-    MuteMessageWidget *mute_message_widget_;
+    QTreeWidgetItem *_synchronization_box;
+    QTreeWidgetItem *_shader_based_box;
+    QTreeWidgetItem *_gpu_assisted_box;
+    QRadioButton *_gpu_assisted_radio;
+    QTreeWidgetItem *_reserve_box;
+    QTreeWidgetItem *_debug_printf_box;
+    QRadioButton *_debug_printf_radio;
+    MuteMessageWidget *_mute_message_widget;
 
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *item, int column);

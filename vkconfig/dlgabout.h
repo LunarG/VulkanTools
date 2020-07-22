@@ -38,5 +38,5 @@ class dlgAbout : public QDialog {
     ~dlgAbout();
 
    private:
-    Ui::dlgAbout *ui_;
+    Ui::dlgAbout *ui;
 };
