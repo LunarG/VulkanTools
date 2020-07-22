@@ -565,6 +565,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
         if (!configurator._override_permanent || !configurator._override_active)
             shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
+
         else {
             shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
 
