@@ -554,7 +554,6 @@ void MainWindow::helpShowLayerSpec(bool checked) {
 /// The only thing we need to do here is clear the profile if
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
-    _settings_tree_manager.CleanupGUI();
     Configurator &configurator = Configurator::Get();
 
     // Alert the user to the current state of the vulkan configurator and
@@ -591,6 +590,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         }
     }
 
+    _settings_tree_manager.CleanupGUI();
     if (!configurator._override_permanent) configurator.SetActiveConfiguration(nullptr);
 
     configurator.SaveOverriddenApplicationList();
