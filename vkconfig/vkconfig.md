@@ -150,6 +150,7 @@ Roadmap
 - Add display of a detailed description of each layer.
 - Add preferences to customize Vulkan Configurator UI.
 - Add a reset to default menu entry
+- Add a reset configurations context menu to reset a single configuration to default
 
 Known Issues
 --------------
