@@ -430,11 +430,6 @@ void SettingsTreeManager::CleanupGUI() {
     GetTreeState(_configuration->_setting_tree_state, _configuration_settings_tree->invisibleRootItem());
     Configurator::Get().SaveConfiguration(_configuration);
 
-    disconnect(_configuration_settings_tree, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this,
-               SLOT(settingsItemCollapsed(QTreeWidgetItem *)));
-    disconnect(_configuration_settings_tree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this,
-               SLOT(settingsItemExpanded(QTreeWidgetItem *)));
-
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
     if (_validation_layer_file) _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
