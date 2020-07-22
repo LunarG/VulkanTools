@@ -61,6 +61,7 @@ platform_dict = {
     'xlib' : 'VK_USE_PLATFORM_XLIB_KHR',
     'xlib_xrandr' : 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
     'provisional' : 'VK_ENABLE_BETA_EXTENSIONS',
+    'directfb' : 'VK_USE_PLATFORM_DIRECTFB_EXT',
 }
 
 #
