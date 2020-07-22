@@ -36,10 +36,10 @@ class VUIDSearchWidget : public QWidget {
     explicit VUIDSearchWidget(QWidget *parent = nullptr);
 
    private:
-    QStringList vuid_list_;
-    QCompleter *search_vuid_;
-    QLineEdit *user_box_;
-    QPushButton *add_button_;
+    QStringList _vuid_list;
+    QCompleter *_search_vuid;
+    QLineEdit *_user_box;
+    QPushButton *_add_button;
 
     void ResetCompleter();
 
@@ -48,7 +48,7 @@ class VUIDSearchWidget : public QWidget {
 
    public Q_SLOTS:
     void addButtonPressed(void);
-    void addCompleted(const QString &itemAdded);
+    void addCompleted(const QString &addedItem);
 
    Q_SIGNALS:
     void itemSelected(const QString &textSelected);

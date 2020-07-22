@@ -22,8 +22,8 @@
 #include "boolsettingwidget.h"
 
 BoolSettingWidget::BoolSettingWidget(LayerSettings *layer_settings, bool numeric) {
-    numeric_output_ = numeric;
-    layer_settings_ = layer_settings;
+    _numeric_output = numeric;
+    _layer_settings = layer_settings;
     setText(layer_settings->settings_prompt);
     setToolTip(layer_settings->settings_desc);
     setChecked(layer_settings->settings_value == QString("TRUE"));
@@ -31,16 +31,16 @@ BoolSettingWidget::BoolSettingWidget(LayerSettings *layer_settings, bool numeric
 }
 
 void BoolSettingWidget::itemToggled() {
-    if (numeric_output_) {
+    if (_numeric_output) {
         if (isChecked())
-            layer_settings_->settings_value = QString("1");
+            _layer_settings->settings_value = QString("1");
         else
-            layer_settings_->settings_value = QString("0");
+            _layer_settings->settings_value = QString("0");
     } else {
         if (isChecked())
-            layer_settings_->settings_value = QString("TRUE");
+            _layer_settings->settings_value = QString("TRUE");
         else
-            layer_settings_->settings_value = QString("FALSE");
+            _layer_settings->settings_value = QString("FALSE");
     }
 
     emit itemChanged();

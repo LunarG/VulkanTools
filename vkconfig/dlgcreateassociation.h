@@ -38,7 +38,7 @@ class dlgCreateAssociation : public QDialog {
     ~dlgCreateAssociation();
 
     static void GetExecutableFromAppBundle(QString &path);
-    int GetSelectedLaunchApplicationIndex() const { return last_selected_application_index_; }
+    int GetSelectedLaunchApplicationIndex() const { return _last_selected_application_index; }
 
    private:
     QTreeWidgetItem *CreateApplicationItem(const Application &application) const;
@@ -46,8 +46,8 @@ class dlgCreateAssociation : public QDialog {
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-    Ui::dlgCreateAssociation *ui_;
-    int last_selected_application_index_;
+    Ui::dlgCreateAssociation *ui;
+    int _last_selected_application_index;
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();                                                // Pick the application

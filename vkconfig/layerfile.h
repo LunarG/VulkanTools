@@ -71,25 +71,25 @@ class LayerFile : public QObject {
     Q_OBJECT
    public:
     // Standard pieces of a layer
-    QString file_format_version;
-    QString name;
-    QString type;
-    QString library_path;  // This is a relative path, straight out of the json
-    QString api_version;
-    QString implementation_version;
-    QString description;
+    QString _file_format_version;
+    QString _name;
+    QString _type;
+    QString _library_path;  // This is a relative path, straight out of the json
+    QString _api_version;
+    QString _implementation_version;
+    QString _description;
 
-    QString layer_path;  // Actual path to the folder that contains the layer (this is important!)
-    LayerType layer_type;
+    QString _layer_path;  // Actual path to the folder that contains the layer (this is important!)
+    LayerType _layer_type;
 
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    QVector<LayerSettings*> layer_settings;
+    QVector<LayerSettings*> _layer_settings;
 
-    bool enabled;   // When used in a profile, is this one active?
-    bool disabled;  // When used in a profile, is this one disabled?
-    int rank;       // When used in a profile, what is the rank? (0 being first layer)
+    bool _enabled;   // When used in a profile, is this one active?
+    bool _disabled;  // When used in a profile, is this one disabled?
+    int _rank;       // When used in a profile, what is the rank? (0 being first layer)
 
    public:
     LayerFile();
@@ -98,23 +98,23 @@ class LayerFile : public QObject {
     // No.. I do not like operator overloading. It's a bad idea.
     // Inlined here just so I can see all the variables that need to be copied.
     void CopyLayer(LayerFile* destination_layer_file) const {
-        destination_layer_file->file_format_version = file_format_version;
-        destination_layer_file->name = name;
-        destination_layer_file->type = type;
-        destination_layer_file->library_path = library_path;
-        destination_layer_file->api_version = api_version;
-        destination_layer_file->implementation_version = implementation_version;
-        destination_layer_file->description = description;
-        destination_layer_file->layer_type = layer_type;
-        destination_layer_file->enabled = enabled;
-        destination_layer_file->rank = rank;
-        destination_layer_file->disabled = disabled;
-        destination_layer_file->layer_path = layer_path;
+        destination_layer_file->_file_format_version = _file_format_version;
+        destination_layer_file->_name = _name;
+        destination_layer_file->_type = _type;
+        destination_layer_file->_library_path = _library_path;
+        destination_layer_file->_api_version = _api_version;
+        destination_layer_file->_implementation_version = _implementation_version;
+        destination_layer_file->_description = _description;
+        destination_layer_file->_layer_type = _layer_type;
+        destination_layer_file->_enabled = _enabled;
+        destination_layer_file->_rank = _rank;
+        destination_layer_file->_disabled = _disabled;
+        destination_layer_file->_layer_path = _layer_path;
 
-        for (int i = 0; i < layer_settings.length(); i++) {
+        for (int i = 0; i < _layer_settings.length(); i++) {
             LayerSettings* pSettings = new LayerSettings();
-            *pSettings = *layer_settings[i];
-            destination_layer_file->layer_settings.push_back(pSettings);
+            *pSettings = *_layer_settings[i];
+            destination_layer_file->_layer_settings.push_back(pSettings);
         }
     }
 

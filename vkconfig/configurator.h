@@ -125,12 +125,12 @@ class Configurator {
     bool InitializeConfigurator(void);
 
     // Need this to check vulkan loader version
-    uint32_t vulkan_instance_version;
-    bool has_old_loader;  // Older loader does not support per-application overrides
+    uint32_t _vulkan_instance_version;
+    bool _has_old_loader;  // Older loader does not support per-application overrides
 
    private:
-    bool running_as_administrator_;  // Are we being "Run as Administrator"
-    bool first_run_;                 // This is used for populating the initial set of configurations
+    bool _running_as_administrator;  // Are we being "Run as Administrator"
+    bool _first_run;                 // This is used for populating the initial set of configurations
 
     /////////////////////////////////////////////////////////////////////////
     // Just Vulkan Configurator settings
@@ -138,17 +138,17 @@ class Configurator {
     void LoadSettings();
     void SaveSettings();
     void ResetToDefaultSettings();
-    bool HasActiveOverrideOnApplicationListOnly() const { return !has_old_loader && overridden_application_list_only; }
+    bool HasActiveOverrideOnApplicationListOnly() const { return !_has_old_loader && _overridden_application_list_only; }
     QString GetPath(Path requested_path) const;
     void SetPath(Path requested_path, QString path);
 
-    bool override_active;                    // Do we have active layers override?
-    bool overridden_application_list_only;   // Apply the override only to the application list
-    bool override_permanent;                 // The override remains active when Vulkan Configurator closes
-    bool override_application_list_updated;  // The list of applications to override has possibly been updated
+    bool _override_active;                    // Do we have active layers override?
+    bool _overridden_application_list_only;   // Apply the override only to the application list
+    bool _override_permanent;                 // The override remains active when Vulkan Configurator closes
+    bool _override_application_list_updated;  // The list of applications to override has possibly been updated
 
    private:
-    QString paths_[PathCount];
+    QString _paths[PathCount];
 
     /////////////////////////////////////////////////////////////////////////
     // Validation Preset
@@ -164,7 +164,7 @@ class Configurator {
     void FindVkCube();
 
    private:
-    QString active_launch_executable_path_;  // This is to match up with the application list
+    QString _active_launch_executable_path;  // This is to match up with the application list
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
@@ -183,12 +183,12 @@ class Configurator {
                                 // clarity as to where this comes from).
 
    private:
-    QStringList custom_layers_paths_;
+    QStringList _custom_layers_paths;
 
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
    public:
-    QVector<Application*> overridden_application_list;
+    QVector<Application*> _overridden_application_list;
     void LoadOverriddenApplicationList();
     void SaveOverriddenApplicationList();
     bool HasOverriddenApplications() const;
@@ -197,7 +197,7 @@ class Configurator {
     // A readonly list of layer names with the associated settings
     // and their default values. This is for reference by individual profile
     // objects.
-    QVector<LayerSettingsDefaults*> default_layers_settings;
+    QVector<LayerSettingsDefaults*> _default_layers_settings;
     void LoadDefaultLayerSettings();
     const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
     void LoadDefaultSettings(LayerFile* empty_layer);
@@ -208,16 +208,16 @@ class Configurator {
     // in the above (defaultLayerSettings). The binding of a layer with it's
     // particular settings is done in the profile (Configuration - in configuration list).
     // This includes all found implicit, explicit, or layers found in custom folders
-    QVector<LayerFile*> available_Layers;  // All the found layers, lumped together
+    QVector<LayerFile*> _available_Layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
     const LayerFile* FindLayerNamed(QString layer_name);
     void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list);
 
-    QVector<Configuration*> available_configurations;
+    QVector<Configuration*> _available_configurations;
 
     // We need to push and pop a temporary environment.
     // The stack is only one deep...
-    Configuration* saved_configuration;
+    Configuration* _saved_configuration;
 
     void PushConfiguration(Configuration* configuration);
     void PopConfiguration();
@@ -231,13 +231,13 @@ class Configurator {
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
 
     bool HasLayers() const;
-    bool IsRunningAsAdministrator() { return running_as_administrator_; }
+    bool IsRunningAsAdministrator() { return _running_as_administrator; }
 
     // Set this as the current override configuration
     void SetActiveConfiguration(Configuration* configuration);
-    Configuration* GetActiveConfiguration() { return active_configuration_; }
+    Configuration* GetActiveConfiguration() { return _active_configuration; }
     void RefreshConfiguration() {
-        if (active_configuration_) SetActiveConfiguration(active_configuration_);
+        if (_active_configuration) SetActiveConfiguration(_active_configuration);
     }
 
     QString CheckVulkanSetup() const;
@@ -249,7 +249,7 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
-    Configuration* active_configuration_;
+    Configuration* _active_configuration;
 
     void ClearLayerLists();
 

@@ -24,14 +24,14 @@
 #include <string>
 #include <cstdio>
 
-CommandLine::CommandLine(int argc, char* argv[]) : mode(mode_), mode_(ModeExecute) {
+CommandLine::CommandLine(int argc, char* argv[]) : mode(_mode), _mode(ModeExecute) {
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if ((arg == "-h") || (arg == "--help")) {
-            mode_ = ModeShowUsage;
+            _mode = ModeShowUsage;
             return;
         } else if (arg == "--unit-test") {
-            mode_ = ModeRunTest;
+            _mode = ModeRunTest;
             return;
         }
     }

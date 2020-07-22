@@ -22,51 +22,52 @@
 #include "mutemessagewidget.h"
 
 MuteMessageWidget::MuteMessageWidget(LayerSettings *layer_settings) : QWidget(nullptr) {
-    layer_settings_ = layer_settings;
-    list_widget_ = new QListWidget(this);
-    list_widget_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    list_widget_->show();
-    remove_button_ = new QPushButton(this);
-    remove_button_->setText("Remove");
-    remove_button_->show();
+    _layer_settings = layer_settings;
+    _list_widget = new QListWidget(this);
+    _list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    _list_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    _list_widget->show();
+    _remove_button = new QPushButton(this);
+    _remove_button->setText("Remove");
+    _remove_button->show();
 
     // Load with existing settings
-    if (!layer_settings_->settings_value.isEmpty()) {
-        QStringList list = layer_settings_->settings_value.split(",");
-        list_widget_->addItems(list);
-        list_widget_->setCurrentRow(list_widget_->count() - 1);
+    if (!_layer_settings->settings_value.isEmpty()) {
+        QStringList list = _layer_settings->settings_value.split(",");
+        _list_widget->addItems(list);
+        _list_widget->setCurrentRow(_list_widget->count() - 1);
     } else
-        remove_button_->setEnabled(false);
+        _remove_button->setEnabled(false);
 
-    connect(remove_button_, SIGNAL(pressed()), this, SLOT(removePushed()));
+    connect(_remove_button, SIGNAL(pressed()), this, SLOT(removePushed()));
 }
 
 void MuteMessageWidget::resizeEvent(QResizeEvent *event) {
     int nButtonHeight = 26;
     QSize parentSize = event->size();
-    list_widget_->setGeometry(0, 0, parentSize.width(), parentSize.height() - nButtonHeight);
-    remove_button_->setGeometry(0, parentSize.height() - nButtonHeight, parentSize.width(), nButtonHeight);
+    _list_widget->setGeometry(0, 0, parentSize.width(), parentSize.height() - nButtonHeight);
+    _remove_button->setGeometry(0, parentSize.height() - nButtonHeight, parentSize.width(), nButtonHeight);
 }
 
 void MuteMessageWidget::addItem(const QString &item) {
-    list_widget_->addItem(item);
-    list_widget_->setCurrentRow(list_widget_->count() - 1);
+    _list_widget->addItem(item);
+    _list_widget->setCurrentRow(_list_widget->count() - 1);
 
     // Update Setting
-    AddString(layer_settings_->settings_value, item);
-    remove_button_->setEnabled(true);
+    AddString(_layer_settings->settings_value, item);
+    _remove_button->setEnabled(true);
     emit itemChanged();
 }
 
 void MuteMessageWidget::removePushed() {
-    int nRow = list_widget_->currentRow();
+    int nRow = _list_widget->currentRow();
     if (nRow < 0) return;
 
-    QString itemName = list_widget_->currentItem()->text();
-    list_widget_->takeItem(nRow);
+    QString itemName = _list_widget->currentItem()->text();
+    _list_widget->takeItem(nRow);
 
     // Update Setting
-    RemoveString(layer_settings_->settings_value, itemName);
+    RemoveString(_layer_settings->settings_value, itemName);
     emit itemChanged();
     emit itemRemoved(itemName);
 }

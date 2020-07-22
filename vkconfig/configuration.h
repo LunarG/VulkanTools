@@ -48,17 +48,17 @@ class Configuration {
     Configuration();
     ~Configuration();
 
-    QString name;                   // User readable display of the profile name (may contain spaces)
-                                    // This is the same as the filename, but with the .json stripped off.
-    QString file;                   // Root file name without path (by convention, no spaces and .profile suffix)
-    QString description;            // A friendly description of what this profile does
-    QByteArray setting_tree_state;  // Recall editor tree state
-    ValidationPreset preset;        // Khronos layer presets. 0 = none or user defined
+    QString _name;                   // User readable display of the profile name (may contain spaces)
+                                     // This is the same as the filename, but with the .json stripped off.
+    QString _file;                   // Root file name without path (by convention, no spaces and .profile suffix)
+    QString _description;            // A friendly description of what this profile does
+    QByteArray _setting_tree_state;  // Recall editor tree state
+    ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     // A configuration is nothing but a list of layers and their settings in truth
-    QVector<LayerFile *> layers;
+    QVector<LayerFile *> _layers;
 
-    QStringList excluded_layers;  // Just the names of blacklisted layers
+    QStringList _excluded_layers;  // Just the names of blacklisted layers
 
     LayerFile *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
     LayerFile *FindLayerNamed(const QString &layer_name) const;  // Find the layer if it exists, only care about the name
@@ -69,7 +69,7 @@ class Configuration {
 
     LayerFile *GetKhronosLayer();  // Retrieve the Khronos validation layer if it is included
 
-    bool IsValid() { return all_layers_available; }
+    bool IsValid() { return _all_layers_available; }
 
-    bool all_layers_available;
+    bool _all_layers_available;
 };

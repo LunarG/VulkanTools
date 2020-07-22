@@ -23,47 +23,47 @@
 #include "filenamesettingwidget.h"
 
 FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings) : QWidget(nullptr) {
-    layer_settings_ = layer_settings;
+    _layer_settings = layer_settings;
 
     item->setText(0, layer_settings->settings_prompt);
     item->setToolTip(0, layer_settings->settings_desc);
 
-    line_edit_ = new QLineEdit(this);
-    line_edit_->setText(layer_settings_->settings_value);
-    line_edit_->show();
+    _line_edit = new QLineEdit(this);
+    _line_edit->setText(_layer_settings->settings_value);
+    _line_edit->show();
 
-    push_button_ = new QPushButton(this);
-    push_button_->setText("...");
-    push_button_->show();
+    _push_button = new QPushButton(this);
+    _push_button->setText("...");
+    _push_button->show();
 
-    connect(push_button_, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
-    connect(line_edit_, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
+    connect(_push_button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
+    connect(_line_edit, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 }
 
 void FilenameSettingWidget::resizeEvent(QResizeEvent* event) {
-    if (line_edit_ == nullptr) return;
+    if (_line_edit == nullptr) return;
 
     QSize parentSize = event->size();
 
     // Button takes up the last 32 pixels
     QRect buttonRect = QRect(parentSize.width() - 32, 0, 32, parentSize.height());
     QRect editRect = QRect(0, 0, parentSize.width() - 32, parentSize.height());
-    line_edit_->setGeometry(editRect);
-    push_button_->setGeometry(buttonRect);
+    _line_edit->setGeometry(editRect);
+    _push_button->setGeometry(buttonRect);
 }
 
 void FilenameSettingWidget::browseButtonClicked() {
-    QString file = QFileDialog::getSaveFileName(push_button_, tr("Select File"), ".");
+    QString file = QFileDialog::getSaveFileName(_push_button, tr("Select File"), ".");
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        layer_settings_->settings_value = file;
-        line_edit_->setText(file);
+        _layer_settings->settings_value = file;
+        _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
 void FilenameSettingWidget::textFieldChanged(const QString& newText) {
-    layer_settings_->settings_value = newText;
+    _layer_settings->settings_value = newText;
     emit itemChanged();
 }
