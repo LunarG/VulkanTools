@@ -453,13 +453,20 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int nColumn) {
     // we should alert the user to all three exactly/explicitly to what they are
     QSettings settings;
 
-    if (core_checks_parent_->checkState(0) == Qt::Checked && shader_based_box_->checkState(0) == Qt::Checked ||
-        core_checks_parent_->checkState(0) == Qt::Checked && bestPractices[0].item->checkState(0) == Qt::Checked ||
-        shader_based_box_->checkState(0) == Qt::Checked && bestPractices[0].item->checkState(0) == Qt::Checked) {
+    const bool features_to_run_alone[] = {
+        core_checks_parent_->checkState(0) == Qt::Checked, synchronization_box_->checkState(0) == Qt::Checked,
+        shader_based_box_->checkState(0) == Qt::Checked, bestPractices[0].item->checkState(0) == Qt::Checked};
+
+    int count_enabled_features = 0;
+    for (std::size_t i = 0, n = vku::countof(features_to_run_alone); i < n; ++i)
+        count_enabled_features += features_to_run_alone[i] ? 1 : 0;
+
+    if (count_enabled_features > 1) {
         if (settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
             QMessageBox alert(main_tree_widget_);
             alert.setText(
-                "<i>Core Validation</i>, <i>Shader Based Validation</i> and <i>Best Pracstices Warnings</i> require a state "
+                "<i>Core Validation</i>, <i>Shader Based Validation</i>, <i>Synchronization Validation</i> and <i>Best Pracstices "
+                "Warnings</i> require a state "
                 "tracking object each.\n\n<br><br> Combining two of these options will result in high performance degradation.");
             alert.setWindowTitle(tr("High Validation Layer Overhead"));
             alert.setIcon(QMessageBox::Warning);

@@ -561,9 +561,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         QString shut_down_state;
 
         if (!configurator.override_permanent || !configurator.override_active)
-            shut_down_state = "No Vulkan layer override will be active when vkconfig closes.";
+            shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
         else {
-            shut_down_state = "Vulkan Layer overrides will remain in effect when vkconfig closes.";
+            shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
 
             if (configurator.overridden_application_list_only)
                 shut_down_state += " Overrides will be applied only to the application list.";
@@ -571,10 +571,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
                 shut_down_state += " Overrides will be applied to ALL Vulkan applications.";
         }
 
-        shut_down_state += "\n\nAre you still ready to close vkconfig?";
+        shut_down_state += "\n\nAre you still ready to close Vulkan Configurator?";
 
         alert.setText(shut_down_state);
-        alert.setWindowTitle("Exit State Reminder!");
+        alert.setWindowTitle("Vulkan Layers configuration state on exit");
         alert.setIcon(QMessageBox::Question);
         alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         alert.setCheckBox(new QCheckBox("Do not show again."));
