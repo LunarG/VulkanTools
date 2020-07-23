@@ -45,7 +45,6 @@ VUIDSearchWidget::VUIDSearchWidget(QWidget *parent) : QWidget(parent) {
     ResetCompleter();
 
     connect(_add_button, SIGNAL(pressed()), this, SLOT(addButtonPressed()));
-    // connect(_user_box, SIGNAL(returnPressed()), this, SLOT(addButtonPressed()));
 }
 
 void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
