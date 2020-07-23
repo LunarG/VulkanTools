@@ -33,7 +33,7 @@
 class VUIDSearchWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit VUIDSearchWidget(QWidget *parent = nullptr);
+    explicit VUIDSearchWidget(const QString &valuesAlreadyPresent);
 
    private:
     QStringList _vuid_list;
@@ -49,6 +49,7 @@ class VUIDSearchWidget : public QWidget {
    public Q_SLOTS:
     void addButtonPressed(void);
     void addCompleted(const QString &addedItem);
+    void addToSearchList(const QString &newItem);
 
    Q_SIGNALS:
     void itemSelected(const QString &textSelected);

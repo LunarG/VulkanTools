@@ -108,8 +108,14 @@ void SettingsTreeManager::BuildKhronosTree() {
 
     _validation_presets_combo_box = new QComboBox();
     _validation_presets_combo_box->blockSignals(true);
-    for (int i = ValidationPresetFirst; i <= ValidationPresetLast; ++i)
-        _validation_presets_combo_box->addItem(Configurator::Get().GetValidationPresetLabel(static_cast<ValidationPreset>(i)));
+    for (int i = ValidationPresetFirst; i <= ValidationPresetLast; ++i) {
+        QString presetName = Configurator::Get().GetValidationPresetLabel(static_cast<ValidationPreset>(i));
+
+        // There is no preset for a user defined group of settings, so watch for blank.
+        if (presetName.isEmpty()) presetName = "User Defined";
+
+        _validation_presets_combo_box->addItem(presetName);
+    }
 
     _validation_presets_combo_box->setCurrentIndex(_configuration->_preset);
 
@@ -198,7 +204,7 @@ void SettingsTreeManager::BuildKhronosTree() {
             mute_message_item->setText(0, "Mute Message VUIDs");
             _validation_tree_item->addChild(mute_message_item);
 
-            _vuid_search_widget = new VUIDSearchWidget();
+            _vuid_search_widget = new VUIDSearchWidget(_validation_layer_file->_layer_settings[settings_index]->settings_value);
             next_line = new QTreeWidgetItem();
             next_line->setSizeHint(0, QSize(0, 28));
             mute_message_item->addChild(next_line);
@@ -215,6 +221,8 @@ void SettingsTreeManager::BuildKhronosTree() {
             connect(_vuid_search_widget, SIGNAL(itemSelected(const QString &)), _mute_message_widget,
                     SLOT(addItem(const QString &)));
             connect(_vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            connect(_mute_message_widget, SIGNAL(itemRemoved(const QString &)), _vuid_search_widget,
+                    SLOT(addToSearchList(const QString &)));
             connect(_mute_message_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()), Qt::QueuedConnection);
             continue;
         }

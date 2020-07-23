@@ -24,12 +24,18 @@
 #include "vuidsearchwidget.h"
 #include "vk_vuids.h"
 
-VUIDSearchWidget::VUIDSearchWidget(QWidget *parent) : QWidget(parent) {
+VUIDSearchWidget::VUIDSearchWidget(const QString &valuesAlreadyPresent) : QWidget(nullptr) {
     int nNumElements = sizeof(vuids) / sizeof(vuids[0]);
     for (int i = 0; i < nNumElements; i++) _vuid_list << vuids[i];
 
-    // Completer does not need this sorted, but we do
+    // We always want the list presented sorted. Note: This is not
+    // strictly necessary.
     _vuid_list.sort();
+
+    QStringList removeList = valuesAlreadyPresent.split(",");
+    for (int i = 0; i < removeList.length(); i++) {
+        _vuid_list.removeOne(removeList[i]);
+    }
 
     _user_box = new QLineEdit(this);
     _user_box->setFocusPolicy(Qt::StrongFocus);
@@ -56,6 +62,8 @@ void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
 
 /////////////////////////////////////////////////////////////////////
 /// Reload the completer with a revised list of VUID's.
+/// I'm quite impressed with how fast this brute force implementation
+/// runs in release mode.
 void VUIDSearchWidget::ResetCompleter(void) {
     if (_search_vuid != nullptr) _search_vuid->deleteLater();
 
@@ -81,6 +89,9 @@ void VUIDSearchWidget::addButtonPressed(void) {
     emit itemSelected(entry);  // Triggers update of GUI
     emit itemChanged();        // Triggers save of profile
     _user_box->setText("");
+
+    // Remove the just added item from the search list
+    if (_vuid_list.removeOne(entry)) ResetCompleter();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -92,6 +103,15 @@ void VUIDSearchWidget::addCompleted(const QString &addedItem) {
     // it clears the completers value too. This might be a Qt bug, but this
     // works really well as a work-a-round
     addButtonPressed();
+}
+
+//////////////////////////////////////////////////////////////////////
+// Item was removed from master list, so add it back to the search
+// list.
+void VUIDSearchWidget::addToSearchList(const QString &newItem) {
+    _vuid_list.append(newItem);
+    _vuid_list.sort();
+    ResetCompleter();
 }
 
 // Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's

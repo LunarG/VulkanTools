@@ -414,7 +414,7 @@ QString Configurator::CheckVulkanSetup() const {
 
     // Check Vulkan Devices
 
-    VkApplicationInfo app;
+    VkApplicationInfo app = {};
     app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app.pNext = NULL;
     app.pApplicationName = APP_SHORT_NAME;
@@ -423,7 +423,7 @@ QString Configurator::CheckVulkanSetup() const {
     app.engineVersion = 0;
     app.apiVersion = VK_API_VERSION_1_0;
 
-    VkInstanceCreateInfo inst_info;
+    VkInstanceCreateInfo inst_info = {};
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     inst_info.pNext = NULL;
     inst_info.pApplicationInfo = &app;
