@@ -17,32 +17,26 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
 * **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
-* **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
-* **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](../BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
+* **Information for contributors**: [All contribution information](https://github.com/LunarG/VulkanTools/blob/master/CONTRIBUTING.md), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
+* **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
 
 ## Platform Support
 
 | Windows                  | :heavy_check_mark:       |
 | ------------------------ | ------------------------ |
-| [ ![Main Window](./images/vkconfig-main-icon-windows.png) ](./images/vkconfig-main-windows.png) | [ ![Main Window](./images/vkconfig-layers-icon-windows.png) ](./images/vkconfig-layers-windows.png)
+| [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-icon-windows.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-windows.png) | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-icon-windows.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-windows.png)
 
 | Linux                    | :heavy_check_mark:       |
 | ------------------------ | ------------------------ |
-| [ ![Main Window](./images/vkconfig-main-icon-linux.png) ](./images/vkconfig-main-linux.png) | [ ![Main Window](./images/vkconfig-layers-icon-linux.png) ](./images/vkconfig-layers-linux.png)
+| [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-icon-linux.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-linux.png) | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-icon-linux.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-linux.png)
 
 | macOS                    | :heavy_check_mark:       |
 | ------------------------ | ------------------------ |
-| [ ![Main Window](./images/vkconfig-main-icon-mac.png) ](./images/vkconfig-main-mac.png) | [ ![Main Window](./images/vkconfig-layers-icon-mac.png) ](./images/vkconfig-layers-mac.png)
+| [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-icon-mac.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-mac.png) | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-icon-mac.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-mac.png)
 
 ## Downloads
 
 *Vulkan Configurator* is delivered with the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home).
-
-## License
-
-*Vulkan Configurator* is part of Vulkan Tools released under the [Apache 2.0 license](../LICENSE.txt).
-
-Copyright &copy; 2015-2020 LunarG, Inc.
 
 ## Using the Vulkan Configurator
 
@@ -54,17 +48,17 @@ The tool is distributed differently, depending on the platform:
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
 - macOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
-## Glossary
+## Terminology
 
 ***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is an optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultanously.
 
-***Vulkan Layers Configuration***: A collection of Vulkan Layers executed in [a specific order](./vkconfig.md#vulkan-layers-execution-order-overview) with specific settings for each layer.
+***Vulkan Layers Configuration***: A collection of Vulkan Layers executed in [a specific order](#vulkan-layers-execution-order-overview) with specific settings for each layer.
 
 ***Vulkan [Explicit Layers vs Implicit Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#implicit-vs-explicit-layers)***: An explicit layer has to be explicitly activated by the user from source in `vkCreateInstance`, using Vulkan Configurator or `VK_INSTANCE_LAYERS` environment variable. Implicit layers are enabled by their existence on the system by default.
 
 ***Vulkan [Meta-Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#meta-layers)***: Meta-layers are a special kind of layer which is only available through the desktop [Vulkan Loader](https://github.com/KhronosGroup/Vulkan-Loader). While usual layers are associated with one particular library, a meta-layer is actually a collection layer which contains an ordered list of other layers called *component layers*. 
 
-***[Vulkan Override Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md##override-meta-layer)***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override`. It is the mechanism used by *Vulkan Configurator* to override Vulkan applications layers. This layer contains:
+***Vulkan Override Layer***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override`. It is the mechanism used by *Vulkan Configurator* to override Vulkan applications layers. This layer contains:
 - The ordered list of layers to activate
 - The list of layers to exclude from execution
 - The list of paths to executables that the layers override applies to. If this list is empty, the override is applied to every application upon startup. This feature can be configured with Vulkan Configurator when 
@@ -73,11 +67,11 @@ The tool is distributed differently, depending on the platform:
 
 ## Vulkan Layers execution order overview
 
-[ ![Vulkan Loader](./images/vulkan_layers_order_small.png) ](./images/vulkan_layers_order.png)
+[ ![Vulkan Loader](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_layers_order_small.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_layers_order.png)
 
 ## Vulkan Loader and Layers design overview
 
-[ ![Vulkan Loader](./images/vulkan_loader_640px.png) ](./images/vulkan_loader.png)
+[ ![Vulkan Loader](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_loader_640px.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
@@ -114,7 +108,7 @@ FAQ
 ### 1/ How do I use Vulkan Configurator to override only the Vulkan layers of a selected list of applications?
 
 This is typically done by enabling the "Apply only to the selected list of Vulkan applications" check box.
-<p align="center"><img src="./images/only_list.png" /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/only_list.png" /></p>
 
 However, if this is not working it might be because the *Vulkan Loader* on the system is too old. Version 1.2.141 or newer of the Vulkan Loader is required. Update the *Vulkan Loader* by installing the latest *[Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)* to enable this feature.
 
