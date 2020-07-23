@@ -820,7 +820,7 @@ void Configurator::FindVkCube() {
         local = local2;
     }
 
-    Application *application = new Application(local.absoluteFilePath(), "--suppress_popups --validate");
+    Application *application = new Application(local.absoluteFilePath(), "--suppress_popups");
     _overridden_application_list.push_back(application);
 }
 
