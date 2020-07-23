@@ -151,6 +151,7 @@ void SettingsTreeManager::BuildKhronosTree() {
     _validation_log_file_item = new QTreeWidgetItem();
     next_line = new QTreeWidgetItem();
     _validation_log_file_widget = new FilenameSettingWidget(_validation_log_file_item, log_file);
+    connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
     debug_action_item->addChild(_validation_log_file_item);
     _validation_log_file_item->addChild(next_line);
     _configuration_settings_tree->setItemWidget(next_line, 0, _validation_log_file_widget);
