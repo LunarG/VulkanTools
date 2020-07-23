@@ -247,11 +247,19 @@ Configurator::Configurator()
 #endif
 
 // Check loader version
+// Different names and rules for each OS
 #ifdef WIN32
     QLibrary library("vulkan-1.dll");
-#else
+#endif
+
+#ifdef __APPLE__
+    QLibrary library("/usr/local/lib/libvulkan");
+#endif
+
+#ifdef __linux__
     QLibrary library("libvulkan");
 #endif
+
     if (!(library.load())) {
         QMessageBox dlg(NULL);
         dlg.setText("Could not find a Vulkan Loader!");
@@ -350,9 +358,16 @@ QString Configurator::CheckVulkanSetup() const {
         log += "- SDK path: Not detected\n";
 
         // Check loader version
+        // Different names and rules for each OS
 #ifdef WIN32
     QLibrary library("vulkan-1.dll");
-#else
+#endif
+
+#ifdef __APPLE__
+    QLibrary library("/usr/local/lib/libvulkan");
+#endif
+
+#ifdef __linux__
     QLibrary library("libvulkan");
 #endif
 
