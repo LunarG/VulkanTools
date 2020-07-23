@@ -20,6 +20,7 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 * **Information for contributors**: [All contribution information](https://github.com/LunarG/VulkanTools/blob/master/CONTRIBUTING.md), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
 * **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
 
+--------------
 ## Platform Support
 
 | Windows                  | :heavy_check_mark:       |
@@ -34,10 +35,12 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 | ------------------------ | ------------------------ |
 | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-icon-mac.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-mac.png) | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-icon-mac.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-mac.png)
 
+--------------
 ## Downloads
 
 *Vulkan Configurator* is delivered with the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home).
 
+--------------
 ## Using the Vulkan Configurator
 
 The Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig`.
@@ -48,15 +51,16 @@ The tool is distributed differently, depending on the platform:
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
 - macOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
+--------------
 ## Terminology
 
 ***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is an optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultanously.
 
 ***Vulkan Layers Configuration***: A collection of Vulkan Layers executed in [a specific order](#vulkan-layers-execution-order-overview) with specific settings for each layer.
 
-***Vulkan [Explicit Layers vs Implicit Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#implicit-vs-explicit-layers)***: An explicit layer has to be explicitly activated by the user from source in `vkCreateInstance`, using Vulkan Configurator or `VK_INSTANCE_LAYERS` environment variable. Implicit layers are enabled by their existence on the system by default.
+***[Vulkan Explicit Layers vs Implicit Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#implicit-vs-explicit-layers)***: An explicit layer has to be explicitly activated by the user from source in `vkCreateInstance`, using Vulkan Configurator or `VK_INSTANCE_LAYERS` environment variable. Implicit layers are enabled by their existence on the system by default.
 
-***Vulkan [Meta-Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#meta-layers)***: Meta-layers are a special kind of layer which is only available through the desktop [Vulkan Loader](https://github.com/KhronosGroup/Vulkan-Loader). While usual layers are associated with one particular library, a meta-layer is actually a collection layer which contains an ordered list of other layers called *component layers*. 
+***[Vulkan Meta-Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#meta-layers)***: Meta-layers are a special kind of layer which is only available through the desktop [Vulkan Loader](https://github.com/KhronosGroup/Vulkan-Loader). While usual layers are associated with one particular library, a meta-layer is actually a collection layer which contains an ordered list of other layers called *component layers*. 
 
 ***Vulkan Override Layer***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override`. It is the mechanism used by *Vulkan Configurator* to override Vulkan applications layers. This layer contains:
 - The ordered list of layers to activate
@@ -75,7 +79,6 @@ The tool is distributed differently, depending on the platform:
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
---------------
 ## OS User-Specific Modifications
 
 The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
@@ -102,8 +105,8 @@ In addition, Windows system create registry entries in the following locations:
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
 
-FAQ
 --------------
+## FAQ
 
 ### 1/ How do I use Vulkan Configurator to override only the Vulkan layers of a selected list of applications?
 
@@ -124,8 +127,8 @@ This is because the interaction between environment variables and Vulkan Configu
 
 We are working on defining layers development conventions to resolve this issue properly but in the meantime we highly recommend to use exclusively either environment variables or Vulkan Configurator.
 
-Roadmap
 --------------
+## Roadmap
 
 - Use Private Settings Layer Extension new APIs categorize settings and allow layers by developers integration of settings in vkconfig https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/1920
 - Improve the layer settings representation and organization.
@@ -146,8 +149,8 @@ Roadmap
 - Add a reset to default menu entry
 - Add a reset configurations context menu to reset a single configuration to default
 
-Known Issues
 --------------
+## Known Issues
 
 - The UI still feels a little clunky... Need more polish.
 - Message filtering using VUID name and index is not yet fully implemented.
