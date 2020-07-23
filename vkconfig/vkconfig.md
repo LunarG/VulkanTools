@@ -18,33 +18,32 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 * **Information for contributors**: [All contribution information](../CONTRIBUTING.md), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
 * **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](../BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
 
-Screenshots
---------------
+## Platform Support
 
-| [ ![Main Window](./images/main_window_320px.png) ](./images/main_window.png) | [ ![Overriding multiple layers](./images/multiple_layers_320px.png) ](./images/multiple_layers.png) |
-| --- | --- |
-| [ ![Vulkan Applications launchers](./images/launcher_320px.png) ](./images/launcher.png) | [ ![Vulkan Layers slection and ordering ](./images/layers_selection_and_ordering_320px.png) ](./images/layers_selection_and_ordering.png) |
+| Windows                  | :heavy_check_mark:       |
+| ------------------------ | ------------------------ |
+| [ ![Main Window](./images/vkconfig-main-icon-windows.png) ](./images/vkconfig-main-windows.png) | [ ![Main Window](./images/vkconfig-layers-icon-windows.png) ](./images/vkconfig-layers-windows.png)
 
-Platform Support
---------------
+| Linux                    | :heavy_check_mark:       |
+| ------------------------ | ------------------------ |
+| [ ![Main Window](./images/vkconfig-main-icon-linux.png) ](./images/vkconfig-main-linux.png) | [ ![Main Window](./images/vkconfig-layers-icon-linux.png) ](./images/vkconfig-layers-linux.png)
 
-| Windows                  | Linux                    | macOS                    |
-| ------------------------ | ------------------------ | ------------------------ |
-| :heavy_check_mark:       | :heavy_check_mark:       | :heavy_check_mark:       |
+| macOS                    | :heavy_check_mark:       |
+| ------------------------ | ------------------------ |
+| [ ![Main Window](./images/vkconfig-main-icon-mac.png) ](./images/vkconfig-main-mac.png) | [ ![Main Window](./images/vkconfig-layers-icon-mac.png) ](./images/vkconfig-layers-mac.png)
 
-Downloads
---------------
+## Downloads
 
 *Vulkan Configurator* is delivered with the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home).
 
-License
---------------
+## License
+
 *Vulkan Configurator* is part of Vulkan Tools released under the [Apache 2.0 license](../LICENSE.txt).
 
 Copyright &copy; 2015-2020 LunarG, Inc.
 
-Using the Vulkan Configurator
---------------
+## Using the Vulkan Configurator
+
 The Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig`.
 
 The tool is distributed differently, depending on the platform:
@@ -53,8 +52,8 @@ The tool is distributed differently, depending on the platform:
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
 - macOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
-Glossary
---------------
+## Glossary
+
 ***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is an optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultanously.
 
 ***Vulkan Layers Configuration***: A collection of Vulkan Layers executed in [a specific order](./vkconfig.md#vulkan-layers-execution-order-overview) with specific settings for each layer.
@@ -70,19 +69,18 @@ Glossary
 
 ***Vulkan Layer settings***: Per layer settings loaded by each layer library and stored in the `vk_layer_settings.txt` file. This file is located either next to the Vulkan application executable or set globally, applied to all Vulkan applications. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
-Vulkan Layers execution order overview
---------------
+## Vulkan Layers execution order overview
 
 [ ![Vulkan Loader](./images/vulkan_layers_order_small.png) ](./images/vulkan_layers_order.png)
 
-Vulkan Loader and Layers design overview
---------------
+## Vulkan Loader and Layers design overview
+
 [ ![Vulkan Loader](./images/vulkan_loader_640px.png) ](./images/vulkan_loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
-OS User-Specific Modifications
 --------------
+## OS User-Specific Modifications
 
 The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
