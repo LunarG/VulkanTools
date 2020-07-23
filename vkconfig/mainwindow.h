@@ -95,8 +95,8 @@ class MainWindow : public QMainWindow {
 
     void ResetLaunchOptions();
 
-    ConfigurationListItem *PushCurrentItem(void);
-    bool PopCurrentItem(const char *szRenamed = nullptr);
+    ConfigurationListItem *SaveLastItem(void);
+    bool RestoreLastItem(const char *szOverride = nullptr);
     QString _lastItem;
 
     void RemoveClicked(ConfigurationListItem *item);

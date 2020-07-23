@@ -458,7 +458,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         configuration_item->configuration->_name = configuration_item->text(1);
         configuration_item->configuration->_file = configuration_item->text(1) + QString(".json");
         configurator.SaveConfiguration(configuration_item->configuration);
-        PopCurrentItem(configuration_item->configuration->_name.toUtf8().constData());
+        RestoreLastItem(configuration_item->configuration->_name.toUtf8().constData());
     }
 }
 
@@ -642,7 +642,7 @@ void MainWindow::on_pushButtonAppList_clicked() {
 ///////////////////////////////////////////////////////////////////////////////
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEditProfile_clicked() {
-    ConfigurationListItem *item = PushCurrentItem();
+    ConfigurationListItem *item = SaveLastItem();
 
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
@@ -656,7 +656,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     Configurator::Get().LoadAllConfigurations();
     LoadConfigurationList();
 
-    PopCurrentItem();
+    RestoreLastItem();
 }
 
 ///////////////////////////////////////////////////////////////
@@ -666,7 +666,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 // certain kinds of edits occur. These push/pop functions
 // accomplish that. If nothing can be found it should simply
 // leave nothing selected.
-ConfigurationListItem *MainWindow::PushCurrentItem(void) {
+ConfigurationListItem *MainWindow::SaveLastItem(void) {
     // Who is selected?
     ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->currentItem());
     if (item == nullptr) return nullptr;
@@ -678,8 +678,8 @@ ConfigurationListItem *MainWindow::PushCurrentItem(void) {
 ////////////////////////////////////////////////////////////////
 // Partner for above function. Returns false if the last config
 // could not be found.
-bool MainWindow::PopCurrentItem(const char *szRenamed) {
-    if (szRenamed != nullptr) _lastItem = szRenamed;
+bool MainWindow::RestoreLastItem(const char *szOverride) {
+    if (szOverride != nullptr) _lastItem = szOverride;
 
     // Reset the current item
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
@@ -696,20 +696,20 @@ bool MainWindow::PopCurrentItem(const char *szRenamed) {
 ////////////////////////////////////////////////////////////////////////////////
 // Edit the layers for the given profile.
 void MainWindow::EditClicked(ConfigurationListItem *item) {
-    PushCurrentItem();
+    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     dlgProfileEditor dlg(this, item->configuration);
     dlg.exec();
 
     Configurator::Get().LoadAllConfigurations();
     LoadConfigurationList();
-    PopCurrentItem();
+    RestoreLastItem();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a new blank profile
 void MainWindow::NewClicked() {
-    PushCurrentItem();
+    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     Configurator &configurator = Configurator::Get();
 
@@ -719,7 +719,7 @@ void MainWindow::NewClicked() {
         configurator.LoadAllConfigurations();
         LoadConfigurationList();
     }
-    PopCurrentItem();
+    RestoreLastItem();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -749,7 +749,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     msg.setDefaultButton(QMessageBox::Yes);
     if (msg.exec() == QMessageBox::No) return;
 
-    PushCurrentItem();
+    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     // What if this is the active profile? We will go boom boom soon...
     Configurator &configurator = Configurator::Get();
@@ -762,19 +762,19 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     // Reload profiles
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
-    if (!PopCurrentItem()) ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+    if (!RestoreLastItem()) ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
-    PushCurrentItem();
+    SaveLastItem();
     ui->profileTree->editItem(item, 1);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // Copy the current configuration
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
-    PushCurrentItem();
+    SaveLastItem();
     QString new_name = item->configuration->_name;
     new_name += "2";
     _settings_tree_manager.CleanupGUI();
@@ -800,22 +800,20 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 // Import a configuration file. File copy followed by a reload.
 void MainWindow::ImportClicked(ConfigurationListItem *item) {
     (void)item;  // We don't need this
-    PushCurrentItem();
     Configurator &configurator = Configurator::Get();
 
     QString full_suggested_path = configurator.GetPath(Configurator::LastImportPath);
     QString full_import_path =
         QFileDialog::getOpenFileName(this, "Import Layers Configuration File", full_suggested_path, "*.json");
-    {
-        PopCurrentItem();
-        if (full_import_path.isEmpty()) return;
-    }
 
+    if (full_import_path.isEmpty()) return;
+
+    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     Configurator::Get().ImportConfiguration(full_import_path);
     LoadConfigurationList();
     configurator.SaveSettings();
-    PopCurrentItem();
+    RestoreLastItem();
 }
 
 /////////////////////////////////////////////////////////////////////////////
