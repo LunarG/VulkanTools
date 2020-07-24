@@ -49,12 +49,12 @@ The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
 - Linux tarball: The vkconfig executable comes pre-built. Run vkconfig on the command line. 
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
-- macOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
+- macOS: The tool is provided as an application bundle. Run it by double-clicking the bundle from a Finder window.
 
 --------------
 ## Terminology
 
-***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is an optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultanously.
+***[Vulkan Layer](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md#layers)***: A layer is an optional library that can intercept Vulkan functions on their way from the Vulkan application down to the Vulkan drivers. Multiple layers can be chained together to use multiple layer functionalities simultaneously.
 
 ***Vulkan Layers Configuration***: A collection of Vulkan Layers executed in [a specific order](#vulkan-layers-execution-order-overview) with specific settings for each layer.
 
@@ -65,21 +65,21 @@ The tool is distributed differently, depending on the platform:
 ***Vulkan Override Layer***: The Vulkan Override Layer is an implicit meta-layer found on the system with the name `VK_LAYER_LUNARG_override`. It is the mechanism used by *Vulkan Configurator* to override Vulkan applications layers. This layer contains:
 - The ordered list of layers to activate
 - The list of layers to exclude from execution
-- The list of paths to executables that the layers override applies to. If this list is empty, the override is applied to every application upon startup. This feature can be configured with Vulkan Configurator when 
+- The list of paths to executables that the layers override applies to. If this list is empty, the override is applied to every application upon startup.
 
-***Vulkan Layer settings***: Per layer settings loaded by each layer library and stored in the `vk_layer_settings.txt` file. This file is located either next to the Vulkan application executable or set globally, applied to all Vulkan applications. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
+***Vulkan Layer settings***: Per-layer settings loaded by each layer library and stored in the `vk_layer_settings.txt` file. This file is located either next to the Vulkan application executable or set globally and applied to all Vulkan applications thanks to *Vulkan Configurator*. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
 ## Vulkan Layers execution order overview
 
 [ ![Vulkan Loader](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_layers_order_small.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_layers_order.png)
 
-## Vulkan Loader and Layers design overview
+## Vulkan Loader and Layers implementation overview
 
 [ ![Vulkan Loader](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_loader_640px.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
-## OS User-Specific Modifications
+## OS user-specific modifications
 
 The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
@@ -113,41 +113,39 @@ In addition, Windows system create registry entries in the following locations:
 This is typically done by enabling the "Apply only to the selected list of Vulkan applications" check box.
 <p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/only_list.png" /></p>
 
-However, if this is not working it might be because the *Vulkan Loader* on the system is too old. Version 1.2.141 or newer of the Vulkan Loader is required. Update the *Vulkan Loader* by installing the latest *[Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)* to enable this feature.
+If this is not working, it's likely that the *Vulkan Loader* on the system is too old. Version 1.2.141 or newer of the *Vulkan Loader* is required. Update the *Vulkan Loader* by installing the latest *[Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)* to enable this feature.
 
-### 2/ How my local vk_layer_settings.txt file interacts with Vulkan Configurator override?
+### 2/ How does my application vk_layer_settings.txt file interacts with Vulkan Configurator?
 
-When Vulkan Configurator is used to override layers, the local vk_layer_settings.txt file is ignored.
+When *Vulkan Configurator is used to override layers, the local `vk_layer_settings.txt` file is ignored.
 
-### 3/ How environment variables settings interact with Vulkan Configurator?
+### 3/ How do environment variables settings interact with Vulkan Configurator?
 
-The short answer is that environment variables and Vulkan Configurator layers settings are mutually exclusive and the interaction between both is undefined.
+The short answer is that environment variables and *Vulkan Configurator* layers settings are mutually exclusive and the interaction between both is undefined.
 
-This is because the interaction between environment variables and Vulkan Configuration layers settings are handled by the layers directly so the responsability of the layers developers.
+This is because the interaction between environment variables and *Vulkan* Configuration layers settings are handled by the layers directly so the responsability of the layers developers.
 
 We are working on defining layers development conventions to resolve this issue properly but in the meantime we highly recommend to use exclusively either environment variables or Vulkan Configurator.
 
 --------------
 ## Roadmap
 
-- Use Private Settings Layer Extension new APIs categorize settings and allow layers by developers integration of settings in vkconfig https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/1920
+- Use Private Settings Layer Extension new APIs to categorize settings and allow layers by developers integration of settings in vkconfig https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/1920
 - Improve the layer settings representation and organization.
 - Full coverage of [VK_EXT_debug_utils](https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VK_EXT_debug_utils.html) for message filtering.
-- Refactor the loader to replace `vk_layer_settings.txt` and `VkLayer_override.json` by json files generated by `Vulkan Configurator`.
+- Refactor the loader to replace `vk_layer_settings.txt` and `VkLayer_override.json` by `JSON` files generated by `Vulkan Configurator`.
 	- Global layers overriding file is placed in `VulkanLayerManager` directory.
 	- Local layers overriding file / selected Vulkan application is placed the application directory.
-- Add full command line arguments to use `Vulkan Configurator` features and add a test framework.
-- Add a test to check Vulkan is working fine on the machine and display the review in the log at Vulkan Configurator start up.
+- Add full command line arguments to use *Vulkan Configurator* features and add a test framework.
 - Improve layer ordering representation and accuracy.
-- Add Import and export of layers configurations.
 - Add multiple command line arguments and environment variables per application.
 - Add a search field for the launcher log area and button to open the launcher log file, make it possible to browse the log.
-- Make vkconfig a service to add an icon in the taskbar when running.
-- Add a dedicated Vulkan Configurator layer to capture all the debug messages directly.
+- Make *Vulkan Configurator* a service to add an icon in the taskbar when running.
 - Add display of a detailed description of each layer.
-- Add preferences to customize Vulkan Configurator UI.
+- Add preferences to customize *Vulkan Configurator* UI.
 - Add a reset to default menu entry
 - Add a reset configurations context menu to reset a single configuration to default
+- Make Custom Layer Paths in the layer window should be per configuration settings.
 
 --------------
 ## Known Issues
@@ -156,8 +154,7 @@ We are working on defining layers development conventions to resolve this issue 
 - Message filtering using VUID name and index is not yet fully implemented.
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
 - Layer paths may not be duplicated in the layer override json file. They currently are.
-- Layer execution order express in the "Select Vulkan Layers to override and execution order" window is not accurate, only ***forced on*** layers can be ordered.
+- Layer execution order express in the "Select Layers" window is not accurate, only ***forced on*** layers can be ordered.
 - Layers settings fields are not checked for syntax errors.
 - The user can't reorder the layers configurations in the list.
-- Custom Layer Paths in the layer window should be per configuration settings.
 
