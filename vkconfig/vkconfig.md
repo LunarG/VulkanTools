@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD041 -->
+﻿<!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
 <p align="left">Copyright © 2015-2020 LunarG, Inc.</p>
 
@@ -16,7 +16,6 @@ A Vulkan application may configure layers when creating a Vulkan Instance. This 
 Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
-* **Contact**: [richard@lunarg.com](mailto:richard@lunarg.com)
 * **Information for contributors**: [All contribution information](https://github.com/LunarG/VulkanTools/blob/master/CONTRIBUTING.md), [FAQ](#faq), [Roadmap](#roadmap), [Known Issues](#known-issues)
 * **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
 
