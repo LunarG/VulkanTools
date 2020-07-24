@@ -29,7 +29,6 @@ SOURCES += \
     dlgabout.cpp \
     dlgcreateassociation.cpp \
     dlgcustompaths.cpp \
-    dlghelp.cpp \
     dlgprofileeditor.cpp \
     dlgvulkananalysis.cpp \
     dlgvulkaninfo.cpp \
@@ -59,7 +58,6 @@ HEADERS += \
     dlgabout.h \
     dlgcreateassociation.h \
     dlgcustompaths.h \
-    dlghelp.h \
     dlgprofileeditor.h \
     dlgvulkananalysis.h \
     dlgvulkaninfo.h \
@@ -86,7 +84,6 @@ FORMS += \
     dlgabout.ui \
     dlgcreateassociation.ui \
     dlgcustompaths.ui \
-    dlghelp.ui \
     dlgprofileeditor.ui \
     dlgvulkananalysis.ui \
     dlgvulkaninfo.ui \

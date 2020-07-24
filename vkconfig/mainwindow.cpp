@@ -61,21 +61,20 @@ static const int LAUNCH_ROW_HEIGHT = 26;
 static const int LAUNCH_ROW_HEIGHT = 28;
 #endif
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent),
+      ui(new Ui::MainWindow),
+      _selected_configuration_item(nullptr),
+      _vk_via(nullptr),
+      _vk_info(nullptr),
+      _launch_application(nullptr),
+      _log_file(nullptr),
+      _launcher_apps_combo(nullptr),
+      _launch_arguments(nullptr) {
     ui->setupUi(this);
     ui->launchTree->installEventFilter(this);
     ui->profileTree->installEventFilter(this);
 
-    _selected_configuration_item = nullptr;
-    _vk_via = nullptr;
-    _vk_info = nullptr;
-    _help = nullptr;
-    _launch_application = nullptr;
-    _log_file = nullptr;
-    _launcher_apps_combo = nullptr;
-    _launch_arguments = nullptr;
-
-    ///////////////////////////////////////////////
     Configurator &configurator = Configurator::Get();
 
     // We need to resetup the new profile for consistency sake.
@@ -144,10 +143,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
         for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-            ConfigurationListItem *pItem = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-            if (pItem != nullptr)
-                if (pItem->configuration == configuration) {  // Ding ding ding... we have a winner
-                    ui->profileTree->setCurrentItem(pItem);
+            ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
+            if (item != nullptr)
+                if (item->configuration == configuration) {  // Ding ding ding... we have a winner
+                    ui->profileTree->setCurrentItem(item);
                 }
         }
     }
@@ -609,6 +608,9 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
 
 /////////////////////////////////////////////////////////////
 void MainWindow::showEvent(QShowEvent *event) {
+    ConfigurationListItem *item = SaveLastItem();
+    if (item == nullptr) ui->groupBoxEditor->setEnabled(false);
+
     //  resizeEvent(nullptr); // Fake to get controls to do the right thing
     event->accept();
 }
@@ -637,7 +639,12 @@ void MainWindow::on_pushButtonAppList_clicked() {
 ///////////////////////////////////////////////////////////////////////////////
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEditProfile_clicked() {
+    // If not item are selected we disable the configuration settings
     ConfigurationListItem *item = SaveLastItem();
+    if (item == nullptr) {
+        ui->groupBoxEditor->setEnabled(false);
+        return;
+    }
 
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
@@ -661,7 +668,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 // certain kinds of edits occur. These push/pop functions
 // accomplish that. If nothing can be found it should simply
 // leave nothing selected.
-ConfigurationListItem *MainWindow::SaveLastItem(void) {
+ConfigurationListItem *MainWindow::SaveLastItem() {
     // Who is selected?
     ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->currentItem());
     if (item == nullptr) return nullptr;
@@ -1117,6 +1124,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             ui->pushButtonAppList->setEnabled(false);
         }
     }
+
+    // If not configuration active, disable the setting area
+    // ui->groupBoxEditor->setEnabled(SaveLastItem() != nullptr);
 
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just relay on the resize method

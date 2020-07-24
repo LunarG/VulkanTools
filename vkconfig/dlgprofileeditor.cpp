@@ -222,10 +222,9 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
 ////////////////////////////////////////////////////////////////
 // Remove the selected layer path and update everything accordingly
 void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
-    QTreeWidgetItem *selected_item = ui->layerTree->currentItem();
+    QTreeWidgetItem *selected_item = ui->treeWidget->currentItem();
 
-    int path_index = ui->layerTree->indexOfTopLevelItem(selected_item);
-    Configurator::Get().RemoveCustomLayersPath(path_index);
+    Configurator::Get().RemoveCustomLayersPath(selected_item->text(0));
 
     _configuration->CollapseConfiguration();
     AddMissingLayers(_configuration);
