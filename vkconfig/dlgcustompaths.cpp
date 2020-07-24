@@ -96,21 +96,13 @@ void dlgCustomPaths::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove
 /// Remove the selected custom search path
 void dlgCustomPaths::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
-    QTreeWidgetItem *pSelected = ui->treeWidget->currentItem();
-    while (pSelected->parent() != nullptr) pSelected = pSelected->parent();
-
-    // Confirm?
-    QMessageBox msg;
-    msg.setText(pSelected->text(0));
-    msg.setInformativeText(tr("Delete this custom path?"));
-    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msg.setDefaultButton(QMessageBox::Yes);
-    if (msg.exec() == QMessageBox::No) return;
+    QTreeWidgetItem *selected = ui->treeWidget->currentItem();
+    while (selected->parent() != nullptr) selected = selected->parent();
 
     Configurator &configurator = Configurator::Get();
 
     // Now actually remove it.
-    configurator.RemoveCustomLayersPath(pSelected->text(0));
+    configurator.RemoveCustomLayersPath(selected->text(0));
 
     // Update GUI and save
     RepopulateTree();

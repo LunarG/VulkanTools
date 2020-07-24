@@ -500,7 +500,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Select Vulkan Layers to Override and Execution Order</string>
+            <string>Select Layers...</string>
            </property>
           </widget>
          </item>

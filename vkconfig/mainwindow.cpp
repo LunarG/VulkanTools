@@ -78,9 +78,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ///////////////////////////////////////////////
     Configurator &configurator = Configurator::Get();
 
-    if (!configurator.VK_LAYER_PATH.isEmpty())
-        ui->groupBoxProfiles->setTitle("Vulkan Layers Configurations With VK_LAYER_PATH Precedence");
-
     // We need to resetup the new profile for consistency sake.
     QString last_configuration = _settings.value(VKCONFIG_KEY_ACTIVEPROFILE, QString("Validation - Standard")).toString();
     Configuration *current_configuration = configurator.FindConfiguration(last_configuration);
@@ -519,9 +516,7 @@ void MainWindow::toolsVulkanInstallation(bool checked) {
 /// Show help, which is just a rich text file
 void MainWindow::helpShowHelp(bool checked) {
     (void)checked;
-    if (_help == nullptr) _help = new dlgHelp(nullptr);
-
-    _help->show();
+    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/vkconfig.html"));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1147,35 +1142,39 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Create context menu here
             QMenu menu(ui->profileTree);
 
-            QAction *edit_action = new QAction("Edit this Layers Configuration...", nullptr);
-            edit_action->setEnabled(item != nullptr);
-            menu.addAction(edit_action);
-
-            QAction *new_action = new QAction("New Layers Configuration...", nullptr);
+            QAction *new_action = new QAction("New...", nullptr);
             new_action->setEnabled(true);
             menu.addAction(new_action);
 
-            QAction *duplicate_action = new QAction("Duplicate the Layers Configuration", nullptr);
+            menu.addSeparator();
+
+            QAction *duplicate_action = new QAction("Duplicate", nullptr);
             duplicate_action->setEnabled(item != nullptr);
             menu.addAction(duplicate_action);
 
-            QAction *remove_action = new QAction("Remove the Layers Configuration", nullptr);
+            QAction *remove_action = new QAction("Remove", nullptr);
             remove_action->setEnabled(item != nullptr);
             menu.addAction(remove_action);
 
-            QAction *rename_action = new QAction("Rename the Layers Configuration", nullptr);
+            QAction *rename_action = new QAction("Rename", nullptr);
             rename_action->setEnabled(item != nullptr);
             menu.addAction(rename_action);
 
             menu.addSeparator();
 
-            QAction *import_action = new QAction("Import a Layers Configuration...", nullptr);
+            QAction *import_action = new QAction("Import...", nullptr);
             import_action->setEnabled(true);
             menu.addAction(import_action);
 
-            QAction *export_action = new QAction("Export the Layers Configuration...", nullptr);
+            QAction *export_action = new QAction("Export...", nullptr);
             export_action->setEnabled(item != nullptr);
             menu.addAction(export_action);
+
+            menu.addSeparator();
+
+            QAction *edit_action = new QAction("Select Layers...", nullptr);
+            edit_action->setEnabled(item != nullptr);
+            menu.addAction(edit_action);
 
             menu.addSeparator();
 
