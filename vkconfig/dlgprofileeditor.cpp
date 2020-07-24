@@ -133,16 +133,14 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     _configuration = configuration;
 
     // We never edit a profile directly, we only edit a copy of it.
-    setWindowTitle("Creating New Configuration");
+    setWindowTitle("Create a new layers configuration");
 
     // Case 1: New profile (easiest case)
-    if (_configuration->_name.isEmpty()) {
-        setWindowTitle(tr("Create new layer configuration"));
-    } else {
+    if (!_configuration->_name.isEmpty()) {
         // We are editing an exisitng profile. Make a copy of it
         _configuration = configuration->DuplicateConfiguration();
 
-        QString title = tr("Select Vulkan Layers to Override and Execution Order");
+        QString title = tr("Select Vulkan Layers");
 
         // We now have a profile ready for editing, but only the layers that
         // are actually used are attached. Now, we need to add the remaining layers
