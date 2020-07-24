@@ -25,7 +25,6 @@
 #include "settingstreemanager.h"
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
-#include "dlghelp.h"
 
 #include <QVector>
 #include <QMainWindow>
@@ -78,7 +77,6 @@ class MainWindow : public QMainWindow {
 
     dlgVulkanAnalysis *_vk_via;
     dlgVulkanInfo *_vk_info;
-    dlgHelp *_help;
 
    private:
     Ui::MainWindow *ui;

@@ -385,8 +385,7 @@ QString Configurator::CheckVulkanSetup() const {
         return log;
     }
 
-    // if (!VK_LAYER_PATH.isEmpty())
-    log += "- Using Layers from VK_LAYER_PATH\n";
+    if (!VK_LAYER_PATH.isEmpty()) log += "- Using Layers from VK_LAYER_PATH\n";
 
     // Check layer paths
     if (_custom_layers_paths.count() > 0) {
@@ -765,7 +764,7 @@ void Configurator::RemoveCustomLayersPath(int path_index) {
 void Configurator::RemoveCustomLayersPath(const QString &path) {
     Q_ASSERT(!path.isEmpty());
 
-    for (int i = 0; i < _custom_layers_paths.size(); ++i) {
+    for (int i = 0, n = _custom_layers_paths.size(); i < n; ++i) {
         if (_custom_layers_paths[i] != path) continue;
 
         RemoveCustomLayersPath(i);
