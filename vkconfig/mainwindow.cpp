@@ -729,12 +729,16 @@ void MainWindow::NewClicked() {
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
 void MainWindow::addCustomPaths() {
-    // Get the tree state and clear it.
-    _settings_tree_manager.CleanupGUI();
+    SaveLastItem();
 
     dlgCustomPaths dlg(this);
     dlg.exec();
+
+    // Get the tree state and clear it.
+    _settings_tree_manager.CleanupGUI();
+
     LoadConfigurationList();  // Force a reload
+    RestoreLastItem();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -838,13 +842,11 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
 void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
     (void)item;
     addCustomPaths();
-    LoadConfigurationList();  // Force a reload
 }
 
 void MainWindow::toolsSetCustomPaths(bool checked) {
     (void)checked;
     addCustomPaths();
-    LoadConfigurationList();  // Force a reload
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1233,7 +1235,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Export this profile (copy the .json)
             if (action == export_action) {
                 ExportClicked(item);
-                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
 
@@ -1245,9 +1246,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             // Edit Layer custom paths
             if (action == custom_path_action) {
-                _settings_tree_manager.CleanupGUI();
                 EditCustomPathsClicked(item);
-                ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
                 return true;
             }
 
