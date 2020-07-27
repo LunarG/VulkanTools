@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
             // Older Qt versions do not need this, but Linux builds do benefit
             // if it is present.
 #if QT_VERSION > QT_VERSION_CHECK(5, 6, 0)
-           QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
             QApplication app(argc, argv);
 
