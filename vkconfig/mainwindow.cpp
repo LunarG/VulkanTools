@@ -731,11 +731,14 @@ void MainWindow::NewClicked() {
 void MainWindow::addCustomPaths() {
     SaveLastItem();
 
+    // Get the tree state and clear it.
+    // This looks better athetically after the dialog
+    // but the dialog changes the pointers to the
+    // configs and it will cause a crash.
+    _settings_tree_manager.CleanupGUI();
+
     dlgCustomPaths dlg(this);
     dlg.exec();
-
-    // Get the tree state and clear it.
-    _settings_tree_manager.CleanupGUI();
 
     LoadConfigurationList();  // Force a reload
     RestoreLastItem();
@@ -1127,20 +1130,19 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         }
     }
 
-    // If not configuration active, disable the setting area
+    // If no configuration active, disable the setting area
     // ui->groupBoxEditor->setEnabled(SaveLastItem() != nullptr);
 
     // Launch tree does some fancy resizing and since it's down in
-    // layouts and splitters, we can't just relay on the resize method
-    // of this window.
-    if (target == ui->launchTree) {
-        if (event->type() == QEvent::Resize) {
-            QRect rect = ui->launchTree->rect();
-            ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
-            ui->launchTree->setColumnWidth(1, rect.width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
-            ui->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
-            return false;
-        }
+    // layouts and splitters, we can't just rely on the resize method
+    // of this window. Any resize coming through needs to trigger this
+    // or we get drawing artifacts on macOS.
+    if (event->type() == QEvent::Resize) {
+        QRect rect = ui->launchTree->rect();
+        ui->launchTree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
+        ui->launchTree->setColumnWidth(1, rect.width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
+        ui->launchTree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
+        return false;
     }
 
     // Context menus for layer configuration files

@@ -37,7 +37,12 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     Configurator &configurator = Configurator::Get();
     configurator._override_application_list_updated = false;
 
-    if (!configurator.HasActiveOverrideOnApplicationListOnly()) setWindowTitle("Applications Launcher Shortcuts");
+    if (!configurator.HasActiveOverrideOnApplicationListOnly())
+        setWindowTitle("Applications Launcher Shortcuts");
+    else {
+        ui->treeWidget->setHeaderHidden(false);
+        ui->treeWidget->setHeaderLabel("Uncheck to use for launcher shortcut only");
+    }
 
     // Show the current list
     for (int i = 0; i < configurator._overridden_application_list.size(); i++)
@@ -59,7 +64,7 @@ dlgCreateAssociation::~dlgCreateAssociation() { delete ui; }
 //////////////////////////////////////////////////////////////////////////////
 bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
-    // layouts and splitters, we can't just relay on the resize method
+    // layouts and splitters, we can't just rely on the resize method
     // of this window.
     if (target == ui->treeWidget) {
         if (event->type() == QEvent::Resize) {
@@ -144,8 +149,7 @@ QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &
     ui->treeWidget->addTopLevelItem(item);
 
     if (configurator.HasActiveOverrideOnApplicationListOnly()) {
-        item->setText(0, tr("    ") + application.executable_path);
-        QCheckBox *check_box = new QCheckBox("");
+        QCheckBox *check_box = new QCheckBox(application.executable_path);
         check_box->setChecked(application.override_layers);
         ui->treeWidget->setItemWidget(item, 0, check_box);
         connect(check_box, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
@@ -234,6 +238,8 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
 /// Something was clicked. We don't know what, and short of setting up a new
 /// signal/slot for each button, this seemed a reasonable approach. Just poll
 /// all of them. There aren't that many, so KISS (keep it simple stupid)
+/// If one of them had their state flipped, that's the one that was checked, make
+/// it the currently selected one.
 void dlgCreateAssociation::itemClicked(bool clicked) {
     (void)clicked;
 
@@ -246,7 +252,11 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
         QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
         QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, 0));
         Q_ASSERT(check_box != nullptr);
-        configurator._overridden_application_list[i]->override_layers = check_box->isChecked();
+        bool is_checked = check_box->isChecked();
+        if (configurator._overridden_application_list[i]->override_layers != is_checked) {  // We've changed
+            configurator._overridden_application_list[i]->override_layers = is_checked;
+            ui->treeWidget->setCurrentItem(item);
+        }
     }
 }
 
