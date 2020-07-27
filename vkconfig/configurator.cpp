@@ -1057,7 +1057,7 @@ void Configurator::LoadAllConfigurations() {
     // If this is the first time, we need to create the initial set of
     // configuration files.
     QSettings settings;
-    _first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, true).toBool();
+    _first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, QVariant(true)).toBool();
     if (_first_run) {
         // Delete all the *.json files in the storage folder
         QDir dir(GetPath(ConfigurationPath));
