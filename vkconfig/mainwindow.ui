@@ -105,7 +105,7 @@
              <rect>
               <x>12</x>
               <y>56</y>
-              <width>469</width>
+              <width>391</width>
               <height>19</height>
              </rect>
             </property>
@@ -124,7 +124,7 @@
              <rect>
               <x>30</x>
               <y>81</y>
-              <width>469</width>
+              <width>391</width>
               <height>18</height>
              </rect>
             </property>
@@ -143,7 +143,7 @@
              <rect>
               <x>30</x>
               <y>105</y>
-              <width>469</width>
+              <width>371</width>
               <height>19</height>
              </rect>
             </property>
@@ -162,7 +162,7 @@
              <rect>
               <x>12</x>
               <y>31</y>
-              <width>469</width>
+              <width>351</width>
               <height>19</height>
              </rect>
             </property>
@@ -179,7 +179,7 @@
            <widget class="QPushButton" name="pushButtonAppList">
             <property name="geometry">
              <rect>
-              <x>487</x>
+              <x>430</x>
               <y>56</y>
               <width>100</width>
               <height>26</height>
@@ -619,7 +619,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
