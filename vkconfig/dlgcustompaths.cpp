@@ -97,6 +97,11 @@ void dlgCustomPaths::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove
 void dlgCustomPaths::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
     QTreeWidgetItem *selected = ui->treeWidget->currentItem();
+    if (selected == nullptr) {
+        ui->pushButtonRemove->setEnabled(false);
+        return;
+    }
+
     while (selected->parent() != nullptr) selected = selected->parent();
 
     Configurator &configurator = Configurator::Get();
@@ -106,6 +111,8 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
 
     // Update GUI and save
     RepopulateTree();
-    ui->buttonBox->setEnabled(configurator.HasLayers());
+
+    // Nothing is selected, so disable remove button
+    ui->buttonBox->setEnabled(false);
     _paths_changed = true;
 }
