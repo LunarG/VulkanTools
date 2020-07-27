@@ -100,25 +100,6 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <widget class="QRadioButton" name="radioOverride">
-            <property name="geometry">
-             <rect>
-              <x>12</x>
-              <y>56</y>
-              <width>391</width>
-              <height>19</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Overriden by the Vulkan Configurator</string>
-            </property>
-           </widget>
            <widget class="QCheckBox" name="checkBoxApplyList">
             <property name="geometry">
              <rect>
@@ -157,61 +138,74 @@
              <string>Make layers override persistent on exit</string>
             </property>
            </widget>
-           <widget class="QRadioButton" name="radioFully">
+           <widget class="QWidget" name="">
             <property name="geometry">
              <rect>
-              <x>12</x>
-              <y>31</y>
-              <width>351</width>
-              <height>19</height>
+              <x>13</x>
+              <y>30</y>
+              <width>356</width>
+              <height>54</height>
              </rect>
             </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Fully controlled by the Vulkan applications</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="pushButtonAppList">
-            <property name="geometry">
-             <rect>
-              <x>430</x>
-              <y>56</y>
-              <width>100</width>
-              <height>26</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>80</width>
-              <height>26</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Edit...</string>
-            </property>
+            <layout class="QFormLayout" name="formLayout">
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="radioFully">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Fully controlled by the Vulkan applications</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QRadioButton" name="radioOverride">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Overriden by the Vulkan Configurator</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="pushButtonAppList">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Edit...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </widget>
          </item>
