@@ -36,7 +36,10 @@ int main(int argc, char* argv[]) {
             QCoreApplication::setOrganizationName("LunarG");
             QCoreApplication::setOrganizationDomain("lunarg.com");
             QCoreApplication::setApplicationName("Vulkan Configurator");
-#ifndef Q_OS_LINUX  // Drop this out of Qt on Linux for maximum backwards compatibility
+
+            // Older Qt versions do not need this, but Linux builds do benefit
+            // if it is present.
+#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
             QApplication app(argc, argv);
