@@ -44,10 +44,6 @@ int main(int argc, char* argv[]) {
 #endif
             QApplication app(argc, argv);
 
-            // macOS only, has to hold constant, or get's 'tiny' in Retina mode.
-#ifdef __APPLE__
-           app.setStyleSheet("QWidget{font-size:12px;}");
-#endif
             // This has to go after the construction of QApplication in
             // order to use a QMessageBox and avoid some QThread warnings.
             AppSingleton singleApp("vkconifg_single_instance");
