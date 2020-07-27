@@ -40,9 +40,12 @@ int main(int argc, char* argv[]) {
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
             QApplication app(argc, argv);
-#ifdef __APPLE__
-            app.setStyleSheet("QWidget{font-size:13px;}");
-#endif
+
+            // Not well (if at all documented), but it appears if you do not explicitly set
+            // the font size here, it is often overriden by the default styles. The one
+            // set in the .ui file is ignored on Windows HiDPI monitors for example. Manually
+            // setting this here appears to correct scaling issues on all platforms.
+            app.setStyleSheet("QWidget{font-size:12px;}");
 
             // This has to go after the construction of QApplication in
             // order to use a QMessageBox and avoid some QThread warnings.

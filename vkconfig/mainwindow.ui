@@ -100,32 +100,13 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <widget class="QRadioButton" name="radioFully">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>26</y>
-              <width>531</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Fully controlled by the Vulkan applications</string>
-            </property>
-           </widget>
            <widget class="QRadioButton" name="radioOverride">
             <property name="geometry">
              <rect>
-              <x>10</x>
-              <y>52</y>
-              <width>491</width>
-              <height>20</height>
+              <x>12</x>
+              <y>56</y>
+              <width>469</width>
+              <height>19</height>
              </rect>
             </property>
             <property name="font">
@@ -138,44 +119,13 @@
              <string>Overriden by the Vulkan Configurator</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="pushButtonAppList">
-            <property name="geometry">
-             <rect>
-              <x>410</x>
-              <y>70</y>
-              <width>81</width>
-              <height>26</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>80</width>
-              <height>26</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Edit...</string>
-            </property>
-           </widget>
            <widget class="QCheckBox" name="checkBoxApplyList">
             <property name="geometry">
              <rect>
               <x>30</x>
-              <y>73</y>
-              <width>411</width>
-              <height>20</height>
+              <y>81</y>
+              <width>469</width>
+              <height>18</height>
              </rect>
             </property>
             <property name="font">
@@ -192,9 +142,9 @@
             <property name="geometry">
              <rect>
               <x>30</x>
-              <y>100</y>
-              <width>451</width>
-              <height>20</height>
+              <y>105</y>
+              <width>469</width>
+              <height>19</height>
              </rect>
             </property>
             <property name="font">
@@ -205,6 +155,62 @@
             </property>
             <property name="text">
              <string>Make layers override persistent on exit</string>
+            </property>
+           </widget>
+           <widget class="QRadioButton" name="radioFully">
+            <property name="geometry">
+             <rect>
+              <x>12</x>
+              <y>31</y>
+              <width>469</width>
+              <height>19</height>
+             </rect>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Fully controlled by the Vulkan applications</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="pushButtonAppList">
+            <property name="geometry">
+             <rect>
+              <x>487</x>
+              <y>56</y>
+              <width>100</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>26</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Edit...</string>
             </property>
            </widget>
           </widget>
@@ -613,7 +619,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
