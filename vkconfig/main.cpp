@@ -39,17 +39,15 @@ int main(int argc, char* argv[]) {
 
             // Older Qt versions do not need this, but Linux builds do benefit
             // if it is present.
-#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
-            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#if QT_VERSION > QT_VERSION_CHECK(5, 6, 0)
+           QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
             QApplication app(argc, argv);
 
-            // Not well (if at all documented), but it appears if you do not explicitly set
-            // the font size here, it is often overriden by the default styles. The one
-            // set in the .ui file is ignored on Windows HiDPI monitors for example. Manually
-            // setting this here appears to correct scaling issues on all platforms.
-            app.setStyleSheet("QWidget{font-size:12px;}");
-
+            // macOS only, has to hold constant, or get's 'tiny' in Retina mode.
+#ifdef __APPLE__
+           app.setStyleSheet("QWidget{font-size:12px;}");
+#endif
             // This has to go after the construction of QApplication in
             // order to use a QMessageBox and avoid some QThread warnings.
             AppSingleton singleApp("vkconifg_single_instance");
