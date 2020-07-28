@@ -1130,9 +1130,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         }
     }
 
-    // If no configuration active, disable the setting area
-    // ui->groupBoxEditor->setEnabled(SaveLastItem() != nullptr);
-
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method
     // of this window. Any resize coming through needs to trigger this
