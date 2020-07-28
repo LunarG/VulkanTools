@@ -16,7 +16,7 @@ VIA is a tool that can:
  2. Validate that your Vulkan Loader and drivers are installed properly
  3. Capture your system state in a form that can be used as an attachment when submitting bugs
 
- This document describes where to find the source for VIA, building it, running it, and how to understand the resulting command line output that is generated.
+ This document describes where to find the source for VIA, building it, running it, and how to understand the resulting command line output that is generated. VIA is pre-built and delivered with the Vulkan SDK. As well, it can be invoked from the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK.
 
 <BR />
 
