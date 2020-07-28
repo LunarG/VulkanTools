@@ -732,7 +732,7 @@ void MainWindow::addCustomPaths() {
     SaveLastItem();
 
     // Get the tree state and clear it.
-    // This looks better athetically after the dialog
+    // This looks better aesthetically after the dialog
     // but the dialog changes the pointers to the
     // configs and it will cause a crash.
     _settings_tree_manager.CleanupGUI();

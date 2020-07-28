@@ -37,6 +37,7 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     Configurator &configurator = Configurator::Get();
     configurator._override_application_list_updated = false;
 
+    // The header is hidden by default and stays hidden when no checkboxes are used.
     if (!configurator.HasActiveOverrideOnApplicationListOnly())
         setWindowTitle("Applications Launcher Shortcuts");
     else {
