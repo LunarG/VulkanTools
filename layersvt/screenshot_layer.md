@@ -9,7 +9,7 @@
 Copyright &copy; 2015-2020 LunarG, Inc.
 
 # VK\_LAYER\_LUNARG\_screenshot
-The `VK_LAYER_LUNARG_screenshot` layer records frames to image files.
+The `VK_LAYER_LUNARG_screenshot` layer records frames to image files. The layer can easily be enabled and configured using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK. Or you can manually enable and configure the layer by following the directions below.
 
 #### VK\_SCREENSHOT\_FRAMES
 The environment variable `VK_SCREENSHOT_FRAMES` can be set to a comma-separated list of frame numbers. When the frames corresponding to these numbers are presented, the screenshot layer will record the image buffer to PPM files. For example, if `VK_SCREENSHOT_FRAMES` is set to "4,8,15,16,23,42", the files created will be: 4.ppm, 8.ppm, 15.ppm, etc. `VK_SCREENSHOT_FRAMES` can also be set to a range of frames by specifying two numbers separated by a dash. The first number is the first frame and the second number is the number of frames. For example, if it is set to "20-3", the files created will be 20.ppm, 21.ppm, and 22.ppm.
