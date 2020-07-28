@@ -964,7 +964,7 @@ void Configurator::LoadAllInstalledLayers() {
     // SECOND: Any custom paths? Search for those too
     for (int i = 0; i < _custom_layers_paths.size(); i++) LoadLayersFromPath(_custom_layers_paths[i], _available_Layers);
 
-    // THIRD: Standard layer paths, in standard locations. The above has always taken precidence.
+    // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
     for (std::size_t i = 0, n = vku::countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], _available_Layers);
 
     // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
