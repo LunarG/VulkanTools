@@ -836,6 +836,14 @@ void Configurator::FindVkCube() {
     }
 
     Application *application = new Application(local.absoluteFilePath(), "--suppress_popups");
+
+    // On Linux, vkcube may be in /usr/bin, which is not a directory we can write into. In that case,
+    // put the log in the home folder.
+#ifdef __linux__
+    QDir dir = QDir::homePath();
+    application->log_file = QDir::homePath() + "/vkcube";
+#endif
+
     _overridden_application_list.push_back(application);
 }
 
