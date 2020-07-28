@@ -841,7 +841,7 @@ void Configurator::FindVkCube() {
     // put the log in the home folder.
 #ifdef __linux__
     QDir dir = QDir::homePath();
-    application->log_file = QDir::homePath() + "/vkcube";
+    application->log_file = QDir::homePath() + "/vkcube.txt";
 #endif
 
     _overridden_application_list.push_back(application);
