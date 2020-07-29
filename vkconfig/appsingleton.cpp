@@ -31,12 +31,19 @@ AppSingleton::AppSingleton(QString singleAppName, int timeout) {
     // If we can connect to the server, it means there is another copy running
     QLocalSocket localSocket;
     localSocket.connectToServer(singleAppName);
+
+    // The default timeout is 5 seconds, which should be enough under
+    // the most extreme circumstances. Note, that it will actually
+    // only time out if the server exists and for some reason it can't
+    // connect. Too small a timeout on the other hand can give false
+    // assurance that another copy is not running.
     if (localSocket.waitForConnected(timeout)) {
         _is_first_app = false;
         localSocket.close();
         return;
     }
 
+    // Not connected, OR timed out
     // We are the first, start a server
     _is_first_app = true;
     _localServer.listen(singleAppName);

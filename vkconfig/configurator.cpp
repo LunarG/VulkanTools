@@ -354,7 +354,7 @@ QString Configurator::CheckVulkanSetup() const {
     if (local.exists())
         log += QString().asprintf("- SDK path: %s\n", search_path.toUtf8().constData());
     else
-        log += "- SDK path: Not detected\n";
+        log += "- VULKAN_SDK environment variable not set\n";
 
         // Check loader version
         // Different names and rules for each OS
@@ -708,7 +708,7 @@ QString Configurator::GetPath(Path requested_path) const {
     const QString path = _paths[requested_path];
 
     if (!path.isEmpty()) {
-        return path;
+        return QDir::toNativeSeparators(path);
     }
 
     // Use export path when import path is empty and import path when export path is empty
@@ -852,12 +852,14 @@ void Configurator::FindVkCube() {
 /// file.
 void Configurator::LoadOverriddenApplicationList() {
     /////////////////////////////////////////////////////////////
-    // Now, use the list
-    QString application_list_json = GetPath(ConfigurationPath) + "/applist.json";
+    // Now, use the list. If the file doesn't exist, this is not an error
+    QString data;
+    QString application_list_json = GetPath(ConfigurationPath) + QDir::toNativeSeparators("/applist.json");
     QFile file(application_list_json);
-    file.open(QFile::ReadOnly);
-    QString data = file.readAll();
-    file.close();
+    if (file.open(QFile::ReadOnly)) {
+        data = file.readAll();
+        file.close();
+    }
 
     QJsonDocument json_app_list;
     json_app_list = QJsonDocument::fromJson(data.toLocal8Bit());
@@ -931,7 +933,7 @@ void Configurator::SaveOverriddenApplicationList() {
         root.insert(QFileInfo(_overridden_application_list[i]->executable_path).fileName(), application_object);
     }
 
-    QString app_list_json = GetPath(ConfigurationPath) + "/applist.json";
+    QString app_list_json = GetPath(ConfigurationPath) + QDir::toNativeSeparators("/applist.json");
     QFile file(app_list_json);
     file.open(QFile::WriteOnly);
     QJsonDocument doc(root);
