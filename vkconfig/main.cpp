@@ -35,9 +35,15 @@ int main(int argc, char* argv[]) {
         case CommandLine::ModeExecute: {
             QCoreApplication::setOrganizationName("LunarG");
             QCoreApplication::setOrganizationDomain("lunarg.com");
-            QCoreApplication::setApplicationName("Vulkan Configurator");
 
-            // Older Qt versions do not need this, but Linux builds do benefit
+            // This is used by QSettings for .ini, registry, and .plist files.
+            // It needs to not have spaces in it, and by default is the same as
+            // the executable name. If we rename the executable at a later date,
+            // keeping this as 'vkconfig' will ensure that it picks up the
+            // settings from the previous version (assuming that's ever an issue)
+            QCoreApplication::setApplicationName("vkconfig");
+
+            // Older Qt versions do not have this, but Linux builds do benefit
             // if it is present.
 #if QT_VERSION > QT_VERSION_CHECK(5, 6, 0)
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
