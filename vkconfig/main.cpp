@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 
             // This has to go after the construction of QApplication in
             // order to use a QMessageBox and avoid some QThread warnings.
-            AppSingleton singleApp("vkconifg_single_instance");
+            AppSingleton singleApp("vkconfig_single_instance");
             if (!singleApp.IsFirstApp()) {
                 QMessageBox alert(nullptr);
                 alert.setWindowTitle("Cannot start another instance of vkconfig");

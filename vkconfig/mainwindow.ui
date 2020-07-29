@@ -123,7 +123,7 @@
                </font>
               </property>
               <property name="text">
-               <string>Overriden by the Vulkan Configurator</string>
+               <string>Overridden by the Vulkan Configurator</string>
               </property>
              </widget>
             </item>

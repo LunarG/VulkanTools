@@ -33,7 +33,7 @@
 
 class AppSingleton {
    public:
-    AppSingleton(QString singleAppName, int timeout = 500);
+    AppSingleton(QString singleAppName, int timeout = 5000);
     ~AppSingleton();
     bool IsFirstApp(void) { return _is_first_app; }
 
