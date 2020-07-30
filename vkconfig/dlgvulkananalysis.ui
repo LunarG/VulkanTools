@@ -41,7 +41,7 @@
          <item>
           <widget class="QToolBox" name="systemInfo">
            <property name="currentIndex">
-            <number>0</number>
+            <number>5</number>
            </property>
            <widget class="QWidget" name="environment">
             <property name="geometry">
@@ -184,7 +184,7 @@
              </rect>
             </property>
             <attribute name="label">
-             <string>LunarG Vulkan SDKs</string>
+             <string>Vulkan SDKs</string>
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
@@ -318,7 +318,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>89</width>
+              <width>98</width>
               <height>89</height>
              </rect>
             </property>
@@ -343,7 +343,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>89</width>
+              <width>98</width>
               <height>89</height>
              </rect>
             </property>
@@ -368,7 +368,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>89</width>
+              <width>98</width>
               <height>89</height>
              </rect>
             </property>

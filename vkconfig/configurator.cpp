@@ -227,6 +227,12 @@ Configurator::Configurator()
         home.cd("vulkan");
     }
 
+    if (!home.cd("implicit_layer.d")) {
+        home.mkpath("implicit_layer.d");
+        home.cd("implicit_layer.d");
+    }
+
+    home.cd("..");
     if (!home.cd("settings.d")) {
         home.mkpath("settings.d");
         home.cd("settings.d");
