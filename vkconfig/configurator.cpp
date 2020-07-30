@@ -843,12 +843,13 @@ void Configurator::FindVkCube() {
 
     Application *application = new Application(local.absoluteFilePath(), "--suppress_popups");
 
-    // On Linux, vkcube may be in /usr/bin, which is not a directory we can write into. In that case,
-    // put the log in the home folder.
-#ifdef __linux__
+    // On all operating systems, but Windows we keep running into problems with this ending up
+    // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
+    // initially will be set to the users home folder across all OS's. This is highly visible
+    // in the application launcher and should not present a usability issue. The developer can
+    // easily change this later to anywhere they like.
     QDir dir = QDir::homePath();
-    application->log_file = QDir::homePath() + "/vkcube.txt";
-#endif
+    application->log_file = QDir::homePath() + QDir::toNativeSeparators("/vkcube.txt");
 
     _overridden_application_list.push_back(application);
 }
