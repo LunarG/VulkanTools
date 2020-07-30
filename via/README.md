@@ -64,7 +64,7 @@ vkvia
 ```
 
 #### In the MacOS Vulkan SDK
-VIA cane be found in the macOS/bin directory.  You can simply execute it from there using:
+VIA can be found in the macOS/bin directory.  You can simply execute it from there using:
 
 ```
 vkvia
