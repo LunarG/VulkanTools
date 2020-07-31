@@ -1334,6 +1334,11 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
                     setting.insert("default", layer_settings->settings_value);
                     break;
 
+                case LAYER_SETTINGS_LOAD_FILE:
+                    setting.insert("type", "load_file");
+                    setting.insert("default", layer_settings->settings_value);
+                    break;
+
                 case LAYER_SETTINGS_SAVE_FOLDER:
                     setting.insert("type", "save_folder");
                     setting.insert("default", layer_settings->settings_value);

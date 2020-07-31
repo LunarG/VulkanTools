@@ -228,6 +228,13 @@ void LayerFile::LoadSettingsFromJson(QJsonObject& layerSettingsDescriptors, QVec
             continue;
         }
 
+        ////////////////////////////////////////////////////// Load a file.
+        if (typeString == QString("load_file")) {
+            pLayerSettings->settings_type = LAYER_SETTINGS_LOAD_FILE;
+            layers.push_back(pLayerSettings);
+            continue;
+        }
+
         ////////////////////////////////////////////////////// Folder to put screen shots in
         if (typeString == QString("save_folder")) {
             pLayerSettings->settings_type = LAYER_SETTINGS_SAVE_FOLDER;
