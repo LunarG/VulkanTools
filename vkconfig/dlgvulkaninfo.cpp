@@ -309,15 +309,11 @@ void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
 /// Nice and well behaved. TraverseGenericProperties will build the whole tree.
 void dlgVulkanInfo::BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     QJsonObject surfaces = jsonValue.toObject();
-    int surfaceCount = surfaces.size();
-    QStringList GPUs = surfaces.keys();
 
     pRoot->setText(0, tr("Presentable Surfaces"));
     ui->treeWidget->addTopLevelItem(pRoot);
 
-    for (int i = 0; i < surfaceCount; i++) {
-        TraverseGenericProperties(jsonValue, pRoot);
-    }
+    TraverseGenericProperties(jsonValue, pRoot);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

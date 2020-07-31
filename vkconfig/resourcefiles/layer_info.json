@@ -223,7 +223,7 @@
             "filename": {
                 "name": "Filename",
                 "description": "Name of one or more configuration file(s) to load.",
-                "type": "save_file",
+                "type": "load_file",
                 "default": ""
             },
             "debug_enable": {

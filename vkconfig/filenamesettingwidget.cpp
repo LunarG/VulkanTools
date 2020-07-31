@@ -22,8 +22,11 @@
 
 #include "filenamesettingwidget.h"
 
-FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings) : QWidget(nullptr) {
+////////////////////////////////////////////////////////////////////////////
+// This can be used to specify a 'load' file or a 'save' file. Save is true by default
+FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings, bool save) : QWidget(nullptr) {
     _layer_settings = layer_settings;
+    _save_file = save;
 
     item->setText(0, layer_settings->settings_prompt);
     item->setToolTip(0, layer_settings->settings_desc);
@@ -53,7 +56,12 @@ void FilenameSettingWidget::resizeEvent(QResizeEvent* event) {
 }
 
 void FilenameSettingWidget::browseButtonClicked() {
-    QString file = QFileDialog::getSaveFileName(_push_button, tr("Select File"), ".");
+    QString file;
+
+    if (_save_file)
+        file = QFileDialog::getSaveFileName(_push_button, tr("Select File"), ".");
+    else
+        file = QFileDialog::getOpenFileName(_push_button, tr("Select file"), ".");
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);

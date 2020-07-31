@@ -309,6 +309,20 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, LayerFile *l
             continue;
         }
 
+        // Load a file?
+        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_LOAD_FILE) {
+            FilenameSettingWidget *widget =
+                new FilenameSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index], false);
+            parent->addChild(setting_item);
+            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+            place_holder->setSizeHint(0, QSize(0, 28));
+            setting_item->addChild(place_holder);
+            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
+            _compound_widgets.push_back(place_holder);
+            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            continue;
+        }
+
         // Save to folder?
         if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_SAVE_FOLDER) {
             FolderSettingWidget *widget = new FolderSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
