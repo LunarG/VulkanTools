@@ -2,7 +2,7 @@
     "API dump": {
         "blacklisted_layers": [
         ],
-        "description": "API Dump cheap and cheerful",
+        "description": "A Simple API dump configuration",
         "layer_options": {
             "VK_LAYER_LUNARG_api_dump": {
                 "detailed": {

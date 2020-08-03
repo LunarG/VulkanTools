@@ -379,7 +379,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     configurator.LoadAllConfigurations();
 
     // Find the Standard Validation and make it current if we are active
-    Configuration *active_configuration = configurator.FindConfiguration(QString("Validation - Standard"));
+    Configuration *active_configuration = configurator.FindConfiguration(QString("API dump"));
     if (configurator._override_active) ChangeActiveConfiguration(active_configuration);
 
     LoadConfigurationList();
@@ -1057,13 +1057,13 @@ void MainWindow::launchSetLogFile() {
     const QString log_file =
         QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, tr("Set Log File To..."), ".", tr("Log text(*.txt)")));
 
+    // Do nothing if the user cancels out.
+    if (log_file.isEmpty()) return;
+
     Configurator &configurator = Configurator::Get();
     configurator._overridden_application_list[current_application_index]->log_file = log_file;
 
-    if (log_file.isEmpty())
-        _launcher_log_file_edit->setText("");
-    else
-        _launcher_log_file_edit->setText(log_file);
+    _launcher_log_file_edit->setText(log_file);
 
     configurator.SaveOverriddenApplicationList();
 }
