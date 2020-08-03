@@ -160,4 +160,5 @@ We are working on defining layers development conventions to resolve this issue 
 - A version or build # needs to be added to the about box.
 - Layer changes are not autodetected. If changes are made to the layer environment, vkconfig must be restarted.
 - On macOS, vkcube and vkcubepp need to be run at least once to get past the security checks before they can be used from vkconfig.
+- The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
 
