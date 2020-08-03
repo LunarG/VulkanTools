@@ -149,11 +149,15 @@ We are working on defining layers development conventions to resolve this issue 
 --------------
 ## Known Issues
 
-- The UI still feels a little clunky... Need more polish.
-- Message filtering using VUID name and index is not yet fully implemented.
+- Minor GUI formating issues may still occur on some Linux distributions (Fedora particularly)
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
 - Layer paths may not be duplicated in the layer override json file. They currently are.
 - Layer execution order express in the "Select Layers" window is not accurate, only ***forced on*** layers can be ordered.
 - Layers settings fields are not checked for syntax errors.
 - The user can't reorder the layers configurations in the list.
+- Vulkaninfo output is now sorted alphabetically.
+- On Linux, when run for the first time from the command line, vkcube may not be located and added to the application launcher automatically.
+- A version or build # needs to be added to the about box.
+- Layer changes are not autodetected. If changes are made to the layer environment, vkconfig must be restarted.
+- On macOS, vkcube and vkcubepp need to be run at least once to get past the security checks before they can be used from vkconfig.
 
