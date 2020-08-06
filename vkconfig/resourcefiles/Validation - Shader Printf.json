@@ -46,11 +46,10 @@
                     "type": "multi_enum"
                 },
                 "enables": {
-                    "default": [
-                        "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
-                        "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
-                    ],
-                    "description": "Setting an option here will enable specialized areas of validation",
+                "default": [
+                     "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT"
+                     ],
+                "description": "Setting an option here will enable specialized areas of validation",
                     "name": "Enables",
                     "options": {
                         "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM specific validation",
