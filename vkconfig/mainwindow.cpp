@@ -185,16 +185,16 @@ void MainWindow::LoadConfigurationList() {
         ConfigurationListItem *item = new ConfigurationListItem();
         item->configuration = configurator._available_configurations[i];
         ui->profileTree->addTopLevelItem(item);
-        item->setText(1, configurator._available_configurations[i]->_name);
-        item->setToolTip(1, configurator._available_configurations[i]->_description);
         item->radio_button = new QRadioButton();
-        item->radio_button->setText("");
+        item->radio_button->setToolTip(configurator._available_configurations[i]->_description);
+        item->radio_button->setText(configurator._available_configurations[i]->_name);
 
         if (!configurator._available_configurations[i]->IsValid()) {
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
             item->radio_button->setEnabled(false);
             item->radio_button->setChecked(false);
-            item->setToolTip(1, "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
+            item->radio_button->setToolTip(
+                "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
         }
 
         // Check if this is the current config... but... depending on how we came into this
@@ -215,8 +215,7 @@ void MainWindow::LoadConfigurationList() {
 
     ui->profileTree->blockSignals(false);
     ChangeActiveConfiguration(configurator.GetActiveConfiguration());
-    ui->profileTree->setColumnWidth(0, 24);
-    ui->profileTree->resizeColumnToContents(1);
+    ui->profileTree->resizeColumnToContents(0);
     ui->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
 }
 
@@ -378,7 +377,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     _settings_tree_manager.CleanupGUI();
     configurator.LoadAllConfigurations();
 
-    // Find the API dump and make it current if we are active
+    // Find the API dump  and make it current if we are active
     Configuration *active_configuration = configurator.FindConfiguration(QString("API dump"));
     if (configurator._override_active) ChangeActiveConfiguration(active_configuration);
 
@@ -1281,36 +1280,11 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         return;
     }
 
-    // Is there an app selected?
-    int current_application_index = _launcher_apps_combo->currentIndex();
-
-    // Launch the test application
-    _launch_application = new QProcess(this);
-    connect(_launch_application, SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-
-    connect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-
-    connect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
-
-    Configurator &configurator = Configurator::Get();
-    _launch_application->setProgram(configurator._overridden_application_list[current_application_index]->executable_path);
-    _launch_application->setWorkingDirectory(configurator._overridden_application_list[current_application_index]->working_folder);
-
-    if (!configurator._overridden_application_list[current_application_index]->arguments.isEmpty()) {
-        const QStringList args = configurator._overridden_application_list[current_application_index]->arguments.split(" ");
-        _launch_application->setArguments(args);
-    }
-
-    // Some of these may have changed
-    configurator.SaveSettings();
-
-    _launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
-    _launch_application->setProcessChannelMode(QProcess::MergedChannels);
-    _launch_application->closeWriteChannel();
-
     // We are logging, let's add that we've launched a new application
     QString launch_log = "Launching Vulkan Application:\n";
 
+    Configurator &configurator = Configurator::Get();
+    int current_application_index = _launcher_apps_combo->currentIndex();
     const Application &current_application = *configurator._overridden_application_list[current_application_index];
 
     if (configurator.GetActiveConfiguration() == nullptr) {
@@ -1368,6 +1342,29 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     if (ui->checkBoxClearOnLaunch->isChecked()) ui->logBrowser->clear();
     ui->logBrowser->append(launch_log);
     ui->pushButtonClearLog->setEnabled(true);
+
+    // Launch the test application
+    _launch_application = new QProcess(this);
+    connect(_launch_application, SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+
+    connect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+
+    connect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
+
+    _launch_application->setProgram(configurator._overridden_application_list[current_application_index]->executable_path);
+    _launch_application->setWorkingDirectory(configurator._overridden_application_list[current_application_index]->working_folder);
+
+    if (!configurator._overridden_application_list[current_application_index]->arguments.isEmpty()) {
+        const QStringList args = configurator._overridden_application_list[current_application_index]->arguments.split(" ");
+        _launch_application->setArguments(args);
+    }
+
+    // Some of these may have changed
+    configurator.SaveSettings();
+
+    _launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
+    _launch_application->setProcessChannelMode(QProcess::MergedChannels);
+    _launch_application->closeWriteChannel();
 
     // Wait... did we start? Give it 4 seconds, more than enough time
     if (!_launch_application->waitForStarted(4000)) {
