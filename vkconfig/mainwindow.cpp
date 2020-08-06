@@ -425,6 +425,10 @@ void MainWindow::profileItemClicked(bool checked) {
     ConfigurationListItem *configuration_item = GetCheckedItem();
     if (configuration_item == nullptr) return;
 
+    // This appears redundant on Windows, but under linux it is needed
+    // to ensure the new item is "selected"
+    ui->profileTree->setCurrentItem(configuration_item);
+
     Configurator &configurator = Configurator::Get();
 
     // Do we go ahead and activate it?
