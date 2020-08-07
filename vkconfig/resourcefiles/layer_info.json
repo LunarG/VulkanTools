@@ -30,7 +30,7 @@
                     "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
                     "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
                     "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
-                    "VK_DBG_LAYER_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": "Debug Output",
                     "VK_DBG_LAYER_ACTION_BREAK": "Break"
                 },
                 "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
