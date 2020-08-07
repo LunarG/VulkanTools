@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
                 return -1;
             }
 
-            // SDK release 1.2.148.5 and earlier had some bad tokens in the default configurations and this was the only way to
+            // SDK release 1.2.148 and earlier had some bad tokens in the default configurations and this was the only way to
             // "repair" them. In the future, we will be more surgical about this when it occurs, or when upates
             // are made to support additional validation layer settings. The initial first run key was "Initialized", which
             // set to false also was non-intuitive (it was backwards), so good to change that as well. The logic below will
