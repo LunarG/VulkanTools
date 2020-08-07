@@ -70,6 +70,24 @@ int main(int argc, char* argv[]) {
                 return -1;
             }
 
+            // SDK release 1.2.148.5 and earlier had some bad tokens in the default configurations and this was the only way to
+            // "repair" them. In the future, we will be more surgical about this when it occurs, or when upates
+            // are made to support additional validation layer settings. The initial first run key was "Initialized", which
+            // set to false also was non-intuitive (it was backwards), so good to change that as well. The logic below will
+            // not show this dialog to everyone, only those who installed the SDK on the first week of release.
+            QSettings settings;
+            if (!settings.value("Initialized", true).toBool() && settings.value(VKCONFIG_KEY_INITIALIZE_FILES, true).toBool()) {
+                QMessageBox alert;
+                alert.setText(
+                    "Vulkan Configurator needs to be reset. "
+                    "All standard configurations are being reset to their default state, and user "
+                    "configurations need to be recreated. Future releases will allow for repair of faulty configuration files.");
+                alert.setWindowTitle("Vulkan Configurator");
+                alert.setIcon(QMessageBox::Warning);
+                alert.exec();
+                // DO NOT set VKCONFIG_KEY_INITIALIZED_FILES to false here
+            }
+
             // We simply cannot run without any layers
             if (Configurator::Get().InitializeConfigurator() == false) return -1;
 

@@ -3,11 +3,10 @@
         "blacklisted_layers": [
         ],
         "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
-        "editor_state": "01110111111111111111111001011111111110",
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {
                 "debug_action": {
-                    "default": "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT",
+                    "default": "VK_DBG_LAYER_ACTION_LOG_MSG",
                     "description": "This indicates what action is to be taken when a layer wants to report information",
                     "name": "Debug Action",
                     "options": {

@@ -3,7 +3,6 @@
         "blacklisted_layers": [
         ],
         "description": "Provides easy access to gpu-assisted validation tools.",
-        "editor_state": "01110111111111111111111001111111111110",
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {
                 "debug_action": {
