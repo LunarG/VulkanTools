@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
             // "repair" them. In the future, we will be more surgical about this when it occurs, or when upates
             // are made to support additional validation layer settings. The initial first run key was "Initialized", which
             // set to false also was non-intuitive (it was backwards), so good to change that as well. The logic below will
-            // not show this dialog to everyone, only those who installed the SDK on the first week of release.
+            // not show this dialog to everyone, only those who installed the SDK that was posted the first week of release.
             QSettings settings;
             if (!settings.value("Initialized", true).toBool() && settings.value(VKCONFIG_KEY_INITIALIZE_FILES, true).toBool()) {
                 QMessageBox alert;
