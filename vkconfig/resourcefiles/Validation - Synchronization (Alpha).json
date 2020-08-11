@@ -3,6 +3,7 @@
         "blacklisted_layers": [
         ],
         "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
+        "editor_state": "01110011111111111011110001111111111110",
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {
                 "debug_action": {

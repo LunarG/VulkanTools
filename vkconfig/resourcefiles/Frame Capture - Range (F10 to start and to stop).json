@@ -3,6 +3,7 @@
         "blacklisted_layers": [
         ],
         "description": "Capture a range of frames",
+        "editor_state": "011111111111111111111111111",
         "layer_options": {
             "VK_LAYER_LUNARG_gfxreconstruct": {
                 "capture_compression_type": {

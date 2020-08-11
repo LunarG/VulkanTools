@@ -3,6 +3,7 @@
         "blacklisted_layers": [
         ],
         "description": "Capture the applications first two frames",
+        "editor_state": "01111111111111111111111",
         "layer_options": {
             "VK_LAYER_LUNARG_gfxreconstruct": {
                 "capture_file": {
