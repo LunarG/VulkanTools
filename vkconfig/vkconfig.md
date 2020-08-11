@@ -149,7 +149,7 @@ We are working on defining layers development conventions to resolve this issue 
 --------------
 ## Known Issues
 
-- The UI still feels a little clunky... Need more polish.
+- UI still needs some refinement in some areas...
 - Message filtering using VUID name and index is not yet fully implemented.
 - Minor GUI formating issues may still occur on some Linux distributions (Fedora particularly)
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
