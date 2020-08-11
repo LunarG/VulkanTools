@@ -230,12 +230,15 @@ class ApiDumpSettings {
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate filename.
         const char *file_option = getLayerOption("lunarg_api_dump.file");
-        if (file_option != NULL && strcmp(file_option, "TRUE") == 0) {
-            const char *filename_option = getLayerOption("lunarg_api_dump.log_filename");
-            if (filename_option != NULL && strcmp(filename_option, "") != 0) {
-                filename_string = filename_option;
-            } else {
-                filename_string = "vk_apidump.txt";
+        if (file_option != NULL) {
+            std::string lowered_option = ToLowerString(std::string(file_option));
+            if (lowered_option == "true") {
+                const char *filename_option = getLayerOption("lunarg_api_dump.log_filename");
+                if (filename_option != NULL && strcmp(filename_option, "") != 0) {
+                    filename_string = filename_option;
+                } else {
+                    filename_string = "vk_apidump.txt";
+                }
             }
         }
         // If an environment variable is set, always output to that filename instead,
@@ -550,7 +553,7 @@ class ApiDumpSettings {
 
    private:
     // Utility member to enable easier comparison by forcing a string to all lower-case
-    inline std::string ToLowerString(const std::string &value) {
+    inline static std::string ToLowerString(const std::string &value) {
         std::string lower_value = value;
         std::transform(lower_value.begin(), lower_value.end(), lower_value.begin(), ::tolower);
         return lower_value;
@@ -605,9 +608,11 @@ class ApiDumpSettings {
 
     inline static bool readBoolOption(const char *option, bool default_value) {
         const char *string_option = getLayerOption(option);
-        if (string_option != NULL && strcmp(string_option, "TRUE") == 0)
+        if (string_option == NULL) return default_value;
+        std::string lowered_option = ToLowerString(std::string(string_option));
+        if (lowered_option == "true")
             return true;
-        else if (string_option != NULL && strcmp(string_option, "FALSE") == 0)
+        else if (lowered_option == "false")
             return false;
         else
             return default_value;
@@ -625,11 +630,12 @@ class ApiDumpSettings {
 
     inline static ApiDumpFormat readFormatOption(const char *option, ApiDumpFormat default_value) {
         const char *string_option = getLayerOption(option);
-        if (strcmp(string_option, "Text") == 0)
+        std::string lowered_option = ToLowerString(std::string(string_option));
+        if (lowered_option == "text")
             return ApiDumpFormat::Text;
-        else if (strcmp(string_option, "Html") == 0)
+        else if (lowered_option == "html")
             return ApiDumpFormat::Html;
-        else if (strcmp(string_option, "Json") == 0)
+        else if (lowered_option == "json")
             return ApiDumpFormat::Json;
         else
             return default_value;
