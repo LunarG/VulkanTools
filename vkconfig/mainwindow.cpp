@@ -377,8 +377,8 @@ void MainWindow::toolsResetToDefault(bool checked) {
     _settings_tree_manager.CleanupGUI();
     configurator.LoadAllConfigurations();
 
-    // Find the API dump and make it current if we are active
-    Configuration *active_configuration = configurator.FindConfiguration(QString("API dump"));
+    // Find the "Validation - Standard" configuration and make it current if we are active
+    Configuration *active_configuration = configurator.FindConfiguration(QString("Validation - Standard"));
     if (configurator._override_active) ChangeActiveConfiguration(active_configuration);
 
     LoadConfigurationList();

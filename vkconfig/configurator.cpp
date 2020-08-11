@@ -175,7 +175,7 @@ Configurator::Configurator()
         // We reinitialize state to reset any previous configuration and start fresh.
         if (saved_version < vku::Version::header_version) {
             settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, vku::Version::header_version.str().c_str());
-            settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "API dump");
+            settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "Validation - Standard");
             settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
         }
     }
