@@ -126,6 +126,7 @@ class MainWindow : public QMainWindow {
     void launchItemChanged(int index);
     void launchSetLogFile();
     void launchChangeLogFile(const QString &new_text);
+    void launchChangeWorkingFolder(const QString &new_text);
     void launchArgsEdited(const QString &new_text);
     void on_pushButtonLaunch_clicked();
     void on_pushButtonClearLog_clicked();

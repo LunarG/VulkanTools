@@ -186,8 +186,9 @@ void MainWindow::LoadConfigurationList() {
         item->configuration = configurator._available_configurations[i];
         ui->profileTree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
+        item->radio_button->setText("-");
         item->radio_button->setToolTip(configurator._available_configurations[i]->_description);
-        item->radio_button->setText(configurator._available_configurations[i]->_name);
+        item->setText(1, configurator._available_configurations[i]->_name);
 
         if (!configurator._available_configurations[i]->IsValid()) {
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
@@ -216,6 +217,7 @@ void MainWindow::LoadConfigurationList() {
     ui->profileTree->blockSignals(false);
     ChangeActiveConfiguration(configurator.GetActiveConfiguration());
     ui->profileTree->resizeColumnToContents(0);
+    ui->profileTree->resizeColumnToContents(1);
     ui->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
 }
 
@@ -449,13 +451,34 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         _settings_tree_manager.CleanupGUI();
         Configurator &configurator = Configurator::Get();
 
-        // We are renaming the file. Just delete the old one and save this
+        // We are renaming the file. Things can go wrong here...
+        // This is the name of the configuratin we are changing
         const QString full_path =
             configurator.GetPath(Configurator::ConfigurationPath) + "/" + configuration_item->configuration->_file;
-        remove(full_path.toUtf8().constData());
 
-        configuration_item->configuration->_name = configuration_item->text(1);
-        configuration_item->configuration->_file = configuration_item->text(1) + QString(".json");
+        // This is the new name we want to use
+        QString newName = configuration_item->text(1);
+
+        // Make sure we do not have a duplicate
+        Configuration *pDuplicate = configurator.FindConfiguration(newName);
+        if (pDuplicate != nullptr) {
+            QMessageBox alert;
+            alert.setText("This name is already taken by another configuration.");
+            alert.setWindowTitle("Duplicate Name");
+            alert.setIcon(QMessageBox::Warning);
+            alert.exec();
+
+            // Reset the name
+            ui->profileTree->blockSignals(true);
+            item->setText(1, configuration_item->configuration->_name);
+            ui->profileTree->blockSignals(false);
+            return;
+        }
+
+        // Proceed
+        remove(full_path.toUtf8().constData());
+        configuration_item->configuration->_name = newName;
+        configuration_item->configuration->_file = newName + QString(".json");
         configurator.SaveConfiguration(configuration_item->configuration);
         RestoreLastItem(configuration_item->configuration->_name.toUtf8().constData());
     }
@@ -585,6 +608,12 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             event->ignore();
             return;
         }
+    }
+
+    // If a child process is still running, destroy it
+    if (_launch_application) {
+        _launch_application->terminate();
+        _launch_application->waitForFinished();
     }
 
     _settings_tree_manager.CleanupGUI();
@@ -787,12 +816,16 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
 // Copy the current configuration
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     SaveLastItem();
+    Configurator &configurator = Configurator::Get();
+
+    // We need a new name that is not already used. Simply append '2' until
+    // it is unique.
     QString new_name = item->configuration->_name;
-    new_name += "2";
+    while (configurator.FindConfiguration(new_name) != nullptr) new_name += "2";
+
     _settings_tree_manager.CleanupGUI();
     item->configuration->_name = new_name;
 
-    Configurator &configurator = Configurator::Get();
     configurator.SaveConfiguration(item->configuration);
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
@@ -1005,6 +1038,7 @@ void MainWindow::SetupLaunchTree() {
     _launcher_log_file_edit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launchTree->setItemWidget(launcher_log_file_item, 1, _launcher_log_file_edit);
     connect(_launcher_log_file_edit, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeLogFile(const QString &)));
+    connect(_launcher_working, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeWorkingFolder(const QString &)));
 
     _launcher_log_file_button = new QPushButton();
     _launcher_log_file_button->setText("...");
@@ -1083,6 +1117,16 @@ void MainWindow::launchChangeLogFile(const QString &new_text) {
 }
 
 ////////////////////////////////////////////////////////////////////
+void MainWindow::launchChangeWorkingFolder(const QString &new_text) {
+    int current_application_index = _launcher_apps_combo->currentIndex();
+    Q_ASSERT(current_application_index >= 0);
+
+    Configurator &configurator = Configurator::Get();
+    configurator._overridden_application_list[current_application_index]->working_folder = new_text;
+    configurator.SaveOverriddenApplicationList();
+}
+
+////////////////////////////////////////////////////////////////////
 /// Launch app change
 void MainWindow::launchItemChanged(int application_index) {
     Configurator &configurator = Configurator::Get();
@@ -1148,7 +1192,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     // Context menus for layer configuration files
     if (target == ui->profileTree) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
-        if (right_click && event->type() == QEvent::ContextMenu) {
+        if (right_click) {  // && event->type() == QEvent::ContextMenu) {
             // Which item were we over?
             QTreeWidgetItem *configuration_item = ui->profileTree->itemAt(right_click->pos());
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
@@ -1409,7 +1453,11 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
 
     ui->pushButtonLaunch->setText(tr("Launch"));
 
+    QString logMsg = "Process terminated";
+    ui->logBrowser->append(logMsg);
+
     if (_log_file) {
+        _log_file->write(logMsg.toUtf8().constData(), logMsg.length());
         _log_file->close();
         delete _log_file;
         _log_file = nullptr;

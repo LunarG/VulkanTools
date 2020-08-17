@@ -1044,6 +1044,42 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> 
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+// Populate a tree widget with the custom layer paths and the layers that
+// are being used in them.
+void Configurator::BuildCustomLayerTree(QTreeWidget *pTreeWidget) {
+    // Populate the tree
+    pTreeWidget->clear();
+
+    // Building the list is not obvious. Each custom path may have multiple layers and there
+    // could be duplicates, which are not allowed. The layer paths are traversed in order, and
+    // layers are used on a first occurance basis. So we can't just show the layers that are
+    // present in the folder (because they may not be used). We have to list the custom layer paths
+    // and then look for layers that are already loaded that are from that path.
+    for (int custom_path_index = 0, n = GetCustomLayersPathSize(); custom_path_index < n; ++custom_path_index) {
+        // Custom path is the parent tree item
+        const QString &custom_path = QDir::toNativeSeparators(GetCustomLayersPath(custom_path_index));
+
+        QTreeWidgetItem *pItem = new QTreeWidgetItem();
+        pItem->setText(0, custom_path);
+        pTreeWidget->addTopLevelItem(pItem);
+
+        // Look for layers that are loaded that are also from this folder
+        for (int i = 0; i < _available_Layers.length(); i++) {
+            LayerFile *pCandidate = _available_Layers[i];
+
+            QFileInfo fileInfo = pCandidate->_layer_path;
+            QString path = QDir::toNativeSeparators(fileInfo.path());
+            if (path != custom_path) continue;
+
+            QTreeWidgetItem *pChild = new QTreeWidgetItem();
+            pChild->setText(0, pCandidate->_name);
+            pItem->addChild(pChild);
+        }
+        pItem->setExpanded(true);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 /// Find the settings for this named layer. If none found, return nullptr
 const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &layer_name) const {
@@ -1055,9 +1091,11 @@ const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &laye
 
 //////////////////////////////////////////////////////////////////////////////
 /// Search the list of loaded profiles and return a pointer
+/// Note that this function is case insensitive since names are derived from file names
 Configuration *Configurator::FindConfiguration(const QString &configuration_name) const {
     for (int i = 0, n = _available_configurations.size(); i < n; i++)
-        if (_available_configurations[i]->_name == configuration_name) return _available_configurations[i];
+        if (configuration_name.compare(_available_configurations[i]->_name, Qt::CaseInsensitive) == 0)
+            return _available_configurations[i];
     return nullptr;
 }
 
