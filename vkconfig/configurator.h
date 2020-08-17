@@ -34,6 +34,7 @@
 #include <QVector>
 #include <QSettings>
 #include <QDir>
+#include <QTreeWidget>
 
 #include <vulkan/vulkan.h>
 
@@ -176,6 +177,7 @@ class Configurator {
     void AppendCustomLayersPath(const QString& path);
     int GetCustomLayersPathSize() const;
     const QString& GetCustomLayersPath(int path_index) const;
+    void BuildCustomLayerTree(QTreeWidget* pTreeWidget);
 
     QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
                                 // a list of paths that should be searched first for
