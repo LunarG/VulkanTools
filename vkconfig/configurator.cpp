@@ -44,7 +44,8 @@ Application::Application(const QString &executable_full_path, const QString &arg
     : executable_path(QDir::toNativeSeparators(executable_full_path)),
       working_folder(QDir::toNativeSeparators(QFileInfo(executable_full_path).path())),
       arguments(arguments),
-      log_file(QDir::toNativeSeparators(working_folder + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
+      log_file(
+          QDir::toNativeSeparators(QDir::homePath() + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
       override_layers(true) {}
 
 const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {

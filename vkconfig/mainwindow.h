@@ -125,6 +125,7 @@ class MainWindow : public QMainWindow {
     void launchItemCollapsed(QTreeWidgetItem *item);
     void launchItemChanged(int index);
     void launchSetLogFile();
+    void launchSetWorkingFolder();
     void launchChangeLogFile(const QString &new_text);
     void launchChangeWorkingFolder(const QString &new_text);
     void launchArgsEdited(const QString &new_text);
