@@ -29,6 +29,8 @@
 #include <QRadioButton>
 #include <QApplication>
 
+#include <cassert>
+
 SettingsTreeManager::SettingsTreeManager()
     : _configuration_settings_tree(nullptr),
       _configuration(nullptr),
@@ -55,12 +57,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
     // There will be one top level item for each layer
     for (int layer_index = 0; layer_index < _configuration->_layers.size(); layer_index++) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, configuration->_layers[layer_index]->_name);
+        item->setText(0, configuration->_layers[layer_index]._name);
         _configuration_settings_tree->addTopLevelItem(item);
         _layer_items.push_back(item);
 
         // Handle the case were we get off easy. No settings.
-        if (_configuration->_layers[layer_index]->_layer_settings.size() == 0) {
+        if (_configuration->_layers[layer_index].settings.size() == 0) {
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setText(0, "No User Settings");
             item->addChild(child);
@@ -70,15 +72,15 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
         // There are settings.
         // Okay kid, this is where it gets complicated...
         // Is this Khronos? Khronos is special...
-        if (configuration->_layers[layer_index]->_name == QString("VK_LAYER_KHRONOS_validation")) {
-            _validation_layer_file = configuration->_layers[layer_index];
+        if (configuration->_layers[layer_index]._name == QString("VK_LAYER_KHRONOS_validation")) {
+            _validation_layer_file = &configuration->_layers[layer_index];
             _validation_tree_item = item;
             BuildKhronosTree();
             continue;
         }
 
         // Generic is the only one left
-        BuildGenericTree(item, configuration->_layers[layer_index]);
+        BuildGenericTree(item, &configuration->_layers[layer_index]);
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -129,26 +131,25 @@ void SettingsTreeManager::BuildKhronosTree() {
     _validation_preset_item->addChild(_validation_settingsitem);
 
     // This just finds the enables and disables
-    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem,
-                                                       _validation_layer_file->_layer_settings);
+    _validation_settings =
+        new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, _validation_layer_file->settings);
 
     // Look for the Debug Action and log file settings
-    LayerSettings *debug_action = nullptr;
-    LayerSettings *log_file = nullptr;
-    for (int i = 0; i < _validation_layer_file->_layer_settings.size(); i++) {
-        if (_validation_layer_file->_layer_settings[i]->settings_name == QString("debug_action"))
-            debug_action = _validation_layer_file->_layer_settings[i];
+    LayerSetting *debug_action = nullptr;
+    LayerSetting *log_file = nullptr;
+    for (int i = 0; i < _validation_layer_file->settings.size(); i++) {
+        if (_validation_layer_file->settings[i].name == QString("debug_action"))
+            debug_action = &_validation_layer_file->settings[i];
 
-        if (_validation_layer_file->_layer_settings[i]->settings_name == QString("log_filename"))
-            log_file = _validation_layer_file->_layer_settings[i];
+        if (_validation_layer_file->settings[i].name == QString("log_filename")) log_file = &_validation_layer_file->settings[i];
     }
 
-    Q_ASSERT(log_file != nullptr);
-    Q_ASSERT(debug_action != nullptr);
+    assert(log_file != nullptr);
+    assert(debug_action != nullptr);
 
     // Set them up
     QTreeWidgetItem *debug_action_item = new QTreeWidgetItem();
-    _validation_debug_action = new EnumSettingWidget(debug_action_item, debug_action);
+    _validation_debug_action = new EnumSettingWidget(debug_action_item, *debug_action);
     _validation_tree_item->addChild(debug_action_item);
     next_line = new QTreeWidgetItem();
     debug_action_item->addChild(next_line);
@@ -156,7 +157,7 @@ void SettingsTreeManager::BuildKhronosTree() {
 
     _validation_log_file_item = new QTreeWidgetItem();
     next_line = new QTreeWidgetItem();
-    _validation_log_file_widget = new FilenameSettingWidget(_validation_log_file_item, log_file);
+    _validation_log_file_widget = new FilenameSettingWidget(_validation_log_file_item, *log_file);
     connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
     debug_action_item->addChild(_validation_log_file_item);
     _validation_log_file_item->addChild(next_line);
@@ -171,40 +172,33 @@ void SettingsTreeManager::BuildKhronosTree() {
     }
 
     // This is looking for the report flags
-    for (int setting_index = 0; setting_index < _validation_layer_file->_layer_settings.size(); setting_index++) {
+    for (std::size_t setting_index = 0, setting_count = _validation_layer_file->settings.size(); setting_index < setting_count;
+         ++setting_index) {
+        LayerSetting &setting = _validation_layer_file->settings[setting_index];
+
         // Multi-enum - report flags only
-        if (_validation_layer_file->_layer_settings[setting_index]->settings_type == LAYER_SETTINGS_INCLUSIVE_LIST &&
-            _validation_layer_file->_layer_settings[setting_index]->settings_name == QString("report_flags")) {
+        if (setting.type == SETTING_INCLUSIVE_LIST && setting.name == QString("report_flags")) {
             QTreeWidgetItem *sub_category = new QTreeWidgetItem;
-            sub_category->setText(0, _validation_layer_file->_layer_settings[setting_index]->settings_prompt);
-            sub_category->setToolTip(0, _validation_layer_file->_layer_settings[setting_index]->settings_desc);
+            sub_category->setText(0, setting.label);
+            sub_category->setToolTip(0, setting.description);
             _validation_tree_item->addChild(sub_category);
 
-            for (int i = 0; i < _validation_layer_file->_layer_settings[setting_index]->settings_list_inclusive_value.size(); i++) {
+            for (int i = 0, n = setting.inclusive_values.size(); i < n; ++i) {
                 QTreeWidgetItem *child = new QTreeWidgetItem();
-                MultiEnumSetting *control =
-                    new MultiEnumSetting(_validation_layer_file->_layer_settings[setting_index],
-                                         _validation_layer_file->_layer_settings[setting_index]->settings_list_inclusive_value[i]);
-                control->setText(_validation_layer_file->_layer_settings[setting_index]->settings_list_inclusive_prompt[i]);
+                MultiEnumSetting *control = new MultiEnumSetting(&setting, setting.inclusive_values[i]);
+                control->setText(setting.inclusive_labels[i]);
                 sub_category->addChild(child);
                 _configuration_settings_tree->setItemWidget(child, 0, control);
                 control->setFont(_configuration_settings_tree->font());
                 connect(control, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             }
-
-            continue;
-        }
-    }
-
-    //////////////////////////////// VUID message filtering
-    for (int settings_index = 0; settings_index < _validation_layer_file->_layer_settings.size(); settings_index++) {
-        if (_validation_layer_file->_layer_settings[settings_index]->settings_type == LAYER_SETTINGS_VUID_FILTER) {
+        } else if (setting.type == SETTING_VUID_FILTER) {
             QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
 
             mute_message_item->setText(0, "Mute Message VUIDs");
             _validation_tree_item->addChild(mute_message_item);
 
-            _vuid_search_widget = new VUIDSearchWidget(_validation_layer_file->_layer_settings[settings_index]->settings_value);
+            _vuid_search_widget = new VUIDSearchWidget(setting.value);
             next_line = new QTreeWidgetItem();
             next_line->setSizeHint(0, QSize(0, 28));
             mute_message_item->addChild(next_line);
@@ -214,7 +208,7 @@ void SettingsTreeManager::BuildKhronosTree() {
             QTreeWidgetItem *pListItem = new QTreeWidgetItem();
             mute_message_item->addChild(pListItem);
             pListItem->setSizeHint(0, QSize(0, 200));
-            _mute_message_widget = new MuteMessageWidget(_validation_layer_file->_layer_settings[settings_index]);
+            _mute_message_widget = new MuteMessageWidget(&setting);
             _compound_widgets.push_back(pListItem);
             _configuration_settings_tree->setItemWidget(pListItem, 0, _mute_message_widget);
 
@@ -224,7 +218,6 @@ void SettingsTreeManager::BuildKhronosTree() {
             connect(_mute_message_widget, SIGNAL(itemRemoved(const QString &)), _vuid_search_widget,
                     SLOT(addToSearchList(const QString &)));
             connect(_mute_message_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()), Qt::QueuedConnection);
-            continue;
         }
     }
 
@@ -247,99 +240,89 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
     profileEdited();
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, LayerFile *layer_file) {
-    for (int layer_settings_index = 0, n = layer_file->_layer_settings.size(); layer_settings_index < n; layer_settings_index++) {
+void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer_file) {
+    assert(parent);
+    assert(layer_file);
+
+    for (std::size_t i = 0, n = layer_file->settings.size(); i < n; i++) {
+        LayerSetting &setting = layer_file->settings[i];
+
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
 
-        // True false?
-        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_BOOL) {
-            BoolSettingWidget *widget = new BoolSettingWidget(layer_file->_layer_settings[layer_settings_index]);
-            parent->addChild(setting_item);
-            _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
-            widget->setFont(_configuration_settings_tree->font());
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
+        switch (setting.type) {
+            default: {
+                assert(0);
+                break;
+            }
+            case SETTING_BOOL:          // True false?
+            case SETTING_BOOL_NUMERIC:  // True false? (with numeric output instead of text)
+            {
+                BoolSettingWidget *widget = new BoolSettingWidget(layer_file->settings[i], setting.type == SETTING_BOOL_NUMERIC);
+                parent->addChild(setting_item);
+                _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
+                widget->setFont(_configuration_settings_tree->font());
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+                break;
+            }
 
-        // True false? (with numeric output instead of text)
-        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_BOOL_NUMERIC) {
-            BoolSettingWidget *widget = new BoolSettingWidget(layer_file->_layer_settings[layer_settings_index], true);
-            parent->addChild(setting_item);
-            _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
-            widget->setFont(_configuration_settings_tree->font());
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
+            case SETTING_EXCLUSIVE_LIST:  // Combobox - enum - just one thing
+            {
+                parent->addChild(setting_item);
+                setting_item->setText(0, setting.label);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                setting_item->addChild(place_holder);
 
-        // Combobox - enum - just one thing
-        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_EXCLUSIVE_LIST) {
-            parent->addChild(setting_item);
-            setting_item->setText(0, layer_file->_layer_settings[layer_settings_index]->settings_prompt);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            setting_item->addChild(place_holder);
+                EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, setting);
+                _configuration_settings_tree->setItemWidget(place_holder, 0, enum_widget);
+                connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+                break;
+            }
 
-            EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, enum_widget);
-            connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
+            case SETTING_STRING:  // Raw text field
+            {
+                StringSettingWidget *widget = new StringSettingWidget(setting_item, setting);
+                parent->addChild(setting_item);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                setting_item->addChild(place_holder);
 
-        // Raw text field?
-        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_STRING) {
-            StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
+                _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+                break;
+            }
 
-        // Select a file?
-        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_FILE) {
-            FilenameSettingWidget *widget =
-                new FilenameSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            place_holder->setSizeHint(0, QSize(0, 28));
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            _compound_widgets.push_back(place_holder);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
+            case SETTING_LOAD_FILE:  // Load a file
+            case SETTING_SAVE_FILE:       // Save a file
+            {
+                FilenameSettingWidget *widget = new FilenameSettingWidget(setting_item, setting, setting.type == SETTING_SAVE_FILE);
+                parent->addChild(setting_item);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                place_holder->setSizeHint(0, QSize(0, 28));
+                setting_item->addChild(place_holder);
 
-        // Load a file?
-        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_LOAD_FILE) {
-            FilenameSettingWidget *widget =
-                new FilenameSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index], false);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            place_holder->setSizeHint(0, QSize(0, 28));
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            _compound_widgets.push_back(place_holder);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
+                _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
+                _compound_widgets.push_back(place_holder);
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+                break;
+            }
 
-        // Save to folder?
-        if (layer_file->_layer_settings[layer_settings_index]->settings_type == LAYER_SETTINGS_SAVE_FOLDER) {
-            FolderSettingWidget *widget = new FolderSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            place_holder->setSizeHint(0, QSize(0, 28));
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            _compound_widgets.push_back(place_holder);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
+            case SETTING_SAVE_FOLDER:  // Save to folder
+            {
+                FolderSettingWidget *widget = new FolderSettingWidget(setting_item, setting);
+                parent->addChild(setting_item);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                place_holder->setSizeHint(0, QSize(0, 28));
+                setting_item->addChild(place_holder);
+                _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
+                _compound_widgets.push_back(place_holder);
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+                break;
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////
         // Undefined... at least gracefuly display what the setting is
-        setting_item->setText(0, layer_file->_layer_settings[layer_settings_index]->settings_prompt);
-        setting_item->setToolTip(0, layer_file->_layer_settings[layer_settings_index]->settings_desc);
+        setting_item->setText(0, setting.label);
+        setting_item->setToolTip(0, setting.description);
         parent->addChild(setting_item);
     }
 }
@@ -362,22 +345,22 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     if (preset_configuration == nullptr) return;
 
     // Copy it all into the real layer and delete it
-    // Find the KhronosLaer
-    int validation_layer_index = -1;
-    for (int i = 0; i < _configuration->_layers.size(); i++)
-        if (_configuration->_layers[i] == _validation_layer_file) {
+    // Find the KhronosLayer
+    std::size_t validation_layer_index = -1;
+    for (std::size_t i = 0, n = _configuration->_layers.size(); i < n; ++i)
+        if (_configuration->_layers[i]._name == QString("VK_LAYER_KHRONOS_validation")) {
             validation_layer_index = i;
             break;
         }
 
-    Q_ASSERT(validation_layer_index != -1);
+    assert(validation_layer_index != -1);
 
     // Reset just specific layer settings
-    for (int i = 0; i < _configuration->_layers[validation_layer_index]->_layer_settings.size(); i++) {
-        if (_validation_layer_file->_layer_settings[i]->settings_name == QString("disables") ||
-            _validation_layer_file->_layer_settings[i]->settings_name == QString("enables"))
-            _validation_layer_file->_layer_settings[i]->settings_value =
-                preset_configuration->_layers[0]->_layer_settings[i]->settings_value;
+    for (std::size_t i = 0, n = _configuration->_layers[validation_layer_index].settings.size(); i < n; ++i) {
+        LayerSetting& setting = _validation_layer_file->settings[i];
+
+        if (setting.name == QString("disables") || setting.name == QString("enables"))
+            setting.value = preset_configuration->_layers[0].settings[i].value;
     }
 
     delete preset_configuration;  // Delete the pattern

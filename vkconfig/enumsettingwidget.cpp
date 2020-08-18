@@ -21,23 +21,26 @@
 
 #include "enumsettingwidget.h"
 
-EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSettings* layers_settings) {
-    _layer_settings = layers_settings;
-    item->setText(0, layers_settings->settings_prompt);
-    item->setToolTip(0, layers_settings->settings_desc);
+#include <cassert>
 
-    int nCurrSel = 0;
-    for (int i = 0; i < layers_settings->settings_list_exclusive_prompt.size(); i++) {
-        this->addItem(layers_settings->settings_list_exclusive_prompt[i]);
-        if (layers_settings->settings_list_exclusive_value[i] == layers_settings->settings_value) nCurrSel = i;
+EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : layer_setting(layer_setting) {
+    assert(item);
+    assert(&layer_setting);
+
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
+
+    for (int i = 0, n = layer_setting.exclusive_label.size(); i < n; ++i) {
+        this->addItem(layer_setting.exclusive_label[i]);
+        if (layer_setting.exclusive_values[i] == layer_setting.value) setCurrentIndex(i);
     }
-
-    setCurrentIndex(nCurrSel);
 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
 void EnumSettingWidget::indexChanged(int index) {
-    _layer_settings->settings_value = _layer_settings->settings_list_exclusive_value[index];
+    assert(index > 0 && index < layer_setting.exclusive_values.size());
+
+    layer_setting.value = layer_setting.exclusive_values[index];
     emit itemChanged();
 }

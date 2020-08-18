@@ -111,12 +111,8 @@ bool IsDLL32Bit(QString full_path) {
 // items contain a pointer to the actual layer.
 class QTreeWidgetItemWithLayer : public QTreeWidgetItem {
    public:
-    LayerFile *layer_file;
+    Layer *layer_file;
 };
-
-#define LAYER_APP_CONTROLLED 0
-#define LAYER_FORCED_ON 1
-#define LAYER_FORCED_OFF 2
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Edit a profile. There are three cases of profiles passed in through pProfileToEdit.
@@ -140,7 +136,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
         // We are editing an exisitng profile. Make a copy of it
         _configuration = configuration->DuplicateConfiguration();
 
-        QString title = tr("Select Vulkan Layers");
+        QString title("Select Vulkan Layers");
 
         // We now have a profile ready for editing, but only the layers that
         // are actually used are attached. Now, we need to add the remaining layers
@@ -170,32 +166,32 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
 }
 
 void dlgProfileEditor::AddMissingLayers(Configuration *configuration) {
-    int nRank = configuration->_layers.size();  // Next rank starts here
+    assert(configuration);
+
+    std::size_t nRank = configuration->_layers.size();  // Next rank starts here
 
     Configurator &configurator = Configurator::Get();
 
     for (int layer_index = 0, n = configurator._available_Layers.size(); layer_index < n; layer_index++) {
-        LayerFile *searched_layer_file = configurator._available_Layers[layer_index];
+        Layer *searched_layer_file = configurator._available_Layers[layer_index];
 
         // Look for through all layers
-        LayerFile *found_layer_file = configuration->FindLayer(searched_layer_file->_name, searched_layer_file->_layer_path);
-        if (found_layer_file != nullptr)  // It's in the list already
+        if (configuration->IsLayerAvailable(searched_layer_file->_name, searched_layer_file->_layer_path))  // It's in the list already
             continue;
 
+        auto next_layer = configuration->_layers.emplace(configuration->_layers.end(), Layer());
+
         // Nope, add it to the end
-        LayerFile *next_layer_file = new LayerFile();
-        searched_layer_file->CopyLayer(next_layer_file);
+        *next_layer = *searched_layer_file;
 
         // Add default settings to the layer...
-        configurator.LoadDefaultSettings(next_layer_file);
+        configurator.LoadDefaultSettings(*next_layer);
 
-        next_layer_file->_rank = nRank++;
-        next_layer_file->_enabled = false;  // Layers read from file are already active
+        next_layer->_rank = nRank++;
+        next_layer->_layer_state = LAYER_STATE_ALREADY_ACTIVE;  // Layers read from file are already active
 
         // Check the blacklist
-        if (configuration->_excluded_layers.contains(next_layer_file->_name)) next_layer_file->_disabled = true;
-
-        configuration->_layers.push_back(next_layer_file);
+        if (configuration->_excluded_layers.contains(next_layer->_name)) next_layer->_layer_state = LAYER_STATE_EXCLUDED;
     }
 }
 
@@ -253,7 +249,7 @@ void dlgProfileEditor::PopulateCustomTree() {
         ui->treeWidget->addTopLevelItem(item);
 
         // Look for layers that are in this folder. If any are found, add them to the tree
-        QVector<LayerFile *> custom_layers;
+        QVector<Layer *> custom_layers;
         configurator.LoadLayersFromPath(custom_path, custom_layers);
 
         for (int layer_index = 0; layer_index < custom_layers.size(); ++layer_index) {
@@ -271,7 +267,7 @@ void dlgProfileEditor::PopulateCustomTree() {
 
 //////////////////////////////////////////////////////////////////////////////
 /// Load all the available layers and initialize their settings
-void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
+void dlgProfileEditor::LoadLayerDisplay(std::size_t selection) {
     // Clear out the old
     ui->layerTree->clear();
 
@@ -283,7 +279,7 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
     // Loop through the layers. They are expected to be in order
     for (int layer_index = 0; layer_index < _configuration->_layers.size(); layer_index++) {
         QTreeWidgetItemWithLayer *item = new QTreeWidgetItemWithLayer();
-        item->layer_file = _configuration->_layers[layer_index];
+        item->layer_file = &_configuration->_layers[layer_index];
 
         QString decoratedName = item->layer_file->_name;
 
@@ -307,22 +303,20 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
 
         // Add the top level item
         ui->layerTree->addTopLevelItem(item);
-        if (layer_index == nSelection) ui->layerTree->setCurrentItem(item);
+        if (layer_index == selection) ui->layerTree->setCurrentItem(item);
 
         // Add a combo box. Default has gray background which looks hidious
-        TreeFriendlyComboBox *pUse = new TreeFriendlyComboBox(item);
-        ui->layerTree->setItemWidget(item, 1, pUse);
+        TreeFriendlyComboBox *use = new TreeFriendlyComboBox(item);
+        ui->layerTree->setItemWidget(item, 1, use);
         item->setSizeHint(1, QSize(comboWidth, comboHeight));
 
-        pUse->addItem("Application-Controlled");
-        pUse->addItem("Overridden / Forced On");
-        pUse->addItem("Excluded / Forced Off");
+        use->addItem("Application-Controlled");
+        use->addItem("Overridden / Forced On");
+        use->addItem("Excluded / Forced Off");
 
-        if (item->layer_file->_enabled) pUse->setCurrentIndex(1);
+        use->setCurrentIndex(item->layer_file->_layer_state);
 
-        if (item->layer_file->_disabled) pUse->setCurrentIndex(2);
-
-        connect(pUse, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
+        connect(use, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
 
         ///////////////////////////////////////////////////
         // Now for the children, which is just supplimental
@@ -419,30 +413,12 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
     // Fortunatly, changing the combo box also changes the selected item.
 
     QTreeWidgetItemWithLayer *tree_layer_item = dynamic_cast<QTreeWidgetItemWithLayer *>(item);
-    Q_ASSERT(tree_layer_item != nullptr);
+    assert(tree_layer_item != nullptr);
 
-    LayerFile *layer_file = tree_layer_item->layer_file;
-    Q_ASSERT(layer_file != nullptr);
+    Layer *layer_file = tree_layer_item->layer_file;
+    assert(layer_file != nullptr);
 
-    // Okay, easy now, just set the flags appropriately
-    switch (selection) {
-        case LAYER_APP_CONTROLLED:
-            layer_file->_enabled = false;
-            layer_file->_disabled = false;
-            //            settingsEditor.SetEnabled(false);
-            break;
-
-        case LAYER_FORCED_ON:
-            layer_file->_enabled = true;
-            layer_file->_disabled = false;
-            //            settingsEditor.SetEnabled(true);
-            break;
-
-        case LAYER_FORCED_OFF:
-            layer_file->_enabled = false;
-            layer_file->_disabled = true;
-            //            settingsEditor.SetEnabled(false);
-    }
+    layer_file->_layer_state = static_cast<LayerState>(selection);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -452,18 +428,17 @@ void dlgProfileEditor::accept() {
     _configuration->_name = ui->lineEditName->text();
 
     // Hard Fail: Cannot use two layers with the same name
-    bool bSameName = false;
+    bool same_layer = false;
     for (int i = 0; i < _configuration->_layers.size() - 1; i++)
         for (int j = i + 1; j < _configuration->_layers.size(); j++)
             // Layers active OR blacklisted cannot appear more than once
-            if ((_configuration->_layers[i]->_enabled || _configuration->_layers[i]->_disabled) &&
-                (_configuration->_layers[j]->_enabled || _configuration->_layers[j]->_disabled))
-                if (_configuration->_layers[i]->_name == _configuration->_layers[j]->_name) {
-                    bSameName = true;
+            if ((_configuration->_layers[i]._layer_state != LAYER_STATE_APPLICATION_CONTROLLED && _configuration->_layers[j]._layer_state != LAYER_STATE_APPLICATION_CONTROLLED))
+                if (_configuration->_layers[i]._name == _configuration->_layers[j]._name) {
+                    same_layer = true;
                     break;
                 }
 
-    if (bSameName) {
+    if (same_layer) {
         QMessageBox msg;
         msg.setInformativeText(tr("You cannot use two layers with the same name."));
         msg.setText(tr("Invalid Configuration!"));
@@ -484,14 +459,14 @@ void dlgProfileEditor::accept() {
 
     //////////////////////////////////////
     // Warn about blacklisting implicit layers
-    bool bWarn = false;
+    bool need_user_warning = false;
     for (int i = 0; i < _configuration->_layers.size(); i++)
-        if (_configuration->_layers[i]->_disabled && _configuration->_layers[i]->_layer_type == LAYER_TYPE_IMPLICIT) {
-            bWarn = true;
+        if (_configuration->_layers[i]._layer_state == LAYER_STATE_EXCLUDED && _configuration->_layers[i]._layer_type == LAYER_TYPE_IMPLICIT) {
+            need_user_warning = true;
             break;
         }
 
-    if (bWarn) {
+    if (need_user_warning) {
         QMessageBox warning;
         warning.setInformativeText(
             tr("You are saving a configuration that disables an implicit layer. Disabling an implicit layer may cause undefined "
@@ -536,17 +511,15 @@ void dlgProfileEditor::on_toolButtonUp_clicked() {
     if (selected_item->layer_file->_rank == 0) return;
 
     // This item goes up by one. The one before it goes down by one
-    int nBumped = selected_item->layer_file->_rank;
+    std::size_t bumped = selected_item->layer_file->_rank;
     selected_item->layer_file->_rank--;
     QTreeWidgetItemWithLayer *previous_item = dynamic_cast<QTreeWidgetItemWithLayer *>(ui->layerTree->itemAbove(selected_item));
     if (previous_item != nullptr) previous_item->layer_file->_rank++;
 
     // The two rank positons should also by their location in the QVector layers. Swap them
-    LayerFile *temp_layer_file = _configuration->_layers[nBumped];
-    _configuration->_layers[nBumped] = _configuration->_layers[nBumped - 1];
-    _configuration->_layers[nBumped - 1] = temp_layer_file;
+    std::swap(_configuration->_layers[bumped], _configuration->_layers[bumped - 1]);
 
-    LoadLayerDisplay(nBumped - 1);
+    LoadLayerDisplay(bumped - 1u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -560,15 +533,13 @@ void dlgProfileEditor::on_toolButtonDown_clicked() {
     if (selected_item->layer_file->_rank == (_configuration->_layers.size() - 1)) return;
 
     // This item goes down by one. The one after it goes up by one
-    int nBumped = selected_item->layer_file->_rank;
+    std::size_t bumped = selected_item->layer_file->_rank;
     selected_item->layer_file->_rank++;
     QTreeWidgetItemWithLayer *previous_item = dynamic_cast<QTreeWidgetItemWithLayer *>(ui->layerTree->itemBelow(selected_item));
     if (previous_item != nullptr) previous_item->layer_file->_rank--;
 
     // The two rank positons should also by their location in the QVector layers. Swap them
-    LayerFile *temp_layer_file = _configuration->_layers[nBumped];
-    _configuration->_layers[nBumped] = _configuration->_layers[nBumped + 1];
-    _configuration->_layers[nBumped + 1] = temp_layer_file;
+    std::swap(_configuration->_layers[bumped], _configuration->_layers[bumped + 1]);
 
-    LoadLayerDisplay(nBumped + 1);
+    LoadLayerDisplay(bumped + 1u);
 }

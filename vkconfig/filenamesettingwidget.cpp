@@ -24,15 +24,15 @@
 
 ////////////////////////////////////////////////////////////////////////////
 // This can be used to specify a 'load' file or a 'save' file. Save is true by default
-FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings, bool save) : QWidget(nullptr) {
-    _layer_settings = layer_settings;
-    _save_file = save;
+FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting, bool save_file) : QWidget(nullptr), _layer_setting(layer_setting), _save_file(save_file) {
+     assert(item);
+     assert(&layer_setting);
 
-    item->setText(0, layer_settings->settings_prompt);
-    item->setToolTip(0, layer_settings->settings_desc);
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_settings->settings_value);
+    _line_edit->setText(layer_setting.value);
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -59,19 +59,19 @@ void FilenameSettingWidget::browseButtonClicked() {
     QString file;
 
     if (_save_file)
-        file = QFileDialog::getSaveFileName(_push_button, tr("Select File"), ".");
+        file = QFileDialog::getSaveFileName(_push_button, "Select File", ".");
     else
-        file = QFileDialog::getOpenFileName(_push_button, tr("Select file"), ".");
+        file = QFileDialog::getOpenFileName(_push_button, "Select file", ".");
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        _layer_settings->settings_value = file;
+        _layer_setting.value = file;
         _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
 void FilenameSettingWidget::textFieldChanged(const QString& newText) {
-    _layer_settings->settings_value = newText;
+    _layer_setting.value = newText;
     emit itemChanged();
 }

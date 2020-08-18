@@ -182,16 +182,17 @@ void MainWindow::LoadConfigurationList() {
 
     Configurator &configurator = Configurator::Get();
 
-    for (int i = 0, n = configurator._available_configurations.size(); i < n; i++) {
+    for (std::size_t i = 0, n = configurator._available_configurations.size(); i < n; i++) {
         // Add to list
         ConfigurationListItem *item = new ConfigurationListItem();
-        item->configuration = configurator._available_configurations[i];
+        item->configuration = &configurator._available_configurations[i];
+
         ui->profileTree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-        item->radio_button->setToolTip(configurator._available_configurations[i]->_description);
-        item->radio_button->setText(configurator._available_configurations[i]->_name);
+        item->radio_button->setToolTip(item->configuration->_description);
+        item->radio_button->setText(item->configuration->_name);
 
-        if (!configurator._available_configurations[i]->IsValid()) {
+        if (!item->configuration->IsValid()) {
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
             item->radio_button->setEnabled(false);
             item->radio_button->setChecked(false);
@@ -203,8 +204,8 @@ void MainWindow::LoadConfigurationList() {
         // function, this configuration may no longer be active. So double check that. Simply,
         // if you make a current config invalid and come back in... it can't be active any
         // longer
-        if (active_configuration_name == configurator._available_configurations[i]->_name) {
-            if (configurator._available_configurations[i]->IsValid())
+        if (active_configuration_name == item->configuration->_name) {
+            if (item->configuration->IsValid())
                 item->radio_button->setChecked(true);
             else
                 configurator.SetActiveConfiguration(nullptr);
@@ -678,21 +679,21 @@ ConfigurationListItem *MainWindow::SaveLastItem() {
     ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->currentItem());
     if (item == nullptr) return nullptr;
 
-    _lastItem = item->configuration->_name;
+    _last_item = item->configuration->_name;
     return item;
 }
 
 ////////////////////////////////////////////////////////////////
 // Partner for above function. Returns false if the last config
 // could not be found.
-bool MainWindow::RestoreLastItem(const char *szOverride) {
-    if (szOverride != nullptr) _lastItem = szOverride;
+bool MainWindow::RestoreLastItem(const char *override) {
+    if (override != nullptr) _last_item = override;
 
     // Reset the current item
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
         if (item != nullptr)
-            if (item->configuration->_name == _lastItem) {
+            if (item->configuration->_name == _last_item) {
                 ui->profileTree->setCurrentItem(item);
                 return true;
             }
@@ -790,7 +791,7 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     SaveLastItem();
     QString new_name = item->configuration->_name;
-    new_name += "2";
+    new_name += "(Duplicated)";
     _settings_tree_manager.CleanupGUI();
     item->configuration->_name = new_name;
 
@@ -802,9 +803,9 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     // Good enough? Nope, I want to select it and edit the name.
     // Find it.
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        ConfigurationListItem *pItem = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (pItem->configuration->_name == new_name) {
-            ui->profileTree->editItem(pItem, 1);
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
+        if (item->configuration->_name == new_name) {
+            ui->profileTree->editItem(item, 1);
             return;
         }
     }

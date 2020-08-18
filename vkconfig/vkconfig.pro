@@ -36,7 +36,7 @@ SOURCES += \
     filenamesettingwidget.cpp \
     foldersettingwidget.cpp \
     khronossettingsadvanced.cpp \
-    layerfile.cpp \
+    layer.cpp \
     main.cpp \
     mainwindow.cpp \
     multienumsetting.cpp \
@@ -65,7 +65,7 @@ HEADERS += \
     filenamesettingwidget.h \
     foldersettingwidget.h \
     khronossettingsadvanced.h \
-    layerfile.h \
+    layer.h \
     mainwindow.h \
     multienumsetting.h \
     mutemessagewidget.h \

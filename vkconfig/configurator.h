@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "layer.h"
 #include "configuration.h"
 
 #ifdef _WIN32
@@ -36,6 +36,8 @@
 #include <QDir>
 
 #include <vulkan/vulkan.h>
+
+#include <vector>
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 #define APP_SHORT_NAME "vkconfig"
@@ -88,7 +90,7 @@ class PathFinder {
 // profiles.
 struct LayerSettingsDefaults {
     QString layer_name;                        // Name of layer
-    QVector<LayerSettings*> default_settings;  // Default settings for this layer
+    std::vector<LayerSetting> settings;  // Default settings for this layer
 };
 
 //////////////////////////////////////////////////////////
@@ -200,7 +202,7 @@ class Configurator {
     QVector<LayerSettingsDefaults*> _default_layers_settings;
     void LoadDefaultLayerSettings();
     const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
-    void LoadDefaultSettings(LayerFile* empty_layer);
+    void LoadDefaultSettings(Layer& blank_layer);
 
     ////////////////////////////////////////////////////////////////////////
     // Look for all installed layers. This contains their path, version info, etc.
@@ -208,22 +210,15 @@ class Configurator {
     // in the above (defaultLayerSettings). The binding of a layer with it's
     // particular settings is done in the profile (Configuration - in configuration list).
     // This includes all found implicit, explicit, or layers found in custom folders
-    QVector<LayerFile*> _available_Layers;  // All the found layers, lumped together
+    QVector<Layer*> _available_Layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
-    const LayerFile* FindLayerNamed(QString layer_name);
-    void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list);
+    const Layer* FindLayerNamed(QString layer_name);
+    void LoadLayersFromPath(const QString& path, QVector<Layer*>& layer_list);
 
-    QVector<Configuration*> _available_configurations;
-
-    // We need to push and pop a temporary environment.
-    // The stack is only one deep...
-    Configuration* _saved_configuration;
-
-    void PushConfiguration(Configuration* configuration);
-    void PopConfiguration();
+    std::vector<Configuration> _available_configurations;
 
     Configuration* CreateEmptyConfiguration();
-    Configuration* FindConfiguration(const QString& configuration_name) const;
+    Configuration* FindConfiguration(const QString& configuration_name);
     Configuration* LoadConfiguration(const QString& path_configuration);  // Load .profile descriptor
     void LoadAllConfigurations();                                         // Load all the .profile files found
     bool SaveConfiguration(Configuration* configuration);                 // Write .profile descriptor
@@ -254,8 +249,8 @@ class Configurator {
     void ClearLayerLists();
 
 #ifdef _WIN32
-    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<LayerFile*>& layerList, LayerType type);
-    void LoadRegistryLayers(const QString& path, QVector<LayerFile*>& layerList, LayerType type);
+    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<Layer*>& layerList, LayerType type);
+    void LoadRegistryLayers(const QString& path, QVector<Layer*>& layerList, LayerType type);
 
     void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
     void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);

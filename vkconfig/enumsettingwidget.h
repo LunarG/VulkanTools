@@ -15,13 +15,13 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
 
-#include "layerfile.h"
+#include "layer.h"
 
 #include <QObject>
 #include <QWidget>
@@ -31,10 +31,10 @@
 class EnumSettingWidget : public QComboBox {
     Q_OBJECT
    public:
-    EnumSettingWidget(QTreeWidgetItem *item, LayerSettings *layer_settings);
+    EnumSettingWidget(QTreeWidgetItem *item, LayerSetting& layer_setting);
 
    private:
-    LayerSettings *_layer_settings;
+    LayerSetting& layer_setting;
 
    public Q_SLOTS:
     void indexChanged(int index);

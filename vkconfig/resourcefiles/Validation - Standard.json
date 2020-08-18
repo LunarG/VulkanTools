@@ -1,4 +1,5 @@
 {
+    "file_format_version" : "1.2.148",
     "Validation - Standard": {
         "blacklisted_layers": [
         ],
@@ -17,7 +18,13 @@
                         "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
                         "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": "Debug Output"
                     },
-                    "type": "enum"
+                    "type": "enum",
+                    "platform_exclusion": {
+                        "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": [
+                            "Linux",
+                            "macOS"
+                        ]
+                    }
                 },
                 "disables": {
                     "default": [

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "layer.h"
 
 #include <QWidget>
 #include <QTreeWidgetItem>
@@ -33,12 +33,12 @@
 class FilenameSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit FilenameSettingWidget(QTreeWidgetItem *item, LayerSettings *layer_settings, bool save = true);
+    explicit FilenameSettingWidget(QTreeWidgetItem *item, LayerSetting& layer_setting, bool save = true);
 
    private:
     virtual void resizeEvent(QResizeEvent *event) override;
 
-    LayerSettings *_layer_settings;
+    LayerSetting& _layer_setting;
     QLineEdit *_line_edit;
     QPushButton *_push_button;
     bool _save_file;

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "layer.h"
 
 #include <QObject>
 #include <QWidget>
@@ -31,10 +31,10 @@
 class StringSettingWidget : public QLineEdit {
     Q_OBJECT
    public:
-    StringSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings);
+    StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting);
 
    private:
-    LayerSettings* _layer_settings;
+    LayerSetting& _layer_setting;
 
    public Q_SLOTS:
     void itemEdited(const QString& newString);

@@ -41,7 +41,7 @@ class dlgProfileEditor : public QDialog {
     ~dlgProfileEditor();
 
     // Load all layers into the list box
-    void LoadLayerDisplay(int selection = -1);
+    void LoadLayerDisplay(std::size_t selection = -1);
 
    private:
     Ui::dlgProfileEditor *ui;

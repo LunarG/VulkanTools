@@ -21,15 +21,19 @@
 
 #include "stringsettingwidget.h"
 
-StringSettingWidget::StringSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) {
-    _layer_settings = pLayerSetting;
-    pItem->setText(0, pLayerSetting->settings_prompt);
-    pItem->setToolTip(0, pLayerSetting->settings_desc);
-    this->setText(pLayerSetting->settings_value);
+#include <cassert>
+
+StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+    assert(item);
+    assert(&layer_setting);
+
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
+    this->setText(layer_setting.value);
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void StringSettingWidget::itemEdited(const QString& newString) {
-    _layer_settings->settings_value = newString;
+void StringSettingWidget::itemEdited(const QString& value) {
+    _layer_setting.value = value;
     emit itemChanged();
 }

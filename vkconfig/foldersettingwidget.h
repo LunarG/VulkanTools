@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "layer.h"
 
 #include <QWidget>
 #include <QTreeWidgetItem>
@@ -33,18 +33,18 @@
 class FolderSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSettings *layer_settings);
+    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSetting &layer_setting);
 
     virtual void resizeEvent(QResizeEvent *event) override;
 
    private:
-    LayerSettings *_layer_settings;
+    LayerSetting &_layer_setting;
     QLineEdit *_line_edit;
     QPushButton *_push_button;
 
    public Q_SLOTS:
     void browseButtonClicked();
-    void textFieldChanged(const QString &new_text);
+    void textFieldChanged(const QString &value);
 
    Q_SIGNALS:
     void itemChanged();

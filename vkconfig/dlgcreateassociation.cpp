@@ -249,7 +249,7 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
     if (!need_checkbox) return;
 
     // Loop through the whole list and reset the checkboxes
-    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++) {
+    for (int i = 0, n = ui->treeWidget->topLevelItemCount(); i < n; i++) {
         QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
         QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, 0));
         Q_ASSERT(check_box != nullptr);

@@ -21,10 +21,12 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "layer.h"
 
 #include <QString>
 #include <QStringList>
+
+#include <vector>
 
 // json file preset_index must match the preset enum values
 enum ValidationPreset {
@@ -46,7 +48,6 @@ enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 
 class Configuration {
    public:
     Configuration();
-    ~Configuration();
 
     QString _name;                   // User readable display of the profile name (may contain spaces)
                                      // This is the same as the filename, but with the .json stripped off.
@@ -56,18 +57,16 @@ class Configuration {
     ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     // A configuration is nothing but a list of layers and their settings in truth
-    QVector<LayerFile *> _layers;
+    std::vector<Layer> _layers;
 
     QStringList _excluded_layers;  // Just the names of blacklisted layers
 
-    LayerFile *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
-    LayerFile *FindLayerNamed(const QString &layer_name) const;  // Find the layer if it exists, only care about the name
+    bool IsLayerAvailable(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
+    Layer *FindLayerNamed(const QString &layer_name);  // Find the layer if it exists, only care about the name
 
     Configuration *DuplicateConfiguration();  // Copy a profile so we can mess with it
 
     void CollapseConfiguration();  // Remove unused layers and settings, set blacklist
-
-    LayerFile *GetKhronosLayer();  // Retrieve the Khronos validation layer if it is included
 
     bool IsValid() { return _all_layers_available; }
 

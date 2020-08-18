@@ -95,7 +95,7 @@ class MainWindow : public QMainWindow {
 
     ConfigurationListItem *SaveLastItem(void);
     bool RestoreLastItem(const char *szOverride = nullptr);
-    QString _lastItem;
+    QString _last_item;
 
     void RemoveClicked(ConfigurationListItem *item);
     void RenameClicked(ConfigurationListItem *item);

@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
@@ -26,15 +26,15 @@
 #include <QTreeWidgetItem>
 #include <QString>
 
-#include "layerfile.h"
+#include "layer.h"
 
 class MultiEnumSetting : public QCheckBox {
     Q_OBJECT
    public:
-    MultiEnumSetting(LayerSettings *layer_settings, QString thiss_setting);
+    MultiEnumSetting(LayerSetting *layer_settings, QString thiss_setting);
 
    private:
-    LayerSettings *_layer_settings;
+    LayerSetting *_layer_settings;
     QString _my_setting;
 
    public Q_SLOTS:

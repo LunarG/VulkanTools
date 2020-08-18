@@ -1,4 +1,5 @@
 {
+    "file_format_version" : "1.1.0",
     "Frame Capture - First two frames": {
         "blacklisted_layers": [
         ],

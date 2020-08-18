@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "layer.h"
 
 #include <QObject>
 #include <QWidget>
@@ -30,11 +30,11 @@
 class BoolSettingWidget : public QCheckBox {
     Q_OBJECT
    public:
-    BoolSettingWidget(LayerSettings *layer_settings, bool numeric = false);
+    BoolSettingWidget(LayerSetting& layer_setting, bool numeric_output = false);
 
    private:
     bool _numeric_output;
-    LayerSettings *_layer_settings;
+    LayerSetting& _layer_setting;
 
    public Q_SLOTS:
     void itemToggled();
