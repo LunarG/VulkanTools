@@ -1004,11 +1004,11 @@ void MainWindow::SetupLaunchTree() {
     ui->launchTree->setItemWidget(launcher_folder_item, 1, _launcher_working);
     _launcher_working->setReadOnly(false);
 
-    // Comming soon
-    //    pLaunchWorkingFolderButton = new QPushButton();
-    //    pLaunchWorkingFolderButton->setText("...");
-    //    pLaunchWorkingFolderButton->setMinimumWidth(32);
-    //    ui->launchTree->setItemWidget(pLauncherFolder, 2, pLaunchWorkingFolderButton);
+    _launchWorkingFolderButton = new QPushButton();
+    _launchWorkingFolderButton->setText("...");
+    _launchWorkingFolderButton->setMinimumWidth(32);
+    ui->launchTree->setItemWidget(launcher_folder_item, 2, _launchWorkingFolderButton);
+    connect(_launchWorkingFolderButton, SIGNAL(clicked()), this, SLOT(launchSetWorkingFolder()));
 
     //////////////////////////////////////////////////////////////////
     // Command line arguments
@@ -1101,6 +1101,25 @@ void MainWindow::launchSetLogFile() {
     configurator._overridden_application_list[current_application_index]->log_file = log_file;
 
     _launcher_log_file_edit->setText(log_file);
+
+    configurator.SaveOverriddenApplicationList();
+}
+
+////////////////////////////////////////////////////////////////////
+void MainWindow::launchSetWorkingFolder() {
+    int current_application_index = _launcher_apps_combo->currentIndex();
+    Q_ASSERT(current_application_index >= 0);
+
+    const QString working_folder =
+        QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, tr("Set Working Folder To..."), ""));
+
+    // Do nothing if the user cancels out.
+    if (working_folder.isEmpty()) return;
+
+    Configurator &configurator = Configurator::Get();
+    configurator._overridden_application_list[current_application_index]->working_folder = working_folder;
+
+    _launcher_working->setText(working_folder);
 
     configurator.SaveOverriddenApplicationList();
 }
