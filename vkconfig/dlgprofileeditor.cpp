@@ -188,7 +188,7 @@ void dlgProfileEditor::AddMissingLayers(Configuration *configuration) {
         configurator.LoadDefaultSettings(*next_layer);
 
         next_layer->_rank = nRank++;
-        next_layer->_layer_state = LAYER_STATE_ALREADY_ACTIVE;  // Layers read from file are already active
+        next_layer->_layer_state = LAYER_STATE_APPLICATION_CONTROLLED;  // Layers read from file are already active
 
         // Check the blacklist
         if (configuration->_excluded_layers.contains(next_layer->_name)) next_layer->_layer_state = LAYER_STATE_EXCLUDED;

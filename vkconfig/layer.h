@@ -71,8 +71,7 @@ struct LayerSetting {
 enum LayerState {
     LAYER_STATE_APPLICATION_CONTROLLED = 0,  // The Vulkan application configured this layer at will
     LAYER_STATE_OVERRIDDEN = 1,              // Force on/override this layer and configure it regarless of the Vulkan application
-    LAYER_STATE_EXCLUDED = 2,                // Force off/exclude this layer regarless of the Vulkan application
-    LAYER_STATE_ALREADY_ACTIVE
+    LAYER_STATE_EXCLUDED = 2                 // Force off/exclude this layer regarless of the Vulkan application
 };
 
 void RemoveString(QString& delimitedString, QString value);
