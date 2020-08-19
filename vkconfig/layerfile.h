@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "../vkconfig_core/layer_setting.h"
+
 #include <QObject>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -33,37 +35,6 @@
 #include <QString>
 #include <QVector>
 #include <QVariant>
-
-typedef enum { LAYER_TYPE_EXPLICIT = 0, LAYER_TYPE_IMPLICIT, LAYER_TYPE_CUSTOM } LayerType;
-
-typedef enum {
-    LAYER_SETTINGS_STRING = 0,
-    LAYER_SETTINGS_FILE,
-    LAYER_SETTINGS_LOAD_FILE,
-    LAYER_SETTINGS_SAVE_FOLDER,
-    LAYER_SETTINGS_BOOL,
-    LAYER_SETTINGS_BOOL_NUMERIC,
-    LAYER_SETTINGS_EXCLUSIVE_LIST,
-    LAYER_SETTINGS_INCLUSIVE_LIST,
-    LAYER_SETTINGS_RANGE_INT,
-    LAYER_SETTINGS_VUID_FILTER,
-} LayerSettingsType;
-
-// This structure is copied by assignment elsewhere, so do not add
-// any pointers to it please...
-struct LayerSettings {
-    QString settings_name;                       // Name of the setting the layer looks for (programatic variable name)
-    QString settings_prompt;                     // Short name to prompt end user
-    QString settings_desc;                       // Human version, describes the setting
-    LayerSettingsType settings_type;             // The data type
-    QVariant settings_max_value;                 // For range based
-    QVariant settings_min_value;                 // For range based
-    QStringList settings_list_exclusive_value;   // List of exclusive items
-    QStringList settings_list_exclusive_prompt;  // List of exclusive item prompts
-    QStringList settings_list_inclusive_value;   // List of non-exclusive items (more than one item can be selected)
-    QStringList settings_list_inclusive_prompt;  // List of non-exclusive item prompts (more than one item can be selected)
-    QString settings_value;                      // Default value as a string
-};
 
 void RemoveString(QString& delimitedString, QString value);
 void AddString(QString& delimitedString, QString value);
@@ -86,7 +57,7 @@ class LayerFile : public QObject {
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    QVector<LayerSettings*> _layer_settings;
+    QVector<LayerSetting*> _layer_settings;
 
     bool _enabled;   // When used in a profile, is this one active?
     bool _disabled;  // When used in a profile, is this one disabled?
@@ -113,7 +84,7 @@ class LayerFile : public QObject {
         destination_layer_file->_layer_path = _layer_path;
 
         for (int i = 0; i < _layer_settings.length(); i++) {
-            LayerSettings* pSettings = new LayerSettings();
+            LayerSetting* pSettings = new LayerSetting();
             *pSettings = *_layer_settings[i];
             destination_layer_file->_layer_settings.push_back(pSettings);
         }
@@ -123,5 +94,5 @@ class LayerFile : public QObject {
     bool ReadLayerFile(QString full_path_to_file, LayerType layer_type);
 
     // Utility, may move outside this class....
-    static void LoadSettingsFromJson(QJsonObject& layer_settings_descriptors, QVector<LayerSettings*>& layers);
+    static void LoadSettingsFromJson(QJsonObject& layer_settings_descriptors, QVector<LayerSetting*>& layers);
 };

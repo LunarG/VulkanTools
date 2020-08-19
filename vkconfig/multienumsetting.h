@@ -31,10 +31,10 @@
 class MultiEnumSetting : public QCheckBox {
     Q_OBJECT
    public:
-    MultiEnumSetting(LayerSettings *layer_settings, QString thiss_setting);
+    MultiEnumSetting(LayerSetting *layer_settings, QString thiss_setting);
 
    private:
-    LayerSettings *_layer_settings;
+    LayerSetting *_layer_settings;
     QString _my_setting;
 
    public Q_SLOTS:

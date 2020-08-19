@@ -21,14 +21,14 @@
 
 #include "foldersettingwidget.h"
 
-FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings) : QWidget(nullptr) {
+FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* item, LayerSetting* layer_settings) : QWidget(nullptr) {
     _layer_settings = layer_settings;
 
-    item->setText(0, layer_settings->settings_prompt);
-    item->setToolTip(0, layer_settings->settings_desc);
+    item->setText(0, layer_settings->label);
+    item->setToolTip(0, layer_settings->description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_settings->settings_value);
+    _line_edit->setText(_layer_settings->value);
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -56,13 +56,13 @@ void FolderSettingWidget::browseButtonClicked(void) {
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        _layer_settings->settings_value = file;
+        _layer_settings->value = file;
         _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
 void FolderSettingWidget::textFieldChanged(const QString& newText) {
-    _layer_settings->settings_value = newText;
+    _layer_settings->value = newText;
     emit itemChanged();
 }

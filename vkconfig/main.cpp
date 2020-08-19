@@ -19,14 +19,16 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "mainwindow.h"
+#include "appsingleton.h"
+
+#include "../vkconfig_core/command_line.h"
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QMessageBox>
 
-#include "mainwindow.h"
-#include "appsingleton.h"
-#include "command_line.h"
-#include "test.h"
+#ifndef UNIT_TEST
 
 int main(int argc, char* argv[]) {
     const CommandLine command_line(argc, argv);
@@ -101,8 +103,7 @@ int main(int argc, char* argv[]) {
             command_line.usage();
             return 0;
         }
-        case CommandLine::ModeRunTest: {
-            return test();
-        }
     }
 }
+
+#endif  // UNIT_TEST

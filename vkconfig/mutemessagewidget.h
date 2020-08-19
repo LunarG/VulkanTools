@@ -21,21 +21,21 @@
 
 #pragma once
 
+#include "layerfile.h"
+
 #include <QWidget>
 #include <QListWidget>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QResizeEvent>
 
-#include <layerfile.h>
-
 class MuteMessageWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit MuteMessageWidget(LayerSettings *layer_settings);
+    explicit MuteMessageWidget(LayerSetting *layer_settings);
 
    private:
-    LayerSettings *_layer_settings;
+    LayerSetting *_layer_settings;
     QListWidget *_list_widget;
     QPushButton *_remove_button;
 

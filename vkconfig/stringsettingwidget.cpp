@@ -21,15 +21,15 @@
 
 #include "stringsettingwidget.h"
 
-StringSettingWidget::StringSettingWidget(QTreeWidgetItem* pItem, LayerSettings* pLayerSetting) {
+StringSettingWidget::StringSettingWidget(QTreeWidgetItem* pItem, LayerSetting* pLayerSetting) {
     _layer_settings = pLayerSetting;
-    pItem->setText(0, pLayerSetting->settings_prompt);
-    pItem->setToolTip(0, pLayerSetting->settings_desc);
-    this->setText(pLayerSetting->settings_value);
+    pItem->setText(0, pLayerSetting->label);
+    pItem->setToolTip(0, pLayerSetting->description);
+    this->setText(pLayerSetting->value);
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
 void StringSettingWidget::itemEdited(const QString& newString) {
-    _layer_settings->settings_value = newString;
+    _layer_settings->value = newString;
     emit itemChanged();
 }

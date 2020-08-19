@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10.2)
 
+enable_testing()
+
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
 
 project (VULKAN_TOOLS)
@@ -222,6 +224,10 @@ if(BUILD_LAYERSVT)
 endif()
 
 if(BUILD_LAYERMGR)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    add_subdirectory(external/googletest)
+
+    add_subdirectory(vkconfig_core)
     add_subdirectory(vkconfig)
 endif()
 
