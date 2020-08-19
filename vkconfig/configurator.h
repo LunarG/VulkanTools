@@ -88,8 +88,8 @@ class PathFinder {
 // to reset or initialize the a full layer definition for the
 // profiles.
 struct LayerSettingsDefaults {
-    QString layer_name;                        // Name of layer
-    QVector<LayerSettings*> default_settings;  // Default settings for this layer
+    QString layer_name;                       // Name of layer
+    QVector<LayerSetting*> default_settings;  // Default settings for this layer
 };
 
 //////////////////////////////////////////////////////////

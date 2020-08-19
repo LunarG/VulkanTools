@@ -24,6 +24,9 @@ Release: DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
+    ..\vkconfig_core\command_line.cpp \
+    ..\vkconfig_core\util.cpp \
+    ..\vkconfig_core\version.cpp \
     appsingleton.cpp \
     boolsettingwidget.cpp \
     dlgabout.cpp \
@@ -47,12 +50,12 @@ SOURCES += \
     stringsettingwidget.cpp \
     treefriendlycombobox.cpp \
     vuidsearchwidget.cpp \
-    configurator.cpp \
-    command_line.cpp \
-    vku.cpp \
-    test.cpp
+    configurator.cpp
 
 HEADERS += \
+    ..\vkconfig_core\command_line.h \
+    ..\vkconfig_core\util.h \
+    ..\vkconfig_core\version.h \
     appsingleton.h \
     boolsettingwidget.h \
     dlgabout.h \
@@ -75,10 +78,7 @@ HEADERS += \
     stringsettingwidget.h \
     treefriendlycombobox.h \
     vuidsearchwidget.h \
-    configurator.h \
-    command_line.h \
-    vku.h \
-    test.h
+    configurator.h
 
 FORMS += \
     dlgabout.ui \

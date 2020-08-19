@@ -44,8 +44,9 @@ else()
         else()
             add_executable(vkconfig ${FILES_ALL} ${FILES_UI})
         endif()
+
         target_include_directories(vkconfig PRIVATE "${Vulkan_INCLUDE_DIR}")
-        target_link_libraries(vkconfig Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+        target_link_libraries(vkconfig vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
         target_compile_definitions(vkconfig PRIVATE ${VKCONFIG_DEFINITIONS})
 
         install(TARGETS vkconfig DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -58,7 +59,6 @@ else()
             message("Will run ${WINDEPLOYQT_EXE} at ${CMAKE_INSTALL_FULL_BINDIR}/vkconfig.exe")
             install(CODE "execute_process(COMMAND ${WINDEPLOYQT_EXE} ${CMAKE_INSTALL_FULL_BINDIR}/vkconfig.exe)")
         endif()
-
     else()
         include(macOS/vkconfig.cmake)
     endif()

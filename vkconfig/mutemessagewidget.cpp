@@ -21,7 +21,7 @@
 
 #include "mutemessagewidget.h"
 
-MuteMessageWidget::MuteMessageWidget(LayerSettings *layer_settings) : QWidget(nullptr) {
+MuteMessageWidget::MuteMessageWidget(LayerSetting *layer_settings) : QWidget(nullptr) {
     _layer_settings = layer_settings;
     _list_widget = new QListWidget(this);
     _list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -32,8 +32,8 @@ MuteMessageWidget::MuteMessageWidget(LayerSettings *layer_settings) : QWidget(nu
     _remove_button->show();
 
     // Load with existing settings
-    if (!_layer_settings->settings_value.isEmpty()) {
-        QStringList list = _layer_settings->settings_value.split(",");
+    if (!_layer_settings->value.isEmpty()) {
+        QStringList list = _layer_settings->value.split(",");
         _list_widget->addItems(list);
         _list_widget->setCurrentRow(_list_widget->count() - 1);
     } else
@@ -54,7 +54,7 @@ void MuteMessageWidget::addItem(const QString &item) {
     _list_widget->setCurrentRow(_list_widget->count() - 1);
 
     // Update Setting
-    AddString(_layer_settings->settings_value, item);
+    AddString(_layer_settings->value, item);
     _remove_button->setEnabled(true);
     emit itemChanged();
 }
@@ -67,7 +67,7 @@ void MuteMessageWidget::removePushed() {
     _list_widget->takeItem(nRow);
 
     // Update Setting
-    RemoveString(_layer_settings->settings_value, itemName);
+    RemoveString(_layer_settings->value, itemName);
     emit itemChanged();
     emit itemRemoved(itemName);
 }

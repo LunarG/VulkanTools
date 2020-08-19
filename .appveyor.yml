@@ -82,3 +82,7 @@ build:
   parallel: true                  # enable MSBuild parallel builds
   project: build/VULKAN_TOOLS.sln # path to Visual Studio solution or project
   verbosity: quiet                # quiet|minimal|normal|detailed
+
+test_script:
+  ctest -j 16 --output-on-failure -C %CONFIGURATION%
+

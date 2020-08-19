@@ -20,9 +20,11 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "vku.h"
 #include "configurator.h"
 #include "dlgcustompaths.h"
+
+#include "../vkconfig_core/version.h"
+#include "../vkconfig_core/util.h"
 
 #include <Qt>
 #include <QDir>
@@ -76,34 +78,33 @@ PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
 struct DefaultConfiguration {
     const char *name;
     const char *required_layer;
-    vku::Version required_api_version;
+    Version required_api_version;
     const char *preset_label;
     ValidationPreset preset;
 };
 
 static const DefaultConfiguration default_configurations[] = {
-    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", vku::Version("1.0.0"), "Standard", ValidationPresetStandard},
-    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", vku::Version("1.1.126"), "GPU-Assisted",
-     ValidationPresetGPUAssisted},
-    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", vku::Version("1.1.126"), "Shader Printf",
+    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Standard", ValidationPresetStandard},
+    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "GPU-Assisted", ValidationPresetGPUAssisted},
+    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Shader Printf",
      ValidationPresetShaderPrintf},
-    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", vku::Version("1.0.0"), "Reduced-Overhead",
+    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Reduced-Overhead",
      ValidationPresetReducedOverhead},
-    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", vku::Version("1.1.126"), "Best Practices",
+    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Best Practices",
      ValidationPresetBestPractices},
-    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", vku::Version("1.2.147"), "Synchronization (Alpha)",
+    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", Version("1.2.147"), "Synchronization (Alpha)",
      ValidationPresetSynchronization},
 #ifndef __APPLE__
-    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", vku::Version("1.2.147"), "", ValidationPresetNone},
-    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", vku::Version("1.2.147"), "",
+    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
+    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
      ValidationPresetNone},
 #endif
-    {"API dump", "VK_LAYER_LUNARG_api_dump", vku::Version("1.1.126"), "", ValidationPresetNone}};
+    {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "", ValidationPresetNone}};
 
 static const DefaultConfiguration *FindDefaultConfiguration(ValidationPreset preset) {
     assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
 
-    for (std::size_t i = 0, n = vku::countof(default_configurations); i < n; ++i) {
+    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
         if (default_configurations[i].preset != preset) continue;
         return &default_configurations[i];
     }
@@ -169,12 +170,12 @@ Configurator::Configurator()
     // Handling of versions compatibility
     {
         QSettings settings;
-        const vku::Version saved_version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, "1.0.0").toString().toUtf8().constData());
+        const Version saved_version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, "1.0.0").toString().toUtf8().constData());
 
         // First release of Vulkan Configurator 2, version not backward compatible,
         // We reinitialize state to reset any previous configuration and start fresh.
-        if (saved_version < vku::Version::header_version) {
-            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, vku::Version::header_version.str().c_str());
+        if (saved_version < Version::header_version) {
+            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::header_version.str().c_str());
             settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "Validation - Standard");
             settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
         }
@@ -974,7 +975,7 @@ void Configurator::LoadAllInstalledLayers() {
     for (int i = 0; i < _custom_layers_paths.size(); i++) LoadLayersFromPath(_custom_layers_paths[i], _available_Layers);
 
     // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
-    for (std::size_t i = 0, n = vku::countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], _available_Layers);
+    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], _available_Layers);
 
     // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
     QString vulkanSDK = qgetenv("VULKAN_SDK");
@@ -1127,7 +1128,7 @@ void Configurator::LoadAllConfigurations() {
             remove(info.filePath().toUtf8().constData());
         }
 
-        for (std::size_t i = 0, n = vku::countof(default_configurations); i < n; ++i) {
+        for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
             // Search the list of loaded configurations
             const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
 
@@ -1356,69 +1357,67 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
         // Loop through the actual settings
         for (int setting_index = 0; setting_index < pLayer->_layer_settings.size(); setting_index++) {
             QJsonObject setting;
-            LayerSettings *layer_settings = pLayer->_layer_settings[setting_index];
+            LayerSetting *layer_settings = pLayer->_layer_settings[setting_index];
 
-            setting.insert("name", layer_settings->settings_prompt);
-            setting.insert("description", layer_settings->settings_desc);
+            setting.insert("name", layer_settings->label);
+            setting.insert("description", layer_settings->description);
 
-            switch (layer_settings->settings_type) {
-                case LAYER_SETTINGS_STRING:
+            switch (layer_settings->type) {
+                case SETTING_STRING:
                     setting.insert("type", "string");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
                     break;
 
-                case LAYER_SETTINGS_FILE:
+                case SETTING_SAVE_FILE:
                     setting.insert("type", "save_file");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
                     break;
 
-                case LAYER_SETTINGS_LOAD_FILE:
+                case SETTING_LOAD_FILE:
                     setting.insert("type", "load_file");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
                     break;
 
-                case LAYER_SETTINGS_SAVE_FOLDER:
+                case SETTING_SAVE_FOLDER:
                     setting.insert("type", "save_folder");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
                     break;
 
-                case LAYER_SETTINGS_BOOL:
+                case SETTING_BOOL:
                     setting.insert("type", "bool");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
                     break;
 
-                case LAYER_SETTINGS_BOOL_NUMERIC:
+                case SETTING_BOOL_NUMERIC:
                     setting.insert("type", "bool_numeric");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
                     break;
 
-                case LAYER_SETTINGS_VUID_FILTER:
+                case SETTING_VUID_FILTER:
                     setting.insert("type", "vuid_exclude");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
                     break;
 
-                case LAYER_SETTINGS_EXCLUSIVE_LIST: {
+                case SETTING_EXCLUSIVE_LIST: {
                     setting.insert("type", "enum");
-                    setting.insert("default", layer_settings->settings_value);
+                    setting.insert("default", layer_settings->value);
 
                     QJsonObject options;
-                    for (int i = 0; i < layer_settings->settings_list_exclusive_prompt.size(); i++)
-                        options.insert(layer_settings->settings_list_exclusive_value[i],
-                                       layer_settings->settings_list_exclusive_prompt[i]);
+                    for (int i = 0; i < layer_settings->exclusive_labels.size(); i++)
+                        options.insert(layer_settings->exclusive_values[i], layer_settings->exclusive_labels[i]);
                     setting.insert("options", options);
                 } break;
 
-                case LAYER_SETTINGS_INCLUSIVE_LIST: {
+                case SETTING_INCLUSIVE_LIST: {
                     setting.insert("type", "multi_enum");
                     QJsonObject options;
-                    for (int i = 0; i < layer_settings->settings_list_inclusive_prompt.size(); i++)
-                        options.insert(layer_settings->settings_list_inclusive_value[i],
-                                       layer_settings->settings_list_inclusive_prompt[i]);
+                    for (int i = 0; i < layer_settings->inclusive_labels.size(); i++)
+                        options.insert(layer_settings->inclusive_values[i], layer_settings->inclusive_labels[i]);
                     setting.insert("options", options);
 
                     QJsonArray defaults;
-                    if (!layer_settings->settings_value.isEmpty()) {
-                        QStringList list = layer_settings->settings_value.split(",");
+                    if (!layer_settings->value.isEmpty()) {
+                        QStringList list = layer_settings->value.split(",");
                         for (int i = 0; i < list.size(); i++) defaults.append(list[i]);
                     }
 
@@ -1427,7 +1426,7 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
 
                 // There is a string field that is actually a complicted series of number or
                 // ranges of numbers. We should at some point add this to allow more error free editing of it.
-                case LAYER_SETTINGS_RANGE_INT:
+                case SETTING_RANGE_INT:
 
                     break;
 
@@ -1437,7 +1436,7 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
                     setting.insert("default", "unknown data");
             }
 
-            json_settings.insert(layer_settings->settings_name, setting);
+            json_settings.insert(layer_settings->name, setting);
         }
 
         layer_list.insert(pLayer->_name, json_settings);
@@ -1512,7 +1511,7 @@ void Configurator::LoadDefaultSettings(LayerFile *pBlankLayer) {
 
     // Create and pop them in....
     for (int s = 0; s < layer_settings_defaults->default_settings.size(); s++) {
-        LayerSettings *layer_settings = new LayerSettings();
+        LayerSetting *layer_settings = new LayerSetting();
         *layer_settings = *layer_settings_defaults->default_settings[s];
         pBlankLayer->_layer_settings.push_back(layer_settings);
     }
@@ -1560,21 +1559,21 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     // Loop through all the layers
     for (int layer_index = 0; layer_index < configuration->_layers.size(); layer_index++) {
         LayerFile *layer_file = configuration->_layers[layer_index];
-        stream << endl;
-        stream << "# " << layer_file->_name << endl;
+        stream << "\n";
+        stream << "# " << layer_file->_name << "\n";
 
         QString short_layer_name = layer_file->_name;
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
         for (int setting_index = 0; setting_index < layer_file->_layer_settings.size(); setting_index++) {
-            LayerSettings *layer_settings = layer_file->_layer_settings[setting_index];
-            stream << lc_layer_name << "." << layer_settings->settings_name << " = " << layer_settings->settings_value << endl;
+            LayerSetting *layer_settings = layer_file->_layer_settings[setting_index];
+            stream << lc_layer_name << "." << layer_settings->name << " = " << layer_settings->value << "\n";
 
             // Temporary hack due to a gfxrecontruct bug for 2020 July SDK only. Remove after that release.
             if (lc_layer_name == QString("lunarg_gfxreconstruct"))
                 stream << "lunarg_gfxrecon"
-                       << "." << layer_settings->settings_name << " = " << layer_settings->settings_value << endl;
+                       << "." << layer_settings->name << " = " << layer_settings->value << "\n";
         }
     }
     file.close();
@@ -1669,12 +1668,12 @@ void Configurator::PushConfiguration(Configuration *new_configuration) {
     for (int layer_index = 0; layer_index < copy->_layers.size(); layer_index++) {  // For each layer
         for (int setting_index = 0; setting_index < copy->_layers[layer_index]->_layer_settings.size(); setting_index++) {
             // Change to stdout if not already so it will get captured.
-            if (copy->_layers[layer_index]->_layer_settings[setting_index]->settings_name == QString("log_filename"))
-                copy->_layers[layer_index]->_layer_settings[setting_index]->settings_value = QString("stdout");
+            if (copy->_layers[layer_index]->_layer_settings[setting_index]->name == QString("log_filename"))
+                copy->_layers[layer_index]->_layer_settings[setting_index]->value = QString("stdout");
 
             // API Dump also has this setting
-            if (copy->_layers[layer_index]->_layer_settings[setting_index]->settings_name == QString("file"))
-                copy->_layers[layer_index]->_layer_settings[setting_index]->settings_value = QString("false");
+            if (copy->_layers[layer_index]->_layer_settings[setting_index]->name == QString("file"))
+                copy->_layers[layer_index]->_layer_settings[setting_index]->value = QString("false");
         }
     }
 

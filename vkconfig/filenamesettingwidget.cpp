@@ -24,15 +24,15 @@
 
 ////////////////////////////////////////////////////////////////////////////
 // This can be used to specify a 'load' file or a 'save' file. Save is true by default
-FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSettings* layer_settings, bool save) : QWidget(nullptr) {
+FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSetting* layer_settings, bool save) : QWidget(nullptr) {
     _layer_settings = layer_settings;
     _save_file = save;
 
-    item->setText(0, layer_settings->settings_prompt);
-    item->setToolTip(0, layer_settings->settings_desc);
+    item->setText(0, layer_settings->label);
+    item->setToolTip(0, layer_settings->description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_settings->settings_value);
+    _line_edit->setText(_layer_settings->value);
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -65,13 +65,13 @@ void FilenameSettingWidget::browseButtonClicked() {
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        _layer_settings->settings_value = file;
+        _layer_settings->value = file;
         _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
 void FilenameSettingWidget::textFieldChanged(const QString& newText) {
-    _layer_settings->settings_value = newText;
+    _layer_settings->value = newText;
     emit itemChanged();
 }
