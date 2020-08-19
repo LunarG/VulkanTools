@@ -773,10 +773,10 @@ void Configurator::RemoveCustomLayersPath(const QString &path) {
     Q_ASSERT(!path.isEmpty());
 
     for (int i = 0, n = _custom_layers_paths.size(); i < n; ++i) {
-        if (_custom_layers_paths[i] != path) continue;
-
-        RemoveCustomLayersPath(i);
-        break;
+        if (QDir::toNativeSeparators(_custom_layers_paths[i]) == QDir::toNativeSeparators(path)) {
+            RemoveCustomLayersPath(i);
+            break;
+        }
     }
 }
 
