@@ -186,8 +186,8 @@ void MainWindow::LoadConfigurationList() {
         item->configuration = configurator._available_configurations[i];
         ui->profileTree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-#ifndef _WIN32  // This is a hack to workaround a Linux layout issue
-        item->radio_button->setText("-");
+#ifdef __APPLE__  // Mac OS does not leave enough space without this
+        item->radio_button->setText(" ");
 #endif
         item->radio_button->setToolTip(configurator._available_configurations[i]->_description);
         item->setText(1, configurator._available_configurations[i]->_name);

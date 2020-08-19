@@ -48,7 +48,8 @@ void dlgCustomPaths::RepopulateTree() {
 }
 
 void dlgCustomPaths::on_pushButtonAdd_clicked() {
-    QString custom_folder = QFileDialog::getExistingDirectory(this, tr("Add Custom Layer Folder"), "", QFileDialog::DontUseNativeDialog);
+    QString custom_folder =
+        QFileDialog::getExistingDirectory(this, tr("Add Custom Layer Folder"), "", QFileDialog::DontUseNativeDialog);
 
     Configurator &configurator = Configurator::Get();
 

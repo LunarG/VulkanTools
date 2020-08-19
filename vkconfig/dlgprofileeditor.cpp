@@ -204,9 +204,8 @@ dlgProfileEditor::~dlgProfileEditor() { delete ui; }
 ////////////////////////////////////////////////////////////
 /// Add a custom layer path, and update everything accordingly
 void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory);
-    QString custom_path = dialog.getExistingDirectory(this, tr("Add Custom Layer Folder"), "");
+    QString custom_path =
+        QFileDialog::getExistingDirectory(this, tr("Add Custom Layer Folder"), "", QFileDialog::DontUseNativeDialog);
 
     if (custom_path.isEmpty()) return;
     custom_path = QDir::toNativeSeparators(custom_path);
