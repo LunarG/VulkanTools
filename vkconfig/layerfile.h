@@ -84,9 +84,9 @@ class LayerFile : public QObject {
         destination_layer_file->_layer_path = _layer_path;
 
         for (int i = 0; i < _layer_settings.length(); i++) {
-            LayerSetting* pSettings = new LayerSetting();
-            *pSettings = *_layer_settings[i];
-            destination_layer_file->_layer_settings.push_back(pSettings);
+            LayerSetting* setting = new LayerSetting();
+            *setting = *_layer_settings[i];
+            destination_layer_file->_layer_settings.push_back(setting);
         }
     }
 

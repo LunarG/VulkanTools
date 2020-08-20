@@ -1049,9 +1049,9 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<LayerFile *> 
 //////////////////////////////////////////////////////////////////////////
 // Populate a tree widget with the custom layer paths and the layers that
 // are being used in them.
-void Configurator::BuildCustomLayerTree(QTreeWidget *pTreeWidget) {
+void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
     // Populate the tree
-    pTreeWidget->clear();
+    tree_widget->clear();
 
     // Building the list is not obvious. Each custom path may have multiple layers and there
     // could be duplicates, which are not allowed. The layer paths are traversed in order, and
@@ -1062,23 +1062,23 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *pTreeWidget) {
         // Custom path is the parent tree item
         const QString &custom_path = QDir::toNativeSeparators(GetCustomLayersPath(custom_path_index));
 
-        QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, custom_path);
-        pTreeWidget->addTopLevelItem(pItem);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, custom_path);
+        tree_widget->addTopLevelItem(item);
 
         // Look for layers that are loaded that are also from this folder
         for (int i = 0; i < _available_Layers.length(); i++) {
-            LayerFile *pCandidate = _available_Layers[i];
+            LayerFile *candidate = _available_Layers[i];
 
-            QFileInfo fileInfo = pCandidate->_layer_path;
+            QFileInfo fileInfo = candidate->_layer_path;
             QString path = QDir::toNativeSeparators(fileInfo.path());
             if (path != custom_path) continue;
 
-            QTreeWidgetItem *pChild = new QTreeWidgetItem();
-            pChild->setText(0, pCandidate->_name);
-            pItem->addChild(pChild);
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0, candidate->_name);
+            item->addChild(child);
         }
-        pItem->setExpanded(true);
+        item->setExpanded(true);
     }
 }
 
@@ -1348,17 +1348,17 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
     QJsonObject layer_list;  // This list of layers
 
     for (int layer_index = 0; layer_index < configuration->_layers.size(); layer_index++) {
-        LayerFile *pLayer = configuration->_layers[layer_index];
+        LayerFile *layer = configuration->_layers[layer_index];
 
         QJsonObject json_settings;
 
         // Rank goes in here with settings
-        json_settings.insert("layer_rank", pLayer->_rank);
+        json_settings.insert("layer_rank", layer->_rank);
 
         // Loop through the actual settings
-        for (int setting_index = 0; setting_index < pLayer->_layer_settings.size(); setting_index++) {
+        for (int setting_index = 0; setting_index < layer->_layer_settings.size(); setting_index++) {
             QJsonObject setting;
-            LayerSetting *layer_settings = pLayer->_layer_settings[setting_index];
+            LayerSetting *layer_settings = layer->_layer_settings[setting_index];
 
             setting.insert("name", layer_settings->label);
             setting.insert("description", layer_settings->description);
@@ -1440,7 +1440,7 @@ bool Configurator::SaveConfiguration(Configuration *configuration) {
             json_settings.insert(layer_settings->name, setting);
         }
 
-        layer_list.insert(pLayer->_name, json_settings);
+        layer_list.insert(layer->_name, json_settings);
     }
 
     //////////////////////////////////////////////////////////
@@ -1504,17 +1504,17 @@ Configuration *Configurator::CreateEmptyConfiguration() {
 
 //////////////////////////////////////////////////////////////////////////////
 /// Load the default settings into an empty layer file container
-void Configurator::LoadDefaultSettings(LayerFile *pBlankLayer) {
-    const LayerSettingsDefaults *layer_settings_defaults = FindLayerSettings(pBlankLayer->_name);
+void Configurator::LoadDefaultSettings(LayerFile *blank_layer) {
+    const LayerSettingsDefaults *layer_settings_defaults = FindLayerSettings(blank_layer->_name);
 
     if (layer_settings_defaults == nullptr)  // Did we find any?
         return;
 
     // Create and pop them in....
     for (int s = 0; s < layer_settings_defaults->default_settings.size(); s++) {
-        LayerSetting *layer_settings = new LayerSetting();
-        *layer_settings = *layer_settings_defaults->default_settings[s];
-        pBlankLayer->_layer_settings.push_back(layer_settings);
+        LayerSetting *layer_setting = new LayerSetting();
+        *layer_setting = *layer_settings_defaults->default_settings[s];
+        blank_layer->_layer_settings.push_back(layer_setting);
     }
 }
 

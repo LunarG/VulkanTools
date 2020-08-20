@@ -119,27 +119,27 @@ void dlgVulkanInfo::RunTool() {
     // Setp through each major section and parse.
     // All of these are the top layer nodes on the tree.
     QJsonValue rootObject = jsonTopObject.value(QString("Instance Extensions"));
-    QTreeWidgetItem *pParentNode = new QTreeWidgetItem();
-    pParentNode->setText(0, tr("Instance Extensions"));
-    ui->treeWidget->addTopLevelItem(pParentNode);
-    BuildExtensions(rootObject, pParentNode);
+    QTreeWidgetItem *parent_node = new QTreeWidgetItem();
+    parent_node->setText(0, tr("Instance Extensions"));
+    ui->treeWidget->addTopLevelItem(parent_node);
+    BuildExtensions(rootObject, parent_node);
 
     rootObject = jsonTopObject.value("Layer Properties");
-    pParentNode = new QTreeWidgetItem();
-    BuildLayers(rootObject, pParentNode);
+    parent_node = new QTreeWidgetItem();
+    BuildLayers(rootObject, parent_node);
 
     rootObject = jsonTopObject.value("Presentable Surfaces");
-    pParentNode = new QTreeWidgetItem();
-    BuildSurfaces(rootObject, pParentNode);
+    parent_node = new QTreeWidgetItem();
+    BuildSurfaces(rootObject, parent_node);
 
     rootObject = jsonTopObject.value("Device Groups");
-    pParentNode = new QTreeWidgetItem();
-    BuildGroups(rootObject, pParentNode);
+    parent_node = new QTreeWidgetItem();
+    BuildGroups(rootObject, parent_node);
 
     rootObject = jsonTopObject.value(tr("Device Properties and Extensions"));
-    pParentNode = new QTreeWidgetItem();
-    pParentNode->setText(0, "Device Properties and Extensions");
-    BuildDevices(rootObject, pParentNode);
+    parent_node = new QTreeWidgetItem();
+    parent_node->setText(0, "Device Properties and Extensions");
+    BuildDevices(rootObject, parent_node);
 
     show();
 }
@@ -231,15 +231,15 @@ void dlgVulkanInfo::BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *pRoo
 /// \param pRoot        - Root of GUI tree
 /// This tree section has some different "kinds" of subtrees (the extensions)
 /// and some extra text formatting requirements, so it had to be treated specially.
-void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
+void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *root) {
     QJsonObject layersObject = jsonValue.toObject();
     int layersCount = layersObject.size();
 
     QString output = "Layers : count = ";
     output += QString().asprintf("%d", layersCount);
 
-    pRoot->setText(0, output);
-    ui->treeWidget->addTopLevelItem(pRoot);
+    root->setText(0, output);
+    ui->treeWidget->addTopLevelItem(root);
 
     // Loop through all the layers
     QStringList layers = layersObject.keys();
@@ -253,27 +253,27 @@ void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
         output += ", layer version ";
         output += layerObject.value("implementation version").toVariant().toString();
 
-        QTreeWidgetItem *pLayer = new QTreeWidgetItem();
-        pLayer->setText(0, output);
+        QTreeWidgetItem *layer = new QTreeWidgetItem();
+        layer->setText(0, output);
 
         // Each layer has extensions
         QJsonValue layerExtensions = layerObject.value("Layer Extensions");
         QJsonObject layerExtensionsObject = layerExtensions.toObject();
         int nExtCount = layerExtensionsObject.size();
         output = QString().asprintf("Layer Extensions: count = %d", nExtCount);
-        QTreeWidgetItem *pExtItem = new QTreeWidgetItem();
-        pExtItem->setText(0, output);
-        pLayer->addChild(pExtItem);
+        QTreeWidgetItem *ext_item = new QTreeWidgetItem();
+        ext_item->setText(0, output);
+        layer->addChild(ext_item);
 
-        BuildExtensions(layerExtensions, pExtItem);  // Generic enough
+        BuildExtensions(layerExtensions, ext_item);  // Generic enough
 
         // Each layer has devices too
         QJsonValue devicesValue = layerObject.value("Devices");
         QJsonObject devicesObject = devicesValue.toObject();
         int devCount = devicesObject.size();
-        QTreeWidgetItem *pDeviceItem = new QTreeWidgetItem();
-        pDeviceItem->setText(0, QString().asprintf("Devices: count = %d", devCount));
-        pLayer->addChild(pDeviceItem);
+        QTreeWidgetItem *device_item = new QTreeWidgetItem();
+        device_item->setText(0, QString().asprintf("Devices: count = %d", devCount));
+        layer->addChild(device_item);
         QStringList devicesList = devicesObject.keys();
         for (int dev = 0; dev < devCount; dev++) {
             QJsonValue gpuVal = devicesObject.value(devicesList[dev]);
@@ -284,9 +284,9 @@ void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
             output += " (";
             output += devicesList[dev];
             output += ")";
-            QTreeWidgetItem *pNoChildren = new QTreeWidgetItem();
-            pNoChildren->setText(0, output);
-            pDeviceItem->addChild(pNoChildren);
+            QTreeWidgetItem *no_child = new QTreeWidgetItem();
+            no_child->setText(0, output);
+            device_item->addChild(no_child);
 
             QJsonValue devExtVal = gpuObject.value("Layer-Device Extensions");
             QJsonObject devExtObj = devExtVal.toObject();
@@ -294,10 +294,10 @@ void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
             output = QString().asprintf("Layer-Device Extensions: count = %d", extCount);
             QTreeWidgetItem *pNext = new QTreeWidgetItem();
             pNext->setText(0, output);
-            pDeviceItem->addChild(pNext);
+            device_item->addChild(pNext);
             BuildExtensions(devExtVal, pNext);  // Generic enough
         }
-        pRoot->addChild(pLayer);
+        root->addChild(layer);
     }
 }
 
@@ -338,33 +338,33 @@ void dlgVulkanInfo::BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
 /// There is one section that can be handled by the TraverseGenericProperties()
 /// function, and just one section that is specifially needing the
 /// extensions list parser.
-void dlgVulkanInfo::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
+void dlgVulkanInfo::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *root) {
     QJsonObject gpuObject = jsonValue.toObject();
 
-    pRoot->setText(0, tr("Device Properties and Extensions"));
-    ui->treeWidget->addTopLevelItem(pRoot);
+    root->setText(0, tr("Device Properties and Extensions"));
+    ui->treeWidget->addTopLevelItem(root);
 
     // For each like GPU0 object
     QStringList gpuList = gpuObject.keys();
     for (int i = 0; i < gpuObject.size(); i++) {
         QTreeWidgetItem *pGPU = new QTreeWidgetItem();
         pGPU->setText(0, gpuList[i]);
-        pRoot->addChild(pGPU);
+        root->addChild(pGPU);
 
         QJsonValue properties = gpuObject.value(gpuList[i]);
         QJsonObject propertiesObject = properties.toObject();
         QStringList propertyParents = propertiesObject.keys();
 
         for (int j = 0; j < propertiesObject.size(); j++) {
-            QTreeWidgetItem *pParent = new QTreeWidgetItem();
-            pParent->setText(0, propertyParents[j]);
-            pGPU->addChild(pParent);
+            QTreeWidgetItem *parent = new QTreeWidgetItem();
+            parent->setText(0, propertyParents[j]);
+            pGPU->addChild(parent);
             QJsonValue value = propertiesObject.value(propertyParents[j]);
 
             if (propertyParents[j] == QString("Device Extensions"))
-                BuildExtensions(value, pParent);
+                BuildExtensions(value, parent);
             else
-                TraverseGenericProperties(value, pParent);
+                TraverseGenericProperties(value, parent);
         }
     }
 }

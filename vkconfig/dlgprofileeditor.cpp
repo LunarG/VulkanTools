@@ -287,19 +287,19 @@ void dlgProfileEditor::LoadLayerDisplay(int nSelection) {
         if (layer_index == nSelection) ui->layerTree->setCurrentItem(item);
 
         // Add a combo box. Default has gray background which looks hidious
-        TreeFriendlyComboBox *pUse = new TreeFriendlyComboBox(item);
-        ui->layerTree->setItemWidget(item, 1, pUse);
+        TreeFriendlyComboBox *use = new TreeFriendlyComboBox(item);
+        ui->layerTree->setItemWidget(item, 1, use);
         item->setSizeHint(1, QSize(comboWidth, comboHeight));
 
-        pUse->addItem("Application-Controlled");
-        pUse->addItem("Overridden / Forced On");
-        pUse->addItem("Excluded / Forced Off");
+        use->addItem("Application-Controlled");
+        use->addItem("Overridden / Forced On");
+        use->addItem("Excluded / Forced Off");
 
-        if (item->layer_file->_enabled) pUse->setCurrentIndex(1);
+        if (item->layer_file->_enabled) use->setCurrentIndex(1);
 
-        if (item->layer_file->_disabled) pUse->setCurrentIndex(2);
+        if (item->layer_file->_disabled) use->setCurrentIndex(2);
 
-        connect(pUse, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
+        connect(use, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
 
         ///////////////////////////////////////////////////
         // Now for the children, which is just supplimental
