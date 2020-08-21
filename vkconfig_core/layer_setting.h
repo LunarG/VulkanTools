@@ -61,5 +61,5 @@ struct LayerSetting {
 
 LayerSetting& FindSetting(QVector<LayerSetting*>& settings, const char* name);
 
-SettingType GetSettingType(const char* label);
-const char* GetSettingTypeLabel(SettingType type);
+SettingType GetSettingType(const char* token);
+const char* GetSettingTypeToken(SettingType type);

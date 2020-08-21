@@ -187,90 +187,44 @@ void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<Layer
         // Data types and values start getting a little more involved.
         value = json_object.value("type");
 
-        QString type_string = value.toString();
-        ///////////////////////////////////////////////// Exclusive Enums
-        if (type_string == QString("enum")) {
-            setting->type = SETTING_EXCLUSIVE_LIST;
+        setting->type = GetSettingType(value.toString().toUtf8().constData());
 
-            // Now we have a list of options, both the enum for the settings file, and the prompts
-            value = json_object.value("options");
-            QJsonObject object = value.toObject();
-            QStringList keys, values;
-            keys = object.keys();
-            for (int v = 0; v < keys.size(); v++) {
-                setting->exclusive_values << keys[v];
-                setting->exclusive_labels << object.value(keys[v]).toString();
-            }
-
-            settings.push_back(setting);
-            continue;
+        switch (setting->type) {
+            case SETTING_EXCLUSIVE_LIST: {
+                // Now we have a list of options, both the enum for the settings file, and the prompts
+                value = json_object.value("options");
+                QJsonObject object = value.toObject();
+                QStringList keys, values;
+                keys = object.keys();
+                for (int v = 0; v < keys.size(); v++) {
+                    setting->exclusive_values << keys[v];
+                    setting->exclusive_labels << object.value(keys[v]).toString();
+                }
+            } break;
+            case SETTING_INCLUSIVE_LIST: {
+                // Now we have a list of options, both the enum for the settings file, and the prompts
+                value = json_object.value("options");
+                QJsonObject object = value.toObject();
+                QStringList keys, values;
+                keys = object.keys();
+                for (int v = 0; v < keys.size(); v++) {
+                    setting->inclusive_values << keys[v];
+                    setting->inclusive_labels << object.value(keys[v]).toString();
+                }
+            } break;
+            case SETTING_SAVE_FILE:
+            case SETTING_LOAD_FILE:
+            case SETTING_SAVE_FOLDER:
+            case SETTING_BOOL:
+            case SETTING_BOOL_NUMERIC:
+            case SETTING_VUID_FILTER:
+            case SETTING_STRING:
+                break;
+            default:
+                assert(0);
+                break;
         }
-
-        /////////////////////////////////////////////////// Pick one or more from a list
-        if (type_string == QString("multi_enum")) {
-            setting->type = SETTING_INCLUSIVE_LIST;
-
-            // Now we have a list of options, both the enum for the settings file, and the prompts
-            value = json_object.value("options");
-            QJsonObject object = value.toObject();
-            QStringList keys, values;
-            keys = object.keys();
-            for (int v = 0; v < keys.size(); v++) {
-                setting->inclusive_values << keys[v];
-                setting->inclusive_labels << object.value(keys[v]).toString();
-            }
-
-            settings.push_back(setting);
-            continue;
-        }
-
-        ////////////////////////////////////////////////////// Select a file. Nice and simple
-        if (type_string == QString("save_file")) {
-            setting->type = SETTING_SAVE_FILE;
-            settings.push_back(setting);
-            continue;
-        }
-
-        ////////////////////////////////////////////////////// Load a file.
-        if (type_string == QString("load_file")) {
-            setting->type = SETTING_LOAD_FILE;
-            settings.push_back(setting);
-            continue;
-        }
-
-        ////////////////////////////////////////////////////// Folder to put screen shots in
-        if (type_string == QString("save_folder")) {
-            setting->type = SETTING_SAVE_FOLDER;
-            settings.push_back(setting);
-            continue;
-        }
-
-        ////////////////////////////////////////////////////// Bool, also nice and simple ("true"/"false")
-        if (type_string == QString("bool")) {
-            setting->type = SETTING_BOOL;
-            settings.push_back(setting);
-            continue;
-        }
-
-        //////////////////////////////////////////////////// Bool, but written out as 0 or 1
-        if (type_string == QString("bool_numeric")) {
-            setting->type = SETTING_BOOL_NUMERIC;
-            settings.push_back(setting);
-            continue;
-        }
-
-        //////////////////////////////////////////////////// VUID Filter List
-        if (type_string == QString("vuid_exclude")) {
-            setting->type = SETTING_VUID_FILTER;
-            settings.push_back(setting);
-            continue;
-        }
-
-        ////////////////////////////////////////////////////// Just a string please
-        if (type_string == QString("string")) setting->type = SETTING_STRING;
 
         settings.push_back(setting);
     }
-
-    return;
 }

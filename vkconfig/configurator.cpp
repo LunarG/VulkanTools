@@ -1342,7 +1342,7 @@ bool Configurator::SaveConfiguration(const Configuration &configuration) {
 
     // Build the json document
     QJsonArray excluded_list;
-    for (int i = 0; i < configuration._excluded_layers.size(); i++) excluded_list.append(configuration._excluded_layers[i]);
+    for (int i = 0, n = configuration._excluded_layers.size(); i < n; i++) excluded_list.append(configuration._excluded_layers[i]);
 
     QJsonObject layer_list;  // This list of layers
 
@@ -1365,42 +1365,18 @@ bool Configurator::SaveConfiguration(const Configuration &configuration) {
 
             switch (layer_setting.type) {
                 case SETTING_STRING:
-                    setting.insert("type", "string");
-                    setting.insert("default", layer_setting.value);
-                    break;
-
                 case SETTING_SAVE_FILE:
-                    setting.insert("type", "save_file");
-                    setting.insert("default", layer_setting.value);
-                    break;
-
                 case SETTING_LOAD_FILE:
-                    setting.insert("type", "load_file");
-                    setting.insert("default", layer_setting.value);
-                    break;
-
                 case SETTING_SAVE_FOLDER:
-                    setting.insert("type", "save_folder");
-                    setting.insert("default", layer_setting.value);
-                    break;
-
                 case SETTING_BOOL:
-                    setting.insert("type", "bool");
-                    setting.insert("default", layer_setting.value);
-                    break;
-
                 case SETTING_BOOL_NUMERIC:
-                    setting.insert("type", "bool_numeric");
-                    setting.insert("default", layer_setting.value);
-                    break;
-
                 case SETTING_VUID_FILTER:
-                    setting.insert("type", "vuid_exclude");
+                    setting.insert("type", GetSettingTypeToken(layer_setting.type));
                     setting.insert("default", layer_setting.value);
                     break;
 
                 case SETTING_EXCLUSIVE_LIST: {
-                    setting.insert("type", "enum");
+                    setting.insert("type", GetSettingTypeToken(layer_setting.type));
                     setting.insert("default", layer_setting.value);
 
                     QJsonObject options;
@@ -1410,7 +1386,8 @@ bool Configurator::SaveConfiguration(const Configuration &configuration) {
                 } break;
 
                 case SETTING_INCLUSIVE_LIST: {
-                    setting.insert("type", "multi_enum");
+                    setting.insert("type", GetSettingTypeToken(layer_setting.type));
+
                     QJsonObject options;
                     for (int i = 0; i < layer_setting.inclusive_labels.size(); i++)
                         options.insert(layer_setting.inclusive_values[i], layer_setting.inclusive_labels[i]);
@@ -1428,13 +1405,9 @@ bool Configurator::SaveConfiguration(const Configuration &configuration) {
                 // There is a string field that is actually a complicted series of number or
                 // ranges of numbers. We should at some point add this to allow more error free editing of it.
                 case SETTING_RANGE_INT:
-
-                    break;
-
-                // We missed somethhing
                 default:
-                    setting.insert("type", "unknown type");
-                    setting.insert("default", "unknown data");
+                    assert(0);
+                    break;
             }
 
             json_settings.insert(layer_setting.name, setting);
