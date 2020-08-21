@@ -33,15 +33,14 @@
 class FilenameSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit FilenameSettingWidget(QTreeWidgetItem *item, LayerSetting *layer_settings, bool save = true);
+    explicit FilenameSettingWidget(QTreeWidgetItem *item, LayerSetting &layer_setting, SettingType setting_type);
 
    private:
     virtual void resizeEvent(QResizeEvent *event) override;
 
-    LayerSetting *_layer_settings;
+    LayerSetting &_layer_setting;
     QLineEdit *_line_edit;
     QPushButton *_push_button;
-    bool _save_file;
 
    public Q_SLOTS:
     void browseButtonClicked();
@@ -49,4 +48,9 @@ class FilenameSettingWidget : public QWidget {
 
    Q_SIGNALS:
     void itemChanged();
+
+   private:
+    enum Mode { MODE_LOAD, MODE_SAVE };
+    const Mode _mode;
+    Mode GetMode(SettingType type) const;
 };

@@ -23,8 +23,11 @@
 
 #include "../vkconfig_core/layer.h"
 
-MuteMessageWidget::MuteMessageWidget(LayerSetting *layer_settings) : QWidget(nullptr) {
-    _layer_settings = layer_settings;
+#include <cassert>
+
+MuteMessageWidget::MuteMessageWidget(LayerSetting &layer_setting) : QWidget(nullptr), _layer_setting(layer_setting) {
+    assert(&layer_setting);
+
     _list_widget = new QListWidget(this);
     _list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     _list_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -34,8 +37,8 @@ MuteMessageWidget::MuteMessageWidget(LayerSetting *layer_settings) : QWidget(nul
     _remove_button->show();
 
     // Load with existing settings
-    if (!_layer_settings->value.isEmpty()) {
-        QStringList list = _layer_settings->value.split(",");
+    if (!_layer_setting.value.isEmpty()) {
+        QStringList list = _layer_setting.value.split(",");
         _list_widget->addItems(list);
         _list_widget->setCurrentRow(_list_widget->count() - 1);
     } else
@@ -45,6 +48,8 @@ MuteMessageWidget::MuteMessageWidget(LayerSetting *layer_settings) : QWidget(nul
 }
 
 void MuteMessageWidget::resizeEvent(QResizeEvent *event) {
+    assert(event);
+
     int button_height = 26;
     QSize parent_size = event->size();
     _list_widget->setGeometry(0, 0, parent_size.width(), parent_size.height() - button_height);
@@ -56,7 +61,7 @@ void MuteMessageWidget::addItem(const QString &item) {
     _list_widget->setCurrentRow(_list_widget->count() - 1);
 
     // Update Setting
-    AddString(_layer_settings->value, item);
+    AddString(_layer_setting.value, item);
     _remove_button->setEnabled(true);
     emit itemChanged();
 }
@@ -65,11 +70,11 @@ void MuteMessageWidget::removePushed() {
     int row = _list_widget->currentRow();
     if (row < 0) return;
 
-    QString itemName = _list_widget->currentItem()->text();
+    QString item_name = _list_widget->currentItem()->text();
     _list_widget->takeItem(row);
 
     // Update Setting
-    RemoveString(_layer_settings->value, itemName);
+    RemoveString(_layer_setting.value, item_name);
     emit itemChanged();
-    emit itemRemoved(itemName);
+    emit itemRemoved(item_name);
 }

@@ -31,10 +31,10 @@
 class StringSettingWidget : public QLineEdit {
     Q_OBJECT
    public:
-    StringSettingWidget(QTreeWidgetItem* item, LayerSetting* layer_settings);
+    StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting);
 
    private:
-    LayerSetting* _layer_settings;
+    LayerSetting& _layer_setting;
 
    public Q_SLOTS:
     void itemEdited(const QString& newString);

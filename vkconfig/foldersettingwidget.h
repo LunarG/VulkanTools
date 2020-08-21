@@ -31,12 +31,12 @@
 class FolderSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSetting *layer_setting);
+    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSetting &layer_setting);
 
     virtual void resizeEvent(QResizeEvent *event) override;
 
    private:
-    LayerSetting *_layer_setting;
+    LayerSetting &_layer_setting;
     QLineEdit *_line_edit;
     QPushButton *_push_button;
 

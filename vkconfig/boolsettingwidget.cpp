@@ -15,33 +15,38 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "boolsettingwidget.h"
 
-BoolSettingWidget::BoolSettingWidget(LayerSetting *layer_settings, bool numeric) {
-    _numeric_output = numeric;
-    _layer_settings = layer_settings;
-    setText(layer_settings->label);
-    setToolTip(layer_settings->description);
-    setChecked(layer_settings->value == QString("TRUE"));
+#include <cassert>
+
+BoolSettingWidget::BoolSettingWidget(LayerSetting& layer_setting, SettingType setting_type)
+    : _true_token(GetToken(true, setting_type)), _false_token(GetToken(false, setting_type)), _layer_setting(layer_setting) {
+    assert(&layer_setting);
+
+    setText(layer_setting.label);
+    setToolTip(layer_setting.description);
+    setChecked(layer_setting.value == QString("TRUE"));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
 void BoolSettingWidget::itemToggled() {
-    if (_numeric_output) {
-        if (isChecked())
-            _layer_settings->value = QString("1");
-        else
-            _layer_settings->value = QString("0");
-    } else {
-        if (isChecked())
-            _layer_settings->value = QString("TRUE");
-        else
-            _layer_settings->value = QString("FALSE");
-    }
+    _layer_setting.value = isChecked() ? _true_token : _false_token;
 
     emit itemChanged();
+}
+
+QString BoolSettingWidget::GetToken(bool state, SettingType type) const {
+    switch (type) {
+        case SETTING_BOOL:
+            return state ? QString("TRUE") : QString("FALSE");
+        case SETTING_BOOL_NUMERIC:
+            return state ? QString("1") : QString("0");
+        default:
+            assert(0);
+            return static_cast<Mode>(-1);
+    }
 }

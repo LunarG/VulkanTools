@@ -15,29 +15,33 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "enumsettingwidget.h"
 
-EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting* layers_settings) {
-    _layer_setting = layers_settings;
-    item->setText(0, layers_settings->label);
-    item->setToolTip(0, layers_settings->description);
+#include <cassert>
 
-    int nCurrSel = 0;
-    for (int i = 0; i < layers_settings->exclusive_labels.size(); i++) {
-        this->addItem(layers_settings->exclusive_labels[i]);
-        if (layers_settings->exclusive_values[i] == layers_settings->value) nCurrSel = i;
+EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+    assert(item);
+    assert(&layer_setting);
+
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
+
+    int selection = 0;
+    for (int i = 0; i < layer_setting.exclusive_labels.size(); i++) {
+        this->addItem(layer_setting.exclusive_labels[i]);
+        if (layer_setting.exclusive_values[i] == layer_setting.value) selection = i;
     }
 
-    setCurrentIndex(nCurrSel);
+    setCurrentIndex(selection);
 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
 void EnumSettingWidget::indexChanged(int index) {
-    _layer_setting->value = _layer_setting->exclusive_values[index];
+    _layer_setting.value = _layer_setting.exclusive_values[index];
     emit itemChanged();
 }

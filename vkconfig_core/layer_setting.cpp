@@ -58,3 +58,14 @@ const char* GetSettingTypeLabel(SettingType type) {
 
     return table[type];
 }
+
+LayerSetting& FindSetting(QVector<LayerSetting*>& settings, const char* name) {
+    for (int i = 0, n = settings.size(); i < n; i++) {
+        if (settings[i]->name == QString(name)) {
+            return *settings[i];
+        }
+    }
+
+    assert(0);
+    return *settings[0];
+}

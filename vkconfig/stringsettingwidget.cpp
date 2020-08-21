@@ -15,21 +15,25 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "stringsettingwidget.h"
 
-StringSettingWidget::StringSettingWidget(QTreeWidgetItem* pItem, LayerSetting* pLayerSetting) {
-    _layer_settings = pLayerSetting;
-    pItem->setText(0, pLayerSetting->label);
-    pItem->setToolTip(0, pLayerSetting->description);
-    this->setText(pLayerSetting->value);
+#include <cassert>
+
+StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+    assert(item);
+    assert(&layer_setting);
+
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
+    this->setText(layer_setting.value);
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void StringSettingWidget::itemEdited(const QString& newString) {
-    _layer_settings->value = newString;
+void StringSettingWidget::itemEdited(const QString& new_string) {
+    _layer_setting.value = new_string;
     emit itemChanged();
 }
