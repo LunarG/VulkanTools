@@ -22,7 +22,7 @@
 #include "enumsettingwidget.h"
 
 EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting* layers_settings) {
-    _layer_settings = layers_settings;
+    _layer_setting = layers_settings;
     item->setText(0, layers_settings->label);
     item->setToolTip(0, layers_settings->description);
 
@@ -38,6 +38,6 @@ EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting* layers
 }
 
 void EnumSettingWidget::indexChanged(int index) {
-    _layer_settings->value = _layer_settings->exclusive_values[index];
+    _layer_setting->value = _layer_setting->exclusive_values[index];
     emit itemChanged();
 }

@@ -15,11 +15,13 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "mutemessagewidget.h"
+
+#include "../vkconfig_core/layer.h"
 
 MuteMessageWidget::MuteMessageWidget(LayerSetting *layer_settings) : QWidget(nullptr) {
     _layer_settings = layer_settings;
@@ -43,10 +45,10 @@ MuteMessageWidget::MuteMessageWidget(LayerSetting *layer_settings) : QWidget(nul
 }
 
 void MuteMessageWidget::resizeEvent(QResizeEvent *event) {
-    int nButtonHeight = 26;
-    QSize parentSize = event->size();
-    _list_widget->setGeometry(0, 0, parentSize.width(), parentSize.height() - nButtonHeight);
-    _remove_button->setGeometry(0, parentSize.height() - nButtonHeight, parentSize.width(), nButtonHeight);
+    int button_height = 26;
+    QSize parent_size = event->size();
+    _list_widget->setGeometry(0, 0, parent_size.width(), parent_size.height() - button_height);
+    _remove_button->setGeometry(0, parent_size.height() - button_height, parent_size.width(), button_height);
 }
 
 void MuteMessageWidget::addItem(const QString &item) {
@@ -60,11 +62,11 @@ void MuteMessageWidget::addItem(const QString &item) {
 }
 
 void MuteMessageWidget::removePushed() {
-    int nRow = _list_widget->currentRow();
-    if (nRow < 0) return;
+    int row = _list_widget->currentRow();
+    if (row < 0) return;
 
     QString itemName = _list_widget->currentItem()->text();
-    _list_widget->takeItem(nRow);
+    _list_widget->takeItem(row);
 
     // Update Setting
     RemoveString(_layer_settings->value, itemName);

@@ -19,8 +19,8 @@
  * as the "model" of the system.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
@@ -30,17 +30,31 @@
 #include <QObject>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonValue>
-#include <QJsonArray>
 #include <QString>
 #include <QVector>
-#include <QVariant>
 
 void RemoveString(QString& delimitedString, QString value);
 void AddString(QString& delimitedString, QString value);
 
-class LayerFile : public QObject {
-    Q_OBJECT
+// The value of this enum can't be changed
+enum LayerState {
+    LAYER_STATE_APPLICATION_CONTROLLED = 0,  // The Vulkan application configured this layer at will
+    LAYER_STATE_OVERRIDDEN = 1,              // Force on/override this layer and configure it regarless of the Vulkan application
+    LAYER_STATE_EXCLUDED = 2,                // Force off/exclude this layer regarless of the Vulkan application
+
+    LAYER_STATE_FIRST = LAYER_STATE_APPLICATION_CONTROLLED,
+    LAYER_STATE_LAST = LAYER_STATE_EXCLUDED
+};
+
+enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
+
+class Layer {
+   public:
+    Layer();
+    ~Layer();
+
+    bool IsValid() const;
+
    public:
     // Standard pieces of a layer
     QString _file_format_version;
@@ -59,17 +73,12 @@ class LayerFile : public QObject {
     // layer doens't have any settings.
     QVector<LayerSetting*> _layer_settings;
 
-    bool _enabled;   // When used in a profile, is this one active?
-    bool _disabled;  // When used in a profile, is this one disabled?
-    int _rank;       // When used in a profile, what is the rank? (0 being first layer)
-
-   public:
-    LayerFile();
-    ~LayerFile();
+    LayerState _state;
+    int _rank;  // When used in a configurate, what is the rank? (0 being first layer)
 
     // No.. I do not like operator overloading. It's a bad idea.
     // Inlined here just so I can see all the variables that need to be copied.
-    void CopyLayer(LayerFile* destination_layer_file) const {
+    void CopyLayer(Layer* destination_layer_file) const {
         destination_layer_file->_file_format_version = _file_format_version;
         destination_layer_file->_name = _name;
         destination_layer_file->_type = _type;
@@ -78,9 +87,8 @@ class LayerFile : public QObject {
         destination_layer_file->_implementation_version = _implementation_version;
         destination_layer_file->_description = _description;
         destination_layer_file->_layer_type = _layer_type;
-        destination_layer_file->_enabled = _enabled;
+        destination_layer_file->_state = _state;
         destination_layer_file->_rank = _rank;
-        destination_layer_file->_disabled = _disabled;
         destination_layer_file->_layer_path = _layer_path;
 
         for (int i = 0; i < _layer_settings.length(); i++) {

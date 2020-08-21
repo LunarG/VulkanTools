@@ -26,6 +26,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+#include <cassert>
+
 Configuration::Configuration() : _preset(ValidationPresetNone), _all_layers_available(true) {}
 
 Configuration::~Configuration() {
@@ -35,7 +37,10 @@ Configuration::~Configuration() {
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
-LayerFile* Configuration::FindLayer(const QString& layer_name, const QString& full_path) const {
+Layer* Configuration::FindLayer(const QString& layer_name, const QString& full_path) const {
+    assert(!layer_name.isEmpty());
+    assert(!full_path.isEmpty());
+
     for (int i = 0; i < _layers.size(); i++)
         if (_layers[i]->_name == layer_name && _layers[i]->_layer_path == full_path) return _layers[i];
 
@@ -44,17 +49,14 @@ LayerFile* Configuration::FindLayer(const QString& layer_name, const QString& fu
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists. Only care about the name
-LayerFile* Configuration::FindLayerNamed(const QString& layer_name) const {
+Layer* Configuration::FindLayerNamed(const QString& layer_name) const {
+    assert(!layer_name.isEmpty());
+
     for (int i = 0; i < _layers.size(); i++)
         if (_layers[i]->_name == layer_name) return _layers[i];
 
     return nullptr;
 }
-
-///////////////////////////////////////////////////////////
-// Convienience function
-// Retrieve the Khronos validation layer if it is included
-LayerFile* Configuration::GetKhronosLayer() { return FindLayerNamed("VK_LAYER_KHRONOS_validation"); }
 
 ////////////////////////////////////////////////////////////
 // Copy a profile so we can mess with it.
@@ -69,7 +71,7 @@ Configuration* Configuration::DuplicateConfiguration() {
     // Do not copy ->bFixedProfile
 
     for (int i = 0; i < _layers.size(); i++) {
-        LayerFile* layer_file = new LayerFile;
+        Layer* layer_file = new Layer;
         _layers[i]->CopyLayer(layer_file);
         duplicate->_layers.push_back(layer_file);
     }
@@ -87,10 +89,12 @@ void Configuration::CollapseConfiguration() {
     // string list of names, but remove them from
     // the list of layers
     int layer_index = 0;
-    int nNewRank = 0;
+    int new_rank = 0;
     while (layer_index < _layers.size()) {
+        if (!_layers[layer_index]->IsValid()) continue;
+
         // Remove this layer?
-        if (_layers[layer_index]->_disabled) {
+        if (_layers[layer_index]->_state == LAYER_STATE_EXCLUDED) {
             _excluded_layers << _layers[layer_index]->_name;
             _layers.removeAt(layer_index);
             continue;
@@ -98,13 +102,13 @@ void Configuration::CollapseConfiguration() {
 
         // If the layer is not active, also remove it
         // Important to do black list test FIRST
-        if (!_layers[layer_index]->_enabled) {
+        if (!_layers[layer_index]->_state == LAYER_STATE_OVERRIDDEN) {
             _layers.removeAt(layer_index);
             continue;
         }
 
         // We are keeping this layer, reset it's rank
-        _layers[layer_index]->_rank = nNewRank++;
+        _layers[layer_index]->_rank = new_rank++;
 
         layer_index++;
     }

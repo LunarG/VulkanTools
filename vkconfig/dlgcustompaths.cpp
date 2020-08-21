@@ -55,9 +55,9 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
 
     if (!custom_folder.isEmpty()) {
         configurator.AppendCustomLayersPath(custom_folder);
-        QTreeWidgetItem *pItem = new QTreeWidgetItem();
-        pItem->setText(0, custom_folder);
-        ui->treeWidget->addTopLevelItem(pItem);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, custom_folder);
+        ui->treeWidget->addTopLevelItem(item);
 
         _paths_changed = true;
         RepopulateTree();

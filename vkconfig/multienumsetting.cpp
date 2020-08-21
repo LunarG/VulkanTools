@@ -21,17 +21,19 @@
 
 #include "multienumsetting.h"
 
-MultiEnumSetting::MultiEnumSetting(LayerSetting *pLayerSetting, QString thisSetting) {
-    _layer_settings = pLayerSetting;
-    _my_setting = thisSetting;
+#include "../vkconfig_core/layer.h"
 
-    if (pLayerSetting->value.contains(_my_setting)) this->setChecked(true);
+MultiEnumSetting::MultiEnumSetting(LayerSetting *layer_setting, QString setting_name) {
+    _layer_settings = layer_setting;
+    _my_setting = setting_name;
+
+    if (layer_setting->value.contains(_my_setting)) this->setChecked(true);
 
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
-void MultiEnumSetting::itemChecked(bool bChecked) {
-    if (bChecked)
+void MultiEnumSetting::itemChecked(bool checked) {
+    if (checked)
         AddString(_layer_settings->value, _my_setting);
     else
         RemoveString(_layer_settings->value, _my_setting);
