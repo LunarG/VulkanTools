@@ -47,10 +47,12 @@
 #include <unistd.h>
 #endif
 
+#include <cassert>
+
 // This is what happens when programmers can touch type....
 bool been_warned_about_old_loader = false;
 
-#define EDITOR_CAPTION_EMPTY "Configuration Layer Settings"
+const char *EDITOR_CAPTION_EMPTY = "Configuration Layer Settings";
 
 static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
@@ -145,7 +147,7 @@ MainWindow::MainWindow(QWidget *parent)
         for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
             if (item != nullptr)
-                if (item->configuration == configuration) {  // Ding ding ding... we have a winner
+                if (&item->configuration == configuration) {  // Ding ding ding... we have a winner
                     ui->profileTree->setCurrentItem(item);
                 }
         }
@@ -182,8 +184,7 @@ void MainWindow::LoadConfigurationList() {
 
     for (int i = 0, n = configurator._available_configurations.size(); i < n; i++) {
         // Add to list
-        ConfigurationListItem *item = new ConfigurationListItem();
-        item->configuration = configurator._available_configurations[i];
+        ConfigurationListItem *item = new ConfigurationListItem(*configurator._available_configurations[i]);
         ui->profileTree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
 #ifdef __APPLE__  // Mac OS does not leave enough space without this
@@ -275,11 +276,11 @@ void MainWindow::on_radioOverride_clicked() {
     configurator.SaveSettings();
 
     // This just doesn't work. Make a function to look for the radio button checked.
-    ConfigurationListItem *configuration_item = GetCheckedItem();
-    if (configuration_item == nullptr)
+    ConfigurationListItem *item = GetCheckedItem();
+    if (item == nullptr)
         ChangeActiveConfiguration(nullptr);
     else
-        ChangeActiveConfiguration(configuration_item->configuration);
+        ChangeActiveConfiguration(&item->configuration);
 
     ui->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
 }
@@ -390,8 +391,8 @@ void MainWindow::toolsResetToDefault(bool checked) {
     // Active or not, set it in the tree so we can see the settings.
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (item != nullptr)
-            if (item->configuration == active_configuration) ui->profileTree->setCurrentItem(item);
+        if (item == nullptr) continue;
+        if (&item->configuration == active_configuration) ui->profileTree->setCurrentItem(item);
     }
 
     configurator.FindVkCube();
@@ -426,18 +427,16 @@ void MainWindow::profileItemClicked(bool checked) {
     // Someone just got checked, they are now the current profile
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    ConfigurationListItem *configuration_item = GetCheckedItem();
-    if (configuration_item == nullptr) return;
+    ConfigurationListItem *item = GetCheckedItem();
+    if (item == nullptr) return;
 
     // This appears redundant on Windows, but under linux it is needed
     // to ensure the new item is "selected"
-    ui->profileTree->setCurrentItem(configuration_item);
-
-    Configurator &configurator = Configurator::Get();
+    ui->profileTree->setCurrentItem(item);
 
     // Do we go ahead and activate it?
-    if (configurator._override_active) {
-        ChangeActiveConfiguration(configuration_item->configuration);
+    if (Configurator::Get()._override_active) {
+        ChangeActiveConfiguration(&item->configuration);
     }
 }
 
@@ -456,7 +455,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         // We are renaming the file. Things can go wrong here...
         // This is the name of the configuratin we are changing
         const QString full_path =
-            configurator.GetPath(Configurator::ConfigurationPath) + "/" + configuration_item->configuration->_file;
+            configurator.GetPath(Configurator::ConfigurationPath) + "/" + configuration_item->configuration._file;
 
         // This is the new name we want to use
         QString newName = configuration_item->text(1);
@@ -472,17 +471,17 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
 
             // Reset the name
             ui->profileTree->blockSignals(true);
-            item->setText(1, configuration_item->configuration->_name);
+            item->setText(1, configuration_item->configuration._name);
             ui->profileTree->blockSignals(false);
             return;
         }
 
         // Proceed
         remove(full_path.toUtf8().constData());
-        configuration_item->configuration->_name = newName;
-        configuration_item->configuration->_file = newName + QString(".json");
+        configuration_item->configuration._name = newName;
+        configuration_item->configuration._file = newName + QString(".json");
         configurator.SaveConfiguration(configuration_item->configuration);
-        RestoreLastItem(configuration_item->configuration->_name.toUtf8().constData());
+        RestoreLastItem(configuration_item->configuration._name.toUtf8().constData());
     }
 }
 
@@ -500,11 +499,11 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *p
 
     if (!Preferences::Get()._use_separated_select_and_activate) {
         configuration_item->radio_button->setChecked(true);
-        ChangeActiveConfiguration(configuration_item->configuration);
+        ChangeActiveConfiguration(&configuration_item->configuration);
     }
 
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration_item->configuration);
-    QString title = configuration_item->configuration->_name;
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &configuration_item->configuration);
+    QString title = configuration_item->configuration._name;
     title += " Settings";
     ui->groupBoxEditor->setTitle(title);
     ui->layerSettingsTree->resizeColumnToContents(0);
@@ -679,15 +678,12 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
         ui->groupBoxEditor->setEnabled(false);
         return;
     }
-
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
 
-    dlgProfileEditor dlg(this, item->configuration);
+    assert(&item->configuration);
+    dlgProfileEditor dlg(this, &item->configuration);
     dlg.exec();
-
-    // 'item' will be invalid after LoadAllConfigurations, but I still -  // need the pointer to the configuration
-    const QString edited_configuration_name = item->configuration->_name;
 
     Configurator::Get().LoadAllConfigurations();
     LoadConfigurationList();
@@ -707,34 +703,37 @@ ConfigurationListItem *MainWindow::SaveLastItem() {
     ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->currentItem());
     if (item == nullptr) return nullptr;
 
-    _lastItem = item->configuration->_name;
+    assert(&item->configuration);
+    _last_item = item->configuration._name;
     return item;
 }
 
 ////////////////////////////////////////////////////////////////
 // Partner for above function. Returns false if the last config
 // could not be found.
-bool MainWindow::RestoreLastItem(const char *szOverride) {
-    if (szOverride != nullptr) _lastItem = szOverride;
+bool MainWindow::RestoreLastItem(const char *configuration_override) {
+    if (configuration_override != nullptr) _last_item = configuration_override;
 
     // Reset the current item
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (item != nullptr)
-            if (item->configuration->_name == _lastItem) {
-                ui->profileTree->setCurrentItem(item);
-                return true;
-            }
+        if (item == nullptr) continue;
+
+        assert(&item->configuration);
+        if (item->configuration._name == _last_item) {
+            ui->profileTree->setCurrentItem(item);
+            return true;
+        }
     }
     return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Edit the layers for the given profile.
+// Edit the layers for the given configuration.
 void MainWindow::EditClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
-    dlgProfileEditor dlg(this, item->configuration);
+    dlgProfileEditor dlg(this, &item->configuration);
     dlg.exec();
 
     Configurator::Get().LoadAllConfigurations();
@@ -743,7 +742,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Create a new blank profile
+// Create a new blank configuration
 void MainWindow::NewClicked() {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
@@ -759,7 +758,6 @@ void MainWindow::NewClicked() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief MainWindow::addCustomPaths
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
 void MainWindow::addCustomPaths() {
@@ -784,9 +782,12 @@ void MainWindow::addCustomPaths() {
 // delete the current one. Since it's not possible to select it without
 // making it current, this is the only reasonable option I see.
 void MainWindow::RemoveClicked(ConfigurationListItem *item) {
+    assert(item);
+    assert(&item->configuration);
+
     // Let make sure...
     QMessageBox msg;
-    msg.setInformativeText(item->configuration->_name);
+    msg.setInformativeText(item->configuration._name);
     msg.setText(tr("Are you sure you want to remove this configuration?"));
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msg.setDefaultButton(QMessageBox::Yes);
@@ -796,20 +797,22 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CleanupGUI();
     // What if this is the active profile? We will go boom boom soon...
     Configurator &configurator = Configurator::Get();
-    if (configurator.GetActiveConfiguration() == item->configuration) configurator.SetActiveConfiguration(nullptr);
+    if (configurator.GetActiveConfiguration() == &item->configuration) configurator.SetActiveConfiguration(nullptr);
 
     // Delete the file
-    const QString full_path = configurator.GetPath(Configurator::ConfigurationPath) + "/" + item->configuration->_file;
+    const QString full_path = configurator.GetPath(Configurator::ConfigurationPath) + "/" + item->configuration._file;
     remove(full_path.toUtf8().constData());
 
     // Reload profiles
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
-    if (!RestoreLastItem()) ui->groupBoxEditor->setTitle(tr(EDITOR_CAPTION_EMPTY));
+    if (!RestoreLastItem()) ui->groupBoxEditor->setTitle(EDITOR_CAPTION_EMPTY);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
+    assert(item);
+
     SaveLastItem();
     ui->profileTree->editItem(item, 1);
 }
@@ -817,16 +820,19 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
 /////////////////////////////////////////////////////////////////////////////
 // Copy the current configuration
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
+    assert(item);
+
     SaveLastItem();
     Configurator &configurator = Configurator::Get();
 
     // We need a new name that is not already used. Simply append '2' until
     // it is unique.
-    QString new_name = item->configuration->_name;
+    assert(&item->configuration);
+    QString new_name = item->configuration._name;
     while (configurator.FindConfiguration(new_name) != nullptr) new_name += "2";
 
     _settings_tree_manager.CleanupGUI();
-    item->configuration->_name = new_name;
+    item->configuration._name = new_name;
 
     configurator.SaveConfiguration(item->configuration);
     configurator.LoadAllConfigurations();
@@ -835,9 +841,9 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     // Good enough? Nope, I want to select it and edit the name.
     // Find it.
     for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        ConfigurationListItem *pItem = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (pItem->configuration->_name == new_name) {
-            ui->profileTree->editItem(pItem, 1);
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
+        if (item->configuration._name == new_name) {
+            ui->profileTree->editItem(item, 1);
             return;
         }
     }
@@ -866,15 +872,17 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
 /////////////////////////////////////////////////////////////////////////////
 // Export a configuration file. Basically just a file copy
 void MainWindow::ExportClicked(ConfigurationListItem *item) {
+    assert(item);
+
     Configurator &configurator = Configurator::Get();
 
     // Where to put it and what to call it
-    QString full_suggested_path = configurator.GetPath(Configurator::LastExportPath) + "/" + item->configuration->_file;
+    QString full_suggested_path = configurator.GetPath(Configurator::LastExportPath) + "/" + item->configuration._file;
     QString full_export_path =
         QFileDialog::getSaveFileName(this, "Export Layers Configuration File", full_suggested_path, "*.json");
     if (full_export_path.isEmpty()) return;
 
-    configurator.ExportConfiguration(item->configuration->_file, full_export_path);
+    configurator.ExportConfiguration(item->configuration._file, full_export_path);
     configurator.SaveSettings();
 }
 
@@ -900,13 +908,13 @@ void MainWindow::ChangeActiveConfiguration(Configuration *configuration) {
 
         setWindowTitle("Vulkan Configurator <VULKAN APPLICATION CONTROLLED>");
     } else {
-        QString newCaption = configuration->_name;
-        if (!configuration->IsValid()) newCaption += " (DISABLED)";
-        newCaption += " - Vulkan Configurator ";
+        QString new_caption = configuration->_name;
+        if (!configuration->IsValid()) new_caption += " (DISABLED)";
+        new_caption += " - Vulkan Configurator ";
         configurator.SetActiveConfiguration(configuration);
-        newCaption += "<VULKAN APPLICATIONS OVERRIDDEN>";
+        new_caption += "<VULKAN APPLICATIONS OVERRIDDEN>";
 
-        setWindowTitle(newCaption);
+        setWindowTitle(new_caption);
     }
 
     ui->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);
@@ -1006,11 +1014,14 @@ void MainWindow::SetupLaunchTree() {
     ui->launchTree->setItemWidget(launcher_folder_item, 1, _launcher_working);
     _launcher_working->setReadOnly(false);
 
-    _launchWorkingFolderButton = new QPushButton();
-    _launchWorkingFolderButton->setText("...");
-    _launchWorkingFolderButton->setMinimumWidth(32);
-    ui->launchTree->setItemWidget(launcher_folder_item, 2, _launchWorkingFolderButton);
-    connect(_launchWorkingFolderButton, SIGNAL(clicked()), this, SLOT(launchSetWorkingFolder()));
+    _launcher_working_browse_button = new QPushButton();
+    _launcher_working_browse_button->setText("...");
+    _launcher_working_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    _launcher_working_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+    _launcher_working_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    _launcher_working_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui->launchTree->setItemWidget(launcher_folder_item, 2, _launcher_working_browse_button);
+    connect(_launcher_working_browse_button, SIGNAL(clicked()), this, SLOT(launchSetWorkingFolder()));
 
     //////////////////////////////////////////////////////////////////
     // Command line arguments

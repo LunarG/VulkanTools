@@ -248,7 +248,7 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
     profileEdited();
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, LayerFile *layer_file) {
+void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer_file) {
     for (int layer_settings_index = 0, n = layer_file->_layer_settings.size(); layer_settings_index < n; layer_settings_index++) {
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
 
@@ -451,7 +451,7 @@ void SettingsTreeManager::CleanupGUI() {
     // Get the state of the last tree, and save it!
     _configuration->_setting_tree_state.clear();
     GetTreeState(_configuration->_setting_tree_state, _configuration_settings_tree->invisibleRootItem());
-    Configurator::Get().SaveConfiguration(_configuration);
+    Configurator::Get().SaveConfiguration(*_configuration);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
@@ -484,7 +484,7 @@ void SettingsTreeManager::CleanupGUI() {
 void SettingsTreeManager::profileEdited() {
     // Resave this profile
     Configurator &configuration = Configurator::Get();
-    configuration.SaveConfiguration(_configuration);
+    configuration.SaveConfiguration(*_configuration);
     configuration.CheckApplicationRestart();
 
     // If this profile is active, we need to reset the override files too

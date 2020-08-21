@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "../vkconfig_core/layer.h"
 #include "configuration.h"
 
 #ifdef _WIN32
@@ -177,7 +177,7 @@ class Configurator {
     void AppendCustomLayersPath(const QString& path);
     int GetCustomLayersPathSize() const;
     const QString& GetCustomLayersPath(int path_index) const;
-    void BuildCustomLayerTree(QTreeWidget* pTreeWidget);
+    void BuildCustomLayerTree(QTreeWidget* tree_widget);
 
     QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
                                 // a list of paths that should be searched first for
@@ -202,7 +202,7 @@ class Configurator {
     QVector<LayerSettingsDefaults*> _default_layers_settings;
     void LoadDefaultLayerSettings();
     const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
-    void LoadDefaultSettings(LayerFile* empty_layer);
+    void LoadDefaultSettings(Layer* empty_layer);
 
     ////////////////////////////////////////////////////////////////////////
     // Look for all installed layers. This contains their path, version info, etc.
@@ -210,25 +210,18 @@ class Configurator {
     // in the above (defaultLayerSettings). The binding of a layer with it's
     // particular settings is done in the profile (Configuration - in configuration list).
     // This includes all found implicit, explicit, or layers found in custom folders
-    QVector<LayerFile*> _available_Layers;  // All the found layers, lumped together
+    QVector<Layer*> _available_Layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
-    const LayerFile* FindLayerNamed(QString layer_name);
-    void LoadLayersFromPath(const QString& path, QVector<LayerFile*>& layer_list);
+    const Layer* FindLayerNamed(QString layer_name);
+    void LoadLayersFromPath(const QString& path, QVector<Layer*>& layer_list);
 
     QVector<Configuration*> _available_configurations;
-
-    // We need to push and pop a temporary environment.
-    // The stack is only one deep...
-    Configuration* _saved_configuration;
-
-    void PushConfiguration(Configuration* configuration);
-    void PopConfiguration();
 
     Configuration* CreateEmptyConfiguration();
     Configuration* FindConfiguration(const QString& configuration_name) const;
     Configuration* LoadConfiguration(const QString& path_configuration);  // Load .profile descriptor
     void LoadAllConfigurations();                                         // Load all the .profile files found
-    bool SaveConfiguration(Configuration* configuration);                 // Write .profile descriptor
+    bool SaveConfiguration(const Configuration& configuration);           // Write .profile descriptor
     void ImportConfiguration(const QString& full_import_path);
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
 
@@ -256,8 +249,8 @@ class Configurator {
     void ClearLayerLists();
 
 #ifdef _WIN32
-    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<LayerFile*>& layerList, LayerType type);
-    void LoadRegistryLayers(const QString& path, QVector<LayerFile*>& layerList, LayerType type);
+    void LoadDeviceRegistry(DEVINST id, const QString& entry, QVector<Layer*>& layerList, LayerType type);
+    void LoadRegistryLayers(const QString& path, QVector<Layer*>& layerList, LayerType type);
 
     void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
     void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);

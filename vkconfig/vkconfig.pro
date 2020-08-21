@@ -27,6 +27,9 @@ SOURCES += \
     ..\vkconfig_core\command_line.cpp \
     ..\vkconfig_core\util.cpp \
     ..\vkconfig_core\version.cpp \
+    ..\vkconfig_core\layer.cpp \
+    ..\vkconfig_core\layer_setting.cpp \
+    ..\vkconfig_core\layer_type.cpp \
     appsingleton.cpp \
     boolsettingwidget.cpp \
     dlgabout.cpp \
@@ -39,7 +42,6 @@ SOURCES += \
     filenamesettingwidget.cpp \
     foldersettingwidget.cpp \
     khronossettingsadvanced.cpp \
-    layerfile.cpp \
     main.cpp \
     mainwindow.cpp \
     multienumsetting.cpp \
@@ -56,6 +58,9 @@ HEADERS += \
     ..\vkconfig_core\command_line.h \
     ..\vkconfig_core\util.h \
     ..\vkconfig_core\version.h \
+    ..\vkconfig_core\layer.h \
+    ..\vkconfig_core\layer_setting.h \
+    ..\vkconfig_core\layer_type.h \
     appsingleton.h \
     boolsettingwidget.h \
     dlgabout.h \
@@ -68,7 +73,6 @@ HEADERS += \
     filenamesettingwidget.h \
     foldersettingwidget.h \
     khronossettingsadvanced.h \
-    layerfile.h \
     mainwindow.h \
     multienumsetting.h \
     mutemessagewidget.h \

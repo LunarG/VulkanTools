@@ -46,7 +46,8 @@ QT_END_NAMESPACE
 /// with a list widget item.
 class ConfigurationListItem : public QTreeWidgetItem {
    public:
-    Configuration *configuration;
+    ConfigurationListItem(Configuration &configuration) : configuration(configuration) {}
+    Configuration &configuration;
     QRadioButton *radio_button;
 };
 
@@ -88,14 +89,14 @@ class MainWindow : public QMainWindow {
     QLineEdit *_launcher_working;
     QLineEdit *_launcher_log_file_edit;
     QPushButton *_launcher_apps_browse_button;
-    QPushButton *_launchWorkingFolderButton;
+    QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_button;
 
     void ResetLaunchOptions();
 
     ConfigurationListItem *SaveLastItem(void);
     bool RestoreLastItem(const char *szOverride = nullptr);
-    QString _lastItem;
+    QString _last_item;
 
     void RemoveClicked(ConfigurationListItem *item);
     void RenameClicked(ConfigurationListItem *item);

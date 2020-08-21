@@ -15,30 +15,28 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
 
-#include "layerfile.h"
+#include "../vkconfig_core/layer_setting.h"
 
 #include <QWidget>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QResizeEvent>
-#include <QFileDialog>
 
 class FolderSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSetting *layer_settings);
+    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSetting *layer_setting);
 
     virtual void resizeEvent(QResizeEvent *event) override;
 
    private:
-    LayerSetting *_layer_settings;
+    LayerSetting *_layer_setting;
     QLineEdit *_line_edit;
     QPushButton *_push_button;
 

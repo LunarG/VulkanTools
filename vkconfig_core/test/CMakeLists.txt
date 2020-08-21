@@ -19,6 +19,7 @@ endfunction(vkConfigTest)
 vkConfigTest(test_util)
 vkConfigTest(test_version)
 vkConfigTest(test_command_line)
+vkConfigTest(test_layer)
 vkConfigTest(test_layer_setting)
 vkConfigTest(test_layer_type)
 

@@ -21,12 +21,12 @@
 
 #pragma once
 
+#include "../vkconfig_core/layer_setting.h"
+
 #include <QWidget>
 #include <QCheckBox>
 #include <QTreeWidgetItem>
 #include <QString>
-
-#include "layerfile.h"
 
 class MultiEnumSetting : public QCheckBox {
     Q_OBJECT

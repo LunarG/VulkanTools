@@ -15,20 +15,23 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "foldersettingwidget.h"
 
+#include <QResizeEvent>
+#include <QFileDialog>
+
 FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* item, LayerSetting* layer_settings) : QWidget(nullptr) {
-    _layer_settings = layer_settings;
+    _layer_setting = layer_settings;
 
     item->setText(0, layer_settings->label);
     item->setToolTip(0, layer_settings->description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_settings->value);
+    _line_edit->setText(_layer_setting->value);
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -56,13 +59,13 @@ void FolderSettingWidget::browseButtonClicked(void) {
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        _layer_settings->value = file;
+        _layer_setting->value = file;
         _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
 void FolderSettingWidget::textFieldChanged(const QString& newText) {
-    _layer_settings->value = newText;
+    _layer_setting->value = newText;
     emit itemChanged();
 }

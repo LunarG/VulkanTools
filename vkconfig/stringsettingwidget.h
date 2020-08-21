@@ -15,13 +15,13 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
 
-#include "layerfile.h"
+#include "../vkconfig_core/layer_setting.h"
 
 #include <QObject>
 #include <QWidget>

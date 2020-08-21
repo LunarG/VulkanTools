@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "../vkconfig_core/layer.h"
 
 #include <QString>
 #include <QStringList>
@@ -56,18 +56,16 @@ class Configuration {
     ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     // A configuration is nothing but a list of layers and their settings in truth
-    QVector<LayerFile *> _layers;
+    QVector<Layer *> _layers;
 
     QStringList _excluded_layers;  // Just the names of blacklisted layers
 
-    LayerFile *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
-    LayerFile *FindLayerNamed(const QString &layer_name) const;  // Find the layer if it exists, only care about the name
+    Layer *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
+    Layer *FindLayerNamed(const QString &layer_name) const;  // Find the layer if it exists, only care about the name
 
     Configuration *DuplicateConfiguration();  // Copy a profile so we can mess with it
 
     void CollapseConfiguration();  // Remove unused layers and settings, set blacklist
-
-    LayerFile *GetKhronosLayer();  // Retrieve the Khronos validation layer if it is included
 
     bool IsValid() { return _all_layers_available; }
 

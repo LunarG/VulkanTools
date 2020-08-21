@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "layerfile.h"
+#include "../vkconfig_core/layer.h"
 
 #include <QObject>
 #include <QWidget>
