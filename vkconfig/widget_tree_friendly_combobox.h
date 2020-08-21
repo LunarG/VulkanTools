@@ -25,10 +25,10 @@
 #include <QComboBox>
 #include <QTreeWidgetItem>
 
-class TreeFriendlyComboBox : public QComboBox {
+class TreeFriendlyComboBoxWidget : public QComboBox {
     Q_OBJECT
    public:
-    TreeFriendlyComboBox(QTreeWidgetItem *item);
+    TreeFriendlyComboBoxWidget(QTreeWidgetItem *item);
 
    protected:
     QTreeWidgetItem *_tree_widget;

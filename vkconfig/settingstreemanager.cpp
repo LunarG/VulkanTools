@@ -191,7 +191,7 @@ void SettingsTreeManager::BuildKhronosTree() {
 
         for (int i = 0, n = layer_setting.inclusive_values.size(); i < n; ++i) {
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            MultiEnumSetting *control = new MultiEnumSetting(layer_setting, layer_setting.inclusive_values[i]);
+            MultiEnumSettingWidget *control = new MultiEnumSettingWidget(layer_setting, layer_setting.inclusive_values[i]);
             control->setText(layer_setting.inclusive_labels[i]);
             sub_category->addChild(child);
             _configuration_settings_tree->setItemWidget(child, 0, control);

@@ -28,10 +28,10 @@
 #include <QTreeWidgetItem>
 #include <QString>
 
-class MultiEnumSetting : public QCheckBox {
+class MultiEnumSettingWidget : public QCheckBox {
     Q_OBJECT
    public:
-    explicit MultiEnumSetting(LayerSetting& layer_setting, QString setting_name);
+    explicit MultiEnumSettingWidget(LayerSetting& layer_setting, QString setting_name);
 
    private:
     LayerSetting& _layer_setting;

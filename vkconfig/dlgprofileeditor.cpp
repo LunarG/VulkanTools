@@ -297,7 +297,7 @@ void dlgProfileEditor::LoadLayerDisplay(int selection) {
         if (layer_index == selection) ui->layerTree->setCurrentItem(item);
 
         // Add a combo box. Default has gray background which looks hidious
-        TreeFriendlyComboBox *use = new TreeFriendlyComboBox(item);
+        TreeFriendlyComboBoxWidget *use = new TreeFriendlyComboBoxWidget(item);
         ui->layerTree->setItemWidget(item, 1, use);
         item->setSizeHint(1, QSize(comboWidth, comboHeight));
 

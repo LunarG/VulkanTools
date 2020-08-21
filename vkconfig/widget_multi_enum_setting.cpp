@@ -25,7 +25,7 @@
 
 #include <cassert>
 
-MultiEnumSetting::MultiEnumSetting(LayerSetting& layer_setting, QString setting_name)
+MultiEnumSettingWidget::MultiEnumSettingWidget(LayerSetting& layer_setting, QString setting_name)
     : _layer_setting(layer_setting), _setting_name(setting_name) {
     assert(&layer_setting);
     assert(!setting_name.isEmpty());
@@ -35,7 +35,7 @@ MultiEnumSetting::MultiEnumSetting(LayerSetting& layer_setting, QString setting_
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
-void MultiEnumSetting::itemChecked(bool checked) {
+void MultiEnumSettingWidget::itemChecked(bool checked) {
     if (checked)
         AddString(_layer_setting.value, _setting_name);
     else

@@ -25,6 +25,8 @@
 #include <QMessageBox>
 #include <QJsonArray>
 
+#include <cassert>
+
 ////////// A couple of utility functions for building/modifying enable/disable lists
 
 ///////////////////////////////////////////////////////////////////////////////
