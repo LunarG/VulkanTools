@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
@@ -31,14 +31,14 @@
 class MultiEnumSetting : public QCheckBox {
     Q_OBJECT
    public:
-    MultiEnumSetting(LayerSetting *layer_settings, QString thiss_setting);
+    explicit MultiEnumSetting(LayerSetting& layer_setting, QString setting_name);
 
    private:
-    LayerSetting *_layer_settings;
-    QString _my_setting;
+    LayerSetting& _layer_setting;
+    QString _setting_name;
 
    public Q_SLOTS:
-    void itemChecked(bool bChecked);
+    void itemChecked(bool checked);
 
    Q_SIGNALS:
     void itemChanged();

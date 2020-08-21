@@ -24,14 +24,18 @@
 #include <QResizeEvent>
 #include <QFileDialog>
 
-FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* item, LayerSetting* layer_settings) : QWidget(nullptr) {
-    _layer_setting = layer_settings;
+#include <cassert>
 
-    item->setText(0, layer_settings->label);
-    item->setToolTip(0, layer_settings->description);
+FolderSettingWidget::FolderSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting)
+    : QWidget(nullptr), _layer_setting(layer_setting) {
+    assert(item);
+    assert(&_layer_setting);
+
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_setting->value);
+    _line_edit->setText(_layer_setting.value);
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -54,18 +58,18 @@ void FolderSettingWidget::resizeEvent(QResizeEvent* event) {
     _push_button->setGeometry(buttonRect);
 }
 
-void FolderSettingWidget::browseButtonClicked(void) {
+void FolderSettingWidget::browseButtonClicked() {
     QString file = QFileDialog::getExistingDirectory(_push_button, tr("Select Folder"), ".");
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        _layer_setting->value = file;
+        _layer_setting.value = file;
         _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
 void FolderSettingWidget::textFieldChanged(const QString& newText) {
-    _layer_setting->value = newText;
+    _layer_setting.value = newText;
     emit itemChanged();
 }

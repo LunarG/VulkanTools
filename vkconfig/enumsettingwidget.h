@@ -31,10 +31,10 @@
 class EnumSettingWidget : public QComboBox {
     Q_OBJECT
    public:
-    EnumSettingWidget(QTreeWidgetItem *item, LayerSetting *layer_setting);
+    explicit EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting);
 
    private:
-    LayerSetting *_layer_setting;
+    LayerSetting& _layer_setting;
 
    public Q_SLOTS:
     void indexChanged(int index);

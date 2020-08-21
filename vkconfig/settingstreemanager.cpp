@@ -149,7 +149,7 @@ void SettingsTreeManager::BuildKhronosTree() {
 
     // Set them up
     QTreeWidgetItem *debug_action_item = new QTreeWidgetItem();
-    _validation_debug_action = new EnumSettingWidget(debug_action_item, debug_action);
+    _validation_debug_action = new EnumSettingWidget(debug_action_item, *debug_action);
     _validation_tree_item->addChild(debug_action_item);
     next_line = new QTreeWidgetItem();
     debug_action_item->addChild(next_line);
@@ -157,7 +157,7 @@ void SettingsTreeManager::BuildKhronosTree() {
 
     _validation_log_file_item = new QTreeWidgetItem();
     next_line = new QTreeWidgetItem();
-    _validation_log_file_widget = new FilenameSettingWidget(_validation_log_file_item, log_file);
+    _validation_log_file_widget = new FilenameSettingWidget(_validation_log_file_item, *log_file, SETTING_SAVE_FILE);
     connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
     debug_action_item->addChild(_validation_log_file_item);
     _validation_log_file_item->addChild(next_line);
@@ -171,62 +171,65 @@ void SettingsTreeManager::BuildKhronosTree() {
         _validation_log_file_widget->setDisabled(true);
     }
 
+    QVector<LayerSetting *> &settings = _validation_layer_file->_layer_settings;
+
     // This is looking for the report flags
-    for (int setting_index = 0; setting_index < _validation_layer_file->_layer_settings.size(); setting_index++) {
+    for (int setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
+        LayerSetting &layer_setting = *settings[setting_index];
+
         // Multi-enum - report flags only
-        if (_validation_layer_file->_layer_settings[setting_index]->type == SETTING_INCLUSIVE_LIST &&
-            _validation_layer_file->_layer_settings[setting_index]->name == QString("report_flags")) {
-            QTreeWidgetItem *sub_category = new QTreeWidgetItem;
-            sub_category->setText(0, _validation_layer_file->_layer_settings[setting_index]->label);
-            sub_category->setToolTip(0, _validation_layer_file->_layer_settings[setting_index]->description);
-            _validation_tree_item->addChild(sub_category);
-
-            for (int i = 0; i < _validation_layer_file->_layer_settings[setting_index]->inclusive_values.size(); i++) {
-                QTreeWidgetItem *child = new QTreeWidgetItem();
-                MultiEnumSetting *control =
-                    new MultiEnumSetting(_validation_layer_file->_layer_settings[setting_index],
-                                         _validation_layer_file->_layer_settings[setting_index]->inclusive_values[i]);
-                control->setText(_validation_layer_file->_layer_settings[setting_index]->inclusive_labels[i]);
-                sub_category->addChild(child);
-                _configuration_settings_tree->setItemWidget(child, 0, control);
-                control->setFont(_configuration_settings_tree->font());
-                connect(control, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            }
-
+        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && layer_setting.name == QString("report_flags"))) {
             continue;
+        }
+
+        QTreeWidgetItem *sub_category = new QTreeWidgetItem;
+        sub_category->setText(0, layer_setting.label);
+        sub_category->setToolTip(0, layer_setting.description);
+        _validation_tree_item->addChild(sub_category);
+
+        for (int i = 0, n = layer_setting.inclusive_values.size(); i < n; ++i) {
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            MultiEnumSetting *control = new MultiEnumSetting(layer_setting, layer_setting.inclusive_values[i]);
+            control->setText(layer_setting.inclusive_labels[i]);
+            sub_category->addChild(child);
+            _configuration_settings_tree->setItemWidget(child, 0, control);
+            control->setFont(_configuration_settings_tree->font());
+            connect(control, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
         }
     }
 
-    //////////////////////////////// VUID message filtering
-    for (int settings_index = 0; settings_index < _validation_layer_file->_layer_settings.size(); settings_index++) {
-        if (_validation_layer_file->_layer_settings[settings_index]->type == SETTING_VUID_FILTER) {
-            QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
+    // VUID message filtering
+    for (int setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
+        LayerSetting &layer_setting = *settings[setting_index];
 
-            mute_message_item->setText(0, "Mute Message VUIDs");
-            _validation_tree_item->addChild(mute_message_item);
-
-            _vuid_search_widget = new VUIDSearchWidget(_validation_layer_file->_layer_settings[settings_index]->value);
-            next_line = new QTreeWidgetItem();
-            next_line->setSizeHint(0, QSize(0, 28));
-            mute_message_item->addChild(next_line);
-            _configuration_settings_tree->setItemWidget(next_line, 0, _vuid_search_widget);
-            _compound_widgets.push_back(next_line);
-
-            QTreeWidgetItem *pListItem = new QTreeWidgetItem();
-            mute_message_item->addChild(pListItem);
-            pListItem->setSizeHint(0, QSize(0, 200));
-            _mute_message_widget = new MuteMessageWidget(_validation_layer_file->_layer_settings[settings_index]);
-            _compound_widgets.push_back(pListItem);
-            _configuration_settings_tree->setItemWidget(pListItem, 0, _mute_message_widget);
-
-            connect(_vuid_search_widget, SIGNAL(itemSelected(const QString &)), _mute_message_widget,
-                    SLOT(addItem(const QString &)));
-            connect(_vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            connect(_mute_message_widget, SIGNAL(itemRemoved(const QString &)), _vuid_search_widget,
-                    SLOT(addToSearchList(const QString &)));
-            connect(_mute_message_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()), Qt::QueuedConnection);
+        if (layer_setting.type != SETTING_VUID_FILTER) {
             continue;
         }
+
+        QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
+
+        mute_message_item->setText(0, "Mute Message VUIDs");
+        _validation_tree_item->addChild(mute_message_item);
+
+        _vuid_search_widget = new VUIDSearchWidget(layer_setting.value);
+        next_line = new QTreeWidgetItem();
+        next_line->setSizeHint(0, QSize(0, 28));
+        mute_message_item->addChild(next_line);
+        _configuration_settings_tree->setItemWidget(next_line, 0, _vuid_search_widget);
+        _compound_widgets.push_back(next_line);
+
+        QTreeWidgetItem *pListItem = new QTreeWidgetItem();
+        mute_message_item->addChild(pListItem);
+        pListItem->setSizeHint(0, QSize(0, 200));
+        _mute_message_widget = new MuteMessageWidget(layer_setting);
+        _compound_widgets.push_back(pListItem);
+        _configuration_settings_tree->setItemWidget(pListItem, 0, _mute_message_widget);
+
+        connect(_vuid_search_widget, SIGNAL(itemSelected(const QString &)), _mute_message_widget, SLOT(addItem(const QString &)));
+        connect(_vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+        connect(_mute_message_widget, SIGNAL(itemRemoved(const QString &)), _vuid_search_widget,
+                SLOT(addToSearchList(const QString &)));
+        connect(_mute_message_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()), Qt::QueuedConnection);
     }
 
     // This really does go way down here.
@@ -248,13 +251,15 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
     profileEdited();
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer_file) {
-    for (int layer_settings_index = 0, n = layer_file->_layer_settings.size(); layer_settings_index < n; layer_settings_index++) {
+void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer) {
+    for (int layer_settings_index = 0, n = layer->_layer_settings.size(); layer_settings_index < n; layer_settings_index++) {
+        LayerSetting &setting = *layer->_layer_settings[layer_settings_index];
+
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
 
         // True false?
-        if (layer_file->_layer_settings[layer_settings_index]->type == SETTING_BOOL) {
-            BoolSettingWidget *widget = new BoolSettingWidget(layer_file->_layer_settings[layer_settings_index]);
+        if (setting.type == SETTING_BOOL) {
+            BoolSettingWidget *widget = new BoolSettingWidget(setting, setting.type);
             parent->addChild(setting_item);
             _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
             widget->setFont(_configuration_settings_tree->font());
@@ -263,8 +268,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
         }
 
         // True false? (with numeric output instead of text)
-        if (layer_file->_layer_settings[layer_settings_index]->type == SETTING_BOOL_NUMERIC) {
-            BoolSettingWidget *widget = new BoolSettingWidget(layer_file->_layer_settings[layer_settings_index], true);
+        if (setting.type == SETTING_BOOL_NUMERIC) {
+            BoolSettingWidget *widget = new BoolSettingWidget(setting, setting.type);
             parent->addChild(setting_item);
             _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
             widget->setFont(_configuration_settings_tree->font());
@@ -273,21 +278,21 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
         }
 
         // Combobox - enum - just one thing
-        if (layer_file->_layer_settings[layer_settings_index]->type == SETTING_EXCLUSIVE_LIST) {
+        if (setting.type == SETTING_EXCLUSIVE_LIST) {
             parent->addChild(setting_item);
-            setting_item->setText(0, layer_file->_layer_settings[layer_settings_index]->label);
+            setting_item->setText(0, setting.label);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             setting_item->addChild(place_holder);
 
-            EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
+            EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, setting);
             _configuration_settings_tree->setItemWidget(place_holder, 0, enum_widget);
             connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
             continue;
         }
 
         // Raw text field?
-        if (layer_file->_layer_settings[layer_settings_index]->type == SETTING_STRING) {
-            StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
+        if (setting.type == SETTING_STRING) {
+            StringSettingWidget *widget = new StringSettingWidget(setting_item, setting);
             parent->addChild(setting_item);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             setting_item->addChild(place_holder);
@@ -297,9 +302,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
         }
 
         // Select a file?
-        if (layer_file->_layer_settings[layer_settings_index]->type == SETTING_SAVE_FILE) {
-            FilenameSettingWidget *widget =
-                new FilenameSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
+        if (setting.type == SETTING_SAVE_FILE) {
+            FilenameSettingWidget *widget = new FilenameSettingWidget(setting_item, setting, setting.type);
             parent->addChild(setting_item);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             place_holder->setSizeHint(0, QSize(0, 28));
@@ -311,9 +315,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
         }
 
         // Load a file?
-        if (layer_file->_layer_settings[layer_settings_index]->type == SETTING_LOAD_FILE) {
-            FilenameSettingWidget *widget =
-                new FilenameSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index], false);
+        if (setting.type == SETTING_LOAD_FILE) {
+            FilenameSettingWidget *widget = new FilenameSettingWidget(setting_item, setting, setting.type);
             parent->addChild(setting_item);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             place_holder->setSizeHint(0, QSize(0, 28));
@@ -325,8 +328,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
         }
 
         // Save to folder?
-        if (layer_file->_layer_settings[layer_settings_index]->type == SETTING_SAVE_FOLDER) {
-            FolderSettingWidget *widget = new FolderSettingWidget(setting_item, layer_file->_layer_settings[layer_settings_index]);
+        if (setting.type == SETTING_SAVE_FOLDER) {
+            FolderSettingWidget *widget = new FolderSettingWidget(setting_item, setting);
             parent->addChild(setting_item);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             place_holder->setSizeHint(0, QSize(0, 28));
@@ -339,8 +342,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
 
         ///////////////////////////////////////////////////////////////////////////
         // Undefined... at least gracefuly display what the setting is
-        setting_item->setText(0, layer_file->_layer_settings[layer_settings_index]->label);
-        setting_item->setToolTip(0, layer_file->_layer_settings[layer_settings_index]->description);
+        setting_item->setText(0, layer->_layer_settings[layer_settings_index]->label);
+        setting_item->setToolTip(0, layer->_layer_settings[layer_settings_index]->description);
         parent->addChild(setting_item);
     }
 }

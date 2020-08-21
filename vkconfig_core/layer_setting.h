@@ -58,5 +58,7 @@ struct LayerSetting {
     QString value;                 // Default value as a string
 };
 
+LayerSetting& FindSetting(QVector<LayerSetting*>& settings, const char* name);
+
 SettingType GetSettingType(const char* label);
 const char* GetSettingTypeLabel(SettingType type);

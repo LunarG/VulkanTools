@@ -29,11 +29,13 @@
 #include <QTreeWidgetItem>
 #include <QRadioButton>
 
+#include <vector>
+
 class KhronosSettingsAdvanced : public QObject {
     Q_OBJECT
 
    public:
-    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, QVector<LayerSetting *> &layer_Settings);
+    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, QVector<LayerSetting *> &layer_Setting);
     ~KhronosSettingsAdvanced();
 
     bool CollectSettings();
@@ -43,8 +45,8 @@ class KhronosSettingsAdvanced : public QObject {
     QTreeWidgetItem *_main_parent;
     QTreeWidgetItem *_core_checks_parent;
 
-    LayerSetting *_disables;
-    LayerSetting *_enables;
+    LayerSetting &_disables;
+    LayerSetting &_enables;
 
     QTreeWidgetItem *_synchronization_box;
     QTreeWidgetItem *_shader_based_box;

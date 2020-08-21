@@ -14,29 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This class creates an edit control that is paired with a setting
- * in a profile.
- * Author: Richard S. Wright Jr. <richard@lunarg.com>
+ * Authors:
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "multienumsetting.h"
 
 #include "../vkconfig_core/layer.h"
 
-MultiEnumSetting::MultiEnumSetting(LayerSetting *layer_setting, QString setting_name) {
-    _layer_settings = layer_setting;
-    _my_setting = setting_name;
+#include <cassert>
 
-    if (layer_setting->value.contains(_my_setting)) this->setChecked(true);
+MultiEnumSetting::MultiEnumSetting(LayerSetting& layer_setting, QString setting_name)
+    : _layer_setting(layer_setting), _setting_name(setting_name) {
+    assert(&layer_setting);
+
+    if (_layer_setting.value.contains(setting_name)) this->setChecked(true);
 
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
 void MultiEnumSetting::itemChecked(bool checked) {
     if (checked)
-        AddString(_layer_settings->value, _my_setting);
+        AddString(_layer_setting.value, _setting_name);
     else
-        RemoveString(_layer_settings->value, _my_setting);
+        RemoveString(_layer_setting.value, _setting_name);
 
     emit itemChanged();
 }

@@ -15,24 +15,28 @@
  * limitations under the License.
  *
  * Authors:
- * - Lenny Komow <lenny@lunarg.com>
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Lenny Komow
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "filenamesettingwidget.h"
 
+#include <cassert>
+
 ////////////////////////////////////////////////////////////////////////////
 // This can be used to specify a 'load' file or a 'save' file. Save is true by default
-FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSetting* layer_settings, bool save) : QWidget(nullptr) {
-    _layer_settings = layer_settings;
-    _save_file = save;
+FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting, SettingType setting_type)
+    : QWidget(nullptr), _layer_setting(layer_setting), _mode(GetMode(setting_type)) {
+    assert(item);
+    assert(&_layer_setting);
+    assert(setting_type >= SETTING_FIRST && setting_type <= SETTING_LAST);
 
-    item->setText(0, layer_settings->label);
-    item->setToolTip(0, layer_settings->description);
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_settings->value);
+    _line_edit->setText(_layer_setting.value);
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -46,32 +50,52 @@ FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSetting
 void FilenameSettingWidget::resizeEvent(QResizeEvent* event) {
     if (_line_edit == nullptr) return;
 
-    QSize parentSize = event->size();
+    const QSize parent_size = event->size();
 
     // Button takes up the last 32 pixels
-    QRect buttonRect = QRect(parentSize.width() - 32, 0, 32, parentSize.height());
-    QRect editRect = QRect(0, 0, parentSize.width() - 32, parentSize.height());
-    _line_edit->setGeometry(editRect);
-    _push_button->setGeometry(buttonRect);
+    const QRect edit_rect = QRect(0, 0, parent_size.width() - 32, parent_size.height());
+    _line_edit->setGeometry(edit_rect);
+
+    const QRect button_rect = QRect(parent_size.width() - 32, 0, 32, parent_size.height());
+    _push_button->setGeometry(button_rect);
 }
 
 void FilenameSettingWidget::browseButtonClicked() {
     QString file;
 
-    if (_save_file)
-        file = QFileDialog::getSaveFileName(_push_button, tr("Select File"), ".");
-    else
-        file = QFileDialog::getOpenFileName(_push_button, tr("Select file"), ".");
+    switch (_mode) {
+        case MODE_LOAD:
+            file = QFileDialog::getOpenFileName(_push_button, tr("Select file"), ".");
+            break;
+        case MODE_SAVE:
+            file = QFileDialog::getSaveFileName(_push_button, tr("Select File"), ".");
+            break;
+        default:
+            assert(0);
+            break;
+    }
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        _layer_settings->value = file;
+        _layer_setting.value = file;
         _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
-void FilenameSettingWidget::textFieldChanged(const QString& newText) {
-    _layer_settings->value = newText;
+void FilenameSettingWidget::textFieldChanged(const QString& new_text) {
+    _layer_setting.value = new_text;
     emit itemChanged();
+}
+
+FilenameSettingWidget::Mode FilenameSettingWidget::GetMode(SettingType type) const {
+    switch (type) {
+        case SETTING_SAVE_FILE:
+            return MODE_SAVE;
+        case SETTING_LOAD_FILE:
+            return MODE_LOAD;
+        default:
+            assert(0);
+            return static_cast<Mode>(-1);
+    }
 }
