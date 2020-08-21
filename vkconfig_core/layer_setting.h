@@ -25,6 +25,7 @@
 
 #include <QString>
 #include <QVariant>
+#include <QVector>
 
 enum SettingType {  // Enum value can't be changed
     SETTING_STRING = 0,

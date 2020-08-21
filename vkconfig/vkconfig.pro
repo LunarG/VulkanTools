@@ -30,6 +30,14 @@ SOURCES += \
     ..\vkconfig_core\layer.cpp \
     ..\vkconfig_core\layer_setting.cpp \
     ..\vkconfig_core\layer_type.cpp \
+    widget_bool_setting.cpp \
+    widget_enum_setting.cpp \
+    widget_multi_enum_setting.cpp \
+    widget_filesystem_setting.cpp \
+    widget_string_setting.cpp \
+    widget_mute_message.cpp \
+    widget_tree_friendly_combobox.cpp \
+    widget_vuid_search.cpp \
     appsingleton.cpp \
     boolsettingwidget.cpp \
     dlgabout.cpp \
@@ -38,20 +46,12 @@ SOURCES += \
     dlgprofileeditor.cpp \
     dlgvulkananalysis.cpp \
     dlgvulkaninfo.cpp \
-    enumsettingwidget.cpp \
-    filenamesettingwidget.cpp \
-    foldersettingwidget.cpp \
     khronossettingsadvanced.cpp \
     main.cpp \
     mainwindow.cpp \
-    multienumsetting.cpp \
-    mutemessagewidget.cpp \
     configuration.cpp \
     preferences.cpp \
     settingstreemanager.cpp \
-    stringsettingwidget.cpp \
-    treefriendlycombobox.cpp \
-    vuidsearchwidget.cpp \
     configurator.cpp
 
 HEADERS += \
@@ -61,27 +61,26 @@ HEADERS += \
     ..\vkconfig_core\layer.h \
     ..\vkconfig_core\layer_setting.h \
     ..\vkconfig_core\layer_type.h \
+    widget_bool_setting.h \
+    widget_enum_setting.h \
+    widget_multi_enum_setting.h \
+    widget_filesystem_setting.h \
+    widget_string_setting.h \
+    widget_mute_message.h \
+    widget_tree_friendly_combobox.h \
+    widget_vuid_search.h \
     appsingleton.h \
-    boolsettingwidget.h \
     dlgabout.h \
     dlgcreateassociation.h \
     dlgcustompaths.h \
     dlgprofileeditor.h \
     dlgvulkananalysis.h \
     dlgvulkaninfo.h \
-    enumsettingwidget.h \
-    filenamesettingwidget.h \
-    foldersettingwidget.h \
     khronossettingsadvanced.h \
     mainwindow.h \
-    multienumsetting.h \
-    mutemessagewidget.h \
     configuration.h \
     preferences.h \
     settingstreemanager.h \
-    stringsettingwidget.h \
-    treefriendlycombobox.h \
-    vuidsearchwidget.h \
     configurator.h
 
 FORMS += \

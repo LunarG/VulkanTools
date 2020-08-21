@@ -23,14 +23,13 @@
 
 #include "configuration.h"
 #include "khronossettingsadvanced.h"
-#include "filenamesettingwidget.h"
-#include "boolsettingwidget.h"
-#include "enumsettingwidget.h"
-#include "stringsettingwidget.h"
-#include "foldersettingwidget.h"
-#include "multienumsetting.h"
-#include "mutemessagewidget.h"
-#include "vuidsearchwidget.h"
+#include "widget_filesystem_setting.h"
+#include "widget_bool_setting.h"
+#include "widget_enum_setting.h"
+#include "widget_string_setting.h"
+#include "widget_multi_enum_setting.h"
+#include "widget_vuid_search.h"
+#include "widget_mute_message.h"
 
 #include <QObject>
 #include <QTreeWidget>
@@ -63,7 +62,7 @@ class SettingsTreeManager : QObject {
     QTreeWidgetItem *_validation_file_item;
     QTreeWidgetItem *_validation_preset_item;
     QTreeWidgetItem *_validation_log_file_item;
-    FilenameSettingWidget *_validation_log_file_widget;
+    FileSystemSettingWidget *_validation_log_file_widget;
     EnumSettingWidget *_validation_debug_action;
     KhronosSettingsAdvanced *_validation_settings;
     MuteMessageWidget *_mute_message_widget;

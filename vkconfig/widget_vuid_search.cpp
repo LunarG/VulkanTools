@@ -15,24 +15,23 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
-#include <QTimer>
+#include "../vkconfig_core/util.h"
 
-#include "vuidsearchwidget.h"
+#include "widget_vuid_search.h"
 #include "vk_vuids.h"
 
-VUIDSearchWidget::VUIDSearchWidget(const QString &valuesAlreadyPresent) : QWidget(nullptr) {
-    int nNumElements = sizeof(vuids) / sizeof(vuids[0]);
-    for (int i = 0; i < nNumElements; i++) _vuid_list << vuids[i];
+VUIDSearchWidget::VUIDSearchWidget(const QString &values_already_present) : QWidget(nullptr) {
+    for (std::size_t i = 0, n = countof(vuids); i < n; i++) _vuid_list << vuids[i];
 
     // We always want the list presented sorted. Note: This is not
     // strictly necessary.
     _vuid_list.sort();
 
-    QStringList removeList = valuesAlreadyPresent.split(",");
+    QStringList removeList = values_already_present.split(",");
     for (int i = 0; i < removeList.length(); i++) {
         _vuid_list.removeOne(removeList[i]);
     }
@@ -64,7 +63,7 @@ void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
 /// Reload the completer with a revised list of VUID's.
 /// I'm quite impressed with how fast this brute force implementation
 /// runs in release mode.
-void VUIDSearchWidget::ResetCompleter(void) {
+void VUIDSearchWidget::ResetCompleter() {
     if (_search_vuid != nullptr) _search_vuid->deleteLater();
 
     _search_vuid = new QCompleter(_vuid_list, this);
@@ -82,7 +81,7 @@ void VUIDSearchWidget::ResetCompleter(void) {
 // Add the text in the edit control to the list, and clear the control
 // This is not really used much, only if they want to add something
 // that is not in the completer list.
-void VUIDSearchWidget::addButtonPressed(void) {
+void VUIDSearchWidget::addButtonPressed() {
     QString entry = _user_box->text();
     if (entry.isEmpty()) return;
 

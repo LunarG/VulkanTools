@@ -19,21 +19,23 @@
  * - Christophe Riccio
  */
 
-#include "stringsettingwidget.h"
+#pragma once
 
-#include <cassert>
+#include <QWidget>
+#include <QComboBox>
+#include <QTreeWidgetItem>
 
-StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
-    assert(item);
-    assert(&layer_setting);
+class TreeFriendlyComboBox : public QComboBox {
+    Q_OBJECT
+   public:
+    TreeFriendlyComboBox(QTreeWidgetItem *item);
 
-    item->setText(0, layer_setting.label);
-    item->setToolTip(0, layer_setting.description);
-    this->setText(layer_setting.value);
-    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
-}
+   protected:
+    QTreeWidgetItem *_tree_widget;
 
-void StringSettingWidget::itemEdited(const QString& new_string) {
-    _layer_setting.value = new_string;
-    emit itemChanged();
-}
+   public Q_SLOTS:
+    void indexChanged(int nIndex);
+
+   Q_SIGNALS:
+    void selectionMade(QTreeWidgetItem *tree_item, int index);
+};

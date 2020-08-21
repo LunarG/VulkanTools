@@ -19,31 +19,27 @@
  * - Christophe Riccio
  */
 
-#pragma once
+#include "widget_multi_enum_setting.h"
 
-#include "../vkconfig_core/layer_setting.h"
+#include "../vkconfig_core/layer.h"
 
-#include <QWidget>
-#include <QTreeWidgetItem>
-#include <QLineEdit>
-#include <QPushButton>
+#include <cassert>
 
-class FolderSettingWidget : public QWidget {
-    Q_OBJECT
-   public:
-    explicit FolderSettingWidget(QTreeWidgetItem *item, LayerSetting &layer_setting);
+MultiEnumSetting::MultiEnumSetting(LayerSetting& layer_setting, QString setting_name)
+    : _layer_setting(layer_setting), _setting_name(setting_name) {
+    assert(&layer_setting);
+    assert(!setting_name.isEmpty());
 
-    virtual void resizeEvent(QResizeEvent *event) override;
+    if (_layer_setting.value.contains(setting_name)) this->setChecked(true);
 
-   private:
-    LayerSetting &_layer_setting;
-    QLineEdit *_line_edit;
-    QPushButton *_push_button;
+    connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
+}
 
-   public Q_SLOTS:
-    void browseButtonClicked();
-    void textFieldChanged(const QString &new_text);
+void MultiEnumSetting::itemChecked(bool checked) {
+    if (checked)
+        AddString(_layer_setting.value, _setting_name);
+    else
+        RemoveString(_layer_setting.value, _setting_name);
 
-   Q_SIGNALS:
-    void itemChanged();
-};
+    emit itemChanged();
+}

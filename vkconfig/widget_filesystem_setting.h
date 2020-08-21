@@ -15,27 +15,42 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
 
-#include <QWidget>
-#include <QComboBox>
-#include <QTreeWidgetItem>
+#include "../vkconfig_core/layer.h"
 
-class TreeFriendlyComboBox : public QComboBox {
+#include <QWidget>
+#include <QTreeWidgetItem>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QFileDialog>
+
+class FileSystemSettingWidget : public QWidget {
     Q_OBJECT
    public:
-    TreeFriendlyComboBox(QTreeWidgetItem *item);
+    explicit FileSystemSettingWidget(QTreeWidgetItem *item, LayerSetting &layer_setting, SettingType setting_type);
 
-   protected:
-    QTreeWidgetItem *_tree_widget;
+   private:
+    virtual void resizeEvent(QResizeEvent *event) override;
+
+    LayerSetting &_layer_setting;
+    QLineEdit *_line_edit;
+    QPushButton *_push_button;
 
    public Q_SLOTS:
-    void indexChanged(int nIndex);
+    void browseButtonClicked();
+    void textFieldChanged(const QString &newText);
 
    Q_SIGNALS:
-    void selectionMade(QTreeWidgetItem *tree_item, int index);
+    void itemChanged();
+
+   private:
+    enum Mode { MODE_OPEN_FILE, MODE_SAVE_FILE, MODE_SAVE_FOLDER };
+    const Mode _mode;
+    Mode GetMode(SettingType type) const;
 };

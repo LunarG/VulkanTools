@@ -19,26 +19,29 @@
  * - Christophe Riccio
  */
 
-#include "multienumsetting.h"
-
-#include "../vkconfig_core/layer.h"
+#include "widget_enum_setting.h"
 
 #include <cassert>
 
-MultiEnumSetting::MultiEnumSetting(LayerSetting& layer_setting, QString setting_name)
-    : _layer_setting(layer_setting), _setting_name(setting_name) {
+EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+    assert(item);
     assert(&layer_setting);
 
-    if (_layer_setting.value.contains(setting_name)) this->setChecked(true);
+    item->setText(0, layer_setting.label);
+    item->setToolTip(0, layer_setting.description);
 
-    connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
+    int selection = 0;
+    for (int i = 0; i < layer_setting.exclusive_labels.size(); i++) {
+        this->addItem(layer_setting.exclusive_labels[i]);
+        if (layer_setting.exclusive_values[i] == layer_setting.value) selection = i;
+    }
+
+    setCurrentIndex(selection);
+
+    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
-void MultiEnumSetting::itemChecked(bool checked) {
-    if (checked)
-        AddString(_layer_setting.value, _setting_name);
-    else
-        RemoveString(_layer_setting.value, _setting_name);
-
+void EnumSettingWidget::indexChanged(int index) {
+    _layer_setting.value = _layer_setting.exclusive_values[index];
     emit itemChanged();
 }

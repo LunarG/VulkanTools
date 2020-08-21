@@ -20,13 +20,13 @@
  * - Christophe Riccio
  */
 
-#include "filenamesettingwidget.h"
+#include "widget_filesystem_setting.h"
 
 #include <cassert>
 
 ////////////////////////////////////////////////////////////////////////////
 // This can be used to specify a 'load' file or a 'save' file. Save is true by default
-FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting, SettingType setting_type)
+FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting, SettingType setting_type)
     : QWidget(nullptr), _layer_setting(layer_setting), _mode(GetMode(setting_type)) {
     assert(item);
     assert(&_layer_setting);
@@ -47,7 +47,7 @@ FilenameSettingWidget::FilenameSettingWidget(QTreeWidgetItem* item, LayerSetting
     connect(_line_edit, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 }
 
-void FilenameSettingWidget::resizeEvent(QResizeEvent* event) {
+void FileSystemSettingWidget::resizeEvent(QResizeEvent* event) {
     if (_line_edit == nullptr) return;
 
     const QSize parent_size = event->size();
@@ -60,15 +60,18 @@ void FilenameSettingWidget::resizeEvent(QResizeEvent* event) {
     _push_button->setGeometry(button_rect);
 }
 
-void FilenameSettingWidget::browseButtonClicked() {
+void FileSystemSettingWidget::browseButtonClicked() {
     QString file;
 
     switch (_mode) {
-        case MODE_LOAD:
-            file = QFileDialog::getOpenFileName(_push_button, tr("Select file"), ".");
+        case MODE_OPEN_FILE:
+            file = QFileDialog::getOpenFileName(_push_button, "Select file", ".");
             break;
-        case MODE_SAVE:
-            file = QFileDialog::getSaveFileName(_push_button, tr("Select File"), ".");
+        case MODE_SAVE_FILE:
+            file = QFileDialog::getSaveFileName(_push_button, "Select File", ".");
+            break;
+        case MODE_SAVE_FOLDER:
+            file = QFileDialog::getExistingDirectory(_push_button, "Select Folder", ".");
             break;
         default:
             assert(0);
@@ -83,17 +86,19 @@ void FilenameSettingWidget::browseButtonClicked() {
     }
 }
 
-void FilenameSettingWidget::textFieldChanged(const QString& new_text) {
+void FileSystemSettingWidget::textFieldChanged(const QString& new_text) {
     _layer_setting.value = new_text;
     emit itemChanged();
 }
 
-FilenameSettingWidget::Mode FilenameSettingWidget::GetMode(SettingType type) const {
+FileSystemSettingWidget::Mode FileSystemSettingWidget::GetMode(SettingType type) const {
     switch (type) {
         case SETTING_SAVE_FILE:
-            return MODE_SAVE;
+            return MODE_SAVE_FILE;
         case SETTING_LOAD_FILE:
-            return MODE_LOAD;
+            return MODE_OPEN_FILE;
+        case SETTING_SAVE_FOLDER:
+            return MODE_SAVE_FOLDER;
         default:
             assert(0);
             return static_cast<Mode>(-1);

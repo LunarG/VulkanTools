@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #pragma once
@@ -47,7 +47,7 @@ class VUIDSearchWidget : public QWidget {
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
    public Q_SLOTS:
-    void addButtonPressed(void);
+    void addButtonPressed();
     void addCompleted(const QString &addedItem);
     void addToSearchList(const QString &newItem);
 
