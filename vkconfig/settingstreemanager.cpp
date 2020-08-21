@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
 #include "configurator.h"
@@ -157,7 +157,7 @@ void SettingsTreeManager::BuildKhronosTree() {
 
     _validation_log_file_item = new QTreeWidgetItem();
     next_line = new QTreeWidgetItem();
-    _validation_log_file_widget = new FilenameSettingWidget(_validation_log_file_item, *log_file, SETTING_SAVE_FILE);
+    _validation_log_file_widget = new FileSystemSettingWidget(_validation_log_file_item, *log_file, SETTING_SAVE_FILE);
     connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
     debug_action_item->addChild(_validation_log_file_item);
     _validation_log_file_item->addChild(next_line);
@@ -257,94 +257,60 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
 
-        // True false?
-        if (setting.type == SETTING_BOOL) {
-            BoolSettingWidget *widget = new BoolSettingWidget(setting, setting.type);
-            parent->addChild(setting_item);
-            _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
-            widget->setFont(_configuration_settings_tree->font());
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
+        switch (setting.type) {
+            case SETTING_BOOL:          // True false?
+            case SETTING_BOOL_NUMERIC:  // True false? (with numeric output instead of text)
+            {
+                BoolSettingWidget *widget = new BoolSettingWidget(setting, setting.type);
+                parent->addChild(setting_item);
+                _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
+                widget->setFont(_configuration_settings_tree->font());
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            } break;
+
+            case SETTING_SAVE_FILE:    // Save a file?
+            case SETTING_LOAD_FILE:    // Load a file?
+            case SETTING_SAVE_FOLDER:  // Save to folder?
+            {
+                FileSystemSettingWidget *widget = new FileSystemSettingWidget(setting_item, setting, setting.type);
+                parent->addChild(setting_item);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                place_holder->setSizeHint(0, QSize(0, 28));
+                setting_item->addChild(place_holder);
+                _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
+                _compound_widgets.push_back(place_holder);
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            } break;
+
+            case SETTING_EXCLUSIVE_LIST:  // Combobox - enum - just one thing
+            {
+                parent->addChild(setting_item);
+                setting_item->setText(0, setting.label);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                setting_item->addChild(place_holder);
+
+                EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, setting);
+                _configuration_settings_tree->setItemWidget(place_holder, 0, enum_widget);
+                connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            } break;
+
+            case SETTING_STRING:  // Raw text field?
+            {
+                StringSettingWidget *widget = new StringSettingWidget(setting_item, setting);
+                parent->addChild(setting_item);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                setting_item->addChild(place_holder);
+                _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            } break;
+
+            default: {
+                setting_item->setText(0, layer->_layer_settings[layer_settings_index]->label);
+                setting_item->setToolTip(0, layer->_layer_settings[layer_settings_index]->description);
+                parent->addChild(setting_item);
+                assert(0);  // Unknown setting
+            } break;
         }
-
-        // True false? (with numeric output instead of text)
-        if (setting.type == SETTING_BOOL_NUMERIC) {
-            BoolSettingWidget *widget = new BoolSettingWidget(setting, setting.type);
-            parent->addChild(setting_item);
-            _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
-            widget->setFont(_configuration_settings_tree->font());
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
-
-        // Combobox - enum - just one thing
-        if (setting.type == SETTING_EXCLUSIVE_LIST) {
-            parent->addChild(setting_item);
-            setting_item->setText(0, setting.label);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            setting_item->addChild(place_holder);
-
-            EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, setting);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, enum_widget);
-            connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
-
-        // Raw text field?
-        if (setting.type == SETTING_STRING) {
-            StringSettingWidget *widget = new StringSettingWidget(setting_item, setting);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
-
-        // Select a file?
-        if (setting.type == SETTING_SAVE_FILE) {
-            FilenameSettingWidget *widget = new FilenameSettingWidget(setting_item, setting, setting.type);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            place_holder->setSizeHint(0, QSize(0, 28));
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            _compound_widgets.push_back(place_holder);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
-
-        // Load a file?
-        if (setting.type == SETTING_LOAD_FILE) {
-            FilenameSettingWidget *widget = new FilenameSettingWidget(setting_item, setting, setting.type);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            place_holder->setSizeHint(0, QSize(0, 28));
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            _compound_widgets.push_back(place_holder);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
-
-        // Save to folder?
-        if (setting.type == SETTING_SAVE_FOLDER) {
-            FolderSettingWidget *widget = new FolderSettingWidget(setting_item, setting);
-            parent->addChild(setting_item);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            place_holder->setSizeHint(0, QSize(0, 28));
-            setting_item->addChild(place_holder);
-            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
-            _compound_widgets.push_back(place_holder);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-            continue;
-        }
-
-        ///////////////////////////////////////////////////////////////////////////
-        // Undefined... at least gracefuly display what the setting is
-        setting_item->setText(0, layer->_layer_settings[layer_settings_index]->label);
-        setting_item->setToolTip(0, layer->_layer_settings[layer_settings_index]->description);
-        parent->addChild(setting_item);
     }
 }
 

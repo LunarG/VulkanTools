@@ -19,29 +19,21 @@
  * - Christophe Riccio
  */
 
-#include "enumsettingwidget.h"
+#include "widget_string_setting.h"
 
 #include <cassert>
 
-EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
     assert(item);
     assert(&layer_setting);
 
     item->setText(0, layer_setting.label);
     item->setToolTip(0, layer_setting.description);
-
-    int selection = 0;
-    for (int i = 0; i < layer_setting.exclusive_labels.size(); i++) {
-        this->addItem(layer_setting.exclusive_labels[i]);
-        if (layer_setting.exclusive_values[i] == layer_setting.value) selection = i;
-    }
-
-    setCurrentIndex(selection);
-
-    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
+    this->setText(layer_setting.value);
+    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void EnumSettingWidget::indexChanged(int index) {
-    _layer_setting.value = _layer_setting.exclusive_values[index];
+void StringSettingWidget::itemEdited(const QString& new_string) {
+    _layer_setting.value = new_string;
     emit itemChanged();
 }

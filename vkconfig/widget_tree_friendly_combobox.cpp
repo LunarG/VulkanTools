@@ -15,15 +15,18 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
 
-#include "treefriendlycombobox.h"
-TreeFriendlyComboBox::TreeFriendlyComboBox(QTreeWidgetItem *pItem) : QComboBox() {
-    _tree_widget = pItem;
+#include "widget_tree_friendly_combobox.h"
+
+#include <cassert>
+
+TreeFriendlyComboBox::TreeFriendlyComboBox(QTreeWidgetItem *item) : QComboBox(), _tree_widget(item) {
+    assert(item);
+
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
-///////////////////////////////////////////////////////////////////
-void TreeFriendlyComboBox::indexChanged(int nIndex) { emit selectionMade(_tree_widget, nIndex); }
+void TreeFriendlyComboBox::indexChanged(int index) { emit selectionMade(_tree_widget, index); }

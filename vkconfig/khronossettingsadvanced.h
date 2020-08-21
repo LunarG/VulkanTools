@@ -23,7 +23,7 @@
 
 #include "../vkconfig_core/layer.h"
 
-#include "mutemessagewidget.h"
+#include "widget_mute_message.h"
 
 #include <QTreeWidget>
 #include <QTreeWidgetItem>

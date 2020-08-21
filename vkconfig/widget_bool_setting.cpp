@@ -19,13 +19,14 @@
  * - Christophe Riccio
  */
 
-#include "boolsettingwidget.h"
+#include "widget_bool_setting.h"
 
 #include <cassert>
 
 BoolSettingWidget::BoolSettingWidget(LayerSetting& layer_setting, SettingType setting_type)
     : _true_token(GetToken(true, setting_type)), _false_token(GetToken(false, setting_type)), _layer_setting(layer_setting) {
     assert(&layer_setting);
+    assert(setting_type >= SETTING_FIRST && setting_type <= SETTING_LAST);
 
     setText(layer_setting.label);
     setToolTip(layer_setting.description);
@@ -39,8 +40,10 @@ void BoolSettingWidget::itemToggled() {
     emit itemChanged();
 }
 
-QString BoolSettingWidget::GetToken(bool state, SettingType type) const {
-    switch (type) {
+QString BoolSettingWidget::GetToken(bool state, SettingType setting_type) const {
+    assert(setting_type >= SETTING_FIRST && setting_type <= SETTING_LAST);
+
+    switch (setting_type) {
         case SETTING_BOOL:
             return state ? QString("TRUE") : QString("FALSE");
         case SETTING_BOOL_NUMERIC:
