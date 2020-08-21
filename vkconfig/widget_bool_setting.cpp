@@ -50,6 +50,6 @@ QString BoolSettingWidget::GetToken(bool state, SettingType setting_type) const 
             return state ? QString("1") : QString("0");
         default:
             assert(0);
-            return static_cast<Mode>(-1);
+            return "ERROR";
     }
 }

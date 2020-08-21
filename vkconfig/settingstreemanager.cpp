@@ -30,6 +30,8 @@
 #include <QRadioButton>
 #include <QApplication>
 
+#include <cassert>
+
 SettingsTreeManager::SettingsTreeManager()
     : _configuration_settings_tree(nullptr),
       _configuration(nullptr),

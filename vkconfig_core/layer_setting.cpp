@@ -29,17 +29,17 @@
 
 #include <cassert>
 
-SettingType GetSettingType(const char* label) {
+SettingType GetSettingType(const char* token) {
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
-        if (strcmp(label, GetSettingTypeLabel(type)) == 0) return type;
+        if (strcmp(token, GetSettingTypeToken(type)) == 0) return type;
     }
 
-    assert(0);
-    return SETTING_LAST;
+    assert(0);  // Unknown token
+    return static_cast<SettingType>(-1);
 }
 
-const char* GetSettingTypeLabel(SettingType type) {
+const char* GetSettingTypeToken(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 
     const char* table[] = {
