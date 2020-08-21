@@ -25,6 +25,7 @@
 
 #include <string>
 #include <cstdio>
+#include <cassert>
 
 CommandLine::CommandLine(int argc, char* argv[]) : mode(_mode), _mode(ModeExecute) {
     for (int i = 1; i < argc; ++i) {

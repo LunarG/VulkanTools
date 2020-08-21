@@ -23,10 +23,10 @@
 
 #include <cassert>
 
-TreeFriendlyComboBox::TreeFriendlyComboBox(QTreeWidgetItem *item) : QComboBox(), _tree_widget(item) {
+TreeFriendlyComboBoxWidget::TreeFriendlyComboBoxWidget(QTreeWidgetItem *item) : QComboBox(), _tree_widget(item) {
     assert(item);
 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
-void TreeFriendlyComboBox::indexChanged(int index) { emit selectionMade(_tree_widget, index); }
+void TreeFriendlyComboBoxWidget::indexChanged(int index) { emit selectionMade(_tree_widget, index); }
