@@ -39,7 +39,6 @@ SOURCES += \
     widget_tree_friendly_combobox.cpp \
     widget_vuid_search.cpp \
     appsingleton.cpp \
-    boolsettingwidget.cpp \
     dlgabout.cpp \
     dlgcreateassociation.cpp \
     dlgcustompaths.cpp \

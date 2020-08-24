@@ -135,7 +135,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     _configuration = configuration;
 
-    // We never edit a profile directly, we only edit a copy of it.
+    // Default, but may not be entirely true
     setWindowTitle("Create a new layers configuration");
 
     // Case 1: New profile (easiest case)
@@ -155,6 +155,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     }
 
     ui->lineEditName->setText(_configuration->_name);
+    ui->lineEditDescription->setText(_configuration->_description);
 
     QTreeWidgetItem *header_item = ui->layerTree->headerItem();
 
@@ -412,6 +413,7 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept() {
     _configuration->_name = ui->lineEditName->text();
+    _configuration->_description = ui->lineEditDescription->text();
 
     // Hard Fail: Name must not be blank
     if (_configuration->_name.isEmpty()) {
