@@ -21,10 +21,13 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
+#include "layer.h"
+#include "path_manager.h"
 
 #include <QString>
 #include <QStringList>
+
+#include <vector>
 
 // json file preset_index must match the preset enum values
 enum ValidationPreset {
@@ -43,31 +46,41 @@ enum ValidationPreset {
 
 enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };
 
+struct OverriddenLayer {
+    QString name;
+    QString path;
+    LayerType type;
+    LayerState state;
+    int rank;  // When used in a configurate, what is the rank? (0 being first layer)
+    std::vector<LayerSetting> settings;
+};
+
 class Configuration {
    public:
     Configuration();
-    ~Configuration();
+    Configuration(const char *full_path);
 
-    QString _name;                   // User readable display of the profile name (may contain spaces)
-                                     // This is the same as the filename, but with the .json stripped off.
-    QString _file;                   // Root file name without path (by convention, no spaces and .profile suffix)
+    bool Load(const char *full_path);
+    bool Save();
+
+    QString _name;  // User readable display of the profile name (may contain spaces)
+                    // This is the same as the filename, but with the .json stripped off.
+    // QString _file;                   // Root file name without path (by convention, no spaces and .profile suffix)
     QString _description;            // A friendly description of what this profile does
     QByteArray _setting_tree_state;  // Recall editor tree state
     ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     // A configuration is nothing but a list of layers and their settings in truth
-    QVector<Layer *> _layers;
+    std::vector<OverriddenLayer> _overridden_layers;
 
     QStringList _excluded_layers;  // Just the names of blacklisted layers
 
-    Layer *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
-    Layer *FindLayerNamed(const QString &layer_name) const;  // Find the layer if it exists, only care about the name
+    OverriddenLayer *FindOverriddenLayer(const QString &layer_name, const QString &full_path);  // Find the layer if it exists
+    OverriddenLayer *FindOverriddenLayer(const QString &layer_name);  // Find the layer if it exists, only care about the name
 
     Configuration *DuplicateConfiguration();  // Copy a profile so we can mess with it
 
     void CollapseConfiguration();  // Remove unused layers and settings, set blacklist
 
-    bool IsValid() { return _all_layers_available; }
-
-    bool _all_layers_available;
+    bool IsValid() const;
 };

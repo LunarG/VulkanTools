@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "../vkconfig_core/layer.h"
@@ -24,6 +24,8 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QJsonArray>
+
+#include <windows.h>
 
 #include <cassert>
 
@@ -59,11 +61,6 @@ void AddString(QString& delimitedString, QString value) {
 
 Layer::Layer() : _state(LAYER_STATE_APPLICATION_CONTROLLED), _rank(0) {}
 
-Layer::~Layer() {
-    qDeleteAll(_layer_settings.begin(), _layer_settings.end());
-    _layer_settings.clear();
-}
-
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
     return !_name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() && !_api_version.isEmpty() &&
@@ -71,24 +68,23 @@ bool Layer::IsValid() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CLayerFile::readLayerFile
-/// \param qsFullPathToFile - Fully qualified path to the layer json file.
-/// \return true on success, false on failure.
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
 bool Layer::ReadLayerFile(QString full_path_to_file, LayerType layer_type) {
     _layer_type = layer_type;  // Set layer type, no way to know this from the json file
 
+    OutputDebugString("LOG: Layer::ReadLayerFile\n");
+    OutputDebugString(full_path_to_file.toUtf8().constData());
+    OutputDebugString("\n");
+
     // Open the file, should be text. Read it into a
     // temporary string.
-    if (full_path_to_file.isEmpty()) return false;
+    if (full_path_to_file.isEmpty()) {
+        return false;
+    }
 
     QFile file(full_path_to_file);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-        QMessageBox message_box;
-        message_box.setText("Could not open layer file");
-        message_box.exec();
         return false;
     }
 
@@ -100,18 +96,18 @@ bool Layer::ReadLayerFile(QString full_path_to_file, LayerType layer_type) {
     //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
-    QJsonDocument jsonDoc;
-    QJsonParseError parseError;
-    jsonDoc = QJsonDocument::fromJson(json_text.toUtf8(), &parseError);
-    if (parseError.error != QJsonParseError::NoError) {
+    QJsonDocument json_doc;
+    QJsonParseError parse_error;
+    json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
+    if (parse_error.error != QJsonParseError::NoError) {
         QMessageBox message_box;
-        message_box.setText(parseError.errorString());
+        message_box.setText(parse_error.errorString());
         message_box.exec();
         return false;
     }
 
     // Make sure it's not empty
-    if (jsonDoc.isNull() || jsonDoc.isEmpty()) {
+    if (json_doc.isNull() || json_doc.isEmpty()) {
         QMessageBox message_box;
         message_box.setText("Json document is empty!");
         message_box.exec();
@@ -119,29 +115,45 @@ bool Layer::ReadLayerFile(QString full_path_to_file, LayerType layer_type) {
     }
 
     // Populate key items about the layer
-    QJsonObject json_object = jsonDoc.object();
+    QJsonObject json_object = json_doc.object();
+
     QJsonValue json_value = json_object.value("file_format_version");
+    assert(json_value != QJsonValue::Undefined);
     _file_format_version = json_value.toString();
 
     QJsonValue layer_value = json_object.value("layer");
+    assert(json_value != QJsonValue::Undefined);
+    if (json_value == QJsonValue::Undefined) {
+        QMessageBox message_box;
+        message_box.setText(QString("The Json document is not a Json layer file"));
+        message_box.exec();
+        return false;
+    }
+
     QJsonObject layer_object = layer_value.toObject();
 
     json_value = layer_object.value("name");
+    assert(json_value != QJsonValue::Undefined);
     _name = json_value.toString();
 
     json_value = layer_object.value("type");
+    assert(json_value != QJsonValue::Undefined);
     _type = json_value.toString();
 
     json_value = layer_object.value("library_path");
+    assert(json_value != QJsonValue::Undefined);
     _library_path = json_value.toString();
 
     json_value = layer_object.value("api_version");
+    assert(json_value != QJsonValue::Undefined);
     _api_version = json_value.toString();
 
     json_value = layer_object.value("implementation_version");
+    assert(json_value != QJsonValue::Undefined);
     _implementation_version = json_value.toString();
 
     json_value = layer_object.value("description");
+    assert(json_value != QJsonValue::Undefined);
     _description = json_value.toString();
 
     // The layer file is loaded
@@ -149,27 +161,27 @@ bool Layer::ReadLayerFile(QString full_path_to_file, LayerType layer_type) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<LayerSetting*>& settings) {
+void Layer::LoadSettingsFromJson(QJsonObject& json_settings, std::vector<LayerSetting>& settings) {
     // Okay, how many settings do we have?
-    QStringList settings_names = json_layer_settings.keys();
+    QStringList settings_names = json_settings.keys();
 
-    for (int setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; setting_index++) {
+    for (std::size_t setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; setting_index++) {
         // The layer rank may or may not be here, but it is not a
         // user setting.
         if (settings_names[setting_index] == QString("layer_rank")) continue;
 
-        LayerSetting* setting = new LayerSetting;
-        setting->name = settings_names[setting_index];
+        LayerSetting setting;
+        setting.name = settings_names[setting_index];
 
-        QJsonValue json_value = json_layer_settings.value(settings_names[setting_index]);
+        QJsonValue json_value = json_settings.value(settings_names[setting_index]);
         QJsonObject json_object = json_value.toObject();
 
         // The easy stuff...
         QJsonValue value = json_object.value("description");
-        setting->description = value.toString();
+        setting.description = value.toString();
 
         value = json_object.value("name");
-        setting->label = value.toString();
+        setting.label = value.toString();
 
         // This is either a single value, or a comma delimted set of strings
         // selected from a nonexclusive list
@@ -177,21 +189,21 @@ void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<Layer
         if (value.isArray()) {
             QJsonArray array = value.toArray();
             for (int a = 0; a < array.size(); a++) {
-                setting->value += array[a].toString();
-                if (a != array.size() - 1) setting->value += ",";
+                setting.value += array[a].toString();
+                if (a != array.size() - 1) setting.value += ",";
             }
 
         } else
-            setting->value = value.toString();
+            setting.value = value.toString();
 
         ///////////////////////////////////////////////////////////////////////
         // Everything from here down revolves around the data type
         // Data types and values start getting a little more involved.
         value = json_object.value("type");
 
-        setting->type = GetSettingType(value.toString().toUtf8().constData());
+        setting.type = GetSettingType(value.toString().toUtf8().constData());
 
-        switch (setting->type) {
+        switch (setting.type) {
             case SETTING_EXCLUSIVE_LIST: {
                 // Now we have a list of options, both the enum for the settings file, and the prompts
                 value = json_object.value("options");
@@ -199,8 +211,8 @@ void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<Layer
                 QStringList keys, values;
                 keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
-                    setting->exclusive_values << keys[v];
-                    setting->exclusive_labels << object.value(keys[v]).toString();
+                    setting.exclusive_values << keys[v];
+                    setting.exclusive_labels << object.value(keys[v]).toString();
                 }
             } break;
             case SETTING_INCLUSIVE_LIST: {
@@ -210,8 +222,8 @@ void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<Layer
                 QStringList keys, values;
                 keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
-                    setting->inclusive_values << keys[v];
-                    setting->inclusive_labels << object.value(keys[v]).toString();
+                    setting.inclusive_values << keys[v];
+                    setting.inclusive_labels << object.value(keys[v]).toString();
                 }
             } break;
             case SETTING_SAVE_FILE:

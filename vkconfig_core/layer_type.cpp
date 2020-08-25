@@ -14,17 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * The vkConfig2 program monitors and adjusts the Vulkan configuration
- * environment. These settings are wrapped in this class, which serves
- * as the "model" of the system.
- *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "layer_type.h"
-
 #include "util.h"
 
 #include <cassert>

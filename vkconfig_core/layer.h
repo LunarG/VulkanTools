@@ -14,13 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * The vkConfig2 program monitors and adjusts the Vulkan configuration
- * environment. These settings are wrapped in this class, which serves
- * as the "model" of the system.
- *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -51,7 +47,6 @@ enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
 class Layer {
    public:
     Layer();
-    ~Layer();
 
     bool IsValid() const;
 
@@ -71,7 +66,7 @@ class Layer {
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    QVector<LayerSetting*> _layer_settings;
+    std::vector<LayerSetting> _settings;
 
     LayerState _state;
     int _rank;  // When used in a configurate, what is the rank? (0 being first layer)
@@ -90,17 +85,12 @@ class Layer {
         destination_layer_file->_state = _state;
         destination_layer_file->_rank = _rank;
         destination_layer_file->_layer_path = _layer_path;
-
-        for (int i = 0; i < _layer_settings.length(); i++) {
-            LayerSetting* setting = new LayerSetting();
-            *setting = *_layer_settings[i];
-            destination_layer_file->_layer_settings.push_back(setting);
-        }
+        destination_layer_file->_settings = _settings;
     }
 
     // File based layers
     bool ReadLayerFile(QString full_path_to_file, LayerType layer_type);
 
     // Utility, may move outside this class....
-    static void LoadSettingsFromJson(QJsonObject& layer_settings_descriptors, QVector<LayerSetting*>& layers);
+    static void LoadSettingsFromJson(QJsonObject& layer_settings_descriptors, std::vector<LayerSetting>& settings);
 };

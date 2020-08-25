@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
             // This has to go after the construction of QApplication in
             // order to use a QMessageBox and avoid some QThread warnings.
             AppSingleton singleApp("vkconfig_single_instance");
-            if (!singleApp.IsFirstApp()) {
+            if (!singleApp.IsFirst()) {
                 QMessageBox alert(nullptr);
                 alert.setWindowTitle("Cannot start another instance of vkconfig");
                 alert.setIcon(QMessageBox::Critical);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
             }
 
             // We simply cannot run without any layers
-            if (Configurator::Get().InitializeConfigurator() == false) return -1;
+            if (Configurator::Get().Init() == false) return -1;
 
             // The main GUI is driven here
             MainWindow main_window;

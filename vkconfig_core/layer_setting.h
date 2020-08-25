@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -59,7 +59,7 @@ struct LayerSetting {
     QString value;                 // Default value as a string
 };
 
-LayerSetting& FindSetting(QVector<LayerSetting*>& settings, const char* name);
+LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name);
 
 SettingType GetSettingType(const char* token);
 const char* GetSettingTypeToken(SettingType type);

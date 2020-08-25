@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -26,6 +26,8 @@
 #include <string>
 #include <array>
 #include <vector>
+
+#include <QString>
 
 // Based on https://www.g-truc.net/post-0708.html#menu
 template <typename T, std::size_t N>

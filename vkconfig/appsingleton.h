@@ -29,15 +29,14 @@
 #pragma once
 
 #include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
 
 class AppSingleton {
    public:
-    AppSingleton(QString singleAppName, int timeout = 5000);
+    AppSingleton(QString single_application_name, int timeout = 5000);
     ~AppSingleton();
-    bool IsFirstApp(void) { return _is_first_app; }
+    bool IsFirst() { return _is_first; }
 
    protected:
-    QLocalServer _localServer;
-    bool _is_first_app;
+    QLocalServer _local_server;
+    bool _is_first;
 };

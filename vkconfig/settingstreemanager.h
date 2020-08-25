@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "configuration.h"
 #include "khronossettingsadvanced.h"
 #include "widget_filesystem_setting.h"
 #include "widget_bool_setting.h"
@@ -30,6 +29,8 @@
 #include "widget_multi_enum_setting.h"
 #include "widget_vuid_search.h"
 #include "widget_mute_message.h"
+
+#include "../vkconfig_core/configuration.h"
 
 #include <QObject>
 #include <QTreeWidget>
@@ -52,12 +53,12 @@ class SettingsTreeManager : QObject {
     QVector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
 
     void BuildKhronosTree();
-    void BuildGenericTree(QTreeWidgetItem *parent, Layer *layer_file);
+    void BuildGenericTree(QTreeWidgetItem *parent, std::vector<LayerSetting> &settings);
 
     QVector<QTreeWidgetItem *> _layer_items;  // These parallel the  profiles layers
 
     QComboBox *_validation_presets_combo_box;
-    Layer *_validation_layer_file;
+    OverriddenLayer *_validation_layer;
     QTreeWidgetItem *_validation_tree_item;
     QTreeWidgetItem *_validation_file_item;
     QTreeWidgetItem *_validation_preset_item;

@@ -59,13 +59,13 @@ const char* GetSettingTypeToken(SettingType type) {
     return table[type];
 }
 
-LayerSetting& FindSetting(QVector<LayerSetting*>& settings, const char* name) {
-    for (int i = 0, n = settings.size(); i < n; i++) {
-        if (settings[i]->name == QString(name)) {
-            return *settings[i];
+LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name) {
+    for (std::size_t i = 0, n = settings.size(); i < n; i++) {
+        if (settings[i].name == QString(name)) {
+            return settings[i];
         }
     }
 
     assert(0);
-    return *settings[0];
+    return settings[0];
 }

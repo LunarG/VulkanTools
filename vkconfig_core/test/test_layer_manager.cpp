@@ -15,23 +15,6 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
- * - Christophe Riccio <christophe@lunarg.com>
+ * - Richard S. Wright Jr.
+ * - Christophe Riccio
  */
-
-#pragma once
-
-#include <cstring>
-
-class CommandLine {
-   public:
-    enum Mode { ModeExecute, ModeShowUsage };
-
-    CommandLine(int argc, char* argv[]);
-    void usage() const;
-
-    const Mode& mode;
-
-   private:
-    Mode _mode;
-};

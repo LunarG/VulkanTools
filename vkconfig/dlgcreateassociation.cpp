@@ -115,13 +115,15 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
     filter = QString("Applications (*.exe)");
 #endif
 
+    PathManager &path_manager = PathManager::Get();
+
     // Go get it.
-    QString full_suggested_path = configurator.GetPath(Configurator::LastExecutablePath);
+    const char *full_suggested_path = path_manager.GetDirectory(DIRECTORY_EXECUTABLE);
     QString executable_full_path = QFileDialog::getOpenFileName(this, "Select a Vulkan Executable", full_suggested_path, filter);
 
     // If they have selected something!
     if (!executable_full_path.isEmpty()) {
-        configurator.SetPath(Configurator::LastExecutablePath, executable_full_path);
+        path_manager.SetDirectory(DIRECTORY_EXECUTABLE, executable_full_path);
 
         // On macOS, they may have selected a binary, or they may have selected an app bundle.
         // If the later, we need to drill down to the actuall applicaiton
@@ -164,15 +166,15 @@ QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &
 ///////////////////////////////////////////////////////////////////////////////
 /// Easy enough, just remove the selected program from the list
 void dlgCreateAssociation::on_pushButtonRemove_clicked() {
-    QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
-    int iSel = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if (iSel < 0) return;
+    QTreeWidgetItem *current = ui->treeWidget->currentItem();
+    int selection = ui->treeWidget->indexOfTopLevelItem(current);
+    if (selection < 0) return;
 
     Configurator &configurator = Configurator::Get();
 
-    ui->treeWidget->takeTopLevelItem(iSel);
+    ui->treeWidget->takeTopLevelItem(selection);
     ui->treeWidget->setCurrentItem(nullptr);
-    configurator._overridden_application_list.removeAt(iSel);
+    configurator._overridden_application_list.removeAt(selection);
 
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);
@@ -192,8 +194,8 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
 // the launcher.
 void dlgCreateAssociation::on_pushButtonSelect_clicked() {
     Configurator &configurator = Configurator::Get();
-    QTreeWidgetItem *pItem = ui->treeWidget->currentItem();
-    if (pItem != nullptr) configurator.SelectLaunchApplication(ui->treeWidget->indexOfTopLevelItem(pItem));
+    QTreeWidgetItem *item = ui->treeWidget->currentItem();
+    if (item != nullptr) configurator.SelectLaunchApplication(ui->treeWidget->indexOfTopLevelItem(item));
 
     close();
 }

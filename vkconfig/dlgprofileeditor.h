@@ -22,7 +22,8 @@
 #pragma once
 
 #include "widget_tree_friendly_combobox.h"
-#include "configuration.h"
+
+#include "../vkconfig_core/configuration.h"
 
 #include <QDialog>
 #include <QTreeWidgetItem>

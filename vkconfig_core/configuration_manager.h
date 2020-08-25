@@ -20,18 +20,3 @@
  */
 
 #pragma once
-
-#include <cstring>
-
-class CommandLine {
-   public:
-    enum Mode { ModeExecute, ModeShowUsage };
-
-    CommandLine(int argc, char* argv[]);
-    void usage() const;
-
-    const Mode& mode;
-
-   private:
-    Mode _mode;
-};
