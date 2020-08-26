@@ -105,23 +105,23 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
 {
     Configurator &configurator = Configurator::Get();
 
-    QString filter = ("Applications (*)");  // Linux default
-
 #ifdef __APPLE__
-    filter = QString("Applications (*.app, *");
-#endif
-
-#ifdef _WIN32
-    filter = QString("Applications (*.exe)");
+    const QString filter("Applications (*.app, *)");
+#elif defined(_WIN32)
+    const QString filter("Applications (*.exe)");
+#elif defined __linux__
+    const QString filter("Applications (*)");
+#else
+#error "Unknown platform"
 #endif
 
     // Go get it.
-    QString full_suggested_path = configurator.GetPath(Configurator::LastExecutablePath);
+    QString full_suggested_path(configurator.path.GetPath(PATH_EXECUTABLE));
     QString executable_full_path = QFileDialog::getOpenFileName(this, "Select a Vulkan Executable", full_suggested_path, filter);
 
     // If they have selected something!
     if (!executable_full_path.isEmpty()) {
-        configurator.SetPath(Configurator::LastExecutablePath, executable_full_path);
+        configurator.path.SetPath(PATH_EXECUTABLE, executable_full_path);
 
         // On macOS, they may have selected a binary, or they may have selected an app bundle.
         // If the later, we need to drill down to the actuall applicaiton
