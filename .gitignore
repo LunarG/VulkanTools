@@ -32,3 +32,8 @@ build-android/external
 *.files
 *.includes
 .vscode/
+helper.cmake
+Vulkan-Headers/
+Vulkan-Tools/
+Vulkan-ValidationLayers/
+build-vkconfig*/
