@@ -27,7 +27,7 @@
 #include <gtest/gtest.h>
 
 TEST(test_command_line, execute_mode) {
-    char* argv[] = {"vkconfig"};
+    static char* argv[] = {"vkconfig"};
     int argc = static_cast<int>(countof(argv));
 
     CommandLine command_line(argc, argv);
@@ -36,7 +36,7 @@ TEST(test_command_line, execute_mode) {
 }
 
 TEST(test_command_line, usage_mode_help) {
-    char* argv[] = {"vkconfig", "--help"};
+    static char* argv[] = {"vkconfig", "--help"};
     int argc = static_cast<int>(countof(argv));
 
     CommandLine command_line(argc, argv);
@@ -45,7 +45,7 @@ TEST(test_command_line, usage_mode_help) {
 }
 
 TEST(test_command_line, usage_mode_h) {
-    char* argv[] = {"vkconfig", "-h"};
+    static char* argv[] = {"vkconfig", "-h"};
     int argc = static_cast<int>(countof(argv));
 
     CommandLine command_line(argc, argv);
@@ -54,7 +54,7 @@ TEST(test_command_line, usage_mode_h) {
 }
 
 TEST(test_command_line, usage_mode_invalid) {
-    char* argv[] = {"vkconfig", "--dfhsjfgasjkgf"};
+    static char* argv[] = {"vkconfig", "--dfhsjfgasjkgf"};
     int argc = static_cast<int>(countof(argv));
 
     CommandLine command_line(argc, argv);
