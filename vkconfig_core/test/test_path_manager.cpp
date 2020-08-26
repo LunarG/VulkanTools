@@ -21,12 +21,10 @@
 #include "../path_manager.h"
 #include "../util.h"
 
-#include <QDir.h>
-#include <QFileInfo.h>
+#include <QDir>
+#include <QFileInfo>
 
 #include <gtest/gtest.h>
-
-#include <windows.h>
 
 static PathManager CreatePathManager(const QString& path_value) {
     PathManager paths;
