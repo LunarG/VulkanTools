@@ -48,15 +48,14 @@ void dlgCustomPaths::RepopulateTree() {
 }
 
 void dlgCustomPaths::on_pushButtonAdd_clicked() {
-    QString custom_folder =
-        QFileDialog::getExistingDirectory(this, tr("Add Custom Layer Folder"), "", QFileDialog::DontUseNativeDialog);
-
     Configurator &configurator = Configurator::Get();
+    const QString custom_path = configurator.path.SelectPath(this, PATH_CUSTOM_LAYER_PATH);
 
-    if (!custom_folder.isEmpty()) {
-        configurator.AppendCustomLayersPath(custom_folder);
+    if (!custom_path.isEmpty()) {
+        configurator.AppendCustomLayersPath(custom_path);
+
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, custom_folder);
+        item->setText(0, custom_path);
         ui->treeWidget->addTopLevelItem(item);
 
         _paths_changed = true;
