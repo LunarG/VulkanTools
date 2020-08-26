@@ -50,11 +50,12 @@ static const DirectoryDesc& GetDesc(Path directory) {
         {"configuration import", ".json", "lastImportPath", nullptr, true, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
         {"configuration export", ".json", "lastExportPath", nullptr, true, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
 #ifdef _WIN32
-        {"executable", ".exe", "lastExecutablePath", nullptr, true, PATH_EXECUTABLE},  // PATH_EXECUTABLE
+        {"executable", ".exe", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #else
-        {"executable", "", "lastExecutablePath", nullptr, true, PATH_EXECUTABLE},  // PATH_EXECUTABLE
+        {"executable", "", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #endif
-        {"home path", "", nullptr, nullptr, false, PATH_HOME},                                         // PATH_HOME
+        {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},          // PATH_EXECUTABLE
+        {"home path", nullptr, nullptr, nullptr, false, PATH_HOME},                                    // PATH_HOME
         {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},              // PATH_LAUNCHER_LOG_FILE
         {"custom layer path", ".json", "lastCustomLayerPath", nullptr, true, PATH_CUSTOM_LAYER_PATH},  // PATH_CUSTOM_LAYER_PATH
     };
@@ -149,11 +150,11 @@ QString PathManager::GetFullPath(Path path, const char* filename) const {
 
     const QString path_base = GetPath(path);
 
-    const QString path_filename = filename != nullptr ? filename : GetDesc(path).default_filename;
-    assert(!path_filename.isEmpty());
+    const QString path_filename = filename != nullptr ? QFileInfo(filename).baseName() : GetDesc(path).default_filename;
+    assert(!path_filename.isEmpty());  // Did you really mean to use GetFullPath? GetPath seem to be the right function here
 
     const QString path_suffix =
-        !file_info.completeSuffix().isEmpty() ? file_info.completeSuffix() : GetDesc(path).default_extension;
+        !file_info.completeSuffix().isEmpty() ? QString(".") + file_info.completeSuffix() : GetDesc(path).default_extension;
     assert(!path_suffix.isEmpty());
 
     const QString full_path = QDir::toNativeSeparators(path_base + "/" + path_filename + path_suffix);
@@ -200,6 +201,25 @@ QString PathManager::SelectPath(QWidget* parent, Path path, const QString& sugge
             return GetFullPath(path, QFileInfo(selected_path).baseName());
         } break;
         case PATH_EXECUTABLE: {
+#ifdef __APPLE__
+            const QString filter("Applications (*.app, *)");
+#elif defined(_WIN32)
+            const QString filter("Applications (*.exe)");
+#elif defined __linux__
+            const QString filter("Applications (*)");
+#else
+#error "Unknown platform"
+#endif
+
+            const QString selected_path =
+                QFileDialog::getOpenFileName(parent, "Select a Vulkan Executable...", suggested_path, filter);
+            if (selected_path.isEmpty())  // The user cancelled
+                return "";
+
+            SetPath(path, QFileInfo(selected_path).absolutePath());
+            return GetFullPath(path, QFileInfo(selected_path).baseName());
+        }
+        case PATH_WORKING_DIR: {
             const QString selected_path = QFileDialog::getExistingDirectory(parent, "Set Working Folder To...", suggested_path);
             if (selected_path.isEmpty())  // The user cancelled
                 return "";
@@ -215,6 +235,24 @@ QString PathManager::SelectPath(QWidget* parent, Path path, const QString& sugge
 
             SetPath(path, selected_path);
             return GetPath(path);
+        }
+        case PATH_IMPORT_CONFIGURATION: {
+            const QString selected_path = QFileDialog::getOpenFileName(parent, "Import Layers Configuration File", suggested_path,
+                                                                       "JSON configuration(*.json)");
+            if (selected_path.isEmpty())  // The user cancelled
+                return "";
+
+            SetPath(path, QFileInfo(selected_path).absolutePath());
+            return GetFullPath(path, QFileInfo(selected_path).baseName());
+        }
+        case PATH_EXPORT_CONFIGURATION: {
+            const QString selected_path = QFileDialog::getSaveFileName(parent, "Export Layers Configuration File", suggested_path,
+                                                                       "JSON configuration(*.json)");
+            if (selected_path.isEmpty())  // The user cancelled
+                return "";
+
+            SetPath(path, QFileInfo(selected_path).absolutePath());
+            return GetFullPath(path, QFileInfo(selected_path).baseName());
         }
         default:
             assert(0);

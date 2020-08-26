@@ -1613,8 +1613,6 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
         return;
     }
 
-    path.SetPath(PATH_IMPORT_CONFIGURATION, full_import_path);
-
     QTextStream in(&input);
     QTextStream out(&output);
 
@@ -1655,8 +1653,6 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
         msg.exec();
         return;
     }
-
-    path.SetPath(PATH_EXPORT_CONFIGURATION, full_export_path);
 
     QTextStream in(&input);
     QTextStream out(&output);

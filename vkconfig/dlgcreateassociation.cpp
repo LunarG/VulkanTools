@@ -105,24 +105,11 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
 {
     Configurator &configurator = Configurator::Get();
 
-#ifdef __APPLE__
-    const QString filter("Applications (*.app, *)");
-#elif defined(_WIN32)
-    const QString filter("Applications (*.exe)");
-#elif defined __linux__
-    const QString filter("Applications (*)");
-#else
-#error "Unknown platform"
-#endif
-
-    // Go get it.
-    QString full_suggested_path(configurator.path.GetPath(PATH_EXECUTABLE));
-    QString executable_full_path = QFileDialog::getOpenFileName(this, "Select a Vulkan Executable", full_suggested_path, filter);
+    const QString suggested_path = configurator.path.GetPath(PATH_EXECUTABLE);
+    QString executable_full_path = configurator.path.SelectPath(this, PATH_EXECUTABLE, suggested_path);
 
     // If they have selected something!
     if (!executable_full_path.isEmpty()) {
-        configurator.path.SetPath(PATH_EXECUTABLE, executable_full_path);
-
         // On macOS, they may have selected a binary, or they may have selected an app bundle.
         // If the later, we need to drill down to the actuall applicaiton
         if (executable_full_path.right(4) == QString(".app")) {
@@ -293,7 +280,8 @@ void dlgCreateAssociation::editLogFile(const QString &logFile) {
 /// you find in the /MacOS folder is the executable.
 /// The initial path is the folder where info.plist resides, and the
 /// path is completed to the executable upon completion.
-void dlgCreateAssociation::GetExecutableFromAppBundle(QString &path) {
+void dlgCreateAssociation::GetExecutableFromAppBundle(QString &app_path) {
+    QString path = app_path;
     path += "/Contents/";
     QString list_file = path + "Info.plist";
     QFile file(list_file);
