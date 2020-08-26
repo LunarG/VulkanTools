@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QString>
+#include <QWidget>
 
 #include <array>
 #include <string>
@@ -32,10 +33,11 @@ enum Path {
     PATH_IMPORT_CONFIGURATION,  // The last path used by the user to import a configuration
     PATH_EXPORT_CONFIGURATION,  // The last path used by the user to export a configuration
     PATH_EXECUTABLE,            // The last path used by the user when adding an executable to the application list
-    PATH_HOME,
+    PATH_HOME,                  // The user home directory
+    PATH_LAUNCHER_LOG_FILE,     // The last path used by the user to set the launcher log file
 
     PATH_FIRST = PATH_CONFIGURATION,
-    PATH_LAST = PATH_HOME
+    PATH_LAST = PATH_LAUNCHER_LOG_FILE
 };
 
 enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };
@@ -56,11 +58,13 @@ class PathManager {
     void SetPath(Path path, const QString& path_value);
 
     // When filename is set to nullptr, the function will try to use the default filename if there is one for the DirectoryType
-    QString GetFullPath(Path directory, const char* filename = nullptr) const;
-    QString GetFullPath(Path directory, const QString& filename) const;
+    QString GetFullPath(Path path, const char* filename = nullptr) const;
+    QString GetFullPath(Path path, const QString& filename) const;
     QString GetFullPath(Filename filename) const;
 
     QString GetFilename(const char* full_path) const;
+
+    QString SelectPath(QWidget* parent, Path path, const QString& suggested_path);
 
     void Clear();
     void Reset();
