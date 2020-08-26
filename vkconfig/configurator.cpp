@@ -37,7 +37,6 @@
 
 #ifdef _WIN32
 #include <shlobj.h>
-#include <windows.h>
 #endif
 
 #include <vulkan/vulkan.h>
@@ -211,21 +210,10 @@ Configurator::Configurator()
     }
 
     SetPath(ConfigurationPath, main_path + "LunarG/vkconfig");
-    SetPath(OverrideLayersPath, main_path + "LunarG/vkconfig/override/VkLayer_override.json");
-    SetPath(OverrideSettingsPath, main_path + "LunarG/vkconfig/override/vk_layer_settings.txt");
-/*
-    _path.SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
+
+    //_path.SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
     _path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
     _path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
-
-    OutputDebugString("Paths:\n");
-    OutputDebugString(GetPath(ConfigurationPath).toUtf8().constData());
-    OutputDebugString("\n");
-    OutputDebugString(GetPath(OverrideSettingsPath).toUtf8().constData());
-    OutputDebugString("\n");
-    OutputDebugString(GetPath(OverrideLayersPath).toUtf8().constData());
-    OutputDebugString("\n");
-*/
 #else
     QDir home = QDir::home();
     if (!home.cd(".local")) {
@@ -263,11 +251,11 @@ Configurator::Configurator()
     home = QDir::home();
     QString main_path = home.path() + QString("/.local/share/vulkan/");
     SetPath(ConfigurationPath, main_path + QString("lunarg-vkconfig/"));
-    SetPath(OverrideLayersPath, main_path + "implicit_layer.d/VkLayer_override.json");
-    SetPath(OverrideSettingsPath, main_path + "settings.d/vk_layer_settings.txt");
+    // SetPath(OverrideLayersPath, main_path + "implicit_layer.d/VkLayer_override.json");
+    // SetPath(OverrideSettingsPath, main_path + "settings.d/vk_layer_settings.txt");
 
-    //_path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
-    //_path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
+    _path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
+    _path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
 #endif
 
 // Check loader version
@@ -1521,8 +1509,8 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     _active_configuration = configuration;
     QSettings settings;
 
-    const QString override_settings_path = GetPath(OverrideSettingsPath);
-    const QString override_layers_path = GetPath(OverrideLayersPath);
+    const QString override_settings_path = path.GetFullPath(PATH_OVERRIDE_SETTINGS);
+    const QString override_layers_path = path.GetFullPath(PATH_OVERRIDE_LAYERS);
 
     // Clear the profile if null
     if (configuration == nullptr) {

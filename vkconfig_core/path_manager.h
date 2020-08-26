@@ -26,13 +26,13 @@
 #include <string>
 
 enum Path {
-    PATH_CONFIGURATION = 0,         // Where config working files live
-    PATH_OVERRIDE_SETTINGS = 1,     // Where settings go when profile is active
-    PATH_OVERRIDE_LAYERS = 2,       // Where json goes when profile is active
-    PATH_IMPORT_CONFIGURATION = 3,  // The last path used by the user to import a configuration
-    PATH_EXPORT_CONFIGURATION = 4,  // The last path used by the user to export a configuration
-    PATH_EXECUTABLE = 5,            // The last path used by the user when adding an executable to the application list
-    PATH_HOME = 6,
+    PATH_CONFIGURATION = 0,     // Where config working files live
+    PATH_OVERRIDE_SETTINGS,     // Where settings go when profile is active
+    PATH_OVERRIDE_LAYERS,       // Where json goes when profile is active
+    PATH_IMPORT_CONFIGURATION,  // The last path used by the user to import a configuration
+    PATH_EXPORT_CONFIGURATION,  // The last path used by the user to export a configuration
+    PATH_EXECUTABLE,            // The last path used by the user when adding an executable to the application list
+    PATH_HOME,
 
     PATH_FIRST = PATH_CONFIGURATION,
     PATH_LAST = PATH_HOME

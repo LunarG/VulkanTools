@@ -112,8 +112,6 @@ class Configurator {
    public:
     enum Path {
         ConfigurationPath = 0,  // Where config working files live
-        OverrideSettingsPath,   // Where settings go when profile is active
-        OverrideLayersPath,     // Where json goes when profile is active
         LastImportPath,         // The last path used by the user to import a configuration
         LastExportPath,         // The last path used by the user to export a configuration
         LastExecutablePath,     // The last path used by the user when adding an executable to the application list
