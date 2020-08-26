@@ -211,13 +211,14 @@ dlgProfileEditor::~dlgProfileEditor() { delete ui; }
 ////////////////////////////////////////////////////////////
 /// Add a custom layer path, and update everything accordingly
 void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
-    QString custom_path =
-        QFileDialog::getExistingDirectory(this, tr("Add Custom Layer Folder"), "", QFileDialog::DontUseNativeDialog);
+    Configurator &configurator = Configurator::Get();
+    const QString custom_path = configurator.path.SelectPath(this, PATH_CUSTOM_LAYER_PATH);
 
-    if (custom_path.isEmpty()) return;
-    custom_path = QDir::toNativeSeparators(custom_path);
+    if (custom_path.isEmpty()) {
+        return;
+    }
 
-    Configurator::Get().AppendCustomLayersPath(custom_path);
+    configurator.AppendCustomLayersPath(custom_path);
 
     _configuration->CollapseConfiguration();
     AddMissingLayers(_configuration);

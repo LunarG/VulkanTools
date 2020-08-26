@@ -35,9 +35,10 @@ enum Path {
     PATH_EXECUTABLE,            // The last path used by the user when adding an executable to the application list
     PATH_HOME,                  // The user home directory
     PATH_LAUNCHER_LOG_FILE,     // The last path used by the user to set the launcher log file
+    PATH_CUSTOM_LAYER_PATH,     // The last custom layer path
 
     PATH_FIRST = PATH_CONFIGURATION,
-    PATH_LAST = PATH_LAUNCHER_LOG_FILE
+    PATH_LAST = PATH_CUSTOM_LAYER_PATH
 };
 
 enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };
@@ -65,6 +66,7 @@ class PathManager {
     QString GetFilename(const char* full_path) const;
 
     QString SelectPath(QWidget* parent, Path path, const QString& suggested_path);
+    QString SelectPath(QWidget* parent, Path path);
 
     void Clear();
     void Reset();

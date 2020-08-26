@@ -957,7 +957,7 @@ void MainWindow::ResetLaunchOptions() {
     _launcher_apps_combo->blockSignals(true);
     _launcher_apps_combo->clear();
 
-    for (int i = 0; i < configurator._overridden_application_list.size(); i++) {
+    for (int i = 0, n = configurator._overridden_application_list.size(); i < n; i++) {
         _launcher_apps_combo->addItem(configurator._overridden_application_list[i]->executable_path);
     }
 
@@ -969,15 +969,17 @@ void MainWindow::ResetLaunchOptions() {
     }
 
     int launch_application_index = configurator.GetLaunchApplicationIndex();
-    Q_ASSERT(launch_application_index >= 0);
+    assert(launch_application_index >= 0);
 
     configurator.SelectLaunchApplication(launch_application_index);
     _launcher_apps_combo->setCurrentIndex(launch_application_index);
 
+    const Application &application = *configurator._overridden_application_list[launch_application_index];
+
     // Reset working folder and command line choices
-    _launch_arguments->setText(configurator._overridden_application_list[launch_application_index]->arguments);
-    _launcher_working->setText(configurator._overridden_application_list[launch_application_index]->working_folder);
-    _launcher_log_file_edit->setText(configurator._overridden_application_list[launch_application_index]->log_file);
+    _launch_arguments->setText(application.arguments);
+    _launcher_working->setText(application.working_folder);
+    _launcher_log_file_edit->setText(application.log_file);
     _launcher_apps_combo->blockSignals(false);
 }
 

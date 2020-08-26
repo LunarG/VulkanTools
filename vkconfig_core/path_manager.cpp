@@ -54,8 +54,9 @@ static const DirectoryDesc& GetDesc(Path directory) {
 #else
         {"executable", "", "lastExecutablePath", nullptr, true, PATH_EXECUTABLE},  // PATH_EXECUTABLE
 #endif
-        {"home path", "", nullptr, nullptr, false, PATH_HOME},                              // PATH_HOME
-        {"home path", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},  // PATH_LAUNCHER_LOG_FILE
+        {"home path", "", nullptr, nullptr, false, PATH_HOME},                                         // PATH_HOME
+        {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},              // PATH_LAUNCHER_LOG_FILE
+        {"custom layer path", ".json", "lastCustomLayerPath", nullptr, true, PATH_CUSTOM_LAYER_PATH},  // PATH_CUSTOM_LAYER_PATH
     };
     static_assert(countof(table) == PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -176,10 +177,17 @@ QString PathManager::GetFilename(const char* full_path) const {
     return QFileInfo(full_path).fileName();
 }
 
-QString PathManager::SelectPath(QWidget* parent, Path path, const QString& previous_path) {
+QString PathManager::SelectPath(QWidget* parent, Path path) {
+    assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
-    const QString suggested_path = previous_path.isEmpty() ? GetPath(path) : previous_path;
+    return SelectPath(parent, path, GetPath(path));
+}
+
+QString PathManager::SelectPath(QWidget* parent, Path path, const QString& suggested_path) {
+    assert(parent);
+    assert(path >= PATH_FIRST && path <= PATH_LAST);
+    assert(!suggested_path.isEmpty());
 
     switch (path) {
         case PATH_LAUNCHER_LOG_FILE: {
@@ -199,14 +207,17 @@ QString PathManager::SelectPath(QWidget* parent, Path path, const QString& previ
             SetPath(path, selected_path);
             return GetPath(path);
         }
+        case PATH_CUSTOM_LAYER_PATH: {
+            const QString selected_path = QFileDialog::getExistingDirectory(parent, "Add Custom Layer Folder...", suggested_path,
+                                                                            QFileDialog::DontUseNativeDialog);
+            if (selected_path.isEmpty())  // The user cancelled
+                return "";
+
+            SetPath(path, selected_path);
+            return GetPath(path);
+        }
         default:
             assert(0);
-            break;
+            return "";
     }
 }
-
-/*
-            OutputDebugString("SelectPath\n");
-            OutputDebugString(GetPath(path));
-            OutputDebugString("\n");
-*/
