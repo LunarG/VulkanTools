@@ -114,10 +114,9 @@ class Configurator {
         ConfigurationPath = 0,  // Where config working files live
         LastImportPath,         // The last path used by the user to import a configuration
         LastExportPath,         // The last path used by the user to export a configuration
-        LastExecutablePath,     // The last path used by the user when adding an executable to the application list
 
         FirstPath = ConfigurationPath,
-        LastPath = LastExecutablePath
+        LastPath = LastExportPath
     };
     enum { PathCount = LastPath - FirstPath + 1 };
 
@@ -255,9 +254,6 @@ class Configurator {
     void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
 #endif
 
-   private:
-    PathManager _path;
-
    public:
-    const PathManager& path;
+    PathManager path;
 };

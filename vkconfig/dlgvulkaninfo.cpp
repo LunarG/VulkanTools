@@ -48,16 +48,15 @@ void dlgVulkanInfo::RunTool() {
     ui->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
+
 #ifdef _WIN32
     vulkan_info->setProgram("vulkaninfoSDK");
-#endif
-
-#ifdef __linux__
+#elif defined(__linux__)
     vulkan_info->setProgram("vulkaninfo");
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
     vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
+#else
+#error "Unknown platform"
 #endif
     QString filePath = QDir::temp().path();
 

@@ -161,11 +161,7 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : _has_old_loader(false),
-      _first_run(true),
-      _override_application_list_updated(false),
-      _active_configuration(nullptr),
-      path(_path) {
+    : _has_old_loader(false), _first_run(true), _override_application_list_updated(false), _active_configuration(nullptr) {
     _available_Layers.reserve(10);
 
 #if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
@@ -212,8 +208,8 @@ Configurator::Configurator()
     SetPath(ConfigurationPath, main_path + "LunarG/vkconfig");
 
     //_path.SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
-    _path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
-    _path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
+    path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
+    path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
 #else
     QDir home = QDir::home();
     if (!home.cd(".local")) {
@@ -254,22 +250,20 @@ Configurator::Configurator()
     // SetPath(OverrideLayersPath, main_path + "implicit_layer.d/VkLayer_override.json");
     // SetPath(OverrideSettingsPath, main_path + "settings.d/vk_layer_settings.txt");
 
-    _path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
-    _path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
+    path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
+    path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
 #endif
 
 // Check loader version
 // Different names and rules for each OS
 #ifdef WIN32
     QLibrary library("vulkan-1.dll");
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
     QLibrary library("/usr/local/lib/libvulkan");
-#endif
-
-#ifdef __linux__
+#elif defined(__linux__)
     QLibrary library("libvulkan");
+#else
+#error "Unknown platform"
 #endif
 
     if (!(library.load())) {
@@ -294,8 +288,10 @@ Configurator::Configurator()
     if (!layer_path.isEmpty()) {
 #ifdef _WIN32
         VK_LAYER_PATH = layer_path.split(";");  // Windows uses ; as seperator
-#else
+#elif defined(__linux__) || defined(__APPLE__)
         VK_LAYER_PATH = layer_path.split(":");  // Linux/macOS uses : as seperator
+#else
+#error "Unknown platform"
 #endif
     }
 }
@@ -373,14 +369,12 @@ QString Configurator::CheckVulkanSetup() const {
         // Different names and rules for each OS
 #ifdef WIN32
     QLibrary library("vulkan-1.dll");
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
     QLibrary library("/usr/local/lib/libvulkan");
-#endif
-
-#ifdef __linux__
+#elif defined(__linux__)
     QLibrary library("libvulkan");
+#else
+#error "Unknown platform"
 #endif
 
     uint32_t version = _vulkan_instance_version;
@@ -689,7 +683,6 @@ void Configurator::LoadSettings() {
     _override_permanent = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
     _paths[LastExportPath] = settings.value(VKCONFIG_KEY_LAST_EXPORT_PATH).toString();
     _paths[LastImportPath] = settings.value(VKCONFIG_KEY_LAST_IMPORT_PATH).toString();
-    _paths[LastExecutablePath] = settings.value(VKCONFIG_KEY_LAST_EXECUTABLE_PATH).toString();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -702,7 +695,6 @@ void Configurator::SaveSettings() {
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, _override_permanent);
     settings.setValue(VKCONFIG_KEY_LAST_EXPORT_PATH, _paths[LastExportPath]);
     settings.setValue(VKCONFIG_KEY_LAST_IMPORT_PATH, _paths[LastImportPath]);
-    settings.setValue(VKCONFIG_KEY_LAST_EXECUTABLE_PATH, _paths[LastExecutablePath]);
 }
 
 void Configurator::ResetToDefaultSettings() {
@@ -713,7 +705,7 @@ void Configurator::ResetToDefaultSettings() {
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, false);
     settings.setValue(VKCONFIG_KEY_LAST_EXPORT_PATH, "");
     settings.setValue(VKCONFIG_KEY_LAST_IMPORT_PATH, "");
-    settings.setValue(VKCONFIG_KEY_LAST_EXECUTABLE_PATH, "");
+    path.Clear();
 }
 
 QString Configurator::GetPath(Path requested_path) const {
@@ -740,7 +732,7 @@ void Configurator::SetPath(Path requested_path, QString path) {
 
     path = QDir::toNativeSeparators(path);
 
-    if (requested_path == LastImportPath || requested_path == LastExportPath || requested_path == LastExecutablePath) {
+    if (requested_path == LastImportPath || requested_path == LastExportPath) {
         QDir directory = QFileInfo(path).absoluteDir();
         path = directory.absolutePath();
     }
@@ -828,14 +820,12 @@ void Configurator::FindVkCube() {
                 // One of these must be true, or we just aren't going to compile!
 #ifdef _WIN32
     QString application_name("./vkcube.exe");
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
     QString application_name("../../vkcube.app");
-#endif
-
-#ifdef __linux__
+#elif defined(__linux__)
     QString application_name("./vkcube");
+#else
+#error "Unknown platform"
 #endif
 
     QString search_path = application_name;

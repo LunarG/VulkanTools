@@ -553,8 +553,10 @@ void MainWindow::helpShowVulkanSpec(bool checked) {
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/1.2-extensions/vkspec.html"));
 #elif defined(__APPLE__)
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/1.2-extensions/vkspec.html"));
-#else
+#elif defined(__linux__)
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/1.2-extensions/vkspec.html"));
+#else
+#error "Unknown platform"
 #endif
 }
 
@@ -566,8 +568,10 @@ void MainWindow::helpShowLayerSpec(bool checked) {
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html"));
 #elif defined(__APPLE__)
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/layer_configuration.html"));
-#else
+#elif defined(__linux__)
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/layer_configuration.html"));
+#else
+#error "Unknown platform"
 #endif
 }
 
