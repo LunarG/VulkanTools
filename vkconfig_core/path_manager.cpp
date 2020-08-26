@@ -28,10 +28,12 @@
 #include <QFileInfo.h>
 #include <QString.h>
 #include <QSettings.h>
+#include <QWidget.h>
+#include <QFileDialog.h>
 
 struct DirectoryDesc {
     const char* label;
-    const char* default_extension;  // file extension
+    const char* default_extension;  // file extension used to path
     const char* setting;            // system token to store the path, if empty the directory is not saved
     const char* default_filename;   // a default filename, if empty there is no default filename
     const bool resettable;
@@ -42,7 +44,6 @@ static const DirectoryDesc& GetDesc(Path directory) {
     assert(directory >= PATH_FIRST && directory <= PATH_LAST);
 
     static const DirectoryDesc table[] = {
-        // label, extension, setting, default_filename, resettable, alternative
         {"configuration", ".json", nullptr, nullptr, false, PATH_CONFIGURATION},                        // PATH_CONFIGURATION
         {"override settings", ".txt", nullptr, "vk_layer_settings", false, PATH_OVERRIDE_SETTINGS},     // PATH_OVERRIDE_SETTINGS
         {"override layers", ".json", nullptr, "VkLayer_override", false, PATH_OVERRIDE_LAYERS},         // PATH_OVERRIDE_LAYERS
@@ -53,7 +54,8 @@ static const DirectoryDesc& GetDesc(Path directory) {
 #else
         {"executable", "", "lastExecutablePath", nullptr, true, PATH_EXECUTABLE},  // PATH_EXECUTABLE
 #endif
-        {"home path", "", nullptr, nullptr, false, PATH_HOME},  // PATH_HOME
+        {"home path", "", nullptr, nullptr, false, PATH_HOME},                              // PATH_HOME
+        {"home path", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},  // PATH_LAUNCHER_LOG_FILE
     };
     static_assert(countof(table) == PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -173,3 +175,38 @@ QString PathManager::GetFilename(const char* full_path) const {
 
     return QFileInfo(full_path).fileName();
 }
+
+QString PathManager::SelectPath(QWidget* parent, Path path, const QString& previous_path) {
+    assert(path >= PATH_FIRST && path <= PATH_LAST);
+
+    const QString suggested_path = previous_path.isEmpty() ? GetPath(path) : previous_path;
+
+    switch (path) {
+        case PATH_LAUNCHER_LOG_FILE: {
+            const QString selected_path =
+                QFileDialog::getSaveFileName(parent, "Set Log File To...", suggested_path, "Log text(*.txt)");
+            if (selected_path.isEmpty())  // The user cancelled
+                return "";
+
+            SetPath(path, QFileInfo(selected_path).absolutePath());
+            return GetFullPath(path, QFileInfo(selected_path).baseName());
+        } break;
+        case PATH_EXECUTABLE: {
+            const QString selected_path = QFileDialog::getExistingDirectory(parent, "Set Working Folder To...", suggested_path);
+            if (selected_path.isEmpty())  // The user cancelled
+                return "";
+
+            SetPath(path, selected_path);
+            return GetPath(path);
+        }
+        default:
+            assert(0);
+            break;
+    }
+}
+
+/*
+            OutputDebugString("SelectPath\n");
+            OutputDebugString(GetPath(path));
+            OutputDebugString("\n");
+*/

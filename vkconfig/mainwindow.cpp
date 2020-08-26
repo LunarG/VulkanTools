@@ -1105,15 +1105,15 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
 ////////////////////////////////////////////////////////////////////
 void MainWindow::launchSetLogFile() {
     int current_application_index = _launcher_apps_combo->currentIndex();
-    Q_ASSERT(current_application_index >= 0);
-
-    const QString log_file =
-        QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, tr("Set Log File To..."), ".", tr("Log text(*.txt)")));
-
-    // Do nothing if the user cancels out.
-    if (log_file.isEmpty()) return;
+    assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
+    const QString log_file = configurator.path.SelectPath(
+        this, PATH_LAUNCHER_LOG_FILE, configurator._overridden_application_list[current_application_index]->log_file);
+
+    // The user has cancel the operation
+    if (log_file.isEmpty()) return;
+
     configurator._overridden_application_list[current_application_index]->log_file = log_file;
 
     _launcher_log_file_edit->setText(log_file);
@@ -1124,15 +1124,15 @@ void MainWindow::launchSetLogFile() {
 ////////////////////////////////////////////////////////////////////
 void MainWindow::launchSetWorkingFolder() {
     int current_application_index = _launcher_apps_combo->currentIndex();
-    Q_ASSERT(current_application_index >= 0);
-
-    const QString working_folder =
-        QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, tr("Set Working Folder To..."), ""));
-
-    // Do nothing if the user cancels out.
-    if (working_folder.isEmpty()) return;
+    assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
+    const QString working_folder = configurator.path.SelectPath(
+        this, PATH_EXECUTABLE, configurator._overridden_application_list[current_application_index]->working_folder);
+
+    // The user has cancel the operation
+    if (working_folder.isEmpty()) return;
+
     configurator._overridden_application_list[current_application_index]->working_folder = working_folder;
 
     _launcher_working->setText(working_folder);
@@ -1142,22 +1142,22 @@ void MainWindow::launchSetWorkingFolder() {
 
 ///////////////////////////////////////////////////////////////////
 // Log file path edited manually.
-void MainWindow::launchChangeLogFile(const QString &new_text) {
+void MainWindow::launchChangeLogFile(const QString &log_file) {
     int current_application_index = _launcher_apps_combo->currentIndex();
-    Q_ASSERT(current_application_index >= 0);
+    assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    configurator._overridden_application_list[current_application_index]->log_file = new_text;
+    configurator._overridden_application_list[current_application_index]->log_file = log_file;
     configurator.SaveOverriddenApplicationList();
 }
 
 ////////////////////////////////////////////////////////////////////
-void MainWindow::launchChangeWorkingFolder(const QString &new_text) {
+void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     int current_application_index = _launcher_apps_combo->currentIndex();
-    Q_ASSERT(current_application_index >= 0);
+    assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    configurator._overridden_application_list[current_application_index]->working_folder = new_text;
+    configurator._overridden_application_list[current_application_index]->working_folder = working_folder;
     configurator.SaveOverriddenApplicationList();
 }
 
