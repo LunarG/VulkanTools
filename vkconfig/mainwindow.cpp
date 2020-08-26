@@ -363,7 +363,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     configurator.SetActiveConfiguration(nullptr);
 
     // Delete all the *.json files in the storage folder
-    QDir dir(configurator.GetPath(Configurator::ConfigurationPath));
+    QDir dir(configurator.path.GetPath(PATH_CONFIGURATION));
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList configuration_files = dir.entryInfoList();
@@ -448,21 +448,20 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
     if (configuration_item == nullptr) return;
 
-    if (column == 1) {  // Profile name
+    if (column == 1) {  // configuration name
         _settings_tree_manager.CleanupGUI();
         Configurator &configurator = Configurator::Get();
 
         // We are renaming the file. Things can go wrong here...
         // This is the name of the configuratin we are changing
-        const QString full_path =
-            configurator.GetPath(Configurator::ConfigurationPath) + "/" + configuration_item->configuration._file;
+        const QString full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, configuration_item->configuration._name));
 
         // This is the new name we want to use
-        QString newName = configuration_item->text(1);
+        QString new_name = configuration_item->text(1);
 
         // Make sure we do not have a duplicate
-        Configuration *pDuplicate = configurator.FindConfiguration(newName);
-        if (pDuplicate != nullptr) {
+        Configuration *duplicate = configurator.FindConfiguration(new_name);
+        if (duplicate != nullptr) {
             QMessageBox alert;
             alert.setText("This name is already taken by another configuration.");
             alert.setWindowTitle("Duplicate Name");
@@ -478,8 +477,8 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
 
         // Proceed
         remove(full_path.toUtf8().constData());
-        configuration_item->configuration._name = newName;
-        configuration_item->configuration._file = newName + QString(".json");
+        configuration_item->configuration._name = new_name;
+        configuration_item->configuration._file = new_name + QString(".json");
         configurator.SaveConfiguration(configuration_item->configuration);
         RestoreLastItem(configuration_item->configuration._name.toUtf8().constData());
     }
@@ -804,7 +803,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     if (configurator.GetActiveConfiguration() == &item->configuration) configurator.SetActiveConfiguration(nullptr);
 
     // Delete the file
-    const QString full_path = configurator.GetPath(Configurator::ConfigurationPath) + "/" + item->configuration._file;
+    const QString full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration._name));
     remove(full_path.toUtf8().constData());
 
     // Reload profiles
@@ -859,7 +858,7 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     (void)item;  // We don't need this
     Configurator &configurator = Configurator::Get();
 
-    QString full_suggested_path = configurator.GetPath(Configurator::LastImportPath);
+    QString full_suggested_path = configurator.path.GetPath(PATH_IMPORT_CONFIGURATION);
     QString full_import_path =
         QFileDialog::getOpenFileName(this, "Import Layers Configuration File", full_suggested_path, "*.json");
 
@@ -881,7 +880,7 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
     Configurator &configurator = Configurator::Get();
 
     // Where to put it and what to call it
-    QString full_suggested_path = configurator.GetPath(Configurator::LastExportPath) + "/" + item->configuration._file;
+    QString full_suggested_path = configurator.path.GetFullPath(PATH_EXPORT_CONFIGURATION, item->configuration._name);
     QString full_export_path =
         QFileDialog::getSaveFileName(this, "Export Layers Configuration File", full_suggested_path, "*.json");
     if (full_export_path.isEmpty()) return;
