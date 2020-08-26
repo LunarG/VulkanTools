@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/path_manager.h"
 #include "configuration.h"
 
 #ifdef _WIN32
@@ -110,12 +111,12 @@ struct Application {
 class Configurator {
    public:
     enum Path {
-        ConfigurationPath = 0,     // Where config working files live
-        OverrideSettingsPath = 1,  // Where settings go when profile is active
-        OverrideLayersPath = 2,    // Where json goes when profile is active
-        LastImportPath = 3,        // The last path used by the user to import a configuration
-        LastExportPath = 4,        // The last path used by the user to export a configuration
-        LastExecutablePath = 5,    // The last path used by the user when adding an executable to the application list
+        ConfigurationPath = 0,  // Where config working files live
+        OverrideSettingsPath,   // Where settings go when profile is active
+        OverrideLayersPath,     // Where json goes when profile is active
+        LastImportPath,         // The last path used by the user to import a configuration
+        LastExportPath,         // The last path used by the user to export a configuration
+        LastExecutablePath,     // The last path used by the user when adding an executable to the application list
 
         FirstPath = ConfigurationPath,
         LastPath = LastExecutablePath
@@ -255,4 +256,10 @@ class Configurator {
     void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
     void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
 #endif
+
+   private:
+    PathManager _path;
+
+   public:
+    const PathManager& path;
 };

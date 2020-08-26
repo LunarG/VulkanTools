@@ -27,6 +27,10 @@
 #include <array>
 #include <vector>
 
+#if defined(_WIN32) && defined(_DEBUG)
+#include <windows.h>  // For OutputDebugString
+#endif
+
 // Based on https://www.g-truc.net/post-0708.html#menu
 template <typename T, std::size_t N>
 inline constexpr std::size_t countof(T const (&)[N]) noexcept {

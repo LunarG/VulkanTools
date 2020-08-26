@@ -37,6 +37,7 @@
 
 #ifdef _WIN32
 #include <shlobj.h>
+#include <windows.h>
 #endif
 
 #include <vulkan/vulkan.h>
@@ -161,7 +162,11 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : _has_old_loader(false), _first_run(true), _override_application_list_updated(false), _active_configuration(nullptr) {
+    : _has_old_loader(false),
+      _first_run(true),
+      _override_application_list_updated(false),
+      _active_configuration(nullptr),
+      path(_path) {
     _available_Layers.reserve(10);
 
 #if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
@@ -189,26 +194,38 @@ Configurator::Configurator()
 
 // Where is stuff
 #ifdef _WIN32
-    // Assemble the path name where the overide .json file goes
-    QDir temp_path = QDir::temp();
-    if (!temp_path.cd("VulkanLayerManager")) {
-        temp_path.mkpath("VulkanLayerManager");
-        temp_path.cd("VulkanLayerManager");
-    }
-    SetPath(OverrideLayersPath, temp_path.absoluteFilePath("VkLayer_override.json"));
-    SetPath(OverrideSettingsPath, temp_path.absoluteFilePath("vk_layer_settings.txt"));
-
     QDir home = QDir::home();
-    QString configuration_path = home.path() + QString("/AppData/Local/");
-    home.setPath(configuration_path);
+    QString main_path = home.path() + QString("/AppData/Local/");
+    home.setPath(main_path);
     if (!home.cd("LunarG")) {
         home.mkpath("LunarG");
         home.cd("LunarG");
     }
 
-    if (!home.cd("vkconfig")) home.mkpath("vkconfig");
+    if (!home.cd("vkconfig")) {
+        home.mkpath("vkconfig");
+    }
 
-    SetPath(ConfigurationPath, configuration_path + "LunarG/vkconfig");
+    if (!home.cd("override")) {
+        home.mkpath("override");
+    }
+
+    SetPath(ConfigurationPath, main_path + "LunarG/vkconfig");
+    SetPath(OverrideLayersPath, main_path + "LunarG/vkconfig/override/VkLayer_override.json");
+    SetPath(OverrideSettingsPath, main_path + "LunarG/vkconfig/override/vk_layer_settings.txt");
+/*
+    _path.SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
+    _path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
+    _path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
+
+    OutputDebugString("Paths:\n");
+    OutputDebugString(GetPath(ConfigurationPath).toUtf8().constData());
+    OutputDebugString("\n");
+    OutputDebugString(GetPath(OverrideSettingsPath).toUtf8().constData());
+    OutputDebugString("\n");
+    OutputDebugString(GetPath(OverrideLayersPath).toUtf8().constData());
+    OutputDebugString("\n");
+*/
 #else
     QDir home = QDir::home();
     if (!home.cd(".local")) {
@@ -244,10 +261,13 @@ Configurator::Configurator()
     }
 
     home = QDir::home();
-    QString configuration_path = home.path() + QString("/.local/share/vulkan/");
-    SetPath(ConfigurationPath, configuration_path + QString("lunarg-vkconfig/"));
-    SetPath(OverrideLayersPath, configuration_path + "implicit_layer.d/VkLayer_override.json");
-    SetPath(OverrideSettingsPath, configuration_path + "settings.d/vk_layer_settings.txt");
+    QString main_path = home.path() + QString("/.local/share/vulkan/");
+    SetPath(ConfigurationPath, main_path + QString("lunarg-vkconfig/"));
+    SetPath(OverrideLayersPath, main_path + "implicit_layer.d/VkLayer_override.json");
+    SetPath(OverrideSettingsPath, main_path + "settings.d/vk_layer_settings.txt");
+
+    //_path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
+    //_path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
 #endif
 
 // Check loader version

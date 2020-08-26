@@ -29,8 +29,6 @@
 #include <QString.h>
 #include <QSettings.h>
 
-#include <windows.h>
-
 struct DirectoryDesc {
     const char* label;
     const char* default_extension;  // file extension
