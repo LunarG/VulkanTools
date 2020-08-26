@@ -110,18 +110,8 @@ struct Application {
 
 class Configurator {
    public:
-    enum Path {
-        ConfigurationPath = 0,  // Where config working files live
-        LastImportPath,         // The last path used by the user to import a configuration
-        LastExportPath,         // The last path used by the user to export a configuration
-
-        FirstPath = ConfigurationPath,
-        LastPath = LastExportPath
-    };
-    enum { PathCount = LastPath - FirstPath + 1 };
-
     static Configurator& Get();
-    bool InitializeConfigurator(void);
+    bool Init();
 
     // Need this to check vulkan loader version
     uint32_t _vulkan_instance_version;
@@ -138,16 +128,11 @@ class Configurator {
     void SaveSettings();
     void ResetToDefaultSettings();
     bool HasActiveOverrideOnApplicationListOnly() const { return !_has_old_loader && _overridden_application_list_only; }
-    QString GetPath(Path requested_path) const;
-    void SetPath(Path requested_path, QString path);
 
     bool _override_active;                    // Do we have active layers override?
     bool _overridden_application_list_only;   // Apply the override only to the application list
     bool _override_permanent;                 // The override remains active when Vulkan Configurator closes
     bool _override_application_list_updated;  // The list of applications to override has possibly been updated
-
-   private:
-    QString _paths[PathCount];
 
     /////////////////////////////////////////////////////////////////////////
     // Validation Preset

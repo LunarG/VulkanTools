@@ -468,7 +468,7 @@ void dlgProfileEditor::accept() {
 
     // Prepare... get fully qualified file name, and double check if overwriting
     _configuration->_file = _configuration->_name + ".json";
-    const QString save_path = Configurator::Get().GetPath(Configurator::ConfigurationPath) + "/" + _configuration->_file;
+    const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _configuration->_name);
 
     if (QDir().exists(save_path)) {
         QMessageBox warning;

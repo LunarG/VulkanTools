@@ -205,12 +205,10 @@ Configurator::Configurator()
         home.mkpath("override");
     }
 
-    SetPath(ConfigurationPath, main_path + "LunarG/vkconfig");
-
-    //_path.SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
+    path.SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
     path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
     path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
-#else
+#elif defined(__linux__) || defined(__APPLE__)
     QDir home = QDir::home();
     if (!home.cd(".local")) {
         home.mkpath(".local");
@@ -246,12 +244,11 @@ Configurator::Configurator()
 
     home = QDir::home();
     QString main_path = home.path() + QString("/.local/share/vulkan/");
-    SetPath(ConfigurationPath, main_path + QString("lunarg-vkconfig/"));
-    // SetPath(OverrideLayersPath, main_path + "implicit_layer.d/VkLayer_override.json");
-    // SetPath(OverrideSettingsPath, main_path + "settings.d/vk_layer_settings.txt");
-
+    path.SetPath(PATH_CONFIGURATION, main_path + "lunarg-vkconfig/");
     path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
     path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
+#else
+#error "Unknown platform"
 #endif
 
 // Check loader version
@@ -300,7 +297,7 @@ Configurator::Configurator()
 /// A good rule of C++ is to not put things in the constructor that can fail, or
 /// that might require recursion. This initializes
 ///
-bool Configurator::InitializeConfigurator(void) {
+bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
     LoadSettings();
@@ -681,8 +678,6 @@ void Configurator::LoadSettings() {
     _override_active = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE, true).toBool();
     _overridden_application_list_only = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
     _override_permanent = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
-    _paths[LastExportPath] = settings.value(VKCONFIG_KEY_LAST_EXPORT_PATH).toString();
-    _paths[LastImportPath] = settings.value(VKCONFIG_KEY_LAST_IMPORT_PATH).toString();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -693,8 +688,6 @@ void Configurator::SaveSettings() {
     settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, _override_active);
     settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, _overridden_application_list_only);
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, _override_permanent);
-    settings.setValue(VKCONFIG_KEY_LAST_EXPORT_PATH, _paths[LastExportPath]);
-    settings.setValue(VKCONFIG_KEY_LAST_IMPORT_PATH, _paths[LastImportPath]);
 }
 
 void Configurator::ResetToDefaultSettings() {
@@ -703,41 +696,7 @@ void Configurator::ResetToDefaultSettings() {
     settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, true);
     settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, false);
     settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, false);
-    settings.setValue(VKCONFIG_KEY_LAST_EXPORT_PATH, "");
-    settings.setValue(VKCONFIG_KEY_LAST_IMPORT_PATH, "");
     path.Clear();
-}
-
-QString Configurator::GetPath(Path requested_path) const {
-    Q_ASSERT(requested_path >= FirstPath && requested_path <= LastPath);
-    const QString path = _paths[requested_path];
-
-    if (!path.isEmpty()) {
-        return QDir::toNativeSeparators(path);
-    }
-
-    // Use export path when import path is empty and import path when export path is empty
-    if (requested_path == LastImportPath && !_paths[LastExportPath].isEmpty()) {
-        return _paths[LastExportPath];
-    } else if (requested_path == LastExportPath && !_paths[LastImportPath].isEmpty()) {
-        return _paths[LastImportPath];
-    } else {
-        return QDir::homePath();
-    }
-}
-
-void Configurator::SetPath(Path requested_path, QString path) {
-    Q_ASSERT(requested_path >= FirstPath && requested_path <= LastPath);
-    Q_ASSERT(!path.isEmpty());
-
-    path = QDir::toNativeSeparators(path);
-
-    if (requested_path == LastImportPath || requested_path == LastExportPath) {
-        QDir directory = QFileInfo(path).absoluteDir();
-        path = directory.absolutePath();
-    }
-
-    _paths[requested_path] = path;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -858,7 +817,7 @@ void Configurator::LoadOverriddenApplicationList() {
     /////////////////////////////////////////////////////////////
     // Now, use the list. If the file doesn't exist, this is not an error
     QString data;
-    QString application_list_json = GetPath(ConfigurationPath) + QDir::toNativeSeparators("/applist.json");
+    QString application_list_json = path.GetFullPath(FILENAME_APPLIST);
     QFile file(application_list_json);
     if (file.open(QFile::ReadOnly)) {
         data = file.readAll();
@@ -937,7 +896,7 @@ void Configurator::SaveOverriddenApplicationList() {
         root.insert(QFileInfo(_overridden_application_list[i]->executable_path).fileName(), application_object);
     }
 
-    QString app_list_json = GetPath(ConfigurationPath) + QDir::toNativeSeparators("/applist.json");
+    QString app_list_json = path.GetFullPath(FILENAME_APPLIST);
     QFile file(app_list_json);
     file.open(QFile::WriteOnly);
     QJsonDocument doc(root);
@@ -1112,7 +1071,7 @@ void Configurator::LoadAllConfigurations() {
     _first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, QVariant(true)).toBool();
     if (_first_run) {
         // Delete all the *.json files in the storage folder
-        QDir dir(GetPath(ConfigurationPath));
+        QDir dir(path.GetPath(PATH_CONFIGURATION));
         dir.setFilter(QDir::Files | QDir::NoSymLinks);
         dir.setNameFilters(QStringList() << "*.json");
         QFileInfoList configuration_files = dir.entryInfoList();
@@ -1138,7 +1097,7 @@ void Configurator::LoadAllConfigurations() {
 
     // Get a list of all files that end in .json in the folder where
     // we store them. TBD... don't hard code this here.
-    QDir dir(GetPath(ConfigurationPath));
+    QDir dir(path.GetPath(PATH_CONFIGURATION));
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList configuration_files = dir.entryInfoList();
@@ -1429,10 +1388,7 @@ bool Configurator::SaveConfiguration(const Configuration &configuration) {
     ///////////////////////////////////////////////////////////
     // Write it out - file name is same as name. If it's been
     // changed, this corrects the behavior.
-    QString path_to_configuration = GetPath(ConfigurationPath);
-    path_to_configuration += "/";
-    path_to_configuration += configuration._name;
-    path_to_configuration += QString(".json");
+    const QString path_to_configuration = path.GetFullPath(PATH_CONFIGURATION, configuration._name);
 
     QFile jsonFile(path_to_configuration);
     if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -1631,29 +1587,33 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 }
 
 void Configurator::ImportConfiguration(const QString &full_import_path) {
-    QFile input(full_import_path);
-    QString full_dest_name = GetPath(ConfigurationPath) + "/" + QFileInfo(full_import_path).fileName();
+    assert(!full_import_path.isEmpty());
 
+    QFile input(full_import_path);
     if (!input.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("File Error");
-        msg.setText("Cannot access the profile");
+        msg.setWindowTitle("Import of Layers Configuration error");
+        msg.setText("Cannot access the source configuration file.");
+        msg.setInformativeText(full_import_path);
         msg.exec();
         return;
     }
+
+    const QString full_dest_name = path.GetFullPath(PATH_CONFIGURATION, QFileInfo(full_import_path).fileName());
 
     QFile output(full_dest_name);
     if (!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("File Error");
-        msg.setText("Cannot create the destination file.");
+        msg.setWindowTitle("Import of Layers Configuration error");
+        msg.setText("Cannot create the destination configuration file.");
+        msg.setInformativeText(full_dest_name);
         msg.exec();
         return;
     }
 
-    SetPath(Configurator::LastImportPath, full_import_path);
+    path.SetPath(PATH_IMPORT_CONFIGURATION, full_import_path);
 
     QTextStream in(&input);
     QTextStream out(&output);
@@ -1669,12 +1629,18 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
 }
 
 void Configurator::ExportConfiguration(const QString &source_file, const QString &full_export_path) {
-    QFile input(GetPath(ConfigurationPath) + "/" + source_file);
+    assert(!source_file.isEmpty());
+    assert(!full_export_path.isEmpty());
+
+    const QString source_path = path.GetFullPath(PATH_CONFIGURATION, source_file);
+    QFile input(source_path);
+
     if (!input.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("File Error");
-        msg.setText("Cannot access the configuration file.");
+        msg.setWindowTitle("Export of Layers Configuration error");
+        msg.setText("Cannot access the source configuration file.");
+        msg.setInformativeText(source_path);
         msg.exec();
         return;
     }
@@ -1683,13 +1649,14 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
     if (!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("File Error");
-        msg.setText("Cannot create the destination file.");
+        msg.setWindowTitle("Export of Layers Configuration error");
+        msg.setText("Cannot create the destination configuration file.");
+        msg.setInformativeText(full_export_path);
         msg.exec();
         return;
     }
 
-    SetPath(LastExportPath, full_export_path);
+    path.SetPath(PATH_EXPORT_CONFIGURATION, full_export_path);
 
     QTextStream in(&input);
     QTextStream out(&output);
