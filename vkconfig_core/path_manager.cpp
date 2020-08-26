@@ -24,12 +24,12 @@
 #include <cassert>
 #include <cstddef>
 
-#include <QDir.h>
-#include <QFileInfo.h>
-#include <QString.h>
-#include <QSettings.h>
-#include <QWidget.h>
-#include <QFileDialog.h>
+#include <QDir>
+#include <QFileInfo>
+#include <QString>
+#include <QSettings>
+#include <QWidget>
+#include <QFileDialog>
 
 struct DirectoryDesc {
     const char* label;
