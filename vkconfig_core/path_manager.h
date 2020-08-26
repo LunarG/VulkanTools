@@ -33,6 +33,7 @@ enum Path {
     PATH_IMPORT_CONFIGURATION,  // The last path used by the user to import a configuration
     PATH_EXPORT_CONFIGURATION,  // The last path used by the user to export a configuration
     PATH_EXECUTABLE,            // The last path used by the user when adding an executable to the application list
+    PATH_WORKING_DIR,           // The last path used as a working directory
     PATH_HOME,                  // The user home directory
     PATH_LAUNCHER_LOG_FILE,     // The last path used by the user to set the launcher log file
     PATH_CUSTOM_LAYER_PATH,     // The last custom layer path
@@ -42,6 +43,12 @@ enum Path {
 };
 
 enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };
+
+enum PathMode {
+    PATH_MODE_OPEN_DIRECTORY = 0,
+    PATH_MODE_OPEN_FILENAME,
+    PATH_MODE_SAVE_FILENAME,
+};
 
 enum Filename { FILENAME_APPLIST };
 

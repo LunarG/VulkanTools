@@ -136,8 +136,7 @@ TEST(test_path_manager, check_default_filename) {
 
     const QString string = paths.GetFullPath(PATH_OVERRIDE_SETTINGS);
 
-    EXPECT_TRUE(string.contains("vk_layer_settings"));
-    EXPECT_TRUE(string.contains("txt"));
+    EXPECT_TRUE(string.endsWith("vk_layer_settings.txt"));
 }
 
 TEST(test_path_manager, check_default_suffix) {
@@ -146,6 +145,14 @@ TEST(test_path_manager, check_default_suffix) {
 
     const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration");
 
-    EXPECT_TRUE(string.contains("my_configuration"));
-    EXPECT_TRUE(string.contains("json"));
+    EXPECT_TRUE(string.endsWith("my_configuration.json"));
+}
+
+TEST(test_path_manager, check_with_suffix) {
+    PathManager paths;
+    paths.Clear();
+
+    const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration.json");
+
+    EXPECT_TRUE(string.endsWith("my_configuration.json"));
 }

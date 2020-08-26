@@ -858,10 +858,7 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     (void)item;  // We don't need this
     Configurator &configurator = Configurator::Get();
 
-    QString full_suggested_path = configurator.path.GetPath(PATH_IMPORT_CONFIGURATION);
-    QString full_import_path =
-        QFileDialog::getOpenFileName(this, "Import Layers Configuration File", full_suggested_path, "*.json");
-
+    const QString full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
     if (full_import_path.isEmpty()) return;
 
     SaveLastItem();
@@ -879,10 +876,8 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    // Where to put it and what to call it
-    QString full_suggested_path = configurator.path.GetFullPath(PATH_EXPORT_CONFIGURATION, item->configuration._name);
-    QString full_export_path =
-        QFileDialog::getSaveFileName(this, "Export Layers Configuration File", full_suggested_path, "*.json");
+    const QString full_suggested_path = configurator.path.GetFullPath(PATH_EXPORT_CONFIGURATION, item->configuration._name);
+    const QString full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
     if (full_export_path.isEmpty()) return;
 
     configurator.ExportConfiguration(item->configuration._file, full_export_path);
