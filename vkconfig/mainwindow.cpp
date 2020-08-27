@@ -1099,38 +1099,38 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
     _settings.setValue("launcherCollapsed", true);
 }
 
-////////////////////////////////////////////////////////////////////
 void MainWindow::launchSetLogFile() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    const QString log_file = configurator.path.SelectPath(
-        this, PATH_LAUNCHER_LOG_FILE, configurator._overridden_application_list[current_application_index]->log_file);
+    Application *application = configurator._overridden_application_list[current_application_index];
+
+    const QString log_file = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application->log_file);
 
     // The user has cancel the operation
     if (log_file.isEmpty()) return;
 
-    configurator._overridden_application_list[current_application_index]->log_file = log_file;
+    application->log_file = log_file;
 
     _launcher_log_file_edit->setText(log_file);
 
     configurator.SaveOverriddenApplicationList();
 }
 
-////////////////////////////////////////////////////////////////////
 void MainWindow::launchSetWorkingFolder() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    const QString working_folder = configurator.path.SelectPath(
-        this, PATH_EXECUTABLE, configurator._overridden_application_list[current_application_index]->working_folder);
+    Application *application = configurator._overridden_application_list[current_application_index];
+
+    const QString working_folder = configurator.path.SelectPath(this, PATH_EXECUTABLE, application->working_folder);
 
     // The user has cancel the operation
     if (working_folder.isEmpty()) return;
 
-    configurator._overridden_application_list[current_application_index]->working_folder = working_folder;
+    application->working_folder = working_folder;
 
     _launcher_working->setText(working_folder);
 
@@ -1356,16 +1356,12 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         _launch_application->terminate();
         _launch_application->deleteLater();
         _launch_application = nullptr;
-        ui->pushButtonLaunch->setText(tr("Launch"));
+        ui->pushButtonLaunch->setText("Launch");
 
-        QString logMsg = "Process terminated";
-        ui->logBrowser->append(logMsg);
+        Log("Process terminated");
 
-        if (_log_file->isOpen()) {
-            _log_file->write(logMsg.toUtf8().constData(), logMsg.length());
-            _log_file->close();
-            delete _log_file;
-            _log_file = nullptr;
+        if (_log_file.isOpen()) {
+            _log_file.close();
         }
 
         return;
@@ -1378,23 +1374,26 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     const Application &current_application = *configurator._overridden_application_list[current_application_index];
 
-    if (configurator.GetActiveConfiguration() == nullptr) {
-        launch_log += QString().asprintf("- Layers fully controlled by the application.\n");
-    } else if (!configurator.GetActiveConfiguration()->IsValid()) {
+    Configuration *configuration = configurator.GetActiveConfiguration();
+
+    if (configuration == nullptr) {
+        launch_log += "- Layers fully controlled by the application.\n";
+    } else if (!configuration->IsValid()) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
-                                         configurator.GetActiveConfiguration()->_name.toUtf8().constData());
+                                         configuration->_name.toUtf8().constData());
     } else if (configurator._override_active) {
         if (configurator._overridden_application_list_only && configurator.HasOverriddenApplications() &&
             !current_application.override_layers) {
-            launch_log +=
-                QString().asprintf("- Layers fully controlled by the application. Application excluded from layers override.\n");
+            launch_log += "- Layers fully controlled by the application. Application excluded from layers override.\n";
         } else {
-            launch_log += QString().asprintf("- Layers overridden by \"%s\" configuration.\n",
-                                             configurator.GetActiveConfiguration()->_name.toUtf8().constData());
+            launch_log +=
+                QString().asprintf("- Layers overridden by \"%s\" configuration.\n", configuration->_name.toUtf8().constData());
         }
     }
 
+    assert(!current_application.executable_path.isEmpty());
     launch_log += QString().asprintf("- Executable Path: %s\n", current_application.executable_path.toUtf8().constData());
+    assert(!current_application.working_folder.isEmpty());
     launch_log += QString().asprintf("- Working Directory: %s\n", current_application.working_folder.toUtf8().constData());
     if (!current_application.arguments.isEmpty())
         launch_log += QString().asprintf("- Command-line Arguments: %s\n", current_application.arguments.toUtf8().constData());
@@ -1402,48 +1401,35 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         launch_log += QString().asprintf("- Log file: %s\n", current_application.log_file.toUtf8().constData());
 
     if (!current_application.log_file.isEmpty()) {
-        assert(_log_file == nullptr);
-
         // Start logging
-        _log_file = new QFile(current_application.log_file);
+        _log_file.setFileName(current_application.log_file);
 
         // Open and append, or open and truncate?
         QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
         if (!ui->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
 
-        if (!current_application.log_file.isEmpty()) {
-            if (!_log_file->open(mode)) {
-                QMessageBox err;
-                err.setText(tr("Cannot open log file"));
-                err.setIcon(QMessageBox::Warning);
-                err.exec();
-                delete _log_file;
-                _log_file = nullptr;
-            }
-        }
-
-        if (_log_file->isOpen()) {
-            _log_file->write((launch_log + "\n").toUtf8().constData(), launch_log.length());
+        if (!_log_file.open(mode)) {
+            QMessageBox err;
+            err.setText(tr("Cannot open log file"));
+            err.setIcon(QMessageBox::Warning);
+            err.exec();
         }
     }
 
     if (ui->checkBoxClearOnLaunch->isChecked()) ui->logBrowser->clear();
-    ui->logBrowser->append(launch_log);
-    ui->pushButtonClearLog->setEnabled(true);
+    Log(launch_log);
 
     // Launch the test application
     _launch_application = new QProcess(this);
     connect(_launch_application, SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-
     connect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-
     connect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
     _launch_application->setProgram(configurator._overridden_application_list[current_application_index]->executable_path);
     _launch_application->setWorkingDirectory(configurator._overridden_application_list[current_application_index]->working_folder);
 
-    if (!configurator._overridden_application_list[current_application_index]->arguments.isEmpty()) {
-        const QStringList args = configurator._overridden_application_list[current_application_index]->arguments.split(" ");
+    if (!current_application.arguments.isEmpty()) {
+        const QStringList args = current_application.arguments.split(" ");
         _launch_application->setArguments(args);
     }
 
@@ -1460,19 +1446,13 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        const QString failed_log =
-            QString().asprintf("Failed to launch %s!\n", current_application.executable_path.toUtf8().constData());
-
-        ui->logBrowser->append(failed_log);
-        if (_log_file->isOpen()) {
-            _log_file->write(failed_log.toUtf8().constData(), failed_log.length());
-        }
-
+        const QString failed_log = QString("Failed to launch ") + current_application.executable_path + "!\n";
+        Log(failed_log);
         return;
     }
 
     // We are off to the races....
-    ui->pushButtonLaunch->setText(tr("Terminate"));
+    ui->pushButtonLaunch->setText("Terminate");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1489,9 +1469,7 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
 
     disconnect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this,
                SLOT(processClosed(int, QProcess::ExitStatus)));
-
     disconnect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-
     disconnect(_launch_application, SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
 
     ui->pushButtonLaunch->setText(tr("Launch"));
@@ -1509,15 +1487,18 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
 void MainWindow::standardOutputAvailable() {
     if (_launch_application == nullptr) return;
 
-    QString log = _launch_application->readAllStandardOutput();
-    ui->logBrowser->append(log);
+    Log(_launch_application->readAllStandardOutput());
     ui->pushButtonClearLog->setEnabled(true);
-
-    // Are we logging?
-    if (_log_file) {
-        _log_file->write(log.toUtf8().constData(), log.length());
-        _log_file->flush();
-    }
 }
 
 void MainWindow::errorOutputAvailable() { standardOutputAvailable(); }
+
+void MainWindow::Log(const QString &log) {
+    ui->logBrowser->append(log);
+    ui->pushButtonClearLog->setEnabled(true);
+
+    if (_log_file.isOpen()) {
+        _log_file.write(log.toUtf8().constData(), log.length());
+        _log_file.flush();
+    }
+}

@@ -182,10 +182,20 @@ QString PathManager::SelectPath(QWidget* parent, Path path) {
     assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
-    return SelectPath(parent, path, GetPath(path));
+    return SelectPathImpl(parent, path, GetPath(path));
 }
 
 QString PathManager::SelectPath(QWidget* parent, Path path, const QString& suggested_path) {
+    assert(parent);
+    assert(path >= PATH_FIRST && path <= PATH_LAST);
+
+    if (suggested_path.isEmpty())
+        return SelectPathImpl(parent, path, GetPath(path));
+    else
+        return SelectPathImpl(parent, path, suggested_path);
+}
+
+QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& suggested_path) {
     assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
     assert(!suggested_path.isEmpty());

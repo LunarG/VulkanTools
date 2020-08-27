@@ -63,7 +63,7 @@ class MainWindow : public QMainWindow {
     QSettings _settings;
 
     QProcess *_launch_application;  // Keeps track of the monitored app
-    QFile *_log_file;               // Log file for layer output
+    QFile _log_file;                // Log file for layer output
 
     void LoadConfigurationList();
     void SetupLaunchTree();
@@ -79,6 +79,8 @@ class MainWindow : public QMainWindow {
     dlgVulkanInfo *_vk_info;
 
    private:
+    void Log(const QString &log);
+
     Ui::MainWindow *ui;
     ConfigurationListItem *_selected_configuration_item;
     ConfigurationListItem *GetCheckedItem();

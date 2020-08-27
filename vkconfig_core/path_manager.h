@@ -72,12 +72,14 @@ class PathManager {
 
     QString GetFilename(const char* full_path) const;
 
-    QString SelectPath(QWidget* parent, Path path, const QString& suggested_path);
     QString SelectPath(QWidget* parent, Path path);
+    QString SelectPath(QWidget* parent, Path path, const QString& suggested_path);
 
     void Clear();
     void Reset();
 
    private:
+    QString SelectPathImpl(QWidget* parent, Path path, const QString& suggested_path);
+
     std::array<std::string, PATH_COUNT> paths;
 };
