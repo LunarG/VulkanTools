@@ -1357,6 +1357,17 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
         ui->pushButtonLaunch->setText(tr("Launch"));
+
+        QString logMsg = "Process terminated";
+        ui->logBrowser->append(logMsg);
+
+        if (_log_file->isOpen()) {
+            _log_file->write(logMsg.toUtf8().constData(), logMsg.length());
+            _log_file->close();
+            delete _log_file;
+            _log_file = nullptr;
+        }
+
         return;
     }
 
@@ -1385,16 +1396,13 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     launch_log += QString().asprintf("- Executable Path: %s\n", current_application.executable_path.toUtf8().constData());
     launch_log += QString().asprintf("- Working Directory: %s\n", current_application.working_folder.toUtf8().constData());
-    launch_log += QString().asprintf("- Command-line Arguments: %s\n", current_application.arguments.toUtf8().constData());
-    launch_log += QString().asprintf("- Log file: %s\n", current_application.log_file.toUtf8().constData());
+    if (!current_application.arguments.isEmpty())
+        launch_log += QString().asprintf("- Command-line Arguments: %s\n", current_application.arguments.toUtf8().constData());
+    if (!current_application.log_file.isEmpty())
+        launch_log += QString().asprintf("- Log file: %s\n", current_application.log_file.toUtf8().constData());
 
     if (!current_application.log_file.isEmpty()) {
-        // This should never happen... but things that should never happen do in
-        // fact happen... so just a sanity check.
-        if (_log_file != nullptr) {
-            _log_file->close();
-            _log_file = nullptr;
-        }
+        assert(_log_file == nullptr);
 
         // Start logging
         _log_file = new QFile(current_application.log_file);
@@ -1414,7 +1422,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
             }
         }
 
-        if (_log_file) {
+        if (_log_file->isOpen()) {
             _log_file->write((launch_log + "\n").toUtf8().constData(), launch_log.length());
         }
     }
@@ -1452,10 +1460,13 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        QString failed_log = QString().asprintf("Failed to launch %s!\n", current_application.executable_path.toUtf8().constData());
+        const QString failed_log =
+            QString().asprintf("Failed to launch %s!\n", current_application.executable_path.toUtf8().constData());
 
         ui->logBrowser->append(failed_log);
-        if (_log_file) _log_file->write(failed_log.toUtf8().constData(), failed_log.length());
+        if (_log_file->isOpen()) {
+            _log_file->write(failed_log.toUtf8().constData(), failed_log.length());
+        }
 
         return;
     }
@@ -1485,16 +1496,6 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
 
     ui->pushButtonLaunch->setText(tr("Launch"));
 
-    QString logMsg = "Process terminated";
-    ui->logBrowser->append(logMsg);
-
-    if (_log_file) {
-        _log_file->write(logMsg.toUtf8().constData(), logMsg.length());
-        _log_file->close();
-        delete _log_file;
-        _log_file = nullptr;
-    }
-
     delete _launch_application;
     _launch_application = nullptr;
 }
@@ -1513,17 +1514,10 @@ void MainWindow::standardOutputAvailable() {
     ui->pushButtonClearLog->setEnabled(true);
 
     // Are we logging?
-    if (_log_file) _log_file->write(log.toUtf8().constData(), log.length());
+    if (_log_file) {
+        _log_file->write(log.toUtf8().constData(), log.length());
+        _log_file->flush();
+    }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-void MainWindow::errorOutputAvailable() {
-    if (_launch_application == nullptr) return;
-
-    QString log = _launch_application->readAllStandardError();
-    ui->logBrowser->append(log);
-    ui->pushButtonClearLog->setEnabled(true);
-
-    // Are we logging?
-    if (_log_file) _log_file->write(log.toUtf8().constData(), log.length());
-}
+void MainWindow::errorOutputAvailable() { standardOutputAvailable(); }
