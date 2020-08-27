@@ -73,7 +73,6 @@ class MainWindow : public QMainWindow {
     virtual void closeEvent(QCloseEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
     virtual void resizeEvent(QResizeEvent *event) override;
-
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     dlgVulkanAnalysis *_vk_via;
@@ -94,7 +93,7 @@ class MainWindow : public QMainWindow {
 
     void ResetLaunchOptions();
 
-    ConfigurationListItem *SaveLastItem(void);
+    ConfigurationListItem *SaveLastItem();
     bool RestoreLastItem(const char *szOverride = nullptr);
     QString _last_item;
 
@@ -118,7 +117,7 @@ class MainWindow : public QMainWindow {
     void helpShowVulkanSpec(bool checked);
     void helpShowLayerSpec(bool checked);
 
-    void addCustomPaths();  // Fired by menu
+    void addCustomPaths();
 
     void editorExpanded(QTreeWidgetItem *item);
 
@@ -130,15 +129,15 @@ class MainWindow : public QMainWindow {
     void launchChangeLogFile(const QString &new_text);
     void launchChangeWorkingFolder(const QString &new_text);
     void launchArgsEdited(const QString &new_text);
+
     void on_pushButtonLaunch_clicked();
     void on_pushButtonClearLog_clicked();
-
     void on_radioFully_clicked();
     void on_radioOverride_clicked();
     void on_checkBoxApplyList_clicked();
     void on_checkBoxPersistent_clicked();
-
     void on_pushButtonAppList_clicked();
+    void on_pushButtonEditProfile_clicked();
 
     void profileItemChanged(QTreeWidgetItem *item, int column);
     void profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
@@ -147,8 +146,6 @@ class MainWindow : public QMainWindow {
 
     void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
     void OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int column);
-
-    void on_pushButtonEditProfile_clicked();
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
