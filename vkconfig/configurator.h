@@ -142,7 +142,7 @@ class Configurator {
    public:
     void SelectLaunchApplication(int application_index);
     int GetLaunchApplicationIndex() const;
-    void FindVkCube();
+    void UpdateDefaultApplications(const bool add_default_applications);
 
    private:
     QString _active_launch_executable_path;  // This is to match up with the application list
@@ -170,7 +170,7 @@ class Configurator {
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
    public:
-    QVector<Application*> _overridden_application_list;
+    QVector<Application*> _overridden_applications;
     void LoadOverriddenApplicationList();
     void SaveOverriddenApplicationList();
     bool HasOverriddenApplications() const;

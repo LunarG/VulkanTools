@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Applications to Override</string>
+   <string>Applications to override Vulkan Layers</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="4" column="0">
@@ -43,7 +43,7 @@
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>Select This App</string>
+      <string>Ok</string>
      </property>
     </widget>
    </item>

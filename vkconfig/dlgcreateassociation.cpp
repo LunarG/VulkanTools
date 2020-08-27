@@ -42,12 +42,12 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
         setWindowTitle("Applications Launcher Shortcuts");
     else {
         ui->treeWidget->setHeaderHidden(false);
-        ui->treeWidget->setHeaderLabel("Uncheck to use for launcher shortcut only");
+        ui->treeWidget->setHeaderLabel("Check to override Vulkan layers");
     }
 
     // Show the current list
-    for (int i = 0; i < configurator._overridden_application_list.size(); i++)
-        CreateApplicationItem(*configurator._overridden_application_list[i]);
+    for (int i = 0; i < configurator._overridden_applications.size(); i++)
+        CreateApplicationItem(*configurator._overridden_applications[i]);
 
     ui->treeWidget->installEventFilter(this);
 
@@ -89,7 +89,7 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
     // When we don't use overridden list only, no need to alert the user about empty list cases.
     if (!configurator._overridden_application_list_only) return;
 
-    if (configurator._overridden_application_list.empty() || !configurator.HasOverriddenApplications()) {
+    if (configurator._overridden_applications.empty() || !configurator.HasOverriddenApplications()) {
         QMessageBox alert;
         alert.setIcon(QMessageBox::Warning);
         alert.setWindowTitle("Vulkan Layers overriding will apply globally.");
@@ -118,7 +118,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
         }
 
         Application *new_application = new Application(executable_full_path, "");
-        configurator._overridden_application_list.push_back(new_application);
+        configurator._overridden_applications.push_back(new_application);
 
         QTreeWidgetItem *item = CreateApplicationItem(*new_application);
 
@@ -159,7 +159,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
 
     ui->treeWidget->takeTopLevelItem(iSel);
     ui->treeWidget->setCurrentItem(nullptr);
-    configurator._overridden_application_list.removeAt(iSel);
+    configurator._overridden_applications.removeAt(iSel);
 
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);
@@ -207,9 +207,9 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *current_item, QT
 
     Configurator &configurator = Configurator::Get();
 
-    ui->lineEditWorkingFolder->setText(configurator._overridden_application_list[_last_selected_application_index]->working_folder);
-    ui->lineEditCmdArgs->setText(configurator._overridden_application_list[_last_selected_application_index]->arguments);
-    ui->lineEditLogFile->setText(configurator._overridden_application_list[_last_selected_application_index]->log_file);
+    ui->lineEditWorkingFolder->setText(configurator._overridden_applications[_last_selected_application_index]->working_folder);
+    ui->lineEditCmdArgs->setText(configurator._overridden_applications[_last_selected_application_index]->arguments);
+    ui->lineEditLogFile->setText(configurator._overridden_applications[_last_selected_application_index]->log_file);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -218,7 +218,7 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
     QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, column));
     if (check_box != nullptr) {
         Configurator &configurator = Configurator::Get();
-        configurator._overridden_application_list[_last_selected_application_index]->override_layers = check_box->isChecked();
+        configurator._overridden_applications[_last_selected_application_index]->override_layers = check_box->isChecked();
     }
 }
 
@@ -241,8 +241,8 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
         QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, 0));
         Q_ASSERT(check_box != nullptr);
         bool is_checked = check_box->isChecked();
-        if (configurator._overridden_application_list[i]->override_layers != is_checked) {  // We've changed
-            configurator._overridden_application_list[i]->override_layers = is_checked;
+        if (configurator._overridden_applications[i]->override_layers != is_checked) {  // We've changed
+            configurator._overridden_applications[i]->override_layers = is_checked;
             ui->treeWidget->setCurrentItem(item);
         }
     }
@@ -254,7 +254,7 @@ void dlgCreateAssociation::editCommandLine(const QString &cmdLine) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get()._overridden_application_list[_last_selected_application_index]->arguments = cmdLine;
+    Configurator::Get()._overridden_applications[_last_selected_application_index]->arguments = cmdLine;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get()._overridden_application_list[_last_selected_application_index]->working_folder = workingFolder;
+    Configurator::Get()._overridden_applications[_last_selected_application_index]->working_folder = workingFolder;
 }
 
 void dlgCreateAssociation::editLogFile(const QString &logFile) {
@@ -271,7 +271,7 @@ void dlgCreateAssociation::editLogFile(const QString &logFile) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get()._overridden_application_list[_last_selected_application_index]->log_file = logFile;
+    Configurator::Get()._overridden_applications[_last_selected_application_index]->log_file = logFile;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

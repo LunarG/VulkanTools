@@ -757,57 +757,99 @@ const QString &Configurator::GetCustomLayersPath(int path_index) const {
 void Configurator::SelectLaunchApplication(int application_index) {
     if (application_index < 0) return;
 
-    _active_launch_executable_path = _overridden_application_list[application_index]->executable_path;
+    _active_launch_executable_path = _overridden_applications[application_index]->executable_path;
 }
 
 int Configurator::GetLaunchApplicationIndex() const {
-    for (int i = 0; i < _overridden_application_list.size(); i++) {
-        if (_overridden_application_list[i]->executable_path == _active_launch_executable_path) return i;
+    for (int i = 0; i < _overridden_applications.size(); i++) {
+        if (_overridden_applications[i]->executable_path == _active_launch_executable_path) return i;
     }
 
     return 0;  // Not found, but the list is present, so return the first item.
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// Search for vkcube and add it to the app list.
-void Configurator::FindVkCube() {
-    // This should only be called on first run, but make sure it's not already there.
-    if (_overridden_application_list.size() != 0)
-        for (int i = 0; i < _overridden_application_list.size(); i++)
-            if (_overridden_application_list[i]->executable_path.contains("vkcube")) return;
-
-                // One of these must be true, or we just aren't going to compile!
-#ifdef _WIN32
-    QString application_name("./vkcube.exe");
-#elif defined(__APPLE__)
-    QString application_name("../../vkcube.app");
-#elif defined(__linux__)
-    QString application_name("./vkcube");
+static QString GetDefaultExecutablePath(const QString &executable_name) {
+#if defined(__APPLE__)
+    static const char *DEFAULT_PATH = "/../..";
+#elif defined(__linux__) || defined(_WIN32)
+    static const char *DEFAULT_PATH = "";
 #else
 #error "Unknown platform"
 #endif
 
-    QString search_path = application_name;
-    QFileInfo local(search_path);
-    if (!local.exists()) {
-        search_path = qgetenv("VULKAN_SDK");
-        search_path = search_path + "/bin/" + application_name;
-        QFileInfo local2(search_path);
-        if (!local2.exists()) return;
-        local = local2;
+    // Using relative path to vkconfig
+    {
+        const QString search_path = QString("../bin") + DEFAULT_PATH + executable_name;
+        QFileInfo file_info(search_path);
+        if (file_info.exists())  // Couldn't find vkcube
+            return file_info.filePath();
     }
 
-    Application *application = new Application(local.absoluteFilePath(), "--suppress_popups");
+    // Using VULKAN_SDK environement variable
+    {
+        const QString search_path = QString(qgetenv("VULKAN_SDK")) + "/bin" + DEFAULT_PATH + executable_name;
+        QFileInfo file_info(search_path);
+        if (file_info.exists())  // Couldn't find vkcube
+            return file_info.absoluteFilePath();
+    }
 
-    // On all operating systems, but Windows we keep running into problems with this ending up
-    // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
-    // initially will be set to the users home folder across all OS's. This is highly visible
-    // in the application launcher and should not present a usability issue. The developer can
-    // easily change this later to anywhere they like.
-    QDir dir = QDir::homePath();
-    application->log_file = QDir::homePath() + QDir::toNativeSeparators("/vkcube.txt");
+    return "";
+}
 
-    _overridden_application_list.push_back(application);
+/////////////////////////////////////////////////////////////////////////////
+// Search for vkcube and add it to the app list.
+void Configurator::UpdateDefaultApplications(const bool add_default_applications) {
+#ifdef _WIN32
+    static const char *SUFFIX = ".exe";
+#elif defined(__APPLE__)
+    static const char *SUFFIX = ".app";
+#elif defined(__linux__)
+    static const char *SUFFIX = "";
+#else
+#error "Unknown platform"
+#endif
+
+    struct Default {
+        QString name;
+        QString arguments;
+    };
+
+    static const Default defaults[] = {{QDir::toNativeSeparators("/vkcubepp"), "--suppress_popups"},
+                                       {QDir::toNativeSeparators("/vkcube"), "--suppress_popups"}};
+
+    for (std::size_t name_index = 0, name_count = countof(defaults); name_index < name_count; ++name_index) {
+        bool add_default_application = add_default_applications;
+
+        // This should only be called on first run, but make sure it's not already there.
+        for (int i = 0; i < _overridden_applications.size(); ++i) {
+            const Application &application = *_overridden_applications[i];
+
+            if (!application.executable_path.endsWith(defaults[name_index].name + SUFFIX)) continue;
+
+            // We found vkcube in the list, but does it exist?
+            const QFileInfo file_info(application.executable_path);
+            if (file_info.exists()) continue;
+
+            add_default_application = true;
+            _overridden_applications.remove(i);
+        }
+
+        if (add_default_application) {
+            const QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + SUFFIX);
+            if (executable_path.isEmpty()) continue;  // application could not be found..
+
+            Application application(executable_path, "--suppress_popups");
+
+            // On all operating systems, but Windows we keep running into problems with this ending up
+            // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
+            // initially will be set to the users home folder across all OS's. This is highly visible
+            // in the application launcher and should not present a usability issue. The developer can
+            // easily change this later to anywhere they like.
+            application.log_file = path.GetPath(PATH_HOME) + defaults[name_index].name + ".txt";
+
+            _overridden_applications.push_back(new Application(application));
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -848,7 +890,7 @@ void Configurator::LoadOverriddenApplicationList() {
                 QJsonArray args = app_object.value("command_lines").toArray();
                 application->arguments = args[0].toString();
 
-                _overridden_application_list.push_back(application);
+                _overridden_applications.push_back(application);
             }
         }
 
@@ -856,7 +898,7 @@ void Configurator::LoadOverriddenApplicationList() {
     // On first run, search for vkcube. Do this after this list
     // is loaded in case it's already there.
     QSettings settings;
-    if (settings.value(VKCONFIG_KEY_INITIALIZE_FILES, true).toBool()) FindVkCube();
+    UpdateDefaultApplications(settings.value(VKCONFIG_KEY_INITIALIZE_FILES, true).toBool() || _overridden_applications.isEmpty());
 }
 
 void Configurator::CheckApplicationRestart() const {
@@ -880,20 +922,20 @@ void Configurator::CheckApplicationRestart() const {
 void Configurator::SaveOverriddenApplicationList() {
     QJsonObject root;
 
-    for (int i = 0; i < _overridden_application_list.size(); i++) {
+    for (int i = 0; i < _overridden_applications.size(); i++) {
         // Build an array of appnames with associated data
         QJsonObject application_object;
-        application_object.insert("app_path", _overridden_application_list[i]->executable_path);
-        application_object.insert("app_folder", _overridden_application_list[i]->working_folder);
-        application_object.insert("exclude_override", !_overridden_application_list[i]->override_layers);
-        application_object.insert("log_file", _overridden_application_list[i]->log_file);
+        application_object.insert("app_path", _overridden_applications[i]->executable_path);
+        application_object.insert("app_folder", _overridden_applications[i]->working_folder);
+        application_object.insert("exclude_override", !_overridden_applications[i]->override_layers);
+        application_object.insert("log_file", _overridden_applications[i]->log_file);
 
         // Ground work for mulitiple sets of command line arguments
         QJsonArray argsArray;
-        argsArray.append(QJsonValue(_overridden_application_list[i]->arguments));  // [J] PROBABLY
+        argsArray.append(QJsonValue(_overridden_applications[i]->arguments));  // [J] PROBABLY
 
         application_object.insert("command_lines", argsArray);
-        root.insert(QFileInfo(_overridden_application_list[i]->executable_path).fileName(), application_object);
+        root.insert(QFileInfo(_overridden_applications[i]->executable_path).fileName(), application_object);
     }
 
     QString app_list_json = path.GetFullPath(FILENAME_APPLIST);
@@ -907,8 +949,8 @@ void Configurator::SaveOverriddenApplicationList() {
 }
 
 bool Configurator::HasOverriddenApplications() const {
-    for (int i = 0, n = _overridden_application_list.size(); i < n; i++) {
-        if (_overridden_application_list[i]->override_layers) return true;
+    for (int i = 0, n = _overridden_applications.size(); i < n; i++) {
+        if (_overridden_applications[i]->override_layers) return true;
     }
 
     return false;
@@ -1545,9 +1587,9 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 
     // Only supply this list if an app list is specified
     QJsonArray json_applist;
-    for (int i = 0, n = _overridden_application_list.size(); i < n; i++) {
-        if (_overridden_application_list[i]->override_layers) {
-            json_applist.append(QDir::toNativeSeparators(_overridden_application_list[i]->executable_path));
+    for (int i = 0, n = _overridden_applications.size(); i < n; i++) {
+        if (_overridden_applications[i]->override_layers) {
+            json_applist.append(QDir::toNativeSeparators(_overridden_applications[i]->executable_path));
         }
     }
 

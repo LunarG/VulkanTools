@@ -114,7 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->launchTree, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this, SLOT(launchItemCollapsed(QTreeWidgetItem *)));
     connect(ui->launchTree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(launchItemExpanded(QTreeWidgetItem *)));
 
-    if (!configurator.HasOverriddenApplications() || configurator._overridden_application_list.empty())
+    if (!configurator.HasOverriddenApplications() || configurator._overridden_applications.empty())
         configurator._overridden_application_list_only = false;
 
     ui->pushButtonAppList->setEnabled(configurator._overridden_application_list_only);
@@ -326,7 +326,7 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     ui->pushButtonAppList->setEnabled(configurator._overridden_application_list_only);
 
     if (configurator._overridden_application_list_only &&
-        (configurator._overridden_application_list.empty() || !configurator.HasOverriddenApplications())) {
+        (configurator._overridden_applications.empty() || !configurator.HasOverriddenApplications())) {
         on_pushButtonAppList_clicked();
     } else {
         // Checking the list, the configuration need to be updated to the system
@@ -398,7 +398,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
         if (&item->configuration == active_configuration) ui->profileTree->setCurrentItem(item);
     }
 
-    configurator.FindVkCube();
+    configurator.UpdateDefaultApplications(true);
     ResetLaunchOptions();
 
     ui->logBrowser->clear();
@@ -945,17 +945,17 @@ void MainWindow::OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int c
 /// Reload controls for launch control
 void MainWindow::ResetLaunchOptions() {
     Configurator &configurator = Configurator::Get();
-    ui->pushButtonLaunch->setEnabled(!configurator._overridden_application_list.empty());
+    ui->pushButtonLaunch->setEnabled(!configurator._overridden_applications.empty());
 
     // Reload launch apps selections
     _launcher_apps_combo->blockSignals(true);
     _launcher_apps_combo->clear();
 
-    for (int i = 0, n = configurator._overridden_application_list.size(); i < n; i++) {
-        _launcher_apps_combo->addItem(configurator._overridden_application_list[i]->executable_path);
+    for (int i = 0, n = configurator._overridden_applications.size(); i < n; i++) {
+        _launcher_apps_combo->addItem(configurator._overridden_applications[i]->executable_path);
     }
 
-    if (configurator._overridden_application_list.isEmpty()) {
+    if (configurator._overridden_applications.isEmpty()) {
         _launch_arguments->setText("");
         _launcher_working->setText("");
         _launcher_log_file_edit->setText("");
@@ -968,7 +968,7 @@ void MainWindow::ResetLaunchOptions() {
     configurator.SelectLaunchApplication(launch_application_index);
     _launcher_apps_combo->setCurrentIndex(launch_application_index);
 
-    const Application &application = *configurator._overridden_application_list[launch_application_index];
+    const Application &application = *configurator._overridden_applications[launch_application_index];
 
     // Reset working folder and command line choices
     _launch_arguments->setText(application.arguments);
@@ -1098,15 +1098,14 @@ void MainWindow::launchSetLogFile() {
     assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    Application *application = configurator._overridden_application_list[current_application_index];
 
+    Application *application = configurator._overridden_applications[current_application_index];
     const QString path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application->log_file);
 
     // The user has cancel the operation
     if (path.isEmpty()) return;
 
     application->log_file = path;
-
     _launcher_log_file_edit->setText(path);
 
     configurator.SaveOverriddenApplicationList();
@@ -1117,15 +1116,14 @@ void MainWindow::launchSetWorkingFolder() {
     assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    Application *application = configurator._overridden_application_list[current_application_index];
 
+    Application *application = configurator._overridden_applications[current_application_index];
     const QString path = configurator.path.SelectPath(this, PATH_EXECUTABLE, application->working_folder);
 
     // The user has cancel the operation
     if (path.isEmpty()) return;
 
     application->working_folder = path;
-
     _launcher_working->setText(path);
 
     configurator.SaveOverriddenApplicationList();
@@ -1138,7 +1136,7 @@ void MainWindow::launchChangeLogFile(const QString &log_file) {
     assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    configurator._overridden_application_list[current_application_index]->log_file = log_file;
+    configurator._overridden_applications[current_application_index]->log_file = log_file;
     configurator.SaveOverriddenApplicationList();
 }
 
@@ -1148,7 +1146,7 @@ void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     assert(current_application_index >= 0);
 
     Configurator &configurator = Configurator::Get();
-    configurator._overridden_application_list[current_application_index]->working_folder = working_folder;
+    configurator._overridden_applications[current_application_index]->working_folder = working_folder;
     configurator.SaveOverriddenApplicationList();
 }
 
@@ -1157,11 +1155,11 @@ void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
 void MainWindow::launchItemChanged(int application_index) {
     Configurator &configurator = Configurator::Get();
 
-    if (application_index < 0 || application_index >= configurator._overridden_application_list.size()) return;
+    if (application_index < 0 || application_index >= configurator._overridden_applications.size()) return;
 
-    _launch_arguments->setText(configurator._overridden_application_list[application_index]->arguments);
-    _launcher_working->setText(configurator._overridden_application_list[application_index]->working_folder);
-    _launcher_log_file_edit->setText(configurator._overridden_application_list[application_index]->log_file);
+    _launch_arguments->setText(configurator._overridden_applications[application_index]->arguments);
+    _launcher_working->setText(configurator._overridden_applications[application_index]->working_folder);
+    _launcher_log_file_edit->setText(configurator._overridden_applications[application_index]->log_file);
 
     configurator.SelectLaunchApplication(application_index);
     configurator.SaveSettings();
@@ -1174,7 +1172,7 @@ void MainWindow::launchArgsEdited(const QString &arguments) {
     if (application_index < 0) return;
 
     Configurator &configurator = Configurator::Get();
-    configurator._overridden_application_list[application_index]->arguments = arguments;
+    configurator._overridden_applications[application_index]->arguments = arguments;
     configurator.SaveOverriddenApplicationList();
 }
 
@@ -1366,7 +1364,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     Configurator &configurator = Configurator::Get();
     int current_application_index = _launcher_apps_combo->currentIndex();
-    const Application &current_application = *configurator._overridden_application_list[current_application_index];
+    const Application &current_application = *configurator._overridden_applications[current_application_index];
 
     Configuration *configuration = configurator.GetActiveConfiguration();
 
@@ -1419,8 +1417,8 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     connect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
     connect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    _launch_application->setProgram(configurator._overridden_application_list[current_application_index]->executable_path);
-    _launch_application->setWorkingDirectory(configurator._overridden_application_list[current_application_index]->working_folder);
+    _launch_application->setProgram(configurator._overridden_applications[current_application_index]->executable_path);
+    _launch_application->setWorkingDirectory(configurator._overridden_applications[current_application_index]->working_folder);
 
     if (!current_application.arguments.isEmpty()) {
         const QStringList args = current_application.arguments.split(" ");
