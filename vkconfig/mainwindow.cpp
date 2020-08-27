@@ -1035,11 +1035,6 @@ void MainWindow::SetupLaunchTree() {
     ui->launchTree->setItemWidget(launcher_arguments_item, 1, _launch_arguments);
     connect(_launch_arguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
 
-    // Comming soon
-    //    pButton = new QPushButton();
-    //    pButton->setText("...");
-    //    ui->launchTree->setItemWidget(pLauncherCMD, 2, pButton);
-
     //////////////////////////////////////////////////////////////////
     // LOG FILE
     QTreeWidgetItem *launcher_log_file_item = new QTreeWidgetItem();
@@ -1106,14 +1101,14 @@ void MainWindow::launchSetLogFile() {
     Configurator &configurator = Configurator::Get();
     Application *application = configurator._overridden_application_list[current_application_index];
 
-    const QString log_file = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application->log_file);
+    const QString path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application->log_file);
 
     // The user has cancel the operation
-    if (log_file.isEmpty()) return;
+    if (path.isEmpty()) return;
 
-    application->log_file = log_file;
+    application->log_file = path;
 
-    _launcher_log_file_edit->setText(log_file);
+    _launcher_log_file_edit->setText(path);
 
     configurator.SaveOverriddenApplicationList();
 }
@@ -1125,14 +1120,14 @@ void MainWindow::launchSetWorkingFolder() {
     Configurator &configurator = Configurator::Get();
     Application *application = configurator._overridden_application_list[current_application_index];
 
-    const QString working_folder = configurator.path.SelectPath(this, PATH_EXECUTABLE, application->working_folder);
+    const QString path = configurator.path.SelectPath(this, PATH_EXECUTABLE, application->working_folder);
 
     // The user has cancel the operation
-    if (working_folder.isEmpty()) return;
+    if (path.isEmpty()) return;
 
-    application->working_folder = working_folder;
+    application->working_folder = path;
 
-    _launcher_working->setText(working_folder);
+    _launcher_working->setText(path);
 
     configurator.SaveOverriddenApplicationList();
 }
