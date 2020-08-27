@@ -29,6 +29,9 @@
 #include "configurator.h"
 #include "preferences.h"
 
+#include "../vkconfig_core/util.h"
+#include "../vkconfig_core/version.h"
+
 #include "ui_mainwindow.h"
 
 #include <QProcess>
@@ -901,18 +904,14 @@ void MainWindow::toolsSetCustomPaths(bool checked) {
 void MainWindow::ChangeActiveConfiguration(Configuration *configuration) {
     Configurator &configurator = Configurator::Get();
 
+    configurator.SetActiveConfiguration(configuration);
+
     if (configuration == nullptr || !configurator._override_active) {
-        configurator.SetActiveConfiguration(nullptr);
-
-        setWindowTitle("Vulkan Configurator <VULKAN APPLICATION CONTROLLED>");
+        setWindowTitle(format("Vulkan Configurator %s-%d", Version::header_version.str().c_str(), VKCONFIG_BUILD).c_str());
+    } else if (!configuration->IsValid()) {
+        setWindowTitle(format("Vulkan Configurator %s-%d", Version::header_version.str().c_str(), VKCONFIG_BUILD).c_str());
     } else {
-        QString new_caption = configuration->_name;
-        if (!configuration->IsValid()) new_caption += " (DISABLED)";
-        new_caption += " - Vulkan Configurator ";
-        configurator.SetActiveConfiguration(configuration);
-        new_caption += "<VULKAN APPLICATIONS OVERRIDDEN>";
-
-        setWindowTitle(new_caption);
+        setWindowTitle(format("Vulkan Configurator %s-%d <ACTIVE>", Version::header_version.str().c_str(), VKCONFIG_BUILD).c_str());
     }
 
     ui->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);

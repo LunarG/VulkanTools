@@ -26,6 +26,8 @@
 #include <cstddef>
 #include <string>
 
+static const int VKCONFIG_BUILD = 1002;
+
 struct Version {
     static const Version header_version;
 
