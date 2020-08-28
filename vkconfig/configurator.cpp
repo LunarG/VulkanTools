@@ -25,6 +25,7 @@
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/platform.h"
 
 #include <Qt>
 #include <QDir>
@@ -35,8 +36,18 @@
 #include <QCheckBox>
 #include <QJsonArray>
 
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
 #include <shlobj.h>
+#endif
+
+#if PLATFORM_WINDOWS
+static const char *VULKAN_LIBRARY = "vulkan-1.dll";
+#elif PLATFORM_MACOS
+static const char *VULKAN_LIBRARY = "/usr/local/lib/libvulkan";
+#elif PLATFORM_LINUX
+static const char *VULKAN_LIBRARY = "libvulkan";
+#else
+#error "Unknown platform"
 #endif
 
 #include <vulkan/vulkan.h>
@@ -96,7 +107,7 @@ static const DefaultConfiguration default_configurations[] = {
      ValidationPresetBestPractices},
     {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", Version("1.2.147"), "Synchronization (Alpha)",
      ValidationPresetSynchronization},
-#ifndef __APPLE__
+#if !PLATFORM_MACOS
     {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
     {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
      ValidationPresetNone},
@@ -164,7 +175,6 @@ Configurator::Configurator()
     : _has_old_loader(false), _first_run(true), _override_application_list_updated(false), _active_configuration(nullptr) {
     _available_Layers.reserve(10);
 
-#if defined(_WIN32) && QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     // Handling of versions compatibility
     {
         QSettings settings;
@@ -178,17 +188,16 @@ Configurator::Configurator()
             settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
         }
     }
-#endif
 
-// Hack for GitHub C.I.
-#if defined(_WIN32) && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    // Hack for GitHub C.I.
+#if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     _running_as_administrator = IsUserAnAdmin();
 #else
     _running_as_administrator = false;
 #endif
 
 // Where is stuff
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     QDir home = QDir::home();
     QString main_path = home.path() + QString("/AppData/Local/");
     home.setPath(main_path);
@@ -208,7 +217,7 @@ Configurator::Configurator()
     path.SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
     path.SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
     path.SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
-#elif defined(__linux__) || defined(__APPLE__)
+#elif PLATFORM_LINUX || PLATFORM_MACOS
     QDir home = QDir::home();
     if (!home.cd(".local")) {
         home.mkpath(".local");
@@ -251,17 +260,8 @@ Configurator::Configurator()
 #error "Unknown platform"
 #endif
 
-// Check loader version
-// Different names and rules for each OS
-#ifdef WIN32
-    QLibrary library("vulkan-1.dll");
-#elif defined(__APPLE__)
-    QLibrary library("/usr/local/lib/libvulkan");
-#elif defined(__linux__)
-    QLibrary library("libvulkan");
-#else
-#error "Unknown platform"
-#endif
+    // Check loader version
+    QLibrary library(VULKAN_LIBRARY);
 
     if (!(library.load())) {
         QMessageBox dlg(NULL);
@@ -283,9 +283,9 @@ Configurator::Configurator()
     // assemble a list of paths that take precidence for layer discovery.
     QString layer_path = qgetenv("VK_LAYER_PATH");
     if (!layer_path.isEmpty()) {
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
         VK_LAYER_PATH = layer_path.split(";");  // Windows uses ; as seperator
-#elif defined(__linux__) || defined(__APPLE__)
+#elif PLATFORM_LINUX || PLATFORM_MACOS
         VK_LAYER_PATH = layer_path.split(":");  // Linux/macOS uses : as seperator
 #else
 #error "Unknown platform"
@@ -362,17 +362,7 @@ QString Configurator::CheckVulkanSetup() const {
     else
         log += "- VULKAN_SDK environment variable not set\n";
 
-        // Check loader version
-        // Different names and rules for each OS
-#ifdef WIN32
-    QLibrary library("vulkan-1.dll");
-#elif defined(__APPLE__)
-    QLibrary library("/usr/local/lib/libvulkan");
-#elif defined(__linux__)
-    QLibrary library("libvulkan");
-#else
-#error "Unknown platform"
-#endif
+    QLibrary library(VULKAN_LIBRARY);
 
     uint32_t version = _vulkan_instance_version;
     log += QString().asprintf("- Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version),
@@ -497,7 +487,7 @@ void Configurator::ClearLayerLists() {
     _available_Layers.clear();
 }
 
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
 ///////////////////////////////////////////////////////////////////////
 /// Look for device specific layers
 void Configurator::LoadDeviceRegistry(DEVINST id, const QString &entry, QVector<Layer *> &layerList, LayerType type) {
@@ -666,8 +656,7 @@ void Configurator::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qs
     RegDeleteValueW(key, (LPCWSTR)qsSettingsFile.utf16());
     RegCloseKey(key);
 }
-
-#endif
+#endif  // PLATFORM_WINDOWS
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This is for the local application settings, not the system Vulkan settings
@@ -995,14 +984,14 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<Layer *> &lay
 
     if (path.contains("implicit", Qt::CaseInsensitive)) type = LAYER_TYPE_IMPLICIT;
 
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     if (path.contains("...")) {
         LoadRegistryLayers(path, layer_list, type);
         return;
     }
 
     PathFinder file_list(path, (type == LAYER_TYPE_CUSTOM));
-#else
+#elif PLATFORM_MACOS || PLATFORM_LINUX
     // On Linux/Mac, we also need the home folder
     QString search_path = path;
     if (path[0] == '.') {
@@ -1012,6 +1001,8 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<Layer *> &lay
     }
 
     PathFinder file_list(search_path, true);
+#else
+#error Unknown platform
 #endif
     if (file_list.FileCount() == 0) return;
 
@@ -1508,7 +1499,7 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 
         // On Windows only, we need clear these values from the registry
         // This works without any Win32 specific functions for the registry
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
         RemoveRegistryEntriesForLayers(override_layers_path, override_settings_path);  // Clear out the registry settings
 #endif
         return;
@@ -1623,7 +1614,7 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     jsonFile.close();
 
     // On Windows only, we need to write these values to the registry
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     AddRegistryEntriesForLayers(override_layers_path, override_settings_path);
 #endif
 }

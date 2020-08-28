@@ -57,7 +57,7 @@ void dlgVulkanAnalysis::RunTool() {
     ui->physicalDevicesTable->clear();
 
     QProcess *via = new QProcess(this);
-#ifdef __APPLE__
+#if PLATFORM_MACOS
     via->setProgram("/usr/local/bin/vkvia");
 #else
     via->setProgram("vkvia");

@@ -20,6 +20,7 @@
 
 #include "path_manager.h"
 #include "util.h"
+#include "platform.h"
 
 #include <cassert>
 #include <cstddef>
@@ -211,11 +212,11 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             return GetFullPath(path, QFileInfo(selected_path).baseName());
         } break;
         case PATH_EXECUTABLE: {
-#ifdef __APPLE__
+#if PLATFORM_MACOS
             const QString filter("Applications (*.app, *)");
-#elif defined(_WIN32)
+#elif PLATFORM_WINDOWS
             const QString filter("Applications (*.exe)");
-#elif defined __linux__
+#elif PLATFORM_LINUX
             const QString filter("Applications (*)");
 #else
 #error "Unknown platform"
