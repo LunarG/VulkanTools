@@ -20,6 +20,7 @@
  */
 
 #include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/platform.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -199,6 +200,7 @@ void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<Layer
                 QStringList keys, values;
                 keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
+                    if (!PLATFORM_WINDOWS && keys[v] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
                     setting->exclusive_values << keys[v];
                     setting->exclusive_labels << object.value(keys[v]).toString();
                 }
@@ -210,6 +212,7 @@ void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<Layer
                 QStringList keys, values;
                 keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
+                    if (!PLATFORM_WINDOWS && keys[v] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
                     setting->inclusive_values << keys[v];
                     setting->inclusive_labels << object.value(keys[v]).toString();
                 }

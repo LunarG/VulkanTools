@@ -31,6 +31,7 @@
 
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/version.h"
+#include "../vkconfig_core/platform.h"
 
 #include "ui_mainwindow.h"
 
@@ -46,7 +47,7 @@
 #include <QLineEdit>
 #include <QDesktopServices>
 
-#ifndef _WIN32
+#if PLATFORM_LINUX || PLATFORM_MACOS
 #include <unistd.h>
 #endif
 
@@ -60,7 +61,7 @@ const char *EDITOR_CAPTION_EMPTY = "Configuration Layer Settings";
 static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
-#ifdef __APPLE__
+#if PLATFORM_MACOS
 static const int LAUNCH_ROW_HEIGHT = 26;
 #else
 static const int LAUNCH_ROW_HEIGHT = 28;
@@ -190,7 +191,7 @@ void MainWindow::LoadConfigurationList() {
         ConfigurationListItem *item = new ConfigurationListItem(*configurator._available_configurations[i]);
         ui->profileTree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-#ifdef __APPLE__  // Mac OS does not leave enough space without this
+#if PLATFORM_MACOS  // Mac OS does not leave enough space without this
         item->radio_button->setText(" ");
 #endif
         item->radio_button->setToolTip(configurator._available_configurations[i]->_description);
@@ -551,11 +552,11 @@ void MainWindow::helpShowHelp(bool checked) {
 // Open the web browser to the Vulkan specification
 void MainWindow::helpShowVulkanSpec(bool checked) {
     (void)checked;
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/1.2-extensions/vkspec.html"));
-#elif defined(__APPLE__)
+#elif PLATFORM_MACOS
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/1.2-extensions/vkspec.html"));
-#elif defined(__linux__)
+#elif PLATFORM_LINUX
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/1.2-extensions/vkspec.html"));
 #else
 #error "Unknown platform"
@@ -566,11 +567,11 @@ void MainWindow::helpShowVulkanSpec(bool checked) {
 // Open the web browser to the Vulkan Layers specification
 void MainWindow::helpShowLayerSpec(bool checked) {
     (void)checked;
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html"));
-#elif defined(__APPLE__)
+#elif PLATFORM_MACOS
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/layer_configuration.html"));
-#elif defined(__linux__)
+#elif PLATFORM_LINUX
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/layer_configuration.html"));
 #else
 #error "Unknown platform"

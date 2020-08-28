@@ -22,8 +22,10 @@
 #include "dlgvulkaninfo.h"
 #include "ui_dlgvulkaninfo.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "../vkconfig_core/platform.h"
+
+#include <cstdio>
+#include <cstdlib>
 
 #include <QProcess>
 #include <QFile>
@@ -49,11 +51,11 @@ void dlgVulkanInfo::RunTool() {
 
     QProcess *vulkan_info = new QProcess(this);
 
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     vulkan_info->setProgram("vulkaninfoSDK");
-#elif defined(__linux__)
+#elif PLATFORM_LINUX
     vulkan_info->setProgram("vulkaninfo");
-#elif defined(__APPLE__)
+#elif PLATFORM_MACOS
     vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
 #else
 #error "Unknown platform"
