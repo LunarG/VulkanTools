@@ -602,6 +602,30 @@ inline std::ostream& dump_text_pNext_trampoline(const void* object, const ApiDum
     return settings.stream(); 
 }}
 
+std::ostream& dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents)
+{{
+    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    @foreach struct where('{sctName}' not in ['VkPipelineViewportStateCreateInfo', 'VkCommandBufferBeginInfo'])
+        @if({sctStructureTypeIndex} != -1)
+    case {sctStructureTypeIndex}:
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "{sctName}\\n";
+        break;
+        @end if
+    @end struct
+
+    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
+    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "NULL\\n";
+        break;
+    default:
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
+    }}
+    return settings.stream();
+}}
+
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
@@ -762,7 +786,7 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
         @end if 
         @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{
-        dump_text_pNext_trampoline(object.{memName}, settings, indents + 1);
+        dump_text_pNext_struct_name(object.{memName}, settings, indents + 1);
     }} else {{
         dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions}); // BET
     }}
@@ -795,6 +819,16 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     @if('{memCondition}' != 'None')
     else
         dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
+    @end if
+    @end member
+
+    @foreach member
+    @if({memPtrLevel} == 0)
+        @if('{memName}' == 'pNext')
+    if(object.pNext != nullptr){{
+        dump_text_pNext_trampoline(object.{memName}, settings, indents < 2 ? indents + 1 : indents);
+    }}
+        @end if
     @end if
     @end member
     return settings.stream();
