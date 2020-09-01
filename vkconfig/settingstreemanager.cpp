@@ -321,9 +321,9 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     // The easiest way to do this is to create a new profile, and copy the layer over
     const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
 
-    Configuration *preset_configuration = nullptr;
-    preset_configuration = preset_configuration->Load(preset_file);
-    if (preset_configuration == nullptr) return;
+    Configuration *preset_configuration = new Configuration;
+    const bool result = preset_configuration->Load(preset_file);
+    assert(result);
 
     // Copy it all into the real layer and delete it
     // Find the KhronosLaer
