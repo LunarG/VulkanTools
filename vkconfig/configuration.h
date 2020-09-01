@@ -25,6 +25,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QVector>
 
 // json file preset_index must match the preset enum values
 enum ValidationPreset {
