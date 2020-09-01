@@ -26,13 +26,11 @@
 
 #include <gtest/gtest.h>
 
-static PathManager CreatePathManager(const QString& path_value) {
-    PathManager paths;
+static void Init(PathManager& paths, const QString& path_value) {
     for (int i = 0, n = PATH_COUNT; i < n; ++i) {
         const Path path = static_cast<Path>(i);
         paths.SetPath(path, path_value);
     }
-    return paths;
 }
 
 static QString InitPath(const char* tail) {
@@ -43,14 +41,16 @@ static QString InitPath(const char* tail) {
 
 TEST(test_path_manager, init_first) {
     const QString path_value = InitPath("init_first");
-    const PathManager& paths = CreatePathManager(path_value);
+    PathManager paths;
+    Init(paths, path_value);
 
     EXPECT_STREQ(path_value.toUtf8().constData(), paths.GetPath(PATH_FIRST));
 }
 
 TEST(test_path_manager, init_last) {
     const QString path_value = InitPath("init_last");
-    const PathManager& paths = CreatePathManager(path_value);
+    PathManager paths;
+    Init(paths, path_value);
 
     EXPECT_STREQ(path_value.toUtf8().constData(), paths.GetPath(PATH_LAST));
 }
