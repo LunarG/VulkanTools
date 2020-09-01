@@ -131,7 +131,7 @@ bool Configuration::IsValid() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Load from a configuration file (.json really)
-Configuration* Configuration::Load(const QString& path_to_configuration) {
+bool Configuration::Load(const QString& path_to_configuration) {
     // Just load the name for now, and if it's read only
     if (path_to_configuration.isEmpty()) return nullptr;
 
@@ -149,8 +149,7 @@ Configuration* Configuration::Load(const QString& path_to_configuration) {
     if (parse_error.error != QJsonParseError::NoError) return nullptr;
 
     // Allocate a new profile container
-    Configuration* configuration = new Configuration();
-    const QString& filename = configuration->_file = QFileInfo(path_to_configuration).fileName();
+    const QString& filename = _file = QFileInfo(path_to_configuration).fileName();
 
     QJsonObject json_top_object = json_doc.object();
     QStringList key = json_top_object.keys();
@@ -163,11 +162,11 @@ Configuration* Configuration::Load(const QString& path_to_configuration) {
     QJsonObject configuration_entry_object = configuration_entry_value.toObject();
 
     if (version <= Version("1.1.0")) {
-        configuration->_name = filename.left(filename.length() - 5);
+        _name = filename.left(filename.length() - 5);
     } else {
         const QJsonValue& json_name_value = configuration_entry_object.value("name");
         assert(json_name_value != QJsonValue::Undefined);
-        configuration->_name = json_name_value.toString();
+        _name = json_name_value.toString();
     }
 
     const QJsonValue& excluded_value = configuration_entry_object.value("blacklisted_layers");
@@ -175,18 +174,18 @@ Configuration* Configuration::Load(const QString& path_to_configuration) {
 
     QJsonArray excluded_array = excluded_value.toArray();
     for (int i = 0; i < excluded_array.size(); i++) {
-        configuration->_excluded_layers << excluded_array[i].toString();
+        _excluded_layers << excluded_array[i].toString();
     }
 
     const QJsonValue& preset_index = configuration_entry_object.value("preset");
-    configuration->_preset = static_cast<ValidationPreset>(preset_index.toInt());
+    _preset = static_cast<ValidationPreset>(preset_index.toInt());
 
     const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
-    configuration->_setting_tree_state = editor_state.toVariant().toByteArray();
+    _setting_tree_state = editor_state.toVariant().toByteArray();
 
     const QJsonValue& description = configuration_entry_object.value("description");
     assert(description != QJsonValue::Undefined);
-    configuration->_description = description.toString();
+    _description = description.toString();
 
     QJsonValue options_value = configuration_entry_object.value("layer_options");
     assert(options_value != QJsonValue::Undefined);
@@ -200,7 +199,7 @@ Configuration* Configuration::Load(const QString& path_to_configuration) {
         alert.setText(
             format(
                 "The \"%s\" configuration was created with a newer version of Vulkan Configurator. The configuration is discarded",
-                configuration->_name.toUtf8().constData())
+                _name.toUtf8().constData())
                 .c_str());
         alert.setInformativeText("Use Vulkan Configurator from the latest Vulkan SDK to resolve the issue.");
         alert.setIcon(QMessageBox::Critical);
@@ -233,15 +232,15 @@ Configuration* Configuration::Load(const QString& path_to_configuration) {
         layer_copy->_rank = layerRank.toInt();
         layer_copy->_state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
 
-        configuration->_layers.push_back(layer_copy);
+        _layers.push_back(layer_copy);
 
         // Load the layer
         LoadSettings(layer_object, layer_copy->_layer_settings);
     }
 
-    SortByRank(configuration->_layers);
+    SortByRank(_layers);
 
-    return configuration;
+    return true;
 }
 
 bool Configuration::Save() const {

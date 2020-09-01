@@ -1123,10 +1123,10 @@ void Configurator::LoadAllConfigurations() {
             // Search the list of loaded configurations
             const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
 
-            Configuration *configuration = nullptr;
-            configuration = configuration->Load(file);
-            if (configuration != nullptr) {
-                const bool result = configuration->Save();
+            Configuration configuration;
+            const bool result = configuration.Load(file);
+            if (result) {
+                const bool result = configuration.Save();
                 assert(result);
             }
         }
@@ -1147,9 +1147,9 @@ void Configurator::LoadAllConfigurations() {
         QFileInfo info = configuration_files.at(i);
         if (info.absoluteFilePath().contains("applist.json")) continue;
 
-        Configuration *configuration = nullptr;
-        configuration = configuration->Load(info.absoluteFilePath());
-        if (configuration != nullptr) {
+        Configuration *configuration = new Configuration;
+        const bool result = configuration->Load(info.absoluteFilePath());
+        if (result) {
             configuration->_file = info.fileName();  // Easier than parsing it myself ;-)
             _available_configurations.push_back(configuration);
         }

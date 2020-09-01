@@ -48,7 +48,7 @@ class Configuration {
     Configuration();
     ~Configuration();
 
-    Configuration *Load(const QString &path_to_configuration);
+    bool Load(const QString &path_to_configuration);
     bool Save() const;
 
     QString _name;                   // User readable display of the profile name (may contain spaces)
