@@ -30,8 +30,8 @@
 #include <Qt>
 #include <QDir>
 #include <QSettings>
-#include <QTextStream>
 #include <QLibrary>
+#include <QTextStream>
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QJsonArray>
@@ -1149,7 +1149,6 @@ void Configurator::LoadAllConfigurations() {
         Configuration *configuration = new Configuration;
         const bool result = configuration->Load(info.absoluteFilePath());
         if (result) {
-            configuration->_file = info.fileName();  // Easier than parsing it myself ;-)
             _available_configurations.push_back(configuration);
         }
     }
@@ -1411,8 +1410,9 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 void Configurator::ImportConfiguration(const QString &full_import_path) {
     assert(!full_import_path.isEmpty());
 
-    QFile input(full_import_path);
-    if (!input.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    Configuration configuration;
+
+    if (!configuration.Load(full_import_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -1422,29 +1422,19 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
         return;
     }
 
-    const QString full_dest_name = path.GetFullPath(PATH_CONFIGURATION, QFileInfo(full_import_path).fileName());
+    configuration._name += " (Imported)";
+    configuration.Save();
 
-    QFile output(full_dest_name);
-    if (!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!configuration.Save()) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
         msg.setText("Cannot create the destination configuration file.");
-        msg.setInformativeText(full_dest_name);
+        msg.setInformativeText(format("%s.json", configuration._name.toUtf8().constData()).c_str());
         msg.exec();
         return;
     }
 
-    QTextStream in(&input);
-    QTextStream out(&output);
-
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        out << line << "\n";
-    }
-
-    output.close();
-    input.close();
     LoadAllConfigurations();
 }
 
@@ -1452,10 +1442,11 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
     assert(!source_file.isEmpty());
     assert(!full_export_path.isEmpty());
 
-    const QString source_path = path.GetFullPath(PATH_CONFIGURATION, source_file);
-    QFile input(source_path);
+    Configuration configuration;
 
-    if (!input.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    const QString source_path = path.GetFullPath(PATH_CONFIGURATION, source_file);
+
+    if (!configuration.Load(source_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
@@ -1465,8 +1456,7 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
         return;
     }
 
-    QFile output(full_export_path);
-    if (!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!configuration.Save(full_export_path.toUtf8().constData())) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
@@ -1475,15 +1465,4 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
         msg.exec();
         return;
     }
-
-    QTextStream in(&input);
-    QTextStream out(&output);
-
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        out << line << "\n";
-    }
-
-    output.close();
-    input.close();
 }
