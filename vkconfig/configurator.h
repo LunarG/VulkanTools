@@ -201,9 +201,7 @@ class Configurator {
 
     Configuration* CreateEmptyConfiguration();
     Configuration* FindConfiguration(const QString& configuration_name) const;
-    Configuration* LoadConfiguration(const QString& path_configuration);  // Load .profile descriptor
-    void LoadAllConfigurations();                                         // Load all the .profile files found
-    bool SaveConfiguration(const Configuration& configuration);           // Write .profile descriptor
+    void LoadAllConfigurations();  // Load all the .profile files found
     void ImportConfiguration(const QString& full_import_path);
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
 

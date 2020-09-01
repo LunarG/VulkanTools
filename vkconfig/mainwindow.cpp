@@ -483,7 +483,9 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         remove(full_path.toUtf8().constData());
         configuration_item->configuration._name = new_name;
         configuration_item->configuration._file = new_name + QString(".json");
-        configurator.SaveConfiguration(configuration_item->configuration);
+        const bool result = configuration_item->configuration.Save();
+        assert(result);
+
         RestoreLastItem(configuration_item->configuration._name.toUtf8().constData());
     }
 }
@@ -839,9 +841,11 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     while (configurator.FindConfiguration(new_name) != nullptr) new_name += "2";
 
     _settings_tree_manager.CleanupGUI();
-    item->configuration._name = new_name;
 
-    configurator.SaveConfiguration(item->configuration);
+    item->configuration._name = new_name;
+    const bool result = item->configuration.Save();
+    assert(result);
+
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
 

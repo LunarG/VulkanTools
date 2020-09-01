@@ -311,16 +311,18 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
 void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     const ValidationPreset preset = static_cast<ValidationPreset>(preset_index);
 
-    Configurator &configuration = Configurator::Get();
+    Configurator &configurator = Configurator::Get();
 
-    configuration.CheckApplicationRestart();
+    configurator.CheckApplicationRestart();
 
     // We really just don't care
     if (preset == ValidationPresetUserDefined) return;
 
     // The easiest way to do this is to create a new profile, and copy the layer over
-    const QString preset_file = QString(":/resourcefiles/") + configuration.GetValidationPresetName(preset) + ".json";
-    Configuration *preset_configuration = configuration.LoadConfiguration(preset_file);
+    const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
+
+    Configuration *preset_configuration = nullptr;
+    preset_configuration = preset_configuration->Load(preset_file);
     if (preset_configuration == nullptr) return;
 
     // Copy it all into the real layer and delete it
@@ -412,7 +414,8 @@ void SettingsTreeManager::CleanupGUI() {
     // Get the state of the last tree, and save it!
     _configuration->_setting_tree_state.clear();
     GetTreeState(_configuration->_setting_tree_state, _configuration_settings_tree->invisibleRootItem());
-    Configurator::Get().SaveConfiguration(*_configuration);
+    const bool result = _configuration->Save();
+    assert(result);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
@@ -444,11 +447,14 @@ void SettingsTreeManager::CleanupGUI() {
 // The profile has been edited and should be saved
 void SettingsTreeManager::profileEdited() {
     // Resave this profile
-    Configurator &configuration = Configurator::Get();
-    configuration.SaveConfiguration(*_configuration);
-    configuration.CheckApplicationRestart();
+
+    const bool result = _configuration->Save();
+    assert(result);
+
+    Configurator &configurator = Configurator::Get();
+    configurator.CheckApplicationRestart();
 
     // If this profile is active, we need to reset the override files too
     // Just resetting with the same parent pointer will do the trick
-    if (_configuration == configuration.GetActiveConfiguration()) configuration.SetActiveConfiguration(_configuration);
+    if (_configuration == configurator.GetActiveConfiguration()) configurator.SetActiveConfiguration(_configuration);
 }
