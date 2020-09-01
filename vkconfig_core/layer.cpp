@@ -74,7 +74,7 @@ bool Layer::IsValid() const {
 /// \return true on success, false on failure.
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
-bool Layer::ReadLayerFile(QString full_path_to_file, LayerType layer_type) {
+bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     _layer_type = layer_type;  // Set layer type, no way to know this from the json file
 
     // Open the file, should be text. Read it into a
