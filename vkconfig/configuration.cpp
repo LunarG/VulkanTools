@@ -70,7 +70,6 @@ Layer* Configuration::FindLayerNamed(const QString& layer_name) const {
 Configuration* Configuration::DuplicateConfiguration() {
     Configuration* duplicate = new Configuration;
     duplicate->_name = _name;
-    duplicate->_file = _file;
     duplicate->_description = _description;
     duplicate->_excluded_layers = _excluded_layers;
     duplicate->_preset = _preset;
@@ -149,7 +148,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
     if (parse_error.error != QJsonParseError::NoError) return nullptr;
 
     // Allocate a new profile container
-    const QString& filename = _file = QFileInfo(path_to_configuration).fileName();
+    const QString& filename = QFileInfo(path_to_configuration).fileName();
 
     QJsonObject json_top_object = json_doc.object();
     QStringList key = json_top_object.keys();
@@ -248,7 +247,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
     return true;
 }
 
-bool Configuration::Save() const {
+bool Configuration::Save(const char* full_path) const {
     QJsonObject root;
     root.insert("file_format_version", FILE_FORMAT_VERSION.str().c_str());
 
@@ -343,9 +342,8 @@ bool Configuration::Save() const {
     ///////////////////////////////////////////////////////////
     // Write it out - file name is same as name. If it's been
     // changed, this corrects the behavior.
-    const QString path_to_configuration = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _name);
 
-    QFile json_file(path_to_configuration);
+    QFile json_file(full_path);
     if (!json_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox alert;
         alert.setText("Could not save configuration file!");
@@ -358,4 +356,8 @@ bool Configuration::Save() const {
     json_file.write(doc.toJson());
     json_file.close();
     return true;
+}
+
+bool Configuration::Save() const {
+    return Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _name).toUtf8().constData());
 }

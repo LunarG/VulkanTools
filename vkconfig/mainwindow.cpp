@@ -482,7 +482,6 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         // Proceed
         remove(full_path.toUtf8().constData());
         configuration_item->configuration._name = new_name;
-        configuration_item->configuration._file = new_name + QString(".json");
         const bool result = configuration_item->configuration.Save();
         assert(result);
 
@@ -888,7 +887,7 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
     const QString full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
     if (full_export_path.isEmpty()) return;
 
-    configurator.ExportConfiguration(item->configuration._file, full_export_path);
+    configurator.ExportConfiguration(item->configuration._name + ".json", full_export_path);
     configurator.SaveSettings();
 }
 
