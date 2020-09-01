@@ -79,25 +79,8 @@ class Layer {
     LayerState _state;
     int _rank;  // When used in a configurate, what is the rank? (0 being first layer)
 
-    // No.. I do not like operator overloading. It's a bad idea.
-    // Inlined here just so I can see all the variables that need to be copied.
-    void CopyLayer(Layer* destination_layer_file) const {
-        destination_layer_file->_file_format_version = _file_format_version;
-        destination_layer_file->_name = _name;
-        destination_layer_file->_type = _type;
-        destination_layer_file->_library_path = _library_path;
-        destination_layer_file->_api_version = _api_version;
-        destination_layer_file->_implementation_version = _implementation_version;
-        destination_layer_file->_description = _description;
-        destination_layer_file->_layer_type = _layer_type;
-        destination_layer_file->_state = _state;
-        destination_layer_file->_rank = _rank;
-        destination_layer_file->_layer_path = _layer_path;
-        destination_layer_file->_layer_settings = _layer_settings;
-    }
-
     // File based layers
-    bool ReadLayerFile(QString full_path_to_file, LayerType layer_type);
+    bool Load(QString full_path_to_file, LayerType layer_type);
 };
 
 void SortByRank(QVector<Layer*>& layers);

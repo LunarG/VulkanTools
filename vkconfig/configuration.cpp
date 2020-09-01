@@ -68,14 +68,7 @@ Configuration* Configuration::DuplicateConfiguration() {
     duplicate->_description = _description;
     duplicate->_excluded_layers = _excluded_layers;
     duplicate->_preset = _preset;
-    // Do not copy ->bFixedProfile
-
-    for (int i = 0; i < _layers.size(); i++) {
-        Layer* layer_file = new Layer;
-        _layers[i]->CopyLayer(layer_file);
-        duplicate->_layers.push_back(layer_file);
-    }
-
+    duplicate->_layers = _layers;
     return duplicate;
 }
 

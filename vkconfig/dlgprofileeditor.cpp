@@ -181,28 +181,27 @@ void dlgProfileEditor::AddMissingLayers(Configuration *configuration) {
     Configurator &configurator = Configurator::Get();
 
     for (int layer_index = 0, layer_count = configurator._available_Layers.size(); layer_index < layer_count; layer_index++) {
-        Layer *searched_layer_file = configurator._available_Layers[layer_index];
+        Layer *searched_layer = configurator._available_Layers[layer_index];
 
         // Look for through all layers
-        Layer *found_layer_file = configuration->FindLayer(searched_layer_file->_name, searched_layer_file->_layer_path);
+        Layer *found_layer_file = configuration->FindLayer(searched_layer->_name, searched_layer->_layer_path);
         if (found_layer_file != nullptr)  // It's in the list already
             continue;
 
         // Nope, add it to the end
-        Layer *next_layer_file = new Layer();
-        searched_layer_file->CopyLayer(next_layer_file);
+        Layer *next_layer = new Layer(*searched_layer);
 
         // Add default settings to the layer...
-        configurator.LoadDefaultSettings(next_layer_file);
+        configurator.LoadDefaultSettings(next_layer);
 
-        next_layer_file->_rank = rank++;
+        next_layer->_rank = rank++;
 
         // Check the excluded list
-        const bool is_excluded = configuration->_excluded_layers.contains(next_layer_file->_name);
-        next_layer_file->_state = is_excluded ? LAYER_STATE_EXCLUDED : LAYER_STATE_APPLICATION_CONTROLLED;
+        const bool is_excluded = configuration->_excluded_layers.contains(next_layer->_name);
+        next_layer->_state = is_excluded ? LAYER_STATE_EXCLUDED : LAYER_STATE_APPLICATION_CONTROLLED;
 
-        assert(next_layer_file->IsValid());
-        configuration->_layers.push_back(next_layer_file);
+        assert(next_layer->IsValid());
+        configuration->_layers.push_back(next_layer);
     }
 }
 

@@ -98,70 +98,71 @@ LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name)
 }
 
 void LoadSettings(QJsonObject& json_layer_settings, std::vector<LayerSetting>& settings) {
-    // Okay, how many settings do we have?
-    QStringList settings_names = json_layer_settings.keys();
+    const QStringList& settings_names = json_layer_settings.keys();
 
     for (int setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; setting_index++) {
         // The layer rank may or may not be here, but it is not a
         // user setting.
-        if (settings_names[setting_index] == QString("layer_rank")) continue;
+        if (settings_names[setting_index] == "layer_rank") continue;
 
         LayerSetting setting;
         setting.name = settings_names[setting_index];
 
-        QJsonValue json_value = json_layer_settings.value(settings_names[setting_index]);
-        QJsonObject json_object = json_value.toObject();
+        const QJsonValue& json_value = json_layer_settings.value(settings_names[setting_index]);
+        const QJsonObject& json_object = json_value.toObject();
 
         // The easy stuff...
-        QJsonValue value = json_object.value("description");
-        setting.description = value.toString();
+        const QJsonValue& json_value_description = json_object.value("description");
+        assert(json_value_description != QJsonValue::Undefined);
 
-        value = json_object.value("name");
-        setting.label = value.toString();
+        setting.description = json_value_description.toString();
+
+        const QJsonValue& json_value_name = json_object.value("name");
+        assert(json_value_name != QJsonValue::Undefined);
+
+        setting.label = json_value_name.toString();
 
         // This is either a single value, or a comma delimted set of strings
         // selected from a nonexclusive list
-        value = json_object.value("default");
-        if (value.isArray()) {
-            QJsonArray array = value.toArray();
+        const QJsonValue& json_value_default = json_object.value("default");
+        if (json_value_default.isArray()) {
+            const QJsonArray& array = json_value_default.toArray();
             for (int a = 0; a < array.size(); a++) {
                 setting.value += array[a].toString();
                 if (a != array.size() - 1) setting.value += ",";
             }
 
         } else
-            setting.value = value.toString();
+            setting.value = json_value_default.toString();
 
         ///////////////////////////////////////////////////////////////////////
         // Everything from here down revolves around the data type
         // Data types and values start getting a little more involved.
-        value = json_object.value("type");
+        const QJsonValue& json_value_type = json_object.value("type");
+        assert(json_value_type != QJsonValue::Undefined);
 
-        setting.type = GetSettingType(value.toString().toUtf8().constData());
+        setting.type = GetSettingType(json_value_type.toString().toUtf8().constData());
 
         switch (setting.type) {
-            case SETTING_EXCLUSIVE_LIST: {
-                // Now we have a list of options, both the enum for the settings file, and the prompts
-                value = json_object.value("options");
-                QJsonObject object = value.toObject();
-                QStringList keys, values;
-                keys = object.keys();
-                for (int v = 0; v < keys.size(); v++) {
-                    if (!PLATFORM_WINDOWS && keys[v] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
-                    setting.exclusive_values << keys[v];
-                    setting.exclusive_labels << object.value(keys[v]).toString();
-                }
-            } break;
+            case SETTING_EXCLUSIVE_LIST:
             case SETTING_INCLUSIVE_LIST: {
                 // Now we have a list of options, both the enum for the settings file, and the prompts
-                value = json_object.value("options");
-                QJsonObject object = value.toObject();
-                QStringList keys, values;
-                keys = object.keys();
+                const QJsonValue& json_value_options = json_object.value("options");
+                assert(json_value_options != QJsonValue::Undefined);
+
+                const QJsonObject& object = json_value_options.toObject();
+                const QStringList& keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
                     if (!PLATFORM_WINDOWS && keys[v] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
-                    setting.inclusive_values << keys[v];
-                    setting.inclusive_labels << object.value(keys[v]).toString();
+
+                    if (setting.type == SETTING_INCLUSIVE_LIST) {
+                        setting.inclusive_values << keys[v];
+                        setting.inclusive_labels << object.value(keys[v]).toString();
+                    } else if (setting.type == SETTING_EXCLUSIVE_LIST) {
+                        setting.exclusive_values << keys[v];
+                        setting.exclusive_labels << object.value(keys[v]).toString();
+                    } else
+                        assert(0);
                 }
             } break;
             case SETTING_SAVE_FILE:

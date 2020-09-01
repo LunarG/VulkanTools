@@ -514,7 +514,7 @@ void Configurator::LoadDeviceRegistry(DEVINST id, const QString &entry, QVector<
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
         for (wchar_t *curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
             Layer *pLayerFile = new Layer();
-            if (pLayerFile->ReadLayerFile(QString::fromWCharArray(curr_filename), type)) layerList.push_back(pLayerFile);
+            if (pLayerFile->Load(QString::fromWCharArray(curr_filename), type)) layerList.push_back(pLayerFile);
             if (data_type == REG_SZ) {
                 break;
             }
@@ -1013,7 +1013,7 @@ void Configurator::LoadLayersFromPath(const QString &path, QVector<Layer *> &lay
     // not already been added.
     for (int file_index = 0; file_index < file_list.FileCount(); file_index++) {
         Layer *layer_file = new Layer();
-        if (layer_file->ReadLayerFile(file_list.GetFileName(file_index), type)) {
+        if (layer_file->Load(file_list.GetFileName(file_index), type)) {
             // Do not load VK_LAYER_LUNARG_override
             for (int i = 0; i < layer_list.size(); i++)
                 if (QString("VK_LAYER_LUNARG_override") == layer_file->_name) {
@@ -1297,13 +1297,13 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
         assert(layer->IsValid());
 
         // Make a copy add it to this layer
-        Layer *layer_copy = new Layer();
-        layer->CopyLayer(layer_copy);
-        configuration->_layers.push_back(layer_copy);
+        Layer *layer_copy = new Layer(*layer);
 
         QJsonValue layerRank = layer_object.value("layer_rank");
         layer_copy->_rank = layerRank.toInt();
         layer_copy->_state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
+
+        configuration->_layers.push_back(layer_copy);
 
         // Load the layer
         ::LoadSettings(layer_object, layer_copy->_layer_settings);
@@ -1441,8 +1441,8 @@ Configuration *Configurator::CreateEmptyConfiguration() {
 
     // Add layers
     for (int i = 0, n = _available_Layers.size(); i < n; i++) {
-        temp_layer = new Layer();
-        _available_Layers[i]->CopyLayer(temp_layer);
+        temp_layer = new Layer(*_available_Layers[i]);
+        //_available_Layers[i]->CopyLayer(temp_layer);
         temp_layer->_rank = rank++;
         new_configuration->_layers.push_back(temp_layer);
     }
