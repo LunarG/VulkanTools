@@ -65,4 +65,8 @@ class KhronosSettingsAdvanced : public QObject {
 
    Q_SIGNALS:
     void settingChanged();
+
+   private:
+    KhronosSettingsAdvanced(const KhronosSettingsAdvanced &) = delete;
+    KhronosSettingsAdvanced &operator=(const KhronosSettingsAdvanced &) = delete;
 };

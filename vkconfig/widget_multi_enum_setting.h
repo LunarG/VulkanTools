@@ -42,4 +42,8 @@ class MultiEnumSettingWidget : public QCheckBox {
 
    Q_SIGNALS:
     void itemChanged();
+
+   private:
+    MultiEnumSettingWidget(const MultiEnumSettingWidget&) = delete;
+    MultiEnumSettingWidget& operator=(const MultiEnumSettingWidget&) = delete;
 };

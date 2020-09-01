@@ -184,8 +184,8 @@ void dlgProfileEditor::AddMissingLayers(Configuration *configuration) {
         Layer *searched_layer = configurator._available_Layers[layer_index];
 
         // Look for through all layers
-        Layer *found_layer_file = configuration->FindLayer(searched_layer->_name, searched_layer->_layer_path);
-        if (found_layer_file != nullptr)  // It's in the list already
+        Layer *found_layer = configuration->FindLayer(searched_layer->_name, searched_layer->_layer_path);
+        if (found_layer != nullptr)  // It's in the list already
             continue;
 
         // Nope, add it to the end

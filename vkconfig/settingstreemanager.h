@@ -75,4 +75,8 @@ class SettingsTreeManager : QObject {
                                            // Reset layer defaults for the profile, and then call BuildKhronosTree again
     void khronosPresetEdited();            // The user has changed something from a preset, and we are now a custom setting
     void profileEdited();                  // The profile has been edited and should be saved
+
+   private:
+    SettingsTreeManager(const SettingsTreeManager &) = delete;
+    SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 };

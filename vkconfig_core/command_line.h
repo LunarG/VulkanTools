@@ -33,5 +33,8 @@ class CommandLine {
     const Mode& mode;
 
    private:
+    CommandLine(const CommandLine&) = delete;
+    CommandLine& operator=(const CommandLine&) = delete;
+
     Mode _mode;
 };

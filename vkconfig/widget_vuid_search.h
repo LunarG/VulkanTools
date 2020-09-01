@@ -54,4 +54,8 @@ class VUIDSearchWidget : public QWidget {
    Q_SIGNALS:
     void itemSelected(const QString &textSelected);
     void itemChanged();
+
+   private:
+    VUIDSearchWidget(const VUIDSearchWidget &) = delete;
+    VUIDSearchWidget &operator=(const VUIDSearchWidget &) = delete;
 };

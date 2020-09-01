@@ -25,12 +25,15 @@
  * Authors:
  * - Richard S. Wright Jr. <richard@lunarg.com>
  */
+
 #include "appsingleton.h"
 
-AppSingleton::AppSingleton(QString singleAppName, int timeout) {
+#include <QtNetwork/QLocalSocket>
+
+AppSingleton::AppSingleton(const QString& application_name, int timeout) {
     // If we can connect to the server, it means there is another copy running
     QLocalSocket localSocket;
-    localSocket.connectToServer(singleAppName);
+    localSocket.connectToServer(application_name);
 
     // The default timeout is 5 seconds, which should be enough under
     // the most extreme circumstances. Note, that it will actually
@@ -38,15 +41,15 @@ AppSingleton::AppSingleton(QString singleAppName, int timeout) {
     // connect. Too small a timeout on the other hand can give false
     // assurance that another copy is not running.
     if (localSocket.waitForConnected(timeout)) {
-        _is_first_app = false;
+        _is_first_instance = false;
         localSocket.close();
         return;
     }
 
     // Not connected, OR timed out
     // We are the first, start a server
-    _is_first_app = true;
-    _localServer.listen(singleAppName);
+    _is_first_instance = true;
+    _localServer.listen(application_name);
 }
 
 AppSingleton::~AppSingleton() { _localServer.close(); }

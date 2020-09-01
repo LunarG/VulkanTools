@@ -48,6 +48,9 @@ class Configuration {
     Configuration();
     ~Configuration();
 
+    bool Load();
+    bool Save();
+
     QString _name;                   // User readable display of the profile name (may contain spaces)
                                      // This is the same as the filename, but with the .json stripped off.
     QString _file;                   // Root file name without path (by convention, no spaces and .profile suffix)

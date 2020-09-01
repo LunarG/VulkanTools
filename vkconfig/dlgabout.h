@@ -39,4 +39,8 @@ class dlgAbout : public QDialog {
 
    private:
     Ui::dlgAbout *ui;
+
+   private:
+    dlgAbout(const dlgAbout &) = delete;
+    dlgAbout &operator=(const dlgAbout &) = delete;
 };

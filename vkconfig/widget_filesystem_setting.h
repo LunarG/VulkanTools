@@ -53,4 +53,8 @@ class FileSystemSettingWidget : public QWidget {
     enum Mode { MODE_OPEN_FILE, MODE_SAVE_FILE, MODE_SAVE_FOLDER };
     const Mode _mode;
     Mode GetMode(SettingType type) const;
+
+   private:
+    FileSystemSettingWidget(const FileSystemSettingWidget &) = delete;
+    FileSystemSettingWidget &operator=(const FileSystemSettingWidget &) = delete;
 };

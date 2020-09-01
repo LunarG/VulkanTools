@@ -24,20 +24,25 @@
  *
  * Authors:
  * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
 #include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
 
 class AppSingleton {
    public:
-    AppSingleton(QString singleAppName, int timeout = 5000);
+    AppSingleton(const QString &application_name, int timeout = 5000);
     ~AppSingleton();
-    bool IsFirstApp(void) { return _is_first_app; }
+
+    bool IsFirstInstance() { return _is_first_instance; }
 
    protected:
     QLocalServer _localServer;
-    bool _is_first_app;
+    bool _is_first_instance;
+
+   private:
+    AppSingleton(const AppSingleton &) = delete;
+    AppSingleton &operator=(const AppSingleton &) = delete;
 };
