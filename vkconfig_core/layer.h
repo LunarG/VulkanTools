@@ -19,8 +19,8 @@
  * as the "model" of the system.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -31,7 +31,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
-#include <QVector>
+
+#include <vector>
 
 void RemoveString(QString& delimitedString, QString value);
 void AddString(QString& delimitedString, QString value);
@@ -54,6 +55,8 @@ class Layer {
     ~Layer();
 
     bool IsValid() const;
+    bool operator==(const Layer& layer) const;
+    bool operator!=(const Layer& layer) const;
 
    public:
     // Standard pieces of a layer
@@ -71,7 +74,7 @@ class Layer {
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    QVector<LayerSetting*> _layer_settings;
+    std::vector<LayerSetting> _layer_settings;
 
     LayerState _state;
     int _rank;  // When used in a configurate, what is the rank? (0 being first layer)
@@ -90,19 +93,11 @@ class Layer {
         destination_layer_file->_state = _state;
         destination_layer_file->_rank = _rank;
         destination_layer_file->_layer_path = _layer_path;
-
-        for (int i = 0; i < _layer_settings.length(); i++) {
-            LayerSetting* setting = new LayerSetting();
-            *setting = *_layer_settings[i];
-            destination_layer_file->_layer_settings.push_back(setting);
-        }
+        destination_layer_file->_layer_settings = _layer_settings;
     }
 
     // File based layers
     bool ReadLayerFile(QString full_path_to_file, LayerType layer_type);
-
-    // Utility, may move outside this class....
-    static void LoadSettingsFromJson(QJsonObject& layer_settings_descriptors, QVector<LayerSetting*>& layers);
 };
 
 void SortByRank(QVector<Layer*>& layers);

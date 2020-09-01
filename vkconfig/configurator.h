@@ -39,6 +39,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <vector>
+
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 #define APP_SHORT_NAME "vkconfig"
 
@@ -86,8 +88,8 @@ class PathFinder {
 // to reset or initialize the a full layer definition for the
 // profiles.
 struct LayerSettingsDefaults {
-    QString layer_name;                       // Name of layer
-    QVector<LayerSetting*> default_settings;  // Default settings for this layer
+    QString layer_name;                          // Name of layer
+    std::vector<LayerSetting> default_settings;  // Default settings for this layer
 };
 
 //////////////////////////////////////////////////////////
