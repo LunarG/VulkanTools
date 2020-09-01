@@ -115,8 +115,8 @@ class Configurator {
     bool _has_old_loader;  // Older loader does not support per-application overrides
 
    private:
-    bool _running_as_administrator;  // Are we being "Run as Administrator"
-    bool _first_run;                 // This is used for populating the initial set of configurations
+    const bool _running_as_administrator;  // Are we being "Run as Administrator"
+    bool _first_run;                       // This is used for populating the initial set of configurations
 
     /////////////////////////////////////////////////////////////////////////
     // Just Vulkan Configurator settings
@@ -206,7 +206,6 @@ class Configurator {
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
 
     bool HasLayers() const;
-    bool IsRunningAsAdministrator() { return _running_as_administrator; }
 
     // Set this as the current override configuration
     void SetActiveConfiguration(Configuration* configuration);

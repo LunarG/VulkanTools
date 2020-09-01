@@ -172,7 +172,17 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : _has_old_loader(false), _first_run(true), _override_application_list_updated(false), _active_configuration(nullptr) {
+    : _has_old_loader(false),
+      _first_run(true),
+      _override_application_list_updated(false),
+      _active_configuration(nullptr),
+// Hack for GitHub C.I.
+#if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+      _running_as_administrator(IsUserAnAdmin())
+#else
+      _running_as_administrator(false)
+#endif
+{
     _available_Layers.reserve(10);
 
     // Handling of versions compatibility
@@ -188,13 +198,6 @@ Configurator::Configurator()
             settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
         }
     }
-
-    // Hack for GitHub C.I.
-#if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-    _running_as_administrator = IsUserAnAdmin();
-#else
-    _running_as_administrator = false;
-#endif
 
 // Where is stuff
 #if PLATFORM_WINDOWS
