@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -48,4 +48,8 @@ class BoolSettingWidget : public QCheckBox {
     QString GetToken(bool state, SettingType type) const;
     const QString _true_token;
     const QString _false_token;
+
+   private:
+    BoolSettingWidget(const BoolSettingWidget&) = delete;
+    BoolSettingWidget& operator=(const BoolSettingWidget&) = delete;
 };

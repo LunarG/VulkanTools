@@ -60,4 +60,8 @@ class dlgCreateAssociation : public QDialog {
     void editCommandLine(const QString &cmd_line);
     void editWorkingFolder(const QString &working_folder);
     void editLogFile(const QString &log_file);
+
+   private:
+    dlgCreateAssociation(const dlgCreateAssociation &) = delete;
+    dlgCreateAssociation &operator=(const dlgCreateAssociation &) = delete;
 };

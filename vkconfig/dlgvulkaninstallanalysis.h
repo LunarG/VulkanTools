@@ -42,4 +42,6 @@ class dlgVulkanInstallAnalysis : public QAbstractItemModel {
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
    private:
+    dlgVulkanInstallAnalysis(const dlgVulkanInstallAnalysis &) = delete;
+    dlgVulkanInstallAnalysis &operator=(const dlgVulkanInstallAnalysis &) = delete;
 };

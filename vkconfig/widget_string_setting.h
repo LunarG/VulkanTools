@@ -41,4 +41,8 @@ class StringSettingWidget : public QLineEdit {
 
    Q_SIGNALS:
     void itemChanged();
+
+   private:
+    StringSettingWidget(const StringSettingWidget&) = delete;
+    StringSettingWidget& operator=(const StringSettingWidget&) = delete;
 };

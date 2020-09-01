@@ -38,4 +38,8 @@ class TreeFriendlyComboBoxWidget : public QComboBox {
 
    Q_SIGNALS:
     void selectionMade(QTreeWidgetItem *tree_item, int index);
+
+   private:
+    TreeFriendlyComboBoxWidget(const TreeFriendlyComboBoxWidget &) = delete;
+    TreeFriendlyComboBoxWidget &operator=(const TreeFriendlyComboBoxWidget &) = delete;
 };

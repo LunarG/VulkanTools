@@ -49,6 +49,10 @@ class ConfigurationListItem : public QTreeWidgetItem {
     ConfigurationListItem(Configuration &configuration) : configuration(configuration) {}
     Configuration &configuration;
     QRadioButton *radio_button;
+
+   private:
+    ConfigurationListItem(const ConfigurationListItem &) = delete;
+    ConfigurationListItem &operator=(const ConfigurationListItem &) = delete;
 };
 
 class MainWindow : public QMainWindow {
@@ -152,4 +156,8 @@ class MainWindow : public QMainWindow {
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
+
+   private:
+    MainWindow(const MainWindow &) = delete;
+    MainWindow &operator=(const MainWindow &) = delete;
 };

@@ -79,6 +79,9 @@ class PathManager {
     void Reset();
 
    private:
+    PathManager(const PathManager&) = delete;
+    PathManager& operator=(const PathManager&) = delete;
+
     QString SelectPathImpl(QWidget* parent, Path path, const QString& suggested_path);
 
     std::array<std::string, PATH_COUNT> paths;

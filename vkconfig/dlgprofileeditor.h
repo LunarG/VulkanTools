@@ -70,4 +70,8 @@ class dlgProfileEditor : public QDialog {
     void on_toolButtonDown_clicked();
 
     void layerUseChanged(QTreeWidgetItem *item, int selection);
+
+   private:
+    dlgProfileEditor(const dlgProfileEditor &) = delete;
+    dlgProfileEditor &operator=(const dlgProfileEditor &) = delete;
 };

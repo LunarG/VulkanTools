@@ -41,4 +41,8 @@ class EnumSettingWidget : public QComboBox {
 
    Q_SIGNALS:
     void itemChanged();
+
+   private:
+    EnumSettingWidget(const EnumSettingWidget&) = delete;
+    EnumSettingWidget& operator=(const EnumSettingWidget&) = delete;
 };

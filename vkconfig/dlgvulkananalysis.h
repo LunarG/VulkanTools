@@ -47,4 +47,7 @@ class dlgVulkanAnalysis : public QDialog {
     void LoadTable(QJsonObject& json_parent, QTableWidget* table);
 
     Ui::dlgVulkanAnalysis* ui;
+
+    dlgVulkanAnalysis(const dlgVulkanAnalysis&) = delete;
+    dlgVulkanAnalysis& operator=(const dlgVulkanAnalysis&) = delete;
 };

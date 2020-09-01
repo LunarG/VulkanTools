@@ -46,4 +46,7 @@ class dlgVulkanInfo : public QDialog {
 
    private:
     Ui::dlgVulkanInfo *ui;
+
+    dlgVulkanInfo(const dlgVulkanInfo &) = delete;
+    dlgVulkanInfo &operator=(const dlgVulkanInfo &) = delete;
 };

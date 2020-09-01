@@ -44,4 +44,8 @@ class dlgCustomPaths : public QDialog {
     void on_pushButtonAdd_clicked();
     void on_pushButtonRemove_clicked();
     void on_treeWidget_itemSelectionChanged();
+
+   private:
+    dlgCustomPaths(const dlgCustomPaths &) = delete;
+    dlgCustomPaths &operator=(const dlgCustomPaths &) = delete;
 };
