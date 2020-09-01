@@ -1,6 +1,7 @@
 CMakeCache.txt
 CMakeLists.txt.user
 CMakeFiles/
+Testing/
 cmake_install.cmake
 Makefile
 scripts/__pycache__
