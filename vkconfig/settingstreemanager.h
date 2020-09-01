@@ -63,7 +63,7 @@ class SettingsTreeManager : QObject {
     QTreeWidgetItem *_validation_preset_item;
     QTreeWidgetItem *_validation_log_file_item;
     FileSystemSettingWidget *_validation_log_file_widget;
-    EnumSettingWidget *_validation_debug_action;
+    MultiEnumSettingWidget *_validation_debug_action;
     KhronosSettingsAdvanced *_validation_settings;
     MuteMessageWidget *_mute_message_widget;
     VUIDSearchWidget *_vuid_search_widget;

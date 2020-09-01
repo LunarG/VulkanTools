@@ -135,32 +135,42 @@ void SettingsTreeManager::BuildKhronosTree() {
     _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem,
                                                        _validation_layer_file->_layer_settings);
 
-    // Look for the Debug Action and log file settings
+    // Get the Debug Action and log file settings (and they must exist)
     LayerSetting &debug_action = FindSetting(_validation_layer_file->_layer_settings, "debug_action");
     LayerSetting &log_file = FindSetting(_validation_layer_file->_layer_settings, "log_filename");
 
-    // Set them up
-    QTreeWidgetItem *debug_action_item = new QTreeWidgetItem();
-    _validation_debug_action = new EnumSettingWidget(debug_action_item, debug_action);
-    _validation_tree_item->addChild(debug_action_item);
-    next_line = new QTreeWidgetItem();
-    debug_action_item->addChild(next_line);
-    _configuration_settings_tree->setItemWidget(next_line, 0, _validation_debug_action);
+    // The debug action set of settings has it's own branch
+    QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
+    debug_action_branch->setText(0, "Debug Action");
+    _validation_tree_item->addChild(debug_action_branch);
 
-    _validation_log_file_item = new QTreeWidgetItem();
-    next_line = new QTreeWidgetItem();
-    _validation_log_file_widget = new FileSystemSettingWidget(_validation_log_file_item, log_file, SETTING_SAVE_FILE);
-    connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
-    debug_action_item->addChild(_validation_log_file_item);
-    _validation_log_file_item->addChild(next_line);
-    _configuration_settings_tree->setItemWidget(next_line, 0, _validation_log_file_widget);
-    next_line->setSizeHint(0, QSize(0, 28));
-    _compound_widgets.push_back(next_line);
-    _validation_file_item = _validation_log_file_item;
-    connect(_validation_debug_action, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosDebugChanged(int)));
-    if (_validation_debug_action->currentText() != QString("Log Message")) {
-        _validation_log_file_item->setDisabled(true);
-        _validation_log_file_widget->setDisabled(true);
+    // Each debug action has it's own checkbox
+    for (int i = 0, n = debug_action.inclusive_values.size(); i < n; ++i) {
+        QTreeWidgetItem *child = new QTreeWidgetItem();
+        MultiEnumSettingWidget *this_control = new MultiEnumSettingWidget(debug_action, debug_action.inclusive_values[i]);
+        this_control->setText(debug_action.inclusive_labels[i]);
+        debug_action_branch->addChild(child);
+        _configuration_settings_tree->setItemWidget(child, 0, this_control);
+        this_control->setFont(_configuration_settings_tree->font());
+        connect(this_control, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+
+        // The log message action also has a child; the log file selection setting/widget
+        // Note, this is usually last, but I'll check for it any way in case other new items are added
+        if (debug_action.inclusive_values[i] == QString("VK_DBG_LAYER_ACTION_LOG_MSG")) {  // log action?
+            _validation_debug_action = this_control;
+            _validation_log_file_item = new QTreeWidgetItem();
+            child->addChild(_validation_log_file_item);
+            _validation_log_file_widget = new FileSystemSettingWidget(_validation_log_file_item, log_file, SETTING_SAVE_FILE);
+            _configuration_settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
+            _validation_log_file_item->setSizeHint(0, QSize(0, 28));
+            _compound_widgets.push_back(child);
+
+            connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(khronosDebugChanged(int)));
+
+            // Capture initial state, which reflects enabled/disabled
+            _validation_log_file_widget->setDisabled(!_validation_debug_action->isChecked());
+        }
     }
 
     std::vector<LayerSetting> &settings = _validation_layer_file->_layer_settings;
@@ -169,13 +179,8 @@ void SettingsTreeManager::BuildKhronosTree() {
     for (std::size_t setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
         LayerSetting &layer_setting = settings[setting_index];
 
-        const bool is_report_flag = layer_setting.name == "report_flags";
-        const bool is_debug_action = layer_setting.name == "debug_action";
-
         // Multi-enum - report flags only
-        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && is_report_flag || (is_debug_action && VKCONFIG_BUILD > 1002))) {
-            continue;
-        }
+        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && layer_setting.name == QString("report_flags"))) continue;
 
         QTreeWidgetItem *sub_category = new QTreeWidgetItem;
         sub_category->setText(0, layer_setting.label);
@@ -238,7 +243,7 @@ void SettingsTreeManager::BuildKhronosTree() {
 /////////////////////////////////////////////////////////////////////////////////
 void SettingsTreeManager::khronosDebugChanged(int index) {
     (void)index;
-    bool enabled = (_validation_debug_action->currentText() != QString("Log Message"));
+    bool enabled = !(_validation_debug_action->isChecked());
     _configuration_settings_tree->blockSignals(true);
     _validation_log_file_item->setDisabled(enabled);
     _validation_log_file_widget->setDisabled(enabled);
@@ -340,7 +345,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     Q_ASSERT(validation_layer_index != -1);
 
     // Reset just specific layer settings
-    for (int i = 0; i < _configuration->_layers[validation_layer_index]->_layer_settings.size(); i++) {
+    for (std::size_t i = 0; i < _configuration->_layers[validation_layer_index]->_layer_settings.size(); i++) {
         if (_validation_layer_file->_layer_settings[i].name == "disables" ||
             _validation_layer_file->_layer_settings[i].name == "enables")
             _validation_layer_file->_layer_settings[i].value = preset_configuration->_layers[0]->_layer_settings[i].value;
