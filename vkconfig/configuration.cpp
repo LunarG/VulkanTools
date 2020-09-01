@@ -20,6 +20,7 @@
  */
 
 #include "configuration.h"
+#include "configurator.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -28,7 +29,7 @@
 
 #include <cassert>
 
-Configuration::Configuration() : _preset(ValidationPresetNone), _all_layers_available(true) {}
+Configuration::Configuration() : _preset(ValidationPresetNone) {}
 
 Configuration::~Configuration() {
     qDeleteAll(_layers.begin(), _layers.end());
@@ -67,7 +68,6 @@ Configuration* Configuration::DuplicateConfiguration() {
     duplicate->_description = _description;
     duplicate->_excluded_layers = _excluded_layers;
     duplicate->_preset = _preset;
-    duplicate->_all_layers_available = _all_layers_available;
     // Do not copy ->bFixedProfile
 
     for (int i = 0; i < _layers.size(); i++) {
@@ -112,4 +112,20 @@ void Configuration::CollapseConfiguration() {
 
         layer_index++;
     }
+}
+
+bool Configuration::IsValid() const {
+    Configurator& configurator = Configurator::Get();
+
+    if (_excluded_layers.empty() && _layers.empty()) return false;
+
+    for (int i = 0, n = _layers.size(); i < n; ++i) {
+        if (configurator.FindLayerNamed(_layers[i]->_name) == nullptr) return false;
+    }
+
+    for (int i = 0, n = _excluded_layers.size(); i < n; ++i) {
+        if (configurator.FindLayerNamed(_excluded_layers[i]) == nullptr) return false;
+    }
+
+    return true;
 }

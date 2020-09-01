@@ -1259,7 +1259,6 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
     QJsonArray excluded_array = excluded_value.toArray();
     for (int i = 0; i < excluded_array.size(); i++) {
         configuration->_excluded_layers << excluded_array[i].toString();
-        if (!FindLayerNamed(configuration->_excluded_layers[i])) configuration->_all_layers_available = false;
     }
 
     QJsonValue preset_index = configuration_entry_object.value("preset");
@@ -1278,27 +1277,25 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
 
     // Build the list of layers with their settings. If both the layers and
     // the blacklist are emtpy, then automatic fail
-    if (layer_list.length() == 0 && configuration->_excluded_layers.length() == 0) configuration->_all_layers_available = false;
 
     for (int layer_index = 0; layer_index < layer_list.length(); layer_index++) {
-        const Layer *layer_file = nullptr;
+        const Layer *layer = nullptr;
         QJsonValue layer_value = layer_objects.value(layer_list[layer_index]);
         QJsonObject layer_object = layer_value.toObject();
 
         // To match the layer we just need the name, paths are not
         // hard-matched to the configuration.
         // Find this in our lookup of layers. The standard layers are listed first
-        layer_file = FindLayerNamed(layer_list[layer_index]);
-        if (layer_file == nullptr) {  // If not found, we have a layer missing....
-            configuration->_all_layers_available = false;
+        layer = FindLayerNamed(layer_list[layer_index]);
+        if (layer == nullptr) {  // If not found, we have a layer missing....
             continue;
         }
 
-        assert(layer_file->IsValid());
+        assert(layer->IsValid());
 
         // Make a copy add it to this layer
         Layer *layer_copy = new Layer();
-        layer_file->CopyLayer(layer_copy);
+        layer->CopyLayer(layer_copy);
         configuration->_layers.push_back(layer_copy);
 
         QJsonValue layerRank = layer_object.value("layer_rank");

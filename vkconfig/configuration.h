@@ -67,7 +67,5 @@ class Configuration {
 
     void CollapseConfiguration();  // Remove unused layers and settings, set blacklist
 
-    bool IsValid() { return _all_layers_available; }
-
-    bool _all_layers_available;
+    bool IsValid() const;
 };
