@@ -48,8 +48,8 @@ class Configuration {
     Configuration();
     ~Configuration();
 
-    bool Load();
-    bool Save();
+    Configuration *Load(const QString &path_to_configuration);
+    bool Save() const;
 
     QString _name;                   // User readable display of the profile name (may contain spaces)
                                      // This is the same as the filename, but with the .json stripped off.
