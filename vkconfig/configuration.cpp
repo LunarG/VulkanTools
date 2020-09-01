@@ -163,6 +163,11 @@ bool Configuration::Load(const QString& path_to_configuration) {
 
     if (version <= Version("1.1.0")) {
         _name = filename.left(filename.length() - 5);
+        if (_name == "Validation - Shader Printf") {
+            _name = "Validation - Debug Printf";
+            QFile file(path_to_configuration);
+            file.remove();
+        }
     } else {
         const QJsonValue& json_name_value = configuration_entry_object.value("name");
         assert(json_name_value != QJsonValue::Undefined);
