@@ -132,7 +132,7 @@ bool Configuration::IsValid() const {
 // Load from a configuration file (.json really)
 bool Configuration::Load(const QString& path_to_configuration) {
     // Just load the name for now, and if it's read only
-    if (path_to_configuration.isEmpty()) return nullptr;
+    if (path_to_configuration.isEmpty()) return false;
 
     QFile file(path_to_configuration);
     bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -145,7 +145,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
     QJsonParseError parse_error;
     json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
 
-    if (parse_error.error != QJsonParseError::NoError) return nullptr;
+    if (parse_error.error != QJsonParseError::NoError) return false;
 
     // Allocate a new profile container
     const QString& filename = QFileInfo(path_to_configuration).fileName();
@@ -208,7 +208,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
         alert.setInformativeText("Use Vulkan Configurator from the latest Vulkan SDK to resolve the issue.");
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
-        return nullptr;
+        return false;
     }
 
     // Build the list of layers with their settings. If both the layers and
