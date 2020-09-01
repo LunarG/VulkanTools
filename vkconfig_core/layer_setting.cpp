@@ -20,6 +20,7 @@
  */
 
 #include "util.h"
+#include "version.h"
 #include "platform.h"
 
 #include "layer_setting.h"
@@ -143,6 +144,10 @@ void LoadSettings(QJsonObject& json_layer_settings, std::vector<LayerSetting>& s
 
         setting.type = GetSettingType(json_value_type.toString().toUtf8().constData());
 
+        const bool convert_debug_action_to_inclusive =
+            (VKCONFIG_BUILD > 1002 && setting.name == "Debug Action" && setting.type == SETTING_EXCLUSIVE_LIST);
+        if (convert_debug_action_to_inclusive) setting.type = SETTING_INCLUSIVE_LIST;
+
         switch (setting.type) {
             case SETTING_EXCLUSIVE_LIST:
             case SETTING_INCLUSIVE_LIST: {
@@ -154,6 +159,8 @@ void LoadSettings(QJsonObject& json_layer_settings, std::vector<LayerSetting>& s
                 const QStringList& keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
                     if (!PLATFORM_WINDOWS && keys[v] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
+
+                    if (convert_debug_action_to_inclusive && keys[v] == "VK_DBG_LAYER_ACTION_IGNORE") continue;
 
                     if (setting.type == SETTING_INCLUSIVE_LIST) {
                         setting.inclusive_values << keys[v];

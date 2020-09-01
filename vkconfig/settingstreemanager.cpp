@@ -169,8 +169,11 @@ void SettingsTreeManager::BuildKhronosTree() {
     for (std::size_t setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
         LayerSetting &layer_setting = settings[setting_index];
 
+        const bool is_report_flag = layer_setting.name == "report_flags";
+        const bool is_debug_action = layer_setting.name == "debug_action";
+
         // Multi-enum - report flags only
-        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && layer_setting.name == "report_flags")) {
+        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && is_report_flag || (is_debug_action && VKCONFIG_BUILD > 1002))) {
             continue;
         }
 
