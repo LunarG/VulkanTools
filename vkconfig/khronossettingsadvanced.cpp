@@ -155,9 +155,9 @@ QString GetSettingDetails(QString qsSetting, QString &url) {
 
 ///////////////////////////////////////////////////////////////////////////////
 KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent,
-                                                 QVector<LayerSetting *> &layer_settings)
-    : _enables(FindSetting(layer_settings, "enables")),
-      _disables(FindSetting(layer_settings, "disables")),
+                                                 std::vector<LayerSetting> &settings)
+    : _enables(FindSetting(settings, "enables")),
+      _disables(FindSetting(settings, "disables")),
       _main_tree_widget(main_tree),
       _main_parent(parent) {
     ///////////////////////////////////////////////////////////////

@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -25,7 +25,9 @@
 
 #include <QString>
 #include <QVariant>
-#include <QVector>
+#include <QJsonObject>
+
+#include <vector>
 
 enum SettingType {  // Enum value can't be changed
     SETTING_STRING = 0,
@@ -59,7 +61,13 @@ struct LayerSetting {
     QString value;                 // Default value as a string
 };
 
-LayerSetting& FindSetting(QVector<LayerSetting*>& settings, const char* name);
+bool operator==(const LayerSetting& a, const LayerSetting& b);
+bool operator!=(const LayerSetting& a, const LayerSetting& b);
+
+LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name);
 
 SettingType GetSettingType(const char* token);
 const char* GetSettingTypeToken(SettingType type);
+
+// Utility, may move outside this class....
+void LoadSettings(QJsonObject& layer_settings_descriptors, std::vector<LayerSetting>& settings);

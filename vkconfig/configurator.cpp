@@ -1201,7 +1201,7 @@ void Configurator::LoadDefaultLayerSettings() {
         QJsonValue layerValue = layers_options_object.value(layers_with_settings[i]);
         QJsonObject layerObject = layerValue.toObject();
 
-        Layer::LoadSettingsFromJson(layerObject, settings_defaults->default_settings);
+        ::LoadSettings(layerObject, settings_defaults->default_settings);
 
         // Add to my list of layer settings
         _default_layers_settings.push_back(settings_defaults);
@@ -1306,7 +1306,7 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
         layer_copy->_state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
 
         // Load the layer
-        Layer::LoadSettingsFromJson(layer_object, layer_copy->_layer_settings);
+        ::LoadSettings(layer_object, layer_copy->_layer_settings);
     }
 
     SortByRank(configuration->_layers);
@@ -1336,9 +1336,10 @@ bool Configurator::SaveConfiguration(const Configuration &configuration) {
         json_settings.insert("layer_rank", layer._rank);
 
         // Loop through the actual settings
-        for (int setting_index = 0, setting_count = layer._layer_settings.size(); setting_index < setting_count; setting_index++) {
+        for (std::size_t setting_index = 0, setting_count = layer._layer_settings.size(); setting_index < setting_count;
+             setting_index++) {
             QJsonObject setting;
-            const LayerSetting &layer_setting = *layer._layer_settings[setting_index];
+            const LayerSetting &layer_setting = layer._layer_settings[setting_index];
 
             setting.insert("name", layer_setting.label);
             setting.insert("description", layer_setting.description);
@@ -1464,8 +1465,8 @@ void Configurator::LoadDefaultSettings(Layer *blank_layer) {
 
     // Create and pop them in....
     for (int s = 0; s < layer_settings_defaults->default_settings.size(); s++) {
-        LayerSetting *layer_setting = new LayerSetting();
-        *layer_setting = *layer_settings_defaults->default_settings[s];
+        const LayerSetting layer_setting = layer_settings_defaults->default_settings[s];
+        assert(layer_setting == layer_settings_defaults->default_settings[s]);
         blank_layer->_layer_settings.push_back(layer_setting);
     }
 }
@@ -1519,14 +1520,15 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
-        for (int setting_index = 0; setting_index < layer->_layer_settings.size(); setting_index++) {
-            LayerSetting *layer_settings = layer->_layer_settings[setting_index];
-            stream << lc_layer_name << "." << layer_settings->name << " = " << layer_settings->value << "\n";
+        for (std::size_t setting_index = 0, setting_count = layer->_layer_settings.size(); setting_index < setting_count;
+             setting_index++) {
+            const LayerSetting &layer_setting = layer->_layer_settings[setting_index];
+            stream << lc_layer_name << "." << layer_setting.name << " = " << layer_setting.value << "\n";
 
             // Temporary hack due to a gfxrecontruct bug for 2020 July SDK only. Remove after that release.
-            if (lc_layer_name == QString("lunarg_gfxreconstruct"))
+            if (lc_layer_name == "lunarg_gfxreconstruct")
                 stream << "lunarg_gfxrecon"
-                       << "." << layer_settings->name << " = " << layer_settings->value << "\n";
+                       << "." << layer_setting.name << " = " << layer_setting.value << "\n";
         }
     }
     file.close();
