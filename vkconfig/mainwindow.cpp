@@ -623,6 +623,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     if (_launch_application) {
         _launch_application->terminate();
         _launch_application->waitForFinished();
+        delete _launch_application;
+        _launch_application = nullptr;
     }
 
     _settings_tree_manager.CleanupGUI();
@@ -1350,7 +1352,10 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
         _launch_application->terminate();
-        _launch_application->deleteLater();
+        _launch_application->waitForFinished();
+
+        // This get's deleted by the slot called on termination.
+        // do not delete it here.
         _launch_application = nullptr;
         ui->pushButtonLaunch->setText("Launch");
 
@@ -1398,17 +1403,21 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     if (!current_application.log_file.isEmpty()) {
         // Start logging
-        _log_file.setFileName(current_application.log_file);
+        // Make sure the log file is not already opened. This can occur if the
+        // launched application is closed from the applicaiton.
+        if (!_log_file.isOpen()) {
+            _log_file.setFileName(current_application.log_file);
 
-        // Open and append, or open and truncate?
-        QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
-        if (!ui->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
+            // Open and append, or open and truncate?
+            QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
+            if (!ui->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
 
-        if (!_log_file.open(mode)) {
-            QMessageBox err;
-            err.setText(tr("Cannot open log file"));
-            err.setIcon(QMessageBox::Warning);
-            err.exec();
+            if (!_log_file.open(mode)) {
+                QMessageBox err;
+                err.setText(tr("Cannot open log file"));
+                err.setIcon(QMessageBox::Warning);
+                err.exec();
+            }
         }
     }
 
@@ -1438,7 +1447,6 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     // Wait... did we start? Give it 4 seconds, more than enough time
     if (!_launch_application->waitForStarted(4000)) {
-        _launch_application->waitForStarted();
         _launch_application->deleteLater();
         _launch_application = nullptr;
 

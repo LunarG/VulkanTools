@@ -144,8 +144,8 @@ void LoadSettings(QJsonObject& json_layer_settings, std::vector<LayerSetting>& s
 
         setting.type = GetSettingType(json_value_type.toString().toUtf8().constData());
 
-        const bool convert_debug_action_to_inclusive =
-            (VKCONFIG_BUILD > 1002 && setting.name == "Debug Action" && setting.type == SETTING_EXCLUSIVE_LIST);
+        // To support vkconfig build 1002 and earlier: debug_action used to be stored as SETTING_EXCLUSIVE_LIST
+        const bool convert_debug_action_to_inclusive = (setting.name == "debug_action" && setting.type == SETTING_EXCLUSIVE_LIST);
         if (convert_debug_action_to_inclusive) setting.type = SETTING_INCLUSIVE_LIST;
 
         switch (setting.type) {
@@ -158,8 +158,10 @@ void LoadSettings(QJsonObject& json_layer_settings, std::vector<LayerSetting>& s
                 const QJsonObject& object = json_value_options.toObject();
                 const QStringList& keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
+                    // Debug output is only for Windows
                     if (!PLATFORM_WINDOWS && keys[v] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
 
+                    // Remove ignore now that we are an inclusive list instead of exclusive
                     if (convert_debug_action_to_inclusive && keys[v] == "VK_DBG_LAYER_ACTION_IGNORE") continue;
 
                     if (setting.type == SETTING_INCLUSIVE_LIST) {
