@@ -104,3 +104,5 @@ class Layer {
     // Utility, may move outside this class....
     static void LoadSettingsFromJson(QJsonObject& layer_settings_descriptors, QVector<LayerSetting*>& layers);
 };
+
+void SortByRank(QVector<Layer*>& layers);

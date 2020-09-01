@@ -1309,17 +1309,7 @@ Configuration *Configurator::LoadConfiguration(const QString &path_to_configurat
         Layer::LoadSettingsFromJson(layer_object, layer_copy->_layer_settings);
     }
 
-    // We need to sort the layers by their rank. The json sorts alphebetically and we
-    // need to undo it.... A bubble quick sort is fine, it's a small list
-    if (configuration->_layers.size() > 1) {
-        for (int i = 0, m = configuration->_layers.size() - 1; i < m; i++) {
-            for (int j = i + 1, n = configuration->_layers.size(); j < n; j++) {
-                if (configuration->_layers[i]->_rank > configuration->_layers[j]->_rank) {
-                    std::swap(configuration->_layers[i], configuration->_layers[j]);
-                }
-            }
-        }
-    }
+    SortByRank(configuration->_layers);
 
     return configuration;
 }

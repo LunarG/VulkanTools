@@ -233,3 +233,16 @@ void Layer::LoadSettingsFromJson(QJsonObject& json_layer_settings, QVector<Layer
         settings.push_back(setting);
     }
 }
+
+void SortByRank(QVector<Layer*>& layers) {
+    if (layers.size() < 2)  // Nothing to sort
+        return;
+
+    for (int i = 0, m = layers.size() - 1; i < m; i++) {
+        for (int j = i + 1, n = layers.size(); j < n; j++) {
+            if (layers[i]->_rank > layers[j]->_rank) {
+                std::swap(layers[i], layers[j]);
+            }
+        }
+    }
+}
