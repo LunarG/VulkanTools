@@ -20,8 +20,8 @@
  */
 
 #include "mainwindow.h"
-#include "appsingleton.h"
 
+#include "../vkconfig_core/application_singleton.h"
 #include "../vkconfig_core/command_line.h"
 
 #include <QApplication>
@@ -62,8 +62,8 @@ int main(int argc, char* argv[]) {
 
             // This has to go after the construction of QApplication in
             // order to use a QMessageBox and avoid some QThread warnings.
-            AppSingleton singleApp("vkconfig_single_instance");
-            if (!singleApp.IsFirstInstance()) {
+            const ApplicationSingleton singleton("vkconfig_single_instance");
+            if (!singleton.IsFirstInstance()) {
                 QMessageBox alert(nullptr);
                 alert.setWindowTitle("Cannot start another instance of vkconfig");
                 alert.setIcon(QMessageBox::Critical);

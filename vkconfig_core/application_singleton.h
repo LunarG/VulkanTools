@@ -31,18 +31,17 @@
 
 #include <QtNetwork/QLocalServer>
 
-class AppSingleton {
+class ApplicationSingleton {
    public:
-    AppSingleton(const QString &application_name, int timeout = 5000);
-    ~AppSingleton();
+    ApplicationSingleton(const QString &application_name, int timeout = 5000);
+    ~ApplicationSingleton();
 
-    bool IsFirstInstance() { return _is_first_instance; }
-
-   protected:
-    QLocalServer _localServer;
-    bool _is_first_instance;
+    bool IsFirstInstance() const { return _is_first_instance; }
 
    private:
-    AppSingleton(const AppSingleton &) = delete;
-    AppSingleton &operator=(const AppSingleton &) = delete;
+    QLocalServer _local_server;
+    bool _is_first_instance;
+
+    ApplicationSingleton(const ApplicationSingleton &) = delete;
+    ApplicationSingleton &operator=(const ApplicationSingleton &) = delete;
 };
