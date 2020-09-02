@@ -70,3 +70,27 @@ TEST(test_version, compare) {
     EXPECT_TRUE(version_c >= version_b);
     EXPECT_TRUE(version_c >= version_a);
 }
+
+TEST(test_version, major) {
+    const char* version_a("1.1.130");
+    const char* version_b("1.2.145");
+
+    EXPECT_EQ(1, Version(version_a).GetMajor());
+    EXPECT_EQ(1, Version(version_b).GetMajor());
+}
+
+TEST(test_version, minor) {
+    const char* version_a("1.1.130");
+    const char* version_b("1.2.145");
+
+    EXPECT_EQ(1, Version(version_a).GetMinor());
+    EXPECT_EQ(2, Version(version_b).GetMinor());
+}
+
+TEST(test_version, patch) {
+    const char* version_a("1.1.130");
+    const char* version_b("1.2.145");
+
+    EXPECT_EQ(130, Version(version_a).GetPatch());
+    EXPECT_EQ(145, Version(version_b).GetPatch());
+}

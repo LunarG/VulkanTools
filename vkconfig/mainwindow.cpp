@@ -893,6 +893,12 @@ void MainWindow::toolsSetCustomPaths(bool checked) {
     addCustomPaths();
 }
 
+static std::string GetMainWindowTitle(bool active) {
+    std::string title = format("Vulkan Configurator %s", Version::VKCONFIG.str().c_str());
+    if (active) title += " <ACTIVE>";
+    return title;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 /// Update "decorations": window caption, (Active) status in list
 void MainWindow::ChangeActiveConfiguration(Configuration *configuration) {
@@ -901,11 +907,11 @@ void MainWindow::ChangeActiveConfiguration(Configuration *configuration) {
     configurator.SetActiveConfiguration(configuration);
 
     if (configuration == nullptr || !configurator._override_active) {
-        setWindowTitle(format("Vulkan Configurator %s-%d", Version::header_version.str().c_str(), VKCONFIG_BUILD).c_str());
+        setWindowTitle(GetMainWindowTitle(false).c_str());
     } else if (!configuration->IsValid()) {
-        setWindowTitle(format("Vulkan Configurator %s-%d", Version::header_version.str().c_str(), VKCONFIG_BUILD).c_str());
+        setWindowTitle(GetMainWindowTitle(false).c_str());
     } else {
-        setWindowTitle(format("Vulkan Configurator %s-%d <ACTIVE>", Version::header_version.str().c_str(), VKCONFIG_BUILD).c_str());
+        setWindowTitle(GetMainWindowTitle(true).c_str());
     }
 
     ui->groupBoxEditor->setEnabled(configurator.GetActiveConfiguration() != nullptr);

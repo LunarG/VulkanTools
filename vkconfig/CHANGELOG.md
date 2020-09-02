@@ -1,5 +1,5 @@
 <!-- markdownlint-disable MD041 -->
-<p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
+<p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width="263" height="113" /></p>
 <p align="left">Copyright © 2015-2020 LunarG, Inc.</p>
 
 [![Creative Commons][3]][4]
@@ -7,11 +7,11 @@
 [3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
-<p align="center"><img src="./images/vulkan_configurator.png" width=400 /></p>
+<p align="center"><img src="./images/vulkan_configurator.png" width="400" /></p>
 
 # Release notes
 
-## [Vulkan Configurator current](https://github.com/LunarG/VulkanTools)
+## [Vulkan Configurator 2.0.2 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools)
 
 ### Features:
 - Add multiple debug actions simulaneously #1119
@@ -36,14 +36,14 @@
 - Fix log file not written to #1109
 - Fix "debug output" displayed on Linux and macOS but not avaiable #1086
 
-## [Vulkan Configurator 1.2.148-1001](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.1) - 2020-08-08
+## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.1) - 2020-08-08
 
 ### Fixes:
 - Fix Shader Printf built-in configuration that was setup for GPU-Assisted validation isntead
 - Fix layer configurations selection on Linux
 - Fix debug output setting not working
 
-## [Vulkan Configurator 1.2.148-1000](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.0) - 2020-08-03
+## [Vulkan Configurator 2.0.0 for Vulkan SDK 1.2.148.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.0) - 2020-08-03
 
 ### Features:
 - Design GUI

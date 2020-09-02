@@ -43,7 +43,7 @@ CommandLine::CommandLine(int argc, char* argv[]) : mode(_mode), _mode(ModeExecut
 }
 
 void CommandLine::usage() const {
-    printf("Vulkan Configurator %s\n", Version::header_version.str().c_str());
+    printf("Vulkan Configurator %s\n", Version::VKHEADER.str().c_str());
     printf("\n");
     printf("Usage\n");
     printf("\tvkconfig [options]\n");
