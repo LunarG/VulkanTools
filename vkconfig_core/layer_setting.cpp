@@ -144,8 +144,9 @@ void LoadSettings(QJsonObject& json_layer_settings, std::vector<LayerSetting>& s
 
         setting.type = GetSettingType(json_value_type.toString().toUtf8().constData());
 
-        // To support vkconfig build 1002 and earlier: debug_action used to be stored as SETTING_EXCLUSIVE_LIST
-        const bool convert_debug_action_to_inclusive = (setting.name == "debug_action" && setting.type == SETTING_EXCLUSIVE_LIST);
+        // debug_action used to be stored as SETTING_EXCLUSIVE_LIST
+        const bool convert_debug_action_to_inclusive =
+            SUPPORT_VKCONFIG_2_0_1 && setting.name == "debug_action" && setting.type == SETTING_EXCLUSIVE_LIST;
         if (convert_debug_action_to_inclusive) setting.type = SETTING_INCLUSIVE_LIST;
 
         switch (setting.type) {

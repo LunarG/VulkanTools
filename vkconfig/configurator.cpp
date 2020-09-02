@@ -190,8 +190,8 @@ Configurator::Configurator()
 
         // First release of Vulkan Configurator 2, version not backward compatible,
         // We reinitialize state to reset any previous configuration and start fresh.
-        if (saved_version < Version::header_version) {
-            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::header_version.str().c_str());
+        if (saved_version < Version::VKHEADER) {
+            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::VKHEADER.str().c_str());
             settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "Validation - Standard");
             settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
         }

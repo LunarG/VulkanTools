@@ -33,8 +33,6 @@
 
 #include <cassert>
 
-static const Version FILE_FORMAT_VERSION("1.2.0");
-
 Configuration::Configuration() : _preset(ValidationPresetNone) {}
 
 Configuration::~Configuration() {
@@ -128,6 +126,15 @@ bool Configuration::IsValid() const {
     return true;
 }
 
+static Version GetConfigurationVersion(const QJsonValue& value) {
+    if (SUPPORT_VKCONFIG_2_0_1) {
+        return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
+    } else {
+        assert(value != QJsonValue::Undefined);
+        return Version(value.toString().toUtf8().constData());
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Load from a configuration file (.json really)
 bool Configuration::Load(const QString& path_to_configuration) {
@@ -154,13 +161,12 @@ bool Configuration::Load(const QString& path_to_configuration) {
     QStringList key = json_top_object.keys();
 
     const QJsonValue& json_file_format_version = json_top_object.value("file_format_version");
-    const Version version = Version(
-        json_file_format_version == QJsonValue::Undefined ? "1.1.0" : json_file_format_version.toString().toUtf8().constData());
+    const Version version(GetConfigurationVersion(json_file_format_version));
 
     QJsonValue configuration_entry_value = json_top_object.value(key[0]);
     QJsonObject configuration_entry_object = configuration_entry_value.toObject();
 
-    if (version <= Version("1.1.0")) {
+    if (SUPPORT_VKCONFIG_2_0_1 && version <= Version("2.0.1")) {
         _name = filename.left(filename.length() - 5);
         if (_name == "Validation - Shader Printf") {
             _name = "Validation - Debug Printf";
@@ -197,7 +203,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
     QJsonObject layer_objects = options_value.toObject();
     const QStringList& layers = layer_objects.keys();
 
-    if (options_value != QJsonValue::Undefined && version > FILE_FORMAT_VERSION) {
+    if (options_value != QJsonValue::Undefined && version > Version::VKCONFIG) {
         QMessageBox alert;
         alert.setWindowTitle("Could not load configuration file!");
         alert.setText(
@@ -249,7 +255,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
 
 bool Configuration::Save(const char* full_path) const {
     QJsonObject root;
-    root.insert("file_format_version", FILE_FORMAT_VERSION.str().c_str());
+    root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     // Build the json document
     QJsonArray excluded_list;

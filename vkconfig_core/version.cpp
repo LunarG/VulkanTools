@@ -22,13 +22,36 @@
 #include "version.h"
 #include "util.h"
 
+#include <vulkan/vulkan.h>
+
 #include <cstdio>
 #include <cassert>
 #include <cstring>
 
-const Version Version::header_version(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                                      VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+const Version Version::VKCONFIG(2, 0, 2);
+const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 
-Version::Version(const char* version) { sscanf(version, "%d.%d.%d", &_vku_major, &_vku_minor, &_vku_patch); }
+static uint32_t GetVersionData(const char* version) {
+    uint32_t version_major = 0;
+    uint32_t version_minor = 0;
+    uint32_t version_patch = 0;
 
-std::string Version::str() const { return format("%d.%d.%d", _vku_major, _vku_minor, _vku_patch); }
+    sscanf(version, "%d.%d.%d", &version_major, &version_minor, &version_patch);
+
+    return VK_MAKE_VERSION(version_major, version_minor, version_patch);
+}
+
+Version::Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch)
+    : _data(VK_MAKE_VERSION(version_major, version_minor, version_patch)) {}
+
+Version::Version(const char* version) : _data(GetVersionData(version)) {}
+
+uint32_t Version::GetMajor() const { return VK_VERSION_MAJOR(_data); }
+
+uint32_t Version::GetMinor() const { return VK_VERSION_MINOR(_data); }
+
+uint32_t Version::GetPatch() const { return VK_VERSION_PATCH(_data); }
+
+std::string Version::str() const {
+    return format("%d.%d.%d", VK_VERSION_MAJOR(_data), VK_VERSION_MINOR(_data), VK_VERSION_PATCH(_data));
+}

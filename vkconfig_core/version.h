@@ -21,48 +21,38 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
-
 #include <cstddef>
 #include <string>
 
-static const int VKCONFIG_BUILD = 1003;
+static const bool SUPPORT_VKCONFIG_2_0_1 = true;
 
-struct Version {
-    static const Version header_version;
+class Version {
+   public:
+    static const Version VKCONFIG;
+    static const Version VKHEADER;
 
-    Version(int major_version, int minor_version, int patch_version)
-        : _vku_major(major_version), _vku_minor(minor_version), _vku_patch(patch_version) {}
+    Version(uint32_t version_complete) : _data(version_complete) {}
+    Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch);
     Version(const char *version);
 
     std::string str() const;
 
     bool operator!=(const Version &other_version) const { return !(*this == other_version); }
 
-    bool operator==(const Version &other_version) const {
-        if (_vku_major != other_version._vku_major) return false;
-        if (_vku_minor != other_version._vku_minor) return false;
-        if (_vku_patch != other_version._vku_patch) return false;
-        return true;
-    }
+    bool operator==(const Version &other_version) const { return _data == other_version._data; }
 
-    bool operator<(const Version &other_version) const {
-        if (_vku_major < other_version._vku_major) return true;
-        if (_vku_minor < other_version._vku_minor) return true;
-        if (_vku_patch < other_version._vku_patch) return true;
-        return false;
-    }
+    bool operator<(const Version &other_version) const { return _data < other_version._data; }
 
     bool operator>=(const Version &other_version) const { return !(*this < other_version); }
 
-    bool operator>(const Version &other_version) const {
-        if (_vku_major > other_version._vku_major) return true;
-        if (_vku_minor > other_version._vku_minor) return true;
-        if (_vku_patch > other_version._vku_patch) return true;
-        return false;
-    }
+    bool operator>(const Version &other_version) const { return _data > other_version._data; }
 
     bool operator<=(const Version &other_version) const { return !(*this > other_version); }
 
-    int _vku_major, _vku_minor, _vku_patch;
+    uint32_t GetMajor() const;
+    uint32_t GetMinor() const;
+    uint32_t GetPatch() const;
+
+   private:
+    const uint32_t _data;
 };
