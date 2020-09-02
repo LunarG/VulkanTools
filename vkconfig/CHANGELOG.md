@@ -13,6 +13,9 @@
 
 ## [Vulkan Configurator current](https://github.com/LunarG/VulkanTools)
 
+### Features:
+- Add multiple debug actions simulaneously #1119
+
 ### Improvements:
 - Add layer configuration description #1105
 - Add selected path from dialog window cache #1107
@@ -21,6 +24,7 @@
 - Add version in the title bar and show <ACTIVE> state #1109
 - Add default settings state in the layer configuration settings #1076
 - Make Standard Validation, the default configuration #1076
+- Update vkcube to use the one of the same Vulkan SDK than vkconfig #1112
 
 ### Fixes:
 - Fix disabled configurations can't be reenabled or removed
@@ -30,6 +34,7 @@
 - Fix display of empty entries in the custom path dialog when opening Json files that are not layer json files #1103
 - Fix log file default location to HOME to ensure write access #1083
 - Fix log file not written to #1109
+- Fix "debug output" displayed on Linux and macOS but not avaiable #1086
 
 ## [Vulkan Configurator 1.2.148-1001](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.1) - 2020-08-08
 
