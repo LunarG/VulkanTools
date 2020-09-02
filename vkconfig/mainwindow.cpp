@@ -269,7 +269,7 @@ ConfigurationListItem *MainWindow::GetCheckedItem() {
 void MainWindow::on_radioOverride_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    bool use = (!configurator._has_old_loader || !been_warned_about_old_loader);
+    bool use = (configurator.HasApplicationList() || !been_warned_about_old_loader);
     ui->checkBoxApplyList->setEnabled(use);
     ui->pushButtonAppList->setEnabled(use && configurator._overridden_application_list_only);
 
@@ -295,31 +295,19 @@ void MainWindow::on_radioOverride_clicked() {
 void MainWindow::on_checkBoxApplyList_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator._has_old_loader && !been_warned_about_old_loader) {
-        uint32_t version = configurator._vulkan_instance_version;
-        QString message;
-        message = QString().asprintf(
-            "The detected Vulkan Loader version is %d.%d.%d but version 1.2.141 or newer is required in order to apply layers "
-            "override to only a selected list of Vulkan applications.\n\n<br><br>"
-            "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature.",
-            VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
-        QMessageBox alert(this);
-        alert.setTextFormat(Qt::RichText);
-        alert.setText(message);
-        alert.setIcon(QMessageBox::Warning);
-        alert.setWindowTitle(tr("Layers override of a selected list of Vulkan Applications is not available"));
-        alert.exec();
-
+    uint32_t loader_version = 0;
+    if (!configurator.HasApplicationList(false, &loader_version) && !::been_warned_about_old_loader) {
         ui->pushButtonAppList->setEnabled(false);
         ui->checkBoxApplyList->setEnabled(false);
         ui->checkBoxApplyList->setChecked(false);
-        QString messageToolTip;
-        messageToolTip =
-            QString().asprintf("The detected Vulkan loader version is %d.%d.%d but version 1.2.141 or newer is required",
-                               VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
-        ui->checkBoxApplyList->setToolTip(messageToolTip);
-        ui->pushButtonAppList->setToolTip(messageToolTip);
-        been_warned_about_old_loader = true;
+
+        const QString message = QString().asprintf(
+            "The detected Vulkan loader version is %d.%d.%d but version 1.2.141 or newer is required",
+            VK_VERSION_MAJOR(loader_version), VK_VERSION_MINOR(loader_version), VK_VERSION_PATCH(loader_version));
+
+        ui->checkBoxApplyList->setToolTip(message);
+        ui->pushButtonAppList->setToolTip(message);
+        ::been_warned_about_old_loader = true;
     }
 
     configurator._overridden_application_list_only = ui->checkBoxApplyList->isChecked();

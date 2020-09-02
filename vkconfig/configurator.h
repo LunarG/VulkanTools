@@ -112,10 +112,6 @@ class Configurator {
     static Configurator& Get();
     bool Init();
 
-    // Need this to check vulkan loader version
-    uint32_t _vulkan_instance_version;
-    bool _has_old_loader;  // Older loader does not support per-application overrides
-
    private:
     const bool _running_as_administrator;  // Are we being "Run as Administrator"
     bool _first_run;                       // This is used for populating the initial set of configurations
@@ -126,7 +122,6 @@ class Configurator {
     void LoadSettings();
     void SaveSettings();
     void ResetToDefaultSettings();
-    bool HasActiveOverrideOnApplicationListOnly() const { return !_has_old_loader && _overridden_application_list_only; }
 
     bool _override_active;                    // Do we have active layers override?
     bool _overridden_application_list_only;   // Apply the override only to the application list
@@ -176,6 +171,12 @@ class Configurator {
     void LoadOverriddenApplicationList();
     void SaveOverriddenApplicationList();
     bool HasOverriddenApplications() const;
+
+    // If return_loader_version is not null, the function will return the loader version
+    // If quiet is false, message box will be generate
+    bool HasApplicationList(bool quiet = true, uint32_t* return_loader_version = nullptr) const;
+
+    bool HasActiveOverrideOnApplicationListOnly() const { return HasApplicationList() && _overridden_application_list_only; }
 
     ////////////////////////////////////////////////////////////////////////
     // A readonly list of layer names with the associated settings
