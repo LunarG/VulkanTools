@@ -171,8 +171,7 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : _has_old_loader(false),
-      _first_run(true),
+    : _first_run(true),
       _override_application_list_updated(false),
       _active_configuration(nullptr),
 // Hack for GitHub C.I.
@@ -262,25 +261,6 @@ Configurator::Configurator()
 #error "Unknown platform"
 #endif
 
-    // Check loader version
-    QLibrary library(VULKAN_LIBRARY);
-
-    if (!(library.load())) {
-        QMessageBox dlg(NULL);
-        dlg.setText("Could not find a Vulkan Loader!");
-        dlg.setIcon(QMessageBox::Critical);
-        dlg.exec();
-    } else {
-        // Now is a good time to see if we have the old loader
-        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
-        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
-        if (VK_SUCCESS == vkEnumerateInstanceVersion(&_vulkan_instance_version)) {
-            if (_vulkan_instance_version < 4202633) {
-                _has_old_loader = true;
-            }
-        }
-    }
-
     // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
     QString layer_path = qgetenv("VK_LAYER_PATH");
@@ -366,11 +346,17 @@ QString Configurator::CheckVulkanSetup() const {
 
     QLibrary library(VULKAN_LIBRARY);
 
-    uint32_t version = _vulkan_instance_version;
-    log += QString().asprintf("- Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version),
-                              VK_VERSION_PATCH(version));
+    if (library.load()) {
+        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
+        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
 
-    if (!(library.load())) {
+        uint32_t version = 0;
+        const VkResult result = vkEnumerateInstanceVersion(&version);
+        assert(result == VK_SUCCESS);
+
+        log += QString().asprintf("- Vulkan Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version),
+                                  VK_VERSION_PATCH(version));
+    } else {
         QMessageBox alert(NULL);
         alert.setWindowTitle("Vulkan Development Status failure...");
         alert.setText("Could not find a Vulkan Loader.");
@@ -942,6 +928,48 @@ void Configurator::SaveOverriddenApplicationList() {
 bool Configurator::HasOverriddenApplications() const {
     for (int i = 0, n = _overridden_applications.size(); i < n; i++) {
         if (_overridden_applications[i]->override_layers) return true;
+    }
+
+    return false;
+}
+
+bool Configurator::HasApplicationList(bool quiet, uint32_t *return_loader_version) const {
+    // Check loader version
+    QLibrary library(VULKAN_LIBRARY);
+
+    if (library.load()) {
+        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
+        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
+
+        uint32_t version = 0;
+        const VkResult result = vkEnumerateInstanceVersion(&version);
+        assert(result == VK_SUCCESS);
+
+        if (return_loader_version) *return_loader_version = version;
+
+        // This is the minimum version that supports the application list
+        if (version < 4202633) {
+            const QString message = QString().asprintf(
+                "The detected Vulkan Loader version is %d.%d.%d but version 1.2.141 or newer is required in order to apply layers "
+                "override to only a selected list of Vulkan applications.\n\n<br><br>"
+                "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature.",
+                VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
+            QMessageBox alert(NULL);
+            alert.setTextFormat(Qt::RichText);
+            alert.setText(message);
+            alert.setIcon(QMessageBox::Warning);
+            alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
+            alert.exec();
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        QMessageBox alert(NULL);
+        alert.setText("Could not find a Vulkan Loader!");
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
+        return false;
     }
 
     return false;
