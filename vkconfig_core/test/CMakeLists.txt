@@ -16,6 +16,8 @@ function(vkConfigTest NAME)
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endfunction(vkConfigTest)
 
+vkConfigTest(test_application_configuration)
+vkConfigTest(test_application_singleton)
 vkConfigTest(test_util)
 vkConfigTest(test_version)
 vkConfigTest(test_command_line)

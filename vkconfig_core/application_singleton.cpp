@@ -24,13 +24,14 @@
  *
  * Authors:
  * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "appsingleton.h"
+#include "application_singleton.h"
 
 #include <QtNetwork/QLocalSocket>
 
-AppSingleton::AppSingleton(const QString& application_name, int timeout) {
+ApplicationSingleton::ApplicationSingleton(const QString& application_name, int timeout) {
     // If we can connect to the server, it means there is another copy running
     QLocalSocket localSocket;
     localSocket.connectToServer(application_name);
@@ -49,7 +50,7 @@ AppSingleton::AppSingleton(const QString& application_name, int timeout) {
     // Not connected, OR timed out
     // We are the first, start a server
     _is_first_instance = true;
-    _localServer.listen(application_name);
+    _local_server.listen(application_name);
 }
 
-AppSingleton::~AppSingleton() { _localServer.close(); }
+ApplicationSingleton::~ApplicationSingleton() { _local_server.close(); }
