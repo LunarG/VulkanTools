@@ -28,6 +28,8 @@
 #include <QMessageBox>
 #include <QCheckBox>
 
+#include <cassert>
+
 // Saved settings for the application
 #define VKCONFIG_KEY_INITIALIZE_FILES "FirstTimeRun"
 #define VKCONFIG_KEY_OVERRIDE_MODE "OverrideMode"
@@ -140,9 +142,9 @@ bool Environment::Notify(Notification notification) {
 
         } break;
 
-        default: {
+        default:
             assert(0);
-        } break;
+            break;
     }
 
     hidden_notifications[notification] = hide_notification;
