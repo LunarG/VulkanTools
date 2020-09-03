@@ -52,7 +52,10 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
     const QString custom_path = configurator.path.SelectPath(this, PATH_CUSTOM_LAYER_PATH);
 
     if (!custom_path.isEmpty()) {
-        configurator.AppendCustomLayersPath(custom_path);
+        if (configurator.environment.AppendCustomLayerPath(custom_path)) {
+            configurator.LoadAllInstalledLayers();
+            configurator.LoadAllConfigurations();
+        }
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, custom_path);
@@ -84,7 +87,10 @@ void dlgCustomPaths::on_pushButtonRemove_clicked() {
     Configurator &configurator = Configurator::Get();
 
     // Now actually remove it.
-    configurator.RemoveCustomLayersPath(selected->text(0));
+    if (configurator.environment.RemoveCustomLayerPath(selected->text(0))) {
+        configurator.LoadAllInstalledLayers();
+        configurator.LoadAllConfigurations();
+    }
 
     // Update GUI and save
     RepopulateTree();

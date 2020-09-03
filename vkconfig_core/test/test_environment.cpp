@@ -20,3 +20,25 @@
  */
 
 #include <gtest/gtest.h>
+
+#include "../environment.h"
+
+TEST(test_environment, custom_path_no_duplicate) {
+    Environment environment(true);
+
+    EXPECT_EQ(true, environment.AppendCustomLayerPath("./path"));
+    EXPECT_EQ(1, environment.GetCustomLayerPaths().size());
+    EXPECT_EQ(false, environment.AppendCustomLayerPath("./path"));
+    EXPECT_EQ(1, environment.GetCustomLayerPaths().size());
+}
+
+TEST(test_environment, custom_path_not_found) {
+    Environment environment(true);
+
+    EXPECT_EQ(false, environment.RemoveCustomLayerPath("./path"));
+    EXPECT_EQ(0, environment.GetCustomLayerPaths().size());
+    EXPECT_EQ(true, environment.AppendCustomLayerPath("./path"));
+    EXPECT_EQ(1, environment.GetCustomLayerPaths().size());
+    EXPECT_EQ(true, environment.RemoveCustomLayerPath("./path"));
+    EXPECT_EQ(0, environment.GetCustomLayerPaths().size());
+}

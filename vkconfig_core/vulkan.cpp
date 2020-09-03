@@ -94,7 +94,7 @@ QString GenerateVulkanStatus() {
     if (!layer_paths.isEmpty()) log += "- Using Layers from VK_LAYER_PATH\n";
 
     // Check layer paths
-    const QStringList &custom_layer_paths = Configurator::Get()._custom_layers_paths;
+    const QStringList &custom_layer_paths = Configurator::Get().environment.GetCustomLayerPaths();
     if (!custom_layer_paths.isEmpty()) {
         log += "- Custom Layers Paths:\n";
         for (int i = 0, n = custom_layer_paths.count(); i < n; ++i)

@@ -42,7 +42,6 @@
 #include <vector>
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
-#define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Going back and forth between the Windows registry and looking for files
@@ -116,21 +115,12 @@ class Configurator {
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
    public:
-    void LoadCustomLayersPaths();
-    void SaveCustomLayersPaths();
-    void RemoveCustomLayersPath(int path_index);
-    void RemoveCustomLayersPath(const QString& path);
-    void AppendCustomLayersPath(const QString& path);
-    int GetCustomLayersPathSize() const;
-    const QString& GetCustomLayersPath(int path_index) const;
     void BuildCustomLayerTree(QTreeWidget* tree_widget);
 
     QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
                                 // a list of paths that should be searched first for
                                 // Vulkan layers. (Named as environment variable for
                                 // clarity as to where this comes from).
-
-    QStringList _custom_layers_paths;
 
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected

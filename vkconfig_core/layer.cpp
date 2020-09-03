@@ -69,9 +69,6 @@ bool Layer::IsValid() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief CLayerFile::readLayerFile
-/// \param qsFullPathToFile - Fully qualified path to the layer json file.
-/// \return true on success, false on failure.
 /// Reports errors via a message box. This might be a bad idea?
 /// //////////////////////////////////////////////////////////////////////////
 bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
