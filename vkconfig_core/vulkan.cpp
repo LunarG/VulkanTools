@@ -31,6 +31,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include <cassert>
+
 #if PLATFORM_WINDOWS
 static const char *VULKAN_LIBRARY = "vulkan-1.dll";
 #elif PLATFORM_MACOS
