@@ -455,7 +455,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
     }
 
     configurator.UpdateDefaultApplications(true);
-    ResetLaunchOptions();
 
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
@@ -687,7 +686,6 @@ void MainWindow::on_pushButtonAppList_clicked() {
     }
 
     configurator.SaveOverriddenApplicationList();
-    ResetLaunchOptions();
 
     if (configurator.GetActiveConfiguration()) {
         configurator.SetActiveConfiguration(configurator.GetActiveConfiguration());
@@ -947,44 +945,6 @@ void MainWindow::OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int c
 }
 
 ///////////////////////////////////////////////////////////////////
-/// Reload controls for launch control
-void MainWindow::ResetLaunchOptions() {
-    /*
-        Configurator &configurator = Configurator::Get();
-
-        // Reload launch apps selections
-        _launcher_apps_combo->blockSignals(true);
-        _launcher_apps_combo->clear();
-
-        for (int i = 0, n = configurator._overridden_applications.size(); i < n; i++) {
-            _launcher_apps_combo->addItem(configurator._overridden_applications[i]->executable_path);
-        }
-
-        if (configurator._overridden_applications.isEmpty()) {
-            _launch_arguments->setText("");
-            _launcher_working->setText("");
-            _launcher_log_file_edit->setText("");
-            return;
-        }
-
-        int launch_application_index = configurator.GetLaunchApplicationIndex();
-        assert(launch_application_index >= 0);
-
-        configurator.SelectLaunchApplication(launch_application_index);
-        _launcher_apps_combo->setCurrentIndex(launch_application_index);
-
-        const Application &application = *configurator._overridden_applications[launch_application_index];
-
-        // Reset working folder and command line choices
-        _launch_arguments->setText(application.arguments);
-        _launcher_working->setText(application.working_folder);
-        _launcher_log_file_edit->setText(application.log_file);
-        _launcher_apps_combo->blockSignals(false);
-    */
-    UpdateUI();
-}
-
-///////////////////////////////////////////////////////////////////
 /// Launch and log area
 void MainWindow::SetupLaunchTree() {
     /////////////////////////////////////////////////////////////////
@@ -1077,8 +1037,6 @@ void MainWindow::SetupLaunchTree() {
 
     ui->launchTree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->launchTree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    ResetLaunchOptions();
 }
 
 ////////////////////////////////////////////////////////////////////

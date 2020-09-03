@@ -97,8 +97,6 @@ class MainWindow : public QMainWindow {
     QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_browse_button;
 
-    void ResetLaunchOptions();
-
     ConfigurationListItem *SaveLastItem();
     bool RestoreLastItem(const char *szOverride = nullptr);
     QString _last_item;
