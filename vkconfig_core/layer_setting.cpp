@@ -42,7 +42,7 @@ SettingType GetSettingType(const char* token) {
 const char* GetSettingTypeToken(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 
-    const char* table[] = {
+    static const char* table[] = {
         "string",        // SETTING_STRING
         "save_file",     // SETTING_SAVE_FILE
         "load_file",     // SETTING_LOAD_FILE
@@ -159,18 +159,24 @@ void LoadSettings(QJsonObject& json_layer_settings, std::vector<LayerSetting>& s
                 const QJsonObject& object = json_value_options.toObject();
                 const QStringList& keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
+                    QString key = keys[v];
+                    const QString value = object.value(key).toString();
+
+                    // The configuration files used to store VK_DBG_LAYER_DEBUG_OUTPUT isntead of VK_DBG_LAYER_ACTION_DEBUG_OUTPUT
+                    if (SUPPORT_VKCONFIG_2_0_1 && key == "VK_DBG_LAYER_DEBUG_OUTPUT") key = "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
+
                     // Debug output is only for Windows
-                    if (!PLATFORM_WINDOWS && keys[v] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
+                    if (!PLATFORM_WINDOWS && key == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
 
                     // Remove ignore now that we are an inclusive list instead of exclusive
-                    if (convert_debug_action_to_inclusive && keys[v] == "VK_DBG_LAYER_ACTION_IGNORE") continue;
+                    if (convert_debug_action_to_inclusive && key == "VK_DBG_LAYER_ACTION_IGNORE") continue;
 
                     if (setting.type == SETTING_INCLUSIVE_LIST) {
-                        setting.inclusive_values << keys[v];
-                        setting.inclusive_labels << object.value(keys[v]).toString();
+                        setting.inclusive_values << key;
+                        setting.inclusive_labels << value;
                     } else if (setting.type == SETTING_EXCLUSIVE_LIST) {
-                        setting.exclusive_values << keys[v];
-                        setting.exclusive_labels << object.value(keys[v]).toString();
+                        setting.exclusive_values << key;
+                        setting.exclusive_labels << value;
                     } else
                         assert(0);
                 }

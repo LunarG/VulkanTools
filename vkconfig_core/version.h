@@ -24,16 +24,24 @@
 #include <cstddef>
 #include <string>
 
+#include <QString>
+
+static const char *VKCONFIG_NAME = "Vulkan Configurator";
+
+static const bool SUPPORT_VKCONFIG_2_0_0 = true;
 static const bool SUPPORT_VKCONFIG_2_0_1 = true;
 
 class Version {
    public:
     static const Version VKCONFIG;
     static const Version VKHEADER;
+    static const Version VERSION_NULL;
 
-    Version(uint32_t version_complete) : _data(version_complete) {}
-    Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch);
-    Version(const char *version);
+    Version() : _data(0) {}
+    explicit Version(uint32_t version_complete) : _data(version_complete) {}
+    explicit Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch);
+    explicit Version(const char *version);
+    explicit Version(const QString &version);
 
     std::string str() const;
 
@@ -54,5 +62,5 @@ class Version {
     uint32_t GetPatch() const;
 
    private:
-    const uint32_t _data;
+    uint32_t _data;
 };

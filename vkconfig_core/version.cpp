@@ -30,6 +30,7 @@
 
 const Version Version::VKCONFIG(2, 0, 2);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
+const Version Version::VERSION_NULL(0u);
 
 static uint32_t GetVersionData(const char* version) {
     uint32_t version_major = 0;
@@ -45,6 +46,8 @@ Version::Version(uint32_t version_major, uint32_t version_minor, uint32_t versio
     : _data(VK_MAKE_VERSION(version_major, version_minor, version_patch)) {}
 
 Version::Version(const char* version) : _data(GetVersionData(version)) {}
+
+Version::Version(const QString& version) : Version(version.toUtf8().constData()) {}
 
 uint32_t Version::GetMajor() const { return VK_VERSION_MAJOR(_data); }
 

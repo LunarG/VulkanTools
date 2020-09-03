@@ -432,7 +432,6 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
 
     // Check for performance issues. There are three different variations, and I think
     // we should alert the user to all three exactly/explicitly to what they are
-    QSettings settings;
 
     const bool features_to_run_alone[] = {
         _core_checks_parent->checkState(0) == Qt::Checked, _synchronization_box->checkState(0) == Qt::Checked,
@@ -442,6 +441,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     for (std::size_t i = 0, n = countof(features_to_run_alone); i < n; ++i)
         count_enabled_features += features_to_run_alone[i] ? 1 : 0;
 
+    QSettings settings;
     if (count_enabled_features > 1) {
         if (settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
             QMessageBox alert(_main_tree_widget);
@@ -451,7 +451,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
                 "tracking object each.\n\n<br><br> Combining two of these options will result in high performance degradation.");
             alert.setWindowTitle(tr("High Validation Layer Overhead"));
             alert.setIcon(QMessageBox::Warning);
-            alert.setCheckBox(new QCheckBox(tr("Do not show again.")));
+            alert.setCheckBox(new QCheckBox("Do not show again."));
             alert.exec();
             if (alert.checkBox()->isChecked()) settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
             return;

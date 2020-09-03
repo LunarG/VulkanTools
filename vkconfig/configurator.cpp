@@ -26,6 +26,7 @@
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/platform.h"
+#include "../vkconfig_core/vulkan.h"
 
 #include <Qt>
 #include <QDir>
@@ -40,18 +41,6 @@
 #include <shlobj.h>
 #endif
 
-#if PLATFORM_WINDOWS
-static const char *VULKAN_LIBRARY = "vulkan-1.dll";
-#elif PLATFORM_MACOS
-static const char *VULKAN_LIBRARY = "/usr/local/lib/libvulkan";
-#elif PLATFORM_LINUX
-static const char *VULKAN_LIBRARY = "libvulkan";
-#else
-#error "Unknown platform"
-#endif
-
-#include <vulkan/vulkan.h>
-
 #include <cassert>
 
 Application::Application(const QString &executable_full_path, const QString &arguments)
@@ -61,11 +50,6 @@ Application::Application(const QString &executable_full_path, const QString &arg
       log_file(
           QDir::toNativeSeparators(QDir::homePath() + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
       override_layers(true) {}
-
-const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
-    const char *translation[] = {"Other", "Integrated GPU", "Discrete GPU", "Virtual GPU", "CPU"};
-    return translation[type];
-}
 
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work. Abstracts away instances where we might
@@ -171,9 +155,7 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : _first_run(true),
-      _override_application_list_updated(false),
-      _active_configuration(nullptr),
+    : _active_configuration(nullptr),
 // Hack for GitHub C.I.
 #if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       _running_as_administrator(IsUserAnAdmin())
@@ -182,20 +164,6 @@ Configurator::Configurator()
 #endif
 {
     _available_Layers.reserve(10);
-
-    // Handling of versions compatibility
-    {
-        QSettings settings;
-        const Version saved_version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, "1.0.0").toString().toUtf8().constData());
-
-        // First release of Vulkan Configurator 2, version not backward compatible,
-        // We reinitialize state to reset any previous configuration and start fresh.
-        if (saved_version < Version::VKHEADER) {
-            settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::VKHEADER.str().c_str());
-            settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, "Validation - Standard");
-            settings.setValue(VKCONFIG_KEY_RESTORE_GEOMETRY, false);
-        }
-    }
 
 // Where is stuff
 #if PLATFORM_WINDOWS
@@ -282,7 +250,6 @@ Configurator::Configurator()
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
-    LoadSettings();
     LoadCustomLayersPaths();
     LoadOverriddenApplicationList();
     LoadDefaultLayerSettings();  // findAllInstalledLayers uses the results of this.
@@ -332,143 +299,6 @@ Configurator::~Configurator() {
 }
 
 bool Configurator::HasLayers() const { return !_available_Layers.empty(); }
-
-QString Configurator::CheckVulkanSetup() const {
-    QString log;
-
-    // Check Vulkan SDK path
-    QString search_path = qgetenv("VULKAN_SDK");
-    QFileInfo local(search_path);
-    if (local.exists())
-        log += QString().asprintf("- SDK path: %s\n", search_path.toUtf8().constData());
-    else
-        log += "- VULKAN_SDK environment variable not set\n";
-
-    QLibrary library(VULKAN_LIBRARY);
-
-    if (library.load()) {
-        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
-        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
-
-        uint32_t version = 0;
-        const VkResult result = vkEnumerateInstanceVersion(&version);
-        assert(result == VK_SUCCESS);
-
-        log += QString().asprintf("- Vulkan Loader version: %d.%d.%d\n", VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version),
-                                  VK_VERSION_PATCH(version));
-    } else {
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Vulkan Development Status failure...");
-        alert.setText("Could not find a Vulkan Loader.");
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
-
-        log += "- Could not find a Vulkan Loader.\n";
-        return log;
-    }
-
-    if (!VK_LAYER_PATH.isEmpty()) log += "- Using Layers from VK_LAYER_PATH\n";
-
-    // Check layer paths
-    if (_custom_layers_paths.count() > 0) {
-        log += "- Custom Layers Paths:\n";
-        for (int i = 0, n = _custom_layers_paths.count(); i < n; ++i)
-            log += QString().asprintf("    - %s\n", _custom_layers_paths[i].toUtf8().constData());
-    } else
-        log += "- Custom Layers Paths: None\n";
-
-    PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
-        (PFN_vkEnumerateInstanceLayerProperties)library.resolve("vkEnumerateInstanceLayerProperties");
-
-    std::uint32_t instance_layer_count = 0;
-    VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
-    Q_ASSERT(!err);
-
-    std::vector<VkLayerProperties> layers_properties;
-    layers_properties.resize(instance_layer_count);
-
-    err = vkEnumerateInstanceLayerProperties(&instance_layer_count, &layers_properties[0]);
-    Q_ASSERT(!err);
-
-    log += "- Available Layers:\n";
-    for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
-        log += QString().asprintf("    - %s\n", layers_properties[i].layerName);
-    }
-
-    // Check Vulkan Devices
-
-    VkApplicationInfo app = {};
-    app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    app.pNext = NULL;
-    app.pApplicationName = APP_SHORT_NAME;
-    app.applicationVersion = 0;
-    app.pEngineName = APP_SHORT_NAME;
-    app.engineVersion = 0;
-    app.apiVersion = VK_API_VERSION_1_0;
-
-    VkInstanceCreateInfo inst_info = {};
-    inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    inst_info.pNext = NULL;
-    inst_info.pApplicationInfo = &app;
-    inst_info.enabledLayerCount = 0;
-    inst_info.ppEnabledLayerNames = NULL;
-    inst_info.enabledExtensionCount = 0;
-    inst_info.ppEnabledExtensionNames = NULL;
-
-    uint32_t gpu_count;
-
-    VkInstance inst;
-    PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)library.resolve("vkCreateInstance");
-    err = vkCreateInstance(&inst_info, NULL, &inst);
-    if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Vulkan Development Status failure...");
-        alert.setText("Cannot find a compatible Vulkan installable client driver (ICD).");
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
-
-        log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
-        return log;
-    }
-
-    PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
-        (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
-    err = vkEnumeratePhysicalDevices(inst, &gpu_count, NULL);
-
-    // This can fail on a new Linux setup. Check and fail gracefully rather than crash.
-    if (err != VK_SUCCESS) {
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Vulkan Development Status failure...");
-        alert.setText("Cannot find any Vulkan Physical Devices.");
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
-
-        log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
-        return log;
-    }
-
-    std::vector<VkPhysicalDevice> devices;
-    devices.resize(gpu_count);
-
-    err = vkEnumeratePhysicalDevices(inst, &gpu_count, &devices[0]);
-    Q_ASSERT(!err);
-
-    log += "- Physical Devices:\n";
-    for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
-        VkPhysicalDeviceProperties properties;
-        PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
-            (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
-        vkGetPhysicalDeviceProperties(devices[i], &properties);
-        log += QString().asprintf("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName,
-                                  GetPhysicalDeviceType(properties.deviceType), VK_VERSION_MAJOR(properties.apiVersion),
-                                  VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
-    }
-
-    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
-    vkDestroyInstance(inst, NULL);
-
-    return log;
-}
 
 void Configurator::ClearLayerLists() {
     qDeleteAll(_available_Layers.begin(), _available_Layers.end());
@@ -646,36 +476,6 @@ void Configurator::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qs
 }
 #endif  // PLATFORM_WINDOWS
 
-///////////////////////////////////////////////////////////////////////////////
-/// This is for the local application settings, not the system Vulkan settings
-void Configurator::LoadSettings() {
-    // Load the launch app name from the last session
-    QSettings settings;
-    _active_launch_executable_path = settings.value(VKCONFIG_KEY_LAUNCHAPP).toString();
-    _override_active = settings.value(VKCONFIG_KEY_OVERRIDE_ACTIVE, true).toBool();
-    _overridden_application_list_only = settings.value(VKCONFIG_KEY_APPLY_ONLY_TO_LIST).toBool();
-    _override_permanent = settings.value(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT).toBool();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// This is for the local application settings, not the system Vulkan settings
-void Configurator::SaveSettings() {
-    QSettings settings;
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP, _active_launch_executable_path);
-    settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, _override_active);
-    settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, _overridden_application_list_only);
-    settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, _override_permanent);
-}
-
-void Configurator::ResetToDefaultSettings() {
-    QSettings settings;
-    settings.setValue(VKCONFIG_KEY_LAUNCHAPP, "");
-    settings.setValue(VKCONFIG_KEY_OVERRIDE_ACTIVE, true);
-    settings.setValue(VKCONFIG_KEY_APPLY_ONLY_TO_LIST, false);
-    settings.setValue(VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT, false);
-    path.Clear();
-}
-
 /////////////////////////////////////////////////////////////////////////////
 /// We may have additional paths where we want to search for layers.
 /// Load the list of paths here.
@@ -734,12 +534,14 @@ const QString &Configurator::GetCustomLayersPath(int path_index) const {
 void Configurator::SelectLaunchApplication(int application_index) {
     if (application_index < 0) return;
 
-    _active_launch_executable_path = _overridden_applications[application_index]->executable_path;
+    environment.Set(ACTIVE_EXECUTABLE, _overridden_applications[application_index]->executable_path);
 }
 
 int Configurator::GetLaunchApplicationIndex() const {
     for (int i = 0; i < _overridden_applications.size(); i++) {
-        if (_overridden_applications[i]->executable_path == _active_launch_executable_path) return i;
+        if (_overridden_applications[i]->executable_path == environment.Get(ACTIVE_EXECUTABLE)) {
+            return i;
+        }
     }
 
     return 0;  // Not found, but the list is present, so return the first item.
@@ -875,23 +677,8 @@ void Configurator::LoadOverriddenApplicationList() {
     // On first run, search for vkcube. Do this after this list
     // is loaded in case it's already there.
     QSettings settings;
-    UpdateDefaultApplications(settings.value(VKCONFIG_KEY_INITIALIZE_FILES, true).toBool() || _overridden_applications.isEmpty());
-}
 
-void Configurator::CheckApplicationRestart() const {
-    // Display warning for configuration changes
-    QSettings settings;
-    if (!settings.value(VKCONFIG_HIDE_RESTART_WARNING).toBool()) {
-        QMessageBox alert;
-        alert.setText(
-            "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application "
-            "start.\n\n"
-            "For changes to take effect, running Vulkan Applications should be restarted.");
-        alert.setWindowTitle("Any change requires Vulkan Applications restart");
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
-        settings.setValue(VKCONFIG_HIDE_RESTART_WARNING, true);
-    }
+    UpdateDefaultApplications(environment.first_run || _overridden_applications.isEmpty());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -921,11 +708,9 @@ void Configurator::SaveOverriddenApplicationList() {
     QJsonDocument doc(root);
     file.write(doc.toJson());
     file.close();
-
-    _override_application_list_updated = true;
 }
 
-bool Configurator::HasOverriddenApplications() const {
+bool Configurator::HasActiveOverriddenApplications() const {
     for (int i = 0, n = _overridden_applications.size(); i < n; i++) {
         if (_overridden_applications[i]->override_layers) return true;
     }
@@ -933,46 +718,33 @@ bool Configurator::HasOverriddenApplications() const {
     return false;
 }
 
-bool Configurator::HasApplicationList(bool quiet, uint32_t *return_loader_version) const {
+bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_version) const {
     // Check loader version
-    QLibrary library(VULKAN_LIBRARY);
+    const Version version = GetVulkanLoaderVersion();
+    assert(version != Version::VERSION_NULL);
 
-    if (library.load()) {
-        PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
-        vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
+    if (return_loader_version) {
+        *return_loader_version = version;
+    }
 
-        uint32_t version = 0;
-        const VkResult result = vkEnumerateInstanceVersion(&version);
-        assert(result == VK_SUCCESS);
+    // This is the minimum version that supports the application list
+    if (version < Version("1.2.141") && !quiet) {
+        const QString message = QString().asprintf(
+            "The detected Vulkan Loader version is %s but version 1.2.141 or newer is required in order to apply layers "
+            "override to only a selected list of Vulkan applications.\n\n<br><br>"
+            "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature.",
+            version.str().c_str());
 
-        if (return_loader_version) *return_loader_version = version;
-
-        // This is the minimum version that supports the application list
-        if (version < 4202633) {
-            const QString message = QString().asprintf(
-                "The detected Vulkan Loader version is %d.%d.%d but version 1.2.141 or newer is required in order to apply layers "
-                "override to only a selected list of Vulkan applications.\n\n<br><br>"
-                "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature.",
-                VK_VERSION_MAJOR(version), VK_VERSION_MINOR(version), VK_VERSION_PATCH(version));
-            QMessageBox alert(NULL);
-            alert.setTextFormat(Qt::RichText);
-            alert.setText(message);
-            alert.setIcon(QMessageBox::Warning);
-            alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
-            alert.exec();
-            return false;
-        } else {
-            return true;
-        }
-    } else {
         QMessageBox alert(NULL);
-        alert.setText("Could not find a Vulkan Loader!");
-        alert.setIcon(QMessageBox::Critical);
+        alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
+        alert.setText(message);
+        alert.setTextFormat(Qt::RichText);
+        alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return false;
     }
 
-    return false;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1130,9 +902,7 @@ void Configurator::LoadAllConfigurations() {
     // //////////////////////////////////////////////////////////////////////////
     // If this is the first time, we need to create the initial set of
     // configuration files.
-    QSettings settings;
-    _first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, QVariant(true)).toBool();
-    if (_first_run) {
+    if (environment.first_run) {
         // Delete all the *.json files in the storage folder
         QDir dir(path.GetPath(PATH_CONFIGURATION));
         dir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -1158,8 +928,7 @@ void Configurator::LoadAllConfigurations() {
             }
         }
 
-        _first_run = false;
-        settings.setValue(VKCONFIG_KEY_INITIALIZE_FILES, false);
+        environment.first_run = false;
     }
 
     // Get a list of all files that end in .json in the folder where
@@ -1184,7 +953,8 @@ void Configurator::LoadAllConfigurations() {
     //////////////////////////////////////////////////////////////////////////
     // Which of these profiles is currently active?
     _active_configuration = nullptr;
-    QString active_configuration_name = settings.value(VKCONFIG_KEY_ACTIVEPROFILE).toString();
+    QSettings settings;
+    const QString &active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
     for (int i = 0; i < _available_configurations.size(); i++) {
         if (_available_configurations[i]->_name == active_configuration_name) {
             _active_configuration = _available_configurations[i];
@@ -1308,6 +1078,8 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 
     // Clear the profile if null
     if (configuration == nullptr) {
+        environment.Set(ACTIVE_CONFIGURATION, "");
+
         // Delete a bunch of stuff
         remove(override_settings_path.toUtf8().constData());
         remove(override_layers_path.toUtf8().constData());
@@ -1326,7 +1098,7 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
 
     // Save this as the last active profile (and we do NOT want to clear it when
     // no profile is made active.
-    settings.setValue(VKCONFIG_KEY_ACTIVEPROFILE, _active_configuration->_name);
+    environment.Set(ACTIVE_CONFIGURATION, _active_configuration->_name);
 
     /////////////////////////
     // vk_layer_settings.txt
@@ -1415,7 +1187,7 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     layer.insert("disable_environment", disable);
 
     // This has to contain something, or it will apply globally!
-    if (_overridden_application_list_only) {
+    if (environment.UseApplicationListOverrideMode()) {
         layer.insert("app_keys", json_applist);
     }
 
