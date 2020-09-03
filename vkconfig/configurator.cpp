@@ -673,11 +673,6 @@ void Configurator::LoadOverriddenApplicationList() {
             }
         }
 
-    //////////////////////////////////////////////
-    // On first run, search for vkcube. Do this after this list
-    // is loaded in case it's already there.
-    QSettings settings;
-
     UpdateDefaultApplications(environment.first_run || _overridden_applications.isEmpty());
 }
 
