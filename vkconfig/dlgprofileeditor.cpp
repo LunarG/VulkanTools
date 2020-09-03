@@ -217,7 +217,10 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
         return;
     }
 
-    configurator.AppendCustomLayersPath(custom_path);
+    if (configurator.environment.AppendCustomLayerPath(custom_path)) {
+        configurator.LoadAllInstalledLayers();
+        configurator.LoadAllConfigurations();
+    }
 
     _configuration->CollapseConfiguration();
     AddMissingLayers(_configuration);
@@ -231,7 +234,12 @@ void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
     QTreeWidgetItem *selected_item = ui->treeWidget->currentItem();
     assert(selected_item);
 
-    Configurator::Get().RemoveCustomLayersPath(selected_item->text(0));
+    Configurator &configurator = Configurator::Get();
+
+    if (configurator.environment.RemoveCustomLayerPath(selected_item->text(0))) {
+        configurator.LoadAllInstalledLayers();
+        configurator.LoadAllConfigurations();
+    }
 
     _configuration->CollapseConfiguration();
     AddMissingLayers(_configuration);

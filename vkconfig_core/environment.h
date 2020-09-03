@@ -24,6 +24,7 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QStringList>
 
 #include <array>
 
@@ -76,15 +77,13 @@ enum { ACTIVE_COUNT = ACTIVE_LAST - ACTIVE_FIRST + 1 };
 
 class Environment {
    public:
-    Environment();
+    Environment(bool test_mode = false);
     ~Environment();
 
     bool Notify(Notification notification);
 
     bool Load();
     bool Save() const;
-
-    bool first_run;
 
     const QString& Get(Active active) const;
     void Set(Active active, const QString& name);
@@ -98,6 +97,12 @@ class Environment {
 
     void SetMode(OverrideMode mode, bool enabled);
 
+    bool first_run;
+
+    bool AppendCustomLayerPath(const QString& path);
+    bool RemoveCustomLayerPath(const QString& path);
+    const QStringList& GetCustomLayerPaths() const { return custom_layer_paths; }
+
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
@@ -108,4 +113,7 @@ class Environment {
     std::array<QString, ACTIVE_COUNT> actives;
     std::array<bool, NOTIFICATION_COUNT> hidden_notifications;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
+    QStringList custom_layer_paths;
+
+    const bool test_mode;
 };

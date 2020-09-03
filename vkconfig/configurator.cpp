@@ -250,7 +250,6 @@ Configurator::Configurator()
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
-    LoadCustomLayersPaths();
     LoadOverriddenApplicationList();
     LoadDefaultLayerSettings();  // findAllInstalledLayers uses the results of this.
     LoadAllInstalledLayers();
@@ -476,61 +475,6 @@ void Configurator::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qs
 }
 #endif  // PLATFORM_WINDOWS
 
-/////////////////////////////////////////////////////////////////////////////
-/// We may have additional paths where we want to search for layers.
-/// Load the list of paths here.
-void Configurator::LoadCustomLayersPaths() {
-    QSettings searchPaths;
-    _custom_layers_paths = searchPaths.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList();
-}
-
-/////////////////////////////////////////////////////////////////////////////
-/// We may have additional paths where we want to search for layers.
-/// Save the list of paths here.
-void Configurator::SaveCustomLayersPaths() {
-    QSettings searchPaths;
-    searchPaths.setValue(VKCONFIG_KEY_CUSTOM_PATHS, _custom_layers_paths);
-}
-
-void Configurator::RemoveCustomLayersPath(int path_index) {
-    Q_ASSERT(path_index >= 0 && path_index < _custom_layers_paths.size());
-
-    _custom_layers_paths.removeAt(path_index);
-
-    SaveCustomLayersPaths();
-    LoadAllInstalledLayers();
-    LoadAllConfigurations();
-}
-
-void Configurator::RemoveCustomLayersPath(const QString &path) {
-    Q_ASSERT(!path.isEmpty());
-
-    for (int i = 0, n = _custom_layers_paths.size(); i < n; ++i) {
-        if (QDir::toNativeSeparators(_custom_layers_paths[i]) == QDir::toNativeSeparators(path)) {
-            RemoveCustomLayersPath(i);
-            break;
-        }
-    }
-}
-
-void Configurator::AppendCustomLayersPath(const QString &path) {
-    Q_ASSERT(!path.isEmpty());
-
-    _custom_layers_paths.append(path);
-
-    SaveCustomLayersPaths();
-    LoadAllInstalledLayers();
-    LoadAllConfigurations();
-}
-
-int Configurator::GetCustomLayersPathSize() const { return _custom_layers_paths.size(); }
-
-const QString &Configurator::GetCustomLayersPath(int path_index) const {
-    Q_ASSERT(path_index >= 0 && path_index < _custom_layers_paths.size());
-
-    return _custom_layers_paths[path_index];
-}
-
 void Configurator::SelectLaunchApplication(int application_index) {
     if (application_index < 0) return;
 
@@ -755,7 +699,10 @@ void Configurator::LoadAllInstalledLayers() {
         for (int i = 0; i < lp; i++) LoadLayersFromPath(VK_LAYER_PATH[i], _available_Layers);
 
     // SECOND: Any custom paths? Search for those too
-    for (int i = 0; i < _custom_layers_paths.size(); i++) LoadLayersFromPath(_custom_layers_paths[i], _available_Layers);
+    const QStringList &custom_layers_paths = environment.GetCustomLayerPaths();
+    for (int i = 0; i < custom_layers_paths.size(); i++) {
+        LoadLayersFromPath(custom_layers_paths[i], _available_Layers);
+    }
 
     // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
     for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], _available_Layers);
@@ -842,9 +789,11 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
     // layers are used on a first occurance basis. So we can't just show the layers that are
     // present in the folder (because they may not be used). We have to list the custom layer paths
     // and then look for layers that are already loaded that are from that path.
-    for (int custom_path_index = 0, n = GetCustomLayersPathSize(); custom_path_index < n; ++custom_path_index) {
+    const QStringList &custom_layer_paths = environment.GetCustomLayerPaths();
+
+    for (int custom_path_index = 0, n = custom_layer_paths.size(); custom_path_index < n; ++custom_path_index) {
         // Custom path is the parent tree item
-        const QString &custom_path = QDir::toNativeSeparators(GetCustomLayersPath(custom_path_index));
+        const QString &custom_path = QDir::toNativeSeparators(custom_layer_paths[custom_path_index]);
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, custom_path);

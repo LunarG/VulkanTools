@@ -37,6 +37,7 @@
 #define VKCONFIG_KEY_EXIT "warnAboutShutdownState"
 #define VKCONFIG_KEY_RESTART "restartWarning"
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
+#define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
 
 static const char* GetActiveToken(Active active) {
     assert(active >= ACTIVE_FIRST && active <= ACTIVE_LAST);
@@ -79,16 +80,21 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Environment::Environment() : first_run(true), version(Version::VKCONFIG), override_state(OVERRIDE_STATE_GLOBAL_TEMPORARY) {
+Environment::Environment(bool test_mode)
+    : first_run(true), version(Version::VKCONFIG), override_state(OVERRIDE_STATE_GLOBAL_TEMPORARY), test_mode(test_mode) {
     for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
         actives[i] = GetActiveDefault(static_cast<Active>(i));
     }
+
+    if (test_mode) return;
 
     const bool result = Load();
     assert(result);
 }
 
 Environment::~Environment() {
+    if (test_mode) return;
+
     const bool result = Save();
     assert(result);
 }
@@ -203,6 +209,9 @@ bool Environment::Load() {
         layout_states[i] = settings.value(GetLayoutStateToken(static_cast<LayoutState>(i))).toByteArray();
     }
 
+    // Load custom paths
+    custom_layer_paths = settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList();
+
     return true;
 }
 
@@ -230,6 +239,9 @@ bool Environment::Save() const {
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
         settings.setValue(GetLayoutStateToken(static_cast<LayoutState>(i)), layout_states[i]);
     }
+
+    // Save custom paths
+    settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, custom_layer_paths);
 
     return true;
 }
@@ -279,3 +291,28 @@ const QByteArray& Environment::Get(LayoutState state) const {
 const QString& Environment::Get(Active active) const { return actives[active]; }
 
 void Environment::Set(Active active, const QString& name) { actives[active] = name; }
+
+bool Environment::AppendCustomLayerPath(const QString& path) {
+    assert(!path.isEmpty());
+
+    for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
+        if (custom_layer_paths[i] == QDir::toNativeSeparators(path)) {
+            return false;
+        }
+    }
+
+    custom_layer_paths.append(QDir::toNativeSeparators(path));
+    return true;
+}
+
+bool Environment::RemoveCustomLayerPath(const QString& path) {
+    assert(!path.isEmpty());
+
+    for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
+        if (custom_layer_paths[i] == QDir::toNativeSeparators(path)) {
+            custom_layer_paths.removeAt(i);
+            return true;
+        }
+    }
+    return false;
+}
