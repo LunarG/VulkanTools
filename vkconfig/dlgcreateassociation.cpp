@@ -28,6 +28,8 @@
 #include <QCloseEvent>
 #include <QCheckBox>
 
+#include <cassert>
+
 //////////////////////////////////////////////////////////////////////////////
 dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     : QDialog(parent), ui(new Ui::dlgCreateAssociation), _last_selected_application_index(-1) {
