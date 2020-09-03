@@ -35,10 +35,9 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     Configurator &configurator = Configurator::Get();
-    configurator._override_application_list_updated = false;
 
     // The header is hidden by default and stays hidden when no checkboxes are used.
-    if (!configurator.HasActiveOverrideOnApplicationListOnly())
+    if (!configurator.environment.UseApplicationListOverrideMode())
         setWindowTitle("Applications Launcher Shortcuts");
     else {
         ui->treeWidget->setHeaderHidden(false);
@@ -87,9 +86,11 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
     event->accept();
 
     // When we don't use overridden list only, no need to alert the user about empty list cases.
-    if (!configurator._overridden_application_list_only) return;
+    if (!configurator.environment.UseApplicationListOverrideMode()) return;
 
-    if (configurator._overridden_applications.empty() || !configurator.HasOverriddenApplications()) {
+    if (configurator._overridden_applications.empty() || !configurator.HasActiveOverriddenApplications()) {
+        configurator.environment.SetMode(OVERRIDE_MODE_LIST, false);
+
         QMessageBox alert;
         alert.setIcon(QMessageBox::Warning);
         alert.setWindowTitle("Vulkan Layers overriding will apply globally.");
@@ -122,7 +123,6 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
 
         QTreeWidgetItem *item = CreateApplicationItem(*new_application);
 
-        configurator.SaveSettings();
         configurator.SaveOverriddenApplicationList();
         configurator.RefreshConfiguration();
         ui->treeWidget->setCurrentItem(item);
@@ -136,7 +136,7 @@ QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &
     QTreeWidgetItem *item = new QTreeWidgetItem();
     ui->treeWidget->addTopLevelItem(item);
 
-    if (configurator.HasActiveOverrideOnApplicationListOnly()) {
+    if (configurator.environment.UseApplicationListOverrideMode()) {
         QCheckBox *check_box = new QCheckBox(application.executable_path);
         check_box->setChecked(application.override_layers);
         ui->treeWidget->setItemWidget(item, 0, check_box);
@@ -151,15 +151,15 @@ QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &
 ///////////////////////////////////////////////////////////////////////////////
 /// Easy enough, just remove the selected program from the list
 void dlgCreateAssociation::on_pushButtonRemove_clicked() {
-    QTreeWidgetItem *pCurrent = ui->treeWidget->currentItem();
-    int iSel = ui->treeWidget->indexOfTopLevelItem(pCurrent);
-    if (iSel < 0) return;
+    QTreeWidgetItem *current = ui->treeWidget->currentItem();
+    int selection = ui->treeWidget->indexOfTopLevelItem(current);
+    assert(selection < 0);
 
     Configurator &configurator = Configurator::Get();
 
-    ui->treeWidget->takeTopLevelItem(iSel);
+    ui->treeWidget->takeTopLevelItem(selection);
     ui->treeWidget->setCurrentItem(nullptr);
-    configurator._overridden_applications.removeAt(iSel);
+    configurator._overridden_applications.removeAt(selection);
 
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);

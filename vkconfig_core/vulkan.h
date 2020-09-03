@@ -20,23 +20,9 @@
 
 #pragma once
 
-#define APP_SHORT_NAME "vkconfig"
+#include "version.h"
 
-#ifdef _WIN32
-#define PLATFORM_WINDOWS 1
-#define PLATFORM_LINUX 0
-#define PLATFORM_MACOS 0
+#include <QString>
 
-#elif defined(__linux__)
-#define PLATFORM_WINDOWS 0
-#define PLATFORM_LINUX 1
-#define PLATFORM_MACOS 0
-
-#elif defined(__APPLE__)
-#define PLATFORM_WINDOWS 0
-#define PLATFORM_LINUX 0
-#define PLATFORM_MACOS 1
-
-#else
-#error "Unknown platform"
-#endif
+Version GetVulkanLoaderVersion();
+QString GenerateVulkanStatus();

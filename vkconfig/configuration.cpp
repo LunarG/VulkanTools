@@ -206,11 +206,9 @@ bool Configuration::Load(const QString& path_to_configuration) {
     if (options_value != QJsonValue::Undefined && version > Version::VKCONFIG) {
         QMessageBox alert;
         alert.setWindowTitle("Could not load configuration file!");
-        alert.setText(
-            format(
-                "The \"%s\" configuration was created with a newer version of Vulkan Configurator. The configuration is discarded",
-                _name.toUtf8().constData())
-                .c_str());
+        alert.setText(format("The \"%s\" configuration was created with a newer version of %s. The configuration is discarded",
+                             _name.toUtf8().constData(), VKCONFIG_NAME)
+                          .c_str());
         alert.setInformativeText("Use Vulkan Configurator from the latest Vulkan SDK to resolve the issue.");
         alert.setIcon(QMessageBox::Critical);
         alert.exec();

@@ -62,17 +62,17 @@ class MainWindow : public QMainWindow {
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void UpdateUI();
+    void UpdateConfiguration();
+
    protected:
     SettingsTreeManager _settings_tree_manager;
-    QSettings _settings;
 
     QProcess *_launch_application;  // Keeps track of the monitored app
     QFile _log_file;                // Log file for layer output
 
     void LoadConfigurationList();
     void SetupLaunchTree();
-
-    void ChangeActiveConfiguration(Configuration *configuration);
 
     virtual void closeEvent(QCloseEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
@@ -95,7 +95,7 @@ class MainWindow : public QMainWindow {
     QLineEdit *_launcher_log_file_edit;
     QPushButton *_launcher_apps_browse_button;
     QPushButton *_launcher_working_browse_button;
-    QPushButton *_launcher_log_file_button;
+    QPushButton *_launcher_log_file_browse_button;
 
     void ResetLaunchOptions();
 
@@ -142,6 +142,7 @@ class MainWindow : public QMainWindow {
     void on_radioOverride_clicked();
     void on_checkBoxApplyList_clicked();
     void on_checkBoxPersistent_clicked();
+    void on_checkBoxClearOnLaunch_clicked();
     void on_pushButtonAppList_clicked();
     void on_pushButtonEditProfile_clicked();
 

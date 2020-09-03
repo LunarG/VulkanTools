@@ -321,7 +321,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
 
     Configurator &configurator = Configurator::Get();
 
-    configurator.CheckApplicationRestart();
+    configurator.environment.Notify(NOTIFICATION_RESTART);
 
     // We really just don't care
     if (preset == ValidationPresetUserDefined) return;
@@ -460,7 +460,7 @@ void SettingsTreeManager::profileEdited() {
     assert(result);
 
     Configurator &configurator = Configurator::Get();
-    configurator.CheckApplicationRestart();
+    configurator.environment.Notify(NOTIFICATION_RESTART);
 
     // If this profile is active, we need to reset the override files too
     // Just resetting with the same parent pointer will do the trick

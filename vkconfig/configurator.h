@@ -23,6 +23,7 @@
 
 #include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/path_manager.h"
+#include "../vkconfig_core/environment.h"
 #include "configuration.h"
 
 #ifdef _WIN32
@@ -33,7 +34,6 @@
 #endif
 #include <QString>
 #include <QVector>
-#include <QSettings>
 #include <QDir>
 #include <QTreeWidget>
 
@@ -42,7 +42,7 @@
 #include <vector>
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
-#define APP_SHORT_NAME "vkconfig"
+#define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Going back and forth between the Windows registry and looking for files
@@ -65,21 +65,6 @@ class PathFinder {
    private:
     QStringList file_list_;
 };
-
-#define VKCONFIG_NAME "Vulkan Configurator"
-
-// Saved settings for the application
-#define VKCONFIG_KEY_LAUNCHAPP "launchApp"
-#define VKCONFIG_KEY_ACTIVEPROFILE "activeProfile"
-#define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
-#define VKCONFIG_KEY_OVERRIDE_ACTIVE "overrideActive"
-#define VKCONFIG_KEY_APPLY_ONLY_TO_LIST "applyOnlyToList"
-#define VKCONFIG_KEY_KEEP_ACTIVE_ON_EXIT "keepActiveOnExit"
-#define VKCONFIG_KEY_INITIALIZE_FILES "FirstTimeRun"
-#define VKCONFIG_HIDE_RESTART_WARNING "restartWarning"
-#define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
-#define VKCONFIG_KEY_RESTORE_GEOMETRY "restaureGeometry"
-#define VKCONFIG_WARN_SHUTDOWNSTATE "warnAboutShutdownState"
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -114,19 +99,6 @@ class Configurator {
 
    private:
     const bool _running_as_administrator;  // Are we being "Run as Administrator"
-    bool _first_run;                       // This is used for populating the initial set of configurations
-
-    /////////////////////////////////////////////////////////////////////////
-    // Just Vulkan Configurator settings
-   public:
-    void LoadSettings();
-    void SaveSettings();
-    void ResetToDefaultSettings();
-
-    bool _override_active;                    // Do we have active layers override?
-    bool _overridden_application_list_only;   // Apply the override only to the application list
-    bool _override_permanent;                 // The override remains active when Vulkan Configurator closes
-    bool _override_application_list_updated;  // The list of applications to override has possibly been updated
 
     /////////////////////////////////////////////////////////////////////////
     // Validation Preset
@@ -140,9 +112,6 @@ class Configurator {
     void SelectLaunchApplication(int application_index);
     int GetLaunchApplicationIndex() const;
     void UpdateDefaultApplications(const bool add_default_applications);
-
-   private:
-    QString _active_launch_executable_path;  // This is to match up with the application list
 
     /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
@@ -161,7 +130,6 @@ class Configurator {
                                 // Vulkan layers. (Named as environment variable for
                                 // clarity as to where this comes from).
 
-   private:
     QStringList _custom_layers_paths;
 
     /////////////////////////////////////////////////////////////////////////
@@ -170,13 +138,15 @@ class Configurator {
     QVector<Application*> _overridden_applications;
     void LoadOverriddenApplicationList();
     void SaveOverriddenApplicationList();
-    bool HasOverriddenApplications() const;
+    bool HasActiveOverriddenApplications() const;
 
     // If return_loader_version is not null, the function will return the loader version
     // If quiet is false, message box will be generate
-    bool HasApplicationList(bool quiet = true, uint32_t* return_loader_version = nullptr) const;
+    bool SupportApplicationList(bool quiet = true, Version* return_loader_version = nullptr) const;
 
-    bool HasActiveOverrideOnApplicationListOnly() const { return HasApplicationList() && _overridden_application_list_only; }
+    bool HasActiveOverrideOnApplicationListOnly() const {
+        return SupportApplicationList() && environment.UseApplicationListOverrideMode();
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // A readonly list of layer names with the associated settings
@@ -215,12 +185,10 @@ class Configurator {
         if (_active_configuration) SetActiveConfiguration(_active_configuration);
     }
 
-    QString CheckVulkanSetup() const;
-    void CheckApplicationRestart() const;
-
    private:
     Configurator();
     ~Configurator();
+
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
@@ -237,5 +205,6 @@ class Configurator {
 #endif
 
    public:
+    Environment environment;
     PathManager path;
 };
