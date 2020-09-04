@@ -69,5 +69,5 @@ LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name)
 SettingType GetSettingType(const char* token);
 const char* GetSettingTypeToken(SettingType type);
 
-// Utility, may move outside this class....
-void LoadSettings(QJsonObject& layer_settings_descriptors, std::vector<LayerSetting>& settings);
+bool LoadSettings(const QJsonObject& layer_settings_descriptors, std::vector<LayerSetting>& settings);
+bool SaveSettings(const std::vector<LayerSetting>& settings, QJsonObject& layer_settings_descriptors);
