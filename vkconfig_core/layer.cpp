@@ -64,8 +64,8 @@ Layer::~Layer() { _layer_settings.clear(); }
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return !_name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() && !_api_version.isEmpty() &&
-           !_implementation_version.isEmpty();
+    return _file_format_version != Version::VERSION_NULL && !_name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
+           _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     // Populate key items about the layer
     QJsonObject json_object = jsonDoc.object();
     QJsonValue json_value = json_object.value("file_format_version");
-    _file_format_version = json_value.toString();
+    _file_format_version = Version(json_value.toString());
 
     QJsonValue layer_value = json_object.value("layer");
     QJsonObject layer_object = layer_value.toObject();
@@ -131,7 +131,7 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     _library_path = json_value.toString();
 
     json_value = layer_object.value("api_version");
-    _api_version = json_value.toString();
+    _api_version = Version(json_value.toString());
 
     json_value = layer_object.value("implementation_version");
     _implementation_version = json_value.toString();
