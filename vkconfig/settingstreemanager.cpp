@@ -330,7 +330,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
 
     Configuration *preset_configuration = new Configuration;
-    const bool result = preset_configuration->Load(preset_file);
+    const bool result = preset_configuration->Load(preset_file, configurator._available_Layers);
     assert(result);
 
     // Copy it all into the real layer and delete it
@@ -422,7 +422,7 @@ void SettingsTreeManager::CleanupGUI() {
     // Get the state of the last tree, and save it!
     _configuration->_setting_tree_state.clear();
     GetTreeState(_configuration->_setting_tree_state, _configuration_settings_tree->invisibleRootItem());
-    const bool result = _configuration->Save();
+    const bool result = _configuration->Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _configuration->_name));
     assert(result);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
@@ -454,15 +454,16 @@ void SettingsTreeManager::CleanupGUI() {
 /////////////////////////////////////////////////////////////
 // The profile has been edited and should be saved
 void SettingsTreeManager::profileEdited() {
-    // Resave this profile
+    Configurator &configurator = Configurator::Get();
 
-    const bool result = _configuration->Save();
+    const bool result = _configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, _configuration->_name));
     assert(result);
 
-    Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
 
     // If this profile is active, we need to reset the override files too
     // Just resetting with the same parent pointer will do the trick
-    if (_configuration == configurator.GetActiveConfiguration()) configurator.SetActiveConfiguration(_configuration);
+    if (_configuration == configurator.GetActiveConfiguration()) {
+        configurator.SetActiveConfiguration(_configuration);
+    }
 }

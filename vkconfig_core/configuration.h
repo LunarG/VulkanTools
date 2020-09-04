@@ -49,9 +49,8 @@ class Configuration {
     Configuration();
     ~Configuration();
 
-    bool Load(const QString &path_to_configuration);
-    bool Save() const;
-    bool Save(const char *full_path) const;
+    bool Load(const QString &full_path, const QVector<Layer *> &available_Layers);
+    bool Save(const QString &full_path) const;
 
     QString _name;                   // User readable display of the profile name (may contain spaces)
                                      // This is the same as the filename, but with the .json stripped off.
@@ -65,11 +64,8 @@ class Configuration {
     QStringList _excluded_layers;  // Just the names of blacklisted layers
 
     Layer *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
-    Layer *FindLayerNamed(const QString &layer_name) const;  // Find the layer if it exists, only care about the name
 
     Configuration *DuplicateConfiguration();  // Copy a profile so we can mess with it
 
     void CollapseConfiguration();  // Remove unused layers and settings, set blacklist
-
-    bool IsValid() const;
 };

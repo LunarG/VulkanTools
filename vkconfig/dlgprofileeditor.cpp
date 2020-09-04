@@ -488,7 +488,7 @@ void dlgProfileEditor::accept() {
 
     // Collapse the profile and remove unused layers and write
     _configuration->CollapseConfiguration();
-    const bool result = _configuration->Save();
+    const bool result = _configuration->Save(save_path);
     if (!result) {
         AddMissingLayers(_configuration);
         LoadLayerDisplay(0);

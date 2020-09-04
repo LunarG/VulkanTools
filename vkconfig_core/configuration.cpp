@@ -20,12 +20,11 @@
  */
 
 #include "configuration.h"
-#include "configurator.h"
-
-#include "../vkconfig_core/util.h"
-#include "../vkconfig_core/version.h"
+#include "util.h"
+#include "version.h"
 
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -48,17 +47,6 @@ Layer* Configuration::FindLayer(const QString& layer_name, const QString& full_p
 
     for (int i = 0; i < _layers.size(); i++)
         if (_layers[i]->_name == layer_name && _layers[i]->_layer_path == full_path) return _layers[i];
-
-    return nullptr;
-}
-
-///////////////////////////////////////////////////////////
-// Find the layer if it exists. Only care about the name
-Layer* Configuration::FindLayerNamed(const QString& layer_name) const {
-    assert(!layer_name.isEmpty());
-
-    for (int i = 0; i < _layers.size(); i++)
-        if (_layers[i]->_name == layer_name) return _layers[i];
 
     return nullptr;
 }
@@ -110,22 +98,6 @@ void Configuration::CollapseConfiguration() {
     }
 }
 
-bool Configuration::IsValid() const {
-    Configurator& configurator = Configurator::Get();
-
-    if (_excluded_layers.empty() && _layers.empty()) return false;
-
-    for (int i = 0, n = _layers.size(); i < n; ++i) {
-        if (configurator.FindLayerNamed(_layers[i]->_name) == nullptr) return false;
-    }
-
-    for (int i = 0, n = _excluded_layers.size(); i < n; ++i) {
-        if (configurator.FindLayerNamed(_excluded_layers[i]) == nullptr) return false;
-    }
-
-    return true;
-}
-
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
         return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
@@ -137,11 +109,10 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Load from a configuration file (.json really)
-bool Configuration::Load(const QString& path_to_configuration) {
-    // Just load the name for now, and if it's read only
-    if (path_to_configuration.isEmpty()) return false;
+bool Configuration::Load(const QString& full_path, const QVector<Layer*>& available_Layers) {
+    assert(!full_path.isEmpty());
 
-    QFile file(path_to_configuration);
+    QFile file(full_path);
     bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
     QString json_text = file.readAll();
@@ -155,7 +126,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
     if (parse_error.error != QJsonParseError::NoError) return false;
 
     // Allocate a new profile container
-    const QString& filename = QFileInfo(path_to_configuration).fileName();
+    const QString& filename = QFileInfo(full_path).fileName();
 
     QJsonObject json_top_object = json_doc.object();
     QStringList key = json_top_object.keys();
@@ -170,7 +141,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
         _name = filename.left(filename.length() - 5);
         if (_name == "Validation - Shader Printf") {
             _name = "Validation - Debug Printf";
-            QFile file(path_to_configuration);
+            QFile file(full_path);
             file.remove();
         }
     } else {
@@ -226,7 +197,7 @@ bool Configuration::Load(const QString& path_to_configuration) {
         // To match the layer we just need the name, paths are not
         // hard-matched to the configuration.
         // Find this in our lookup of layers. The standard layers are listed first
-        layer = Configurator::Get().FindLayerNamed(layers[layer_index]);
+        layer = ::FindLayer(available_Layers, layers[layer_index]);
         if (layer == nullptr) {  // If not found, we have a layer missing....
             continue;
         }
@@ -251,7 +222,9 @@ bool Configuration::Load(const QString& path_to_configuration) {
     return true;
 }
 
-bool Configuration::Save(const char* full_path) const {
+bool Configuration::Save(const QString& full_path) const {
+    assert(!full_path.isEmpty());
+
     QJsonObject root;
     root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
@@ -362,6 +335,8 @@ bool Configuration::Save(const char* full_path) const {
     return true;
 }
 
+/*
 bool Configuration::Save() const {
     return Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _name).toUtf8().constData());
 }
+*/
