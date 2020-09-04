@@ -171,6 +171,7 @@ void Environment::Reset(ResetMode mode) {
                 actives[i] = GetActiveDefault(static_cast<Active>(i));
             }
 
+            applications.clear();
             UpdateDefaultApplications(true);
             break;
         }
@@ -263,33 +264,35 @@ bool Environment::LoadApplications() {
         file.close();
     }
 
-    QJsonDocument json_app_list;
-    json_app_list = QJsonDocument::fromJson(data.toLocal8Bit());
-    if (json_app_list.isObject()) {
-        if (!json_app_list.isEmpty()) {
-            // Get the list of apps
-            QStringList app_keys;
-            QJsonObject json_doc_object = json_app_list.object();
-            app_keys = json_doc_object.keys();
+    const QJsonDocument& json_doc = QJsonDocument::fromJson(data.toLocal8Bit());
+    assert(json_doc.isObject());
+    assert(!json_doc.isEmpty());
 
-            // Get them...
-            for (int i = 0; i < app_keys.length(); i++) {
-                QJsonValue app_value = json_doc_object.value(app_keys[i]);
-                QJsonObject app_object = app_value.toObject();
+    // Get the list of apps
+    const QJsonObject& json_doc_object = json_doc.object();
+    const QStringList& app_keys = json_doc_object.keys();
 
-                Application application;
-                application.working_folder = app_object.value("app_folder").toString();
-                application.executable_path = app_object.value("app_path").toString();
-                application.override_layers = !app_object.value("exclude_override").toBool();
-                application.log_file = app_object.value("log_file").toString();
+    applications.clear();
 
-                // Arguments are in an array to make room for adding more in a future version
-                QJsonArray args = app_object.value("command_lines").toArray();
-                application.arguments = args[0].toString();
-
-                applications.push_back(application);
-            }
+    for (int i = 0, n = app_keys.length(); i < n; i++) {
+        if (app_keys[i] == "file_format_version") {
+            continue;
         }
+
+        const QJsonValue& app_value = json_doc_object.value(app_keys[i]);
+        const QJsonObject& app_object = app_value.toObject();
+
+        Application application;
+        application.executable_path = app_object.value("app_path").toString();
+        application.working_folder = app_object.value("app_folder").toString();
+        application.override_layers = !app_object.value("exclude_override").toBool();
+        application.log_file = app_object.value("log_file").toString();
+
+        // Arguments are in an array to make room for adding more in a future version
+        const QJsonArray& args = app_object.value("command_lines").toArray();
+        application.arguments = args[0].toString();
+
+        applications.push_back(application);
     }
 
     UpdateDefaultApplications(first_run || applications.empty());
@@ -363,8 +366,8 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
     for (std::size_t name_index = 0, name_count = countof(defaults); name_index < name_count; ++name_index) {
         bool found = false;
 
-        for (std::size_t i = 0; i < applications.size(); ++i) {
-            const Application& application = applications[i];
+        for (std::size_t i = 0; i < new_applications.size(); ++i) {
+            const Application& application = new_applications[i];
 
             if (!application.executable_path.endsWith(defaults[name_index].name + SUFFIX)) continue;
 
@@ -428,6 +431,7 @@ bool Environment::Save() const {
 
 bool Environment::SaveApplications() const {
     QJsonObject root;
+    root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         // Build an array of appnames with associated data

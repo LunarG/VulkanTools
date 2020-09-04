@@ -95,6 +95,70 @@ bool PathManager::Load() {
         paths[type] = settings.value(GetDesc(type).setting).toString().toUtf8().constData();
     }
 
+// Where is stuff
+#if PLATFORM_WINDOWS
+    QDir home = QDir::home();
+    QString main_path = home.path() + QString("/AppData/Local/");
+    home.setPath(main_path);
+    if (!home.cd("LunarG")) {
+        home.mkpath("LunarG");
+        home.cd("LunarG");
+    }
+
+    if (!home.cd("vkconfig")) {
+        home.mkpath("vkconfig");
+    }
+
+    if (!home.cd("override")) {
+        home.mkpath("override");
+    }
+
+    SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
+    SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
+    SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
+#elif PLATFORM_LINUX || PLATFORM_MACOS
+    QDir home = QDir::home();
+    if (!home.cd(".local")) {
+        home.mkpath(".local");
+        home.cd(".local");
+    }
+
+    if (!home.cd("share")) {
+        home.mkpath("share");
+        home.cd("share");
+    }
+
+    if (!home.cd("vulkan")) {
+        home.mkpath("vulkan");
+        home.cd("vulkan");
+    }
+
+    if (!home.cd("implicit_layer.d")) {
+        home.mkpath("implicit_layer.d");
+        home.cd("implicit_layer.d");
+    }
+
+    home.cd("..");
+    if (!home.cd("settings.d")) {
+        home.mkpath("settings.d");
+        home.cd("settings.d");
+    }
+
+    home.cd("..");
+    if (!home.cd("lunarg-vkconfig")) {
+        home.mkpath("lunarg-vkconfig");
+        home.cd("lunarg-vkconfig");
+    }
+
+    home = QDir::home();
+    const QString& main_path = home.path() + QString("/.local/share/vulkan/");
+    SetPath(PATH_CONFIGURATION, main_path + "lunarg-vkconfig/");
+    SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
+    SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
+#else
+#error "Unknown platform"
+#endif
+
     return true;
 }
 
