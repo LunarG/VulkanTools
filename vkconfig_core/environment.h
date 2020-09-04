@@ -77,12 +77,14 @@ enum { ACTIVE_COUNT = ACTIVE_LAST - ACTIVE_FIRST + 1 };
 
 class Environment {
    public:
-    Environment(bool test_mode = false);
+    Environment();
     ~Environment();
+
+    enum ResetMode { DEFAULT = 0, SYSTEM };
 
     bool Notify(Notification notification);
 
-    void Reset();
+    void Reset(ResetMode mode);
 
     bool Load();
     bool Save() const;
@@ -116,6 +118,4 @@ class Environment {
     std::array<bool, NOTIFICATION_COUNT> hidden_notifications;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     QStringList custom_layer_paths;
-
-    const bool test_mode;
 };

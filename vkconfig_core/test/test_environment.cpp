@@ -24,16 +24,20 @@
 #include "../environment.h"
 
 TEST(test_environment, custom_path_no_duplicate) {
-    Environment environment(true);
+    Environment environment;
+    environment.Reset(Environment::DEFAULT);
 
     EXPECT_EQ(true, environment.AppendCustomLayerPath("./path"));
     EXPECT_EQ(1, environment.GetCustomLayerPaths().size());
     EXPECT_EQ(false, environment.AppendCustomLayerPath("./path"));
     EXPECT_EQ(1, environment.GetCustomLayerPaths().size());
+
+    environment.Reset(Environment::SYSTEM);  // Don't change the system settings
 }
 
 TEST(test_environment, custom_path_not_found) {
-    Environment environment(true);
+    Environment environment;
+    environment.Reset(Environment::DEFAULT);
 
     EXPECT_EQ(false, environment.RemoveCustomLayerPath("./path"));
     EXPECT_EQ(0, environment.GetCustomLayerPaths().size());
@@ -41,4 +45,6 @@ TEST(test_environment, custom_path_not_found) {
     EXPECT_EQ(1, environment.GetCustomLayerPaths().size());
     EXPECT_EQ(true, environment.RemoveCustomLayerPath("./path"));
     EXPECT_EQ(0, environment.GetCustomLayerPaths().size());
+
+    environment.Reset(Environment::SYSTEM);  // Don't change the system settings
 }

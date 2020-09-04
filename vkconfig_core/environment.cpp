@@ -80,18 +80,12 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Environment::Environment(bool test_mode) : test_mode(test_mode) {
-    Reset();
-
-    if (test_mode) return;
-
+Environment::Environment() {
     const bool result = Load();
     assert(result);
 }
 
 Environment::~Environment() {
-    if (test_mode) return;
-
     const bool result = Save();
     assert(result);
 }
@@ -154,17 +148,33 @@ bool Environment::Notify(Notification notification) {
     return true;
 }
 
-void Environment::Reset() {
-    first_run = true;
-    version = Version::VKCONFIG;
-    override_state = OVERRIDE_STATE_GLOBAL_TEMPORARY;
+void Environment::Reset(ResetMode mode) {
+    switch (mode) {
+        case DEFAULT: {
+            first_run = true;
+            version = Version::VKCONFIG;
+            override_state = OVERRIDE_STATE_GLOBAL_TEMPORARY;
 
-    for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
-        actives[i] = GetActiveDefault(static_cast<Active>(i));
+            for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
+                actives[i] = GetActiveDefault(static_cast<Active>(i));
+            }
+            break;
+        }
+        case SYSTEM: {
+            const bool result = Load();
+            assert(result);
+            break;
+        }
+        default: {
+            assert(0);
+            break;
+        }
     }
 }
 
 bool Environment::Load() {
+    Reset(DEFAULT);
+
     QSettings settings;
 
     // Load "first_run"
