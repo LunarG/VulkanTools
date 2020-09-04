@@ -239,68 +239,11 @@ bool Configuration::Save(const QString& full_path) const {
         assert(layer.IsValid());
 
         QJsonObject json_settings;
-
         // Rank goes in here with settings
         json_settings.insert("layer_rank", layer._rank);
 
-        // Loop through the actual settings
-        for (std::size_t setting_index = 0, setting_count = layer._layer_settings.size(); setting_index < setting_count;
-             setting_index++) {
-            QJsonObject setting;
-            const LayerSetting& layer_setting = layer._layer_settings[setting_index];
-
-            setting.insert("name", layer_setting.label);
-            setting.insert("description", layer_setting.description);
-
-            switch (layer_setting.type) {
-                case SETTING_STRING:
-                case SETTING_SAVE_FILE:
-                case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FOLDER:
-                case SETTING_BOOL:
-                case SETTING_BOOL_NUMERIC:
-                case SETTING_VUID_FILTER:
-                    setting.insert("type", GetSettingTypeToken(layer_setting.type));
-                    setting.insert("default", layer_setting.value);
-                    break;
-
-                case SETTING_EXCLUSIVE_LIST: {
-                    setting.insert("type", GetSettingTypeToken(layer_setting.type));
-                    setting.insert("default", layer_setting.value);
-
-                    QJsonObject options;
-                    for (int i = 0; i < layer_setting.exclusive_labels.size(); i++)
-                        options.insert(layer_setting.exclusive_values[i], layer_setting.exclusive_labels[i]);
-                    setting.insert("options", options);
-                } break;
-
-                case SETTING_INCLUSIVE_LIST: {
-                    setting.insert("type", GetSettingTypeToken(layer_setting.type));
-
-                    QJsonObject options;
-                    for (int i = 0; i < layer_setting.inclusive_labels.size(); i++)
-                        options.insert(layer_setting.inclusive_values[i], layer_setting.inclusive_labels[i]);
-                    setting.insert("options", options);
-
-                    QJsonArray defaults;
-                    if (!layer_setting.value.isEmpty()) {
-                        QStringList list = layer_setting.value.split(",");
-                        for (int i = 0; i < list.size(); i++) defaults.append(list[i]);
-                    }
-
-                    setting.insert("default", defaults);
-                } break;
-
-                // There is a string field that is actually a complicted series of number or
-                // ranges of numbers. We should at some point add this to allow more error free editing of it.
-                case SETTING_RANGE_INT:
-                default:
-                    assert(0);
-                    break;
-            }
-
-            json_settings.insert(layer_setting.name, setting);
-        }
+        const bool result = SaveSettings(layer._layer_settings, json_settings);
+        assert(result);
 
         layer_list.insert(layer._name, json_settings);
     }
@@ -334,9 +277,3 @@ bool Configuration::Save(const QString& full_path) const {
     json_file.close();
     return true;
 }
-
-/*
-bool Configuration::Save() const {
-    return Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _name).toUtf8().constData());
-}
-*/
