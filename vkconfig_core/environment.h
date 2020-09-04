@@ -82,6 +82,8 @@ class Environment {
 
     bool Notify(Notification notification);
 
+    void Reset();
+
     bool Load();
     bool Save() const;
 

@@ -80,11 +80,8 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Environment::Environment(bool test_mode)
-    : first_run(true), version(Version::VKCONFIG), override_state(OVERRIDE_STATE_GLOBAL_TEMPORARY), test_mode(test_mode) {
-    for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
-        actives[i] = GetActiveDefault(static_cast<Active>(i));
-    }
+Environment::Environment(bool test_mode) : test_mode(test_mode) {
+    Reset();
 
     if (test_mode) return;
 
@@ -155,6 +152,16 @@ bool Environment::Notify(Notification notification) {
 
     hidden_notifications[notification] = hide_notification;
     return true;
+}
+
+void Environment::Reset() {
+    first_run = true;
+    version = Version::VKCONFIG;
+    override_state = OVERRIDE_STATE_GLOBAL_TEMPORARY;
+
+    for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
+        actives[i] = GetActiveDefault(static_cast<Active>(i));
+    }
 }
 
 bool Environment::Load() {
