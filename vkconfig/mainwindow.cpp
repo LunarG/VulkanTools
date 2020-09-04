@@ -160,8 +160,7 @@ static std::string GetMainWindowTitle(bool active) {
 void MainWindow::UpdateUI() {
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
-    const bool has_active_configuration =
-        configurator.GetActiveConfiguration() != nullptr ? configurator.IsValid(*configurator.GetActiveConfiguration()) : false;
+    const bool has_active_configuration = configurator.HasActiveConfiguration();
 
     // Mode states
     ui->radioOverride->setChecked(environment.UseOverride());
@@ -342,10 +341,9 @@ void MainWindow::on_radioOverride_clicked() {
 
     // This just doesn't work. Make a function to look for the radio button checked.
     ConfigurationListItem *item = GetCheckedItem();
-    if (item == nullptr)
-        configurator.SetActiveConfiguration(nullptr);
-    else
-        configurator.SetActiveConfiguration(&item->configuration);
+    Configuration *configuration = item == nullptr ? nullptr : &item->configuration;
+
+    configurator.SetActiveConfiguration(configuration);
 
     UpdateUI();
 }
@@ -383,10 +381,7 @@ void MainWindow::on_checkBoxApplyList_clicked() {
         dlg.exec();
     }
 
-    // Checking the list, the configuration need to be updated to the system
-    if (configurator.GetActiveConfiguration()) {
-        configurator.SetActiveConfiguration(configurator.GetActiveConfiguration());
-    }
+    configurator.RefreshConfiguration();
 
     UpdateUI();
 }
@@ -477,10 +472,7 @@ void MainWindow::profileItemClicked(bool checked) {
     // to ensure the new item is "selected"
     ui->profileTree->setCurrentItem(item);
 
-    // Do we go ahead and activate it?
-    if (Configurator::Get().environment.UseOverride()) {
-        Configurator::Get().SetActiveConfiguration(&item->configuration);
-    }
+    Configurator::Get().SetActiveConfiguration(&item->configuration);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -686,10 +678,7 @@ void MainWindow::on_pushButtonAppList_clicked() {
     }
 
     configurator.SaveOverriddenApplicationList();
-
-    if (configurator.GetActiveConfiguration()) {
-        configurator.SetActiveConfiguration(configurator.GetActiveConfiguration());
-    }
+    configurator.RefreshConfiguration();
 
     UpdateUI();
 }
@@ -932,16 +921,26 @@ void MainWindow::profileItemExpanded(QTreeWidgetItem *item) {
 }
 
 void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
-    (void)item;
     (void)column;
+
     Configurator::Get().environment.Notify(NOTIFICATION_RESTART);
+
+    ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
+    Configuration *configuration = item == nullptr ? nullptr : &configuration_item->configuration;
+    assert(configuration);
+
+    Configurator::Get().SetActiveConfiguration(configuration);
+
+    UpdateUI();
 }
 
 void MainWindow::OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int column) {
-    (void)item;
     (void)column;
 
     Configurator::Get().environment.Notify(NOTIFICATION_RESTART);
+    Configurator::Get().RefreshConfiguration();
+
+    UpdateUI();
 }
 
 ///////////////////////////////////////////////////////////////////

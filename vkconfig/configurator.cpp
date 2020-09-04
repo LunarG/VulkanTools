@@ -1030,15 +1030,15 @@ void Configurator::LoadDefaultSettings(Layer *blank_layer) {
 // Set this as the current override profile. The profile definition passed in
 // is used to construct the override and settings files.
 // Passing in nullptr IS valid, and will clear the current profile
-void Configurator::SetActiveConfiguration(Configuration *configuration) {
-    _active_configuration = configuration;
+void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
+    _active_configuration = active_configuration;
     QSettings settings;
 
     const QString override_settings_path = path.GetFullPath(PATH_OVERRIDE_SETTINGS);
     const QString override_layers_path = path.GetFullPath(PATH_OVERRIDE_LAYERS);
 
     // Clear the profile if null
-    if (configuration == nullptr) {
+    if (_active_configuration == nullptr) {
         environment.Set(ACTIVE_CONFIGURATION, "");
 
         // Delete a bunch of stuff
@@ -1068,8 +1068,8 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     QTextStream stream(&file);
 
     // Loop through all the layers
-    for (int layer_index = 0, layer_count = configuration->_layers.size(); layer_index < layer_count; layer_index++) {
-        Layer *layer = configuration->_layers[layer_index];
+    for (int layer_index = 0, layer_count = _active_configuration->_layers.size(); layer_index < layer_count; layer_index++) {
+        Layer *layer = _active_configuration->_layers[layer_index];
         stream << "\n";
         stream << "# " << layer->_name << "\n";
 
@@ -1103,9 +1103,9 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     // layer paths go in here.
     QStringList layer_override_paths;
 
-    for (int i = 0; i < configuration->_layers.size(); i++) {
+    for (int i = 0; i < _active_configuration->_layers.size(); i++) {
         // Extract just the path
-        QFileInfo file(configuration->_layers[i]->_layer_path);
+        QFileInfo file(_active_configuration->_layers[i]->_layer_path);
         QString qsPath = QDir().toNativeSeparators(file.absolutePath());
 
         // Make sure the path is not already in the list
@@ -1119,11 +1119,11 @@ void Configurator::SetActiveConfiguration(Configuration *configuration) {
     for (int i = 0; i < layer_override_paths.count(); i++) json_paths.append(QDir::toNativeSeparators(layer_override_paths[i]));
 
     QJsonArray json_layers;
-    for (int i = 0; i < configuration->_layers.size(); i++) json_layers.append(configuration->_layers[i]->_name);
+    for (int i = 0; i < _active_configuration->_layers.size(); i++) json_layers.append(_active_configuration->_layers[i]->_name);
 
     QJsonArray json_excluded_layer_list;
-    for (int i = 0; i < configuration->_excluded_layers.size(); i++)
-        json_excluded_layer_list.append(configuration->_excluded_layers[i]);
+    for (int i = 0; i < _active_configuration->_excluded_layers.size(); i++)
+        json_excluded_layer_list.append(_active_configuration->_excluded_layers[i]);
 
     // Only supply this list if an app list is specified
     QJsonArray json_applist;

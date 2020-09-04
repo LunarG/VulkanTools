@@ -464,6 +464,6 @@ void SettingsTreeManager::profileEdited() {
     // If this profile is active, we need to reset the override files too
     // Just resetting with the same parent pointer will do the trick
     if (_configuration == configurator.GetActiveConfiguration()) {
-        configurator.SetActiveConfiguration(_configuration);
+        configurator.RefreshConfiguration();
     }
 }
