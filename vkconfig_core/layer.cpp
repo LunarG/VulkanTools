@@ -95,9 +95,8 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
-    QJsonDocument jsonDoc;
     QJsonParseError parseError;
-    jsonDoc = QJsonDocument::fromJson(json_text.toUtf8(), &parseError);
+    const QJsonDocument& jsonDoc = QJsonDocument::fromJson(json_text.toUtf8(), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
         QMessageBox message_box;
         message_box.setText(parseError.errorString());
