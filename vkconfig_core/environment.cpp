@@ -275,9 +275,9 @@ bool Environment::LoadApplications() {
     applications.clear();
 
     for (int i = 0, n = app_keys.length(); i < n; i++) {
-        if (app_keys[i] == "file_format_version") {
-            continue;
-        }
+        // if (app_keys[i] == "file_format_version") {
+        //    continue;
+        //}
 
         const QJsonValue& app_value = json_doc_object.value(app_keys[i]);
         const QJsonObject& app_object = app_value.toObject();
@@ -431,7 +431,7 @@ bool Environment::Save() const {
 
 bool Environment::SaveApplications() const {
     QJsonObject root;
-    root.insert("file_format_version", Version::VKCONFIG.str().c_str());
+    // root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         // Build an array of appnames with associated data
