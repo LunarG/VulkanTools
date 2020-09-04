@@ -176,13 +176,16 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
 
     if (options_value != QJsonValue::Undefined && version > Version::VKCONFIG) {
         QMessageBox alert;
-        alert.setWindowTitle("Vulkan Configurator version is too old");
-        alert.setText(format("The \"%s\" configuration was created with a newer version of %s. The configuration is discarded",
+        alert.setWindowTitle("Vulkan Configurator version is too old...");
+        alert.setText(format("The \"%s\" configuration was created with a newer version of %s. Use Vulkan Configurator from the "
+                             "latest Vulkan SDK to resolve the issue. ",
                              _name.toUtf8().constData(), VKCONFIG_NAME)
                           .c_str());
-        alert.setInformativeText("Use Vulkan Configurator from the latest Vulkan SDK to resolve the issue.");
+        alert.setInformativeText("Do you want to continue?");
         alert.setIcon(QMessageBox::Warning);
-        alert.exec();
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::Yes);
+        if (alert.exec() == QMessageBox::No) exit(-1);
     }
 
     // Build the list of layers with their settings. If both the layers and
