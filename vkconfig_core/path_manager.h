@@ -57,6 +57,9 @@ class PathManager {
     PathManager();
     ~PathManager();
 
+    bool Load();
+    bool Save();
+
     const char* GetPath(Path path) const;
 
     // The path value should not have the filename

@@ -21,12 +21,14 @@
 #pragma once
 
 #include "version.h"
+#include "path_manager.h"
 
 #include <QByteArray>
 #include <QString>
 #include <QStringList>
 
 #include <array>
+#include <vector>
 
 enum Notification {
     NOTIFICATION_RESTART = 0,
@@ -67,17 +69,28 @@ enum { LAYOUT_COUNT = LAYOUT_LAST - LAYOUT_FIRST + 1 };
 
 enum Active {
     ACTIVE_CONFIGURATION = 0,
-    ACTIVE_EXECUTABLE,
+    ACTIVE_APPLICATION,
 
     ACTIVE_FIRST = ACTIVE_CONFIGURATION,
-    ACTIVE_LAST = ACTIVE_EXECUTABLE,
+    ACTIVE_LAST = ACTIVE_APPLICATION,
 };
 
 enum { ACTIVE_COUNT = ACTIVE_LAST - ACTIVE_FIRST + 1 };
 
+struct Application {
+    Application() {}
+    Application(const QString& executable_full_path, const QString& arguments);
+
+    QString executable_path;
+    QString working_folder;
+    QString arguments;
+    QString log_file;
+    bool override_layers;
+};
+
 class Environment {
    public:
-    Environment();
+    Environment(PathManager& paths);
     ~Environment();
 
     enum ResetMode { DEFAULT = 0, SYSTEM };
@@ -87,7 +100,20 @@ class Environment {
     void Reset(ResetMode mode);
 
     bool Load();
+    bool LoadApplications();
     bool Save() const;
+    bool SaveApplications() const;
+
+    void SelectActiveApplication(int application_index);
+    int GetActiveApplicationIndex() const;
+    bool HasOverriddenApplications() const;
+    bool AppendApplication(const Application& application);
+    bool RemoveApplication(int application_index);
+
+    const std::vector<Application>& GetApplications() const { return applications; }
+    const Application& GetActiveApplication() const;
+    const Application& GetApplication(int application_index) const;
+    Application& GetApplication(int application_index);
 
     const QString& Get(Active active) const;
     void Set(Active active, const QString& name);
@@ -111,6 +137,8 @@ class Environment {
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
+    void UpdateDefaultApplications(const bool add_default_applications);
+
     Version version;
     OverrideState override_state;
 
@@ -118,4 +146,7 @@ class Environment {
     std::array<bool, NOTIFICATION_COUNT> hidden_notifications;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     QStringList custom_layer_paths;
+    std::vector<Application> applications;
+
+    PathManager& paths;
 };
