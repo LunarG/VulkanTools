@@ -84,3 +84,5 @@ class Layer {
 };
 
 void SortByRank(QVector<Layer*>& layers);
+
+const Layer* FindLayer(const QVector<Layer*>& layers, QString layer_name);

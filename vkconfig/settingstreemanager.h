@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "configuration.h"
 #include "khronossettingsadvanced.h"
 #include "widget_filesystem_setting.h"
 #include "widget_bool_setting.h"
@@ -30,6 +29,8 @@
 #include "widget_multi_enum_setting.h"
 #include "widget_vuid_search.h"
 #include "widget_mute_message.h"
+
+#include "../vkconfig_core/configuration.h"
 
 #include <QObject>
 #include <QTreeWidget>

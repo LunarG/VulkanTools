@@ -24,7 +24,7 @@
 #include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/path_manager.h"
 #include "../vkconfig_core/environment.h"
-#include "configuration.h"
+#include "../vkconfig_core/configuration.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -155,6 +155,7 @@ class Configurator {
     // This includes all found implicit, explicit, or layers found in custom folders
     QVector<Layer*> _available_Layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
+    bool IsLayerAvailable(const QString& layer_name) const;
     const Layer* FindLayerNamed(QString layer_name);
     void LoadLayersFromPath(const QString& path, QVector<Layer*>& layer_list);
 
@@ -165,6 +166,7 @@ class Configurator {
     void LoadAllConfigurations();  // Load all the .profile files found
     void ImportConfiguration(const QString& full_import_path);
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
+    bool IsValid(const Configuration& configuration) const;
 
     bool HasLayers() const;
 

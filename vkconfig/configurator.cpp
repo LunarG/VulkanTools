@@ -865,9 +865,9 @@ void Configurator::LoadAllConfigurations() {
             const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
 
             Configuration configuration;
-            const bool result = configuration.Load(file);
+            const bool result = configuration.Load(file, _available_Layers);
             if (result) {
-                const bool result = configuration.Save();
+                const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration._name));
                 assert(result);
             }
         }
@@ -888,7 +888,7 @@ void Configurator::LoadAllConfigurations() {
         if (info.absoluteFilePath().contains("applist.json")) continue;
 
         Configuration *configuration = new Configuration;
-        const bool result = configuration->Load(info.absoluteFilePath());
+        const bool result = configuration->Load(info.absoluteFilePath(), _available_Layers);
         if (result) {
             _available_configurations.push_back(configuration);
         }
@@ -952,16 +952,33 @@ void Configurator::LoadDefaultLayerSettings() {
     }
 }
 
+bool Configurator::IsLayerAvailable(const QString &layer_name) const {
+    assert(!layer_name.isEmpty());
+
+    for (int i = 0, n = _available_Layers.size(); i < n; ++i) {
+        const Layer &layer = *_available_Layers[i];
+
+        if (layer_name != layer._name) continue;
+
+        assert(layer.IsValid());
+        return true;
+    }
+
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 /// To do a full match, not only the layer name, but the layer path/location
 /// must also be a match. It IS possible to have two layers with the same name
 /// as long as they are in different locations.
 const Layer *Configurator::FindLayerNamed(QString layer_name) {
-    for (int i = 0; i < _available_Layers.size(); ++i) {
-        const Layer *layer_file = _available_Layers[i];
+    assert(!layer_name.isEmpty());
 
-        if (!(layer_name == layer_file->_name)) continue;
-        return layer_file;
+    for (int i = 0; i < _available_Layers.size(); ++i) {
+        const Layer *layer = _available_Layers[i];
+
+        if (!(layer_name == layer->_name)) continue;
+        return layer;
     }
 
     return nullptr;
@@ -1156,7 +1173,7 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
 
     Configuration configuration;
 
-    if (!configuration.Load(full_import_path)) {
+    if (!configuration.Load(full_import_path, _available_Layers)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -1167,9 +1184,8 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
     }
 
     configuration._name += " (Imported)";
-    configuration.Save();
 
-    if (!configuration.Save()) {
+    if (!configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration._name))) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -1190,7 +1206,7 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
 
     const QString source_path = path.GetFullPath(PATH_CONFIGURATION, source_file);
 
-    if (!configuration.Load(source_path)) {
+    if (!configuration.Load(source_path, _available_Layers)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
@@ -1200,7 +1216,7 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
         return;
     }
 
-    if (!configuration.Save(full_export_path.toUtf8().constData())) {
+    if (!configuration.Save(full_export_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
@@ -1209,4 +1225,20 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
         msg.exec();
         return;
     }
+}
+
+bool Configurator::IsValid(const Configuration &configuration) const {
+    if (configuration._excluded_layers.empty() && configuration._layers.empty()) {
+        return false;
+    }
+
+    for (int i = 0, n = configuration._layers.size(); i < n; ++i) {
+        if (!IsLayerAvailable(configuration._layers[i]->_name)) return false;
+    }
+
+    for (int i = 0, n = configuration._excluded_layers.size(); i < n; ++i) {
+        if (!IsLayerAvailable(configuration._excluded_layers[i])) return false;
+    }
+
+    return true;
 }

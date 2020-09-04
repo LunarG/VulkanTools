@@ -161,7 +161,7 @@ void MainWindow::UpdateUI() {
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
     const bool has_active_configuration =
-        configurator.GetActiveConfiguration() != nullptr ? configurator.GetActiveConfiguration()->IsValid() : false;
+        configurator.GetActiveConfiguration() != nullptr ? configurator.IsValid(*configurator.GetActiveConfiguration()) : false;
 
     // Mode states
     ui->radioOverride->setChecked(environment.UseOverride());
@@ -283,7 +283,7 @@ void MainWindow::LoadConfigurationList() {
         item->radio_button->setToolTip(configurator._available_configurations[i]->_description);
         item->setText(1, configurator._available_configurations[i]->_name);
 
-        if (!configurator._available_configurations[i]->IsValid()) {
+        if (!configurator.IsValid(*configurator._available_configurations[i])) {
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
             item->radio_button->setEnabled(false);
             item->radio_button->setChecked(false);
@@ -296,7 +296,7 @@ void MainWindow::LoadConfigurationList() {
         // if you make a current config invalid and come back in... it can't be active any
         // longer
         if (active_configuration_name == configurator._available_configurations[i]->_name) {
-            if (configurator._available_configurations[i]->IsValid())
+            if (configurator.IsValid(*configurator._available_configurations[i]))
                 item->radio_button->setChecked(true);
             else
                 configurator.SetActiveConfiguration(nullptr);
@@ -521,7 +521,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         // Proceed
         remove(full_path.toUtf8().constData());
         configuration_item->configuration._name = new_name;
-        const bool result = configuration_item->configuration.Save();
+        const bool result = configuration_item->configuration.Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_name));
         assert(result);
 
         RestoreLastItem(configuration_item->configuration._name.toUtf8().constData());
@@ -861,7 +861,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CleanupGUI();
 
     item->configuration._name = new_name;
-    const bool result = item->configuration.Save();
+    const bool result = item->configuration.Save(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration._name));
     assert(result);
 
     configurator.LoadAllConfigurations();
@@ -1325,7 +1325,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     if (configuration == nullptr) {
         launch_log += "- Layers fully controlled by the application.\n";
-    } else if (!configuration->IsValid()) {
+    } else if (!configurator.IsValid(*configuration)) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                          configuration->_name.toUtf8().constData());
     } else if (configurator.environment.UseOverride()) {

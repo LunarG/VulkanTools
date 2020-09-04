@@ -187,3 +187,16 @@ void SortByRank(QVector<Layer*>& layers) {
         }
     }
 }
+
+const Layer* FindLayer(const QVector<Layer*>& layers, QString layer_name) {
+    assert(!layer_name.isEmpty());
+
+    for (int i = 0; i < layers.size(); ++i) {
+        const Layer* layer = layers[i];
+
+        if (layer_name != layer->_name) continue;
+        return layer;
+    }
+
+    return nullptr;
+}
