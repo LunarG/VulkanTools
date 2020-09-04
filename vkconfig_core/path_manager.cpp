@@ -76,6 +76,16 @@ static const FilenameDesc& GetDesc(Filename filename) {
 }
 
 PathManager::PathManager() {
+    const bool result = Load();
+    assert(result);
+}
+
+PathManager::~PathManager() {
+    const bool result = Save();
+    assert(result);
+}
+
+bool PathManager::Load() {
     paths[PATH_HOME] = QDir::toNativeSeparators(QDir::homePath()).toStdString();
 
     QSettings settings;
@@ -84,15 +94,19 @@ PathManager::PathManager() {
         if (GetDesc(type).setting == nullptr) continue;
         paths[type] = settings.value(GetDesc(type).setting).toString().toUtf8().constData();
     }
+
+    return true;
 }
 
-PathManager::~PathManager() {
+bool PathManager::Save() {
     QSettings settings;
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
         const Path type = static_cast<Path>(i);
         if (GetDesc(type).setting == nullptr) continue;
         settings.setValue(GetDesc(type).setting, paths[type].c_str());
     }
+
+    return true;
 }
 
 void PathManager::Clear() {

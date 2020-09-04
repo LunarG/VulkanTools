@@ -120,6 +120,8 @@ TEST(test_path_manager, empty_export) {
 
     EXPECT_STRNE(paths.GetPath(PATH_EXPORT_CONFIGURATION), paths.GetPath(PATH_HOME));
     EXPECT_STREQ(paths.GetPath(PATH_IMPORT_CONFIGURATION), paths.GetPath(PATH_EXPORT_CONFIGURATION));
+
+    paths.Load();
 }
 
 TEST(test_path_manager, check_missing_dir) {
@@ -128,6 +130,8 @@ TEST(test_path_manager, check_missing_dir) {
     paths.SetPath(PATH_CONFIGURATION, InitPath("check_missing_dir"));
 
     EXPECT_TRUE(strstr(paths.GetPath(PATH_CONFIGURATION), "check_missing_dir") != nullptr);
+
+    paths.Load();
 }
 
 TEST(test_path_manager, check_default_filename) {
@@ -137,6 +141,8 @@ TEST(test_path_manager, check_default_filename) {
     const QString string = paths.GetFullPath(PATH_OVERRIDE_SETTINGS);
 
     EXPECT_TRUE(string.endsWith("vk_layer_settings.txt"));
+
+    paths.Load();
 }
 
 TEST(test_path_manager, check_default_suffix) {
@@ -146,6 +152,8 @@ TEST(test_path_manager, check_default_suffix) {
     const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration");
 
     EXPECT_TRUE(string.endsWith("my_configuration.json"));
+
+    paths.Load();
 }
 
 TEST(test_path_manager, check_with_suffix) {
@@ -155,4 +163,6 @@ TEST(test_path_manager, check_with_suffix) {
     const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration.json");
 
     EXPECT_TRUE(string.endsWith("my_configuration.json"));
+
+    paths.Load();
 }

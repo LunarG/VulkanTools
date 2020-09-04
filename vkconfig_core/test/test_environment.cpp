@@ -21,10 +21,13 @@
 
 #include <gtest/gtest.h>
 
+#include "../path_manager.h"
 #include "../environment.h"
 
 TEST(test_environment, custom_path_no_duplicate) {
-    Environment environment;
+    PathManager paths;
+    Environment environment(paths);
+
     environment.Reset(Environment::DEFAULT);
 
     EXPECT_EQ(true, environment.AppendCustomLayerPath("./path"));
@@ -36,7 +39,9 @@ TEST(test_environment, custom_path_no_duplicate) {
 }
 
 TEST(test_environment, custom_path_not_found) {
-    Environment environment;
+    PathManager paths;
+    Environment environment(paths);
+
     environment.Reset(Environment::DEFAULT);
 
     EXPECT_EQ(false, environment.RemoveCustomLayerPath("./path"));

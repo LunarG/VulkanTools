@@ -76,21 +76,6 @@ struct LayerSettingsDefaults {
     std::vector<LayerSetting> default_settings;  // Default settings for this layer
 };
 
-//////////////////////////////////////////////////////////
-// We will maintain a list of applicitons, each can have
-// it's own working folder (when run in test mode), and
-// it's own set of command line arguments
-struct Application {
-    Application() {}
-    Application(const QString& executable_full_path, const QString& arguments);
-
-    QString executable_path;
-    QString working_folder;
-    QString arguments;
-    QString log_file;
-    bool override_layers;
-};
-
 class Configurator {
    public:
     static Configurator& Get();
@@ -106,13 +91,6 @@ class Configurator {
     const char* GetValidationPresetLabel(ValidationPreset preset) const;
 
     /////////////////////////////////////////////////////////////////////////
-    // Application Launcher
-   public:
-    void SelectLaunchApplication(int application_index);
-    int GetLaunchApplicationIndex() const;
-    void UpdateDefaultApplications(const bool add_default_applications);
-
-    /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
    public:
     void BuildCustomLayerTree(QTreeWidget* tree_widget);
@@ -125,11 +103,6 @@ class Configurator {
     /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
    public:
-    QVector<Application*> _overridden_applications;
-    void LoadOverriddenApplicationList();
-    void SaveOverriddenApplicationList();
-    bool HasActiveOverriddenApplications() const;
-
     // If return_loader_version is not null, the function will return the loader version
     // If quiet is false, message box will be generate
     bool SupportApplicationList(bool quiet = true, Version* return_loader_version = nullptr) const;
@@ -198,6 +171,6 @@ class Configurator {
 #endif
 
    public:
-    Environment environment;
     PathManager path;
+    Environment environment;
 };

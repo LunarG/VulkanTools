@@ -197,21 +197,18 @@ void MainWindow::UpdateUI() {
     _launcher_apps_combo->blockSignals(true);
     _launcher_apps_combo->clear();
 
-    if (configurator._overridden_applications.isEmpty()) {
+    const std::vector<Application> &applications = environment.GetApplications();
+    if (applications.empty()) {
         _launch_arguments->setText("");
         _launcher_working->setText("");
         _launcher_log_file_edit->setText("");
     } else {
-        for (int i = 0, n = configurator._overridden_applications.size(); i < n; i++) {
-            _launcher_apps_combo->addItem(configurator._overridden_applications[i]->executable_path);
+        for (std::size_t i = 0, n = applications.size(); i < n; i++) {
+            _launcher_apps_combo->addItem(applications[i].executable_path);
         }
+        _launcher_apps_combo->setCurrentIndex(environment.GetActiveApplicationIndex());
 
-        int launch_application_index = configurator.GetLaunchApplicationIndex();
-        assert(launch_application_index >= 0);
-        configurator.SelectLaunchApplication(launch_application_index);
-        const Application &application = *configurator._overridden_applications[launch_application_index];
-
-        _launcher_apps_combo->setCurrentIndex(launch_application_index);
+        const Application &application = environment.GetActiveApplication();
         _launch_arguments->setText(application.arguments);
         _launcher_working->setText(application.working_folder);
         _launcher_log_file_edit->setText(application.log_file);
@@ -224,7 +221,7 @@ void MainWindow::UpdateUI() {
     ui->checkBoxPersistent->setChecked(environment.UsePersistentOverrideMode());
 
     // Launcher states
-    const bool has_application_list = !configurator._overridden_applications.empty();
+    const bool has_application_list = !environment.GetApplications().empty();
     ui->pushButtonLaunch->setEnabled(has_application_list);
     ui->pushButtonLaunch->setText(_launch_application == nullptr ? "Launch" : "Terminate");
     ui->checkBoxClearOnLaunch->setChecked(environment.Get(LAYOUT_LAUNCHER_CLEAR_ON) == "true");
@@ -375,7 +372,7 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     configurator.environment.SetMode(OVERRIDE_MODE_LIST, ui->checkBoxApplyList->isChecked());
 
     // Handle the case where no application with active override is present
-    const bool application_list_requires_update = !configurator.HasActiveOverriddenApplications();
+    const bool application_list_requires_update = !configurator.environment.HasOverriddenApplications();
     if (ui->checkBoxApplyList->isChecked() && application_list_requires_update) {
         dlgCreateAssociation dlg(this);
         dlg.exec();
@@ -414,6 +411,8 @@ void MainWindow::toolsResetToDefault(bool checked) {
     // Clear the current profile as we may be about to remove it.
     configurator.SetActiveConfiguration(nullptr);
 
+    configurator.environment.Reset(Environment::DEFAULT);
+
     // Delete all the *.json files in the storage folder
     QDir dir(configurator.path.GetPath(PATH_CONFIGURATION));
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -427,15 +426,12 @@ void MainWindow::toolsResetToDefault(bool checked) {
         remove(info.filePath().toUtf8().constData());
     }
 
-    // Reset to recopy from resource file
-    configurator.environment.first_run = true;
-
     // Now we need to kind of restart everything
     _settings_tree_manager.CleanupGUI();
     configurator.LoadAllConfigurations();
 
     // Find the "Validation - Standard" configuration and make it current if we are active
-    Configuration *active_configuration = configurator.FindConfiguration("Validation - Standard");
+    Configuration *active_configuration = configurator.FindConfiguration(configurator.environment.Get(ACTIVE_CONFIGURATION));
     if (configurator.environment.UseOverride()) {
         configurator.SetActiveConfiguration(active_configuration);
     }
@@ -448,8 +444,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
         if (item == nullptr) continue;
         if (&item->configuration == active_configuration) ui->profileTree->setCurrentItem(item);
     }
-
-    configurator.UpdateDefaultApplications(true);
 
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
@@ -638,8 +632,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         configurator.environment.Set(ACTIVE_CONFIGURATION, active_configuration_name);
     }
 
-    configurator.SaveOverriddenApplicationList();
-
     configurator.environment.Set(LAYOUT_GEOMETRY, saveGeometry());
     configurator.environment.Set(LAYOUT_WINDOW_STATE, saveState());
     configurator.environment.Set(LAYOUT_SPLITTER1, ui->splitter->saveState());
@@ -674,10 +666,9 @@ void MainWindow::on_pushButtonAppList_clicked() {
     Configurator &configurator = Configurator::Get();
 
     if (Preferences::Get()._use_last_selected_application_in_launcher) {
-        configurator.SelectLaunchApplication(dlg.GetSelectedLaunchApplicationIndex());
+        configurator.environment.SelectActiveApplication(dlg.GetSelectedLaunchApplicationIndex());
     }
 
-    configurator.SaveOverriddenApplicationList();
     configurator.RefreshConfiguration();
 
     UpdateUI();
@@ -841,11 +832,11 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     SaveLastItem();
     Configurator &configurator = Configurator::Get();
 
-    // We need a new name that is not already used. Simply append '2' until
+    // We need a new name that is not already used. Simply append '(Duplicated)' until
     // it is unique.
     assert(&item->configuration);
     QString new_name = item->configuration._name;
-    while (configurator.FindConfiguration(new_name) != nullptr) new_name += "2";
+    while (configurator.FindConfiguration(new_name) != nullptr) new_name += " (Duplicated)";
 
     _settings_tree_manager.CleanupGUI();
 
@@ -1061,36 +1052,28 @@ void MainWindow::launchSetLogFile() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Configurator &configurator = Configurator::Get();
-
-    Application *application = configurator._overridden_applications[current_application_index];
-    const QString path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application->log_file);
+    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+    const QString path = Configurator::Get().path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file);
 
     // The user has cancel the operation
     if (path.isEmpty()) return;
 
-    application->log_file = path;
+    application.log_file = path;
     _launcher_log_file_edit->setText(path);
-
-    configurator.SaveOverriddenApplicationList();
 }
 
 void MainWindow::launchSetWorkingFolder() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Configurator &configurator = Configurator::Get();
-
-    Application *application = configurator._overridden_applications[current_application_index];
-    const QString path = configurator.path.SelectPath(this, PATH_EXECUTABLE, application->working_folder);
+    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+    const QString path = Configurator::Get().path.SelectPath(this, PATH_EXECUTABLE, application.working_folder);
 
     // The user has cancel the operation
     if (path.isEmpty()) return;
 
-    application->working_folder = path;
+    application.working_folder = path;
     _launcher_working->setText(path);
-
-    configurator.SaveOverriddenApplicationList();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1099,9 +1082,8 @@ void MainWindow::launchChangeLogFile(const QString &log_file) {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Configurator &configurator = Configurator::Get();
-    configurator._overridden_applications[current_application_index]->log_file = log_file;
-    configurator.SaveOverriddenApplicationList();
+    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+    application.log_file = log_file;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -1109,23 +1091,23 @@ void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Configurator &configurator = Configurator::Get();
-    configurator._overridden_applications[current_application_index]->working_folder = working_folder;
-    configurator.SaveOverriddenApplicationList();
+    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+    application.working_folder = working_folder;
 }
 
 ////////////////////////////////////////////////////////////////////
 /// Launch app change
 void MainWindow::launchItemChanged(int application_index) {
-    Configurator &configurator = Configurator::Get();
+    if (application_index < 0) return;
 
-    if (application_index < 0 || application_index >= configurator._overridden_applications.size()) return;
+    Environment &environment = Configurator::Get().environment;
 
-    _launch_arguments->setText(configurator._overridden_applications[application_index]->arguments);
-    _launcher_working->setText(configurator._overridden_applications[application_index]->working_folder);
-    _launcher_log_file_edit->setText(configurator._overridden_applications[application_index]->log_file);
+    environment.SelectActiveApplication(application_index);
 
-    configurator.SelectLaunchApplication(application_index);
+    Application &application = environment.GetApplication(application_index);
+    _launch_arguments->setText(application.arguments);
+    _launcher_working->setText(application.working_folder);
+    _launcher_log_file_edit->setText(application.log_file);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1134,9 +1116,8 @@ void MainWindow::launchArgsEdited(const QString &arguments) {
     int application_index = _launcher_apps_combo->currentIndex();
     if (application_index < 0) return;
 
-    Configurator &configurator = Configurator::Get();
-    configurator._overridden_applications[application_index]->arguments = arguments;
-    configurator.SaveOverriddenApplicationList();
+    Application &application = Configurator::Get().environment.GetApplication(application_index);
+    application.arguments = arguments;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1317,8 +1298,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     QString launch_log = "Launching Vulkan Application:\n";
 
     Configurator &configurator = Configurator::Get();
-    int current_application_index = _launcher_apps_combo->currentIndex();
-    const Application &current_application = *configurator._overridden_applications[current_application_index];
+    const Application &active_application = configurator.environment.GetActiveApplication();
 
     Configuration *configuration = configurator.GetActiveConfiguration();
 
@@ -1328,8 +1308,8 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                          configuration->_name.toUtf8().constData());
     } else if (configurator.environment.UseOverride()) {
-        if (configurator.environment.UseApplicationListOverrideMode() && configurator.HasActiveOverriddenApplications() &&
-            !current_application.override_layers) {
+        if (configurator.environment.UseApplicationListOverrideMode() && configurator.environment.HasOverriddenApplications() &&
+            !active_application.override_layers) {
             launch_log += "- Layers fully controlled by the application. Application excluded from layers override.\n";
         } else {
             launch_log +=
@@ -1337,21 +1317,21 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         }
     }
 
-    assert(!current_application.executable_path.isEmpty());
-    launch_log += QString().asprintf("- Executable Path: %s\n", current_application.executable_path.toUtf8().constData());
-    assert(!current_application.working_folder.isEmpty());
-    launch_log += QString().asprintf("- Working Directory: %s\n", current_application.working_folder.toUtf8().constData());
-    if (!current_application.arguments.isEmpty())
-        launch_log += QString().asprintf("- Command-line Arguments: %s\n", current_application.arguments.toUtf8().constData());
-    if (!current_application.log_file.isEmpty())
-        launch_log += QString().asprintf("- Log file: %s\n", current_application.log_file.toUtf8().constData());
+    assert(!active_application.executable_path.isEmpty());
+    launch_log += QString().asprintf("- Executable Path: %s\n", active_application.executable_path.toUtf8().constData());
+    assert(!active_application.working_folder.isEmpty());
+    launch_log += QString().asprintf("- Working Directory: %s\n", active_application.working_folder.toUtf8().constData());
+    if (!active_application.arguments.isEmpty())
+        launch_log += QString().asprintf("- Command-line Arguments: %s\n", active_application.arguments.toUtf8().constData());
+    if (!active_application.log_file.isEmpty())
+        launch_log += QString().asprintf("- Log file: %s\n", active_application.log_file.toUtf8().constData());
 
-    if (!current_application.log_file.isEmpty()) {
+    if (!active_application.log_file.isEmpty()) {
         // Start logging
         // Make sure the log file is not already opened. This can occur if the
         // launched application is closed from the applicaiton.
         if (!_log_file.isOpen()) {
-            _log_file.setFileName(current_application.log_file);
+            _log_file.setFileName(active_application.log_file);
 
             // Open and append, or open and truncate?
             QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
@@ -1375,11 +1355,11 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     connect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
     connect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    _launch_application->setProgram(configurator._overridden_applications[current_application_index]->executable_path);
-    _launch_application->setWorkingDirectory(configurator._overridden_applications[current_application_index]->working_folder);
+    _launch_application->setProgram(active_application.executable_path);
+    _launch_application->setWorkingDirectory(active_application.working_folder);
 
-    if (!current_application.arguments.isEmpty()) {
-        const QStringList args = current_application.arguments.split(" ");
+    if (!active_application.arguments.isEmpty()) {
+        const QStringList args = active_application.arguments.split(" ");
         _launch_application->setArguments(args);
     }
 
@@ -1392,7 +1372,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        const QString failed_log = QString("Failed to launch ") + current_application.executable_path + "!\n";
+        const QString failed_log = QString("Failed to launch ") + active_application.executable_path + "!\n";
         Log(failed_log);
         UpdateUI();
         return;

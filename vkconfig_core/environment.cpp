@@ -19,14 +19,18 @@
  */
 
 #include "environment.h"
+#include "platform.h"
 #include "util.h"
-
-// Temp:
-#include "../vkconfig/configurator.h"
 
 #include <QSettings>
 #include <QMessageBox>
 #include <QCheckBox>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 #include <cassert>
 
@@ -80,7 +84,15 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Environment::Environment() {
+Application::Application(const QString& executable_full_path, const QString& arguments)
+    : executable_path(QDir::toNativeSeparators(executable_full_path)),
+      working_folder(QDir::toNativeSeparators(QFileInfo(executable_full_path).path())),
+      arguments(arguments),
+      log_file(
+          QDir::toNativeSeparators(QDir::homePath() + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
+      override_layers(true) {}
+
+Environment::Environment(PathManager& paths) : paths(paths) {
     const bool result = Load();
     assert(result);
 }
@@ -158,11 +170,15 @@ void Environment::Reset(ResetMode mode) {
             for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
                 actives[i] = GetActiveDefault(static_cast<Active>(i));
             }
+
+            UpdateDefaultApplications(true);
             break;
         }
         case SYSTEM: {
-            const bool result = Load();
-            assert(result);
+            const bool result_env = Load();
+            assert(result_env);
+            const bool result_path = paths.Load();
+            assert(result_path);
             break;
         }
         default: {
@@ -229,7 +245,151 @@ bool Environment::Load() {
     // Load custom paths
     custom_layer_paths = settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList();
 
+    // Load application list
+    const bool result = LoadApplications();
+    assert(result);
+
     return true;
+}
+
+bool Environment::LoadApplications() {
+    /////////////////////////////////////////////////////////////
+    // Now, use the list. If the file doesn't exist, this is not an error
+    QString data;
+    const QString& application_list_json = paths.GetFullPath(FILENAME_APPLIST);
+    QFile file(application_list_json);
+    if (file.open(QFile::ReadOnly)) {
+        data = file.readAll();
+        file.close();
+    }
+
+    QJsonDocument json_app_list;
+    json_app_list = QJsonDocument::fromJson(data.toLocal8Bit());
+    if (json_app_list.isObject()) {
+        if (!json_app_list.isEmpty()) {
+            // Get the list of apps
+            QStringList app_keys;
+            QJsonObject json_doc_object = json_app_list.object();
+            app_keys = json_doc_object.keys();
+
+            // Get them...
+            for (int i = 0; i < app_keys.length(); i++) {
+                QJsonValue app_value = json_doc_object.value(app_keys[i]);
+                QJsonObject app_object = app_value.toObject();
+
+                Application application;
+                application.working_folder = app_object.value("app_folder").toString();
+                application.executable_path = app_object.value("app_path").toString();
+                application.override_layers = !app_object.value("exclude_override").toBool();
+                application.log_file = app_object.value("log_file").toString();
+
+                // Arguments are in an array to make room for adding more in a future version
+                QJsonArray args = app_object.value("command_lines").toArray();
+                application.arguments = args[0].toString();
+
+                applications.push_back(application);
+            }
+        }
+    }
+
+    UpdateDefaultApplications(first_run || applications.empty());
+
+    return true;
+}
+
+static QString GetDefaultExecutablePath(const QString& executable_name) {
+#if PLATFORM_MACOS
+    static const char* DEFAULT_PATH = "/../..";
+#elif PLATFORM_WINDOWS || PLATFORM_LINUX
+    static const char* DEFAULT_PATH = "";
+#else
+#error "Unknown platform"
+#endif
+
+    // Using relative path to vkconfig
+    {
+        const QString search_path = QString("../bin") + DEFAULT_PATH + executable_name;
+        QFileInfo file_info(search_path);
+        if (file_info.exists())  // Couldn't find vkcube
+            return file_info.filePath();
+    }
+
+    // Using VULKAN_SDK environement variable
+    {
+        const QString search_path = QString(qgetenv("VULKAN_SDK")) + "/bin" + DEFAULT_PATH + executable_name;
+        QFileInfo file_info(search_path);
+        if (file_info.exists())  // Couldn't find vkcube
+            return file_info.absoluteFilePath();
+    }
+
+    return "";
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Search for vkcube and add it to the app list.
+void Environment::UpdateDefaultApplications(const bool add_default_applications) {
+    std::vector<Application> new_applications;
+
+    // Remove application that can't be found
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        const Application& application = applications[i];
+
+        const QFileInfo file_info(application.executable_path);
+        if (!file_info.exists()) continue;
+
+        new_applications.push_back(application);
+    }
+
+    if (!add_default_applications) return;
+
+#if PLATFORM_WINDOWS
+    static const char* SUFFIX = ".exe";
+#elif PLATFORM_MACOS
+    static const char* SUFFIX = ".app";
+#elif PLATFORM_LINUX
+    static const char* SUFFIX = "";
+#else
+#error "Unknown platform"
+#endif
+
+    struct Default {
+        QString name;
+        QString arguments;
+    };
+
+    static const Default defaults[] = {{QDir::toNativeSeparators("/vkcube"), "--suppress_popups"},
+                                       {QDir::toNativeSeparators("/vkcubepp"), "--suppress_popups"}};
+
+    for (std::size_t name_index = 0, name_count = countof(defaults); name_index < name_count; ++name_index) {
+        bool found = false;
+
+        for (std::size_t i = 0; i < applications.size(); ++i) {
+            const Application& application = applications[i];
+
+            if (!application.executable_path.endsWith(defaults[name_index].name + SUFFIX)) continue;
+
+            found;
+            break;
+        }
+
+        if (found) continue;
+
+        const QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + SUFFIX);
+        if (executable_path.isEmpty()) continue;  // application could not be found..
+
+        Application application(executable_path, "--suppress_popups");
+
+        // On all operating systems, but Windows we keep running into problems with this ending up
+        // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
+        // initially will be set to the users home folder across all OS's. This is highly visible
+        // in the application launcher and should not present a usability issue. The developer can
+        // easily change this later to anywhere they like.
+        application.log_file = paths.GetPath(PATH_HOME) + defaults[name_index].name + ".txt";
+
+        new_applications.push_back(application);
+    }
+
+    std::swap(applications, new_applications);
 }
 
 bool Environment::Save() const {
@@ -260,7 +420,115 @@ bool Environment::Save() const {
     // Save custom paths
     settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, custom_layer_paths);
 
+    const bool result = SaveApplications();
+    assert(result);
+
     return true;
+}
+
+bool Environment::SaveApplications() const {
+    QJsonObject root;
+
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        // Build an array of appnames with associated data
+        QJsonObject application_object;
+        application_object.insert("app_path", applications[i].executable_path);
+        application_object.insert("app_folder", applications[i].working_folder);
+        application_object.insert("exclude_override", !applications[i].override_layers);
+        application_object.insert("log_file", applications[i].log_file);
+
+        // Ground work for mulitiple sets of command line arguments
+        QJsonArray argsArray;
+        argsArray.append(QJsonValue(applications[i].arguments));  // [J] PROBABLY
+
+        application_object.insert("command_lines", argsArray);
+        root.insert(QFileInfo(applications[i].executable_path).fileName(), application_object);
+    }
+
+    const QString& app_list_json = paths.GetFullPath(FILENAME_APPLIST);
+    QFile file(app_list_json);
+    file.open(QFile::WriteOnly);
+    QJsonDocument doc(root);
+    file.write(doc.toJson());
+    file.close();
+
+    return true;
+}
+
+void Environment::SelectActiveApplication(int application_index) {
+    if (application_index < 0) return;
+
+    assert(application_index >= 0 && application_index < applications.size());
+
+    Set(ACTIVE_APPLICATION, applications[application_index].executable_path);
+}
+
+int Environment::GetActiveApplicationIndex() const {
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        if (applications[i].executable_path == Get(ACTIVE_APPLICATION)) {
+            return static_cast<int>(i);
+        }
+    }
+
+    return 0;  // Not found, but the list is present, so return the first item.
+}
+
+bool Environment::HasOverriddenApplications() const {
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        if (applications[i].override_layers) return true;
+    }
+
+    return false;
+}
+
+bool Environment::AppendApplication(const Application& application) {
+    applications.push_back(application);
+    return true;
+}
+
+bool Environment::RemoveApplication(int application_index) {
+    assert(!applications.empty());
+    assert(application_index >= 0 && application_index < applications.size());
+
+    if (applications.size() == 1) {
+        applications.clear();
+        return true;
+    }
+
+    std::vector<Application> new_applications;
+    new_applications.reserve(applications.size() - 1);
+
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        if (i == application_index) continue;
+        new_applications.push_back(applications[i]);
+    }
+
+    std::swap(applications, new_applications);
+    return true;
+}
+
+const Application& Environment::GetActiveApplication() const {
+    assert(!applications.empty());
+
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        if (applications[i].executable_path == Get(ACTIVE_APPLICATION)) {
+            return applications[i];
+        }
+    }
+
+    return applications[0];  // Not found, but the list is present, so return the first item.
+}
+
+const Application& Environment::GetApplication(int application_index) const {
+    assert(application_index >= 0 && application_index < applications.size());
+
+    return applications[application_index];
+}
+
+Application& Environment::GetApplication(int application_index) {
+    assert(application_index >= 0 && application_index < applications.size());
+
+    return applications[application_index];
 }
 
 bool Environment::UseOverride() const { return (override_state & OVERRIDE_FLAG_ACTIVE) != 0; }

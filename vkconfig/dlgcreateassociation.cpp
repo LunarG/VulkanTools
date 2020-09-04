@@ -47,8 +47,8 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     }
 
     // Show the current list
-    for (int i = 0; i < configurator._overridden_applications.size(); i++)
-        CreateApplicationItem(*configurator._overridden_applications[i]);
+    const std::vector<Application> &applications = configurator.environment.GetApplications();
+    for (std::size_t i = 0, n = applications.size(); i < n; i++) CreateApplicationItem(applications[i]);
 
     ui->treeWidget->installEventFilter(this);
 
@@ -82,16 +82,15 @@ bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event) {
 ///////////////////////////////////////////////////////////////////////////////
 /// Make sure any changes are saved
 void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
-    Configurator &configurator = Configurator::Get();
+    Environment &environment = Configurator::Get().environment;
 
-    configurator.SaveOverriddenApplicationList();
     event->accept();
 
     // When we don't use overridden list only, no need to alert the user about empty list cases.
-    if (!configurator.environment.UseApplicationListOverrideMode()) return;
+    if (!environment.UseApplicationListOverrideMode()) return;
 
-    if (configurator._overridden_applications.empty() || !configurator.HasActiveOverriddenApplications()) {
-        configurator.environment.SetMode(OVERRIDE_MODE_LIST, false);
+    if (environment.GetApplications().empty() || !environment.HasOverriddenApplications()) {
+        environment.SetMode(OVERRIDE_MODE_LIST, false);
 
         QMessageBox alert;
         alert.setIcon(QMessageBox::Warning);
@@ -120,15 +119,14 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
             GetExecutableFromAppBundle(executable_full_path);
         }
 
-        Application *new_application = new Application(executable_full_path, "");
-        configurator._overridden_applications.push_back(new_application);
+        Application new_application(executable_full_path, "");
+        configurator.environment.AppendApplication(new_application);
 
-        QTreeWidgetItem *item = CreateApplicationItem(*new_application);
+        QTreeWidgetItem *item = CreateApplicationItem(new_application);
 
-        configurator.SaveOverriddenApplicationList();
         configurator.RefreshConfiguration();
         ui->treeWidget->setCurrentItem(item);
-        _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(item);
+        configurator.environment.SelectActiveApplication(ui->treeWidget->indexOfTopLevelItem(item));
     }
 }
 
@@ -161,7 +159,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
 
     ui->treeWidget->takeTopLevelItem(selection);
     ui->treeWidget->setCurrentItem(nullptr);
-    configurator._overridden_applications.removeAt(selection);
+    configurator.environment.RemoveApplication(selection);
 
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);
@@ -170,10 +168,8 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
     ui->lineEditWorkingFolder->setText("");
     ui->lineEditLogFile->setText("");
 
-    configurator.SaveOverriddenApplicationList();
     configurator.RefreshConfiguration();
     ui->treeWidget->update();
-    _last_selected_application_index = -1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -183,7 +179,7 @@ void dlgCreateAssociation::on_pushButtonSelect_clicked() {
     Configurator &configurator = Configurator::Get();
     QTreeWidgetItem *item = ui->treeWidget->currentItem();
     if (item != nullptr) {
-        configurator.SelectLaunchApplication(ui->treeWidget->indexOfTopLevelItem(item));
+        configurator.environment.SelectActiveApplication(ui->treeWidget->indexOfTopLevelItem(item));
     }
 
     close();
@@ -194,26 +190,24 @@ void dlgCreateAssociation::on_pushButtonSelect_clicked() {
 /// be removed. Also the working folder and command line arguments are updated
 void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *current_item, QTreeWidgetItem *previous_item) {
     (void)previous_item;
-    _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current_item);
-    if (_last_selected_application_index < 0) {
-        ui->groupLaunchInfo->setEnabled(false);
-        ui->pushButtonRemove->setEnabled(false);
-        ui->pushButtonSelect->setEnabled(false);
+    int application_index = ui->treeWidget->indexOfTopLevelItem(current_item);
+
+    ui->groupLaunchInfo->setEnabled(application_index >= 0);
+    ui->pushButtonRemove->setEnabled(application_index >= 0);
+    ui->pushButtonSelect->setEnabled(application_index >= 0);
+
+    if (application_index < 0) {
         ui->lineEditCmdArgs->setText("");
         ui->lineEditWorkingFolder->setText("");
         ui->lineEditWorkingFolder->setText("");
         return;
     }
 
-    ui->groupLaunchInfo->setEnabled(true);
-    ui->pushButtonRemove->setEnabled(true);
-    ui->pushButtonSelect->setEnabled(true);
+    const Application &application = Configurator::Get().environment.GetApplication(application_index);
 
-    Configurator &configurator = Configurator::Get();
-
-    ui->lineEditWorkingFolder->setText(configurator._overridden_applications[_last_selected_application_index]->working_folder);
-    ui->lineEditCmdArgs->setText(configurator._overridden_applications[_last_selected_application_index]->arguments);
-    ui->lineEditLogFile->setText(configurator._overridden_applications[_last_selected_application_index]->log_file);
+    ui->lineEditWorkingFolder->setText(application.working_folder);
+    ui->lineEditCmdArgs->setText(application.arguments);
+    ui->lineEditLogFile->setText(application.log_file);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -221,7 +215,7 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(item);
     QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, column));
     if (check_box != nullptr) {
-        Configurator::Get()._overridden_applications[_last_selected_application_index]->override_layers = check_box->isChecked();
+        Configurator::Get().environment.GetApplication(_last_selected_application_index).override_layers = check_box->isChecked();
     }
 }
 
@@ -234,8 +228,8 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
 void dlgCreateAssociation::itemClicked(bool clicked) {
     (void)clicked;
 
-    Configurator &configurator = Configurator::Get();
-    const bool need_checkbox = configurator.HasActiveOverrideOnApplicationListOnly();
+    Environment &environment = Configurator::Get().environment;
+    const bool need_checkbox = environment.HasOverriddenApplications();
     if (!need_checkbox) return;
 
     // Loop through the whole list and reset the checkboxes
@@ -244,8 +238,8 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
         QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, 0));
         assert(check_box != nullptr);
         bool is_checked = check_box->isChecked();
-        if (configurator._overridden_applications[i]->override_layers != is_checked) {  // We've changed
-            configurator._overridden_applications[i]->override_layers = is_checked;
+        if (environment.GetApplication(i).override_layers != is_checked) {  // We've changed
+            environment.GetApplication(i).override_layers = is_checked;
             ui->treeWidget->setCurrentItem(item);
         }
     }
@@ -257,7 +251,7 @@ void dlgCreateAssociation::editCommandLine(const QString &cmdLine) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get()._overridden_applications[_last_selected_application_index]->arguments = cmdLine;
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).arguments = cmdLine;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -266,7 +260,7 @@ void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get()._overridden_applications[_last_selected_application_index]->working_folder = workingFolder;
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).working_folder = workingFolder;
 }
 
 void dlgCreateAssociation::editLogFile(const QString &logFile) {
@@ -274,7 +268,7 @@ void dlgCreateAssociation::editLogFile(const QString &logFile) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get()._overridden_applications[_last_selected_application_index]->log_file = logFile;
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).log_file = logFile;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
