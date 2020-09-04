@@ -155,7 +155,7 @@ QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &
 void dlgCreateAssociation::on_pushButtonRemove_clicked() {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
     int selection = ui->treeWidget->indexOfTopLevelItem(current);
-    assert(selection < 0);
+    assert(selection >= 0 && selection < ui->treeWidget->topLevelItemCount());
 
     Configurator &configurator = Configurator::Get();
 
@@ -181,8 +181,10 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
 // the launcher.
 void dlgCreateAssociation::on_pushButtonSelect_clicked() {
     Configurator &configurator = Configurator::Get();
-    QTreeWidgetItem *pItem = ui->treeWidget->currentItem();
-    if (pItem != nullptr) configurator.SelectLaunchApplication(ui->treeWidget->indexOfTopLevelItem(pItem));
+    QTreeWidgetItem *item = ui->treeWidget->currentItem();
+    if (item != nullptr) {
+        configurator.SelectLaunchApplication(ui->treeWidget->indexOfTopLevelItem(item));
+    }
 
     close();
 }
@@ -219,8 +221,7 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(item);
     QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, column));
     if (check_box != nullptr) {
-        Configurator &configurator = Configurator::Get();
-        configurator._overridden_applications[_last_selected_application_index]->override_layers = check_box->isChecked();
+        Configurator::Get()._overridden_applications[_last_selected_application_index]->override_layers = check_box->isChecked();
     }
 }
 
@@ -234,14 +235,14 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
     (void)clicked;
 
     Configurator &configurator = Configurator::Get();
-    bool need_checkbox = configurator.HasActiveOverrideOnApplicationListOnly();
+    const bool need_checkbox = configurator.HasActiveOverrideOnApplicationListOnly();
     if (!need_checkbox) return;
 
     // Loop through the whole list and reset the checkboxes
     for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
         QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, 0));
-        Q_ASSERT(check_box != nullptr);
+        assert(check_box != nullptr);
         bool is_checked = check_box->isChecked();
         if (configurator._overridden_applications[i]->override_layers != is_checked) {  // We've changed
             configurator._overridden_applications[i]->override_layers = is_checked;
