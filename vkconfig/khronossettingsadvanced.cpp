@@ -20,6 +20,7 @@
  */
 
 #include "khronossettingsadvanced.h"
+#include "configurator.h"
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
@@ -130,7 +131,8 @@ static TreeSettings bestPractices[] = {
     {"Best Practices Warning Checks", "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT", nullptr},
     {"ARM-Specific Validation", "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM", nullptr}};
 
-static TreeSettings syncChecks[] = {{"Synchronization Checks", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION", nullptr}};
+static TreeSettings syncChecks[] = {
+    {"Synchronization Checks", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", nullptr}};
 
 /////////////////////////////////////////////////////////////////////////////////
 /// There aren't many... but consider moving this to a QHash type lookup
@@ -248,7 +250,15 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
     ///////////////////////////////////////////////////////////////
     // Synchronization
 
-    const bool synchronization = _enables.value.contains("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION");
+    const Layer *layer = FindLayer(Configurator::Get()._available_Layers, "VK_LAYER_KHRONOS_validation");
+    if (layer != nullptr) {
+        // To handle this change: https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/2146
+        if (layer->_api_version <= Version("1.2.148")) {
+            syncChecks[0].token = "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION";
+        }
+    }
+
+    const bool synchronization = _enables.value.contains(syncChecks[0].token);
     _synchronization_box = new QTreeWidgetItem();
     _synchronization_box->setText(0, syncChecks[0].prompt);
     _synchronization_box->setCheckState(0, synchronization ? Qt::Checked : Qt::Unchecked);
@@ -498,12 +508,14 @@ bool KhronosSettingsAdvanced::CollectSettings() {
     // The rest is cake... just reap the controls
 
     // Best practice enables
-    for (std::size_t i = 0, n = countof(bestPractices); i < n; i++)
+    for (std::size_t i = 0, n = countof(bestPractices); i < n; i++) {
         if (bestPractices[i].item->checkState(0) == Qt::Checked) AddString(enables, bestPractices[i].token);
+    }
 
     // Sync Validation
-    for (std::size_t i = 0, n = countof(syncChecks); i < n; i++)
+    for (std::size_t i = 0, n = countof(syncChecks); i < n; i++) {
         if (syncChecks[0].item->checkState(0) == Qt::Checked) AddString(enables, syncChecks[i].token);
+    }
 
     ///////////////////////////////////////////////////////
     // Everything else is a disable. Remember, these are backwards

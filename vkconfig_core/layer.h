@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../vkconfig_core/layer_setting.h"
+#include "../vkconfig_core/version.h"
 
 #include <QObject>
 #include <QJsonDocument>
@@ -60,11 +61,11 @@ class Layer {
 
    public:
     // Standard pieces of a layer
-    QString _file_format_version;
+    Version _file_format_version;
     QString _name;
     QString _type;
     QString _library_path;  // This is a relative path, straight out of the json
-    QString _api_version;
+    Version _api_version;
     QString _implementation_version;
     QString _description;
 

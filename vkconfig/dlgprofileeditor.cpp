@@ -382,7 +382,7 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
     detailsText += "\n\n";
 
     detailsText += "API Version: ";
-    detailsText += layer_item->layer._api_version;
+    detailsText += layer_item->layer._api_version.str().c_str();
     detailsText += "\n";
 
     detailsText += "Implementation Version: ";
@@ -390,7 +390,7 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
     detailsText += "\n\n";
 
     detailsText += "File format: ";
-    detailsText += layer_item->layer._file_format_version;
+    detailsText += layer_item->layer._file_format_version.str().c_str();
     detailsText += "\n\n";
 
     detailsText += "Full path: ";
