@@ -157,7 +157,7 @@ class Configurator {
     void LoadAllInstalledLayers();
     bool IsLayerAvailable(const QString& layer_name) const;
     const Layer* FindLayerNamed(QString layer_name);
-    void LoadLayersFromPath(const QString& path, QVector<Layer*>& layer_list);
+    void LoadLayersFromPath(const QString& path, QVector<Layer*>& layers);
 
     QVector<Configuration*> _available_configurations;
 
@@ -171,11 +171,12 @@ class Configurator {
     bool HasLayers() const;
 
     // Set this as the current override configuration
-    void SetActiveConfiguration(Configuration* configuration);
-    Configuration* GetActiveConfiguration() { return _active_configuration; }
+    void SetActiveConfiguration(Configuration* active_configuration);
+    Configuration* GetActiveConfiguration() const { return _active_configuration; }
     void RefreshConfiguration() {
         if (_active_configuration) SetActiveConfiguration(_active_configuration);
     }
+    bool HasActiveConfiguration() const { return _active_configuration != nullptr ? IsValid(*_active_configuration) : false; }
 
    private:
     Configurator();
