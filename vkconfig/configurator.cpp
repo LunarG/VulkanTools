@@ -551,7 +551,7 @@ void Configurator::UpdateDefaultApplications(const bool add_default_applications
 
             // We found vkcube in the list, but does it exist?
             const QFileInfo file_info(application.executable_path);
-            if (file_info.exists()) continue;
+            if (file_info.exists() && !add_default_applications) continue;
 
             add_default_application = true;
             _overridden_applications.remove(i);
