@@ -54,6 +54,7 @@
 #include <json/json.h>  // https://github.com/open-source-parsers/jsoncpp
 
 #include "vulkan/vk_layer.h"
+#include "vulkan/vulkan_beta.h"
 #include "vk_layer_config.h"
 #include "vk_layer_table.h"
 
@@ -67,7 +68,7 @@ namespace {
 // layersvt/{linux,windows}/VkLayer_device_simulation*.json
 
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 3;
+const uint32_t kVersionDevsimMinor = 4;
 const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
@@ -88,7 +89,9 @@ const std::array<VkExtensionProperties, 0> kInstanceExtensionProperties = {};
 const uint32_t kInstanceExtensionPropertiesCount = kInstanceExtensionProperties.size();
 
 // Device extensions that this layer provides:
-const std::array<VkExtensionProperties, 0> kDeviceExtensionProperties = {};
+const std::array<VkExtensionProperties, 2> kDeviceExtensionProperties = {
+    {{VK_EXT_TOOLING_INFO_EXTENSION_NAME, VK_EXT_TOOLING_INFO_SPEC_VERSION},
+     {VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_KHR_PORTABILITY_SUBSET_SPEC_VERSION}}};
 const uint32_t kDeviceExtensionPropertiesCount = kDeviceExtensionProperties.size();
 
 // The "standard" core VkFormat enum values:
@@ -285,10 +288,16 @@ const VkFormat StandardVkFormatEnumList[] = {
 const char *const kEnvarDevsimFilename = "debug.vulkan.devsim.filepath";        // path of the configuration file(s) to load.
 const char *const kEnvarDevsimDebugEnable = "debug.vulkan.devsim.debugenable";  // a non-zero integer will enable debugging output.
 const char *const kEnvarDevsimExitOnError = "debug.vulkan.devsim.exitonerror";  // a non-zero integer will enable exit-on-error.
+const char *const kEnvarDevsimEmulatePortability =
+    "debug.vulkan.devsim.emulateportability";  // a non-zero integer will enable emulation of the VK_KHR_portability_subset
+                                               // extension.
 #else
 const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // path of the configuration file(s) to load.
 const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non-zero integer will enable debugging output.
 const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non-zero integer will enable exit-on-error.
+const char *const kEnvarDevsimEmulatePortability =
+    "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION";  // a non-zero integer will enable emulation of the VK_KHR_portability_subset
+                                                       // extension.
 #endif
 
 const char *const kLayerSettingsDevsimFilename =
@@ -297,6 +306,8 @@ const char *const kLayerSettingsDevsimDebugEnable =
     "lunarg_device_simulation.debug_enable";  // vk_layer_settings.txt equivalent for kEnvarDevsimDebugEnable
 const char *const kLayerSettingsDevsimExitOnError =
     "lunarg_device_simulation.exit_on_error";  // vk_layer_settings.txt equivalent for kEnvarDevsimExitOnError
+const char *const kLayerSettingsDevsimEmulatePortability =
+    "lunarg_device_simulation.emulate_portability";  // vk_layer_settings.txt equivalent for kEnvarDevsimEmulatePortability
 
 struct IntSetting {
     int num;
@@ -311,6 +322,7 @@ struct StringSetting {
 struct StringSetting inputFilename;
 struct IntSetting debugLevel;
 struct IntSetting errorLevel;
+struct IntSetting emulatePortability;
 
 // Various small utility functions ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -502,7 +514,20 @@ class PhysicalDeviceData {
         return (iter != map_.end()) ? &iter->second : nullptr;
     }
 
+    static bool HasExtension(VkPhysicalDevice pd, const char *extension_name) { return HasExtension(Find(pd), extension_name); }
+
+    static bool HasExtension(PhysicalDeviceData *pdd, const char *extension_name) {
+        for (const auto &ext_prop : pdd->device_extensions) {
+            if (strncmp(extension_name, ext_prop.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     VkInstance instance() const { return instance_; }
+
+    std::vector<VkExtensionProperties> device_extensions;
 
     VkPhysicalDeviceProperties physical_device_properties_;
     VkPhysicalDeviceFeatures physical_device_features_;
@@ -511,6 +536,10 @@ class PhysicalDeviceData {
     ArrayOfVkFormatProperties arrayof_format_properties_;
     ArrayOfVkLayerProperties arrayof_layer_properties_;
 
+    // VK_KHR_portability_subset structs
+    VkPhysicalDevicePortabilitySubsetPropertiesKHR physical_device_portability_subset_properties_;
+    VkPhysicalDevicePortabilitySubsetFeaturesKHR physical_device_portability_subset_features_;
+
    private:
     PhysicalDeviceData() = delete;
     PhysicalDeviceData &operator=(const PhysicalDeviceData &) = delete;
@@ -518,6 +547,8 @@ class PhysicalDeviceData {
         physical_device_properties_ = {};
         physical_device_features_ = {};
         physical_device_memory_properties_ = {};
+        physical_device_portability_subset_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR};
+        physical_device_portability_subset_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR};
     }
 
     const VkInstance instance_;
@@ -545,13 +576,16 @@ class JsonLoader {
     enum class SchemaId {
         kUnknown = 0,
         kDevsim100,
+        kDevsimPortabilitySubsetKHR,
     };
 
     SchemaId IdentifySchema(const Json::Value &value);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceProperties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMemoryProperties *dest);
@@ -564,6 +598,15 @@ class JsonLoader {
     static bool WarnIfGreater(const char *name, const uint64_t new_value, const uint64_t old_value) {
         if (new_value > old_value) {
             DebugPrintf("WARN \"%s\" JSON value (%" PRIu64 ") is greater than existing value (%" PRIu64 ")\n", name, new_value,
+                        old_value);
+            return true;
+        }
+        return false;
+    }
+
+    static bool WarnIfLesser(const char *name, const uint64_t new_value, const uint64_t old_value) {
+        if (new_value < old_value) {
+            DebugPrintf("WARN \"%s\" JSON value (%" PRIu64 ") is lesser than existing value (%" PRIu64 ")\n", name, new_value,
                         old_value);
             return true;
         }
@@ -850,6 +893,19 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimPortabilitySubsetKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && emulatePortability.num <= 0) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_portability_subset, but VK_KHR_portability_subset is "
+                    "not supported by the device and emulation is not turned on.\nIf you wish to emulate "
+                    "VK_KHR_portability_subset, please set environment variable %s to 1.\n",
+                    kEnvarDevsimEmulatePortability);
+            }
+            GetValue(root, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", &pdd_.physical_device_portability_subset_properties_);
+            GetValue(root, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", &pdd_.physical_device_portability_subset_features_);
+            result = true;
+            break;
+
         case SchemaId::kUnknown:
         default:
             break;
@@ -869,6 +925,9 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     const char *schema_string = value.asCString();
     if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_0_0.json#") == 0) {
         schema_id = SchemaId::kDevsim100;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#") ==
+               0) {
+        schema_id = SchemaId::kDevsimPortabilitySubsetKHR;
     }
 
     if (schema_id != SchemaId::kUnknown) {
@@ -899,6 +958,15 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_ARRAY(pipelineCacheUUID);  // size == VK_UUID_SIZE
     GET_VALUE(limits);
     GET_VALUE(sparseProperties);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetPropertiesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevicePortabilitySubsetPropertiesKHR)\n");
+    GET_VALUE_WARN(minVertexInputBindingStrideAlignment, WarnIfLesser);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest) {
@@ -1089,6 +1157,29 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(inheritedQueries);
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevicePortabilitySubsetFeaturesKHR)\n");
+    GET_VALUE_WARN(constantAlphaColorBlendFactors, WarnIfGreater);
+    GET_VALUE_WARN(events, WarnIfGreater);
+    GET_VALUE_WARN(imageViewFormatReinterpretation, WarnIfGreater);
+    GET_VALUE_WARN(imageViewFormatSwizzle, WarnIfGreater);
+    GET_VALUE_WARN(imageView2DOn3DImage, WarnIfGreater);
+    GET_VALUE_WARN(multisampleArrayImage, WarnIfGreater);
+    GET_VALUE_WARN(mutableComparisonSamplers, WarnIfGreater);
+    GET_VALUE_WARN(pointPolygons, WarnIfGreater);
+    GET_VALUE_WARN(samplerMipLodBias, WarnIfGreater);
+    GET_VALUE_WARN(separateStencilMaskRef, WarnIfGreater);
+    GET_VALUE_WARN(shaderSampleRateInterpolationFunctions, WarnIfGreater);
+    GET_VALUE_WARN(tessellationIsolines, WarnIfGreater);
+    GET_VALUE_WARN(tessellationPointMode, WarnIfGreater);
+    GET_VALUE_WARN(triangleFans, WarnIfGreater);
+    GET_VALUE_WARN(vertexAttributeAccessBeyondStride, WarnIfGreater);
+}
+
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest) {
     const Json::Value value = parent[name];
     if (value.type() != Json::objectValue) {
@@ -1179,7 +1270,7 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, VkLayerPropertie
 
 // Fill the inputFilename variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
-static void getDevSimFilename() {
+static void GetDevSimFilename() {
     inputFilename.str = getLayerOption(kLayerSettingsDevsimFilename);
     inputFilename.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimFilename);
@@ -1191,7 +1282,7 @@ static void getDevSimFilename() {
 
 // Fill the debugLevel variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
-static void getDevSimDebugLevel() {
+static void GetDevSimDebugLevel() {
     std::string debug_setting = getLayerOption(kLayerSettingsDevsimDebugEnable);
     debugLevel.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimDebugEnable);
@@ -1208,7 +1299,7 @@ static void getDevSimDebugLevel() {
 
 // Fill the errorLevel variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
-static void getDevSimErrorLevel() {
+static void GetDevSimErrorLevel() {
     std::string error_setting = getLayerOption(kLayerSettingsDevsimExitOnError);
     errorLevel.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimExitOnError);
@@ -1223,12 +1314,30 @@ static void getDevSimErrorLevel() {
 #endif
 }
 
+// Fill the emulatePortability variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void GetDevSimEmulatePortability() {
+    std::string emulate_portability = getLayerOption(kLayerSettingsDevsimEmulatePortability);
+    emulatePortability.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimEmulatePortability);
+    if (!env_var.empty()) {
+        emulate_portability = env_var;
+        emulatePortability.fromEnvVar = true;
+    }
+#if defined(__ANDROID__)
+    emulatePortability.num = atoi(emulate_portability.c_str());
+#else
+    emulatePortability.num = std::atoi(emulate_portability.c_str());
+#endif
+}
+
 // Generic layer dispatch table setup, see [LALI].
 static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                          VkInstance *pInstance) {
-    getDevSimFilename();
-    getDevSimDebugLevel();
-    getDevSimErrorLevel();
+    GetDevSimEmulatePortability();
+    GetDevSimFilename();
+    GetDevSimDebugLevel();
+    GetDevSimErrorLevel();
 
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo);
@@ -1278,15 +1387,70 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
         return result;
     }
 
+    bool get_physical_device_properties2_active = false;
+    for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+        if (strncmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+                    VK_MAX_EXTENSION_NAME_SIZE) == 0) {
+            get_physical_device_properties2_active = true;
+            break;
+        }
+    }
+
     // For each physical device, create and populate a PDD instance.
     for (const auto &physical_device : physical_devices) {
         PhysicalDeviceData &pdd = PhysicalDeviceData::Create(physical_device, *pInstance);
 
-        // Initialize PDD members to the actual Vulkan implementation's defaults.
+        EnumerateAll<VkExtensionProperties>(&(pdd.device_extensions), [&](uint32_t *count, VkExtensionProperties *results) {
+            return dt->EnumerateDeviceExtensionProperties(physical_device, nullptr, count, results);
+        });
+
         dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
+
+        // Initialize PDD members to the actual Vulkan implementation's defaults.
+        if (get_physical_device_properties2_active || pdd.physical_device_properties_.apiVersion > VK_VERSION_1_0) {
+            VkPhysicalDeviceProperties2KHR property_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR};
+            VkPhysicalDeviceFeatures2KHR feature_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR};
+            VkPhysicalDeviceMemoryProperties2KHR memory_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2_KHR};
+
+            if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)) {
+                property_chain.pNext = &(pdd.physical_device_portability_subset_properties_);
+                feature_chain.pNext = &(pdd.physical_device_portability_subset_features_);
+            } else if (emulatePortability.num > 0) {
+                pdd.physical_device_portability_subset_properties_ = {
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR, nullptr, 1};
+                pdd.physical_device_portability_subset_features_ = {
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR,
+                    nullptr,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE,
+                    VK_TRUE};
+            }
+
+            dt->GetPhysicalDeviceProperties2KHR(physical_device, &property_chain);
+            dt->GetPhysicalDeviceFeatures2KHR(physical_device, &feature_chain);
+            dt->GetPhysicalDeviceMemoryProperties2KHR(physical_device, &memory_chain);
+
+            pdd.physical_device_properties_ = property_chain.properties;
+            pdd.physical_device_features_ = feature_chain.features;
+            pdd.physical_device_memory_properties_ = memory_chain.memoryProperties;
+        } else {
+            dt->GetPhysicalDeviceFeatures(physical_device, &pdd.physical_device_features_);
+            dt->GetPhysicalDeviceMemoryProperties(physical_device, &pdd.physical_device_memory_properties_);
+        }
+
         DebugPrintf("\tdeviceName \"%s\"\n", pdd.physical_device_properties_.deviceName);
-        dt->GetPhysicalDeviceFeatures(physical_device, &pdd.physical_device_features_);
-        dt->GetPhysicalDeviceMemoryProperties(physical_device, &pdd.physical_device_memory_properties_);
 
         // Override PDD members with values from configuration file(s).
         JsonLoader json_loader(pdd);
@@ -1331,6 +1495,35 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice physical
     }
 }
 
+// Utility function for iterating through the pNext chain of certain Vulkan structs.
+void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
+    while (place) {
+        VkBaseOutStructure *structure = (VkBaseOutStructure *)place;
+
+        // These IF-ELSE statements check which struct is in the pNext chain and, if the physical device has the proper extension,
+        // fill the struct with any override data provided by the PhysicalDeviceData object.
+
+        // VK_KHR_portability_subset is a special case since it can also be emulated by the DevSim layer.
+        if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR &&
+            (PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) ||
+             emulatePortability.num > 0)) {
+            VkPhysicalDevicePortabilitySubsetPropertiesKHR *psp = (VkPhysicalDevicePortabilitySubsetPropertiesKHR *)place;
+            void *pNext = psp->pNext;
+            *psp = physicalDeviceData->physical_device_portability_subset_properties_;
+            psp->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR &&
+                   (PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) ||
+                    emulatePortability.num > 0)) {
+            VkPhysicalDevicePortabilitySubsetFeaturesKHR *psf = (VkPhysicalDevicePortabilitySubsetFeaturesKHR *)place;
+            void *pNext = psf->pNext;
+            *psf = physicalDeviceData->physical_device_portability_subset_features_;
+            psf->pNext = pNext;
+        }
+
+        place = structure->pNext;
+    }
+}
+
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevice,
                                                         VkPhysicalDeviceProperties2KHR *pProperties) {
     {
@@ -1339,6 +1532,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(VkPhysicalDevice physica
         dt->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
     }
     GetPhysicalDeviceProperties(physicalDevice, &pProperties->properties);
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    FillPNextChain(pdd, pProperties->pNext);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(VkPhysicalDevice physicalDevice,
@@ -1365,6 +1560,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(VkPhysicalDevice physicalD
         dt->GetPhysicalDeviceFeatures2(physicalDevice, pFeatures);
     }
     GetPhysicalDeviceFeatures(physicalDevice, &pFeatures->features);
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    FillPNextChain(pdd, pFeatures->pNext);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures2KHR *pFeatures) {
@@ -1413,6 +1610,16 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     } else {
         result = dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
     }
+
+    if (result == VK_SUCCESS && !pLayerName && emulatePortability.num > 0 &&
+        !PhysicalDeviceData::HasExtension(physicalDevice, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)) {
+        *pCount += 1;
+        if (pProperties) {
+            strncpy(pProperties[(*pCount) - 1].extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_MAX_EXTENSION_NAME_SIZE);
+            pProperties[(*pCount) - 1].specVersion = VK_KHR_PORTABILITY_SUBSET_SPEC_VERSION;
+        }
+    }
+
     return result;
 }
 

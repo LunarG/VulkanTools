@@ -1,0 +1,17 @@
+{
+    "$schema": "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#",
+    "comments": {
+        "info": "You may add whatever you wish to this comments section",
+        "filename": "layersvt/device_simulation_examples/portability_test.json",
+        "desc": "A tiny and valid DevSim JSON config file",
+        "author": "jeremyk@lunarg.com"
+    },
+    "VkPhysicalDevicePortabilitySubsetFeaturesKHR": {
+        "imageViewFormatReinterpretation": 0,
+        "pointPolygons": 0,
+        "samplerMipLodBias": 0
+    },
+    "VkPhysicalDevicePortabilitySubsetPropertiesKHR": {
+        "minVertexInputBindingStrideAlignment": 8
+    }
+}
