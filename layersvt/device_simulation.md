@@ -92,9 +92,16 @@ How the JSON configuration values are applied depends on whether the top-level s
 Therefore not every parameter needs to be specified, only a sparse set of values that need to be changed.
 * If the section defines an array (i.e.: begins with "ArrayOf"), then all previous contents of that array is cleared, and the JSON must specify all values of each desired array element.
 
-The JSON fileformat consumed by the DevSim layer is specified by a JSON schema, the canonical URI of which is "https://schema.khronos.org/vulkan/devsim_1_0_0.json#"
+JSON fileformats consumed by the DevSim layer are specified by one of the JSON schemas in the table below.
 
-The top-level sections of a configuration file are specified by the DevSim JSON schema, and are processed as follows:
+| Schema Use | Canonical URI |
+|:----------:|:-------------:|
+| Vulkan v1.0 | https://schema.khronos.org/vulkan/devsim_1_0_0.json# |
+| VK_KHR_portability_subset | https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json# |
+
+Usually you will be using configuration files validated with the Vulkan v1.0 schema.
+
+The top-level sections of such configuration files are processed as follows:
 * `$schema` - Mandatory.  Must be the URI string referencing the JSON schema.
 * `comments` - Optional.  May contain arbitrary comments, description, copyright, etc.
 * `VkPhysicalDeviceProperties` - Optional.  Only values specified in the JSON will be modified.
@@ -107,7 +114,7 @@ The top-level sections of a configuration file are specified by the DevSim JSON 
 The schema permits additional top-level sections to be optionally included in configuration files;
 any additional top-level sections will be ignored by DevSim.
 
-The schema defines basic range checking for common Vulkan data types, but it cannot detect if a particular configuration makes no sense.
+The schemas define basic range checking for common Vulkan data types, but they cannot detect if a particular configuration makes no sense.
 If a configuration defines capabilities beyond what the actual device is natively capable of providing, the results are undefined.
 DevSim has some simple checking of configuration values and writes debug messages (if enabled) for values that are incompatible with the capabilities of the actual device.
 
@@ -135,19 +142,21 @@ If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` env
 }
 ```
 
-### Environment variables used by DevSim layer.
+### `VK_KHR_portability_subset` Emulation
 
-* `VK_DEVSIM_FILENAME` - Name of one or more configuration file(s) to load.
-  _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`.
-  Files are loaded in order.  Later files can override settings from earlier files.
-* `VK_DEVSIM_DEBUG_ENABLE` - A non-zero integer enables debug message output.
-* `VK_DEVSIM_EXIT_ON_ERROR` - A non-zero integer enables exit-on-error.
+The DevSim layer provides the ability to emulate the `VK_KHR_portability_subset` extension on devices that do not implement this extension.
+This feature allows users to test their application with limitations found on non-conformant Vulkan implementations.
+To turn on this feature, set the `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` environment variable or `lunarg_device_simulation.emulate_portability`, the corresponding vk_layer_settings.txt option to a positive integer.
+DevSim config files that use this feature should validate to the portability specific schema "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#".
 
-#### vk_layer_settings.txt Options
+### DevSim Layer Options
 
-* `lunarg_device_simulation.filename` - Equivalent to the `VK_DEVSIM_FILENAME` environment variable.
-* `lunarg_device_simulation.debug_enable` - Equivalent to the `VK_DEVSIM_DEBUG_ENABLE` environment variable.
-* `lunarg_device_simulation.exit_on_error` - Equivalent to the `VK_DEVSIM_EXIT_ON_ERROR` environment variable.
+| Environment Variable | vk_layer_settings.txt Option | Description |
+|:--------------------:|:----------------------------:|:-----------:|
+| `VK_DEVSIM_FILENAME` | `lunarg_device_simulation.filename` | Name of one or more configuration file(s) to load. _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`. Files are loaded in order.  Later files can override settings from earlier files.|
+| `VK_DEVSIM_DEBUG_ENABLE` | `lunarg_device_simulation.debug_enable` | A non-zero integer enables debug message output. |
+| `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | A non-zero integer enables exit-on-error. |
+| `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | A non-zero integer enables emulation of the `VK_KHR_portability_subset` extension. |
 
 **Note:** Environment variables take precedence over vk_layer_settings.txt options.
 
