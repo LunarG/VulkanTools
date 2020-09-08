@@ -25,12 +25,6 @@ class Preferences {
    public:
     static const Preferences& Get();
 
-    // When the user click on the Vulkan Layers Configurations tree,
-    // the user has to click on the ratio button is used to activate the configuration
-    // and the row is used to edit the configuration.
-    // Alternatively, selection and activation is done together wherever we click.
-    bool _use_separated_select_and_activate;
-
     // Change the current launcher application when selecting an application in the list
     // Disable by default at the feature is not ready.
     bool _use_last_selected_application_in_launcher;

@@ -46,8 +46,8 @@ QT_END_NAMESPACE
 /// with a list widget item.
 class ConfigurationListItem : public QTreeWidgetItem {
    public:
-    ConfigurationListItem(Configuration &configuration) : configuration(configuration) {}
-    Configuration &configuration;
+    ConfigurationListItem(const QString &configuration_name) : configuration_name(configuration_name) {}
+    QString configuration_name;
     QRadioButton *radio_button;
 
    private:
