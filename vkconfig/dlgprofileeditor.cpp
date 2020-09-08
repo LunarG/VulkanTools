@@ -310,7 +310,10 @@ void dlgProfileEditor::LoadLayerDisplay(int selection) {
         ui->layerTree->setItemWidget(item, 1, use);
         item->setSizeHint(1, QSize(comboWidth, comboHeight));
 
-        use->addItem("Application-Controlled");
+        if (item->layer._layer_type == LAYER_TYPE_IMPLICIT)
+            use->addItem("Implicitly On");
+        else
+            use->addItem("Application-Controlled");
         use->addItem("Overridden / Forced On");
         use->addItem("Excluded / Forced Off");
         use->setCurrentIndex(item->layer._state);
