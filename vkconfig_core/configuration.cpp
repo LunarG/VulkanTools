@@ -53,49 +53,49 @@ Layer* Configuration::FindLayer(const QString& layer_name, const QString& full_p
 
 ////////////////////////////////////////////////////////////
 // Copy a profile so we can mess with it.
-Configuration* Configuration::DuplicateConfiguration() {
+Configuration* Configuration::Duplicate() {
     Configuration* duplicate = new Configuration;
     duplicate->_name = _name;
     duplicate->_description = _description;
     duplicate->_excluded_layers = _excluded_layers;
     duplicate->_preset = _preset;
-    duplicate->_layers = _layers;
+    for (int i = 0; i < _layers.size(); i++) {
+        duplicate->_layers.push_back(new Layer(*_layers[i]));
+    }
+
     return duplicate;
 }
 
 ///////////////////////////////////////////////////////////
-/// Remove unused layers and build the list of
-/// black listed layers.
-void Configuration::CollapseConfiguration() {
+/// Remove unused layers and build the list of excluded layers
+void Configuration::Collapse() {
     _excluded_layers.clear();
+
+    QVector<Layer*> layers;
 
     // Look for black listed layers, add them to the
     // string list of names, but remove them from
     // the list of layers
-    int layer_index = 0;
     int new_rank = 0;
-    while (layer_index < _layers.size()) {
+    for (int layer_index = 0, layer_count = _layers.size(); layer_index < layer_count; ++layer_index) {
         if (!_layers[layer_index]->IsValid()) continue;
 
-        // Remove this layer?
         if (_layers[layer_index]->_state == LAYER_STATE_EXCLUDED) {
             _excluded_layers << _layers[layer_index]->_name;
-            _layers.removeAt(layer_index);
             continue;
         }
 
-        // If the layer is not active, also remove it
-        // Important to do black list test FIRST
-        if (!_layers[layer_index]->_state == LAYER_STATE_OVERRIDDEN) {
-            _layers.removeAt(layer_index);
+        if (_layers[layer_index]->_state == LAYER_STATE_APPLICATION_CONTROLLED) {
             continue;
         }
 
         // We are keeping this layer, reset it's rank
         _layers[layer_index]->_rank = new_rank++;
 
-        layer_index++;
+        layers.push_back(_layers[layer_index]);
     }
+
+    _layers = layers;
 }
 
 static Version GetConfigurationVersion(const QJsonValue& value) {
@@ -192,14 +192,13 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
     // the blacklist are emtpy, then automatic fail
 
     for (int layer_index = 0; layer_index < layers.length(); layer_index++) {
-        const Layer* layer = nullptr;
-        QJsonValue layer_value = layer_objects.value(layers[layer_index]);
-        QJsonObject layer_object = layer_value.toObject();
+        const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
+        const QJsonObject& layer_object = layer_value.toObject();
 
         // To match the layer we just need the name, paths are not
         // hard-matched to the configuration.
         // Find this in our lookup of layers. The standard layers are listed first
-        layer = ::FindLayer(available_Layers, layers[layer_index]);
+        const Layer* layer = ::FindLayer(available_Layers, layers[layer_index]);
         if (layer == nullptr) {  // If not found, we have a layer missing....
             continue;
         }
@@ -207,16 +206,14 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
         assert(layer->IsValid());
 
         // Make a copy add it to this layer
-        Layer* layer_copy = new Layer(*layer);
+        Layer layer_copy(*layer);
 
-        QJsonValue layerRank = layer_object.value("layer_rank");
-        layer_copy->_rank = layerRank.toInt();
-        layer_copy->_state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
+        const QJsonValue& layer_rank = layer_object.value("layer_rank");
+        layer_copy._rank = layer_rank.toInt();
+        layer_copy._state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
+        LoadSettings(layer_object, layer_copy._layer_settings);
 
-        _layers.push_back(layer_copy);
-
-        // Load the layer
-        LoadSettings(layer_object, layer_copy->_layer_settings);
+        _layers.push_back(new Layer(layer_copy));
     }
 
     SortByRank(_layers);

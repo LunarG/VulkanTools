@@ -141,7 +141,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     // Case 1: New profile (easiest case)
     if (!_configuration->_name.isEmpty()) {
         // We are editing an exisitng profile. Make a copy of it
-        _configuration = configuration->DuplicateConfiguration();
+        _configuration = configuration->Duplicate();
 
         QString title = tr("Select Vulkan Layers");
 
@@ -222,7 +222,7 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
         configurator.LoadAllConfigurations();
     }
 
-    _configuration->CollapseConfiguration();
+    _configuration->Collapse();
     AddMissingLayers(_configuration);
     LoadLayerDisplay();
     PopulateCustomTree();
@@ -241,7 +241,7 @@ void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
         configurator.LoadAllConfigurations();
     }
 
-    _configuration->CollapseConfiguration();
+    _configuration->Collapse();
     AddMissingLayers(_configuration);
     LoadLayerDisplay();
     PopulateCustomTree();
@@ -487,7 +487,7 @@ void dlgProfileEditor::accept() {
     }
 
     // Collapse the profile and remove unused layers and write
-    _configuration->CollapseConfiguration();
+    _configuration->Collapse();
     const bool result = _configuration->Save(save_path);
     if (!result) {
         AddMissingLayers(_configuration);

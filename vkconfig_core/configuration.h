@@ -65,7 +65,7 @@ class Configuration {
 
     Layer *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
 
-    Configuration *DuplicateConfiguration();  // Copy a profile so we can mess with it
+    Configuration *Duplicate();  // Copy a profile so we can mess with it
 
-    void CollapseConfiguration();  // Remove unused layers and settings, set blacklist
+    void Collapse();  // Remove unused layers and settings, set blacklist
 };
