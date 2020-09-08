@@ -68,4 +68,6 @@ class Configuration {
     Configuration *Duplicate();  // Copy a profile so we can mess with it
 
     void Collapse();  // Remove unused layers and settings, set blacklist
+
+    bool IsEmpty() const;
 };

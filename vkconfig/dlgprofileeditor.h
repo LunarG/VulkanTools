@@ -44,6 +44,11 @@ class dlgProfileEditor : public QDialog {
     // Load all layers into the list box
     void LoadLayerDisplay(int selection = -1);
 
+    QString GetConfigurationName() const {
+        assert(_configuration);
+        return _configuration->_name;
+    }
+
    private:
     Ui::dlgProfileEditor *ui;
 

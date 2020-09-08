@@ -73,7 +73,6 @@ MainWindow::MainWindow(QWidget *parent)
       _log_file(nullptr),
       _vk_via(nullptr),
       _vk_info(nullptr),
-      _selected_configuration_item(nullptr),
       _launcher_apps_combo(nullptr),
       _launch_arguments(nullptr) {
     ui->setupUi(this);
@@ -116,35 +115,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_2->restoreState(environment.Get(LAYOUT_SPLITTER2));
     ui->splitter_3->restoreState(environment.Get(LAYOUT_SPLITTER3));
 
-    LoadConfigurationList();
-
     // We need to resetup the new profile for consistency sake.
     Configuration *current_configuration = configurator.FindConfiguration(environment.Get(ACTIVE_CONFIGURATION));
     if (environment.UseOverride()) {
         configurator.SetActiveConfiguration(current_configuration);
     }
 
-    // All else is done, highlight and activeate the current profile on startup
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-            ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-            if (item != nullptr)
-                if (&item->configuration_name == configuration->_name) {  // Ding ding ding... we have a winner
-                    ui->profileTree->setCurrentItem(item);
-                }
-        }
-    }
-
-    ui->logBrowser->append("Vulkan Development Status:");
-    ui->logBrowser->append(GenerateVulkanStatus());
-    ui->profileTree->scrollToItem(ui->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
+    LoadConfigurationList();
 
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
     ui->logBrowser->document()->setMaximumBlockCount(2048);
+    ui->logBrowser->append("Vulkan Development Status:");
+    ui->logBrowser->append(GenerateVulkanStatus());
+    ui->profileTree->scrollToItem(ui->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
     UpdateUI();
 }
@@ -161,6 +147,9 @@ void MainWindow::UpdateUI() {
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
     const bool has_active_configuration = configurator.HasActiveConfiguration();
+    const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
+
+    assert(configurator.HasLayers());
 
     // Mode states
     ui->radioOverride->setChecked(environment.UseOverride());
@@ -169,11 +158,30 @@ void MainWindow::UpdateUI() {
     // Update configurations
     ui->groupBoxProfiles->setEnabled(environment.UseOverride());
 
+    for (int i = 0, n = ui->profileTree->topLevelItemCount(); i < n; i++) {
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
+        assert(item);
+
+        Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
+        if (configurator.IsValid(*configuration)) {
+            item->setText(1, item->configuration_name);
+            item->radio_button->setToolTip(configuration->_description);
+        } else {
+            item->setText(1, item->configuration_name + " (Missing layers)");
+            item->radio_button->setToolTip(
+                "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
+        }
+
+        if (&item->configuration_name == active_contiguration_name) {
+            ui->profileTree->setCurrentItem(item);
+            item->radio_button->setChecked(true);
+        }
+    }
+
     // Update settings
     ui->groupBoxEditor->setEnabled(environment.UseOverride() && has_active_configuration);
-    ui->groupBoxEditor->setTitle(environment.Get(ACTIVE_CONFIGURATION).isEmpty()
-                                     ? "Configuration Settings"
-                                     : environment.Get(ACTIVE_CONFIGURATION) + " Settings");
+    ui->groupBoxEditor->setTitle(active_contiguration_name.isEmpty() ? "Configuration Settings"
+                                                                     : active_contiguration_name + " Settings");
 
     // Handle application lists states
     if (been_warned_about_old_loader) {
@@ -266,8 +274,6 @@ void MainWindow::LoadConfigurationList() {
 
     Configurator &configurator = Configurator::Get();
 
-    const QString &active_configuration_name = configurator.environment.Get(ACTIVE_CONFIGURATION);
-
     for (int i = 0, n = configurator._available_configurations.size(); i < n; i++) {
         Configuration *configuration = configurator._available_configurations[i];
 
@@ -278,33 +284,12 @@ void MainWindow::LoadConfigurationList() {
         item->radio_button->setText(" ");
 #endif
         item->radio_button->setToolTip(configuration->_description);
-        item->setText(1, configuration->_name);
-
-        if (!configurator.IsValid(*configuration)) {
-            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-            item->radio_button->setEnabled(false);
-            item->radio_button->setChecked(false);
-            item->radio_button->setToolTip(
-                "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
-        }
-
-        // Check if this is the current config... but... depending on how we came into this
-        // function, this configuration may no longer be active. So double check that. Simply,
-        // if you make a current config invalid and come back in... it can't be active any
-        // longer
-        if (active_configuration_name == configuration->_name) {
-            if (configurator.IsValid(*configuration))
-                item->radio_button->setChecked(true);
-            else
-                configurator.SetActiveConfiguration(nullptr);
-        }
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->profileTree->setItemWidget(item, 0, item->radio_button);
         connect(item->radio_button, SIGNAL(clicked(bool)), this, SLOT(profileItemClicked(bool)));
     }
 
-    configurator.SetActiveConfiguration(configurator.GetActiveConfiguration());
     ui->profileTree->blockSignals(false);
     ui->profileTree->resizeColumnToContents(0);
     ui->profileTree->resizeColumnToContents(1);
@@ -467,7 +452,8 @@ void MainWindow::profileItemClicked(bool checked) {
     // to ensure the new item is "selected"
     ui->profileTree->setCurrentItem(item);
 
-    Configurator::Get().SetActiveConfiguration(Configurator::Get().FindConfiguration(item->configuration_name));
+    Configurator &configurator = Configurator::Get();
+    configurator.SetActiveConfiguration(configurator.FindConfiguration(item->configuration_name));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -488,6 +474,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
 
         // This is the new name we want to use
         QString new_name = configuration_item->text(1);
+        assert(!new_name.isEmpty());
 
         // Make sure we do not have a duplicate
         Configuration *duplicate = configurator.FindConfiguration(new_name);
@@ -514,7 +501,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_name));
         assert(result);
 
-        RestoreLastItem(configuration_item->configuration_name.toUtf8().constData());
+        configurator.SetActiveConfiguration(configuration_item->configuration_name);
     }
 }
 
@@ -543,6 +530,7 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *p
 // Unused flag, just display the about Qt dialog
 void MainWindow::aboutVkConfig(bool checked) {
     (void)checked;
+
     dlgAbout dlg(this);
     dlg.exec();
 }
@@ -563,6 +551,7 @@ void MainWindow::toolsVulkanInfo(bool checked) {
 /// exist & show it.
 void MainWindow::toolsVulkanInstallation(bool checked) {
     (void)checked;
+
     if (_vk_via == nullptr) _vk_via = new dlgVulkanAnalysis(this);
 
     _vk_via->RunTool();
@@ -653,10 +642,10 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
 
 /////////////////////////////////////////////////////////////
 void MainWindow::showEvent(QShowEvent *event) {
-    ConfigurationListItem *item = SaveLastItem();
-    if (item == nullptr) ui->groupBoxEditor->setEnabled(false);
+    (void)event;
 
-    //  resizeEvent(nullptr); // Fake to get controls to do the right thing
+    UpdateUI();
+
     event->accept();
 }
 
@@ -680,17 +669,10 @@ void MainWindow::on_pushButtonAppList_clicked() {
 ///////////////////////////////////////////////////////////////////////////////
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEditProfile_clicked() {
-    // If not item are selected we disable the configuration settings
-    ConfigurationListItem *item = SaveLastItem();
-    if (item == nullptr) {
-        ui->groupBoxEditor->setEnabled(false);
-        return;
-    }
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
 
-    assert(!item->configuration_name.isEmpty());
-    Configuration *configuration = Configurator::Get().FindConfiguration(item->configuration_name);
+    Configuration *configuration = Configurator::Get().GetActiveConfiguration();
     assert(configuration);
 
     dlgProfileEditor dlg(this, configuration);
@@ -698,82 +680,45 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 
     Configurator::Get().LoadAllConfigurations();
     LoadConfigurationList();
-
-    RestoreLastItem();
-}
-
-///////////////////////////////////////////////////////////////
-// When changes are made to the layer list, it forces a reload
-// of the configuration list. This wipes everything out, so we
-// need a way to restore the currently selected item whenever
-// certain kinds of edits occur. These push/pop functions
-// accomplish that. If nothing can be found it should simply
-// leave nothing selected.
-ConfigurationListItem *MainWindow::SaveLastItem() {
-    // Who is selected?
-    ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->currentItem());
-    if (item == nullptr) return nullptr;
-
-    assert(!item->configuration_name.isEmpty());
-    _last_item = item->configuration_name;
-    return item;
-}
-
-////////////////////////////////////////////////////////////////
-// Partner for above function. Returns false if the last config
-// could not be found.
-bool MainWindow::RestoreLastItem(const char *configuration_override) {
-    if (configuration_override != nullptr) _last_item = configuration_override;
-
-    // Reset the current item
-    for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (item == nullptr) continue;
-
-        assert(!item->configuration_name.isEmpty());
-        if (item->configuration_name == _last_item) {
-            ui->profileTree->setCurrentItem(item);
-            return true;
-        }
-    }
-    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Edit the layers for the given configuration.
 void MainWindow::EditClicked(ConfigurationListItem *item) {
-    SaveLastItem();
+    assert(item);
+    assert(!item->configuration_name.isEmpty());
+
     _settings_tree_manager.CleanupGUI();
     dlgProfileEditor dlg(this, Configurator::Get().FindConfiguration(item->configuration_name));
     dlg.exec();
 
-    Configurator::Get().LoadAllConfigurations();
+    Configurator &configurator = Configurator::Get();
+    configurator.LoadAllConfigurations();
     LoadConfigurationList();
-    RestoreLastItem();
+    configurator.SetActiveConfiguration(item->configuration_name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a new blank configuration
 void MainWindow::NewClicked() {
-    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     Configurator &configurator = Configurator::Get();
 
     Configuration *configuration = configurator.CreateEmptyConfiguration();
+    assert(configuration);
+
     dlgProfileEditor dlg(this, configuration);
     if (QDialog::Accepted == dlg.exec()) {
         configurator.LoadAllConfigurations();
         LoadConfigurationList();
+        configurator.SetActiveConfiguration(dlg.GetConfigurationName());
     }
-    RestoreLastItem();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
 void MainWindow::addCustomPaths() {
-    SaveLastItem();
-
     // Get the tree state and clear it.
     // This looks better aesthetically after the dialog
     // but the dialog changes the pointers to the
@@ -784,7 +729,6 @@ void MainWindow::addCustomPaths() {
     dlg.exec();
 
     LoadConfigurationList();  // Force a reload
-    RestoreLastItem();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -797,14 +741,15 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     assert(!item->configuration_name.isEmpty());
 
     // Let make sure...
-    QMessageBox msg;
-    msg.setInformativeText(item->configuration_name);
-    msg.setText(tr("Are you sure you want to remove this configuration?"));
-    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msg.setDefaultButton(QMessageBox::Yes);
-    if (msg.exec() == QMessageBox::No) return;
+    QMessageBox alert;
+    alert.setWindowTitle(VKCONFIG_NAME);
+    alert.setText("Are you sure you want to remove this configuration?");
+    alert.setInformativeText(item->configuration_name);
+    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    alert.setDefaultButton(QMessageBox::Yes);
+    alert.setIcon(QMessageBox::Question);
+    if (alert.exec() == QMessageBox::No) return;
 
-    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     // What if this is the active profile? We will go boom boom soon...
     Configurator &configurator = Configurator::Get();
@@ -812,21 +757,18 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
         configurator.SetActiveConfiguration(nullptr);
     }
 
-    // Delete the file
+    // Delete the configuration file
     const QString full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
     remove(full_path.toUtf8().constData());
 
-    // Reload profiles
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
-    RestoreLastItem();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
     assert(item);
 
-    SaveLastItem();
     ui->profileTree->editItem(item, 1);
 }
 
@@ -835,7 +777,6 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(item);
 
-    SaveLastItem();
     Configurator &configurator = Configurator::Get();
 
     // We need a new name that is not already used. Simply append '(Duplicated)' until
@@ -855,16 +796,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
-
-    // Good enough? Nope, I want to select it and edit the name.
-    // Find it.
-    for (int i = 0, n = ui->profileTree->topLevelItemCount(); i < n; i++) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (item->configuration_name == new_name) {
-            ui->profileTree->editItem(item, 1);
-            return;
-        }
-    }
+    configurator.SetActiveConfiguration(new_name);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -876,11 +808,9 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     const QString full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
     if (full_import_path.isEmpty()) return;
 
-    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     Configurator::Get().ImportConfiguration(full_import_path);
     LoadConfigurationList();
-    RestoreLastItem();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -936,6 +866,7 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
 
 void MainWindow::OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
+    (void)item;
 
     Configurator::Get().environment.Notify(NOTIFICATION_RESTART);
     Configurator::Get().RefreshConfiguration();

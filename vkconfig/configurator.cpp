@@ -121,7 +121,7 @@ const char *Configurator::GetValidationPresetLabel(ValidationPreset preset) cons
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
 static const QString szSearchPaths[] = {"HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
                                         "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
                                         "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
@@ -202,8 +202,8 @@ bool Configurator::Init() {
 
     if (_available_Layers.empty()) {
         QMessageBox alert;
-        alert.setText("Could not initialize Vulkan Configurator.");
         alert.setWindowTitle(VKCONFIG_NAME);
+        alert.setText("Could not initialize Vulkan Configurator.");
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
 
@@ -451,7 +451,9 @@ void Configurator::LoadAllInstalledLayers() {
     }
 
     // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
-    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) LoadLayersFromPath(szSearchPaths[i], _available_Layers);
+    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) {
+        LoadLayersFromPath(szSearchPaths[i], _available_Layers);
+    }
 
     // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
     QString vulkanSDK = qgetenv("VULKAN_SDK");
@@ -737,6 +739,15 @@ const Layer *Configurator::FindLayerNamed(QString layer_name) {
 Configuration *Configurator::CreateEmptyConfiguration() {
     Configuration *new_configuration = new Configuration();
 
+    std::size_t named_new_count = 0;
+    for (int i = 0, n = _available_configurations.size(); i < n; i++) {
+        if (_available_configurations[i]->_name.startsWith("New Configuration")) ++named_new_count;
+    }
+
+    if (named_new_count > 0) {
+        new_configuration->_name += format(" (%d)", named_new_count + 1).c_str();
+    }
+
     Layer *temp_layer;
     int rank = 0;
 
@@ -772,6 +783,15 @@ void Configurator::LoadDefaultSettings(Layer *blank_layer) {
     }
 }
 
+void Configurator::SetActiveConfiguration(const QString &configuration_name) {
+    assert(!configuration_name.isEmpty());
+
+    Configuration *configuration = FindConfiguration(configuration_name);
+    assert(configuration);
+
+    SetActiveConfiguration(configuration);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Set this as the current override profile. The profile definition passed in
 // is used to construct the override and settings files.
@@ -783,11 +803,17 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     const QString override_settings_path = path.GetFullPath(PATH_OVERRIDE_SETTINGS);
     const QString override_layers_path = path.GetFullPath(PATH_OVERRIDE_LAYERS);
 
-    // Clear the profile if null
-    if (_active_configuration == nullptr) {
+    bool need_remove_of_configuration_files = false;
+    if (_active_configuration) {
+        assert(!_active_configuration->_name.isEmpty());
+        environment.Set(ACTIVE_CONFIGURATION, _active_configuration->_name);
+        need_remove_of_configuration_files = _active_configuration->IsEmpty();
+    } else {
         environment.Set(ACTIVE_CONFIGURATION, "");
+        need_remove_of_configuration_files = true;
+    }
 
-        // Delete a bunch of stuff
+    if (need_remove_of_configuration_files) {
         remove(override_settings_path.toUtf8().constData());
         remove(override_layers_path.toUtf8().constData());
 
@@ -798,14 +824,6 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
 #endif
         return;
     }
-
-    /////////////////////////////////////////////
-    // Now the fun starts, we need to write out the json file
-    // that describes the layers being employed and the settings file
-
-    // Save this as the last active profile (and we do NOT want to clear it when
-    // no profile is made active.
-    environment.Set(ACTIVE_CONFIGURATION, _active_configuration->_name);
 
     /////////////////////////
     // vk_layer_settings.txt
@@ -911,7 +929,8 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     QJsonDocument doc(root);
 
     QFile jsonFile(override_layers_path);
-    if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Text)) return;  // TBD, should we report an error
+    const bool result = jsonFile.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result);
     jsonFile.write(doc.toJson());
     jsonFile.close();
 
@@ -981,10 +1000,6 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
 }
 
 bool Configurator::IsValid(const Configuration &configuration) const {
-    if (configuration._excluded_layers.empty() && configuration._layers.empty()) {
-        return false;
-    }
-
     for (int i = 0, n = configuration._layers.size(); i < n; ++i) {
         if (!IsLayerAvailable(configuration._layers[i]->_name)) return false;
     }

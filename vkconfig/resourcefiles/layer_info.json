@@ -82,7 +82,7 @@
                 "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE": "Object in Use",
                 "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET": "Idle Descritor Set"
                 },
-                "default": []
+                "default": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
             },
             "enables": {
                 "name": "Enables",

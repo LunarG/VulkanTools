@@ -58,6 +58,8 @@ class ConfigurationListItem : public QTreeWidgetItem {
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
+    Ui::MainWindow *ui;
+
    public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -85,8 +87,6 @@ class MainWindow : public QMainWindow {
    private:
     void Log(const QString &log);
 
-    Ui::MainWindow *ui;
-    ConfigurationListItem *_selected_configuration_item;
     ConfigurationListItem *GetCheckedItem();
 
     QComboBox *_launcher_apps_combo;
@@ -96,10 +96,6 @@ class MainWindow : public QMainWindow {
     QPushButton *_launcher_apps_browse_button;
     QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_browse_button;
-
-    ConfigurationListItem *SaveLastItem();
-    bool RestoreLastItem(const char *szOverride = nullptr);
-    QString _last_item;
 
     void RemoveClicked(ConfigurationListItem *item);
     void RenameClicked(ConfigurationListItem *item);

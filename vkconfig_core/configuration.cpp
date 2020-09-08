@@ -32,7 +32,7 @@
 
 #include <cassert>
 
-Configuration::Configuration() : _preset(ValidationPresetNone) {}
+Configuration::Configuration() : _name("New Configuration"), _preset(ValidationPresetNone) {}
 
 Configuration::~Configuration() {
     qDeleteAll(_layers.begin(), _layers.end());
@@ -276,3 +276,5 @@ bool Configuration::Save(const QString& full_path) const {
     json_file.close();
     return true;
 }
+
+bool Configuration::IsEmpty() const { return _excluded_layers.empty() && _layers.empty(); }

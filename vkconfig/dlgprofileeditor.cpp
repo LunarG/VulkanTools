@@ -427,33 +427,13 @@ void dlgProfileEditor::accept() {
     _configuration->_description = ui->lineEditDescription->text();
 
     // Hard Fail: Name must not be blank
-    if (_configuration->_name.isEmpty()) {
-        QMessageBox msg;
-        msg.setInformativeText(tr("Configuration must have a name."));
-        msg.setText(tr("Name your new config!"));
-        msg.setStandardButtons(QMessageBox::Ok);
-        msg.exec();
-        return;
-    }
-
-    // Hard Fail: Cannot use two layers with the same name
-    bool show_warning_twice = false;
-    for (int i = 0; i < _configuration->_layers.size() - 1; i++)
-        for (int j = i + 1; j < _configuration->_layers.size(); j++)
-            // Layers cannot appear more than once
-            if ((_configuration->_layers[i]->_state != LAYER_STATE_APPLICATION_CONTROLLED) &&
-                (_configuration->_layers[j]->_state != LAYER_STATE_APPLICATION_CONTROLLED))
-                if (_configuration->_layers[i]->_name == _configuration->_layers[j]->_name) {
-                    show_warning_twice = true;
-                    break;
-                }
-
-    if (show_warning_twice) {
-        QMessageBox msg;
-        msg.setInformativeText(tr("You cannot use two layers with the same name."));
-        msg.setText(tr("Invalid Configuration!"));
-        msg.setStandardButtons(QMessageBox::Ok);
-        msg.exec();
+    if (ui->lineEditName->text().isEmpty()) {
+        QMessageBox alert;
+        alert.setWindowTitle("The configuration name is empty...");
+        alert.setText("The configuration name is required.");
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
         return;
     }
 
@@ -468,35 +448,22 @@ void dlgProfileEditor::accept() {
         }
 
     if (show_warning_imcplit) {
-        QMessageBox warning;
-        warning.setInformativeText(
-            tr("You are saving a configuration that disables an implicit layer. Disabling an implicit layer may cause undefined "
-               "behavior."));
-        warning.setText(tr("Disable an implicit layer?"));
-        warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        if (warning.exec() == QMessageBox::No) return;
+        QMessageBox alert;
+        alert.setWindowTitle("Implicit layer disabled...");
+        alert.setText("Disabling an implicit layer may cause undefined behavior, including crashes.");
+        alert.setInformativeText("Do you want to continue?");
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setIcon(QMessageBox::Warning);
+        if (alert.exec() == QMessageBox::No) return;
     }
 
     // Prepare... get fully qualified file name, and double check if overwriting
     const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _configuration->_name);
 
-    if (QDir().exists(save_path)) {
-        QMessageBox warning;
-        warning.setInformativeText(tr("Are you sure you want to overwrite this configuration?"));
-        warning.setText(_configuration->_name);
-        warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        warning.setDefaultButton(QMessageBox::No);
-        if (QMessageBox::No == warning.exec()) return;  // No harm, no foul
-    }
-
     // Collapse the profile and remove unused layers and write
     _configuration->Collapse();
     const bool result = _configuration->Save(save_path);
-    if (!result) {
-        AddMissingLayers(_configuration);
-        LoadLayerDisplay(0);
-        return;
-    }
+    assert(result);
 
     QDialog::accept();
 }
