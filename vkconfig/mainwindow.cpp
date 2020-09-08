@@ -132,6 +132,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->logBrowser->append(GenerateVulkanStatus());
     ui->profileTree->scrollToItem(ui->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
+    if (current_configuration) {
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, current_configuration);
+    }
+
     UpdateUI();
 }
 
@@ -150,6 +154,8 @@ void MainWindow::UpdateUI() {
     const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
     assert(configurator.HasLayers());
+
+    ui->profileTree->blockSignals(true);
 
     // Mode states
     ui->radioOverride->setChecked(environment.UseOverride());
@@ -258,6 +264,8 @@ void MainWindow::UpdateUI() {
     } else {
         setWindowTitle(GetMainWindowTitle(false).c_str());
     }
+
+    ui->profileTree->blockSignals(false);
 }
 
 void MainWindow::UpdateConfiguration() {}
@@ -502,6 +510,8 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         assert(result);
 
         configurator.SetActiveConfiguration(configuration_item->configuration_name);
+
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
     }
 }
 
@@ -678,8 +688,12 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     dlgProfileEditor dlg(this, configuration);
     dlg.exec();
 
-    Configurator::Get().LoadAllConfigurations();
+    Configurator &configurator = Configurator::Get();
+    configurator.LoadAllConfigurations();
     LoadConfigurationList();
+    configurator.SetActiveConfiguration(dlg.GetConfigurationName());
+
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -689,6 +703,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     assert(!item->configuration_name.isEmpty());
 
     _settings_tree_manager.CleanupGUI();
+
     dlgProfileEditor dlg(this, Configurator::Get().FindConfiguration(item->configuration_name));
     dlg.exec();
 
@@ -696,6 +711,8 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
     configurator.SetActiveConfiguration(item->configuration_name);
+
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -713,6 +730,8 @@ void MainWindow::NewClicked() {
         LoadConfigurationList();
         configurator.SetActiveConfiguration(dlg.GetConfigurationName());
     }
+
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -788,11 +807,11 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     const QString &new_name = item->configuration_name + " (Duplicated)";
 
-    _settings_tree_manager.CleanupGUI();
-
     configuration->_name = item->configuration_name = new_name;
     const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
     assert(result);
+
+    _settings_tree_manager.CleanupGUI();
 
     configurator.LoadAllConfigurations();
     LoadConfigurationList();

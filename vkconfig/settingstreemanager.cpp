@@ -73,7 +73,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
         // There are settings.
         // Okay kid, this is where it gets complicated...
         // Is this Khronos? Khronos is special...
-        if (configuration->_layers[layer_index]->_name == QString("VK_LAYER_KHRONOS_validation")) {
+        if (configuration->_layers[layer_index]->_name == "VK_LAYER_KHRONOS_validation") {
             _validation_layer_file = configuration->_layers[layer_index];
             _validation_tree_item = item;
             BuildKhronosTree();
