@@ -815,23 +815,24 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
 
     // Loop through all the layers
     for (int layer_index = 0, layer_count = _active_configuration->_layers.size(); layer_index < layer_count; layer_index++) {
-        Layer *layer = _active_configuration->_layers[layer_index];
+        const Layer &layer = *_active_configuration->_layers[layer_index];
         stream << "\n";
-        stream << "# " << layer->_name << "\n";
+        stream << "# " << layer._name << "\n";
 
-        QString short_layer_name = layer->_name;
+        QString short_layer_name = layer._name;
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
-        for (std::size_t setting_index = 0, setting_count = layer->_layer_settings.size(); setting_index < setting_count;
+        for (std::size_t setting_index = 0, setting_count = layer._layer_settings.size(); setting_index < setting_count;
              setting_index++) {
-            const LayerSetting &layer_setting = layer->_layer_settings[setting_index];
-            stream << lc_layer_name << "." << layer_setting.name << " = " << layer_setting.value << "\n";
+            const LayerSetting &setting = layer._layer_settings[setting_index];
 
-            // Temporary hack due to a gfxrecontruct bug for 2020 July SDK only. Remove after that release.
-            if (lc_layer_name == "lunarg_gfxreconstruct")
+            if (layer._name == "lunarg_gfxreconstruct" && layer._api_version < Version("1.2.148")) {
                 stream << "lunarg_gfxrecon"
-                       << "." << layer_setting.name << " = " << layer_setting.value << "\n";
+                       << "." << setting.name << " = " << setting.value << "\n";
+            } else {
+                stream << lc_layer_name << "." << setting.name << " = " << setting.value << "\n";
+            }
         }
     }
     file.close();
@@ -849,7 +850,7 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     // layer paths go in here.
     QStringList layer_override_paths;
 
-    for (int i = 0; i < _active_configuration->_layers.size(); i++) {
+    for (int i = 0, n = _active_configuration->_layers.size(); i < n; i++) {
         // Extract just the path
         QFileInfo file(_active_configuration->_layers[i]->_layer_path);
         QString qsPath = QDir().toNativeSeparators(file.absolutePath());
@@ -862,14 +863,19 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     }
 
     QJsonArray json_paths;
-    for (int i = 0; i < layer_override_paths.count(); i++) json_paths.append(QDir::toNativeSeparators(layer_override_paths[i]));
+    for (int i = 0, n = layer_override_paths.count(); i < n; i++) {
+        json_paths.append(QDir::toNativeSeparators(layer_override_paths[i]));
+    }
 
     QJsonArray json_layers;
-    for (int i = 0; i < _active_configuration->_layers.size(); i++) json_layers.append(_active_configuration->_layers[i]->_name);
+    for (int i = 0, n = _active_configuration->_layers.size(); i < n; i++) {
+        json_layers.append(_active_configuration->_layers[i]->_name);
+    }
 
     QJsonArray json_excluded_layer_list;
-    for (int i = 0; i < _active_configuration->_excluded_layers.size(); i++)
+    for (int i = 0; i < _active_configuration->_excluded_layers.size(); i++) {
         json_excluded_layer_list.append(_active_configuration->_excluded_layers[i]);
+    }
 
     // Only supply this list if an app list is specified
     const std::vector<Application> &applications = environment.GetApplications();
