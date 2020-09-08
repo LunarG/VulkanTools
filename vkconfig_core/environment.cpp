@@ -201,10 +201,9 @@ bool Environment::Load() {
     const Version default_version(first_run || !SUPPORT_VKCONFIG_2_0_0 ? version : Version("2.0.0"));
     version = Version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, QVariant(default_version.str().c_str())).toString());
 
-    if (version == Version("2.0.0")) {  // The version is too old and unknown, hard reset.
-        version = Version::VKCONFIG;
-        first_run = true;
-        return false;
+    if (version == Version("2.0.0")) {  // The version is an old development version, unknown and unsupported, hard reset.
+        Reset(DEFAULT);
+        return true;
     }
 
     // Load 'override_mode"
@@ -250,7 +249,7 @@ bool Environment::Load() {
     const bool result = LoadApplications();
     assert(result);
 
-    return true;
+    return result;
 }
 
 bool Environment::LoadApplications() {
