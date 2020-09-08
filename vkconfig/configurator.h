@@ -145,6 +145,7 @@ class Configurator {
 
     // Set this as the current override configuration
     void SetActiveConfiguration(Configuration* active_configuration);
+    void SetActiveConfiguration(const QString& configuration_name);
     Configuration* GetActiveConfiguration() const { return _active_configuration; }
     void RefreshConfiguration() {
         if (_active_configuration) SetActiveConfiguration(_active_configuration);

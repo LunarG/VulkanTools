@@ -25,6 +25,7 @@ linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
     ..\vkconfig_core\application_singleton.cpp \
+    ..\vkconfig_core\configuration.cpp \
     ..\vkconfig_core\command_line.cpp \
     ..\vkconfig_core\environment.cpp \
     ..\vkconfig_core\util.cpp \
@@ -51,13 +52,13 @@ SOURCES += \
     khronossettingsadvanced.cpp \
     main.cpp \
     mainwindow.cpp \
-    configuration.cpp \
     preferences.cpp \
     settingstreemanager.cpp \
     configurator.cpp
 
 HEADERS += \
     ..\vkconfig_core\application_singleton.h \
+    ..\vkconfig_core\configuration.h \
     ..\vkconfig_core\command_line.h \
     ..\vkconfig_core\environment.h \
     ..\vkconfig_core\util.h \
@@ -83,7 +84,6 @@ HEADERS += \
     dlgvulkaninfo.h \
     khronossettingsadvanced.h \
     mainwindow.h \
-    configuration.h \
     preferences.h \
     settingstreemanager.h \
     configurator.h

@@ -112,12 +112,12 @@ void SettingsTreeManager::BuildKhronosTree() {
     _validation_presets_combo_box = new QComboBox();
     _validation_presets_combo_box->blockSignals(true);
     for (int i = ValidationPresetFirst; i <= ValidationPresetLast; ++i) {
-        QString presetName = Configurator::Get().GetValidationPresetLabel(static_cast<ValidationPreset>(i));
+        QString preset_name = Configurator::Get().GetValidationPresetLabel(static_cast<ValidationPreset>(i));
 
         // There is no preset for a user defined group of settings, so watch for blank.
-        if (presetName.isEmpty()) presetName = "User Defined";
+        if (preset_name.isEmpty()) preset_name = "User Defined";
 
-        _validation_presets_combo_box->addItem(presetName);
+        _validation_presets_combo_box->addItem(preset_name);
     }
 
     _validation_presets_combo_box->setCurrentIndex(_configuration->_preset);
