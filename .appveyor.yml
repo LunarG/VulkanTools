@@ -59,6 +59,9 @@ before_build:
   - cd build
   - cmake -G %GENERATOR% -C../helper.cmake ..
   - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
+  - cd ../vkconfig
+  - qmake
+  - nmake
 
 platform:
   - Win32
