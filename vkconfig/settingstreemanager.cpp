@@ -23,6 +23,7 @@
 #include "settingstreemanager.h"
 
 #include "../vkconfig_core/version.h"
+#include "../vkconfig_core/platform.h"
 
 #include <QComboBox>
 #include <QLineEdit>
@@ -117,16 +118,25 @@ void SettingsTreeManager::BuildKhronosTree() {
 
     _validation_presets_combo_box = new QComboBox();
     _validation_presets_combo_box->blockSignals(true);
+    _validation_presets.clear();
     for (int i = ValidationPresetFirst; i <= ValidationPresetLast; ++i) {
-        QString preset_name = Configurator::Get().GetValidationPresetLabel(static_cast<ValidationPreset>(i));
+        const ValidationPreset validation_preset = static_cast<ValidationPreset>(i);
+
+        if (!HAS_SHADER_BASED &&
+            (validation_preset == ValidationPresetGPUAssisted || validation_preset == ValidationPresetShaderPrintf)) {
+            continue;
+        }
+
+        QString preset_name = Configurator::Get().GetValidationPresetLabel(validation_preset);
 
         // There is no preset for a user defined group of settings, so watch for blank.
         if (preset_name.isEmpty()) preset_name = "User Defined";
 
         _validation_presets_combo_box->addItem(preset_name);
+        _validation_presets.push_back(validation_preset);
     }
 
-    _validation_presets_combo_box->setCurrentIndex(_configuration->_preset);
+    _validation_presets_combo_box->setCurrentIndex(GetValidationPresentIndex(_configuration->_preset));
 
     connect(_validation_presets_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     _validation_tree_item->addChild(_validation_preset_item);
@@ -320,10 +330,20 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer
     }
 }
 
+int SettingsTreeManager::GetValidationPresentIndex(const ValidationPreset preset) const {
+    for (std::size_t i = 0, n = _validation_presets.size(); i < n; ++i) {
+        if (_validation_presets[i] == preset) return static_cast<int>(i);
+    }
+
+    assert(0);
+    return -1;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 /// The user has selected a preset for this layer
 void SettingsTreeManager::khronosPresetChanged(int preset_index) {
-    const ValidationPreset preset = static_cast<ValidationPreset>(preset_index);
+    assert(preset_index >= 0 && preset_index < _validation_presets.size());
+    const ValidationPreset preset = _validation_presets[preset_index];
 
     Configurator &configurator = Configurator::Get();
 
@@ -384,7 +404,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
 // (and that we need to save the settings)
 void SettingsTreeManager::khronosPresetEdited() {
     _validation_presets_combo_box->blockSignals(true);
-    _validation_presets_combo_box->setCurrentIndex(ValidationPresetUserDefined);
+    _validation_presets_combo_box->setCurrentIndex(GetValidationPresentIndex(ValidationPresetUserDefined));
     _configuration->_preset = ValidationPresetUserDefined;
     _validation_presets_combo_box->blockSignals(false);
     profileEdited();

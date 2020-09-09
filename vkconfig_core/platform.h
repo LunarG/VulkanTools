@@ -40,3 +40,5 @@
 #else
 #error "Unknown platform"
 #endif
+
+#define HAS_SHADER_BASED (PLATFORM_WINDOWS || PLATFORM_LINUX)
