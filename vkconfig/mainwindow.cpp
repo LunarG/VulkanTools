@@ -682,21 +682,23 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     ConfigurationListItem *item = SaveLastItem();
     if (item == nullptr) return;
 
+    Configurator &configurator = Configurator::Get();
+
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
 
-    Configuration *configuration = Configurator::Get().GetActiveConfiguration();
+    Configuration *configuration = configurator.GetActiveConfiguration();
     assert(configuration);
 
     dlgProfileEditor dlg(this, configuration);
     dlg.exec();
 
-    Configurator &configurator = Configurator::Get();
     configurator.LoadAllConfigurations();
     configurator.SetActiveConfiguration(dlg.GetConfigurationName());
     LoadConfigurationList();
 
     RestoreLastItem();
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
 }
 
 ///////////////////////////////////////////////////////////////
@@ -778,22 +780,20 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     assert(item);
     assert(!item->configuration_name.isEmpty());
 
+    Configurator &configurator = Configurator::Get();
+
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    dlgProfileEditor dlg(this, Configurator::Get().FindConfiguration(item->configuration_name));
+    dlgProfileEditor dlg(this, configurator.FindConfiguration(item->configuration_name));
     dlg.exec();
 
-    Configurator &configurator = Configurator::Get();
     configurator.LoadAllConfigurations();
-    configurator.SetActiveConfiguration(item->configuration_name);
+    configurator.SetActiveConfiguration(dlg.GetConfigurationName());
     LoadConfigurationList();
 
     RestoreLastItem();
-
-    Configuration *configuration = Configurator::Get().FindConfiguration(item->configuration_name);
-    assert(configuration);
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -811,11 +811,9 @@ void MainWindow::NewClicked() {
         configurator.LoadAllConfigurations();
         configurator.SetActiveConfiguration(dlg.GetConfigurationName());
         LoadConfigurationList();
-        RestoreLastItem(dlg.GetConfigurationName().toUtf8().constData());
 
-        Configuration *configuration = Configurator::Get().FindConfiguration(dlg.GetConfigurationName());
-        assert(configuration);
-        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
+        RestoreLastItem(dlg.GetConfigurationName().toUtf8().constData());
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
     }
 }
 
@@ -901,6 +899,7 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     if (full_import_path.isEmpty()) return;
 
     _settings_tree_manager.CleanupGUI();
+
     Configurator::Get().ImportConfiguration(full_import_path);
     LoadConfigurationList();
 }
