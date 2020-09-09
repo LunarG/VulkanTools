@@ -1000,6 +1000,8 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
 }
 
 bool Configurator::IsValid(const Configuration &configuration) const {
+    assert(&configuration);
+
     for (int i = 0, n = configuration._layers.size(); i < n; ++i) {
         if (!IsLayerAvailable(configuration._layers[i]->_name)) return false;
     }
