@@ -167,6 +167,7 @@ void MainWindow::UpdateUI() {
     for (int i = 0, n = ui->profileTree->topLevelItemCount(); i < n; i++) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
         assert(item);
+        assert(!item->configuration_name.isEmpty());
 
         Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
         if (configurator.IsValid(*configuration)) {
@@ -509,7 +510,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_name));
         assert(result);
 
-        configurator.SetActiveConfiguration(configuration_item->configuration_name);
+        configurator.SetActiveConfiguration(configuration->_name);
 
         _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
     }
@@ -654,6 +655,8 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
 void MainWindow::showEvent(QShowEvent *event) {
     (void)event;
 
+    SaveLastItem();
+
     UpdateUI();
 
     event->accept();
@@ -679,6 +682,9 @@ void MainWindow::on_pushButtonAppList_clicked() {
 ///////////////////////////////////////////////////////////////////////////////
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_pushButtonEditProfile_clicked() {
+    ConfigurationListItem *item = SaveLastItem();
+    if (item == nullptr) return;
+
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
 
@@ -690,54 +696,72 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
 
     Configurator &configurator = Configurator::Get();
     configurator.LoadAllConfigurations();
-    LoadConfigurationList();
     configurator.SetActiveConfiguration(dlg.GetConfigurationName());
-
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Edit the layers for the given configuration.
-void MainWindow::EditClicked(ConfigurationListItem *item) {
-    assert(item);
-    assert(!item->configuration_name.isEmpty());
-
-    _settings_tree_manager.CleanupGUI();
-
-    dlgProfileEditor dlg(this, Configurator::Get().FindConfiguration(item->configuration_name));
-    dlg.exec();
-
-    Configurator &configurator = Configurator::Get();
-    configurator.LoadAllConfigurations();
     LoadConfigurationList();
-    configurator.SetActiveConfiguration(item->configuration_name);
 
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
+    RestoreLastItem();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Create a new blank configuration
-void MainWindow::NewClicked() {
-    _settings_tree_manager.CleanupGUI();
-    Configurator &configurator = Configurator::Get();
+///////////////////////////////////////////////////////////////
+// When changes are made to the layer list, it forces a reload
+// of the configuration list. This wipes everything out, so we
+// need a way to restore the currently selected item whenever
+// certain kinds of edits occur. These push/pop functions
+// accomplish that. If nothing can be found it should simply
+// leave nothing selected.
+ConfigurationListItem *MainWindow::SaveLastItem() {
+    // Who is selected?
+    ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->currentItem());
+    if (item == nullptr) return nullptr;
 
-    Configuration *configuration = configurator.CreateEmptyConfiguration();
-    assert(configuration);
+    assert(!item->configuration_name.isEmpty());
+    _last_item = item->configuration_name;
+    return item;
+}
 
-    dlgProfileEditor dlg(this, configuration);
-    if (QDialog::Accepted == dlg.exec()) {
-        configurator.LoadAllConfigurations();
-        LoadConfigurationList();
-        configurator.SetActiveConfiguration(dlg.GetConfigurationName());
+bool MainWindow::SelectConfigurationItem(const QString &configuration_name) {
+    assert(!configuration_name.isEmpty());
+
+    for (int i = 0, n = ui->profileTree->topLevelItemCount(); i < n; ++i) {
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
+        assert(item != nullptr);
+        assert(!item->configuration_name.isEmpty());
+
+        if (item->configuration_name == configuration_name) {
+            ui->profileTree->setCurrentItem(item);
+            return true;
+        }
     }
 
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
+    assert(0);
+    return false;
+}
+
+////////////////////////////////////////////////////////////////
+// Partner for above function. Returns false if the last config
+// could not be found.
+bool MainWindow::RestoreLastItem(const char *configuration_override) {
+    if (configuration_override != nullptr) _last_item = configuration_override;
+
+    // Reset the current item
+    for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
+        if (item == nullptr) continue;
+
+        assert(!item->configuration_name.isEmpty());
+        if (item->configuration_name == _last_item) {
+            ui->profileTree->setCurrentItem(item);
+            return true;
+        }
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
 void MainWindow::addCustomPaths() {
+    // SaveLastItem();
     // Get the tree state and clear it.
     // This looks better aesthetically after the dialog
     // but the dialog changes the pointers to the
@@ -748,6 +772,54 @@ void MainWindow::addCustomPaths() {
     dlg.exec();
 
     LoadConfigurationList();  // Force a reload
+    RestoreLastItem();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Edit the layers for the given configuration.
+void MainWindow::EditClicked(ConfigurationListItem *item) {
+    assert(item);
+    assert(!item->configuration_name.isEmpty());
+
+    SaveLastItem();
+    _settings_tree_manager.CleanupGUI();
+
+    dlgProfileEditor dlg(this, Configurator::Get().FindConfiguration(item->configuration_name));
+    dlg.exec();
+
+    Configurator &configurator = Configurator::Get();
+    configurator.LoadAllConfigurations();
+    configurator.SetActiveConfiguration(item->configuration_name);
+    LoadConfigurationList();
+
+    RestoreLastItem();
+
+    Configuration *configuration = Configurator::Get().FindConfiguration(item->configuration_name);
+    assert(configuration);
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Create a new blank configuration
+void MainWindow::NewClicked() {
+    // SaveLastItem();
+    _settings_tree_manager.CleanupGUI();
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.CreateEmptyConfiguration();
+    assert(configuration);
+
+    dlgProfileEditor dlg(this, configuration);
+    if (QDialog::Accepted == dlg.exec()) {
+        configurator.LoadAllConfigurations();
+        configurator.SetActiveConfiguration(dlg.GetConfigurationName());
+        LoadConfigurationList();
+        RestoreLastItem(dlg.GetConfigurationName().toUtf8().constData());
+
+        Configuration *configuration = Configurator::Get().FindConfiguration(dlg.GetConfigurationName());
+        assert(configuration);
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -769,6 +841,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     alert.setIcon(QMessageBox::Question);
     if (alert.exec() == QMessageBox::No) return;
 
+    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
     // What if this is the active profile? We will go boom boom soon...
     Configurator &configurator = Configurator::Get();
@@ -782,6 +855,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
 
     configurator.LoadAllConfigurations();
     LoadConfigurationList();
+    RestoreLastItem();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -796,6 +870,7 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(item);
 
+    SaveLastItem();
     Configurator &configurator = Configurator::Get();
 
     // We need a new name that is not already used. Simply append '(Duplicated)' until
@@ -814,8 +889,9 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CleanupGUI();
 
     configurator.LoadAllConfigurations();
-    LoadConfigurationList();
     configurator.SetActiveConfiguration(new_name);
+    LoadConfigurationList();
+    RestoreLastItem();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -879,6 +955,7 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
         item == nullptr ? nullptr : Configurator::Get().FindConfiguration(configuration_item->configuration_name);
 
     Configurator::Get().SetActiveConfiguration(configuration);
+    SaveLastItem();
 
     UpdateUI();
 }
@@ -889,6 +966,7 @@ void MainWindow::OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int c
 
     Configurator::Get().environment.Notify(NOTIFICATION_RESTART);
     Configurator::Get().RefreshConfiguration();
+    SaveLastItem();
 
     UpdateUI();
 }
@@ -1089,7 +1167,7 @@ void MainWindow::on_pushButtonClearLog_clicked() {
 
 //////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
-    UpdateUI();
+    // UpdateUI();
 
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method

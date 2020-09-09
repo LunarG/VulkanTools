@@ -97,6 +97,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
         }
     }
 
+    if (configuration->_excluded_layers.isEmpty() && configuration->_layers.isEmpty()) {
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, "No overridden or excluded layer");
+        build_tree->addTopLevelItem(item);
+    }
+
     // Everyone is expanded.
     build_tree->resizeColumnToContents(0);
     SetTreeState(_configuration->_setting_tree_state, 0, _configuration_settings_tree->invisibleRootItem());
