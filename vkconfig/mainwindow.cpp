@@ -170,6 +170,8 @@ void MainWindow::UpdateUI() {
         assert(!item->configuration_name.isEmpty());
 
         Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
+        if (configuration == nullptr) continue;
+
         if (configurator.IsValid(*configuration)) {
             item->setText(1, item->configuration_name);
             item->radio_button->setToolTip(configuration->_description);
@@ -433,12 +435,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     LoadConfigurationList();
 
-    // Active or not, set it in the tree so we can see the settings.
-    for (int i = 0; i < ui->profileTree->topLevelItemCount(); i++) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
-        if (item == nullptr) continue;
-        if (&item->configuration_name == active_configuration->_name) ui->profileTree->setCurrentItem(item);
-    }
+    if (active_configuration) _settings_tree_manager.CreateGUI(ui->layerSettingsTree, active_configuration);
 
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
