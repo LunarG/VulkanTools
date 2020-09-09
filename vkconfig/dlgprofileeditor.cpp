@@ -329,8 +329,11 @@ void dlgProfileEditor::LoadLayerDisplay(int selection) {
 
     resizeEvent(nullptr);
     ui->layerTree->update();
-    //    int width = ui->layerTree->width() - comboWidth;
-    //    ui->layerTree->setColumnWidth(0, width);
+}
+
+QString dlgProfileEditor::GetConfigurationName() const {
+    assert(_configuration);
+    return _configuration->_name;
 }
 
 // The only way to catch the resize from the layouts
