@@ -36,6 +36,8 @@
 #include <QTreeWidget>
 #include <QComboBox>
 
+#include <vector>
+
 class SettingsTreeManager : QObject {
     Q_OBJECT
    public:
@@ -58,6 +60,9 @@ class SettingsTreeManager : QObject {
     QVector<QTreeWidgetItem *> _layer_items;  // These parallel the profiles layers
 
     QComboBox *_validation_presets_combo_box;
+    std::vector<ValidationPreset> _validation_presets;  // The preset in the combobox
+    int GetValidationPresentIndex(const ValidationPreset preset) const;
+
     Layer *_validation_layer_file;
     QTreeWidgetItem *_validation_tree_item;
     QTreeWidgetItem *_validation_file_item;

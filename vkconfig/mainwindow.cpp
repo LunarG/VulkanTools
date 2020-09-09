@@ -392,16 +392,16 @@ void MainWindow::toolsResetToDefault(bool checked) {
     (void)checked;
 
     // Let make sure...
-    QMessageBox msg;
-    msg.setIcon(QMessageBox::Warning);
-    msg.setWindowTitle(tr("Restoring and Resetting all Layers Configurations to default"));
-    msg.setText(
-        tr("You are about to delete all the user-defined configurations and resetting all default configurations to their default "
-           "state.\n\n"
-           "Are you sure you want to continue?"));
-    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msg.setDefaultButton(QMessageBox::Yes);
-    if (msg.exec() == QMessageBox::No) return;
+    QMessageBox alert;
+    alert.setIcon(QMessageBox::Warning);
+    alert.setWindowTitle("Restoring and Resetting all Layers Configurations to default");
+    alert.setText(
+        "You are about to delete all the user-defined configurations and resetting all default configurations to their default "
+        "state.");
+    alert.setInformativeText("Are you sure you want to continue?");
+    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    alert.setDefaultButton(QMessageBox::Yes);
+    if (alert.exec() == QMessageBox::No) return;
 
     Configurator &configurator = Configurator::Get();
 

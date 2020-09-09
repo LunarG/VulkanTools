@@ -21,6 +21,7 @@
 
 #include "configuration.h"
 #include "util.h"
+#include "platform.h"
 #include "version.h"
 
 #include <QFile>
@@ -136,6 +137,13 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
 
     QJsonValue configuration_entry_value = json_top_object.value(key[0]);
     QJsonObject configuration_entry_object = configuration_entry_value.toObject();
+
+    if (SUPPORT_VKCONFIG_2_0_1 && !HAS_SHADER_BASED) {
+        if (full_path.contains("Validation - Shader Printf.json") || full_path.contains("Validation - Debug Printf.json") ||
+            full_path.contains("Validation - GPU-Assisted.json")) {
+            return false;
+        }
+    }
 
     if (SUPPORT_VKCONFIG_2_0_1 && version <= Version("2.0.1")) {
         _name = filename.left(filename.length() - 5);
