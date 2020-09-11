@@ -134,10 +134,6 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
 
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    _configuration = configuration;
-
-    // Default, but may not be entirely true
-    setWindowTitle("Select Vulkan Layers");
 
     _configuration = configuration->Duplicate();
 
