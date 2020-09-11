@@ -188,7 +188,7 @@ void MainWindow::UpdateUI() {
     }
 
     // Update settings
-    ui->groupBoxEditor->setEnabled(environment.UseOverride() && has_active_configuration);
+    ui->layerSettingsTree->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->groupBoxEditor->setTitle(active_contiguration_name.isEmpty() ? "Configuration Settings"
                                                                      : active_contiguration_name + " Settings");
 
