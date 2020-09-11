@@ -35,19 +35,15 @@
 
 Configuration::Configuration() : _name("New Configuration"), _preset(ValidationPresetNone) {}
 
-Configuration::~Configuration() {
-    qDeleteAll(_layers.begin(), _layers.end());
-    _layers.clear();
-}
-
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
-Layer* Configuration::FindLayer(const QString& layer_name, const QString& full_path) const {
+Parameter* Configuration::FindParameter(const QString& layer_name, const QString& full_path) {
     assert(!layer_name.isEmpty());
-    assert(!full_path.isEmpty());
 
-    for (int i = 0; i < _layers.size(); i++)
-        if (_layers[i]->_name == layer_name && _layers[i]->_layer_path == full_path) return _layers[i];
+    for (std::size_t i = 0, n = parameters.size(); i < n; i++) {
+        Parameter& parameter = parameters[i];
+        if (parameter.name == layer_name && (parameter.path == full_path || full_path.isEmpty())) return &parameters[i];
+    }
 
     return nullptr;
 }
@@ -58,15 +54,13 @@ Configuration* Configuration::Duplicate() {
     Configuration* duplicate = new Configuration;
     duplicate->_name = _name;
     duplicate->_description = _description;
-    duplicate->_excluded_layers = _excluded_layers;
+    duplicate->_setting_tree_state = _setting_tree_state;
     duplicate->_preset = _preset;
-    for (int i = 0; i < _layers.size(); i++) {
-        duplicate->_layers.push_back(new Layer(*_layers[i]));
-    }
+    duplicate->parameters = parameters;
 
     return duplicate;
 }
-
+/*
 ///////////////////////////////////////////////////////////
 /// Remove unused layers and build the list of excluded layers
 void Configuration::Collapse() {
@@ -98,7 +92,7 @@ void Configuration::Collapse() {
 
     _layers = layers;
 }
-
+*/
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
         return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
@@ -112,6 +106,10 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
 // Load from a configuration file (.json really)
 bool Configuration::Load(const QString& full_path, const QVector<Layer*>& available_Layers) {
     assert(!full_path.isEmpty());
+
+    OutputDebugString("Configuration::Load\n");
+    OutputDebugString(full_path.toUtf8().constData());
+    OutputDebugString("\n");
 
     QFile file(full_path);
     bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -163,7 +161,12 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
 
     QJsonArray excluded_array = excluded_value.toArray();
     for (int i = 0; i < excluded_array.size(); i++) {
-        _excluded_layers << excluded_array[i].toString();
+        Parameter parameter;
+        parameter.name = excluded_array[i].toString();
+        parameter.rank = -1;
+        parameter.state = LAYER_STATE_EXCLUDED;
+
+        parameters.push_back(parameter);
     }
 
     const QJsonValue& preset_index = configuration_entry_object.value("preset");
@@ -185,9 +188,9 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
     if (options_value != QJsonValue::Undefined && version > Version::VKCONFIG) {
         QMessageBox alert;
         alert.setWindowTitle("Vulkan Configurator version is too old...");
-        alert.setText(format("The \"%s\" configuration was created with a newer version of %s. Use Vulkan Configurator from the "
+        alert.setText(format("The \"%s\" configuration was created with a newer version of %s. Use %s from the "
                              "latest Vulkan SDK to resolve the issue. ",
-                             _name.toUtf8().constData(), VKCONFIG_NAME)
+                             _name.toUtf8().constData(), VKCONFIG_NAME, VKCONFIG_NAME)
                           .c_str());
         alert.setInformativeText("Do you want to continue?");
         alert.setIcon(QMessageBox::Warning);
@@ -202,29 +205,35 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
     for (int layer_index = 0; layer_index < layers.length(); layer_index++) {
         const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
         const QJsonObject& layer_object = layer_value.toObject();
+        /*
+                // To match the layer we just need the name, paths are not
+                // hard-matched to the configuration.
+                // Find this in our lookup of layers. The standard layers are listed first
+                const Layer* layer = ::FindLayer(available_Layers, layers[layer_index]);
+                if (layer == nullptr) {  // If not found, we have a layer missing....
+                    continue;
+                }
 
-        // To match the layer we just need the name, paths are not
-        // hard-matched to the configuration.
-        // Find this in our lookup of layers. The standard layers are listed first
-        const Layer* layer = ::FindLayer(available_Layers, layers[layer_index]);
-        if (layer == nullptr) {  // If not found, we have a layer missing....
-            continue;
-        }
+                assert(layer->IsValid());
 
-        assert(layer->IsValid());
-
-        // Make a copy add it to this layer
-        Layer layer_copy(*layer);
-
+                // Make a copy add it to this layer
+                Layer layer_copy(*layer);
+        */
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
-        layer_copy._rank = layer_rank.toInt();
-        layer_copy._state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
-        LoadSettings(layer_object, layer_copy._layer_settings);
 
-        _layers.push_back(new Layer(layer_copy));
+        Parameter parameter;
+        parameter.name = layers[layer_index];
+        parameter.rank = layer_rank.toInt();
+        parameter.state = LAYER_STATE_OVERRIDDEN;
+
+        // layer_copy._rank = layer_rank.toInt();
+        // layer_copy._state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
+        LoadSettings(layer_object, parameter.settings);
+
+        parameters.push_back(parameter);
     }
 
-    SortByRank(_layers);
+    Sort(parameters);
 
     return true;
 }
@@ -237,22 +246,29 @@ bool Configuration::Save(const QString& full_path) const {
 
     // Build the json document
     QJsonArray excluded_list;
-    for (int i = 0, n = _excluded_layers.size(); i < n; i++) excluded_list.append(_excluded_layers[i]);
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state != LAYER_STATE_EXCLUDED) {
+            continue;
+        }
+        excluded_list.append(parameters[i].name);
+    }
 
-    QJsonObject layer_list;  // This list of layers
+    QJsonObject overridden_list;  // This list of layers
 
-    for (int layer_index = 0, layer_count = _layers.size(); layer_index < layer_count; ++layer_index) {
-        const Layer& layer = *_layers[layer_index];
-        assert(layer.IsValid());
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Parameter& parameter = parameters[i];
+        if (parameters[i].state != LAYER_STATE_OVERRIDDEN) {
+            continue;
+        }
 
         QJsonObject json_settings;
         // Rank goes in here with settings
-        json_settings.insert("layer_rank", layer._rank);
+        json_settings.insert("layer_rank", parameter.rank);
 
-        const bool result = SaveSettings(layer._layer_settings, json_settings);
+        const bool result = SaveSettings(parameter.settings, json_settings);
         assert(result);
 
-        layer_list.insert(layer._name, json_settings);
+        overridden_list.insert(parameter.name, json_settings);
     }
 
     QJsonObject json_configuration;
@@ -261,7 +277,7 @@ bool Configuration::Save(const QString& full_path) const {
     json_configuration.insert("description", _description);
     json_configuration.insert("preset", _preset);
     json_configuration.insert("editor_state", _setting_tree_state.data());
-    json_configuration.insert("layer_options", layer_list);
+    json_configuration.insert("layer_options", overridden_list);
     root.insert("configuration", json_configuration);
 
     QJsonDocument doc(root);
@@ -285,4 +301,17 @@ bool Configuration::Save(const QString& full_path) const {
     return true;
 }
 
-bool Configuration::IsEmpty() const { return _excluded_layers.empty() && _layers.empty(); }
+bool Configuration::IsEmpty() const { return parameters.empty(); }
+
+void Sort(std::vector<Parameter>& parameters) {
+    if (parameters.size() < 2)  // Nothing to sort
+        return;
+
+    for (std::size_t i = 0, m = parameters.size() - 1; i < m; ++i) {
+        for (std::size_t j = i + 1, n = parameters.size(); j < n; ++j) {
+            if (parameters[i].rank > parameters[j].rank) {
+                std::swap(parameters[i], parameters[j]);
+            }
+        }
+    }
+}

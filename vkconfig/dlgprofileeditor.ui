@@ -29,7 +29,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Vulkan Control Panel</string>
+   <string>Select Vulkan Layers</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="1" column="0" colspan="3">

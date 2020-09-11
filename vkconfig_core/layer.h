@@ -84,6 +84,4 @@ class Layer {
     bool Load(QString full_path_to_file, LayerType layer_type);
 };
 
-void SortByRank(QVector<Layer*>& layers);
-
 const Layer* FindLayer(const QVector<Layer*>& layers, QString layer_name);

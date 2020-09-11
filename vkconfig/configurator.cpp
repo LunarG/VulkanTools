@@ -721,11 +721,11 @@ bool Configurator::IsLayerAvailable(const QString &layer_name) const {
 /// To do a full match, not only the layer name, but the layer path/location
 /// must also be a match. It IS possible to have two layers with the same name
 /// as long as they are in different locations.
-const Layer *Configurator::FindLayerNamed(QString layer_name) {
+Layer *Configurator::FindLayerNamed(QString layer_name) {
     assert(!layer_name.isEmpty());
 
     for (int i = 0; i < _available_Layers.size(); ++i) {
-        const Layer *layer = _available_Layers[i];
+        Layer *layer = _available_Layers[i];
 
         if (!(layer_name == layer->_name)) continue;
         return layer;
@@ -749,21 +749,23 @@ Configuration *Configurator::CreateEmptyConfiguration() {
     if (named_new_count > 0) {
         new_configuration->_name += format(" (%d)", named_new_count + 1).c_str();
     }
+    /*
+        Layer *temp_layer;
+        int rank = 0;
 
-    Layer *temp_layer;
-    int rank = 0;
+        // Add layers
+        for (int i = 0, n = _available_Layers.size(); i < n; i++) {
+            temp_layer = new Layer(*_available_Layers[i]);
+            //_available_Layers[i]->CopyLayer(temp_layer);
+            temp_layer->_rank = rank++;
+            new_configuration->_layers.push_back(temp_layer);
+        }
 
-    // Add layers
-    for (int i = 0, n = _available_Layers.size(); i < n; i++) {
-        temp_layer = new Layer(*_available_Layers[i]);
-        //_available_Layers[i]->CopyLayer(temp_layer);
-        temp_layer->_rank = rank++;
-        new_configuration->_layers.push_back(temp_layer);
-    }
-
-    // Now grab settings defaults
-    for (int i = 0, n = new_configuration->_layers.size(); i < n; i++) LoadDefaultSettings(new_configuration->_layers[i]);
-
+        // Now grab settings defaults
+        for (int i = 0, n = new_configuration->_layers.size(); i < n; i++) {
+            LoadDefaultSettings(new_configuration->_layers[i]);
+        }
+    */
     return new_configuration;
 }
 
@@ -834,20 +836,25 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     QTextStream stream(&file);
 
     // Loop through all the layers
-    for (int layer_index = 0, layer_count = _active_configuration->_layers.size(); layer_index < layer_count; layer_index++) {
-        const Layer &layer = *_active_configuration->_layers[layer_index];
-        stream << "\n";
-        stream << "# " << layer._name << "\n";
+    for (std::size_t j = 0, n = _active_configuration->parameters.size(); j < n; ++j) {
+        const Parameter &parameter = _active_configuration->parameters[j];
 
-        QString short_layer_name = layer._name;
+        const Layer *layer = FindLayerNamed(parameter.name);
+        if (layer == nullptr) continue;
+
+        if (layer->_state != LAYER_STATE_OVERRIDDEN) continue;
+
+        stream << "\n";
+        stream << "# " << layer->_name << "\n";
+
+        QString short_layer_name = layer->_name;
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
-        for (std::size_t setting_index = 0, setting_count = layer._layer_settings.size(); setting_index < setting_count;
-             setting_index++) {
-            const LayerSetting &setting = layer._layer_settings[setting_index];
+        for (std::size_t i = 0, m = layer->_layer_settings.size(); i < m; ++i) {
+            const LayerSetting &setting = layer->_layer_settings[i];
 
-            if (layer._name == "lunarg_gfxreconstruct" && layer._api_version < Version("1.2.148")) {
+            if (layer->_name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
                 stream << "lunarg_gfxrecon"
                        << "." << setting.name << " = " << setting.value << "\n";
             } else {
@@ -869,17 +876,18 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     // used instead. A major departure from vkConfig1 is that now ALL
     // layer paths go in here.
     QStringList layer_override_paths;
+    for (std::size_t i = 0, n = _active_configuration->parameters.size(); i < n; ++i) {
+        const Parameter &parameter = _active_configuration->parameters[i];
 
-    for (int i = 0, n = _active_configuration->_layers.size(); i < n; i++) {
         // Extract just the path
-        QFileInfo file(_active_configuration->_layers[i]->_layer_path);
-        QString qsPath = QDir().toNativeSeparators(file.absolutePath());
+        const QFileInfo file(_active_configuration->parameters[i].path);
+        const QString absolute_path = QDir().toNativeSeparators(file.absolutePath());
 
         // Make sure the path is not already in the list
-        if (layer_override_paths.contains(qsPath)) continue;
+        if (layer_override_paths.contains(absolute_path)) continue;
 
         // Okay, add to the list
-        layer_override_paths << qsPath;
+        layer_override_paths << absolute_path;
     }
 
     QJsonArray json_paths;
@@ -887,37 +895,37 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
         json_paths.append(QDir::toNativeSeparators(layer_override_paths[i]));
     }
 
-    QJsonArray json_layers;
-    for (int i = 0, n = _active_configuration->_layers.size(); i < n; i++) {
-        json_layers.append(_active_configuration->_layers[i]->_name);
-    }
-
-    QJsonArray json_excluded_layer_list;
-    for (int i = 0; i < _active_configuration->_excluded_layers.size(); i++) {
-        json_excluded_layer_list.append(_active_configuration->_excluded_layers[i]);
+    QJsonArray json_overridden_layers;
+    QJsonArray json_excluded_layers;
+    for (std::size_t i = 0, n = _active_configuration->parameters.size(); i < n; ++i) {
+        const Parameter &parameter = _active_configuration->parameters[i];
+        if (parameter.state == LAYER_STATE_OVERRIDDEN)
+            json_overridden_layers.append(parameter.name);
+        else if (parameter.state == LAYER_STATE_EXCLUDED)
+            json_excluded_layers.append(parameter.name);
     }
 
     // Only supply this list if an app list is specified
     const std::vector<Application> &applications = environment.GetApplications();
     QJsonArray json_applist;
-    for (std::size_t i = 0, n = applications.size(); i < n; i++) {
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         if (applications[i].override_layers) {
             json_applist.append(QDir::toNativeSeparators(applications[i].executable_path));
         }
     }
 
     QJsonObject disable;
-    disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
+    disable.insert("DISABLE_VK_LAYER_LUNARG_override", "1");
 
     QJsonObject layer;
-    layer.insert("name", QString("VK_LAYER_LUNARG_override"));
-    layer.insert("type", QString("GLOBAL"));
+    layer.insert("name", "VK_LAYER_LUNARG_override");
+    layer.insert("type", "GLOBAL");
     layer.insert("api_version", "1.2." + QString::number(VK_HEADER_VERSION));
-    layer.insert("implementation_version", QString("1"));
-    layer.insert("description", QString("LunarG Override Layer"));
+    layer.insert("implementation_version", "1");
+    layer.insert("description", "LunarG Override Layer");
     layer.insert("override_paths", json_paths);
-    layer.insert("component_layers", json_layers);
-    layer.insert("blacklisted_layers", json_excluded_layer_list);
+    layer.insert("component_layers", json_overridden_layers);
+    layer.insert("blacklisted_layers", json_excluded_layers);
     layer.insert("disable_environment", disable);
 
     // This has to contain something, or it will apply globally!
@@ -926,7 +934,7 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     }
 
     QJsonObject root;
-    root.insert("file_format_version", QJsonValue(QString("1.1.2")));
+    root.insert("file_format_version", QJsonValue("1.1.2"));
     root.insert("layer", layer);
     QJsonDocument doc(root);
 
@@ -1001,15 +1009,13 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
     }
 }
 
-bool Configurator::IsValid(const Configuration &configuration) const {
+bool Configurator::HasMissingLayers(const Configuration &configuration) const {
     assert(&configuration);
 
-    for (int i = 0, n = configuration._layers.size(); i < n; ++i) {
-        if (!IsLayerAvailable(configuration._layers[i]->_name)) return false;
-    }
+    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+        const Parameter &parameter = configuration.parameters[i];
 
-    for (int i = 0, n = configuration._excluded_layers.size(); i < n; ++i) {
-        if (!IsLayerAvailable(configuration._excluded_layers[i])) return false;
+        if (!IsLayerAvailable(parameter.name)) return false;
     }
 
     return true;

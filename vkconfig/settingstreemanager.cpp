@@ -37,7 +37,6 @@ SettingsTreeManager::SettingsTreeManager()
     : _configuration_settings_tree(nullptr),
       _configuration(nullptr),
       _validation_presets_combo_box(nullptr),
-      _validation_layer_file(nullptr),
       _validation_tree_item(nullptr),
       _validation_file_item(nullptr),
       _validation_log_file_item(nullptr),
@@ -56,52 +55,60 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
     build_tree->blockSignals(true);
     build_tree->clear();
 
-    // There will be one top level item for each layer
-    for (int layer_index = 0; layer_index < _configuration->_layers.size(); layer_index++) {
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, configuration->_layers[layer_index]->_name);
-        _configuration_settings_tree->addTopLevelItem(item);
-        _layer_items.push_back(item);
-
-        // Handle the case were we get off easy. No settings.
-        if (_configuration->_layers[layer_index]->_layer_settings.size() == 0) {
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, "No User Settings");
-            item->addChild(child);
-            continue;
-        }
-
-        // There are settings.
-        // Okay kid, this is where it gets complicated...
-        // Is this Khronos? Khronos is special...
-        if (configuration->_layers[layer_index]->_name == "VK_LAYER_KHRONOS_validation") {
-            _validation_layer_file = configuration->_layers[layer_index];
-            _validation_tree_item = item;
-            BuildKhronosTree();
-            continue;
-        }
-
-        // Generic is the only one left
-        BuildGenericTree(item, configuration->_layers[layer_index]);
-    }
-
-    ///////////////////////////////////////////////////////////////////
-    // The last item is just the excluded layers
-    if (!configuration->_excluded_layers.isEmpty()) {
-        QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
-        excluded_layers->setText(0, "Excluded Layers");
-        build_tree->addTopLevelItem(excluded_layers);
-        for (int i = 0; i < configuration->_excluded_layers.size(); i++) {
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, configuration->_excluded_layers[i]);
-            excluded_layers->addChild(child);
-        }
-    }
-
-    if (configuration->_excluded_layers.isEmpty() && configuration->_layers.isEmpty()) {
+    if (configuration->parameters.empty()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, "No overridden or excluded layer");
         build_tree->addTopLevelItem(item);
+    } else {
+        // There will be one top level item for each layer
+        for (std::size_t i = 0, n = _configuration->parameters.size(); i < n; ++i) {
+            Parameter &parameter = _configuration->parameters[i];
+            if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
+
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(0, parameter.name);
+            _configuration_settings_tree->addTopLevelItem(item);
+            _layer_items.push_back(item);
+
+            // Handle the case were we get off easy. No settings.
+            if (parameter.settings.empty()) {
+                QTreeWidgetItem *child = new QTreeWidgetItem();
+                child->setText(0, "No User Settings");
+                item->addChild(child);
+                continue;
+            }
+
+            if (parameter.name == "VK_LAYER_KHRONOS_validation") {
+                _validation_tree_item = item;
+                BuildKhronosTree(parameter.settings);
+                continue;
+            }
+
+            // Generic is the only one left
+            BuildGenericTree(item, parameter.settings);
+        }
+
+        ///////////////////////////////////////////////////////////////////
+        // The last item is just the excluded layers
+        QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
+        excluded_layers->setText(0, "Excluded Layers");
+        build_tree->addTopLevelItem(excluded_layers);
+
+        for (std::size_t i = 0, n = _configuration->parameters.size(); i < n; ++i) {
+            Parameter &parameter = _configuration->parameters[i];
+            if (parameter.state != LAYER_STATE_EXCLUDED) continue;
+
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0, parameter.name);
+            excluded_layers->addChild(child);
+        }
+
+        // None excluded layer were found
+        if (excluded_layers->childCount() == 0) {
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0, "None");
+            excluded_layers->addChild(child);
+        }
     }
 
     // Everyone is expanded.
@@ -111,7 +118,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
 }
 
 //////////////////////////////////////////////////////////////////////////
-void SettingsTreeManager::BuildKhronosTree() {
+void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) {
     _validation_preset_item = new QTreeWidgetItem();
     _validation_preset_item->setText(0, "Validation Preset");
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
@@ -148,12 +155,11 @@ void SettingsTreeManager::BuildKhronosTree() {
     _validation_preset_item->addChild(_validation_settingsitem);
 
     // This just finds the enables and disables
-    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem,
-                                                       _validation_layer_file->_layer_settings);
+    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, settings);
 
     // Get the Debug Action and log file settings (and they must exist)
-    LayerSetting &debug_action = FindSetting(_validation_layer_file->_layer_settings, "debug_action");
-    LayerSetting &log_file = FindSetting(_validation_layer_file->_layer_settings, "log_filename");
+    LayerSetting &debug_action = FindSetting(settings, "debug_action");
+    LayerSetting &log_file = FindSetting(settings, "log_filename");
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
@@ -188,8 +194,6 @@ void SettingsTreeManager::BuildKhronosTree() {
             _validation_log_file_widget->setDisabled(!_validation_debug_action->isChecked());
         }
     }
-
-    std::vector<LayerSetting> &settings = _validation_layer_file->_layer_settings;
 
     // This is looking for the report flags
     for (std::size_t setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
@@ -267,9 +271,9 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
     profileEdited();
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Layer *layer) {
-    for (std::size_t setting_index = 0, n = layer->_layer_settings.size(); setting_index < n; setting_index++) {
-        LayerSetting &setting = layer->_layer_settings[setting_index];
+void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, std::vector<LayerSetting> &settings) {
+    for (std::size_t setting_index = 0, n = settings.size(); setting_index < n; setting_index++) {
+        LayerSetting &setting = settings[setting_index];
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
 
@@ -355,29 +359,21 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     // The easiest way to do this is to create a new profile, and copy the layer over
     const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
 
-    Configuration *preset_configuration = new Configuration;
-    const bool result = preset_configuration->Load(preset_file, configurator._available_Layers);
+    Configuration preset_configuration;
+    const bool result = preset_configuration.Load(preset_file, configurator._available_Layers);
     assert(result);
 
-    // Copy it all into the real layer and delete it
-    // Find the KhronosLaer
-    int validation_layer_index = -1;
-    for (int i = 0; i < _configuration->_layers.size(); i++)
-        if (_configuration->_layers[i] == _validation_layer_file) {
-            validation_layer_index = i;
-            break;
-        }
-
-    Q_ASSERT(validation_layer_index != -1);
+    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation", "");
+    assert(parameter);
 
     // Reset just specific layer settings
-    for (std::size_t i = 0; i < _configuration->_layers[validation_layer_index]->_layer_settings.size(); i++) {
-        if (_validation_layer_file->_layer_settings[i].name == "disables" ||
-            _validation_layer_file->_layer_settings[i].name == "enables")
-            _validation_layer_file->_layer_settings[i].value = preset_configuration->_layers[0]->_layer_settings[i].value;
+    for (std::size_t i = 0, n = parameter->settings.size(); i < n; ++i) {
+        LayerSetting &setting = parameter->settings[i];
+
+        if (setting.name == "disables" || setting.name == "enables")
+            setting.value = preset_configuration.parameters[0].settings[i].value;
     }
 
-    delete preset_configuration;  // Delete the pattern
     _configuration->_preset = preset;
 
     // Now we need to reload the Khronos tree item.
@@ -393,7 +389,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
         _validation_tree_item->takeChild(0);
     }
 
-    BuildKhronosTree();
+    BuildKhronosTree(parameter->settings);
     SetTreeState(saved_state, 0, validation_preset_parent);
     _configuration_settings_tree->blockSignals(false);
     profileEdited();
@@ -453,7 +449,8 @@ void SettingsTreeManager::CleanupGUI() {
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
-    if (_validation_layer_file) _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
+    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation", "");
+    if (parameter) _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
 
     _validation_file_item = nullptr;
 
@@ -468,7 +465,6 @@ void SettingsTreeManager::CleanupGUI() {
     _configuration_settings_tree = nullptr;
     _configuration = nullptr;
     _validation_presets_combo_box = nullptr;
-    _validation_layer_file = nullptr;
     _validation_tree_item = nullptr;
     _validation_debug_action = nullptr;
     _validation_preset_item = nullptr;

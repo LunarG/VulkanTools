@@ -129,7 +129,7 @@ class Configurator {
     QVector<Layer*> _available_Layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
     bool IsLayerAvailable(const QString& layer_name) const;
-    const Layer* FindLayerNamed(QString layer_name);
+    Layer* FindLayerNamed(QString layer_name);
     void LoadLayersFromPath(const QString& path, QVector<Layer*>& layers);
 
     QVector<Configuration*> _available_configurations;
@@ -139,7 +139,7 @@ class Configurator {
     void LoadAllConfigurations();  // Load all the .profile files found
     void ImportConfiguration(const QString& full_import_path);
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
-    bool IsValid(const Configuration& configuration) const;
+    bool HasMissingLayers(const Configuration& configuration) const;
 
     bool HasLayers() const;
 
@@ -150,7 +150,9 @@ class Configurator {
     void RefreshConfiguration() {
         if (_active_configuration) SetActiveConfiguration(_active_configuration);
     }
-    bool HasActiveConfiguration() const { return _active_configuration != nullptr ? IsValid(*_active_configuration) : false; }
+    bool HasActiveConfiguration() const {
+        return _active_configuration != nullptr ? HasMissingLayers(*_active_configuration) : false;
+    }
 
    private:
     Configurator();

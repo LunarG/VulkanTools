@@ -54,7 +54,7 @@ class dlgProfileEditor : public QDialog {
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;
 
-    void AddMissingLayers(Configuration *configuration);
+    // void AddMissingLayers(Configuration *configuration);
 
     void PopulateCustomTree();
 
@@ -69,8 +69,8 @@ class dlgProfileEditor : public QDialog {
     void on_pushButtonAddLayers_clicked();
     void on_pushButtonRemoveLayers_clicked();
 
-    void on_toolButtonUp_clicked();
-    void on_toolButtonDown_clicked();
+    // void on_toolButtonUp_clicked();
+    // void on_toolButtonDown_clicked();
 
     void layerUseChanged(QTreeWidgetItem *item, int selection);
 
