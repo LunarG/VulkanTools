@@ -129,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent)
     // insufficinet.
     ui->logBrowser->document()->setMaximumBlockCount(2048);
     ui->logBrowser->append("Vulkan Development Status:");
-    ui->logBrowser->append(GenerateVulkanStatus());
+    // ui->logBrowser->append(GenerateVulkanStatus());
     ui->profileTree->scrollToItem(ui->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
     if (current_configuration) {
@@ -172,7 +172,7 @@ void MainWindow::UpdateUI() {
         Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
         if (configuration == nullptr) continue;
 
-        if (configurator.IsValid(*configuration)) {
+        if (configurator.HasMissingLayers(*configuration)) {
             item->setText(1, item->configuration_name);
             item->radio_button->setToolTip(configuration->_description);
         } else {
@@ -439,7 +439,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
-    ui->logBrowser->append(GenerateVulkanStatus());
+    // ui->logBrowser->append(GenerateVulkanStatus());
 
     UpdateUI();
 }
@@ -1337,7 +1337,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     if (configuration == nullptr) {
         launch_log += "- Layers fully controlled by the application.\n";
-    } else if (!configurator.IsValid(*configuration)) {
+    } else if (!configurator.HasMissingLayers(*configuration)) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                          configuration->_name.toUtf8().constData());
     } else if (configurator.environment.UseOverride()) {

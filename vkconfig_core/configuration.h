@@ -25,7 +25,8 @@
 
 #include <QString>
 #include <QStringList>
-#include <QVector>
+
+#include <vector>
 
 // json file preset_index must match the preset enum values
 enum ValidationPreset {
@@ -44,10 +45,17 @@ enum ValidationPreset {
 
 enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };
 
+struct Parameter {
+    QString name;
+    QString path;
+    LayerState state;
+    int rank;
+    std::vector<LayerSetting> settings;
+};
+
 class Configuration {
    public:
     Configuration();
-    ~Configuration();
 
     bool Load(const QString &full_path, const QVector<Layer *> &available_Layers);
     bool Save(const QString &full_path) const;
@@ -59,15 +67,18 @@ class Configuration {
     ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     // A configuration is nothing but a list of layers and their settings in truth
-    QVector<Layer *> _layers;
+    // QVector<Layer *> _layers;
+    // QStringList _excluded_layers;  // Just the names of blacklisted layers
 
-    QStringList _excluded_layers;  // Just the names of blacklisted layers
+    std::vector<Parameter> parameters;
 
-    Layer *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
+    Parameter *FindParameter(const QString &layer_name, const QString &full_path);  // Find the layer if it exists
 
     Configuration *Duplicate();  // Copy a profile so we can mess with it
 
-    void Collapse();  // Remove unused layers and settings, set blacklist
+    // void Collapse();  // Remove unused layers and settings, set blacklist
 
     bool IsEmpty() const;
 };
+
+void Sort(std::vector<Parameter> &parameters);

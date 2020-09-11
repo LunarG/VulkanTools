@@ -174,19 +174,6 @@ bool Layer::operator==(const Layer& layer) const {
 
 bool Layer::operator!=(const Layer& layer) const { return !(*this == layer); }
 
-void SortByRank(QVector<Layer*>& layers) {
-    if (layers.size() < 2)  // Nothing to sort
-        return;
-
-    for (int i = 0, m = layers.size() - 1; i < m; i++) {
-        for (int j = i + 1, n = layers.size(); j < n; j++) {
-            if (layers[i]->_rank > layers[j]->_rank) {
-                std::swap(layers[i], layers[j]);
-            }
-        }
-    }
-}
-
 const Layer* FindLayer(const QVector<Layer*>& layers, QString layer_name) {
     assert(!layer_name.isEmpty());
 
