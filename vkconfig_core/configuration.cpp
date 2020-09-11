@@ -32,12 +32,9 @@
 
 #include <cassert>
 
-Configuration::Configuration() : _name("New Configuration"), _preset(ValidationPresetNone) {}
+Configuration::Configuration() : _name("New Configuration") {}
 
-Configuration::~Configuration() {
-    qDeleteAll(_layers.begin(), _layers.end());
-    _layers.clear();
-}
+Configuration::~Configuration() { qDeleteAll(_layers.begin(), _layers.end()); }
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
@@ -57,11 +54,12 @@ Configuration* Configuration::Duplicate() {
     Configuration* duplicate = new Configuration;
     duplicate->_name = _name;
     duplicate->_description = _description;
-    duplicate->_excluded_layers = _excluded_layers;
-    duplicate->_preset = _preset;
+    duplicate->_setting_tree_state = _setting_tree_state;
     for (int i = 0; i < _layers.size(); i++) {
         duplicate->_layers.push_back(new Layer(*_layers[i]));
     }
+    duplicate->_excluded_layers = _excluded_layers;
+    duplicate->_layer_parameters = _layer_parameters;
 
     return duplicate;
 }
@@ -154,12 +152,17 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
     assert(excluded_value != QJsonValue::Undefined);
 
     QJsonArray excluded_array = excluded_value.toArray();
-    for (int i = 0; i < excluded_array.size(); i++) {
-        _excluded_layers << excluded_array[i].toString();
+    for (int i = 0, n = excluded_array.size(); i < n; ++i) {
+        LayerParameter layer_parameter;
+        layer_parameter.name = excluded_array[i].toString();
+        layer_parameter.state = LAYER_STATE_EXCLUDED;
+        _layer_parameters.push_back(layer_parameter);
+
+        _excluded_layers << layer_parameter.name;
     }
 
     const QJsonValue& preset_index = configuration_entry_object.value("preset");
-    _preset = static_cast<ValidationPreset>(preset_index.toInt());
+    const ValidationPreset preset = static_cast<ValidationPreset>(preset_index.toInt());
 
     const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
     _setting_tree_state = editor_state.toVariant().toByteArray();
@@ -188,32 +191,41 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
         if (alert.exec() == QMessageBox::No) exit(-1);
     }
 
-    // Build the list of layers with their settings. If both the layers and
-    // the blacklist are emtpy, then automatic fail
+    // Build the list of layers with their settings.
 
     for (int layer_index = 0; layer_index < layers.length(); layer_index++) {
-        const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
-        const QJsonObject& layer_object = layer_value.toObject();
+        LayerParameter layer_parameter;
+        layer_parameter.name = layers[layer_index];
+        layer_parameter.preset = preset;
+        layer_parameter.state = LAYER_STATE_OVERRIDDEN;
 
         // To match the layer we just need the name, paths are not
         // hard-matched to the configuration.
         // Find this in our lookup of layers. The standard layers are listed first
         const Layer* layer = ::FindLayer(available_Layers, layers[layer_index]);
-        if (layer == nullptr) {  // If not found, we have a layer missing....
-            continue;
+
+        const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
+        const QJsonObject& layer_object = layer_value.toObject();
+
+        if (layer != nullptr) {
+            assert(layer->IsValid());
+
+            // Make a copy add it to this layer
+            Layer layer_copy(*layer);
+
+            const QJsonValue& layer_rank = layer_object.value("layer_rank");
+            layer_parameter.rank = layer_rank.toInt();
+
+            layer_copy._rank = layer_rank.toInt();
+            layer_copy._state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
+            LoadSettings(layer_object, layer_copy._layer_settings);
+
+            _layers.push_back(new Layer(layer_copy));
         }
 
-        assert(layer->IsValid());
+        LoadSettings(layer_object, layer_parameter.settings);
 
-        // Make a copy add it to this layer
-        Layer layer_copy(*layer);
-
-        const QJsonValue& layer_rank = layer_object.value("layer_rank");
-        layer_copy._rank = layer_rank.toInt();
-        layer_copy._state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
-        LoadSettings(layer_object, layer_copy._layer_settings);
-
-        _layers.push_back(new Layer(layer_copy));
+        _layer_parameters.push_back(layer_parameter);
     }
 
     SortByRank(_layers);
@@ -251,7 +263,7 @@ bool Configuration::Save(const QString& full_path) const {
     json_configuration.insert("name", _name);
     json_configuration.insert("blacklisted_layers", excluded_list);
     json_configuration.insert("description", _description);
-    json_configuration.insert("preset", _preset);
+    json_configuration.insert("preset", -1);
     json_configuration.insert("editor_state", _setting_tree_state.data());
     json_configuration.insert("layer_options", layer_list);
     root.insert("configuration", json_configuration);
@@ -277,4 +289,29 @@ bool Configuration::Save(const QString& full_path) const {
     return true;
 }
 
+void Configuration::Reset() {
+    //_overridden_layers.clear();
+    _excluded_layers.clear();
+}
+
 bool Configuration::IsEmpty() const { return _excluded_layers.empty() && _layers.empty(); }
+
+/*
+ValidationPreset Configuration::GetValidationPreset() const{
+    for (std::size_t i = 0, n = _overridden_layers.size(); i < n; ++i) {
+        if (_overridden_layers[i].name == "VK_LAYER_KHRONOS_validation")
+            return _overridden_layers[i].preset;
+    }
+
+    return ValidationPresetNone;
+}
+
+void Configuration::SetValidationPreset(ValidationPreset preset) {
+    for (std::size_t i = 0, n = _overridden_layers.size(); i < n; ++i) {
+        if (_overridden_layers[i].name == "VK_LAYER_KHRONOS_validation"){
+            _overridden_layers[i].preset = preset;
+            return;
+        }
+    }
+}
+*/

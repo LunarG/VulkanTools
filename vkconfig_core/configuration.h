@@ -27,6 +27,8 @@
 #include <QStringList>
 #include <QVector>
 
+#include <vector>
+
 // json file preset_index must match the preset enum values
 enum ValidationPreset {
     ValidationPresetNone = 0,
@@ -44,6 +46,15 @@ enum ValidationPreset {
 
 enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };
 
+struct LayerParameter {
+    QString name;
+    QString path;  // We may have multiple version of the same layer but from different locations
+    int rank;
+    ValidationPreset preset;  // Khronos layer presets. 0 = none or user defined
+    std::vector<LayerSetting> settings;
+    LayerState state;
+};
+
 class Configuration {
    public:
     Configuration();
@@ -52,16 +63,17 @@ class Configuration {
     bool Load(const QString &full_path, const QVector<Layer *> &available_Layers);
     bool Save(const QString &full_path) const;
 
+    void Reset();
+
     QString _name;                   // User readable display of the profile name (may contain spaces)
-                                     // This is the same as the filename, but with the .json stripped off.
     QString _description;            // A friendly description of what this profile does
     QByteArray _setting_tree_state;  // Recall editor tree state
-    ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     // A configuration is nothing but a list of layers and their settings in truth
     QVector<Layer *> _layers;
 
-    QStringList _excluded_layers;  // Just the names of blacklisted layers
+    QStringList _excluded_layers;
+    std::vector<LayerParameter> _layer_parameters;
 
     Layer *FindLayer(const QString &layer_name, const QString &full_path) const;  // Find the layer if it exists
 
@@ -70,4 +82,12 @@ class Configuration {
     void Collapse();  // Remove unused layers and settings, set blacklist
 
     bool IsEmpty() const;
+
+    // ValidationPreset GetValidationPreset() const;
+    // void SetValidationPreset(ValidationPreset preset);
+
+    LayerState GetLayerState(const QString &name) const;
+
+   private:
+    // void AddAvailableLayers(const QVector<Layer *>& available__layers);
 };

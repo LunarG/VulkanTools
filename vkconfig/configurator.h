@@ -126,7 +126,7 @@ class Configurator {
     // in the above (defaultLayerSettings). The binding of a layer with it's
     // particular settings is done in the profile (Configuration - in configuration list).
     // This includes all found implicit, explicit, or layers found in custom folders
-    QVector<Layer*> _available_Layers;  // All the found layers, lumped together
+    QVector<Layer*> _available_layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
     bool IsLayerAvailable(const QString& layer_name) const;
     const Layer* FindLayerNamed(QString layer_name);

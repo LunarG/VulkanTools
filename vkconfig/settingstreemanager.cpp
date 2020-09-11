@@ -45,6 +45,8 @@ SettingsTreeManager::SettingsTreeManager()
 
 ////////////////////////////////////////////////////////////////////////////////////
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *configuration) {
+    Configurator &configurator = Configurator::Get();
+
     // Do this first to make absolutely sure if thee is an old profile still active
     // it's state gets saved.
     CleanupGUI();
@@ -57,13 +59,25 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
 
     // There will be one top level item for each layer
     for (int layer_index = 0; layer_index < _configuration->_layers.size(); layer_index++) {
+        Layer &layer = *configuration->_layers[layer_index];
+
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, configuration->_layers[layer_index]->_name);
+
+        const bool layer_available = configurator.IsLayerAvailable(layer._name);
+
+        item->setText(0, layer._name);
         _configuration_settings_tree->addTopLevelItem(item);
         _layer_items.push_back(item);
 
+        if (!layer_available) {
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0, "Layer binary not found");
+            item->addChild(child);
+            continue;
+        }
+
         // Handle the case were we get off easy. No settings.
-        if (_configuration->_layers[layer_index]->_layer_settings.size() == 0) {
+        if (layer._layer_settings.empty()) {
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setText(0, "No User Settings");
             item->addChild(child);
@@ -73,15 +87,15 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
         // There are settings.
         // Okay kid, this is where it gets complicated...
         // Is this Khronos? Khronos is special...
-        if (configuration->_layers[layer_index]->_name == "VK_LAYER_KHRONOS_validation") {
-            _validation_layer_file = configuration->_layers[layer_index];
+        if (layer._name == "VK_LAYER_KHRONOS_validation") {
+            _validation_layer_file = &layer;
             _validation_tree_item = item;
             BuildKhronosTree();
             continue;
         }
 
         // Generic is the only one left
-        BuildGenericTree(item, configuration->_layers[layer_index]);
+        BuildGenericTree(item, &layer);
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -126,7 +140,7 @@ void SettingsTreeManager::BuildKhronosTree() {
         _validation_presets_combo_box->addItem(preset_name);
     }
 
-    _validation_presets_combo_box->setCurrentIndex(_configuration->_preset);
+    _validation_presets_combo_box->setCurrentIndex(0);
 
     connect(_validation_presets_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     _validation_tree_item->addChild(_validation_preset_item);
@@ -336,7 +350,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
 
     Configuration *preset_configuration = new Configuration;
-    const bool result = preset_configuration->Load(preset_file, configurator._available_Layers);
+    const bool result = preset_configuration->Load(preset_file, configurator._available_layers);
     assert(result);
 
     // Copy it all into the real layer and delete it
@@ -358,7 +372,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     }
 
     delete preset_configuration;  // Delete the pattern
-    _configuration->_preset = preset;
+    //_configuration->SetValidationPreset(0);
 
     // Now we need to reload the Khronos tree item.
     _configuration_settings_tree->blockSignals(true);
@@ -385,7 +399,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
 void SettingsTreeManager::khronosPresetEdited() {
     _validation_presets_combo_box->blockSignals(true);
     _validation_presets_combo_box->setCurrentIndex(ValidationPresetUserDefined);
-    _configuration->_preset = ValidationPresetUserDefined;
+    //_configuration->SetValidationPreset(ValidationPresetUserDefined);
     _validation_presets_combo_box->blockSignals(false);
     profileEdited();
 }

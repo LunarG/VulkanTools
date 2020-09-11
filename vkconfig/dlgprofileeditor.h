@@ -42,7 +42,7 @@ class dlgProfileEditor : public QDialog {
     ~dlgProfileEditor();
 
     // Load all layers into the list box
-    void LoadLayerDisplay(int selection = -1);
+    void LoadLayerTree(int selection = -1);
 
     QString GetConfigurationName() const;
 
@@ -68,9 +68,6 @@ class dlgProfileEditor : public QDialog {
     void on_pushButtonResetLayers_clicked();
     void on_pushButtonAddLayers_clicked();
     void on_pushButtonRemoveLayers_clicked();
-
-    void on_toolButtonUp_clicked();
-    void on_toolButtonDown_clicked();
 
     void layerUseChanged(QTreeWidgetItem *item, int selection);
 

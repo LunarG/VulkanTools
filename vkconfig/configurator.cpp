@@ -156,7 +156,7 @@ Configurator::Configurator()
       _running_as_administrator(false)
 #endif
 {
-    _available_Layers.reserve(10);
+    _available_layers.reserve(10);
 
     // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
@@ -183,7 +183,7 @@ bool Configurator::Init() {
     LoadAllInstalledLayers();
 
     // If no layers are found, give the user another chance to add some custom paths
-    if (_available_Layers.empty()) {
+    if (_available_layers.empty()) {
         QMessageBox alert;
         alert.setText(
             "No Vulkan Layers were found in standard paths or in the SDK path. Vulkan Layers are required in order to use Vulkan "
@@ -200,7 +200,7 @@ bool Configurator::Init() {
         LoadAllInstalledLayers();
     }
 
-    if (_available_Layers.empty()) {
+    if (_available_layers.empty()) {
         QMessageBox alert;
         alert.setWindowTitle(VKCONFIG_NAME);
         alert.setText("Could not initialize Vulkan Configurator.");
@@ -225,11 +225,11 @@ Configurator::~Configurator() {
     _available_configurations.clear();
 }
 
-bool Configurator::HasLayers() const { return !_available_Layers.empty(); }
+bool Configurator::HasLayers() const { return !_available_layers.empty(); }
 
 void Configurator::ClearLayerLists() {
-    qDeleteAll(_available_Layers.begin(), _available_Layers.end());
-    _available_Layers.clear();
+    qDeleteAll(_available_layers.begin(), _available_layers.end());
+    _available_layers.clear();
 }
 
 #if PLATFORM_WINDOWS
@@ -442,24 +442,24 @@ void Configurator::LoadAllInstalledLayers() {
     // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
     int lp = VK_LAYER_PATH.count();
     if (lp != 0)
-        for (int i = 0; i < lp; i++) LoadLayersFromPath(VK_LAYER_PATH[i], _available_Layers);
+        for (int i = 0; i < lp; i++) LoadLayersFromPath(VK_LAYER_PATH[i], _available_layers);
 
     // SECOND: Any custom paths? Search for those too
     const QStringList &custom_layers_paths = environment.GetCustomLayerPaths();
     for (int i = 0; i < custom_layers_paths.size(); i++) {
-        LoadLayersFromPath(custom_layers_paths[i], _available_Layers);
+        LoadLayersFromPath(custom_layers_paths[i], _available_layers);
     }
 
     // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
     for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) {
-        LoadLayersFromPath(szSearchPaths[i], _available_Layers);
+        LoadLayersFromPath(szSearchPaths[i], _available_layers);
     }
 
     // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
     QString vulkanSDK = qgetenv("VULKAN_SDK");
     if (!vulkanSDK.isEmpty()) {
         vulkanSDK += "/etc/vulkan/explicit_layer.d";
-        LoadLayersFromPath(vulkanSDK, _available_Layers);
+        LoadLayersFromPath(vulkanSDK, _available_layers);
     }
 }
 
@@ -548,8 +548,8 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
         tree_widget->addTopLevelItem(item);
 
         // Look for layers that are loaded that are also from this folder
-        for (int i = 0, n = _available_Layers.size(); i < n; i++) {
-            Layer *candidate = _available_Layers[i];
+        for (int i = 0, n = _available_layers.size(); i < n; i++) {
+            Layer *candidate = _available_layers[i];
 
             QFileInfo fileInfo = candidate->_layer_path;
             QString path = QDir::toNativeSeparators(fileInfo.path());
@@ -613,7 +613,7 @@ void Configurator::LoadAllConfigurations() {
             const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
 
             Configuration configuration;
-            const bool result = configuration.Load(file, _available_Layers);
+            const bool result = configuration.Load(file, _available_layers);
             if (result) {
                 const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration._name));
                 assert(result);
@@ -636,7 +636,7 @@ void Configurator::LoadAllConfigurations() {
         if (info.absoluteFilePath().contains("applist.json")) continue;
 
         Configuration *configuration = new Configuration;
-        const bool result = configuration->Load(info.absoluteFilePath(), _available_Layers);
+        const bool result = configuration->Load(info.absoluteFilePath(), _available_layers);
         if (result) {
             _available_configurations.push_back(configuration);
         }
@@ -703,8 +703,8 @@ void Configurator::LoadDefaultLayerSettings() {
 bool Configurator::IsLayerAvailable(const QString &layer_name) const {
     assert(!layer_name.isEmpty());
 
-    for (int i = 0, n = _available_Layers.size(); i < n; ++i) {
-        const Layer &layer = *_available_Layers[i];
+    for (int i = 0, n = _available_layers.size(); i < n; ++i) {
+        const Layer &layer = *_available_layers[i];
 
         if (layer_name != layer._name) continue;
 
@@ -722,8 +722,8 @@ bool Configurator::IsLayerAvailable(const QString &layer_name) const {
 const Layer *Configurator::FindLayerNamed(QString layer_name) {
     assert(!layer_name.isEmpty());
 
-    for (int i = 0; i < _available_Layers.size(); ++i) {
-        const Layer *layer = _available_Layers[i];
+    for (int i = 0; i < _available_layers.size(); ++i) {
+        const Layer *layer = _available_layers[i];
 
         if (!(layer_name == layer->_name)) continue;
         return layer;
@@ -752,8 +752,8 @@ Configuration *Configurator::CreateEmptyConfiguration() {
     int rank = 0;
 
     // Add layers
-    for (int i = 0, n = _available_Layers.size(); i < n; i++) {
-        temp_layer = new Layer(*_available_Layers[i]);
+    for (int i = 0, n = _available_layers.size(); i < n; i++) {
+        temp_layer = new Layer(*_available_layers[i]);
         //_available_Layers[i]->CopyLayer(temp_layer);
         temp_layer->_rank = rank++;
         new_configuration->_layers.push_back(temp_layer);
@@ -945,7 +945,7 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
 
     Configuration configuration;
 
-    if (!configuration.Load(full_import_path, _available_Layers)) {
+    if (!configuration.Load(full_import_path, _available_layers)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -978,7 +978,7 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
 
     const QString source_path = path.GetFullPath(PATH_CONFIGURATION, source_file);
 
-    if (!configuration.Load(source_path, _available_Layers)) {
+    if (!configuration.Load(source_path, _available_layers)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
