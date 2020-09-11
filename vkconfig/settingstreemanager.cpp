@@ -65,10 +65,14 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
             Parameter &parameter = _configuration->parameters[i];
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
+            const Layer *layer = Configurator::Get().FindLayerNamed(parameter.name);
+
             QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, parameter.name);
+            item->setText(0, parameter.name + (layer ? "" : " (Missing)"));
             _configuration_settings_tree->addTopLevelItem(item);
             _layer_items.push_back(item);
+
+            if (layer == nullptr) continue;
 
             // Handle the case were we get off easy. No settings.
             if (parameter.settings.empty()) {
@@ -91,15 +95,17 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
         ///////////////////////////////////////////////////////////////////
         // The last item is just the excluded layers
         QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
-        excluded_layers->setText(0, "Excluded Layers");
+        excluded_layers->setText(0, "Excluded Layers:");
         build_tree->addTopLevelItem(excluded_layers);
 
         for (std::size_t i = 0, n = _configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = _configuration->parameters[i];
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
+            const Layer *layer = Configurator::Get().FindLayerNamed(parameter.name);
+
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, parameter.name);
+            child->setText(0, parameter.name + (layer ? "" : " (Missing)"));
             excluded_layers->addChild(child);
         }
 

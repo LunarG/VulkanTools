@@ -477,7 +477,7 @@ void dlgProfileEditor::accept() {
             QMessageBox alert;
             alert.setWindowTitle("Missing layer...");
             alert.setText(format("%s couldn't be found", parameter.name.toUtf8().constData()).c_str());
-            alert.setInformativeText("The layer won't be overridden");
+            alert.setInformativeText("The Vulkan layers won't be overridden using this configuration");
             alert.setStandardButtons(QMessageBox::Ok);
             alert.setIcon(QMessageBox::Warning);
             alert.exec();
