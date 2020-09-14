@@ -841,8 +841,8 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
-        for (std::size_t i = 0, m = layer->_layer_settings.size(); i < m; ++i) {
-            const LayerSetting &setting = layer->_layer_settings[i];
+        for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
+            const LayerSetting &setting = parameter.settings[i];
 
             if (layer->_name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
                 stream << "lunarg_gfxrecon"
