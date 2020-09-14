@@ -49,7 +49,7 @@ class dlgProfileEditor : public QDialog {
     Q_OBJECT
 
    public:
-    explicit dlgProfileEditor(QWidget *parent, Configuration *configuration);
+    explicit dlgProfileEditor(QWidget *parent, const Configuration &configuration);
     ~dlgProfileEditor();
 
     // Load all layers into the list box
@@ -60,7 +60,7 @@ class dlgProfileEditor : public QDialog {
    private:
     Ui::dlgProfileEditor *ui;
 
-    Configuration *_configuration;
+    Configuration configuration;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void showEvent(QShowEvent *) override;

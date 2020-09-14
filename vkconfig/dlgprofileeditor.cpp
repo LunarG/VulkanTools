@@ -118,16 +118,16 @@ bool IsDLL32Bit(QString full_path) {
 ///         contains settings that have already been specified and previously saved.
 ///         The file name is not blank. User can save or abandon the changes.
 ///////////////////////////////////////////////////////////////////////////////
-dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration)
-    : QDialog(parent), ui(new Ui::dlgProfileEditor), _configuration(configuration) {
+dlgProfileEditor::dlgProfileEditor(QWidget *parent, const Configuration &configuration)
+    : QDialog(parent), ui(new Ui::dlgProfileEditor), configuration(configuration) {
     assert(parent);
-    assert(configuration);
+    assert(&configuration);
 
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    ui->lineEditName->setText(_configuration->_name);
-    ui->lineEditDescription->setText(_configuration->_description);
+    ui->lineEditName->setText(configuration._name);
+    ui->lineEditDescription->setText(configuration._description);
 
     QTreeWidgetItem *header_item = ui->layerTree->headerItem();
 
@@ -162,8 +162,6 @@ void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
         configurator.LoadAllConfigurations();
     }
 
-    //_configuration->Collapse();
-    // AddMissingLayers(_configuration);
     LoadLayerDisplay();
     PopulateCustomTree();
 }
@@ -181,8 +179,6 @@ void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
         configurator.LoadAllConfigurations();
     }
 
-    //_configuration->Collapse();
-    // AddMissingLayers(_configuration);
     LoadLayerDisplay();
     PopulateCustomTree();
 }
@@ -254,8 +250,8 @@ void dlgProfileEditor::LoadLayerDisplay() {
     ui->layerTree->clear();
 
     // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = _configuration->parameters.size(); i < n; ++i) {
-        const Parameter &parameter = _configuration->parameters[i];
+    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+        const Parameter &parameter = configuration.parameters[i];
         assert(!parameter.name.isEmpty());
 
         OutputDebugString("LoadLayerDisplay 1 \n");
@@ -277,7 +273,7 @@ void dlgProfileEditor::LoadLayerDisplay() {
         OutputDebugString("\n");
 
         // The layer is already in the layer tree
-        if (_configuration->FindParameter(layer._name)) continue;
+        if (configuration.FindParameter(layer._name)) continue;
 
         AddLayerItem(layer._name, layer._layer_path, layer._state);
     }
@@ -408,10 +404,6 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
         }
     }
 
-    OutputDebugString("dlgProfileEditor::layerUseChanged\n");
-    OutputDebugString(tree_layer_item->layer_name.toUtf8().constData());
-    OutputDebugString("\n");
-
     tree_layer_item->layer_state = layer_state;
 }
 
@@ -454,12 +446,8 @@ void dlgProfileEditor::accept() {
         parameter.name = layer_item->layer_name;
         parameter.state = layer_item->layer_state;
 
-        OutputDebugString("dlgProfileEditor::accept\n");
-        OutputDebugString(parameter.name.toUtf8().constData());
-        OutputDebugString("\n");
-
         // First, restore the saved layer settings
-        Parameter *saved_parameter = _configuration->FindParameter(layer_item->layer_name);
+        Parameter *saved_parameter = configuration.FindParameter(layer_item->layer_name);
         if (saved_parameter) parameter.settings = saved_parameter->settings;
 
         // Second, get default layer settings
@@ -469,12 +457,12 @@ void dlgProfileEditor::accept() {
         parameters.push_back(parameter);
     }
 
-    _configuration->_name = ui->lineEditName->text();
-    _configuration->_description = ui->lineEditDescription->text();
-    _configuration->parameters = parameters;
+    configuration._name = ui->lineEditName->text();
+    configuration._description = ui->lineEditDescription->text();
+    configuration.parameters = parameters;
 
     const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
-    const bool result = _configuration->Save(save_path);
+    const bool result = configuration.Save(save_path);
     assert(result);
 
     QDialog::accept();

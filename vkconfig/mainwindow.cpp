@@ -176,7 +176,7 @@ void MainWindow::UpdateUI() {
             item->setText(1, item->configuration_name);
             item->radio_button->setToolTip(configuration->_description);
         } else {
-            item->setText(1, item->configuration_name + " (Missing layers)");
+            item->setText(1, item->configuration_name + " (Invalid)");
             item->radio_button->setToolTip(
                 "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
         }
@@ -690,7 +690,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     Configuration *configuration = configurator.GetActiveConfiguration();
     assert(configuration);
 
-    dlgProfileEditor dlg(this, configuration);
+    dlgProfileEditor dlg(this, *configuration);
     dlg.exec();
 
     configurator.LoadAllConfigurations();
@@ -785,7 +785,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    dlgProfileEditor dlg(this, configurator.FindConfiguration(item->configuration_name));
+    dlgProfileEditor dlg(this, *configurator.FindConfiguration(item->configuration_name));
     dlg.exec();
 
     configurator.LoadAllConfigurations();
@@ -806,7 +806,7 @@ void MainWindow::NewClicked() {
     Configuration *configuration = configurator.CreateEmptyConfiguration();
     assert(configuration);
 
-    dlgProfileEditor dlg(this, configuration);
+    dlgProfileEditor dlg(this, *configuration);
     if (QDialog::Accepted == dlg.exec()) {
         configurator.LoadAllConfigurations();
         configurator.SetActiveConfiguration(dlg.GetConfigurationName());
