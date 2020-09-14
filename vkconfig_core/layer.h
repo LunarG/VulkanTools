@@ -77,8 +77,8 @@ class Layer {
     // layer doens't have any settings.
     std::vector<LayerSetting> _layer_settings;
 
-    LayerState _state;
-    int _rank;  // When used in a configurate, what is the rank? (0 being first layer)
+    // LayerState _state;
+    // int _rank;  // When used in a configurate, what is the rank? (0 being first layer)
 
     // File based layers
     bool Load(QString full_path_to_file, LayerType layer_type);

@@ -749,23 +749,7 @@ Configuration *Configurator::CreateEmptyConfiguration() {
     if (named_new_count > 0) {
         new_configuration->_name += format(" (%d)", named_new_count + 1).c_str();
     }
-    /*
-        Layer *temp_layer;
-        int rank = 0;
 
-        // Add layers
-        for (int i = 0, n = _available_Layers.size(); i < n; i++) {
-            temp_layer = new Layer(*_available_Layers[i]);
-            //_available_Layers[i]->CopyLayer(temp_layer);
-            temp_layer->_rank = rank++;
-            new_configuration->_layers.push_back(temp_layer);
-        }
-
-        // Now grab settings defaults
-        for (int i = 0, n = new_configuration->_layers.size(); i < n; i++) {
-            LoadDefaultSettings(new_configuration->_layers[i]);
-        }
-    */
     return new_configuration;
 }
 
@@ -839,10 +823,16 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     for (std::size_t j = 0, n = _active_configuration->parameters.size(); j < n; ++j) {
         const Parameter &parameter = _active_configuration->parameters[j];
 
+        OutputDebugString("SetActiveConfiguration\n");
+        OutputDebugString(_active_configuration->_name.toUtf8().constData());
+        OutputDebugString("\n");
+        OutputDebugString(parameter.name.toUtf8().constData());
+        OutputDebugString("\n");
+
         const Layer *layer = FindLayerNamed(parameter.name);
         if (layer == nullptr) continue;
 
-        if (layer->_state != LAYER_STATE_OVERRIDDEN) continue;
+        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
         stream << "\n";
         stream << "# " << layer->_name << "\n";
@@ -879,8 +869,14 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     for (std::size_t i = 0, n = _active_configuration->parameters.size(); i < n; ++i) {
         const Parameter &parameter = _active_configuration->parameters[i];
 
+        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
+
+        const Layer *layer = FindLayerNamed(parameter.name);
+
+        if (!layer) continue;
+
         // Extract just the path
-        const QFileInfo file(_active_configuration->parameters[i].path);
+        const QFileInfo file(layer->_layer_path);
         const QString absolute_path = QDir().toNativeSeparators(file.absolutePath());
 
         // Make sure the path is not already in the list

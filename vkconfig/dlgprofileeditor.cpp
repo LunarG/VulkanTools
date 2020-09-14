@@ -197,18 +197,17 @@ void dlgProfileEditor::PopulateCustomTree() {
     ui->pushButtonRemoveLayers->setEnabled(false);
 }
 
-void dlgProfileEditor::AddLayerItem(const QString &layer_name, const QString &layer_path, const LayerState &layer_state) {
+void dlgProfileEditor::AddLayerItem(const QString &layer_name, const LayerState &layer_state) {
     assert(!layer_name.isEmpty());
-    assert(!layer_path.isEmpty());
-
-    QString decorated_name = layer_name;
-    if (IsDLL32Bit(layer_path)) decorated_name += " (32-bit)";
 
     const Layer *layer = Configurator::Get().FindLayerNamed(layer_name);
 
+    QString decorated_name = layer_name;
+
     bool is_implicit_layer = false;
     if (layer != nullptr) {
-        // Add implicit or custom to the name
+        if (IsDLL32Bit(layer->_layer_path)) decorated_name += " (32-bit)";
+
         if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
             is_implicit_layer = true;
             decorated_name += QString(" (") + GetLayerTypeLabel(layer->_layer_type) + ")";
@@ -254,10 +253,7 @@ void dlgProfileEditor::LoadLayerDisplay() {
         const Parameter &parameter = configuration.parameters[i];
         assert(!parameter.name.isEmpty());
 
-        const QFileInfo path(parameter.path);
-        const QString layer_path = path.path() + "/" + parameter.path;
-
-        AddLayerItem(parameter.name, layer_path, parameter.state);
+        AddLayerItem(parameter.name, parameter.state);
     }
 
     QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
@@ -267,7 +263,7 @@ void dlgProfileEditor::LoadLayerDisplay() {
         // The layer is already in the layer tree
         if (configuration.FindParameter(layer._name)) continue;
 
-        AddLayerItem(layer._name, layer._layer_path, layer._state);
+        AddLayerItem(layer._name, LAYER_STATE_APPLICATION_CONTROLLED);
     }
 
     resizeEvent(nullptr);
