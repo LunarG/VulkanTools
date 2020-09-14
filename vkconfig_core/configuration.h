@@ -66,17 +66,11 @@ class Configuration {
     QByteArray _setting_tree_state;  // Recall editor tree state
     ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
-    // A configuration is nothing but a list of layers and their settings in truth
-    // QVector<Layer *> _layers;
-    // QStringList _excluded_layers;  // Just the names of blacklisted layers
-
     std::vector<Parameter> parameters;
 
     Parameter *FindParameter(const QString &layer_name);  // Find the layer if it exists
 
     Configuration *Duplicate();  // Copy a profile so we can mess with it
-
-    // void Collapse();  // Remove unused layers and settings, set blacklist
 
     bool IsEmpty() const;
 };

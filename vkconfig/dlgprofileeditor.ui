@@ -56,71 +56,6 @@
       <string>Vulkan Layers execution order and settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
-       <widget class="QPushButton" name="toolButtonUp">
-        <property name="text">
-         <string>^ Move Selected Layer Up in Layer Stack (Closer to Applications) ^</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" rowspan="4">
-       <widget class="QTreeWidget" name="layerTree">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="showDropIndicator" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="dragEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="dragDropMode">
-         <enum>QAbstractItemView::NoDragDrop</enum>
-        </property>
-        <property name="defaultDropAction">
-         <enum>Qt::IgnoreAction</enum>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>false</bool>
-        </property>
-        <property name="headerHidden">
-         <bool>true</bool>
-        </property>
-        <attribute name="headerMinimumSectionSize">
-         <number>50</number>
-        </attribute>
-        <column>
-         <property name="text">
-          <string notr="true">1</string>
-         </property>
-        </column>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QPushButton" name="toolButtonDown">
-        <property name="text">
-         <string>v Move Selected Layer Down in Layer Stack (Closer to Drivers) v</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QPushButton" name="pushButtonResetLayers">
         <property name="minimumSize">
@@ -195,6 +130,54 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item row="1" column="0" rowspan="6">
+       <widget class="QTreeWidget" name="layerTree">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="dragEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropMode">
+         <enum>QAbstractItemView::NoDragDrop</enum>
+        </property>
+        <property name="defaultDropAction">
+         <enum>Qt::IgnoreAction</enum>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>false</bool>
+        </property>
+        <property name="headerHidden">
+         <bool>true</bool>
+        </property>
+        <attribute name="headerMinimumSectionSize">
+         <number>50</number>
+        </attribute>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
