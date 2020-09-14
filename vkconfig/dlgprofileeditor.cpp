@@ -83,9 +83,6 @@ PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 /// Utility function to see if the file is 32-bit
 bool IsDLL32Bit(QString full_path) {
 #if PLATFORM_WINDOWS
-    (void)full_path;
-    return false;
-#else
     if (full_path.isEmpty()) return false;
 
     QFile file(full_path);
@@ -106,6 +103,9 @@ bool IsDLL32Bit(QString full_path) {
     file.close();
 
     return (PE_ARCHITECTURE_X86 == arch);
+#else
+    (void)full_path;
+    return false;
 #endif
 }
 
