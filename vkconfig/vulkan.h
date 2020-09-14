@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "version.h"
+#include "../vkconfig_core/version.h"
 
 #include <QString>
 

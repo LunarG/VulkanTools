@@ -366,7 +366,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
 
     Configuration preset_configuration;
-    const bool result = preset_configuration.Load(preset_file, configurator._available_Layers);
+    const bool result = preset_configuration.Load(preset_file);
     assert(result);
 
     Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation");

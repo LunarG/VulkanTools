@@ -61,7 +61,7 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Load from a configuration file (.json really)
-bool Configuration::Load(const QString& full_path, const QVector<Layer*>& available_Layers) {
+bool Configuration::Load(const QString& full_path) {
     assert(!full_path.isEmpty());
 
     QFile file(full_path);
@@ -158,7 +158,7 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
         const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
         const QJsonObject& layer_object = layer_value.toObject();
 
-        const QJsonValue& layer_rank = layer_object.value("layer_rank");
+        // const QJsonValue& layer_rank = layer_object.value("layer_rank");
 
         Parameter parameter;
         parameter.name = layers[layer_index];

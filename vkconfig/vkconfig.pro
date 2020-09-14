@@ -34,7 +34,7 @@ SOURCES += \
     ..\vkconfig_core\layer_setting.cpp \
     ..\vkconfig_core\layer_type.cpp \
     ..\vkconfig_core\path_manager.cpp \
-    ..\vkconfig_core\vulkan.cpp \
+    vulkan.cpp \
     widget_bool_setting.cpp \
     widget_enum_setting.cpp \
     widget_multi_enum_setting.cpp \
@@ -67,7 +67,7 @@ HEADERS += \
     ..\vkconfig_core\layer_setting.h \
     ..\vkconfig_core\layer_type.h \
     ..\vkconfig_core\path_manager.h \
-    ..\vkconfig_core\vulkan.h \
+    vulkan.h \
     widget_bool_setting.h \
     widget_enum_setting.h \
     widget_multi_enum_setting.h \

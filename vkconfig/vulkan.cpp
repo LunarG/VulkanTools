@@ -18,11 +18,11 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "util.h"
-#include "platform.h"
 #include "vulkan.h"
+#include "configurator.h"
 
-#include "../vkconfig/configurator.h"
+#include "../vkconfig_core/util.h"
+#include "../vkconfig_core/platform.h"
 
 #include <vulkan/vulkan.h>
 

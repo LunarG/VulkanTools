@@ -22,11 +22,11 @@
 
 #include "configurator.h"
 #include "dlgcustompaths.h"
+#include "vulkan.h"
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/platform.h"
-#include "../vkconfig_core/vulkan.h"
 
 #include <Qt>
 #include <QDir>
@@ -615,7 +615,7 @@ void Configurator::LoadAllConfigurations() {
             const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
 
             Configuration configuration;
-            const bool result = configuration.Load(file, _available_Layers);
+            const bool result = configuration.Load(file);
             if (result) {
                 const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration._name));
                 assert(result);
@@ -638,7 +638,7 @@ void Configurator::LoadAllConfigurations() {
         if (info.absoluteFilePath().contains("applist.json")) continue;
 
         Configuration *configuration = new Configuration;
-        const bool result = configuration->Load(info.absoluteFilePath(), _available_Layers);
+        const bool result = configuration->Load(info.absoluteFilePath());
         if (result) {
             _available_configurations.push_back(configuration);
         }
@@ -927,7 +927,7 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
 
     Configuration configuration;
 
-    if (!configuration.Load(full_import_path, _available_Layers)) {
+    if (!configuration.Load(full_import_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -960,7 +960,7 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
 
     const QString source_path = path.GetFullPath(PATH_CONFIGURATION, source_file);
 
-    if (!configuration.Load(source_path, _available_Layers)) {
+    if (!configuration.Load(source_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
