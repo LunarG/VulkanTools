@@ -56,6 +56,7 @@ Version GetVulkanLoaderVersion() {
 
     PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
     vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)library.resolve("vkEnumerateInstanceVersion");
+    assert(vkEnumerateInstanceVersion);
 
     uint32_t version = 0;
     const VkResult result = vkEnumerateInstanceVersion(&version);
