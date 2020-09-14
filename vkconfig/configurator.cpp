@@ -823,12 +823,6 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     for (std::size_t j = 0, n = _active_configuration->parameters.size(); j < n; ++j) {
         const Parameter &parameter = _active_configuration->parameters[j];
 
-        OutputDebugString("SetActiveConfiguration\n");
-        OutputDebugString(_active_configuration->_name.toUtf8().constData());
-        OutputDebugString("\n");
-        OutputDebugString(parameter.name.toUtf8().constData());
-        OutputDebugString("\n");
-
         const Layer *layer = FindLayerNamed(parameter.name);
         if (layer == nullptr) continue;
 
