@@ -70,8 +70,6 @@ class Configuration {
 
     Parameter *FindParameter(const QString &layer_name);  // Find the layer if it exists
 
-    Configuration *Duplicate();  // Copy a profile so we can mess with it
-
     bool IsEmpty() const;
 };
 
