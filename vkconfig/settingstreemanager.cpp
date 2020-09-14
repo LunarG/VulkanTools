@@ -206,7 +206,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
         LayerSetting &layer_setting = settings[setting_index];
 
         // Multi-enum - report flags only
-        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && layer_setting.name == QString("report_flags"))) continue;
+        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && layer_setting.name == "report_flags")) continue;
 
         QTreeWidgetItem *sub_category = new QTreeWidgetItem;
         sub_category->setText(0, layer_setting.label);

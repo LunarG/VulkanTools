@@ -50,51 +50,6 @@ Parameter* Configuration::FindParameter(const QString& layer_name) {
     return nullptr;
 }
 
-////////////////////////////////////////////////////////////
-// Copy a profile so we can mess with it.
-Configuration* Configuration::Duplicate() {
-    Configuration* duplicate = new Configuration;
-    duplicate->_name = _name;
-    duplicate->_description = _description;
-    duplicate->_setting_tree_state = _setting_tree_state;
-    duplicate->_preset = _preset;
-    duplicate->parameters = parameters;
-
-    return duplicate;
-}
-/*
-///////////////////////////////////////////////////////////
-/// Remove unused layers and build the list of excluded layers
-void Configuration::Collapse() {
-    _excluded_layers.clear();
-
-    QVector<Layer*> layers;
-
-    // Look for black listed layers, add them to the
-    // string list of names, but remove them from
-    // the list of layers
-    int new_rank = 0;
-    for (int layer_index = 0, layer_count = _layers.size(); layer_index < layer_count; ++layer_index) {
-        if (!_layers[layer_index]->IsValid()) continue;
-
-        if (_layers[layer_index]->_state == LAYER_STATE_EXCLUDED) {
-            _excluded_layers << _layers[layer_index]->_name;
-            continue;
-        }
-
-        if (_layers[layer_index]->_state == LAYER_STATE_APPLICATION_CONTROLLED) {
-            continue;
-        }
-
-        // We are keeping this layer, reset it's rank
-        _layers[layer_index]->_rank = new_rank++;
-
-        layers.push_back(_layers[layer_index]);
-    }
-
-    _layers = layers;
-}
-*/
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
         return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
@@ -207,29 +162,13 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
     for (int layer_index = 0; layer_index < layers.length(); layer_index++) {
         const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
         const QJsonObject& layer_object = layer_value.toObject();
-        /*
-                // To match the layer we just need the name, paths are not
-                // hard-matched to the configuration.
-                // Find this in our lookup of layers. The standard layers are listed first
-                const Layer* layer = ::FindLayer(available_Layers, layers[layer_index]);
-                if (layer == nullptr) {  // If not found, we have a layer missing....
-                    continue;
-                }
 
-                assert(layer->IsValid());
-
-                // Make a copy add it to this layer
-                Layer layer_copy(*layer);
-        */
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
 
         Parameter parameter;
         parameter.name = layers[layer_index];
         parameter.rank = layer_rank.toInt();
         parameter.state = LAYER_STATE_OVERRIDDEN;
-
-        // layer_copy._rank = layer_rank.toInt();
-        // layer_copy._state = LAYER_STATE_OVERRIDDEN;  // Always because it's present in the file
         LoadSettings(layer_object, parameter.settings);
 
         parameters.push_back(parameter);

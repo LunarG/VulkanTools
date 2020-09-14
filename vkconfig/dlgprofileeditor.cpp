@@ -118,14 +118,13 @@ bool IsDLL32Bit(QString full_path) {
 ///         contains settings that have already been specified and previously saved.
 ///         The file name is not blank. User can save or abandon the changes.
 ///////////////////////////////////////////////////////////////////////////////
-dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration) : QDialog(parent), ui(new Ui::dlgProfileEditor) {
+dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration)
+    : QDialog(parent), ui(new Ui::dlgProfileEditor), _configuration(configuration) {
     assert(parent);
     assert(configuration);
 
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
-    _configuration = configuration->Duplicate();
 
     ui->lineEditName->setText(_configuration->_name);
     ui->lineEditDescription->setText(_configuration->_description);
@@ -145,39 +144,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     LoadLayerDisplay();  // Load/Reload the layer editor
     PopulateCustomTree();
 }
-/*
-void dlgProfileEditor::AddMissingLayers(Configuration *configuration) {
-    assert(configuration);
 
-    int rank = configuration->_layers.size();  // Next rank starts here
-
-    Configurator &configurator = Configurator::Get();
-
-    for (int layer_index = 0, layer_count = configurator._available_Layers.size(); layer_index < layer_count; layer_index++) {
-        Layer *searched_layer = configurator._available_Layers[layer_index];
-
-        // Look for through all layers
-        Layer *found_layer = configuration->FindParameter(searched_layer->_name, searched_layer->_layer_path);
-        if (found_layer != nullptr)  // It's in the list already
-            continue;
-
-        // Nope, add it to the end
-        Layer *next_layer = new Layer(*searched_layer);
-
-        // Add default settings to the layer...
-        configurator.LoadDefaultSettings(next_layer);
-
-        next_layer->_rank = rank++;
-
-        // Check the excluded list
-        const bool is_excluded = configuration->_excluded_layers.contains(next_layer->_name);
-        next_layer->_state = is_excluded ? LAYER_STATE_EXCLUDED : LAYER_STATE_APPLICATION_CONTROLLED;
-
-        assert(next_layer->IsValid());
-        configuration->_layers.push_back(next_layer);
-    }
-}
-*/
 dlgProfileEditor::~dlgProfileEditor() { delete ui; }
 
 ////////////////////////////////////////////////////////////
@@ -320,8 +287,8 @@ void dlgProfileEditor::LoadLayerDisplay() {
 }
 
 QString dlgProfileEditor::GetConfigurationName() const {
-    assert(_configuration);
-    return _configuration->_name;
+    assert(!ui->lineEditName->text().isEmpty());
+    return ui->lineEditName->text();
 }
 
 // The only way to catch the resize from the layouts
@@ -375,7 +342,7 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
     if (layer) {
         QString detailsText = layer->_description;
         detailsText += "\n";
-        detailsText += QString("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n\n";
+        detailsText += QString("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
 
         detailsText += layer->_library_path;
         detailsText += "\n\n";
@@ -388,12 +355,11 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
         detailsText += layer->_implementation_version;
         detailsText += "\n\n";
 
+        detailsText += layer->_layer_path;
+        detailsText += "\n";
+
         detailsText += "File format: ";
         detailsText += layer->_file_format_version.str().c_str();
-        detailsText += "\n\n";
-
-        detailsText += "Full path: ";
-        detailsText += layer->_layer_path;
 
         ui->labelLayerDetails->setText(detailsText);
     } else {
@@ -440,6 +406,10 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
         }
     }
 
+    OutputDebugString("dlgProfileEditor::layerUseChanged\n");
+    OutputDebugString(tree_layer_item->layer_name.toUtf8().constData());
+    OutputDebugString("\n");
+
     tree_layer_item->layer_state = layer_state;
 }
 
@@ -447,9 +417,6 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
 /// This is actually the save button.
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept() {
-    _configuration->_name = ui->lineEditName->text();
-    _configuration->_description = ui->lineEditDescription->text();
-
     // Hard Fail: Name must not be blank
     if (ui->lineEditName->text().isEmpty()) {
         QMessageBox alert;
@@ -467,22 +434,10 @@ void dlgProfileEditor::accept() {
         TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
         assert(layer_item);
 
-        const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->layer_name);
-        if (layer) {
-            if (layer_item->layer_state != LAYER_STATE_EXCLUDED) continue;
-            if (layer->_layer_type != LAYER_TYPE_IMPLICIT) continue;
+        if (layer_item->layer_state == LAYER_STATE_APPLICATION_CONTROLLED) continue;
 
-            // Warn about excluded implicit layers
-            QMessageBox alert;
-            alert.setWindowTitle("Implicit layer excluded...");
-            alert.setText(format("%s was excluded but it an implicit layer. This may cause undefined behavior, including crashes. ",
-                                 layer_item->layer_name.toUtf8().constData())
-                              .c_str());
-            alert.setInformativeText("Do you want to continue?");
-            alert.setStandardButtons(QMessageBox::Ok);
-            alert.setIcon(QMessageBox::Warning);
-            alert.exec();
-        } else {
+        const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->layer_name);
+        if (!layer) {
             // Warn about missing layers
             QMessageBox alert;
             alert.setWindowTitle("Missing layer...");
@@ -496,14 +451,27 @@ void dlgProfileEditor::accept() {
         Parameter parameter;
         parameter.name = layer_item->layer_name;
         parameter.state = layer_item->layer_state;
+
+        OutputDebugString("dlgProfileEditor::accept\n");
+        OutputDebugString(parameter.name.toUtf8().constData());
+        OutputDebugString("\n");
+
+        // First, restore the saved layer settings
+        Parameter *saved_parameter = _configuration->FindParameter(layer_item->layer_name);
+        if (saved_parameter) parameter.settings = saved_parameter->settings;
+
+        // Second, get default layer settings
+        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(layer_item->layer_name);
+        if (defaults && saved_parameter == nullptr) parameter.settings = defaults->default_settings;
+
         parameters.push_back(parameter);
     }
 
+    _configuration->_name = ui->lineEditName->text();
+    _configuration->_description = ui->lineEditDescription->text();
     _configuration->parameters = parameters;
 
-    // Prepare... get fully qualified file name, and double check if overwriting
-    const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _configuration->_name);
-
+    const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
     const bool result = _configuration->Save(save_path);
     assert(result);
 
