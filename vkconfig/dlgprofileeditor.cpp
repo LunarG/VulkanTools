@@ -254,10 +254,6 @@ void dlgProfileEditor::LoadLayerDisplay() {
         const Parameter &parameter = configuration.parameters[i];
         assert(!parameter.name.isEmpty());
 
-        OutputDebugString("LoadLayerDisplay 1 \n");
-        OutputDebugString(parameter.name.toUtf8().constData());
-        OutputDebugString("\n");
-
         const QFileInfo path(parameter.path);
         const QString layer_path = path.path() + "/" + parameter.path;
 
@@ -267,10 +263,6 @@ void dlgProfileEditor::LoadLayerDisplay() {
     QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
     for (int i = 0, n = available_layers.size(); i < n; ++i) {
         const Layer &layer = *available_layers[i];
-
-        OutputDebugString("LoadLayerDisplay 2 \n");
-        OutputDebugString(layer._name.toUtf8().constData());
-        OutputDebugString("\n");
 
         // The layer is already in the layer tree
         if (configuration.FindParameter(layer._name)) continue;

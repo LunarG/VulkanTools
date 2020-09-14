@@ -64,10 +64,6 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
 bool Configuration::Load(const QString& full_path, const QVector<Layer*>& available_Layers) {
     assert(!full_path.isEmpty());
 
-    OutputDebugString("Configuration::Load\n");
-    OutputDebugString(full_path.toUtf8().constData());
-    OutputDebugString("\n");
-
     QFile file(full_path);
     bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
