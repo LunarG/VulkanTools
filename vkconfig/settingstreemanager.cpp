@@ -369,7 +369,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     const bool result = preset_configuration.Load(preset_file, configurator._available_Layers);
     assert(result);
 
-    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation", "");
+    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation");
     assert(parameter);
 
     // Reset just specific layer settings
@@ -455,7 +455,7 @@ void SettingsTreeManager::CleanupGUI() {
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
-    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation", "");
+    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation");
     if (parameter) _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
 
     _validation_file_item = nullptr;

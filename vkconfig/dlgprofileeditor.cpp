@@ -109,16 +109,6 @@ bool IsDLL32Bit(QString full_path) {
 #endif
 }
 
-// We need a way when we get a tree widget item out, to know
-// what layer it references. Use this so that all tree widget
-// items contain a pointer to the actual layer.
-class TreeWidgetItemParameter : public QTreeWidgetItem {
-   public:
-    TreeWidgetItemParameter(Parameter &parameter) : parameter(parameter) { assert(&parameter); }
-
-    Parameter &parameter;
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 /// Edit a configuration. There are three cases of profiles passed in through pProfileToEdit.
 /// Case 1: New configuration: A blank configuration with no layers activated and all layer settings set to their
@@ -152,7 +142,7 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, Configuration *configuration
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(customTreeItemActivated(QTreeWidgetItem *, int)));
 
-    LoadLayerDisplay(0);  // Load/Reload the layer editor
+    LoadLayerDisplay();  // Load/Reload the layer editor
     PopulateCustomTree();
 }
 /*
@@ -244,72 +234,85 @@ void dlgProfileEditor::PopulateCustomTree() {
     ui->pushButtonRemoveLayers->setEnabled(false);
 }
 
+void dlgProfileEditor::AddLayerItem(const QString &layer_name, const QString &layer_path, const LayerState &layer_state) {
+    assert(!layer_name.isEmpty());
+    assert(!layer_path.isEmpty());
+
+    QString decorated_name = layer_name;
+    if (IsDLL32Bit(layer_path)) decorated_name += " (32-bit)";
+
+    const Layer *layer = Configurator::Get().FindLayerNamed(layer_name);
+
+    bool is_implicit_layer = false;
+    if (layer != nullptr) {
+        // Add implicit or custom to the name
+        if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
+            is_implicit_layer = true;
+            decorated_name += QString(" (") + GetLayerTypeLabel(layer->_layer_type) + ")";
+        }
+    } else {
+        decorated_name += " (Missing)";
+    }
+
+    TreeWidgetItemParameter *item = new TreeWidgetItemParameter(layer_name, layer_state);
+
+    item->setText(0, decorated_name);
+    item->setFlags(item->flags() | Qt::ItemIsSelectable);
+
+    // Add the top level item
+    ui->layerTree->addTopLevelItem(item);
+
+    // Add a combo box. Default has gray background which looks hidious
+    TreeFriendlyComboBoxWidget *widget = new TreeFriendlyComboBoxWidget(item);
+    ui->layerTree->setItemWidget(item, 1, widget);
+
+    const QFontMetrics fm = ui->layerTree->fontMetrics();
+    const QSize combo_size = fm.size(Qt::TextSingleLine, "Application-Controlled") * 1.6;
+    item->setSizeHint(1, combo_size);
+
+    if (is_implicit_layer)
+        widget->addItem("Implicitly On");
+    else
+        widget->addItem("Application-Controlled");
+    widget->addItem("Overridden / Forced On");
+    widget->addItem("Excluded / Forced Off");
+    widget->setCurrentIndex(item->layer_state);
+
+    connect(widget, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
+}
+
 //////////////////////////////////////////////////////////////////////////////
 /// Load all the available layers and initialize their settings
-void dlgProfileEditor::LoadLayerDisplay(int selection) {
-    assert((selection >= 0 && selection < _configuration->parameters.size()) || selection == 0);
-
-    // Clear out the old
+void dlgProfileEditor::LoadLayerDisplay() {
     ui->layerTree->clear();
 
-    // We need some infor for sizing the column with the combo box
-    QFontMetrics fm = ui->layerTree->fontMetrics();
-    int combo_width = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 2.2);
-    int combo_height = fm.size(Qt::TextSingleLine, "App Controlled").height() * 1.6;
-
     // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = _configuration->parameters.size(); i < n; i++) {
-        Parameter &parameter = _configuration->parameters[i];
+    for (std::size_t i = 0, n = _configuration->parameters.size(); i < n; ++i) {
+        const Parameter &parameter = _configuration->parameters[i];
+        assert(!parameter.name.isEmpty());
 
-        TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter);
+        OutputDebugString("LoadLayerDisplay 1 \n");
+        OutputDebugString(parameter.name.toUtf8().constData());
+        OutputDebugString("\n");
 
-        // Add (32-bit) to the name if it is a 32-bit DLL
         const QFileInfo path(parameter.path);
-        const QString layerPath = path.path() + "/" + parameter.path;
+        const QString layer_path = path.path() + "/" + parameter.path;
 
-        QString decorated_name = parameter.name;
-        if (IsDLL32Bit(layerPath)) decorated_name += " (32-bit)";
+        AddLayerItem(parameter.name, layer_path, parameter.state);
+    }
 
-        const Layer *layer = Configurator::Get().FindLayerNamed(parameter.name);
+    QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
+    for (int i = 0, n = available_layers.size(); i < n; ++i) {
+        const Layer &layer = *available_layers[i];
 
-        bool is_implicit_layer = false;
-        if (layer != nullptr) {
-            // Add implicit or custom to the name
-            if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
-                is_implicit_layer = true;
-                decorated_name += QString(" (") + GetLayerTypeLabel(layer->_layer_type) + ")";
-            }
-        } else {
-            decorated_name += " (Missing)";
-        }
+        OutputDebugString("LoadLayerDisplay 2 \n");
+        OutputDebugString(layer._name.toUtf8().constData());
+        OutputDebugString("\n");
 
-        item->setText(0, decorated_name);
-        item->setFlags(item->flags() | Qt::ItemIsSelectable);
+        // The layer is already in the layer tree
+        if (_configuration->FindParameter(layer._name)) continue;
 
-        // Add the top level item
-        ui->layerTree->addTopLevelItem(item);
-        if (i == selection) ui->layerTree->setCurrentItem(item);
-
-        // Add a combo box. Default has gray background which looks hidious
-        TreeFriendlyComboBoxWidget *widget = new TreeFriendlyComboBoxWidget(item);
-        ui->layerTree->setItemWidget(item, 1, widget);
-        item->setSizeHint(1, QSize(combo_width, combo_height));
-
-        if (is_implicit_layer)
-            widget->addItem("Implicitly On");
-        else
-            widget->addItem("Application-Controlled");
-        widget->addItem("Overridden / Forced On");
-        widget->addItem("Excluded / Forced Off");
-        widget->setCurrentIndex(parameter.state);
-
-        connect(widget, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
-
-        ///////////////////////////////////////////////////
-        // Now for the children, which is just supplimental
-        // information. These are NOT QTreeWidgetItemWithLayer
-        // because they don't link back to a layer, you have to
-        // go up the tree
+        AddLayerItem(layer._name, layer._layer_path, layer._state);
     }
 
     resizeEvent(nullptr);
@@ -332,9 +335,9 @@ void dlgProfileEditor::showEvent(QShowEvent *event) {
 void dlgProfileEditor::resizeEvent(QResizeEvent *event) {
     (void)event;
 
-    QFontMetrics fm = ui->layerTree->fontMetrics();
-    int comboWidth = (fm.size(Qt::TextSingleLine, "App Controlled").width() * 2.2);
-    int width = ui->layerTree->width() - comboWidth;
+    const QFontMetrics fm = ui->layerTree->fontMetrics();
+    const int combo_width = (fm.size(Qt::TextSingleLine, "Application-Controlled").width() * 1.6);
+    const int width = ui->layerTree->width() - combo_width;
     ui->layerTree->setColumnWidth(0, width);
 }
 
@@ -342,11 +345,15 @@ void dlgProfileEditor::resizeEvent(QResizeEvent *event) {
 /// This button clears the display. Basically, we delete the profile and
 /// start over.
 void dlgProfileEditor::on_pushButtonResetLayers_clicked() {
-    // TBD, needs to reset which layers are active, settings, etc.
-    delete _configuration;
-    _configuration = Configurator::Get().CreateEmptyConfiguration();
-    //    settingsEditor.CleanupGUI();
-    LoadLayerDisplay();
+    for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
+        TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
+        assert(layer_item);
+        layer_item->layer_state = LAYER_STATE_APPLICATION_CONTROLLED;
+
+        TreeFriendlyComboBoxWidget *widget = dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(layer_item, 1));
+        assert(widget);
+        widget->setCurrentIndex(layer_item->layer_state);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -361,17 +368,16 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
         return;
     }
 
-    /////////////////////////////////////////////////////////////////////
     // Populate the side label
-    assert(&layer_item->parameter);
+    assert(!layer_item->layer_name.isEmpty());
 
-    const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->parameter.name);
+    const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->layer_name);
     if (layer) {
         QString detailsText = layer->_description;
         detailsText += "\n";
         detailsText += QString("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n\n";
 
-        detailsText += layer_item->parameter.path;
+        detailsText += layer->_library_path;
         detailsText += "\n\n";
 
         detailsText += "API Version: ";
@@ -387,7 +393,7 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
         detailsText += "\n\n";
 
         detailsText += "Full path: ";
-        detailsText += layer_item->parameter.path;
+        detailsText += layer->_layer_path;
 
         ui->labelLayerDetails->setText(detailsText);
     } else {
@@ -406,13 +412,10 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
     TreeWidgetItemParameter *tree_layer_item = dynamic_cast<TreeWidgetItemParameter *>(item);
     assert(tree_layer_item != nullptr);
 
-    Parameter &parameter = tree_layer_item->parameter;
-    assert(&parameter);
-
     LayerState layer_state = static_cast<LayerState>(selection);
 
     if (layer_state == LAYER_STATE_EXCLUDED) {
-        const Layer *layer = Configurator::Get().FindLayerNamed(parameter.name);
+        const Layer *layer = Configurator::Get().FindLayerNamed(tree_layer_item->layer_name);
 
         if (layer) {
             if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
@@ -420,20 +423,24 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
                 alert.setWindowTitle("Implicit layer excluded...");
                 alert.setText(
                     format("%s was excluded but it an implicit layer. This may cause undefined behavior, including crashes. ",
-                           parameter.name.toUtf8().constData())
+                           tree_layer_item->layer_name.toUtf8().constData())
                         .c_str());
                 alert.setInformativeText("Do you want to continue?");
                 alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 alert.setIcon(QMessageBox::Warning);
                 if (alert.exec() == QMessageBox::No) {
                     layer_state = LAYER_STATE_APPLICATION_CONTROLLED;
+
+                    TreeFriendlyComboBoxWidget *widget =
+                        dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(tree_layer_item, 1));
+                    assert(widget);
+                    widget->setCurrentIndex(layer_state);
                 }
             }
         }
     }
 
-    // tree_layer_item->setCurrentIndex(layer_state);
-    parameter.state = layer_state;
+    tree_layer_item->layer_state = layer_state;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -454,19 +461,22 @@ void dlgProfileEditor::accept() {
         return;
     }
 
-    for (std::size_t i = 0, n = _configuration->parameters.size(); i < n; ++i) {
-        const Parameter &parameter = _configuration->parameters[i];
+    std::vector<Parameter> parameters;
 
-        const Layer *layer = Configurator::Get().FindLayerNamed(parameter.name);
+    for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
+        TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
+        assert(layer_item);
+
+        const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->layer_name);
         if (layer) {
-            if (parameter.state != LAYER_STATE_EXCLUDED) continue;
+            if (layer_item->layer_state != LAYER_STATE_EXCLUDED) continue;
             if (layer->_layer_type != LAYER_TYPE_IMPLICIT) continue;
 
             // Warn about excluded implicit layers
             QMessageBox alert;
             alert.setWindowTitle("Implicit layer excluded...");
             alert.setText(format("%s was excluded but it an implicit layer. This may cause undefined behavior, including crashes. ",
-                                 parameter.name.toUtf8().constData())
+                                 layer_item->layer_name.toUtf8().constData())
                               .c_str());
             alert.setInformativeText("Do you want to continue?");
             alert.setStandardButtons(QMessageBox::Ok);
@@ -476,13 +486,20 @@ void dlgProfileEditor::accept() {
             // Warn about missing layers
             QMessageBox alert;
             alert.setWindowTitle("Missing layer...");
-            alert.setText(format("%s couldn't be found", parameter.name.toUtf8().constData()).c_str());
+            alert.setText(format("%s couldn't be found", layer_item->layer_name.toUtf8().constData()).c_str());
             alert.setInformativeText("The Vulkan layers won't be overridden using this configuration");
             alert.setStandardButtons(QMessageBox::Ok);
             alert.setIcon(QMessageBox::Warning);
             alert.exec();
         }
+
+        Parameter parameter;
+        parameter.name = layer_item->layer_name;
+        parameter.state = layer_item->layer_state;
+        parameters.push_back(parameter);
     }
+
+    _configuration->parameters = parameters;
 
     // Prepare... get fully qualified file name, and double check if overwriting
     const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _configuration->_name);

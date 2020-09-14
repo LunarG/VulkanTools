@@ -72,7 +72,7 @@ class Configuration {
 
     std::vector<Parameter> parameters;
 
-    Parameter *FindParameter(const QString &layer_name, const QString &full_path);  // Find the layer if it exists
+    Parameter *FindParameter(const QString &layer_name);  // Find the layer if it exists
 
     Configuration *Duplicate();  // Copy a profile so we can mess with it
 
