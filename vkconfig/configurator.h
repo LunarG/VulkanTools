@@ -118,7 +118,6 @@ class Configurator {
     QVector<LayerSettingsDefaults*> _default_layers_settings;
     void LoadDefaultLayerSettings();
     const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
-    void LoadDefaultSettings(Layer* empty_layer);
 
     ////////////////////////////////////////////////////////////////////////
     // Look for all installed layers. This contains their path, version info, etc.

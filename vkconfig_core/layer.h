@@ -53,7 +53,6 @@ enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
 class Layer {
    public:
     Layer();
-    ~Layer();
 
     bool IsValid() const;
     bool operator==(const Layer& layer) const;
@@ -75,10 +74,7 @@ class Layer {
     // This layers settings. This will be used to build the editor
     // as well as create settings files. This CAN be empty if the
     // layer doens't have any settings.
-    std::vector<LayerSetting> _layer_settings;
-
-    // LayerState _state;
-    // int _rank;  // When used in a configurate, what is the rank? (0 being first layer)
+    // std::vector<LayerSetting> _layer_settings;
 
     // File based layers
     bool Load(QString full_path_to_file, LayerType layer_type);

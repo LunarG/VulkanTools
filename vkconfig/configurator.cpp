@@ -753,24 +753,6 @@ Configuration *Configurator::CreateEmptyConfiguration() {
     return new_configuration;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-/// Load the default settings into an empty layer file container
-void Configurator::LoadDefaultSettings(Layer *blank_layer) {
-    assert(blank_layer);
-
-    const LayerSettingsDefaults *layer_settings_defaults = FindLayerSettings(blank_layer->_name);
-
-    if (layer_settings_defaults == nullptr)  // Did we find any?
-        return;
-
-    // Create and pop them in....
-    for (int s = 0; s < layer_settings_defaults->default_settings.size(); s++) {
-        const LayerSetting layer_setting = layer_settings_defaults->default_settings[s];
-        assert(layer_setting == layer_settings_defaults->default_settings[s]);
-        blank_layer->_layer_settings.push_back(layer_setting);
-    }
-}
-
 void Configurator::SetActiveConfiguration(const QString &configuration_name) {
     assert(!configuration_name.isEmpty());
 
