@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
@@ -29,6 +29,8 @@
 #include <QTreeWidgetItem>
 #include <QResizeEvent>
 #include <QShowEvent>
+
+#include <cassert>
 
 namespace Ui {
 class dlgProfileEditor;
