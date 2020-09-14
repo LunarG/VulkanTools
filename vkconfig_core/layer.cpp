@@ -60,8 +60,6 @@ void AddString(QString& delimitedString, QString value) {
 
 Layer::Layer() {}
 
-Layer::~Layer() { _layer_settings.clear(); }
-
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
     return _file_format_version != Version::VERSION_NULL && !_name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
@@ -162,8 +160,8 @@ bool Layer::operator==(const Layer& layer) const {
     else if (_layer_type != layer._layer_type)
         return false;
 
-    for (std::size_t i = 0, n = _layer_settings.size(); i < n; ++i)
-        if (_layer_settings[i] != layer._layer_settings[i]) return false;
+    //    for (std::size_t i = 0, n = _layer_settings.size(); i < n; ++i)
+    //        if (_layer_settings[i] != layer._layer_settings[i]) return false;
 
     return true;
 }
