@@ -46,10 +46,10 @@ enum ValidationPreset {
 enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };
 
 struct Parameter {
+    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED) {}
+
     QString name;
-    QString path;
     LayerState state;
-    int rank;
     std::vector<LayerSetting> settings;
 };
 
@@ -72,5 +72,3 @@ class Configuration {
 
     bool IsEmpty() const;
 };
-
-void Sort(std::vector<Parameter> &parameters);

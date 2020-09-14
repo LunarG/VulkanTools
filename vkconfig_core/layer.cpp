@@ -58,7 +58,7 @@ void AddString(QString& delimitedString, QString value) {
     delimitedString += value;
 }
 
-Layer::Layer() : _state(LAYER_STATE_APPLICATION_CONTROLLED), _rank(0) {}
+Layer::Layer() {}
 
 Layer::~Layer() { _layer_settings.clear(); }
 
@@ -160,10 +160,6 @@ bool Layer::operator==(const Layer& layer) const {
     else if (_layer_path != layer._layer_path)
         return false;
     else if (_layer_type != layer._layer_type)
-        return false;
-    else if (_state != layer._state)
-        return false;
-    else if (_rank != layer._rank)
         return false;
 
     for (std::size_t i = 0, n = _layer_settings.size(); i < n; ++i)

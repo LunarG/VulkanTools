@@ -116,7 +116,6 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
     for (int i = 0; i < excluded_array.size(); i++) {
         Parameter parameter;
         parameter.name = excluded_array[i].toString();
-        parameter.rank = -1;
         parameter.state = LAYER_STATE_EXCLUDED;
 
         parameters.push_back(parameter);
@@ -163,14 +162,11 @@ bool Configuration::Load(const QString& full_path, const QVector<Layer*>& availa
 
         Parameter parameter;
         parameter.name = layers[layer_index];
-        parameter.rank = layer_rank.toInt();
         parameter.state = LAYER_STATE_OVERRIDDEN;
         LoadSettings(layer_object, parameter.settings);
 
         parameters.push_back(parameter);
     }
-
-    Sort(parameters);
 
     return true;
 }
@@ -200,7 +196,7 @@ bool Configuration::Save(const QString& full_path) const {
 
         QJsonObject json_settings;
         // Rank goes in here with settings
-        json_settings.insert("layer_rank", parameter.rank);
+        json_settings.insert("layer_rank", static_cast<int>(i));
 
         const bool result = SaveSettings(parameter.settings, json_settings);
         assert(result);
@@ -239,16 +235,3 @@ bool Configuration::Save(const QString& full_path) const {
 }
 
 bool Configuration::IsEmpty() const { return parameters.empty(); }
-
-void Sort(std::vector<Parameter>& parameters) {
-    if (parameters.size() < 2)  // Nothing to sort
-        return;
-
-    for (std::size_t i = 0, m = parameters.size() - 1; i < m; ++i) {
-        for (std::size_t j = i + 1, n = parameters.size(); j < n; ++j) {
-            if (parameters[i].rank > parameters[j].rank) {
-                std::swap(parameters[i], parameters[j]);
-            }
-        }
-    }
-}
