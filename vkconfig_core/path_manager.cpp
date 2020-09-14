@@ -50,7 +50,7 @@ static const DirectoryDesc& GetDesc(Path directory) {
         {"override layers", ".json", nullptr, "VkLayer_override", false, PATH_OVERRIDE_LAYERS},         // PATH_OVERRIDE_LAYERS
         {"configuration import", ".json", "lastImportPath", nullptr, true, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
         {"configuration export", ".json", "lastExportPath", nullptr, true, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
         {"executable", ".exe", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #else
         {"executable", "", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
@@ -234,7 +234,7 @@ QString PathManager::GetFullPath(Path path, const char* filename) const {
 
     const QString path_suffix =
         !file_info.completeSuffix().isEmpty() ? QString(".") + file_info.completeSuffix() : GetDesc(path).default_extension;
-    assert(!path_suffix.isEmpty());
+    assert(!path_suffix.isEmpty() || !PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
 
     const QString full_path = QDir::toNativeSeparators(path_base + "/" + path_filename + path_suffix);
     return full_path;
