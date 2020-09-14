@@ -258,43 +258,39 @@ bool Environment::LoadApplications() {
     QString data;
     const QString& application_list_json = paths.GetFullPath(FILENAME_APPLIST);
     QFile file(application_list_json);
-    if (file.open(QFile::ReadOnly)) {
+    if (file.open(QFile::ReadOnly)) {  // if applist.json exist, load saved applications
         data = file.readAll();
         file.close();
+
+        const QJsonDocument& json_doc = QJsonDocument::fromJson(data.toLocal8Bit());
+        assert(json_doc.isObject());
+        assert(!json_doc.isEmpty());
+
+        // Get the list of apps
+        const QJsonObject& json_doc_object = json_doc.object();
+        const QStringList& app_keys = json_doc_object.keys();
+
+        applications.clear();
+
+        for (int i = 0, n = app_keys.length(); i < n; i++) {
+            const QJsonValue& app_value = json_doc_object.value(app_keys[i]);
+            const QJsonObject& app_object = app_value.toObject();
+
+            Application application;
+            application.executable_path = app_object.value("app_path").toString();
+            application.working_folder = app_object.value("app_folder").toString();
+            application.override_layers = !app_object.value("exclude_override").toBool();
+            application.log_file = app_object.value("log_file").toString();
+
+            // Arguments are in an array to make room for adding more in a future version
+            const QJsonArray& args = app_object.value("command_lines").toArray();
+            application.arguments = args[0].toString();
+
+            applications.push_back(application);
+        }
+
+        UpdateDefaultApplications(first_run || applications.empty());
     }
-
-    const QJsonDocument& json_doc = QJsonDocument::fromJson(data.toLocal8Bit());
-    assert(json_doc.isObject());
-    assert(!json_doc.isEmpty());
-
-    // Get the list of apps
-    const QJsonObject& json_doc_object = json_doc.object();
-    const QStringList& app_keys = json_doc_object.keys();
-
-    applications.clear();
-
-    for (int i = 0, n = app_keys.length(); i < n; i++) {
-        // if (app_keys[i] == "file_format_version") {
-        //    continue;
-        //}
-
-        const QJsonValue& app_value = json_doc_object.value(app_keys[i]);
-        const QJsonObject& app_object = app_value.toObject();
-
-        Application application;
-        application.executable_path = app_object.value("app_path").toString();
-        application.working_folder = app_object.value("app_folder").toString();
-        application.override_layers = !app_object.value("exclude_override").toBool();
-        application.log_file = app_object.value("log_file").toString();
-
-        // Arguments are in an array to make room for adding more in a future version
-        const QJsonArray& args = app_object.value("command_lines").toArray();
-        application.arguments = args[0].toString();
-
-        applications.push_back(application);
-    }
-
-    UpdateDefaultApplications(first_run || applications.empty());
 
     return true;
 }
