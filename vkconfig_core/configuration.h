@@ -57,7 +57,7 @@ class Configuration {
    public:
     Configuration();
 
-    bool Load(const QString &full_path, const QVector<Layer *> &available_Layers);
+    bool Load(const QString &full_path);
     bool Save(const QString &full_path) const;
 
     QString _name;                   // User readable display of the profile name (may contain spaces)

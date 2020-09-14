@@ -28,11 +28,11 @@
 #include "dlgcustompaths.h"
 #include "configurator.h"
 #include "preferences.h"
+#include "vulkan.h"
 
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
-#include "../vkconfig_core/vulkan.h"
 
 #include "ui_mainwindow.h"
 
@@ -129,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent)
     // insufficinet.
     ui->logBrowser->document()->setMaximumBlockCount(2048);
     ui->logBrowser->append("Vulkan Development Status:");
-    // ui->logBrowser->append(GenerateVulkanStatus());
+    ui->logBrowser->append(GenerateVulkanStatus());
     ui->profileTree->scrollToItem(ui->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
     if (current_configuration) {
@@ -164,7 +164,7 @@ void MainWindow::UpdateUI() {
     // Update configurations
     ui->groupBoxProfiles->setEnabled(environment.UseOverride());
 
-    for (int i = 0, n = ui->profileTree->topLevelItemCount(); i < n; i++) {
+    for (int i = 0, n = ui->profileTree->topLevelItemCount(); i < n; ++i) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
         assert(item);
         assert(!item->configuration_name.isEmpty());
@@ -220,7 +220,7 @@ void MainWindow::UpdateUI() {
         _launcher_working->setText("");
         _launcher_log_file_edit->setText("");
     } else {
-        for (std::size_t i = 0, n = applications.size(); i < n; i++) {
+        for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
             _launcher_apps_combo->addItem(applications[i].executable_path);
         }
         _launcher_apps_combo->setCurrentIndex(environment.GetActiveApplicationIndex());
@@ -439,7 +439,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
-    // ui->logBrowser->append(GenerateVulkanStatus());
+    ui->logBrowser->append(GenerateVulkanStatus());
 
     UpdateUI();
 }
