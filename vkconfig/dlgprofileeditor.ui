@@ -53,7 +53,7 @@
       </size>
      </property>
      <property name="title">
-      <string>Vulkan Layers execution order and settings</string>
+      <string>Available Vulkan Layers</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="1">

@@ -283,6 +283,8 @@ void dlgProfileEditor::LoadLayerDisplay() {
     }
 
     resizeEvent(nullptr);
+
+    if (ui->layerTree->topLevelItemCount() > 0) ui->layerTree->setCurrentItem(ui->layerTree->topLevelItem(0));
     ui->layerTree->update();
 }
 
