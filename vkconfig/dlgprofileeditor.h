@@ -34,6 +34,17 @@ namespace Ui {
 class dlgProfileEditor;
 }
 
+class TreeWidgetItemParameter : public QTreeWidgetItem {
+   public:
+    TreeWidgetItemParameter(const QString &layer_name, const LayerState &layer_state)
+        : layer_name(layer_name), layer_state(layer_state) {
+        assert(!layer_name.isEmpty());
+    }
+
+    QString layer_name;
+    LayerState layer_state;
+};
+
 class dlgProfileEditor : public QDialog {
     Q_OBJECT
 
@@ -42,7 +53,7 @@ class dlgProfileEditor : public QDialog {
     ~dlgProfileEditor();
 
     // Load all layers into the list box
-    void LoadLayerDisplay(int selection = -1);
+    void LoadLayerDisplay();
 
     QString GetConfigurationName() const;
 
@@ -77,4 +88,6 @@ class dlgProfileEditor : public QDialog {
    private:
     dlgProfileEditor(const dlgProfileEditor &) = delete;
     dlgProfileEditor &operator=(const dlgProfileEditor &) = delete;
+
+    void AddLayerItem(const QString &layer_name, const QString &layer_path, const LayerState &layer_state);
 };

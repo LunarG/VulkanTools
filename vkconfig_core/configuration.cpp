@@ -37,12 +37,14 @@ Configuration::Configuration() : _name("New Configuration"), _preset(ValidationP
 
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
-Parameter* Configuration::FindParameter(const QString& layer_name, const QString& full_path) {
+Parameter* Configuration::FindParameter(const QString& layer_name) {
     assert(!layer_name.isEmpty());
 
-    for (std::size_t i = 0, n = parameters.size(); i < n; i++) {
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
         Parameter& parameter = parameters[i];
-        if (parameter.name == layer_name && (parameter.path == full_path || full_path.isEmpty())) return &parameters[i];
+        if (parameter.name == layer_name) {
+            return &parameters[i];
+        }
     }
 
     return nullptr;
