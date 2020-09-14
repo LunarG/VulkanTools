@@ -308,6 +308,9 @@ void dlgCreateAssociation::GetExecutableFromAppBundle(QString &app_path) {
             // Complete the partial path
             path += QString("MacOS/");
             path += QString(cExeName);
+
+            // Return original if not found, but root if found
+            app_path = path;
             delete[] cExeName;
             break;
         }

@@ -22,6 +22,8 @@
 #include "dlgvulkananalysis.h"
 #include "ui_dlgvulkananalysis.h"
 
+#include "../vkconfig_core/platform.h"
+
 #include <stdlib.h>
 #include <QProcess>
 #include <QDir>
