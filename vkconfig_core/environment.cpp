@@ -43,6 +43,18 @@
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
 #define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
 
+static const char* GetNotificationToken(Notification notification) {
+    assert(notification >= NOTIFICATION_FIRST && notification <= NOTIFICATION_LAST);
+
+    static const char* table[] = {
+        "restartWarning",         // NOTIFICATION_RESTART
+        "warnAboutShutdownState"  // NOTIFICATION_EXIT
+    };
+    static_assert(countof(table) == NOTIFICATION_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return table[notification];
+}
+
 static const char* GetActiveToken(Active active) {
     assert(active >= ACTIVE_FIRST && active <= ACTIVE_LAST);
 
@@ -105,6 +117,7 @@ Environment::~Environment() {
 bool Environment::Notify(Notification notification) {
     if (hidden_notifications[notification]) return true;
 
+    bool result = true;
     bool hide_notification = true;
 
     switch (notification) {
@@ -146,9 +159,8 @@ bool Environment::Notify(Notification notification) {
             int ret_val = alert.exec();
             hide_notification = alert.checkBox()->isChecked();
             if (ret_val == QMessageBox::No) {
-                return false;
+                result = false;
             }
-
         } break;
 
         default:
@@ -157,7 +169,7 @@ bool Environment::Notify(Notification notification) {
     }
 
     hidden_notifications[notification] = hide_notification;
-    return true;
+    return result;
 }
 
 void Environment::Reset(ResetMode mode) {
@@ -235,7 +247,9 @@ bool Environment::Load() {
     }
 
     // Load notifications
-    hidden_notifications[NOTIFICATION_RESTART] = settings.value(VKCONFIG_KEY_RESTART, false).toBool();
+    for (std::size_t i = 0; i < NOTIFICATION_COUNT; ++i) {
+        hidden_notifications[i] = settings.value(GetNotificationToken(static_cast<Notification>(i)), false).toBool();
+    }
 
     // Load layout state
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
@@ -408,7 +422,9 @@ bool Environment::Save() const {
     }
 
     // Save notifications
-    settings.setValue(VKCONFIG_KEY_RESTART, hidden_notifications[NOTIFICATION_RESTART]);
+    for (std::size_t i = 0; i < NOTIFICATION_COUNT; ++i) {
+        settings.setValue(GetNotificationToken(static_cast<Notification>(i)), hidden_notifications[i]);
+    }
 
     // Save layout state
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
