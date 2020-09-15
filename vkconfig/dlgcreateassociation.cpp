@@ -229,7 +229,7 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
     (void)clicked;
 
     Environment &environment = Configurator::Get().environment;
-    const bool need_checkbox = environment.HasOverriddenApplications();
+    const bool need_checkbox = environment.UseApplicationListOverrideMode();
     if (!need_checkbox) return;
 
     // Loop through the whole list and reset the checkboxes
@@ -237,11 +237,7 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
         QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
         QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, 0));
         assert(check_box != nullptr);
-        bool is_checked = check_box->isChecked();
-        if (environment.GetApplication(i).override_layers != is_checked) {  // We've changed
-            environment.GetApplication(i).override_layers = is_checked;
-            ui->treeWidget->setCurrentItem(item);
-        }
+        environment.GetApplication(i).override_layers = check_box->isChecked();
     }
 }
 
