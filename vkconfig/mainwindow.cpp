@@ -242,7 +242,7 @@ void MainWindow::UpdateUI() {
     const bool has_application_list = !environment.GetApplications().empty();
     ui->pushButtonLaunch->setEnabled(has_application_list);
     ui->pushButtonLaunch->setText(_launch_application == nullptr ? "Launch" : "Terminate");
-    ui->checkBoxClearOnLaunch->setChecked(environment.Get(LAYOUT_LAUNCHER_CLEAR_ON) == "true");
+    ui->checkBoxClearOnLaunch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
     if (_launcher_working_browse_button) {
         _launcher_working_browse_button->setEnabled(has_application_list);
     }
@@ -386,7 +386,7 @@ void MainWindow::on_checkBoxPersistent_clicked() {
 }
 
 void MainWindow::on_checkBoxClearOnLaunch_clicked() {
-    Configurator::Get().environment.Set(LAYOUT_LAUNCHER_CLEAR_ON, ui->checkBoxClearOnLaunch->isChecked() ? "true" : "false");
+    Configurator::Get().environment.Set(LAYOUT_LAUNCHER_NOT_CLEAR, ui->checkBoxClearOnLaunch->isChecked() ? "false" : "true");
 }
 
 void MainWindow::toolsResetToDefault(bool checked) {
