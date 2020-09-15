@@ -306,7 +306,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
                 return "";
 
             SetPath(path, QFileInfo(selected_path).absolutePath());
-            return GetFullPath(path, QFileInfo(selected_path).baseName());
+            return GetFullPath(path, QFileInfo(selected_path).fileName());
         }
         case PATH_WORKING_DIR: {
             const QString selected_path = QFileDialog::getExistingDirectory(parent, "Set Working Folder To...", suggested_path);
