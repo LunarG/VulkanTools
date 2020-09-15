@@ -442,7 +442,12 @@ void dlgProfileEditor::accept() {
 
         // Second, get default layer settings
         const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer_item->layer_name);
-        if (defaults && saved_parameter == nullptr) parameter.settings = defaults->default_settings;
+        if (defaults && (parameter.settings.empty() || saved_parameter == nullptr)) {
+            parameter.settings = defaults->default_settings;
+            if (parameter.name == "VK_LAYER_KHRONOS_validation") {
+                configuration._preset = ValidationPresetStandard;
+            }
+        }
 
         parameters.push_back(parameter);
     }
