@@ -20,6 +20,7 @@
  */
 
 #include "configurator.h"
+#include "alert.h"
 
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
@@ -401,12 +402,13 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
 void dlgProfileEditor::accept() {
     // Hard Fail: Name must not be blank
     if (ui->lineEditName->text().isEmpty()) {
-        QMessageBox alert;
-        alert.setWindowTitle("The configuration name is empty...");
-        alert.setText("The configuration name is required.");
-        alert.setStandardButtons(QMessageBox::Ok);
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
+        Alert::ConfigurationNameEmpty();
+        return;
+    }
+
+    Configurator &configurator = Configurator::Get();
+    if (configuration._name != ui->lineEditName->text() && configurator.FindConfiguration(ui->lineEditName->text())) {
+        Alert::ConfigurationRenamingFailed();
         return;
     }
 
@@ -439,7 +441,7 @@ void dlgProfileEditor::accept() {
         if (saved_parameter) parameter.settings = saved_parameter->settings;
 
         // Second, get default layer settings
-        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(layer_item->layer_name);
+        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer_item->layer_name);
         if (defaults && saved_parameter == nullptr) parameter.settings = defaults->default_settings;
 
         parameters.push_back(parameter);

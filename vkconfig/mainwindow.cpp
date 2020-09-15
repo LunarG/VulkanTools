@@ -19,6 +19,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "alert.h"
 #include "mainwindow.h"
 #include "dlgabout.h"
 #include "dlgvulkananalysis.h"
@@ -478,36 +479,39 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         // This is the name of the configuratin we are changing
         const QString full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, configuration_item->configuration_name));
 
-        // This is the new name we want to use
-        QString new_name = configuration_item->text(1);
-        assert(!new_name.isEmpty());
+        // This is the new name we want to use for the configuration
+        const QString &new_configuration_name = configuration_item->text(1);
 
-        // Make sure we do not have a duplicate
-        Configuration *duplicate = configurator.FindConfiguration(new_name);
-        if (duplicate != nullptr) {
-            QMessageBox alert;
-            alert.setText("This name is already taken by another configuration.");
-            alert.setWindowTitle("Duplicate Name");
-            alert.setIcon(QMessageBox::Warning);
-            alert.exec();
+        if (new_configuration_name.isEmpty()) {
+            Alert::ConfigurationNameEmpty();
+        }
 
-            // Reset the name
+        Configuration *duplicate_configuration =
+            new_configuration_name.isEmpty() ? nullptr : configurator.FindConfiguration(new_configuration_name);
+        if (duplicate_configuration != nullptr) {
+            Alert::ConfigurationRenamingFailed();
+        }
+
+        // Find existing configuration using it's old name
+        Configuration *configuration = configurator.FindConfiguration(configuration_item->configuration_name);
+
+        if (new_configuration_name.isEmpty() || duplicate_configuration != nullptr) {
+            // If the configurate name is empty or the configuration name is taken, keep old configuration name
+
             ui->profileTree->blockSignals(true);
             item->setText(1, configuration_item->configuration_name);
             ui->profileTree->blockSignals(false);
-            return;
+        } else {
+            // Rename configuration ; Remove old configuration file ; Create new configuration file
+
+            configuration->_name = configuration_item->configuration_name = new_configuration_name;
+
+            remove(full_path.toUtf8().constData());
+            const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name));
+            assert(result);
         }
 
-        // Proceed
-        remove(full_path.toUtf8().constData());
-
-        Configuration *configuration = configurator.FindConfiguration(configuration_item->configuration_name);
-        configuration_item->configuration_name = new_name;
-
-        const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_name));
-        assert(result);
-
-        configurator.SetActiveConfiguration(configuration->_name);
+        configurator.SetActiveConfiguration(configuration);
 
         _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
     }
@@ -857,6 +861,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
     assert(item);
 
+    SaveLastItem();
     ui->profileTree->editItem(item, 1);
 }
 
