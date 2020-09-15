@@ -159,12 +159,16 @@ bool Configuration::Load(const QString& full_path) {
 
         // const QJsonValue& layer_rank = layer_object.value("layer_rank");
 
-        Parameter parameter;
-        parameter.name = layers[layer_index];
-        parameter.state = LAYER_STATE_OVERRIDDEN;
-        LoadSettings(layer_object, parameter.settings);
-
-        parameters.push_back(parameter);
+        Parameter* parameter = FindParameter(layers[layer_index]);
+        if (parameter) {
+            LoadSettings(layer_object, parameter->settings);
+        } else {
+            Parameter parameter;
+            parameter.name = layers[layer_index];
+            parameter.state = LAYER_STATE_OVERRIDDEN;
+            LoadSettings(layer_object, parameter.settings);
+            parameters.push_back(parameter);
+        }
     }
 
     return true;
@@ -189,7 +193,7 @@ bool Configuration::Save(const QString& full_path) const {
 
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
         const Parameter& parameter = parameters[i];
-        if (parameters[i].state != LAYER_STATE_OVERRIDDEN) {
+        if (parameters[i].state == LAYER_STATE_APPLICATION_CONTROLLED) {
             continue;
         }
 

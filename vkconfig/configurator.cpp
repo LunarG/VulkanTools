@@ -568,8 +568,8 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
 ///////////////////////////////////////////////////////////////////////////////
 /// Find the settings for this named layer. If none found, return nullptr
 const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &layer_name) const {
-    for (int i = 0; i < _default_layers_settings.size(); i++)
-        if (layer_name == _default_layers_settings[i]->layer_name) return _default_layers_settings[i];
+    for (std::size_t i = 0, n = _default_layers_settings.size(); i < n; ++i)
+        if (layer_name == _default_layers_settings[i].layer_name) return &_default_layers_settings[i];
 
     return nullptr;
 }
@@ -685,17 +685,17 @@ void Configurator::LoadDefaultLayerSettings() {
     // of settings.
     QStringList layers_with_settings = layers_options_object.keys();
     for (int i = 0; i < layers_with_settings.size(); i++) {  // For each setting
-        LayerSettingsDefaults *settings_defaults = new LayerSettingsDefaults();
-        settings_defaults->layer_name = layers_with_settings[i];
+        LayerSettingsDefaults settings_defaults;
+        settings_defaults.layer_name = layers_with_settings[i];
 
         // Save the name of the layer, and by default none are read only
-        settings_defaults->layer_name = layers_with_settings[i];
+        settings_defaults.layer_name = layers_with_settings[i];
 
         // Get the object for just this layer
         QJsonValue layerValue = layers_options_object.value(layers_with_settings[i]);
         QJsonObject layerObject = layerValue.toObject();
 
-        ::LoadSettings(layerObject, settings_defaults->default_settings);
+        ::LoadSettings(layerObject, settings_defaults.default_settings);
 
         // Add to my list of layer settings
         _default_layers_settings.push_back(settings_defaults);
