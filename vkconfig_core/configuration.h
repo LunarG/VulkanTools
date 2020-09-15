@@ -34,7 +34,7 @@ enum ValidationPreset {
     ValidationPresetUserDefined = ValidationPresetNone,
     ValidationPresetStandard = 1,
     ValidationPresetGPUAssisted = 2,
-    ValidationPresetShaderPrintf = 3,
+    ValidationPresetDebugPrintf = 3,
     ValidationPresetReducedOverhead = 4,
     ValidationPresetBestPractices = 5,
     ValidationPresetSynchronization = 6,
@@ -57,8 +57,8 @@ class Configuration {
    public:
     Configuration();
 
-    bool Load(const QString &full_path);
-    bool Save(const QString &full_path) const;
+    bool Load(const QString& full_path);
+    bool Save(const QString& full_path) const;
 
     QString _name;                   // User readable display of the profile name (may contain spaces)
                                      // This is the same as the filename, but with the .json stripped off.
@@ -68,7 +68,10 @@ class Configuration {
 
     std::vector<Parameter> parameters;
 
-    Parameter *FindParameter(const QString &layer_name);  // Find the layer if it exists
+    Parameter* FindParameter(const QString& layer_name);  // Find the layer if it exists
 
     bool IsEmpty() const;
 };
+
+bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b);
+bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b);
