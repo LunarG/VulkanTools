@@ -307,6 +307,7 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked() {
         TreeFriendlyComboBoxWidget *widget = dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(layer_item, 1));
         assert(widget);
         widget->setCurrentIndex(layer_item->layer_state);
+        ui->layerTree->repaint();  // Force update for macOS
     }
 }
 
