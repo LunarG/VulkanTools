@@ -306,13 +306,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
                 return "";
 
             SetPath(path, QFileInfo(selected_path).absolutePath());
-#if PLATFORM_WINDOWS
-            return GetFullPath(path, QFileInfo(selected_path).baseName());
-#else
-            // On Linux, we have no extension to trim off. On macOS, we may or may not have a
-            // .app extension. If the later, it must be preserved at this point.
-            return GetFullPath(path, QFileInfo(selected_path).absoluteFilePath());
-#endif
+            return GetFullPath(path, QFileInfo(selected_path).fileName());
         }
         case PATH_WORKING_DIR: {
             const QString selected_path = QFileDialog::getExistingDirectory(parent, "Set Working Folder To...", suggested_path);
