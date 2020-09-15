@@ -1,0 +1,19 @@
+{
+    "configuration": {
+        "blacklisted_layers": [
+            "VK_LAYER_KHRONOS_validation",
+            "VK_LAYER_LUNARG_api_dump",
+            "VK_LAYER_LUNARG_device_simulation",
+            "VK_LAYER_LUNARG_gfxreconstruct",
+            "VK_LAYER_LUNARG_monitor",
+            "VK_LAYER_LUNARG_screenshot"
+        ],
+        "description": "This configuration provides access to the Vulkan Best Practices check. Provides warnings about potential API misuse.",
+        "editor_state": "01110111",
+        "layer_options": {
+        },
+        "name": "Exclude all SDK layers",
+        "preset": 5
+    },
+    "file_format_version": "2.0.2"
+}

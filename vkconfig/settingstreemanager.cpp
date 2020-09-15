@@ -136,7 +136,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
         const ValidationPreset validation_preset = static_cast<ValidationPreset>(i);
 
         if (!HAS_SHADER_BASED &&
-            (validation_preset == ValidationPresetGPUAssisted || validation_preset == ValidationPresetShaderPrintf)) {
+            (validation_preset == ValidationPresetGPUAssisted || validation_preset == ValidationPresetDebugPrintf)) {
             continue;
         }
 

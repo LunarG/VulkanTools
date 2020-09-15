@@ -65,29 +65,28 @@ bool Configuration::Load(const QString& full_path) {
     assert(!full_path.isEmpty());
 
     QFile file(full_path);
-    bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
+    const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
     QString json_text = file.readAll();
     file.close();
 
     // Tease it apart, get the name of the profile
-    QJsonDocument json_doc;
     QJsonParseError parse_error;
-    json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
+    QJsonDocument json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
 
     if (parse_error.error != QJsonParseError::NoError) return false;
 
     // Allocate a new profile container
     const QString& filename = QFileInfo(full_path).fileName();
 
-    QJsonObject json_top_object = json_doc.object();
-    QStringList key = json_top_object.keys();
+    const QJsonObject& json_top_object = json_doc.object();
+    const QStringList& key = json_top_object.keys();
 
     const QJsonValue& json_file_format_version = json_top_object.value("file_format_version");
     const Version version(GetConfigurationVersion(json_file_format_version));
 
-    QJsonValue configuration_entry_value = json_top_object.value(key[0]);
-    QJsonObject configuration_entry_object = configuration_entry_value.toObject();
+    const QJsonValue& configuration_entry_value = json_top_object.value(key[0]);
+    const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
     if (SUPPORT_VKCONFIG_2_0_1 && !HAS_SHADER_BASED) {
         if (full_path.contains("Validation - Shader Printf.json") || full_path.contains("Validation - Debug Printf.json") ||
@@ -235,3 +234,23 @@ bool Configuration::Save(const QString& full_path) const {
 }
 
 bool Configuration::IsEmpty() const { return parameters.empty(); }
+
+bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b) {
+    if (a.size() != b.size()) return false;
+
+    for (std::size_t i = 0, n = a.size(); i < n; ++i) {
+        if (a[i].name != b[i].name) return false;
+
+        if (a[i].state != b[i].state) return false;
+
+        if (a[i].settings.size() != b[i].settings.size()) return false;
+
+        for (std::size_t j = 0, o = a[i].settings.size(); j < o; ++j) {
+            if (a[i].settings[j] != b[i].settings[j]) return false;
+        }
+    }
+
+    return true;
+}
+
+bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }

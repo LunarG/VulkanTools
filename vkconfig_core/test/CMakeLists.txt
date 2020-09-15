@@ -1,4 +1,5 @@
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_AUTORCC ON)
 
 if (NOT DEFINED CMAKE_INSTALL_BINDIR)
     include(GNUInstallDirs)
@@ -8,7 +9,7 @@ function(vkConfigTest NAME)
 	set(TEST_FILE ./${NAME}.cpp)
     set(TEST_NAME vkconfig_${NAME})
 
-    add_executable(${TEST_NAME} ${TEST_FILE})
+    add_executable(${TEST_NAME} ${TEST_FILE} resources.qrc)
     target_link_libraries(${TEST_NAME} vkconfig_core gtest gtest_main Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     if(WIN32)
         target_link_libraries(${TEST_NAME} Cfgmgr32)
