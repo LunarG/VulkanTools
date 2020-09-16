@@ -201,7 +201,9 @@ void dlgProfileEditor::PopulateCustomTree() {
 void dlgProfileEditor::AddLayerItem(const QString &layer_name, const LayerState &layer_state) {
     assert(!layer_name.isEmpty());
 
-    const Layer *layer = Configurator::Get().FindLayerNamed(layer_name);
+    Configurator &configurator = Configurator::Get();
+
+    const Layer *layer = configurator.FindLayerNamed(layer_name);
 
     QString decorated_name = layer_name;
 
@@ -217,7 +219,14 @@ void dlgProfileEditor::AddLayerItem(const QString &layer_name, const LayerState 
         decorated_name += " (Missing)";
     }
 
-    TreeWidgetItemParameter *item = new TreeWidgetItemParameter(layer_name, layer_state);
+    Parameter parameter;
+    parameter.name = layer_name;
+    parameter.state = layer_state;
+
+    const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer_name);
+    if (defaults) parameter.settings = defaults->settings;
+
+    TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter);
 
     item->setText(0, decorated_name);
     item->setFlags(item->flags() | Qt::ItemIsSelectable);
@@ -239,7 +248,7 @@ void dlgProfileEditor::AddLayerItem(const QString &layer_name, const LayerState 
         widget->addItem("Application-Controlled");
     widget->addItem("Overridden / Forced On");
     widget->addItem("Excluded / Forced Off");
-    widget->setCurrentIndex(item->layer_state);
+    widget->setCurrentIndex(item->parameter.state);
 
     connect(widget, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
 }
@@ -302,11 +311,18 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked() {
     for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
         TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
         assert(layer_item);
-        layer_item->layer_state = LAYER_STATE_APPLICATION_CONTROLLED;
+        layer_item->parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+
+        if (layer_item->parameter.name == "VK_LAYER_KHRONOS_validation") {
+            configuration._preset = GetValidationPreset(configuration._name);
+        }
+
+        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(layer_item->parameter.name);
+        if (defaults) layer_item->parameter.settings = defaults->settings;
 
         TreeFriendlyComboBoxWidget *widget = dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(layer_item, 1));
         assert(widget);
-        widget->setCurrentIndex(layer_item->layer_state);
+        widget->setCurrentIndex(layer_item->parameter.state);
         ui->layerTree->repaint();  // Force update for macOS
     }
 }
@@ -324,9 +340,9 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
     }
 
     // Populate the side label
-    assert(!layer_item->layer_name.isEmpty());
+    assert(!layer_item->parameter.name.isEmpty());
 
-    const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->layer_name);
+    const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->parameter.name);
     if (layer) {
         QString detailsText = layer->_description;
         detailsText += "\n";
@@ -369,7 +385,7 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
     LayerState layer_state = static_cast<LayerState>(selection);
 
     if (layer_state == LAYER_STATE_EXCLUDED) {
-        const Layer *layer = Configurator::Get().FindLayerNamed(tree_layer_item->layer_name);
+        const Layer *layer = Configurator::Get().FindLayerNamed(tree_layer_item->parameter.name);
 
         if (layer) {
             if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
@@ -377,7 +393,7 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
                 alert.setWindowTitle("Implicit layer excluded...");
                 alert.setText(
                     format("%s was excluded but it an implicit layer. This may cause undefined behavior, including crashes. ",
-                           tree_layer_item->layer_name.toUtf8().constData())
+                           tree_layer_item->parameter.name.toUtf8().constData())
                         .c_str());
                 alert.setInformativeText("Do you want to continue?");
                 alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -394,7 +410,7 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
         }
     }
 
-    tree_layer_item->layer_state = layer_state;
+    tree_layer_item->parameter.state = layer_state;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -419,34 +435,29 @@ void dlgProfileEditor::accept() {
         TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
         assert(layer_item);
 
-        if (layer_item->layer_state == LAYER_STATE_APPLICATION_CONTROLLED) continue;
+        if (layer_item->parameter.state == LAYER_STATE_APPLICATION_CONTROLLED) continue;
 
-        const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->layer_name);
+        const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->parameter.name);
         if (!layer) {
             // Warn about missing layers
             QMessageBox alert;
             alert.setWindowTitle("Missing layer...");
-            alert.setText(format("%s couldn't be found", layer_item->layer_name.toUtf8().constData()).c_str());
+            alert.setText(format("%s couldn't be found", layer_item->parameter.name.toUtf8().constData()).c_str());
             alert.setInformativeText("The Vulkan layers won't be overridden using this configuration");
             alert.setStandardButtons(QMessageBox::Ok);
             alert.setIcon(QMessageBox::Warning);
             alert.exec();
         }
 
-        Parameter parameter;
-        parameter.name = layer_item->layer_name;
-        parameter.state = layer_item->layer_state;
+        Parameter parameter(layer_item->parameter);
 
-        // First, restore the saved layer settings
-        Parameter *saved_parameter = configuration.FindParameter(layer_item->layer_name);
-        if (saved_parameter) parameter.settings = saved_parameter->settings;
-
-        // Second, get default layer settings
-        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer_item->layer_name);
-        if (defaults && (parameter.settings.empty() || saved_parameter == nullptr)) {
-            parameter.settings = defaults->default_settings;
-            if (parameter.name == "VK_LAYER_KHRONOS_validation") {
-                configuration._preset = ValidationPresetStandard;
+        if (parameter.settings.empty()) {
+            const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer_item->parameter.name);
+            if (defaults) {
+                parameter.settings = defaults->settings;
+                if (parameter.name == "VK_LAYER_KHRONOS_validation") {
+                    configuration._preset = GetValidationPreset(ui->lineEditName->text());
+                }
             }
         }
 

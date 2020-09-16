@@ -72,8 +72,8 @@ class PathFinder {
 // to reset or initialize the a full layer definition for the
 // profiles.
 struct LayerSettingsDefaults {
-    QString layer_name;                          // Name of layer
-    std::vector<LayerSetting> default_settings;  // Default settings for this layer
+    QString layer_name;                  // Name of layer
+    std::vector<LayerSetting> settings;  // Default settings for this layer
 };
 
 class Configurator {
@@ -176,3 +176,5 @@ class Configurator {
     PathManager path;
     Environment environment;
 };
+
+ValidationPreset GetValidationPreset(const QString& configuration_name);
