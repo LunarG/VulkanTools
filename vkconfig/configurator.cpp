@@ -91,6 +91,17 @@ static const DefaultConfiguration default_configurations[] = {
 #endif
     {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "", ValidationPresetNone}};
 
+ValidationPreset GetValidationPreset(const QString &configuration_name) {
+    assert(!configuration_name.isEmpty());
+
+    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
+        if (default_configurations[i].name != configuration_name) continue;
+        return default_configurations[i].preset;
+    }
+
+    return ValidationPresetNone;  // Not found
+}
+
 static const DefaultConfiguration *FindDefaultConfiguration(ValidationPreset preset) {
     assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
 
@@ -695,7 +706,7 @@ void Configurator::LoadDefaultLayerSettings() {
         QJsonValue layerValue = layers_options_object.value(layers_with_settings[i]);
         QJsonObject layerObject = layerValue.toObject();
 
-        ::LoadSettings(layerObject, settings_defaults.default_settings);
+        ::LoadSettings(layerObject, settings_defaults.settings);
 
         // Add to my list of layer settings
         _default_layers_settings.push_back(settings_defaults);

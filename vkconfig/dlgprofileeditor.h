@@ -38,13 +38,9 @@ class dlgProfileEditor;
 
 class TreeWidgetItemParameter : public QTreeWidgetItem {
    public:
-    TreeWidgetItemParameter(const QString &layer_name, const LayerState &layer_state)
-        : layer_name(layer_name), layer_state(layer_state) {
-        assert(!layer_name.isEmpty());
-    }
+    TreeWidgetItemParameter(const Parameter &parameter) : parameter(parameter) { assert(!parameter.name.isEmpty()); }
 
-    QString layer_name;
-    LayerState layer_state;
+    Parameter parameter;
 };
 
 class dlgProfileEditor : public QDialog {
