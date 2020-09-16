@@ -53,6 +53,9 @@ struct Parameter {
     std::vector<LayerSetting> settings;
 };
 
+// Order of layers matters and we handle this internally
+void Sort(std::vector<Parameter>& parameters);
+
 class Configuration {
    public:
     Configuration();
