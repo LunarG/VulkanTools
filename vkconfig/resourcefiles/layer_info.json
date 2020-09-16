@@ -232,6 +232,16 @@
                 "type": "bool_numeric",
                 "default": "0"
             },
+            "emulate_portability": {
+                "name": "Emulation mode",
+                "description": "",
+                "type": "enum",
+                "options": {
+                    "": "Vulkan 1.0",
+                    "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION": "Vulkan Portability"
+                },
+                "default": ""
+            },
             "exit_on_error": {
                 "name": "Exit On Error",
                 "description": "Enables exit-on-error.",

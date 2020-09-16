@@ -192,8 +192,8 @@ Configurator::Configurator()
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
-    LoadDefaultLayerSettings();  // findAllInstalledLayers uses the results of this.
     LoadAllInstalledLayers();
+    LoadDefaultLayerSettings();
 
     // If no layers are found, give the user another chance to add some custom paths
     if (_available_Layers.empty()) {
@@ -673,6 +673,8 @@ void Configurator::LoadAllConfigurations() {
 // the defaults. These are all stored in layer_info.json
 // 4/8/2020
 void Configurator::LoadDefaultLayerSettings() {
+    assert(!_available_Layers.isEmpty());  // layers should be loaded before default settings
+
     // Load the main object into the json document
     QFile file(":/resourcefiles/layer_info.json");
     file.open(QFile::ReadOnly);
@@ -702,11 +704,13 @@ void Configurator::LoadDefaultLayerSettings() {
         // Save the name of the layer, and by default none are read only
         settings_defaults.layer_name = layers_with_settings[i];
 
-        // Get the object for just this layer
-        QJsonValue layerValue = layers_options_object.value(layers_with_settings[i]);
-        QJsonObject layerObject = layerValue.toObject();
+        Layer *layer = FindLayerNamed(settings_defaults.layer_name);
 
-        ::LoadSettings(layerObject, settings_defaults.settings);
+        // Get the object for just this layer
+        const QJsonValue &layer_value = layers_options_object.value(layers_with_settings[i]);
+        const QJsonObject &layer_object = layer_value.toObject();
+
+        ::LoadSettings(layer_object, settings_defaults.settings);
 
         // Add to my list of layer settings
         _default_layers_settings.push_back(settings_defaults);

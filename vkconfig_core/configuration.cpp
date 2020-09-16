@@ -33,6 +33,16 @@
 
 #include <cassert>
 
+void Sort(std::vector<Parameter>& parameters) {
+    std::vector<Parameter> sorted_parameters;
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state == LAYER_STATE_EXCLUDED) sorted_parameters.push_back(parameters[i]);
+    }
+
+    std::swap(parameters, sorted_parameters);
+}
+
 Configuration::Configuration() : _name("New Configuration"), _preset(ValidationPresetNone) {}
 
 ///////////////////////////////////////////////////////////
