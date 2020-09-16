@@ -43,6 +43,88 @@
 
 #include <cassert>
 
+void SortLayers(std::vector<Parameter> &parameters) {
+    Configurator &configurator = Configurator::Get();
+
+    std::vector<Parameter> sorted_parameters;
+    sorted_parameters.reserve(parameters.size());
+
+    // First (close to the application): add excluded layers
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state != LAYER_STATE_EXCLUDED) continue;
+
+        sorted_parameters.push_back(parameters[i]);
+    }
+
+    // Second: add missing overridden layers
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state != LAYER_STATE_OVERRIDDEN) continue;
+
+        Layer *layer = configurator.FindLayerNamed(parameters[i].name);
+        if (layer) continue;
+
+        sorted_parameters.push_back(parameters[i]);
+    }
+
+    // Third: add available implicit overridden layers
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state != LAYER_STATE_OVERRIDDEN) continue;
+
+        Layer *layer = configurator.FindLayerNamed(parameters[i].name);
+        if (!layer) continue;
+
+        if (layer->_layer_type != LAYER_TYPE_IMPLICIT) continue;
+
+        sorted_parameters.push_back(parameters[i]);
+    }
+
+    std::size_t validation_index = parameters.size();
+    std::size_t device_simulation_index = parameters.size();
+
+    // Forth: add available NOT implicit overridden layers
+    std::vector<Parameter> not_implicit_overridden_layers;
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state != LAYER_STATE_OVERRIDDEN) continue;
+
+        Layer *layer = configurator.FindLayerNamed(parameters[i].name);
+        if (!layer) continue;
+
+        if (layer->_layer_type == LAYER_TYPE_IMPLICIT) continue;
+
+        if (parameters[i].name == "VK_LAYER_KHRONOS_validation")
+            validation_index = not_implicit_overridden_layers.size();
+        else if (parameters[i].name == "VK_LAYER_LUNARG_device_simulation")
+            device_simulation_index = not_implicit_overridden_layers.size();
+
+        not_implicit_overridden_layers.push_back(parameters[i]);
+    }
+
+    // Fifth: order the available NOT implicit overridden layers themselves
+    if (not_implicit_overridden_layers.size() > 1) {
+        // device simulation and validation layers are the two last layers
+        if (device_simulation_index != parameters.size() && validation_index != parameters.size()) {
+            std::swap(not_implicit_overridden_layers[not_implicit_overridden_layers.size() - 1],
+                      not_implicit_overridden_layers[device_simulation_index]);
+            std::swap(not_implicit_overridden_layers[not_implicit_overridden_layers.size() - 2],
+                      not_implicit_overridden_layers[validation_index]);
+        } else if (device_simulation_index != parameters.size() && validation_index == parameters.size()) {
+            std::swap(not_implicit_overridden_layers[not_implicit_overridden_layers.size() - 1],
+                      not_implicit_overridden_layers[device_simulation_index]);
+        } else if (device_simulation_index == parameters.size() && validation_index != parameters.size()) {
+            std::swap(not_implicit_overridden_layers[not_implicit_overridden_layers.size() - 1],
+                      not_implicit_overridden_layers[validation_index]);
+        }
+    }
+
+    // Final combine
+    for (std::size_t i = 0, n = not_implicit_overridden_layers.size(); i < n; ++i) {
+        sorted_parameters.push_back(not_implicit_overridden_layers[i]);
+    }
+
+    assert(parameters.size() == sorted_parameters.size());
+    std::swap(parameters, sorted_parameters);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work. Abstracts away instances where we might
 // be searching a disk path, or a registry path.
@@ -628,6 +710,7 @@ void Configurator::LoadAllConfigurations() {
             Configuration configuration;
             const bool result = configuration.Load(file);
             if (result) {
+                SortLayers(configuration.parameters);
                 const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration._name));
                 assert(result);
             }
@@ -651,6 +734,7 @@ void Configurator::LoadAllConfigurations() {
         Configuration *configuration = new Configuration;
         const bool result = configuration->Load(info.absoluteFilePath());
         if (result) {
+            SortLayers(configuration->parameters);
             _available_configurations.push_back(configuration);
         }
     }

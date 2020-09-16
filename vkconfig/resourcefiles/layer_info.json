@@ -221,7 +221,7 @@
         },
         "VK_LAYER_LUNARG_device_simulation": {
             "filename": {
-                "name": "Filename",
+                "name": "Devsim JSON configuration file",
                 "description": "Name of one or more configuration file(s) to load.",
                 "type": "load_file",
                 "default": ""
@@ -233,14 +233,10 @@
                 "default": "0"
             },
             "emulate_portability": {
-                "name": "Emulation mode",
-                "description": "",
-                "type": "enum",
-                "options": {
-                    "": "Vulkan 1.0",
-                    "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION": "Vulkan Portability"
-                },
-                "default": ""
+                "name": "Emulate VK_KHR_portability_subset",
+                "description": "Emulate that VK_KHR_portability_subset extension is supported by the device.",
+                "type": "bool_numeric",
+                "default": "0"
             },
             "exit_on_error": {
                 "name": "Exit On Error",

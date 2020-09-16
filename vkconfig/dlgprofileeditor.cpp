@@ -458,7 +458,7 @@ void dlgProfileEditor::accept() {
         parameters.push_back(layer_item->parameter);
     }
 
-    Sort(parameters);
+    SortLayers(parameters);
 
     configuration._name = ui->lineEditName->text();
     configuration._description = ui->lineEditDescription->text();
