@@ -43,6 +43,8 @@
 
 #define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
 
+void SortLayers(std::vector<Parameter>& parameters);
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Going back and forth between the Windows registry and looking for files
 /// in specific folders is just a mess. This class consolidates all that into

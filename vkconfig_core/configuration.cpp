@@ -33,16 +33,6 @@
 
 #include <cassert>
 
-void Sort(std::vector<Parameter>& parameters) {
-    std::vector<Parameter> sorted_parameters;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].state == LAYER_STATE_EXCLUDED) sorted_parameters.push_back(parameters[i]);
-    }
-
-    std::swap(parameters, sorted_parameters);
-}
-
 Configuration::Configuration() : _name("New Configuration"), _preset(ValidationPresetNone) {}
 
 ///////////////////////////////////////////////////////////
@@ -159,9 +149,6 @@ bool Configuration::Load(const QString& full_path) {
         alert.setDefaultButton(QMessageBox::Yes);
         if (alert.exec() == QMessageBox::No) exit(-1);
     }
-
-    // Build the list of layers with their settings. If both the layers and
-    // the blacklist are emtpy, then automatic fail
 
     for (int layer_index = 0; layer_index < layers.length(); layer_index++) {
         const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);

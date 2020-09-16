@@ -54,7 +54,7 @@ struct Parameter {
 };
 
 // Order of layers matters and we handle this internally
-void Sort(std::vector<Parameter>& parameters);
+void SortLayers(std::vector<Parameter>& parameters);
 
 class Configuration {
    public:
