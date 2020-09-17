@@ -198,14 +198,14 @@ void dlgProfileEditor::PopulateCustomTree() {
     ui->pushButtonRemoveLayers->setEnabled(false);
 }
 
-void dlgProfileEditor::AddLayerItem(const QString &layer_name, const LayerState &layer_state) {
-    assert(!layer_name.isEmpty());
+void dlgProfileEditor::AddLayerItem(const Parameter &parameter) {
+    assert(!parameter.name.isEmpty());
 
     Configurator &configurator = Configurator::Get();
 
-    const Layer *layer = configurator.FindLayerNamed(layer_name);
+    const Layer *layer = configurator.FindLayerNamed(parameter.name);
 
-    QString decorated_name = layer_name;
+    QString decorated_name = parameter.name;
 
     bool is_implicit_layer = false;
     if (layer != nullptr) {
@@ -218,13 +218,6 @@ void dlgProfileEditor::AddLayerItem(const QString &layer_name, const LayerState 
     } else {
         decorated_name += " (Missing)";
     }
-
-    Parameter parameter;
-    parameter.name = layer_name;
-    parameter.state = layer_state;
-
-    const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer_name);
-    if (defaults) parameter.settings = defaults->settings;
 
     TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter);
 
@@ -258,12 +251,14 @@ void dlgProfileEditor::AddLayerItem(const QString &layer_name, const LayerState 
 void dlgProfileEditor::LoadLayerDisplay() {
     ui->layerTree->clear();
 
+    Configurator &configurator = Configurator::Get();
+
     // Loop through the layers. They are expected to be in order
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter &parameter = configuration.parameters[i];
         assert(!parameter.name.isEmpty());
 
-        AddLayerItem(parameter.name, parameter.state);
+        AddLayerItem(parameter);
     }
 
     QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
@@ -273,7 +268,18 @@ void dlgProfileEditor::LoadLayerDisplay() {
         // The layer is already in the layer tree
         if (configuration.FindParameter(layer._name)) continue;
 
-        AddLayerItem(layer._name, LAYER_STATE_APPLICATION_CONTROLLED);
+        Parameter parameter;
+        parameter.name = layer._name;
+        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+
+        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer._name);
+        if (defaults) parameter.settings = defaults->settings;
+
+        if (layer._name == "VK_LAYER_KHRONOS_validation") {
+            configuration._preset = GetValidationPreset(ui->lineEditName->text());
+        }
+
+        AddLayerItem(parameter);
     }
 
     resizeEvent(nullptr);
@@ -449,19 +455,7 @@ void dlgProfileEditor::accept() {
             alert.exec();
         }
 
-        Parameter parameter(layer_item->parameter);
-
-        if (parameter.settings.empty()) {
-            const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer_item->parameter.name);
-            if (defaults) {
-                parameter.settings = defaults->settings;
-                if (parameter.name == "VK_LAYER_KHRONOS_validation") {
-                    configuration._preset = GetValidationPreset(ui->lineEditName->text());
-                }
-            }
-        }
-
-        parameters.push_back(parameter);
+        parameters.push_back(layer_item->parameter);
     }
 
     configuration._name = ui->lineEditName->text();
