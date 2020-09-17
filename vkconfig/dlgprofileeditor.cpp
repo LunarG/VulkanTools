@@ -252,6 +252,22 @@ void dlgProfileEditor::LoadLayerDisplay() {
     ui->layerTree->clear();
 
     Configurator &configurator = Configurator::Get();
+    QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
+
+    for (int i = 0, n = available_layers.size(); i < n; ++i) {
+        const Layer &layer = *available_layers[i];
+
+        if (layer._layer_type != LAYER_TYPE_IMPLICIT) continue;
+
+        // The layer is overridden
+        if (configuration.FindParameter(layer._name)) continue;
+
+        Parameter parameter;
+        parameter.name = layer._name;
+        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+
+        AddLayerItem(parameter);
+    }
 
     // Loop through the layers. They are expected to be in order
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
@@ -261,9 +277,10 @@ void dlgProfileEditor::LoadLayerDisplay() {
         AddLayerItem(parameter);
     }
 
-    QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
     for (int i = 0, n = available_layers.size(); i < n; ++i) {
         const Layer &layer = *available_layers[i];
+
+        if (layer._layer_type == LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is already in the layer tree
         if (configuration.FindParameter(layer._name)) continue;
