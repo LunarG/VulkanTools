@@ -98,10 +98,10 @@ LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name)
     return settings[0];
 }
 
-bool LoadSettings(const QJsonObject& json_layer_settings, std::vector<LayerSetting>& settings) {
+bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) {
     const QStringList& settings_names = json_layer_settings.keys();
 
-    for (int setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; setting_index++) {
+    for (int setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; ++setting_index) {
         // The layer rank may or may not be here, but it is not a
         // user setting.
         if (settings_names[setting_index] == "layer_rank") continue;
@@ -194,19 +194,19 @@ bool LoadSettings(const QJsonObject& json_layer_settings, std::vector<LayerSetti
                 break;
         }
 
-        settings.push_back(setting);
+        parameter.settings.push_back(setting);
     }
 
     return true;
 }
 
-bool SaveSettings(const std::vector<LayerSetting>& settings, QJsonObject& json_settings) {
+bool SaveSettings(const Parameter& parameter, QJsonObject& json_settings) {
     assert(&json_settings);
 
     // Loop through the actual settings
-    for (std::size_t setting_index = 0, setting_count = settings.size(); setting_index < setting_count; setting_index++) {
+    for (std::size_t setting_index = 0, setting_count = parameter.settings.size(); setting_index < setting_count; ++setting_index) {
         QJsonObject json_setting;
-        const LayerSetting& setting = settings[setting_index];
+        const LayerSetting& setting = parameter.settings[setting_index];
 
         json_setting.insert("name", setting.label);
         json_setting.insert("description", setting.description);
@@ -263,3 +263,23 @@ bool SaveSettings(const std::vector<LayerSetting>& settings, QJsonObject& json_s
 
     return true;
 }
+
+bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b) {
+    if (a.size() != b.size()) return false;
+
+    for (std::size_t i = 0, n = a.size(); i < n; ++i) {
+        if (a[i].name != b[i].name) return false;
+
+        if (a[i].state != b[i].state) return false;
+
+        if (a[i].settings.size() != b[i].settings.size()) return false;
+
+        for (std::size_t j = 0, o = a[i].settings.size(); j < o; ++j) {
+            if (a[i].settings[j] != b[i].settings[j]) return false;
+        }
+    }
+
+    return true;
+}
+
+bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }

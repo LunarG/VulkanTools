@@ -45,17 +45,6 @@ enum ValidationPreset {
 
 enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };
 
-struct Parameter {
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED) {}
-
-    QString name;
-    LayerState state;
-    std::vector<LayerSetting> settings;
-};
-
-// Order of layers matters and we handle this internally
-void SortLayers(std::vector<Parameter>& parameters);
-
 class Configuration {
    public:
     Configuration();
@@ -75,6 +64,3 @@ class Configuration {
 
     bool IsEmpty() const;
 };
-
-bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b);
-bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b);
