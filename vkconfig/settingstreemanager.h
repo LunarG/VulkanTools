@@ -55,7 +55,7 @@ class SettingsTreeManager : QObject {
     QVector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
 
     void BuildKhronosTree(std::vector<LayerSetting> &settings);
-    void BuildGenericTree(QTreeWidgetItem *parent, std::vector<LayerSetting> &settings);
+    void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
 
     QVector<QTreeWidgetItem *> _layer_items;  // These parallel the profiles layers
 

@@ -89,7 +89,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree, Configuration *conf
             }
 
             // Generic is the only one left
-            BuildGenericTree(item, parameter.settings);
+            BuildGenericTree(item, parameter);
         }
 
         ///////////////////////////////////////////////////////////////////
@@ -277,7 +277,9 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
     profileEdited();
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, std::vector<LayerSetting> &settings) {
+void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
+    std::vector<LayerSetting> &settings = parameter.settings;
+
     for (std::size_t setting_index = 0, n = settings.size(); setting_index < n; setting_index++) {
         LayerSetting &setting = settings[setting_index];
 
@@ -287,6 +289,14 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, std::vector<
             case SETTING_BOOL:          // True false?
             case SETTING_BOOL_NUMERIC:  // True false? (with numeric output instead of text)
             {
+                // Don't display "emulate_portability" setting if the layer doesn't support it
+                if (setting.name == "emulate_portability" && parameter.name == "VK_LAYER_LUNARG_device_simulation") {
+                    Layer *layer = Configurator::Get().FindLayerNamed("VK_LAYER_LUNARG_device_simulation");
+                    if (layer) {
+                        if (Version(layer->_implementation_version) <= Version("1.3.0")) break;
+                    }
+                }
+
                 BoolSettingWidget *widget = new BoolSettingWidget(setting, setting.type);
                 parent->addChild(setting_item);
                 _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
