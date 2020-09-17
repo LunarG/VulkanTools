@@ -30,7 +30,7 @@ BoolSettingWidget::BoolSettingWidget(LayerSetting& layer_setting, SettingType se
 
     setText(layer_setting.label);
     setToolTip(layer_setting.description);
-    setChecked(layer_setting.value == QString("TRUE"));
+    setChecked(layer_setting.value == GetToken(true, setting_type));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
