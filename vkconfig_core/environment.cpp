@@ -334,6 +334,14 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
             return file_info.absoluteFilePath();
     }
 
+    // Such the default applications from package installation (Linux)
+    {
+        const QString search_path = QString("/usr/bin") + DEFAULT_PATH + executable_name;
+        QFileInfo file_info(search_path);
+        if (file_info.exists())  // Couldn't find vkcube
+            return file_info.absoluteFilePath();
+    }
+
     return "";
 }
 
