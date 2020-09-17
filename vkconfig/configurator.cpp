@@ -809,7 +809,8 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     /////////////////////////
     // vk_layer_settings.txt
     QFile file(override_settings_path);
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result_settings_file);
     QTextStream stream(&file);
 
     // Loop through all the layers
@@ -922,8 +923,8 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     QJsonDocument doc(root);
 
     QFile jsonFile(override_layers_path);
-    const bool result = jsonFile.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result);
+    const bool result_layers_file = jsonFile.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result_layers_file);
     jsonFile.write(doc.toJson());
     jsonFile.close();
 

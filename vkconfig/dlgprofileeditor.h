@@ -84,5 +84,5 @@ class dlgProfileEditor : public QDialog {
     dlgProfileEditor(const dlgProfileEditor &) = delete;
     dlgProfileEditor &operator=(const dlgProfileEditor &) = delete;
 
-    void AddLayerItem(const QString &layer_name, const LayerState &layer_state);
+    void AddLayerItem(const Parameter &parameter);
 };
