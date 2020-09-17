@@ -130,7 +130,7 @@ MainWindow::MainWindow(QWidget *parent)
     // insufficinet.
     ui->logBrowser->document()->setMaximumBlockCount(2048);
     ui->logBrowser->append("Vulkan Development Status:");
-    // ui->logBrowser->append(GenerateVulkanStatus());
+    ui->logBrowser->append(GenerateVulkanStatus());
     ui->profileTree->scrollToItem(ui->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
     if (current_configuration) {
@@ -440,7 +440,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
-    // ui->logBrowser->append(GenerateVulkanStatus());
+    ui->logBrowser->append(GenerateVulkanStatus());
 
     UpdateUI();
 }
