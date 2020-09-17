@@ -290,7 +290,11 @@ void dlgProfileEditor::LoadLayerDisplay() {
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
 
         const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer._name);
-        if (defaults) parameter.settings = defaults->settings;
+        if (defaults) {
+            parameter.settings = defaults->settings;
+
+            if (layer._name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
+        }
 
         AddLayerItem(parameter);
     }
@@ -335,7 +339,11 @@ void dlgProfileEditor::on_pushButtonResetLayers_clicked() {
         layer_item->parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
 
         const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(layer_item->parameter.name);
-        if (defaults) layer_item->parameter.settings = defaults->settings;
+        if (defaults) {
+            layer_item->parameter.settings = defaults->settings;
+
+            if (layer_item->parameter.name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
+        }
 
         TreeFriendlyComboBoxWidget *widget = dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(layer_item, 1));
         assert(widget);
@@ -401,7 +409,42 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
     LayerState layer_state = static_cast<LayerState>(selection);
 
-    if (layer_state == LAYER_STATE_EXCLUDED) {
+    if (layer_state == LAYER_STATE_OVERRIDDEN && tree_layer_item->parameter.name == "VK_LAYER_LUNARG_device_simulation") {
+        bool found_overidden_validation_layer = false;
+        for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
+            TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
+            if (layer_item->parameter.name == "VK_LAYER_KHRONOS_validation") {
+                found_overidden_validation_layer = layer_item->parameter.state != LAYER_STATE_APPLICATION_CONTROLLED;
+                break;
+            }
+        }
+
+        if (!found_overidden_validation_layer) {
+            QMessageBox alert;
+            alert.setWindowTitle("Overridding or excluding VK_LAYER_KHRONOS_validation recommanded");
+            alert.setText(
+                "VK_LAYER_LUNARG_device_simulation requires being executed close to the Vulkan drivers. However, "
+                "application-controlled layers are executed after Vulkan Configurator overridden layers which would make "
+                "VK_LAYER_KHRONOS_validation inaccurate if it's activated by the Vulkan applications.");
+            alert.setInformativeText("Do you want to override VK_LAYER_KHRONOS_validation too?");
+            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            alert.setIcon(QMessageBox::Warning);
+            if (alert.exec() == QMessageBox::Yes) {
+                for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
+                    TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
+                    if (layer_item->parameter.name != "VK_LAYER_KHRONOS_validation") continue;
+
+                    layer_item->parameter.state = LAYER_STATE_OVERRIDDEN;
+
+                    TreeFriendlyComboBoxWidget *widget =
+                        dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(layer_item, 1));
+                    assert(widget);
+                    widget->setCurrentIndex(LAYER_STATE_OVERRIDDEN);
+                    break;
+                }
+            }
+        }
+    } else if (layer_state == LAYER_STATE_EXCLUDED) {
         const Layer *layer = Configurator::Get().FindLayerNamed(tree_layer_item->parameter.name);
 
         if (layer) {

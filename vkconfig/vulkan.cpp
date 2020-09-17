@@ -68,6 +68,8 @@ Version GetVulkanLoaderVersion() {
 QString GenerateVulkanStatus() {
     QString log;
 
+    return log;  // bug https://github.com/LunarG/VulkanTools/issues/1172
+
     // Check Vulkan SDK path
     QString search_path = qgetenv("VULKAN_SDK");
     QFileInfo local(search_path);
@@ -106,6 +108,7 @@ QString GenerateVulkanStatus() {
     QLibrary library(VULKAN_LIBRARY);
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
         (PFN_vkEnumerateInstanceLayerProperties)library.resolve("vkEnumerateInstanceLayerProperties");
+    assert(vkEnumerateInstanceLayerProperties);
 
     std::uint32_t instance_layer_count = 0;
     VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
@@ -146,6 +149,7 @@ QString GenerateVulkanStatus() {
 
     VkInstance inst;
     PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)library.resolve("vkCreateInstance");
+    assert(vkCreateInstance);
     err = vkCreateInstance(&inst_info, NULL, &inst);
     if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
         QMessageBox alert(NULL);
