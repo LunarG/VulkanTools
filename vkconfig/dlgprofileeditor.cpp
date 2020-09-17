@@ -292,10 +292,6 @@ void dlgProfileEditor::LoadLayerDisplay() {
         const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer._name);
         if (defaults) parameter.settings = defaults->settings;
 
-        if (layer._name == "VK_LAYER_KHRONOS_validation") {
-            configuration._preset = GetValidationPreset(ui->lineEditName->text());
-        }
-
         AddLayerItem(parameter);
     }
 
