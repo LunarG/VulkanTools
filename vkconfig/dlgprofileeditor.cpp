@@ -314,14 +314,12 @@ void dlgProfileEditor::resizeEvent(QResizeEvent *event) {
 /// This button clears the display. Basically, we delete the profile and
 /// start over.
 void dlgProfileEditor::on_pushButtonResetLayers_clicked() {
+    configuration._preset = ValidationPresetNone;
+
     for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
         TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
         assert(layer_item);
         layer_item->parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-
-        if (layer_item->parameter.name == "VK_LAYER_KHRONOS_validation") {
-            configuration._preset = GetValidationPreset(configuration._name);
-        }
 
         const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(layer_item->parameter.name);
         if (defaults) layer_item->parameter.settings = defaults->settings;
