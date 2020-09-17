@@ -158,12 +158,12 @@ bool Configuration::Load(const QString& full_path) {
 
         Parameter* parameter = FindParameter(layers[layer_index]);
         if (parameter) {
-            LoadSettings(layer_object, parameter->settings);
+            LoadSettings(layer_object, *parameter);
         } else {
             Parameter parameter;
             parameter.name = layers[layer_index];
             parameter.state = LAYER_STATE_OVERRIDDEN;
-            LoadSettings(layer_object, parameter.settings);
+            LoadSettings(layer_object, parameter);
             parameters.push_back(parameter);
         }
     }
@@ -198,7 +198,7 @@ bool Configuration::Save(const QString& full_path) const {
         // Rank goes in here with settings
         json_settings.insert("layer_rank", static_cast<int>(i));
 
-        const bool result = SaveSettings(parameter.settings, json_settings);
+        const bool result = SaveSettings(parameter, json_settings);
         assert(result);
 
         overridden_list.insert(parameter.name, json_settings);
@@ -235,23 +235,3 @@ bool Configuration::Save(const QString& full_path) const {
 }
 
 bool Configuration::IsEmpty() const { return parameters.empty(); }
-
-bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b) {
-    if (a.size() != b.size()) return false;
-
-    for (std::size_t i = 0, n = a.size(); i < n; ++i) {
-        if (a[i].name != b[i].name) return false;
-
-        if (a[i].state != b[i].state) return false;
-
-        if (a[i].settings.size() != b[i].settings.size()) return false;
-
-        for (std::size_t j = 0, o = a[i].settings.size(); j < o; ++j) {
-            if (a[i].settings[j] != b[i].settings[j]) return false;
-        }
-    }
-
-    return true;
-}
-
-bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }

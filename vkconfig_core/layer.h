@@ -38,18 +38,6 @@
 void RemoveString(QString& delimitedString, QString value);
 void AddString(QString& delimitedString, QString value);
 
-// The value of this enum can't be changed
-enum LayerState {
-    LAYER_STATE_APPLICATION_CONTROLLED = 0,  // The Vulkan application configured this layer at will
-    LAYER_STATE_OVERRIDDEN = 1,              // Force on/override this layer and configure it regarless of the Vulkan application
-    LAYER_STATE_EXCLUDED = 2,                // Force off/exclude this layer regarless of the Vulkan application
-
-    LAYER_STATE_FIRST = LAYER_STATE_APPLICATION_CONTROLLED,
-    LAYER_STATE_LAST = LAYER_STATE_EXCLUDED
-};
-
-enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
-
 class Layer {
    public:
     Layer();

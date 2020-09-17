@@ -794,7 +794,14 @@ void Configurator::LoadDefaultLayerSettings() {
         const QJsonValue &layer_value = layers_options_object.value(layers_with_settings[i]);
         const QJsonObject &layer_object = layer_value.toObject();
 
-        ::LoadSettings(layer_object, settings_defaults.settings);
+        Parameter parameter;
+        parameter.name = settings_defaults.layer_name;
+        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+        parameter.settings = settings_defaults.settings;
+
+        ::LoadSettings(layer_object, parameter);
+
+        settings_defaults.settings = parameter.settings;
 
         // Add to my list of layer settings
         _default_layers_settings.push_back(settings_defaults);

@@ -47,6 +47,18 @@ enum SettingType {  // Enum value can't be changed
 
 enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
 
+// The value of this enum can't be changed
+enum LayerState {
+    LAYER_STATE_APPLICATION_CONTROLLED = 0,  // The Vulkan application configured this layer at will
+    LAYER_STATE_OVERRIDDEN = 1,              // Force on/override this layer and configure it regarless of the Vulkan application
+    LAYER_STATE_EXCLUDED = 2,                // Force off/exclude this layer regarless of the Vulkan application
+
+    LAYER_STATE_FIRST = LAYER_STATE_APPLICATION_CONTROLLED,
+    LAYER_STATE_LAST = LAYER_STATE_EXCLUDED
+};
+
+enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
+
 struct LayerSetting {
     QString name;                  // Name of the setting the layer looks for (programatic variable name)
     QString label;                 // Short name to prompt end user
@@ -69,5 +81,19 @@ LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name)
 SettingType GetSettingType(const char* token);
 const char* GetSettingTypeToken(SettingType type);
 
-bool LoadSettings(const QJsonObject& layer_settings_descriptors, std::vector<LayerSetting>& settings);
-bool SaveSettings(const std::vector<LayerSetting>& settings, QJsonObject& layer_settings_descriptors);
+struct Parameter {
+    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED) {}
+
+    QString name;
+    LayerState state;
+    std::vector<LayerSetting> settings;
+};
+
+bool LoadSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);
+bool SaveSettings(const Parameter& parameter, QJsonObject& layer_settings_descriptors);
+
+// Order of layers matters and we handle this internally
+void SortLayers(std::vector<Parameter>& parameters);
+
+bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b);
+bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b);
