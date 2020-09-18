@@ -28,6 +28,7 @@
 #include <QJsonArray>
 
 #include <cassert>
+#include <algorithm>
 
 SettingType GetSettingType(const char* token) {
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
@@ -194,7 +195,7 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
     }
 
     // Hack to fix in the future
-    if (parameter.name == "VK_LAYER_KHRONOS_validation") {
+    if (parameter.name == "VK_LAYER_KHRONOS_validation" && parameter.state == LAYER_STATE_OVERRIDDEN) {
         LayerSetting* searched_setting = FindSetting(parameter.settings, "duplicate_message_limit");
         if (!searched_setting) {
             LayerSetting setting;
@@ -207,6 +208,12 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
             parameter.settings.push_back(setting);
         }
     }
+
+    struct parmater_compare {
+        bool operator()(const LayerSetting& a, const LayerSetting& b) const { return a.key < b.key; }
+    };
+
+    std::sort(parameter.settings.begin(), parameter.settings.end(), parmater_compare());
 
     return true;
 }
