@@ -58,6 +58,12 @@
                 "type": "save_file",
                 "default": "stdout"
             },
+            "duplicate_message_limit": {
+                "name": "Duplicated messages limit",
+                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
+                "type": "string",
+                "default": "10"
+            },
             "message_id_filter": {
                 "name": "Message Filter",
                 "description": "VUID's to ignore",

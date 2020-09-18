@@ -129,6 +129,8 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     _validation_preset_item->setText(0, "Validation Preset");
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
 
+    const Layer *validation_layer = Configurator::Get().FindLayerNamed("VK_LAYER_KHRONOS_validation");
+
     _validation_presets_combo_box = new QComboBox();
     _validation_presets_combo_box->blockSignals(true);
     _validation_presets.clear();
@@ -164,8 +166,8 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, settings);
 
     // Get the Debug Action and log file settings (and they must exist)
-    LayerSetting &debug_action = FindSetting(settings, "debug_action");
-    LayerSetting &log_file = FindSetting(settings, "log_filename");
+    LayerSetting &debug_action = *FindSetting(settings, "debug_action");
+    LayerSetting &log_file = *FindSetting(settings, "log_filename");
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
@@ -184,7 +186,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
 
         // The log message action also has a child; the log file selection setting/widget
         // Note, this is usually last, but I'll check for it any way in case other new items are added
-        if (debug_action.inclusive_values[i] == QString("VK_DBG_LAYER_ACTION_LOG_MSG")) {  // log action?
+        if (debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
             _validation_debug_action = this_control;
             _validation_log_file_item = new QTreeWidgetItem();
             child->addChild(_validation_log_file_item);
@@ -206,21 +208,33 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
         LayerSetting &layer_setting = settings[setting_index];
 
         // Multi-enum - report flags only
-        if (!(layer_setting.type == SETTING_INCLUSIVE_LIST && layer_setting.name == "report_flags")) continue;
+        if (layer_setting.key == "report_flags") {
+            QTreeWidgetItem *sub_category = new QTreeWidgetItem;
+            sub_category->setText(0, layer_setting.label);
+            sub_category->setToolTip(0, layer_setting.description);
+            _validation_tree_item->addChild(sub_category);
 
-        QTreeWidgetItem *sub_category = new QTreeWidgetItem;
-        sub_category->setText(0, layer_setting.label);
-        sub_category->setToolTip(0, layer_setting.description);
-        _validation_tree_item->addChild(sub_category);
+            for (int i = 0, n = layer_setting.inclusive_values.size(); i < n; ++i) {
+                QTreeWidgetItem *child = new QTreeWidgetItem();
+                MultiEnumSettingWidget *control = new MultiEnumSettingWidget(layer_setting, layer_setting.inclusive_values[i]);
+                control->setText(layer_setting.inclusive_labels[i]);
+                sub_category->addChild(child);
+                _configuration_settings_tree->setItemWidget(child, 0, control);
+                control->setFont(_configuration_settings_tree->font());
+                connect(control, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            }
+        } else if (layer_setting.key == "duplicate_message_limit") {
+            if (validation_layer) {  // duplicate_message_limit is new with 1.2.148
+                if (validation_layer->_api_version < Version("1.2.148")) continue;
+            }
 
-        for (int i = 0, n = layer_setting.inclusive_values.size(); i < n; ++i) {
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            MultiEnumSettingWidget *control = new MultiEnumSettingWidget(layer_setting, layer_setting.inclusive_values[i]);
-            control->setText(layer_setting.inclusive_labels[i]);
-            sub_category->addChild(child);
-            _configuration_settings_tree->setItemWidget(child, 0, control);
-            control->setFont(_configuration_settings_tree->font());
-            connect(control, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
+            QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+            StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting);
+            _validation_tree_item->addChild(setting_item);
+            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+            setting_item->addChild(place_holder);
+            _configuration_settings_tree->setItemWidget(place_holder, 0, widget);
+            connect(widget, SIGNAL(itemChanged()), this, SLOT(profileEdited()));
         }
     }
 
@@ -290,7 +304,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             case SETTING_BOOL_NUMERIC:  // True false? (with numeric output instead of text)
             {
                 // Don't display "emulate_portability" setting if the layer doesn't support it
-                if (setting.name == "emulate_portability" && parameter.name == "VK_LAYER_LUNARG_device_simulation") {
+                if (setting.key == "emulate_portability" && parameter.name == "VK_LAYER_LUNARG_device_simulation") {
                     Layer *layer = Configurator::Get().FindLayerNamed("VK_LAYER_LUNARG_device_simulation");
                     if (layer) {
                         if (Version(layer->_implementation_version) <= Version("1.3.0")) break;
@@ -386,7 +400,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     for (std::size_t i = 0, n = parameter->settings.size(); i < n; ++i) {
         LayerSetting &setting = parameter->settings[i];
 
-        if (setting.name == "disables" || setting.name == "enables")
+        if (setting.key == "disables" || setting.key == "enables")
             setting.value = preset_configuration.parameters[0].settings[i].value;
     }
 

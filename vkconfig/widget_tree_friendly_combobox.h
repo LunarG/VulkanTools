@@ -30,6 +30,10 @@ class TreeFriendlyComboBoxWidget : public QComboBox {
    public:
     TreeFriendlyComboBoxWidget(QTreeWidgetItem *item);
 
+    void wheelEvent(QWheelEvent *e) {
+        if (hasFocus()) QComboBox::wheelEvent(e);
+    }
+
    protected:
     QTreeWidgetItem *_tree_widget;
 
