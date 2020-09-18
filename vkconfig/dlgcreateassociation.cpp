@@ -58,6 +58,15 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     connect(ui->lineEditCmdArgs, SIGNAL(textEdited(const QString &)), this, SLOT(editCommandLine(const QString &)));
     connect(ui->lineEditWorkingFolder, SIGNAL(textEdited(const QString &)), this, SLOT(editWorkingFolder(const QString &)));
     connect(ui->lineEditLogFile, SIGNAL(textEdited(const QString &)), this, SLOT(editLogFile(const QString &)));
+
+    // If there is an item in the tree (nullptr is okay here), make it the currently selected item.
+    // This is a work around for macOS, where the currentItemChanged() signal is being emitted (by something)
+    // after this constructor, without actually selecting the first row. The effect there is, the remove button is
+    // enabled, and the first item is selected, but not visibly so. Repainting does not fix the issue either. This
+    // is a macOS only fix, but is put in for all platforms so that the GUI behavior is consistent across all
+    // platforms.
+    QTreeWidgetItem *pItem = ui->treeWidget->topLevelItem(0);
+    ui->treeWidget->setCurrentItem(pItem);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
