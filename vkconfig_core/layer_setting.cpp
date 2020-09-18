@@ -164,9 +164,6 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
                     // The configuration files used to store VK_DBG_LAYER_DEBUG_OUTPUT isntead of VK_DBG_LAYER_ACTION_DEBUG_OUTPUT
                     if (SUPPORT_VKCONFIG_2_0_1 && key == "VK_DBG_LAYER_DEBUG_OUTPUT") key = "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
 
-                    // Debug output is only for Windows
-                    if (!PLATFORM_WINDOWS && key == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
-
                     // Remove ignore now that we are an inclusive list instead of exclusive
                     if (convert_debug_action_to_inclusive && key == "VK_DBG_LAYER_ACTION_IGNORE") continue;
 
