@@ -68,7 +68,7 @@ Version GetVulkanLoaderVersion() {
 QString GenerateVulkanStatus() {
     QString log;
 
-    return log;  // bug https://github.com/LunarG/VulkanTools/issues/1172
+    // return log;  // bug https://github.com/LunarG/VulkanTools/issues/1172
 
     // Check Vulkan SDK path
     QString search_path = qgetenv("VULKAN_SDK");
