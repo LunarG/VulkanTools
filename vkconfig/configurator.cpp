@@ -929,9 +929,9 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
 
             if (layer->_name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
                 stream << "lunarg_gfxrecon"
-                       << "." << setting.name << " = " << setting.value << "\n";
+                       << "." << setting.key << " = " << setting.value << "\n";
             } else {
-                stream << lc_layer_name << "." << setting.name << " = " << setting.value << "\n";
+                stream << lc_layer_name << "." << setting.key << " = " << setting.value << "\n";
             }
         }
     }

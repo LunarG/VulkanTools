@@ -60,7 +60,7 @@ enum LayerState {
 enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
 
 struct LayerSetting {
-    QString name;                  // Name of the setting the layer looks for (programatic variable name)
+    QString key;                   // Name of the setting the layer looks for (programatic variable name)
     QString label;                 // Short name to prompt end user
     QString description;           // Human version, describes the setting
     SettingType type;              // The data type
@@ -76,7 +76,7 @@ struct LayerSetting {
 bool operator==(const LayerSetting& a, const LayerSetting& b);
 bool operator!=(const LayerSetting& a, const LayerSetting& b);
 
-LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name);
+LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);
 
 SettingType GetSettingType(const char* token);
 const char* GetSettingTypeToken(SettingType type);

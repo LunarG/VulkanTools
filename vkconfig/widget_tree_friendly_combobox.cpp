@@ -26,6 +26,8 @@
 TreeFriendlyComboBoxWidget::TreeFriendlyComboBoxWidget(QTreeWidgetItem *item) : QComboBox(), _tree_widget(item) {
     assert(item);
 
+    setFocusPolicy(Qt::StrongFocus);
+
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 

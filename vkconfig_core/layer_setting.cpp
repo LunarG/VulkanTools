@@ -60,7 +60,7 @@ const char* GetSettingTypeToken(SettingType type) {
 }
 
 bool operator==(const LayerSetting& a, const LayerSetting& b) {
-    if (a.name != b.name)
+    if (a.key != b.key)
         return false;
     else if (a.label != b.label)
         return false;
@@ -87,15 +87,14 @@ bool operator==(const LayerSetting& a, const LayerSetting& b) {
 
 bool operator!=(const LayerSetting& a, const LayerSetting& b) { return !(a == b); }
 
-LayerSetting& FindSetting(std::vector<LayerSetting>& settings, const char* name) {
+LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) {
     for (std::size_t i = 0, n = settings.size(); i < n; i++) {
-        if (settings[i].name == name) {
-            return settings[i];
+        if (settings[i].key == key) {
+            return &settings[i];
         }
     }
 
-    assert(0);
-    return settings[0];
+    return nullptr;
 }
 
 bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) {
@@ -107,7 +106,7 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
         if (settings_names[setting_index] == "layer_rank") continue;
 
         LayerSetting setting;
-        setting.name = settings_names[setting_index];
+        setting.key = settings_names[setting_index];
 
         const QJsonValue& json_value = json_layer_settings.value(settings_names[setting_index]);
         const QJsonObject& json_object = json_value.toObject();
@@ -146,7 +145,7 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
 
         // debug_action used to be stored as SETTING_EXCLUSIVE_LIST
         const bool convert_debug_action_to_inclusive =
-            SUPPORT_VKCONFIG_2_0_1 && setting.name == "debug_action" && setting.type == SETTING_EXCLUSIVE_LIST;
+            SUPPORT_VKCONFIG_2_0_1 && setting.key == "debug_action" && setting.type == SETTING_EXCLUSIVE_LIST;
         if (convert_debug_action_to_inclusive) setting.type = SETTING_INCLUSIVE_LIST;
 
         switch (setting.type) {
@@ -195,6 +194,21 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
         }
 
         parameter.settings.push_back(setting);
+    }
+
+    // Hack to fix in the future
+    if (parameter.name == "VK_LAYER_KHRONOS_validation") {
+        LayerSetting* searched_setting = FindSetting(parameter.settings, "duplicate_message_limit");
+        if (!searched_setting) {
+            LayerSetting setting;
+            setting.key = "duplicate_message_limit";
+            setting.label = "Duplicated messages limit";
+            setting.description = "Limit the number of times any single validation message would be reported. Empty is unlimited.";
+            setting.type = SETTING_STRING;
+            setting.value = "10";
+
+            parameter.settings.push_back(setting);
+        }
     }
 
     return true;
@@ -258,7 +272,7 @@ bool SaveSettings(const Parameter& parameter, QJsonObject& json_settings) {
                 break;
         }
 
-        json_settings.insert(setting.name, json_setting);
+        json_settings.insert(setting.key, json_setting);
     }
 
     return true;
