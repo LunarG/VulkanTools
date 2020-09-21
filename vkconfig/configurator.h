@@ -41,10 +41,6 @@
 
 #include <vector>
 
-#define DONT_SHOW_AGAIN_MESSAGE "Do not show again"
-
-void SortLayers(std::vector<Parameter>& parameters);
-
 ////////////////////////////////////////////////////////////////////////////////
 /// Going back and forth between the Windows registry and looking for files
 /// in specific folders is just a mess. This class consolidates all that into
@@ -152,7 +148,7 @@ class Configurator {
         if (_active_configuration) SetActiveConfiguration(_active_configuration);
     }
     bool HasActiveConfiguration() const {
-        return _active_configuration != nullptr ? HasMissingLayers(*_active_configuration) : false;
+        return _active_configuration != nullptr ? !HasMissingLayers(*_active_configuration) : false;
     }
 
    private:

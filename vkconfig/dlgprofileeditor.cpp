@@ -22,6 +22,7 @@
 #include "configurator.h"
 #include "alert.h"
 
+#include "dlgcustompaths.h"
 #include "dlgprofileeditor.h"
 #include "ui_dlgprofileeditor.h"
 
@@ -80,7 +81,6 @@ PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 // End Stack Overflow
 #endif
 
-///////////////////////////////////////////////////////////////
 /// Utility function to see if the file is 32-bit
 bool IsDLL32Bit(QString full_path) {
 #if PLATFORM_WINDOWS
@@ -110,15 +110,6 @@ bool IsDLL32Bit(QString full_path) {
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// Edit a configuration. There are three cases of profiles passed in through pProfileToEdit.
-/// Case 1: New configuration: A blank configuration with no layers activated and all layer settings set to their
-///         defaults.
-///         The file name is blank. User must save the profile.
-/// Case 2: Edit: An exisitng configuration that contains specifically activated layers and
-///         contains settings that have already been specified and previously saved.
-///         The file name is not blank. User can save or abandon the changes.
-///////////////////////////////////////////////////////////////////////////////
 dlgProfileEditor::dlgProfileEditor(QWidget *parent, const Configuration &configuration)
     : QDialog(parent), ui(new Ui::dlgProfileEditor), configuration(configuration) {
     assert(parent);
@@ -130,6 +121,16 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, const Configuration &configu
     ui->lineEditName->setText(configuration._name);
     ui->lineEditDescription->setText(configuration._description);
 
+    Environment &environment = Configurator::Get().environment;
+    restoreGeometry(environment.Get(LAYOUT_LAYER_GEOMETRY));
+
+    const QByteArray &restore_splitter_state = environment.Get(LAYOUT_LAYER_SPLITTER);
+    if (restore_splitter_state.isEmpty()) {
+        ui->splitter->setSizes(QList<int>({300, 30}));
+    } else {
+        ui->splitter->restoreState(environment.Get(LAYOUT_LAYER_SPLITTER));
+    }
+
     QTreeWidgetItem *header_item = ui->layerTree->headerItem();
 
     header_item->setText(0, "Layers");
@@ -137,65 +138,68 @@ dlgProfileEditor::dlgProfileEditor(QWidget *parent, const Configuration &configu
 
     connect(ui->layerTree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
             SLOT(currentLayerChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(ui->treeWidget, SIGNAL(itemActivated(QTreeWidgetItem *, int)), this,
-            SLOT(customTreeItemActivated(QTreeWidgetItem *, int)));
-    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
-            SLOT(customTreeItemActivated(QTreeWidgetItem *, int)));
 
-    LoadLayerDisplay();  // Load/Reload the layer editor
-    PopulateCustomTree();
+    connect(ui->layerTreeSorted, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
+            SLOT(OnLayerTreeSortedClicked(QTreeWidgetItem *, int)));
+
+    BuildParameters();
+    LoadAvailableLayersUI();
+    LoadSortedLayersUI();
+
+    UpdateUI();
 }
 
-dlgProfileEditor::~dlgProfileEditor() { delete ui; }
+dlgProfileEditor::~dlgProfileEditor() {
+    Environment &environment = Configurator::Get().environment;
 
-////////////////////////////////////////////////////////////
-/// Add a custom layer path, and update everything accordingly
-void dlgProfileEditor::on_pushButtonAddLayers_clicked() {
-    Configurator &configurator = Configurator::Get();
-    const QString custom_path = configurator.path.SelectPath(this, PATH_CUSTOM_LAYER_PATH);
+    environment.Set(LAYOUT_LAYER_SPLITTER, ui->splitter->saveState());
+    environment.Set(LAYOUT_LAYER_GEOMETRY, saveGeometry());
+}
 
-    if (custom_path.isEmpty()) {
-        return;
+void dlgProfileEditor::UpdateUI() {
+    if (!selected_available_layer_name.isEmpty()) {
+        for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
+            TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
+            if (layer_item->layer_name != selected_available_layer_name) continue;
+
+            ui->layerTree->setCurrentItem(layer_item);
+        }
+    } else if (ui->layerTree->topLevelItemCount() > 0) {
+        ui->layerTree->setCurrentItem(ui->layerTree->topLevelItem(0));
     }
 
-    if (configurator.environment.AppendCustomLayerPath(custom_path)) {
-        configurator.LoadAllInstalledLayers();
-        configurator.LoadAllConfigurations();
+    if (!selected_sorted_layer_name.isEmpty() && ui->layerTreeSorted->topLevelItemCount() > 1) {
+        for (int i = 0, n = ui->layerTreeSorted->topLevelItemCount(); i < n; ++i) {
+            TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTreeSorted->topLevelItem(i));
+            if (layer_item->layer_name != selected_sorted_layer_name) continue;
+
+            ui->layerTreeSorted->setCurrentItem(layer_item);
+        }
+    } else if (ui->layerTreeSorted->topLevelItemCount() > 1) {
+        ui->layerTreeSorted->setCurrentItem(ui->layerTreeSorted->topLevelItem(0));
     }
 
-    LoadLayerDisplay();
-    PopulateCustomTree();
+    ui->layerTreeSorted->setEnabled(ui->layerTreeSorted->topLevelItemCount() > 1);
+
+    QTreeWidgetItem *current_sorted_layers = ui->layerTreeSorted->currentItem();
+    const bool has_selected_sorted_item = current_sorted_layers != nullptr;
+
+    const bool has_above_sorted_item = ui->layerTreeSorted->itemAbove(current_sorted_layers) != nullptr;
+    ui->pushButtonUp->setEnabled(has_selected_sorted_item && has_above_sorted_item);
+
+    const bool has_below_sorted_item = ui->layerTreeSorted->itemBelow(current_sorted_layers) != nullptr;
+    ui->pushButtonDown->setEnabled(has_selected_sorted_item && has_below_sorted_item);
 }
 
-////////////////////////////////////////////////////////////////
-// Remove the selected layer path and update everything accordingly
-void dlgProfileEditor::on_pushButtonRemoveLayers_clicked() {
-    QTreeWidgetItem *selected_item = ui->treeWidget->currentItem();
-    assert(selected_item);
+void dlgProfileEditor::OnLayerTreeSortedClicked(QTreeWidgetItem *item, int column) {
+    (void)column;
 
-    Configurator &configurator = Configurator::Get();
+    TreeWidgetItemParameter *selected_sorted_item = dynamic_cast<TreeWidgetItemParameter *>(item);
+    assert(selected_sorted_item);
 
-    if (configurator.environment.RemoveCustomLayerPath(selected_item->text(0))) {
-        configurator.LoadAllInstalledLayers();
-        configurator.LoadAllConfigurations();
-    }
+    selected_available_layer_name = selected_sorted_layer_name = selected_sorted_item->layer_name;
 
-    LoadLayerDisplay();
-    PopulateCustomTree();
-}
-
-void dlgProfileEditor::customTreeItemActivated(QTreeWidgetItem *item, int column_index) {
-    (void)column_index;
-    (void)item;
-    ui->pushButtonRemoveLayers->setEnabled(true);
-}
-
-////////////////////////////////////////////////////////////
-// Custom layer paths and the layers found therein
-void dlgProfileEditor::PopulateCustomTree() {
-    Configurator::Get().BuildCustomLayerTree(ui->treeWidget);
-
-    ui->pushButtonRemoveLayers->setEnabled(false);
+    UpdateUI();
 }
 
 void dlgProfileEditor::AddLayerItem(const Parameter &parameter) {
@@ -219,10 +223,11 @@ void dlgProfileEditor::AddLayerItem(const Parameter &parameter) {
         decorated_name += " (Missing)";
     }
 
-    TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter);
+    TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter.name);
 
     item->setText(0, decorated_name);
     item->setFlags(item->flags() | Qt::ItemIsSelectable);
+    item->setDisabled(layer == nullptr);
 
     // Add the top level item
     ui->layerTree->addTopLevelItem(item);
@@ -241,68 +246,35 @@ void dlgProfileEditor::AddLayerItem(const Parameter &parameter) {
         widget->addItem("Application-Controlled");
     widget->addItem("Overridden / Forced On");
     widget->addItem("Excluded / Forced Off");
-    widget->setCurrentIndex(item->parameter.state);
+    widget->setCurrentIndex(parameter.state);
 
     connect(widget, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-/// Load all the available layers and initialize their settings
-void dlgProfileEditor::LoadLayerDisplay() {
+void dlgProfileEditor::LoadAvailableLayersUI() {
     ui->layerTree->clear();
 
-    Configurator &configurator = Configurator::Get();
-    QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
-
-    for (int i = 0, n = available_layers.size(); i < n; ++i) {
-        const Layer &layer = *available_layers[i];
-
-        if (layer._layer_type != LAYER_TYPE_IMPLICIT) continue;
-
-        // The layer is overridden
-        if (configuration.FindParameter(layer._name)) continue;
-
-        Parameter parameter;
-        parameter.name = layer._name;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-
-        AddLayerItem(parameter);
-    }
-
-    // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        const Parameter &parameter = configuration.parameters[i];
-        assert(!parameter.name.isEmpty());
-
-        AddLayerItem(parameter);
-    }
-
-    for (int i = 0, n = available_layers.size(); i < n; ++i) {
-        const Layer &layer = *available_layers[i];
-
-        if (layer._layer_type == LAYER_TYPE_IMPLICIT) continue;
-
-        // The layer is already in the layer tree
-        if (configuration.FindParameter(layer._name)) continue;
-
-        Parameter parameter;
-        parameter.name = layer._name;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-
-        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer._name);
-        if (defaults) {
-            parameter.settings = defaults->settings;
-
-            if (layer._name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
-        }
-
-        AddLayerItem(parameter);
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        AddLayerItem(parameters[i]);
     }
 
     resizeEvent(nullptr);
 
-    if (ui->layerTree->topLevelItemCount() > 0) ui->layerTree->setCurrentItem(ui->layerTree->topLevelItem(0));
     ui->layerTree->update();
+}
+
+void dlgProfileEditor::LoadSortedLayersUI() {
+    ui->layerTreeSorted->clear();
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state != LAYER_STATE_OVERRIDDEN) continue;
+
+        TreeWidgetItemParameter *sorted_layer_item = new TreeWidgetItemParameter(parameters[i].name);
+        sorted_layer_item->setText(0, parameters[i].name);
+        sorted_layer_item->setFlags(sorted_layer_item->flags() | Qt::ItemIsSelectable);
+
+        ui->layerTreeSorted->addTopLevelItem(sorted_layer_item);
+    }
 }
 
 QString dlgProfileEditor::GetConfigurationName() const {
@@ -327,33 +299,74 @@ void dlgProfileEditor::resizeEvent(QResizeEvent *event) {
     ui->layerTree->setColumnWidth(0, width);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-/// This button clears the display. Basically, we delete the profile and
-/// start over.
 void dlgProfileEditor::on_pushButtonResetLayers_clicked() {
     configuration._preset = ValidationPresetNone;
+    selected_available_layer_name.clear();
+    selected_sorted_layer_name.clear();
 
-    for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
-        TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
-        assert(layer_item);
-        layer_item->parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+    for (auto it = parameters.begin(); it != parameters.end(); ++it) {
+        it->state = LAYER_STATE_APPLICATION_CONTROLLED;
+        it->overridden_rank = Parameter::UNRANKED;
 
-        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(layer_item->parameter.name);
+        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(it->name);
         if (defaults) {
-            layer_item->parameter.settings = defaults->settings;
+            it->settings = defaults->settings;
 
-            if (layer_item->parameter.name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
+            if (it->name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
         }
-
-        TreeFriendlyComboBoxWidget *widget = dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(layer_item, 1));
-        assert(widget);
-        widget->setCurrentIndex(layer_item->parameter.state);
-        ui->layerTree->repaint();  // Force update for macOS
     }
+
+    OrderParameter();
+    LoadAvailableLayersUI();
+    UpdateUI();
 }
 
-/////////////////////////////////////////////////////////////////////
-/// The currently selected layer has changed.
+void dlgProfileEditor::on_pushButtonCustomLayers_clicked() {
+    dlgCustomPaths dlg(this);
+    dlg.exec();
+
+    BuildParameters();
+    LoadAvailableLayersUI();
+    LoadSortedLayersUI();
+    UpdateUI();
+}
+
+void dlgProfileEditor::OverrideOrder(const QString layer_name, const TreeWidgetItemParameter *below,
+                                     const TreeWidgetItemParameter *above) {
+    auto below_parameter = FindParameter(below->layer_name);
+    assert(below_parameter != parameters.end());
+    auto above_parameter = FindParameter(above->layer_name);
+    assert(above_parameter != parameters.end());
+
+    std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
+    std::swap(*below_parameter, *above_parameter);
+
+    OrderParameter();
+    LoadAvailableLayersUI();
+    LoadSortedLayersUI();
+
+    selected_sorted_layer_name = selected_available_layer_name = layer_name;
+    UpdateUI();
+}
+
+void dlgProfileEditor::on_pushButtonUp_clicked() {
+    TreeWidgetItemParameter *selected_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTreeSorted->currentItem());
+    assert(selected_item);
+    TreeWidgetItemParameter *above_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTreeSorted->itemAbove(selected_item));
+    assert(above_item);
+
+    OverrideOrder(selected_item->layer_name, selected_item, above_item);
+}
+
+void dlgProfileEditor::on_pushButtonDown_clicked() {
+    TreeWidgetItemParameter *selected_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTreeSorted->currentItem());
+    assert(selected_item);
+    TreeWidgetItemParameter *below_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTreeSorted->itemBelow(selected_item));
+    assert(below_item);
+
+    OverrideOrder(selected_item->layer_name, below_item, selected_item);
+}
+
 void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous) {
     (void)previous;
 
@@ -365,9 +378,11 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
     }
 
     // Populate the side label
-    assert(!layer_item->parameter.name.isEmpty());
+    assert(!layer_item->layer_name.isEmpty());
 
-    const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->parameter.name);
+    selected_available_layer_name = layer_item->layer_name;
+
+    const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->layer_name);
     if (layer) {
         QString detailsText = layer->_description;
         detailsText += "\n";
@@ -396,8 +411,25 @@ void dlgProfileEditor::currentLayerChanged(QTreeWidgetItem *current, QTreeWidget
     }
 }
 
-///////////////////////////////////////////////////////////////////////////
-/// use, don't use, black list...
+void dlgProfileEditor::OverrideAllExplicitLayers() {
+    Configurator &configurator = Configurator::Get();
+
+    for (auto it = parameters.begin(); it != parameters.end(); ++it) {
+        if (it->state != LAYER_STATE_APPLICATION_CONTROLLED) continue;
+
+        Layer *layer = configurator.FindLayerNamed(it->name);
+        if (layer == nullptr) continue;
+
+        if (layer->_layer_type == LAYER_TYPE_IMPLICIT) continue;
+
+        if (it->name == "VK_LAYER_KHRONOS_validation")
+            it->state = LAYER_STATE_OVERRIDDEN;
+        else
+            it->state = LAYER_STATE_EXCLUDED;
+    }
+}
+
+// Select the layer LayerState
 void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
     // Combo box changed. We first need to know which tree item was selected.
     // Fortunatly, changing the combo box also changes the selected item.
@@ -406,74 +438,54 @@ void dlgProfileEditor::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
     TreeWidgetItemParameter *tree_layer_item = dynamic_cast<TreeWidgetItemParameter *>(item);
     assert(tree_layer_item != nullptr);
+    auto current_parameter = FindParameter(tree_layer_item->layer_name);
+    assert(current_parameter != parameters.end());
 
     LayerState layer_state = static_cast<LayerState>(selection);
 
-    if (layer_state == LAYER_STATE_OVERRIDDEN && tree_layer_item->parameter.name == "VK_LAYER_LUNARG_device_simulation") {
-        bool found_overidden_validation_layer = false;
-        for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
-            TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
-            if (layer_item->parameter.name == "VK_LAYER_KHRONOS_validation") {
-                found_overidden_validation_layer = layer_item->parameter.state != LAYER_STATE_APPLICATION_CONTROLLED;
-                break;
-            }
-        }
-
-        if (!found_overidden_validation_layer) {
-            QMessageBox alert;
-            alert.setWindowTitle("Overridding or excluding VK_LAYER_KHRONOS_validation recommanded");
-            alert.setText(
-                "VK_LAYER_LUNARG_device_simulation requires being executed close to the Vulkan drivers. However, "
-                "application-controlled layers are executed after Vulkan Configurator overridden layers which would make "
-                "VK_LAYER_KHRONOS_validation inaccurate if it's activated by the Vulkan applications.");
-            alert.setInformativeText("Do you want to override VK_LAYER_KHRONOS_validation too?");
-            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            alert.setIcon(QMessageBox::Warning);
-            if (alert.exec() == QMessageBox::Yes) {
-                for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
-                    TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
-                    if (layer_item->parameter.name != "VK_LAYER_KHRONOS_validation") continue;
-
-                    layer_item->parameter.state = LAYER_STATE_OVERRIDDEN;
-
-                    TreeFriendlyComboBoxWidget *widget =
-                        dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(layer_item, 1));
-                    assert(widget);
-                    widget->setCurrentIndex(LAYER_STATE_OVERRIDDEN);
-                    break;
-                }
-            }
+    if (layer_state == LAYER_STATE_OVERRIDDEN && current_parameter->name == "VK_LAYER_LUNARG_device_simulation") {
+        QMessageBox alert;
+        alert.setWindowTitle("Overridding or excluding ALL explicit layers is recommanded");
+        alert.setText(
+            "VK_LAYER_LUNARG_device_simulation requires being executed close to the Vulkan drivers. However, "
+            "application-controlled layers are executed after Vulkan Configurator overridden layers.");
+        alert.setInformativeText("Do you want to override ALL explicit layers too?");
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setIcon(QMessageBox::Warning);
+        if (alert.exec() == QMessageBox::Yes) {
+            OverrideAllExplicitLayers();
         }
     } else if (layer_state == LAYER_STATE_EXCLUDED) {
-        const Layer *layer = Configurator::Get().FindLayerNamed(tree_layer_item->parameter.name);
+        const Layer *layer = Configurator::Get().FindLayerNamed(tree_layer_item->layer_name);
 
         if (layer) {
             if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
                 QMessageBox alert;
                 alert.setWindowTitle("Implicit layer excluded...");
                 alert.setText(
-                    format("%s was excluded but it an implicit layer. This may cause undefined behavior, including crashes. ",
-                           tree_layer_item->parameter.name.toUtf8().constData())
+                    format("%s was excluded but it is an implicit layer. This may cause undefined behavior, including crashes. ",
+                           tree_layer_item->layer_name.toUtf8().constData())
                         .c_str());
                 alert.setInformativeText("Do you want to continue?");
                 alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 alert.setIcon(QMessageBox::Warning);
                 if (alert.exec() == QMessageBox::No) {
-                    layer_state = LAYER_STATE_APPLICATION_CONTROLLED;
-
-                    TreeFriendlyComboBoxWidget *widget =
-                        dynamic_cast<TreeFriendlyComboBoxWidget *>(ui->layerTree->itemWidget(tree_layer_item, 1));
-                    assert(widget);
-                    widget->setCurrentIndex(layer_state);
+                    current_parameter->state = LAYER_STATE_APPLICATION_CONTROLLED;
                 }
             }
         }
     }
 
-    tree_layer_item->parameter.state = layer_state;
+    current_parameter->state = layer_state;
+    current_parameter->overridden_rank = Parameter::UNRANKED;
+
+    OrderParameter();
+
+    LoadAvailableLayersUI();
+    LoadSortedLayersUI();
+    UpdateUI();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// This is actually the save button.
 /// We are either saving an exisitng profile, or creating a new one.
 void dlgProfileEditor::accept() {
@@ -489,38 +501,159 @@ void dlgProfileEditor::accept() {
         return;
     }
 
-    std::vector<Parameter> parameters;
-
-    for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
-        TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
-        assert(layer_item);
-
-        if (layer_item->parameter.state == LAYER_STATE_APPLICATION_CONTROLLED) continue;
-
-        const Layer *layer = Configurator::Get().FindLayerNamed(layer_item->parameter.name);
-        if (!layer) {
-            // Warn about missing layers
-            QMessageBox alert;
-            alert.setWindowTitle("Missing layer...");
-            alert.setText(format("%s couldn't be found", layer_item->parameter.name.toUtf8().constData()).c_str());
-            alert.setInformativeText("The Vulkan layers won't be overridden using this configuration");
-            alert.setStandardButtons(QMessageBox::Ok);
-            alert.setIcon(QMessageBox::Warning);
-            alert.exec();
-        }
-
-        parameters.push_back(layer_item->parameter);
-    }
-
-    SortLayers(parameters);
+    StoreParameters();
 
     configuration._name = ui->lineEditName->text();
     configuration._description = ui->lineEditDescription->text();
-    configuration.parameters = parameters;
 
     const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
     const bool result = configuration.Save(save_path);
     assert(result);
 
     QDialog::accept();
+}
+
+void dlgProfileEditor::StoreParameters() {
+    std::vector<Parameter> final_parameters;
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        if (parameters[i].state == LAYER_STATE_APPLICATION_CONTROLLED) continue;
+
+        final_parameters.push_back(parameters[i]);
+    }
+
+    configuration.parameters = final_parameters;
+}
+
+void dlgProfileEditor::BuildParameters() {
+    Configurator &configurator = Configurator::Get();
+    QVector<Layer *> &available_layers = Configurator::Get()._available_Layers;
+
+    if (!parameters.empty()) {
+        StoreParameters();
+    }
+
+    parameters.clear();
+
+    for (int i = 0, n = available_layers.size(); i < n; ++i) {
+        const Layer &layer = *available_layers[i];
+
+        if (layer._layer_type != LAYER_TYPE_IMPLICIT) continue;
+
+        // The layer is overridden
+        if (configuration.FindParameter(layer._name)) continue;
+
+        Parameter parameter;
+        parameter.name = layer._name;
+        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+
+        parameters.push_back(parameter);
+    }
+
+    // Loop through the layers. They are expected to be in order
+    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+        const Parameter &parameter = configuration.parameters[i];
+        assert(!parameter.name.isEmpty());
+
+        parameters.push_back(parameter);
+    }
+
+    for (int i = 0, n = available_layers.size(); i < n; ++i) {
+        const Layer &layer = *available_layers[i];
+
+        if (layer._layer_type == LAYER_TYPE_IMPLICIT) continue;
+
+        // The layer is already in the layer tree
+        if (configuration.FindParameter(layer._name)) continue;
+
+        Parameter parameter;
+        parameter.name = layer._name;
+        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+
+        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer._name);
+        if (defaults) {
+            parameter.settings = defaults->settings;
+
+            if (layer._name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
+        }
+
+        parameters.push_back(parameter);
+    }
+
+    OrderParameter();
+}
+
+enum ParameterRank {
+    PARAMETER_RANK_MISSING = 0,
+    PARAMETER_RANK_EXCLUDED,
+    PARAMETER_RANK_IMPLICIT_AVAILABLE,
+    PARAMETER_RANK_IMPLICIT_OVERRIDDEN,
+    PARAMETER_RANK_EXPLICIT_OVERRIDDEN,
+    PARAMETER_RANK_EXPLICIT_AVAILABLE
+};
+
+static ParameterRank GetParameterOrdering(const Parameter &parameter) {
+    Configurator &configurator = Configurator::Get();
+
+    Layer *layer = configurator.FindLayerNamed(parameter.name);
+    if (!layer) {
+        return PARAMETER_RANK_MISSING;
+    } else if (parameter.state == LAYER_STATE_EXCLUDED) {
+        return PARAMETER_RANK_EXCLUDED;
+    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
+        return PARAMETER_RANK_IMPLICIT_AVAILABLE;
+    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
+        return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
+    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
+        return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
+    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
+        return PARAMETER_RANK_EXPLICIT_AVAILABLE;
+    } else {
+        assert(0);  // Unknown ordering
+        return PARAMETER_RANK_MISSING;
+    }
+}
+
+void dlgProfileEditor::OrderParameter() {
+    struct ParameterCompare {
+        bool operator()(const Parameter &a, const Parameter &b) const {
+            const ParameterRank rankA = GetParameterOrdering(a);
+            const ParameterRank rankB = GetParameterOrdering(b);
+            if (rankA == rankB && a.state == LAYER_STATE_OVERRIDDEN) {
+                if (a.overridden_rank != Parameter::UNRANKED && b.overridden_rank != Parameter::UNRANKED)
+                    return a.overridden_rank < b.overridden_rank;
+                else if (a.name == "VK_LAYER_LUNARG_device_simulation")
+                    return false;
+                else if (b.name == "VK_LAYER_LUNARG_device_simulation")
+                    return true;
+                else if (a.name == "VK_LAYER_KHRONOS_validation" && b.name == "VK_LAYER_LUNARG_device_simulation")
+                    return true;
+                else if (a.name == "VK_LAYER_KHRONOS_validation")
+                    return false;
+                else
+                    return a.name < b.name;
+            } else if (rankA == rankB && a.state != LAYER_STATE_OVERRIDDEN)
+                return a.name < b.name;
+            else
+                return rankA < rankB;
+        }
+    };
+
+    std::sort(parameters.begin(), parameters.end(), ParameterCompare());
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        parameters[i].overridden_rank = static_cast<int>(i);
+    }
+}
+
+std::vector<Parameter>::iterator dlgProfileEditor::FindParameter(const QString &layer_name) {
+    assert(!layer_name.isEmpty());
+
+    for (auto it = parameters.begin(); it != parameters.end(); ++it) {
+        if (it->name == layer_name) {
+            return it;
+        }
+    }
+
+    return parameters.end();
 }

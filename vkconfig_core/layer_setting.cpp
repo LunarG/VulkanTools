@@ -209,11 +209,11 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
         }
     }
 
-    struct parmater_compare {
+    struct ParameterCompare {
         bool operator()(const LayerSetting& a, const LayerSetting& b) const { return a.key < b.key; }
     };
 
-    std::sort(parameter.settings.begin(), parameter.settings.end(), parmater_compare());
+    std::sort(parameter.settings.begin(), parameter.settings.end(), ParameterCompare());
 
     return true;
 }
