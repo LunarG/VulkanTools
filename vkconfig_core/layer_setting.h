@@ -82,11 +82,14 @@ SettingType GetSettingType(const char* token);
 const char* GetSettingTypeToken(SettingType type);
 
 struct Parameter {
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED) {}
+    static const int UNRANKED = -1;
+
+    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
 
     QString name;
     LayerState state;
     std::vector<LayerSetting> settings;
+    int overridden_rank;
 };
 
 bool LoadSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);

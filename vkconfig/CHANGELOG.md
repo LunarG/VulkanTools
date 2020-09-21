@@ -11,30 +11,33 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.0.2 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools)
+## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.153.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.153.0) - 2020-10-XX
 
 ### Features:
 - Add multiple debug actions simulaneously #1119
+- Add better representation of the layers execution order #1181
 
 ### Improvements:
-- Add layer configuration description #1105
+- Streamline and clean up GUI
+- Add layers configuration description #1105
 - Add selected path from dialog window cache #1107
-- Add test framework #1100
+- Add unit test framework #1100
 - Add button to browse working directory #1099
 - Add version in the title bar and show <ACTIVE> state #1109
 - Add default settings state in the layer configuration settings #1076
-- Make Standard Validation, the default configuration #1076
-- Update vkcube to use the one of the same Vulkan SDK than vkconfig #1112
+- Make "Validation - Standard", the default configuration #1076
+- Update vkcube to use the version from the same Vulkan SDK than Vulkan Configurator #1112
+- Expose `duplicate_message_limit` setting from VK_LAYER_KHRONOS_validation #1176
 
 ### Fixes:
-- Fix disabled configurations can't be reenabled or removed
+- Fix disabled configurations that can't be reenabled or removed
 - Fix display of custom layer paths #1101
-- Fix GUI layer configurations layout #1101
-- Fix inconsistant display of separators in path #1107
+- Fix inconsistant display of separators in paths #1107
 - Fix display of empty entries in the custom path dialog when opening Json files that are not layer json files #1103
 - Fix log file default location to HOME to ensure write access #1083
 - Fix log file not written to #1109
-- Fix "debug output" displayed on Linux and macOS but not avaiable #1086
+- Fix `debug_output` setting displayed on Linux and macOS but not avaiable #1086
+- Fix `numeric_bool` setting display #1166
 
 ## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.1) - 2020-08-08
 

@@ -110,11 +110,11 @@ MainWindow::MainWindow(QWidget *parent)
     const Environment &environment = configurator.environment;
 
     // Restore window geometry from last launch
-    restoreGeometry(environment.Get(LAYOUT_GEOMETRY));
-    restoreState(environment.Get(LAYOUT_WINDOW_STATE));
-    ui->splitter->restoreState(environment.Get(LAYOUT_SPLITTER1));
-    ui->splitter_2->restoreState(environment.Get(LAYOUT_SPLITTER2));
-    ui->splitter_3->restoreState(environment.Get(LAYOUT_SPLITTER3));
+    restoreGeometry(environment.Get(LAYOUT_MAIN_GEOMETRY));
+    restoreState(environment.Get(LAYOUT_MAIN_WINDOW_STATE));
+    ui->splitter->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER1));
+    ui->splitter_2->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER2));
+    ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
     // We need to resetup the new profile for consistency sake.
     Configuration *current_configuration = configurator.FindConfiguration(environment.Get(ACTIVE_CONFIGURATION));
@@ -173,7 +173,7 @@ void MainWindow::UpdateUI() {
         Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
         if (configuration == nullptr) continue;
 
-        if (configurator.HasMissingLayers(*configuration)) {
+        if (!configurator.HasMissingLayers(*configuration)) {
             item->setText(1, item->configuration_name);
             item->radio_button->setToolTip(configuration->_description);
         } else {
@@ -636,11 +636,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         configurator.environment.Set(ACTIVE_CONFIGURATION, active_configuration_name);
     }
 
-    configurator.environment.Set(LAYOUT_GEOMETRY, saveGeometry());
-    configurator.environment.Set(LAYOUT_WINDOW_STATE, saveState());
-    configurator.environment.Set(LAYOUT_SPLITTER1, ui->splitter->saveState());
-    configurator.environment.Set(LAYOUT_SPLITTER2, ui->splitter_2->saveState());
-    configurator.environment.Set(LAYOUT_SPLITTER3, ui->splitter_3->saveState());
+    configurator.environment.Set(LAYOUT_MAIN_GEOMETRY, saveGeometry());
+    configurator.environment.Set(LAYOUT_MAIN_WINDOW_STATE, saveState());
+    configurator.environment.Set(LAYOUT_MAIN_SPLITTER1, ui->splitter->saveState());
+    configurator.environment.Set(LAYOUT_MAIN_SPLITTER2, ui->splitter_2->saveState());
+    configurator.environment.Set(LAYOUT_MAIN_SPLITTER3, ui->splitter_3->saveState());
 
     QMainWindow::closeEvent(event);
 }
@@ -1342,7 +1342,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     if (configuration == nullptr) {
         launch_log += "- Layers fully controlled by the application.\n";
-    } else if (!configurator.HasMissingLayers(*configuration)) {
+    } else if (configurator.HasMissingLayers(*configuration)) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                          configuration->_name.toUtf8().constData());
     } else if (configurator.environment.UseOverride()) {
