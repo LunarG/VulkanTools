@@ -32,7 +32,7 @@
 #include <cassert>
 
 ApplicationsDialog::ApplicationsDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::dialog_applications), _last_selected_application_index(-1) {
+    : QDialog(parent), ui(std::make_unique<Ui::dialog_applications>()), _last_selected_application_index(-1) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 

@@ -41,5 +41,4 @@ class CustomPathsDialog : public QDialog {
     void RepopulateTree();
 
     std::unique_ptr<Ui::dialog_custom_paths> ui;
-    bool _paths_changed;
 };
