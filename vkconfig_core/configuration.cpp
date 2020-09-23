@@ -35,22 +35,7 @@
 #include <cstdio>
 
 Configuration::Configuration() : name("New Configuration"), _preset(ValidationPresetNone) {}
-/*
-///////////////////////////////////////////////////////////
-// Find the layer if it exists.
-Parameter* Configuration::FindParameter(const QString& layer_name) {
-    assert(!layer_name.isEmpty());
 
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        Parameter& parameter = parameters[i];
-        if (parameter.name == layer_name) {
-            return &parameters[i];
-        }
-    }
-
-    return nullptr;
-}
-*/
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
         return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
@@ -223,23 +208,42 @@ bool Configuration::Save(const QString& full_path) const {
 
     QJsonDocument doc(root);
 
-    ///////////////////////////////////////////////////////////
-    // Write it out - file name is same as name. If it's been
-    // changed, this corrects the behavior.
-
     QFile json_file(full_path);
-    if (!json_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result);
+
+    if (!result) {
         QMessageBox alert;
         alert.setText("Could not save the configuration file!");
         alert.setWindowTitle(name);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return false;
+    } else {
+        json_file.write(doc.toJson());
+        json_file.close();
+        return true;
     }
-
-    json_file.write(doc.toJson());
-    json_file.close();
-    return true;
 }
 
 bool Configuration::IsEmpty() const { return parameters.empty(); }
+
+QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name) {
+    std::size_t named_new_count = 0;
+    for (std::size_t i = 0, n = configurations.size(); i < n; ++i) {
+        if (configurations[i].name.startsWith(configuration_name)) ++named_new_count;
+    }
+
+    if (named_new_count > 0) {
+        return configuration_name + format(" (%d)", named_new_count + 1).c_str();
+    } else {
+        return configuration_name;
+    }
+}
+
+std::vector<Configuration>::iterator FindConfiguration(std::vector<Configuration>& configurations,
+                                                       const QString& configuration_name) {
+    for (auto it = configurations.begin(), end = configurations.end(); it != end; ++it)
+        if (it->name == configuration_name) return it;
+    return configurations.end();
+}

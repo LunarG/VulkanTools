@@ -50,7 +50,7 @@ class LayersDialog : public QDialog {
     QString GetConfigurationName() const;
 
    public Q_SLOTS:
-    virtual void accept() override;
+    virtual void accept() override;  // Save the configuration
 
     void currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 

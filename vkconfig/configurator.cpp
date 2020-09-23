@@ -162,8 +162,7 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : _active_configuration(nullptr),
-      environment(path),
+    : environment(path),
 // Hack for GitHub C.I.
 #if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       _running_as_administrator(IsUserAnAdmin())
@@ -227,7 +226,7 @@ bool Configurator::Init() {
 
     LoadAllConfigurations();
 
-    if (_available_configurations.empty()) {
+    if (available_configurations.empty()) {
         QMessageBox alert;
         alert.setWindowTitle("Vulkan Configurator couldn't find any layers configuration.");
         alert.setText(
@@ -245,7 +244,7 @@ bool Configurator::Init() {
     // manually manipulated
     SetActiveConfiguration(_active_configuration);
 
-    if (_active_configuration != _active_configuration->parameters.end()) {
+    if (_active_configuration != available_configurations.end()) {
         if (HasMissingParameter(_active_configuration->parameters, available_layers)) {
             QSettings settings;
             if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
@@ -274,13 +273,12 @@ bool Configurator::Init() {
 }
 
 Configurator::~Configurator() {
-    for (int i = 0, n = _available_configurations.size(); i < n; ++i) {
-        _available_configurations[i]->Save(path.GetFullPath(PATH_CONFIGURATION, _available_configurations[i]->name));
+    for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
+        available_configurations[i].Save(path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].name));
     }
 
     ClearLayerLists();
-    qDeleteAll(_available_configurations.begin(), _available_configurations.end());
-    _available_configurations.clear();
+    available_configurations.clear();
 }
 
 bool Configurator::HasLayers() const { return !available_layers.empty(); }
@@ -619,24 +617,12 @@ const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &laye
     return nullptr;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-/// Search the list of loaded profiles and return a pointer
-/// Note that this function is case insensitive since names are derived from file names
-Configuration *Configurator::FindConfiguration(const QString &configuration_name) const {
-    for (int i = 0, n = _available_configurations.size(); i < n; i++)
-        if (configuration_name.compare(_available_configurations[i]->name, Qt::CaseInsensitive) == 0)
-            return _available_configurations[i];
-    return nullptr;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 /// Load all the  profiles. If the canned profiles don't exist,
 /// they are created from the embedded json files
 void Configurator::LoadAllConfigurations() {
-    // This might be called to refresh the list...
-    qDeleteAll(_available_configurations.begin(), _available_configurations.end());
-    _available_configurations.clear();
-    _active_configuration = nullptr;
+    available_configurations.clear();
+    _active_configuration = available_configurations.end();
 
     // //////////////////////////////////////////////////////////////////////////
     // If this is the first time, we need to create the initial set of
@@ -682,24 +668,17 @@ void Configurator::LoadAllConfigurations() {
         QFileInfo info = configuration_files.at(i);
         if (info.absoluteFilePath().contains("applist.json")) continue;
 
-        Configuration *configuration = new Configuration;
-        const bool result = configuration->Load(info.absoluteFilePath());
+        Configuration configuration;
+        const bool result = configuration.Load(info.absoluteFilePath());
         if (result) {
-            _available_configurations.push_back(configuration);
+            available_configurations.push_back(configuration);
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    // Which of these profiles is currently active?
-    _active_configuration = nullptr;
-    QSettings settings;
+    // Cache the active configuration
     const QString &active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
-    for (int i = 0; i < _available_configurations.size(); i++) {
-        if (_available_configurations[i]->name == active_configuration_name) {
-            _active_configuration = _available_configurations[i];
-            break;
-        }
-    }
+    _active_configuration = FindConfiguration(available_configurations, active_configuration_name);
+    assert(_active_configuration != available_configurations.end());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -773,30 +752,11 @@ Layer *Configurator::FindLayerNamed(const QString &layer_name) {
     return nullptr;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// Create an empty profile definition that contains all available layers.
-/// All settings are the default, and the layer order is just the order at
-/// which they have come.
-Configuration *Configurator::CreateEmptyConfiguration() {
-    Configuration *new_configuration = new Configuration();
-
-    std::size_t named_new_count = 0;
-    for (int i = 0, n = _available_configurations.size(); i < n; i++) {
-        if (_available_configurations[i]->name.startsWith("New Configuration")) ++named_new_count;
-    }
-
-    if (named_new_count > 0) {
-        new_configuration->name += format(" (%d)", named_new_count + 1).c_str();
-    }
-
-    return new_configuration;
-}
-
 void Configurator::SetActiveConfiguration(const QString &configuration_name) {
     assert(!configuration_name.isEmpty());
 
-    Configuration *configuration = FindConfiguration(configuration_name);
-    assert(configuration);
+    auto configuration = FindConfiguration(available_configurations, configuration_name);
+    assert(configuration != available_configurations.end());
 
     SetActiveConfiguration(configuration);
 }
@@ -805,7 +765,7 @@ void Configurator::SetActiveConfiguration(const QString &configuration_name) {
 // Set this as the current override profile. The profile definition passed in
 // is used to construct the override and settings files.
 // Passing in nullptr IS valid, and will clear the current profile
-void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
+void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration) {
     _active_configuration = active_configuration;
     QSettings settings;
 
@@ -813,7 +773,7 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     const QString override_layers_path = path.GetFullPath(PATH_OVERRIDE_LAYERS);
 
     bool need_remove_of_configuration_files = false;
-    if (_active_configuration) {
+    if (_active_configuration != available_configurations.end()) {
         assert(!_active_configuration->name.isEmpty());
         environment.Set(ACTIVE_CONFIGURATION, _active_configuration->name);
         need_remove_of_configuration_files = _active_configuration->IsEmpty();
@@ -962,8 +922,14 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
 #endif
 }
 
+void Configurator::RefreshConfiguration() {
+    if (_active_configuration != available_configurations.end()) SetActiveConfiguration(_active_configuration);
+}
+
 bool Configurator::HasActiveConfiguration() const {
-    return _active_configuration != nullptr ? !HasMissingParameter(_active_configuration->parameters, available_layers) : false;
+    return _active_configuration != available_configurations.end()
+               ? !HasMissingParameter(_active_configuration->parameters, available_layers)
+               : false;
 }
 
 void Configurator::ImportConfiguration(const QString &full_import_path) {
@@ -1048,7 +1014,7 @@ void Configurator::ResetDefaultsConfigurations() {
     LoadAllConfigurations();
 
     // Find the "Validation - Standard" configuration and make it current if we are active
-    Configuration *active_configuration = FindConfiguration(environment.Get(ACTIVE_CONFIGURATION));
+    auto active_configuration = FindConfiguration(available_configurations, environment.Get(ACTIVE_CONFIGURATION));
     if (environment.UseOverride()) {
         SetActiveConfiguration(active_configuration);
     }

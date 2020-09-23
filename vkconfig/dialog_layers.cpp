@@ -485,17 +485,16 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     UpdateUI();
 }
 
-/// This is actually the save button.
-/// We are either saving an exisitng profile, or creating a new one.
 void LayersDialog::accept() {
-    // Hard Fail: Name must not be blank
     if (ui->lineEditName->text().isEmpty()) {
         Alert::ConfigurationNameEmpty();
         return;
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configuration.name != ui->lineEditName->text() && configurator.FindConfiguration(ui->lineEditName->text())) {
+    if (configuration.name != ui->lineEditName->text() &&
+        FindConfiguration(configurator.available_configurations, ui->lineEditName->text()) !=
+            configurator.available_configurations.end()) {
         Alert::ConfigurationRenamingFailed();
         return;
     }
@@ -504,8 +503,9 @@ void LayersDialog::accept() {
 
     configuration.name = ui->lineEditName->text();
     configuration._description = ui->lineEditDescription->text();
+    configuration.parameters = parameters;
 
-    const QString save_path = Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
+    const QString save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
     const bool result = configuration.Save(save_path);
     assert(result);
 

@@ -128,10 +128,8 @@ class Configurator {
     Layer* FindLayerNamed(const QString& layer_name);
     void LoadLayersFromPath(const QString& path, std::vector<Layer>& layers);
 
-    QVector<Configuration*> _available_configurations;
+    std::vector<Configuration> available_configurations;
 
-    Configuration* CreateEmptyConfiguration();
-    Configuration* FindConfiguration(const QString& configuration_name) const;
     void LoadAllConfigurations();  // Load all the .profile files found
     void ImportConfiguration(const QString& full_import_path);
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
@@ -141,12 +139,10 @@ class Configurator {
     bool HasLayers() const;
 
     // Set this as the current override configuration
-    void SetActiveConfiguration(Configuration* active_configuration);
+    void SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration);
     void SetActiveConfiguration(const QString& configuration_name);
-    Configuration* GetActiveConfiguration() const { return _active_configuration; }
-    void RefreshConfiguration() {
-        if (_active_configuration) SetActiveConfiguration(_active_configuration);
-    }
+    std::vector<Configuration>::iterator GetActiveConfiguration() const { return _active_configuration; }
+    void RefreshConfiguration();
     bool HasActiveConfiguration() const;
 
    private:
@@ -156,7 +152,7 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
-    Configuration* _active_configuration;
+    std::vector<Configuration>::iterator _active_configuration;
 
     void ClearLayerLists();
 
