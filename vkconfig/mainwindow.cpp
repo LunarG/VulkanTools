@@ -31,7 +31,6 @@
 #include "dialog_custom_paths.h"
 
 #include "configurator.h"
-#include "preferences.h"
 #include "vulkan.h"
 
 #include "../vkconfig_core/util.h"
@@ -639,13 +638,7 @@ void MainWindow::on_pushButtonAppList_clicked() {
     ApplicationsDialog dlg(this);
     dlg.exec();
 
-    Configurator &configurator = Configurator::Get();
-
-    if (Preferences::Get()._use_last_selected_application_in_launcher) {
-        configurator.environment.SelectActiveApplication(dlg.GetSelectedLaunchApplicationIndex());
-    }
-
-    configurator.RefreshConfiguration();
+    Configurator::Get().RefreshConfiguration();
 
     UpdateUI();
 }
