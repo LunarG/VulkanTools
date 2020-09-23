@@ -21,8 +21,9 @@
  */
 
 #include "configurator.h"
-#include "dlgcustompaths.h"
 #include "vulkan.h"
+
+#include "dialog_custom_paths.h"
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"

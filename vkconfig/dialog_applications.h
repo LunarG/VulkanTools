@@ -21,17 +21,17 @@
 
 #pragma once
 
-#include "ui_dlgcreateassociation.h"
+#include "ui_dialog_applications.h"
 
 #include "../vkconfig_core/application.h"
 
 #include <memory>
 
-class ApplicationDialog : public QDialog {
+class ApplicationsDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit ApplicationDialog(QWidget *parent = nullptr);
+    explicit ApplicationsDialog(QWidget *parent = nullptr);
 
     static void GetExecutableFromAppBundle(QString &path);
     int GetSelectedLaunchApplicationIndex() const { return _last_selected_application_index; }
@@ -55,9 +55,9 @@ class ApplicationDialog : public QDialog {
     void editLogFile(const QString &log_file);
 
    private:
-    ApplicationDialog(const ApplicationDialog &) = delete;
-    ApplicationDialog &operator=(const ApplicationDialog &) = delete;
+    ApplicationsDialog(const ApplicationsDialog &) = delete;
+    ApplicationsDialog &operator=(const ApplicationsDialog &) = delete;
 
-    std::unique_ptr<Ui::dlgCreateAssociation> ui;
+    std::unique_ptr<Ui::dialog_applications> ui;
     int _last_selected_application_index;
 };

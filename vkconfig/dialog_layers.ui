@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>dlgProfileEditor</class>
- <widget class="QDialog" name="dlgProfileEditor">
+ <class>dialog_layers</class>
+ <widget class="QDialog" name="dialog_layers">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -387,7 +387,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>dlgProfileEditor</receiver>
+   <receiver>dialog_layers</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -403,7 +403,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>dlgProfileEditor</receiver>
+   <receiver>dialog_layers</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

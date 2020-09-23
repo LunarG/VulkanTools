@@ -19,14 +19,14 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "dlgcustompaths.h"
+#include "dialog_custom_paths.h"
 
 #include "configurator.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 
-CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCustomPaths) {
+CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths) {
     _paths_changed = false;
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
