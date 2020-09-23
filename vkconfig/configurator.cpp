@@ -737,8 +737,6 @@ void Configurator::LoadDefaultLayerSettings() {
         // Save the name of the layer, and by default none are read only
         settings_defaults.layer_name = layers_with_settings[i];
 
-        Layer *layer = FindLayerNamed(settings_defaults.layer_name);
-
         // Get the object for just this layer
         const QJsonValue &layer_value = layers_options_object.value(layers_with_settings[i]);
         const QJsonObject &layer_object = layer_value.toObject();

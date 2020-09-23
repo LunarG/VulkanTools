@@ -19,14 +19,17 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "alert.h"
 #include "mainwindow.h"
+
+#include "alert.h"
+
+#include "dialog_vulkan_analysis.h"
+#include "dialog_vulkan_info.h"
 #include "dlgabout.h"
-#include "dlgvulkananalysis.h"
-#include "dlgvulkaninfo.h"
 #include "dlgprofileeditor.h"
 #include "dlgcreateassociation.h"
 #include "dlgcustompaths.h"
+
 #include "configurator.h"
 #include "preferences.h"
 #include "vulkan.h"
@@ -70,8 +73,6 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow),
       _launch_application(nullptr),
       _log_file(nullptr),
-      _vk_via(nullptr),
-      _vk_info(nullptr),
       _launcher_apps_combo(nullptr),
       _launch_arguments(nullptr) {
     ui->setupUi(this);
@@ -529,9 +530,7 @@ void MainWindow::aboutVkConfig(bool checked) {
 void MainWindow::toolsVulkanInfo(bool checked) {
     (void)checked;
 
-    if (_vk_info == nullptr) _vk_info = new VulkanInfoDialog(this);
-
-    _vk_info->RunTool();
+    vk_info_dialog.reset(new VulkanInfoDialog(this));
 }
 
 //////////////////////////////////////////////////////////
@@ -540,9 +539,7 @@ void MainWindow::toolsVulkanInfo(bool checked) {
 void MainWindow::toolsVulkanInstallation(bool checked) {
     (void)checked;
 
-    if (_vk_via == nullptr) _vk_via = new VulkanAnalysisDialog(this);
-
-    _vk_via->RunTool();
+    vk_installation_dialog.reset(new VulkanAnalysisDialog(this));
 }
 
 ////////////////////////////////////////////////////////////////

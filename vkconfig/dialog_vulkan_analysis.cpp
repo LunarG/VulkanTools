@@ -19,7 +19,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "dlgvulkananalysis.h"
+#include "dialog_vulkan_analysis.h"
 
 #include "../vkconfig_core/platform.h"
 
@@ -31,16 +31,18 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 
-VulkanAnalysisDialog::VulkanAnalysisDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanAnalysis) {
+VulkanAnalysisDialog::VulkanAnalysisDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_vulkan_analysis) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     // Hide the test widget as no test is actually run.
     // This may be added back again later.
     ui->tabWidget->removeTab(2);
+
+    Run();
 }
 
-void VulkanAnalysisDialog::RunTool() {
+void VulkanAnalysisDialog::Run() {
     ui->envTable->clear();
     ui->cleanupTable->clear();
     ui->hardwareTable->clear();
