@@ -115,7 +115,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
     // We need to resetup the new profile for consistency sake.
-    Configuration *current_configuration = configurator.FindConfiguration(environment.Get(ACTIVE_CONFIGURATION));
+    auto current_configuration = FindConfiguration(configurator.available_configurations, environment.Get(ACTIVE_CONFIGURATION));
     if (environment.UseOverride()) {
         configurator.SetActiveConfiguration(current_configuration);
     }
@@ -131,8 +131,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->logBrowser->append(GenerateVulkanStatus());
     ui->profileTree->scrollToItem(ui->profileTree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    if (current_configuration) {
-        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, current_configuration);
+    if (current_configuration != configurator.available_configurations.end()) {
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*current_configuration));
     }
 
     UpdateUI();
@@ -170,8 +170,8 @@ void MainWindow::UpdateUI() {
         assert(item);
         assert(!item->configuration_name.isEmpty());
 
-        Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
-        if (configuration == nullptr) continue;
+        auto configuration = FindConfiguration(configurator.available_configurations, item->configuration_name);
+        if (configuration == configurator.available_configurations.end()) continue;
 
         if (!HasMissingParameter(configuration->parameters, configurator.available_layers)) {
             item->setText(1, item->configuration_name);
@@ -286,16 +286,16 @@ void MainWindow::LoadConfigurationList() {
 
     Configurator &configurator = Configurator::Get();
 
-    for (int i = 0, n = configurator._available_configurations.size(); i < n; i++) {
-        Configuration *configuration = configurator._available_configurations[i];
+    for (std::size_t i = 0, n = configurator.available_configurations.size(); i < n; i++) {
+        const Configuration &configuration = configurator.available_configurations[i];
 
-        ConfigurationListItem *item = new ConfigurationListItem(configuration->name);
+        ConfigurationListItem *item = new ConfigurationListItem(configuration.name);
         ui->profileTree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
 #if PLATFORM_MACOS  // Mac OS does not leave enough space without this
         item->radio_button->setText(" ");
 #endif
-        item->radio_button->setToolTip(configuration->_description);
+        item->radio_button->setToolTip(configuration._description);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->profileTree->setItemWidget(item, 0, item->radio_button);
@@ -336,7 +336,8 @@ void MainWindow::on_radioOverride_clicked() {
 
     // This just doesn't work. Make a function to look for the radio button checked.
     ConfigurationListItem *item = GetCheckedItem();
-    Configuration *configuration = item == nullptr ? nullptr : configurator.FindConfiguration(item->configuration_name);
+    auto configuration = item == nullptr ? configurator.available_configurations.end()
+                                         : FindConfiguration(configurator.available_configurations, item->configuration_name);
 
     configurator.SetActiveConfiguration(configuration);
 
@@ -409,10 +410,18 @@ void MainWindow::toolsResetToDefault(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.ResetDefaultsConfigurations();
 
+    // Find the "Validation - Standard" configuration and make it current if we are active
+    auto active_configuration =
+        FindConfiguration(configurator.available_configurations, configurator.environment.Get(ACTIVE_CONFIGURATION));
+    if (configurator.environment.UseOverride()) {
+        configurator.SetActiveConfiguration(active_configuration);
+    }
+
     LoadConfigurationList();
 
-    Configuration *active_configuration = configurator.FindConfiguration(configurator.environment.Get(ACTIVE_CONFIGURATION));
-    if (active_configuration) _settings_tree_manager.CreateGUI(ui->layerSettingsTree, active_configuration);
+    if (active_configuration != configurator.available_configurations.end()) {
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*active_configuration));
+    }
 
     ui->logBrowser->clear();
     ui->logBrowser->append("Vulkan Development Status:");
@@ -436,7 +445,7 @@ void MainWindow::profileItemClicked(bool checked) {
     ui->profileTree->setCurrentItem(item);
 
     Configurator &configurator = Configurator::Get();
-    configurator.SetActiveConfiguration(configurator.FindConfiguration(item->configuration_name));
+    configurator.SetActiveConfiguration(FindConfiguration(configurator.available_configurations, item->configuration_name));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -462,16 +471,18 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
             Alert::ConfigurationNameEmpty();
         }
 
-        Configuration *duplicate_configuration =
-            new_configuration_name.isEmpty() ? nullptr : configurator.FindConfiguration(new_configuration_name);
-        if (duplicate_configuration != nullptr) {
+        auto end = configurator.available_configurations.end();
+        auto duplicate_configuration = new_configuration_name.isEmpty()
+                                           ? end
+                                           : FindConfiguration(configurator.available_configurations, new_configuration_name);
+        if (duplicate_configuration != end) {
             Alert::ConfigurationRenamingFailed();
         }
 
         // Find existing configuration using it's old name
-        Configuration *configuration = configurator.FindConfiguration(configuration_item->configuration_name);
+        auto configuration = FindConfiguration(configurator.available_configurations, configuration_item->configuration_name);
 
-        if (new_configuration_name.isEmpty() || duplicate_configuration != nullptr) {
+        if (new_configuration_name.isEmpty() || duplicate_configuration != end) {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
 
             ui->profileTree->blockSignals(true);
@@ -489,7 +500,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
 
         configurator.SetActiveConfiguration(configuration);
 
-        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*configuration));
     }
 }
 
@@ -506,10 +517,10 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *p
     if (configuration_item == nullptr) return;
 
     configuration_item->radio_button->setChecked(true);
-    Configuration *configuration = Configurator::Get().FindConfiguration(configuration_item->configuration_name);
+    auto configuration = FindConfiguration(Configurator::Get().available_configurations, configuration_item->configuration_name);
     Configurator::Get().SetActiveConfiguration(configuration);
 
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configuration);
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*configuration));
 
     ui->layerSettingsTree->resizeColumnToContents(0);
 }
@@ -599,9 +610,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     _settings_tree_manager.CleanupGUI();
     if (!configurator.environment.UsePersistentOverrideMode()) {
-        Configuration *active_configuration = configurator.GetActiveConfiguration();
-        const QString active_configuration_name = active_configuration == nullptr ? "" : active_configuration->name;
-        configurator.SetActiveConfiguration(nullptr);
+        auto active_configuration = configurator.GetActiveConfiguration();
+        const QString active_configuration_name =
+            active_configuration == configurator.available_configurations.end() ? "" : active_configuration->name;
+        configurator.SetActiveConfiguration(configurator.available_configurations.end());
         configurator.environment.Set(ACTIVE_CONFIGURATION, active_configuration_name);
     }
 
@@ -654,8 +666,8 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    assert(configuration);
+    auto configuration = configurator.GetActiveConfiguration();
+    assert(configuration != configurator.available_configurations.end());
 
     LayersDialog dlg(this, *configuration);
     dlg.exec();
@@ -665,7 +677,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     LoadConfigurationList();
 
     RestoreLastItem();
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*configurator.GetActiveConfiguration()));
 }
 
 ///////////////////////////////////////////////////////////////
@@ -752,7 +764,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    LayersDialog dlg(this, *configurator.FindConfiguration(item->configuration_name));
+    LayersDialog dlg(this, *FindConfiguration(configurator.available_configurations, item->configuration_name));
     dlg.exec();
 
     configurator.LoadAllConfigurations();
@@ -760,7 +772,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     LoadConfigurationList();
 
     RestoreLastItem();
-    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*configurator.GetActiveConfiguration()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -770,17 +782,17 @@ void MainWindow::NewClicked() {
     _settings_tree_manager.CleanupGUI();
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.CreateEmptyConfiguration();
-    assert(configuration);
+    Configuration configuration;
+    configuration.name = MakeConfigurationName(configurator.available_configurations, "New Configuration");
 
-    LayersDialog dlg(this, *configuration);
+    LayersDialog dlg(this, configuration);
     if (QDialog::Accepted == dlg.exec()) {
         configurator.LoadAllConfigurations();
         configurator.SetActiveConfiguration(dlg.GetConfigurationName());
         LoadConfigurationList();
 
         RestoreLastItem(dlg.GetConfigurationName().toUtf8().constData());
-        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, configurator.GetActiveConfiguration());
+        _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*configurator.GetActiveConfiguration()));
     }
 }
 
@@ -820,7 +832,6 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     RestoreLastItem();
 }
 
-/////////////////////////////////////////////////////////////////////////////
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
     assert(item);
 
@@ -828,22 +839,19 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
     ui->profileTree->editItem(item, 1);
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // Copy the current configuration
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(item);
 
-    SaveLastItem();
     Configurator &configurator = Configurator::Get();
 
-    // We need a new name that is not already used. Simply append '(Duplicated)' until
-    // it is unique.
     assert(!item->configuration_name.isEmpty());
 
-    Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
-    assert(configuration);
+    auto configuration = FindConfiguration(configurator.available_configurations, item->configuration_name);
+    assert(configuration != configurator.available_configurations.end());
 
-    const QString &new_name = item->configuration_name + " (Duplicated)";
+    const QString &new_name = MakeConfigurationName(configurator.available_configurations, item->configuration_name);
+    assert(new_name != item->configuration_name);
 
     configuration->name = item->configuration_name = new_name;
     const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
@@ -854,10 +862,23 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     configurator.LoadAllConfigurations();
     configurator.SetActiveConfiguration(new_name);
     LoadConfigurationList();
-    RestoreLastItem();
+
+    ConfigurationListItem *new_item = nullptr;
+    for (int i = 0, n = ui->profileTree->topLevelItemCount(); i < n; ++i) {
+        ConfigurationListItem *searched_item = dynamic_cast<ConfigurationListItem *>(ui->profileTree->topLevelItem(i));
+        assert(searched_item);
+
+        if (searched_item->configuration_name != new_name) continue;
+
+        new_item = searched_item;
+        break;
+    }
+    assert(new_item);
+    ui->profileTree->editItem(new_item, 1);
+
+    _settings_tree_manager.CreateGUI(ui->layerSettingsTree, &(*configurator.GetActiveConfiguration()));
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // Import a configuration file. File copy followed by a reload.
 void MainWindow::ImportClicked(ConfigurationListItem *item) {
     (void)item;  // We don't need this
@@ -872,7 +893,6 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     LoadConfigurationList();
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // Export a configuration file. Basically just a file copy
 void MainWindow::ExportClicked(ConfigurationListItem *item) {
     assert(item);
@@ -886,7 +906,6 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
     configurator.ExportConfiguration(item->configuration_name + ".json", full_export_path);
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // Export a configuration file. Basically just a file copy
 void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
     (void)item;
@@ -912,13 +931,16 @@ void MainWindow::profileItemExpanded(QTreeWidgetItem *item) {
 void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
 
-    Configurator::Get().environment.Notify(NOTIFICATION_RESTART);
+    Configurator &configurator = Configurator::Get();
+
+    configurator.environment.Notify(NOTIFICATION_RESTART);
 
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
-    Configuration *configuration =
-        item == nullptr ? nullptr : Configurator::Get().FindConfiguration(configuration_item->configuration_name);
+    auto configuration = item == nullptr
+                             ? configurator.available_configurations.end()
+                             : FindConfiguration(configurator.available_configurations, configuration_item->configuration_name);
 
-    Configurator::Get().SetActiveConfiguration(configuration);
+    configurator.SetActiveConfiguration(configuration);
     SaveLastItem();
 
     UpdateUI();
@@ -1297,9 +1319,9 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     Configurator &configurator = Configurator::Get();
     const Application &active_application = configurator.environment.GetActiveApplication();
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
+    auto configuration = configurator.GetActiveConfiguration();
 
-    if (configuration == nullptr) {
+    if (configuration == configurator.available_configurations.end()) {
         launch_log += "- Layers fully controlled by the application.\n";
     } else if (HasMissingParameter(configuration->parameters, configurator.available_layers)) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",

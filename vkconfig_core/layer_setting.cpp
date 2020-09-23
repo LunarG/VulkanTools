@@ -23,6 +23,8 @@
 
 #include "util.h"
 
+#include <cassert>
+
 SettingType GetSettingType(const char* token) {
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);

@@ -61,3 +61,8 @@ class Configuration {
 
     bool IsEmpty() const;
 };
+
+QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name);
+
+std::vector<Configuration>::iterator FindConfiguration(std::vector<Configuration>& configurations,
+                                                       const QString& configuration_name);
