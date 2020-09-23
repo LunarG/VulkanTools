@@ -54,7 +54,6 @@ SOURCES += \
     dialog_vulkan_info.cpp \
     main.cpp \
     mainwindow.cpp \
-    preferences.cpp \
     settingstreemanager.cpp \
     khronossettingsadvanced.cpp \
     configurator.cpp
@@ -90,7 +89,6 @@ HEADERS += \
     dialog_vulkan_info.h \
     khronossettingsadvanced.h \
     mainwindow.h \
-    preferences.h \
     settingstreemanager.h \
     configurator.h
 
