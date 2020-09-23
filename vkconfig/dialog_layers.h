@@ -25,7 +25,7 @@
 
 #include "../vkconfig_core/configuration.h"
 
-#include "ui_dlgprofileeditor.h"
+#include "ui_dialog_layers.h"
 
 #include <cassert>
 #include <memory>
@@ -82,5 +82,5 @@ class LayersDialog : public QDialog {
     QString selected_available_layer_name;
     QString selected_sorted_layer_name;
 
-    std::unique_ptr<Ui::dlgProfileEditor> ui;
+    std::unique_ptr<Ui::dialog_layers> ui;
 };

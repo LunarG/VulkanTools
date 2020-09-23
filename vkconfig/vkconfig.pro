@@ -46,12 +46,12 @@ SOURCES += \
     widget_mute_message.cpp \
     widget_tree_friendly_combobox.cpp \
     widget_vuid_search.cpp \
+    dialog_about.cpp \
+    dialog_applications.cpp \
+    dialog_custom_paths.cpp \
+    dialog_layers.cpp \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
-    dlgabout.cpp \
-    dlgcreateassociation.cpp \
-    dlgcustompaths.cpp \
-    dlgprofileeditor.cpp \
     main.cpp \
     mainwindow.cpp \
     preferences.cpp \
@@ -82,12 +82,12 @@ HEADERS += \
     widget_mute_message.h \
     widget_tree_friendly_combobox.h \
     widget_vuid_search.h \
+    dialog_about.h \
+    dialog_applications.h \
+    dialog_custom_paths.h \
+    dialog_layers.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
-    dlgabout.h \
-    dlgcreateassociation.h \
-    dlgcustompaths.h \
-    dlgprofileeditor.h \
     khronossettingsadvanced.h \
     mainwindow.h \
     preferences.h \
@@ -95,10 +95,10 @@ HEADERS += \
     configurator.h
 
 FORMS += \
-    dlgabout.ui \
-    dlgcreateassociation.ui \
-    dlgcustompaths.ui \
-    dlgprofileeditor.ui \
+    dialog_about.ui \
+    dialog_applications.ui \
+    dialog_custom_paths.ui \
+    dialog_layers.ui \
     dialog_vulkan_analysis.ui \
     dialog_vulkan_info.ui \
     mainwindow.ui

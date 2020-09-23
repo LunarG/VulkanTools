@@ -23,12 +23,12 @@
 
 #include "alert.h"
 
+#include "dialog_about.h"
 #include "dialog_vulkan_analysis.h"
 #include "dialog_vulkan_info.h"
-#include "dlgabout.h"
-#include "dlgprofileeditor.h"
-#include "dlgcreateassociation.h"
-#include "dlgcustompaths.h"
+#include "dialog_layers.h"
+#include "dialog_applications.h"
+#include "dialog_custom_paths.h"
 
 #include "configurator.h"
 #include "preferences.h"
@@ -373,8 +373,8 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     // Handle the case where no application with active override is present
     const bool application_list_requires_update = !configurator.environment.HasOverriddenApplications();
     if (ui->checkBoxApplyList->isChecked() && application_list_requires_update) {
-        ApplicationDialog dlg(this);
-        dlg.exec();
+        ApplicationsDialog dialog(this);
+        dialog.exec();
     }
 
     configurator.RefreshConfiguration();
@@ -636,7 +636,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 ///////////////////////////////////////////////////////////////////////////////
 /// Edit the list of apps that can be filtered.
 void MainWindow::on_pushButtonAppList_clicked() {
-    ApplicationDialog dlg(this);
+    ApplicationsDialog dlg(this);
     dlg.exec();
 
     Configurator &configurator = Configurator::Get();

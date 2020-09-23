@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "ui_dlgcustompaths.h"
+#include "ui_dialog_custom_paths.h"
 
 class CustomPathsDialog : public QDialog {
     Q_OBJECT
@@ -40,6 +40,6 @@ class CustomPathsDialog : public QDialog {
 
     void RepopulateTree();
 
-    std::unique_ptr<Ui::dlgCustomPaths> ui;
+    std::unique_ptr<Ui::dialog_custom_paths> ui;
     bool _paths_changed;
 };

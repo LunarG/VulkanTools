@@ -19,24 +19,12 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "dialog_about.h"
 
-#include "ui_dlgabout.h"
+AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_about) {
+    ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    connect(ui->pbAboutQt, SIGNAL(clicked()), this, SLOT(aboutQt()));
+}
 
-#include <memory>
-
-class AboutDialog : public QDialog {
-    Q_OBJECT
-
-   public Q_SLOTS:
-    void aboutQt();
-
-   public:
-    explicit AboutDialog(QWidget *parent = nullptr);
-
-   private:
-    AboutDialog(const AboutDialog &) = delete;
-    AboutDialog &operator=(const AboutDialog &) = delete;
-
-    std::unique_ptr<Ui::dlgAbout> ui;
-};
+void AboutDialog::aboutQt() { qApp->aboutQt(); }

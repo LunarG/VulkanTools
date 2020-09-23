@@ -19,8 +19,8 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "dlgprofileeditor.h"
-#include "dlgcustompaths.h"
+#include "dialog_layers.h"
+#include "dialog_custom_paths.h"
 
 #include "configurator.h"
 #include "alert.h"
@@ -110,7 +110,7 @@ bool IsDLL32Bit(QString full_path) {
 }
 
 LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
-    : QDialog(parent), ui(new Ui::dlgProfileEditor), configuration(configuration) {
+    : QDialog(parent), ui(new Ui::dialog_layers), configuration(configuration) {
     assert(parent);
     assert(&configuration);
 
