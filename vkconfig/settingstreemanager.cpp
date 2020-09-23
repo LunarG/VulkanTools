@@ -396,8 +396,8 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     const bool result = preset_configuration.Load(preset_file);
     assert(result);
 
-    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation");
-    assert(parameter);
+    auto parameter = FindParameter(_configuration->parameters, "VK_LAYER_KHRONOS_validation");
+    assert(parameter != _configuration->parameters.end());
 
     // Reset just specific layer settings
     for (std::size_t i = 0, n = parameter->settings.size(); i < n; ++i) {
@@ -477,13 +477,14 @@ void SettingsTreeManager::CleanupGUI() {
     // Get the state of the last tree, and save it!
     _configuration->_setting_tree_state.clear();
     GetTreeState(_configuration->_setting_tree_state, _configuration_settings_tree->invisibleRootItem());
-    const bool result = _configuration->Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _configuration->_name));
+    const bool result = _configuration->Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, _configuration->name));
     assert(result);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
-    Parameter *parameter = _configuration->FindParameter("VK_LAYER_KHRONOS_validation");
-    if (parameter) _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
+    auto parameter = FindParameter(_configuration->parameters, "VK_LAYER_KHRONOS_validation");
+    if (parameter != _configuration->parameters.end())
+        _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
 
     _validation_file_item = nullptr;
 
@@ -511,7 +512,7 @@ void SettingsTreeManager::CleanupGUI() {
 void SettingsTreeManager::profileEdited() {
     Configurator &configurator = Configurator::Get();
 
-    const bool result = _configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, _configuration->_name));
+    const bool result = _configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, _configuration->name));
     assert(result);
 
     configurator.environment.Notify(NOTIFICATION_RESTART);

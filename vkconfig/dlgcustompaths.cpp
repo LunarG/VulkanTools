@@ -19,15 +19,14 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "configurator.h"
-
 #include "dlgcustompaths.h"
-#include "ui_dlgcustompaths.h"
+
+#include "configurator.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 
-dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCustomPaths) {
+CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dlgCustomPaths) {
     _paths_changed = false;
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -38,16 +37,13 @@ dlgCustomPaths::dlgCustomPaths(QWidget *parent) : QDialog(parent), ui(new Ui::dl
     ui->buttonBox->setEnabled(Configurator::Get().HasLayers());
 }
 
-dlgCustomPaths::~dlgCustomPaths() { delete ui; }
-
-////////////////////////////////////////////////////////////////////////////
 // Load the tree widget with the current list
-void dlgCustomPaths::RepopulateTree() {
+void CustomPathsDialog::RepopulateTree() {
     Configurator &configurator = Configurator::Get();
     configurator.BuildCustomLayerTree(ui->treeWidget);
 }
 
-void dlgCustomPaths::on_pushButtonAdd_clicked() {
+void CustomPathsDialog::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();
     const QString custom_path = configurator.path.SelectPath(this, PATH_CUSTOM_LAYER_PATH);
 
@@ -68,13 +64,11 @@ void dlgCustomPaths::on_pushButtonAdd_clicked() {
     ui->buttonBox->setEnabled(configurator.HasLayers());
 }
 
-//////////////////////////////////////////////////////////////////////////////
 /// Don't make remove button accessable unless an item has been selected
-void dlgCustomPaths::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
+void CustomPathsDialog::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
 
-//////////////////////////////////////////////////////////////////////////////
 /// Remove the selected custom search path
-void dlgCustomPaths::on_pushButtonRemove_clicked() {
+void CustomPathsDialog::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
     QTreeWidgetItem *selected = ui->treeWidget->currentItem();
     if (selected == nullptr) {

@@ -36,7 +36,6 @@ class KhronosSettingsAdvanced : public QObject {
 
    public:
     explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, std::vector<LayerSetting> &settings);
-    ~KhronosSettingsAdvanced();
 
     bool CollectSettings();
 

@@ -25,8 +25,8 @@
 
 #include <gtest/gtest.h>
 
-bool operator==(const Configuration& a, const Configuration& b) {
-    if (a._name != b._name)
+static bool operator==(const Configuration& a, const Configuration& b) {
+    if (a.name != b.name)
         return false;
     else if (a._description != b._description)
         return false;
@@ -39,7 +39,55 @@ bool operator==(const Configuration& a, const Configuration& b) {
     return true;
 }
 
-bool operator!=(const Configuration& a, const Configuration& b) { return !(a == b); }
+static bool operator!=(const Configuration& a, const Configuration& b) { return !(a == b); }
+
+static bool operator==(const LayerSetting& a, const LayerSetting& b) {
+    if (a.key != b.key)
+        return false;
+    else if (a.label != b.label)
+        return false;
+    else if (a.description != b.description)
+        return false;
+    else if (a.type != b.type)
+        return false;
+    else if (a.max_value != b.max_value)
+        return false;
+    else if (a.min_value != b.min_value)
+        return false;
+    else if (a.exclusive_values != b.exclusive_values)
+        return false;
+    else if (a.exclusive_labels != b.exclusive_labels)
+        return false;
+    else if (a.inclusive_values != b.inclusive_values)
+        return false;
+    else if (a.inclusive_labels != b.inclusive_labels)
+        return false;
+    else if (a.value != b.value)
+        return false;
+    return true;
+}
+
+static bool operator!=(const LayerSetting& a, const LayerSetting& b) { return !(a == b); }
+
+static bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b) {
+    if (a.size() != b.size()) return false;
+
+    for (std::size_t i = 0, n = a.size(); i < n; ++i) {
+        if (a[i].name != b[i].name) return false;
+
+        if (a[i].state != b[i].state) return false;
+
+        if (a[i].settings.size() != b[i].settings.size()) return false;
+
+        for (std::size_t j = 0, o = a[i].settings.size(); j < o; ++j) {
+            if (a[i].settings[j] != b[i].settings[j]) return false;
+        }
+    }
+
+    return true;
+}
+
+static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }
 
 TEST(test_configuration, ctor) {
     Configuration configuration_loaded;
@@ -64,7 +112,7 @@ TEST(test_configuration, load_and_save_v2_0_1_api_dump) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_LUNARG_api_dump");
     ASSERT_TRUE(parameter != nullptr);
 
-    configuration_loaded._name = "Api Dump";
+    configuration_loaded.name = "Api Dump";
     configuration_loaded.Save("test_v2_0_1_api_dump.json");
 
     Configuration configuration_saved;
@@ -85,7 +133,7 @@ TEST(test_configuration, load_and_save_v2_0_1_frame_capture) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_LUNARG_gfxreconstruct");
     ASSERT_TRUE(parameter != nullptr);
 
-    configuration_loaded._name = "Frame Capture";
+    configuration_loaded.name = "Frame Capture";
     configuration_loaded.Save("test_v2_0_1_frame_capture.json");
 
     Configuration configuration_saved;
@@ -127,7 +175,7 @@ TEST(test_configuration, load_and_save_v2_0_1_gpu_assisted) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_KHRONOS_validation");
     ASSERT_TRUE(parameter != nullptr);
 
-    configuration_loaded._name = "GPU-Assisted";
+    configuration_loaded.name = "GPU-Assisted";
     configuration_loaded.Save("test_v2_0_1_gpu_assisted.json");
 
     Configuration configuration_saved;
@@ -148,7 +196,7 @@ TEST(test_configuration, load_and_save_v2_0_2_gpu_assisted) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_KHRONOS_validation");
     ASSERT_TRUE(parameter != nullptr);
 
-    EXPECT_STREQ("Validation - GPU-Assisted", configuration_loaded._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - GPU-Assisted", configuration_loaded.name.toStdString().c_str());
     configuration_loaded.Save("test_v2_0_2_gpu_assisted.json");
 
     Configuration configuration_saved;
@@ -169,7 +217,7 @@ TEST(test_configuration, load_and_save_v2_0_1_shader_printf) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_KHRONOS_validation");
     ASSERT_TRUE(parameter != nullptr);
 
-    configuration_loaded._name = "shader-printf";
+    configuration_loaded.name = "shader-printf";
     configuration_loaded.Save("test_v2_0_1_shader_printf.json");
 
     Configuration configuration_saved;
@@ -190,7 +238,7 @@ TEST(test_configuration, load_and_save_v2_0_2_debug_printf) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_KHRONOS_validation");
     ASSERT_TRUE(parameter != nullptr);
 
-    EXPECT_STREQ("Validation - Debug Printf", configuration_loaded._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - Debug Printf", configuration_loaded.name.toStdString().c_str());
     configuration_loaded.Save("test_v2_0_2_shader_printf.json");
 
     Configuration configuration_saved;
@@ -211,7 +259,7 @@ TEST(test_configuration, load_and_save_v2_0_1_best_practices) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_KHRONOS_validation");
     ASSERT_TRUE(parameter != nullptr);
 
-    configuration_loaded._name = "best-practices";
+    configuration_loaded.name = "best-practices";
     configuration_loaded.Save("test_v2_0_1_best_practices.json");
 
     Configuration configuration_saved;
@@ -232,7 +280,7 @@ TEST(test_configuration, load_and_save_v2_0_2_best_practices) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_KHRONOS_validation");
     ASSERT_TRUE(parameter != nullptr);
 
-    EXPECT_STREQ("Validation - Best Practices", configuration_loaded._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - Best Practices", configuration_loaded.name.toStdString().c_str());
     configuration_loaded.Save("test_v2_0_2_best_practices.json");
 
     Configuration configuration_saved;
@@ -327,7 +375,7 @@ TEST(test_configuration, load_standard) {
     ASSERT_TRUE(load);
     ASSERT_TRUE(!configuration.IsEmpty());
 
-    EXPECT_STREQ("Validation - Standard", configuration._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - Standard", configuration.name.toStdString().c_str());
     EXPECT_EQ(1, configuration.parameters.size());
     EXPECT_EQ(ValidationPresetStandard, configuration._preset);
     EXPECT_TRUE(!configuration._description.isEmpty());
@@ -338,13 +386,13 @@ TEST(test_configuration, compare_version_standard) {
     const bool load_2_0_1 = configuration_2_0_1.Load(":/Configuration 2.0.1 - Standard.json");
     ASSERT_TRUE(load_2_0_1);
     ASSERT_TRUE(!configuration_2_0_1.IsEmpty());
-    EXPECT_STREQ("Configuration 2.0.1 - Standard", configuration_2_0_1._name.toStdString().c_str());
+    EXPECT_STREQ("Configuration 2.0.1 - Standard", configuration_2_0_1.name.toStdString().c_str());
 
     Configuration configuration_2_0_2;
     const bool load_2_0_2 = configuration_2_0_2.Load(":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load_2_0_2);
     ASSERT_TRUE(!configuration_2_0_2.IsEmpty());
-    EXPECT_STREQ("Validation - Standard", configuration_2_0_2._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - Standard", configuration_2_0_2.name.toStdString().c_str());
 
     EXPECT_TRUE(configuration_2_0_1.parameters == configuration_2_0_2.parameters);
 }
@@ -354,13 +402,13 @@ TEST(test_configuration, compare_version_debug_printf) {
     const bool load_2_0_1 = configuration_2_0_1.Load(":/Configuration 2.0.1 - Shader Printf.json");
     ASSERT_TRUE(load_2_0_1);
     ASSERT_TRUE(!configuration_2_0_1.IsEmpty());
-    EXPECT_STREQ("Configuration 2.0.1 - Shader Printf", configuration_2_0_1._name.toStdString().c_str());
+    EXPECT_STREQ("Configuration 2.0.1 - Shader Printf", configuration_2_0_1.name.toStdString().c_str());
 
     Configuration configuration_2_0_2;
     const bool load_2_0_2 = configuration_2_0_2.Load(":/Configuration 2.0.2 - Debug Printf.json");
     ASSERT_TRUE(load_2_0_2);
     ASSERT_TRUE(!configuration_2_0_2.IsEmpty());
-    EXPECT_STREQ("Validation - Debug Printf", configuration_2_0_2._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - Debug Printf", configuration_2_0_2.name.toStdString().c_str());
 
     EXPECT_TRUE(configuration_2_0_1.parameters == configuration_2_0_2.parameters);
 }
@@ -370,13 +418,13 @@ TEST(test_configuration, compare_settings) {
     const bool load_standard = configuration_standard.Load(":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load_standard);
     ASSERT_TRUE(!configuration_standard.IsEmpty());
-    EXPECT_STREQ("Validation - Standard", configuration_standard._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - Standard", configuration_standard.name.toStdString().c_str());
 
     Configuration configuration_best_practices;
     const bool load_best_practices = configuration_best_practices.Load(":/Configuration 2.0.2 - Best Practices.json");
     ASSERT_TRUE(load_best_practices);
     ASSERT_TRUE(!configuration_best_practices.IsEmpty());
-    EXPECT_STREQ("Validation - Best Practices", configuration_best_practices._name.toStdString().c_str());
+    EXPECT_STREQ("Validation - Best Practices", configuration_best_practices.name.toStdString().c_str());
 
     EXPECT_TRUE(configuration_standard.parameters != configuration_best_practices.parameters);
 }

@@ -49,30 +49,6 @@ class SettingsTreeManager : QObject {
     void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
-   protected:
-    QTreeWidget *_configuration_settings_tree;
-    Configuration *_configuration;
-    QVector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
-
-    void BuildKhronosTree(std::vector<LayerSetting> &settings);
-    void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
-
-    QVector<QTreeWidgetItem *> _layer_items;  // These parallel the profiles layers
-
-    QComboBox *_validation_presets_combo_box;
-    std::vector<ValidationPreset> _validation_presets;  // The preset in the combobox
-    int GetValidationPresentIndex(const ValidationPreset preset) const;
-
-    QTreeWidgetItem *_validation_tree_item;
-    QTreeWidgetItem *_validation_file_item;
-    QTreeWidgetItem *_validation_preset_item;
-    QTreeWidgetItem *_validation_log_file_item;
-    FileSystemSettingWidget *_validation_log_file_widget;
-    MultiEnumSettingWidget *_validation_debug_action;
-    KhronosSettingsAdvanced *_validation_settings;
-    MuteMessageWidget *_mute_message_widget;
-    VUIDSearchWidget *_vuid_search_widget;
-
    public Q_SLOTS:
     void khronosDebugChanged(int index);
     void khronosPresetChanged(int index);  // Okay, is this a custom guy HERE, or do we move it out
@@ -84,4 +60,27 @@ class SettingsTreeManager : QObject {
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
+
+    void BuildKhronosTree(std::vector<LayerSetting> &settings);
+    void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
+
+    int GetValidationPresentIndex(const ValidationPreset preset) const;
+
+    QTreeWidget *_configuration_settings_tree;
+    Configuration *_configuration;
+    QVector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
+    QVector<QTreeWidgetItem *> _layer_items;       // These parallel the profiles layers
+
+    QComboBox *_validation_presets_combo_box;
+    std::vector<ValidationPreset> _validation_presets;  // The preset in the combobox
+
+    QTreeWidgetItem *_validation_tree_item;
+    QTreeWidgetItem *_validation_file_item;
+    QTreeWidgetItem *_validation_preset_item;
+    QTreeWidgetItem *_validation_log_file_item;
+    FileSystemSettingWidget *_validation_log_file_widget;
+    MultiEnumSettingWidget *_validation_debug_action;
+    KhronosSettingsAdvanced *_validation_settings;
+    MuteMessageWidget *_mute_message_widget;
+    VUIDSearchWidget *_vuid_search_widget;
 };

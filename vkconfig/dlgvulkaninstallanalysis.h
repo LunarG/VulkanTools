@@ -23,11 +23,11 @@
 
 #include <QAbstractItemModel>
 
-class dlgVulkanInstallAnalysis : public QAbstractItemModel {
+class VulkanInstallAnalysisDialog : public QAbstractItemModel {
     Q_OBJECT
 
    public:
-    explicit dlgVulkanInstallAnalysis(QObject *parent = nullptr);
+    explicit VulkanInstallAnalysisDialog(QObject *parent = nullptr);
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -42,6 +42,6 @@ class dlgVulkanInstallAnalysis : public QAbstractItemModel {
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
    private:
-    dlgVulkanInstallAnalysis(const dlgVulkanInstallAnalysis &) = delete;
-    dlgVulkanInstallAnalysis &operator=(const dlgVulkanInstallAnalysis &) = delete;
+    VulkanInstallAnalysisDialog(const VulkanInstallAnalysisDialog &) = delete;
+    VulkanInstallAnalysisDialog &operator=(const VulkanInstallAnalysisDialog &) = delete;
 };

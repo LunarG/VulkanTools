@@ -35,8 +35,6 @@
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
 
-#include "ui_mainwindow.h"
-
 #include <QProcess>
 #include <QDir>
 #include <QMessageBox>
@@ -142,7 +140,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {
     ResetLaunchApplication();
-    delete ui;
 }
 
 static std::string GetMainWindowTitle(bool active) {
@@ -176,7 +173,7 @@ void MainWindow::UpdateUI() {
         Configuration *configuration = configurator.FindConfiguration(item->configuration_name);
         if (configuration == nullptr) continue;
 
-        if (!configurator.HasMissingLayers(*configuration)) {
+        if (!HasMissingParameter(configuration->parameters, configurator.available_layers)) {
             item->setText(1, item->configuration_name);
             item->radio_button->setToolTip(configuration->_description);
         } else {
@@ -292,7 +289,7 @@ void MainWindow::LoadConfigurationList() {
     for (int i = 0, n = configurator._available_configurations.size(); i < n; i++) {
         Configuration *configuration = configurator._available_configurations[i];
 
-        ConfigurationListItem *item = new ConfigurationListItem(configuration->_name);
+        ConfigurationListItem *item = new ConfigurationListItem(configuration->name);
         ui->profileTree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
 #if PLATFORM_MACOS  // Mac OS does not leave enough space without this
@@ -375,7 +372,7 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     // Handle the case where no application with active override is present
     const bool application_list_requires_update = !configurator.environment.HasOverriddenApplications();
     if (ui->checkBoxApplyList->isChecked() && application_list_requires_update) {
-        dlgCreateAssociation dlg(this);
+        ApplicationDialog dlg(this);
         dlg.exec();
     }
 
@@ -483,7 +480,7 @@ void MainWindow::profileItemChanged(QTreeWidgetItem *item, int column) {
         } else {
             // Rename configuration ; Remove old configuration file ; Create new configuration file
 
-            configuration->_name = configuration_item->configuration_name = new_configuration_name;
+            configuration->name = configuration_item->configuration_name = new_configuration_name;
 
             remove(full_path.toUtf8().constData());
             const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name));
@@ -522,7 +519,7 @@ void MainWindow::profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *p
 void MainWindow::aboutVkConfig(bool checked) {
     (void)checked;
 
-    dlgAbout dlg(this);
+    AboutDialog dlg(this);
     dlg.exec();
 }
 
@@ -532,7 +529,7 @@ void MainWindow::aboutVkConfig(bool checked) {
 void MainWindow::toolsVulkanInfo(bool checked) {
     (void)checked;
 
-    if (_vk_info == nullptr) _vk_info = new dlgVulkanInfo(this);
+    if (_vk_info == nullptr) _vk_info = new VulkanInfoDialog(this);
 
     _vk_info->RunTool();
 }
@@ -543,7 +540,7 @@ void MainWindow::toolsVulkanInfo(bool checked) {
 void MainWindow::toolsVulkanInstallation(bool checked) {
     (void)checked;
 
-    if (_vk_via == nullptr) _vk_via = new dlgVulkanAnalysis(this);
+    if (_vk_via == nullptr) _vk_via = new VulkanAnalysisDialog(this);
 
     _vk_via->RunTool();
 }
@@ -607,7 +604,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     _settings_tree_manager.CleanupGUI();
     if (!configurator.environment.UsePersistentOverrideMode()) {
         Configuration *active_configuration = configurator.GetActiveConfiguration();
-        const QString active_configuration_name = active_configuration == nullptr ? "" : active_configuration->_name;
+        const QString active_configuration_name = active_configuration == nullptr ? "" : active_configuration->name;
         configurator.SetActiveConfiguration(nullptr);
         configurator.environment.Set(ACTIVE_CONFIGURATION, active_configuration_name);
     }
@@ -642,7 +639,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 ///////////////////////////////////////////////////////////////////////////////
 /// Edit the list of apps that can be filtered.
 void MainWindow::on_pushButtonAppList_clicked() {
-    dlgCreateAssociation dlg(this);
+    ApplicationDialog dlg(this);
     dlg.exec();
 
     Configurator &configurator = Configurator::Get();
@@ -670,7 +667,7 @@ void MainWindow::on_pushButtonEditProfile_clicked() {
     Configuration *configuration = configurator.GetActiveConfiguration();
     assert(configuration);
 
-    dlgProfileEditor dlg(this, *configuration);
+    LayersDialog dlg(this, *configuration);
     dlg.exec();
 
     configurator.LoadAllConfigurations();
@@ -747,7 +744,7 @@ void MainWindow::addCustomPaths() {
     // configs and it will cause a crash.
     _settings_tree_manager.CleanupGUI();
 
-    dlgCustomPaths dlg(this);
+    CustomPathsDialog dlg(this);
     dlg.exec();
 
     LoadConfigurationList();  // Force a reload
@@ -765,7 +762,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    dlgProfileEditor dlg(this, *configurator.FindConfiguration(item->configuration_name));
+    LayersDialog dlg(this, *configurator.FindConfiguration(item->configuration_name));
     dlg.exec();
 
     configurator.LoadAllConfigurations();
@@ -786,7 +783,7 @@ void MainWindow::NewClicked() {
     Configuration *configuration = configurator.CreateEmptyConfiguration();
     assert(configuration);
 
-    dlgProfileEditor dlg(this, *configuration);
+    LayersDialog dlg(this, *configuration);
     if (QDialog::Accepted == dlg.exec()) {
         configurator.LoadAllConfigurations();
         configurator.SetActiveConfiguration(dlg.GetConfigurationName());
@@ -820,7 +817,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CleanupGUI();
     // What if this is the active profile? We will go boom boom soon...
     Configurator &configurator = Configurator::Get();
-    if (configurator.GetActiveConfiguration()->_name == &item->configuration_name) {
+    if (configurator.GetActiveConfiguration()->name == &item->configuration_name) {
         configurator.SetActiveConfiguration(nullptr);
     }
 
@@ -858,7 +855,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     const QString &new_name = item->configuration_name + " (Duplicated)";
 
-    configuration->_name = item->configuration_name = new_name;
+    configuration->name = item->configuration_name = new_name;
     const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
     assert(result);
 
@@ -1314,16 +1311,16 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
     if (configuration == nullptr) {
         launch_log += "- Layers fully controlled by the application.\n";
-    } else if (configurator.HasMissingLayers(*configuration)) {
+    } else if (HasMissingParameter(configuration->parameters, configurator.available_layers)) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
-                                         configuration->_name.toUtf8().constData());
+                                         configuration->name.toUtf8().constData());
     } else if (configurator.environment.UseOverride()) {
         if (configurator.environment.UseApplicationListOverrideMode() && configurator.environment.HasOverriddenApplications() &&
             !active_application.override_layers) {
             launch_log += "- Layers fully controlled by the application. Application excluded from layers override.\n";
         } else {
             launch_log +=
-                QString().asprintf("- Layers overridden by \"%s\" configuration.\n", configuration->_name.toUtf8().constData());
+                QString().asprintf("- Layers overridden by \"%s\" configuration.\n", configuration->name.toUtf8().constData());
         }
     }
 

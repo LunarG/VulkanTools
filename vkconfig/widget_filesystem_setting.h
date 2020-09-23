@@ -32,15 +32,9 @@
 
 class FileSystemSettingWidget : public QWidget {
     Q_OBJECT
+
    public:
     explicit FileSystemSettingWidget(QTreeWidgetItem *item, LayerSetting &layer_setting, SettingType setting_type);
-
-   private:
-    virtual void resizeEvent(QResizeEvent *event) override;
-
-    LayerSetting &_layer_setting;
-    QLineEdit *_line_edit;
-    QPushButton *_push_button;
 
    public Q_SLOTS:
     void browseButtonClicked();
@@ -50,11 +44,16 @@ class FileSystemSettingWidget : public QWidget {
     void itemChanged();
 
    private:
+    FileSystemSettingWidget(const FileSystemSettingWidget &) = delete;
+    FileSystemSettingWidget &operator=(const FileSystemSettingWidget &) = delete;
+
+    virtual void resizeEvent(QResizeEvent *event) override;
+
     enum Mode { MODE_OPEN_FILE, MODE_SAVE_FILE, MODE_SAVE_FOLDER };
     const Mode _mode;
     Mode GetMode(SettingType type) const;
 
-   private:
-    FileSystemSettingWidget(const FileSystemSettingWidget &) = delete;
-    FileSystemSettingWidget &operator=(const FileSystemSettingWidget &) = delete;
+    LayerSetting &_layer_setting;
+    QLineEdit *_line_edit;
+    QPushButton *_push_button;
 };

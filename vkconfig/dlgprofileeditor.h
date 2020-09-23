@@ -25,17 +25,10 @@
 
 #include "../vkconfig_core/configuration.h"
 
-#include <QDialog>
-#include <QTreeWidgetItem>
-#include <QResizeEvent>
-#include <QShowEvent>
+#include "ui_dlgprofileeditor.h"
 
 #include <cassert>
 #include <memory>
-
-namespace Ui {
-class dlgProfileEditor;
-}
 
 class TreeWidgetItemParameter : public QTreeWidgetItem {
    public:
@@ -44,27 +37,17 @@ class TreeWidgetItemParameter : public QTreeWidgetItem {
     QString layer_name;
 };
 
-class dlgProfileEditor : public QDialog {
+class LayersDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit dlgProfileEditor(QWidget *parent, const Configuration &configuration);
-    ~dlgProfileEditor();
+    explicit LayersDialog(QWidget *parent, const Configuration &configuration);
+    ~LayersDialog();
 
     void LoadAvailableLayersUI();
     void LoadSortedLayersUI();
 
     QString GetConfigurationName() const;
-
-   private:
-    std::unique_ptr<Ui::dlgProfileEditor> ui;
-
-    Configuration configuration;
-
-    virtual void resizeEvent(QResizeEvent *event) override;
-    virtual void showEvent(QShowEvent *) override;
-
-    void UpdateUI();
 
    public Q_SLOTS:
     virtual void accept() override;
@@ -81,20 +64,23 @@ class dlgProfileEditor : public QDialog {
     void layerUseChanged(QTreeWidgetItem *item, int selection);
 
    private:
-    dlgProfileEditor(const dlgProfileEditor &) = delete;
-    dlgProfileEditor &operator=(const dlgProfileEditor &) = delete;
+    LayersDialog(const LayersDialog &) = delete;
+    LayersDialog &operator=(const LayersDialog &) = delete;
+
+    virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void showEvent(QShowEvent *) override;
+
+    void UpdateUI();
 
     void AddLayerItem(const Parameter &parameter);
-
-    void StoreParameters();
     void BuildParameters();
-    void OrderParameter();
-    std::vector<Parameter>::iterator FindParameter(const QString &layer_name);
-
     void OverrideAllExplicitLayers();
     void OverrideOrder(const QString layer_name, const TreeWidgetItemParameter *below, const TreeWidgetItemParameter *above);
 
+    Configuration configuration;
     std::vector<Parameter> parameters;  // List of available layers and configuration layers
     QString selected_available_layer_name;
     QString selected_sorted_layer_name;
+
+    std::unique_ptr<Ui::dlgProfileEditor> ui;
 };

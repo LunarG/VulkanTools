@@ -30,11 +30,9 @@
 
 class EnumSettingWidget : public QComboBox {
     Q_OBJECT
+
    public:
     explicit EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting);
-
-   private:
-    LayerSetting& _layer_setting;
 
    public Q_SLOTS:
     void indexChanged(int index);
@@ -45,4 +43,6 @@ class EnumSettingWidget : public QComboBox {
    private:
     EnumSettingWidget(const EnumSettingWidget&) = delete;
     EnumSettingWidget& operator=(const EnumSettingWidget&) = delete;
+
+    LayerSetting& _layer_setting;
 };

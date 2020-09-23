@@ -263,7 +263,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
     ///////////////////////////////////////////////////////////////
     // Synchronization
 
-    const Layer *layer = FindLayer(Configurator::Get()._available_Layers, "VK_LAYER_KHRONOS_validation");
+    const Layer *layer = FindLayer(Configurator::Get().available_layers, "VK_LAYER_KHRONOS_validation");
     if (layer != nullptr) {
         // To handle this change: https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/2146
         if (layer->_api_version <= Version("1.2.148")) {
@@ -314,9 +314,6 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
     }
 }
 
-KhronosSettingsAdvanced::~KhronosSettingsAdvanced() {}
-
-///////////////////////////////////////////////////////////////////////////////
 /// A tree item was selected, display the help information to the side
 /// This is embarrasingly brute force... temporary sketch in...
 void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *item, int column) {
@@ -505,12 +502,12 @@ bool KhronosSettingsAdvanced::CollectSettings() {
 
     // Best practice enables
     for (std::size_t i = 0, n = countof(bestPractices); i < n; i++) {
-        if (bestPractices[i].item->checkState(0) == Qt::Checked) AddString(enables, bestPractices[i].token);
+        if (bestPractices[i].item->checkState(0) == Qt::Checked) AppendString(enables, bestPractices[i].token);
     }
 
     // Sync Validation
     for (std::size_t i = 0, n = countof(syncChecks); i < n; i++) {
-        if (syncChecks[0].item->checkState(0) == Qt::Checked) AddString(enables, syncChecks[i].token);
+        if (syncChecks[0].item->checkState(0) == Qt::Checked) AppendString(enables, syncChecks[i].token);
     }
 
     ///////////////////////////////////////////////////////
@@ -518,15 +515,15 @@ bool KhronosSettingsAdvanced::CollectSettings() {
     // because they are exposed to the end user as an enable.
     // If they are NOT checked, we add them to disables
     for (std::size_t i = 0, n = countof(miscDisables); i < n; i++) {
-        if (miscDisables[i].item->checkState(0) != Qt::Checked) AddString(disables, miscDisables[i].token);
+        if (miscDisables[i].item->checkState(0) != Qt::Checked) AppendString(disables, miscDisables[i].token);
     }
 
     // Core checks. If unchecked, then individual ones might still be checked
     if (_core_checks_parent->checkState(0) == Qt::Checked) {
         for (std::size_t i = 0, n = countof(coreChecks); i < n; i++)
-            if (coreChecks[i].item->checkState(0) == Qt::Unchecked) AddString(disables, coreChecks[i].token);
+            if (coreChecks[i].item->checkState(0) == Qt::Unchecked) AppendString(disables, coreChecks[i].token);
     } else  // Not checked, turn them all off
-        AddString(disables, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+        AppendString(disables, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
 
     _disables.value = disables;
     _enables.value = enables;

@@ -34,9 +34,6 @@ class TreeFriendlyComboBoxWidget : public QComboBox {
         if (hasFocus()) QComboBox::wheelEvent(e);
     }
 
-   protected:
-    QTreeWidgetItem *_tree_widget;
-
    public Q_SLOTS:
     void indexChanged(int nIndex);
 
@@ -46,4 +43,6 @@ class TreeFriendlyComboBoxWidget : public QComboBox {
    private:
     TreeFriendlyComboBoxWidget(const TreeFriendlyComboBoxWidget &) = delete;
     TreeFriendlyComboBoxWidget &operator=(const TreeFriendlyComboBoxWidget &) = delete;
+
+    QTreeWidgetItem *_tree_widget;
 };

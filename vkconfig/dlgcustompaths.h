@@ -21,24 +21,13 @@
 
 #pragma once
 
-#include <QDialog>
+#include "ui_dlgcustompaths.h"
 
-namespace Ui {
-class dlgCustomPaths;
-}
-
-class dlgCustomPaths : public QDialog {
+class CustomPathsDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit dlgCustomPaths(QWidget *parent = nullptr);
-    ~dlgCustomPaths();
-
-   private:
-    Ui::dlgCustomPaths *ui;
-    bool _paths_changed;
-
-    void RepopulateTree();
+    explicit CustomPathsDialog(QWidget *parent = nullptr);
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();
@@ -46,6 +35,11 @@ class dlgCustomPaths : public QDialog {
     void on_treeWidget_itemSelectionChanged();
 
    private:
-    dlgCustomPaths(const dlgCustomPaths &) = delete;
-    dlgCustomPaths &operator=(const dlgCustomPaths &) = delete;
+    CustomPathsDialog(const CustomPathsDialog &) = delete;
+    CustomPathsDialog &operator=(const CustomPathsDialog &) = delete;
+
+    void RepopulateTree();
+
+    std::unique_ptr<Ui::dlgCustomPaths> ui;
+    bool _paths_changed;
 };

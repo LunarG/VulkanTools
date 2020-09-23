@@ -37,7 +37,7 @@ MultiEnumSettingWidget::MultiEnumSettingWidget(LayerSetting& layer_setting, QStr
 
 void MultiEnumSettingWidget::itemChecked(bool checked) {
     if (checked)
-        AddString(_layer_setting.value, _setting_name);
+        AppendString(_layer_setting.value, _setting_name);
     else
         RemoveString(_layer_setting.value, _setting_name);
 

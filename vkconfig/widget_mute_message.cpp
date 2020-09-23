@@ -61,7 +61,7 @@ void MuteMessageWidget::addItem(const QString &item) {
     _list_widget->setCurrentRow(_list_widget->count() - 1);
 
     // Update Setting
-    AddString(_layer_setting.value, item);
+    AppendString(_layer_setting.value, item);
     _remove_button->setEnabled(true);
     emit itemChanged();
 }
