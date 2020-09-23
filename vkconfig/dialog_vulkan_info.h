@@ -21,25 +21,28 @@
 
 #pragma once
 
-#include "ui_dlgvulkananalysis.h"
-
-#include <QJsonObject>
+#include "ui_dialog_vulkan_info.h"
 
 #include <memory>
 
-class VulkanAnalysisDialog : public QDialog {
+class VulkanInfoDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit VulkanAnalysisDialog(QWidget* parent = nullptr);
-
-    void RunTool();
+    explicit VulkanInfoDialog(QWidget *parent = nullptr);
 
    private:
-    VulkanAnalysisDialog(const VulkanAnalysisDialog&) = delete;
-    VulkanAnalysisDialog& operator=(const VulkanAnalysisDialog&) = delete;
+    VulkanInfoDialog(const VulkanInfoDialog &) = delete;
+    VulkanInfoDialog &operator=(const VulkanInfoDialog &) = delete;
 
-    void LoadTable(QJsonObject& json_parent, QTableWidget* table);
+    void BuildExtensions(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildLayers(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildSurfaces(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildGroups(QJsonValue &json_value, QTreeWidgetItem *root);
+    void BuildDevices(QJsonValue &json_value, QTreeWidgetItem *root);
+    void TraverseGenericProperties(QJsonValue &parent_json, QTreeWidgetItem *parent_tree_item);
 
-    std::unique_ptr<Ui::dlgVulkanAnalysis> ui;
+    void Run();
+
+    std::unique_ptr<Ui::dialog_vulkan_info> ui;
 };

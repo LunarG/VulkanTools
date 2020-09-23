@@ -24,12 +24,10 @@
 #include "configurator.h"
 #include "settingstreemanager.h"
 
-#include "dlgvulkananalysis.h"
-#include "dlgvulkaninfo.h"
-
 #include "ui_mainwindow.h"
 
 #include <QVector>
+#include <QDialog>
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QLabel>
@@ -63,7 +61,7 @@ class MainWindow : public QMainWindow {
     void UpdateUI();
     void UpdateConfiguration();
 
-   protected:
+   private:
     SettingsTreeManager _settings_tree_manager;
 
     std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
@@ -77,10 +75,9 @@ class MainWindow : public QMainWindow {
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-    VulkanAnalysisDialog *_vk_via;
-    VulkanInfoDialog *_vk_info;
+    std::unique_ptr<QDialog> vk_info_dialog;
+    std::unique_ptr<QDialog> vk_installation_dialog;
 
-   private:
     void Log(const QString &log);
 
     ConfigurationListItem *GetCheckedItem();

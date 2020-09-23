@@ -19,7 +19,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "dlgvulkaninfo.h"
+#include "dialog_vulkan_info.h"
 
 #include "../vkconfig_core/platform.h"
 
@@ -38,12 +38,14 @@
 #include <QMessageBox>
 #include <QStringList>
 
-VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanInfo) {
+VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_vulkan_info) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    Run();
 }
 
-void VulkanInfoDialog::RunTool() {
+void VulkanInfoDialog::Run() {
     ui->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
