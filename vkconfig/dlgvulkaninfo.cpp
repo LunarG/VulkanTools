@@ -20,7 +20,6 @@
  */
 
 #include "dlgvulkaninfo.h"
-#include "ui_dlgvulkaninfo.h"
 
 #include "../vkconfig_core/platform.h"
 
@@ -39,14 +38,12 @@
 #include <QMessageBox>
 #include <QStringList>
 
-dlgVulkanInfo::dlgVulkanInfo(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanInfo) {
+VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanInfo) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-dlgVulkanInfo::~dlgVulkanInfo() { delete ui; }
-
-void dlgVulkanInfo::RunTool() {
+void VulkanInfoDialog::RunTool() {
     ui->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
@@ -152,7 +149,7 @@ void dlgVulkanInfo::RunTool() {
 /// Many large sections are generic enough to simply parse and construct a tree,
 /// without the need for any special formatting or extra text that is not in the
 /// json file.
-void dlgVulkanInfo::TraverseGenericProperties(QJsonValue &parentJson, QTreeWidgetItem *pParentTreeItem) {
+void VulkanInfoDialog::TraverseGenericProperties(QJsonValue &parentJson, QTreeWidgetItem *pParentTreeItem) {
     QJsonObject parentObject = parentJson.toObject();
     int listSize = parentObject.size();
     QStringList fields = parentObject.keys();
@@ -204,7 +201,7 @@ void dlgVulkanInfo::TraverseGenericProperties(QJsonValue &parentJson, QTreeWidge
 /// Populate the a subtree with extension names. Extensions also report their
 /// spec version, so some extra text is needed, and thus the need for a special
 /// function as opposed to just calling TraverseGenericProperties()
-void dlgVulkanInfo::BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
+void VulkanInfoDialog::BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     QString output;
     QJsonObject extensionObject = jsonValue.toObject();
     int nObjectSize = extensionObject.size();
@@ -232,7 +229,7 @@ void dlgVulkanInfo::BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *pRoo
 /// \param pRoot        - Root of GUI tree
 /// This tree section has some different "kinds" of subtrees (the extensions)
 /// and some extra text formatting requirements, so it had to be treated specially.
-void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *root) {
+void VulkanInfoDialog::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *root) {
     QJsonObject layersObject = jsonValue.toObject();
     int layersCount = layersObject.size();
 
@@ -308,7 +305,7 @@ void dlgVulkanInfo::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *root) {
 /// \param pRoot            GUI tree root
 ///
 /// Nice and well behaved. TraverseGenericProperties will build the whole tree.
-void dlgVulkanInfo::BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
+void VulkanInfoDialog::BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     QJsonObject surfaces = jsonValue.toObject();
 
     pRoot->setText(0, tr("Presentable Surfaces"));
@@ -323,7 +320,7 @@ void dlgVulkanInfo::BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot)
 /// \param pRoot            GUI tree root
 ///
 /// Nice and well behaved. TraverseGenericProperties will build the whole tree.
-void dlgVulkanInfo::BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
+void VulkanInfoDialog::BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     QJsonObject groupsObject = jsonValue.toObject();
     pRoot->setText(0, tr("Device Groups"));
     ui->treeWidget->addTopLevelItem(pRoot);
@@ -339,7 +336,7 @@ void dlgVulkanInfo::BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
 /// There is one section that can be handled by the TraverseGenericProperties()
 /// function, and just one section that is specifially needing the
 /// extensions list parser.
-void dlgVulkanInfo::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *root) {
+void VulkanInfoDialog::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *root) {
     QJsonObject gpuObject = jsonValue.toObject();
 
     root->setText(0, tr("Device Properties and Extensions"));

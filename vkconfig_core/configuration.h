@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
+#include "parameter.h"
 
 #include <QString>
 #include <QStringList>
@@ -52,15 +52,12 @@ class Configuration {
     bool Load(const QString& full_path);
     bool Save(const QString& full_path) const;
 
-    QString _name;                   // User readable display of the profile name (may contain spaces)
-                                     // This is the same as the filename, but with the .json stripped off.
+    QString name;                    // User readable display of the profile name (may contain spaces)
     QString _description;            // A friendly description of what this profile does
     QByteArray _setting_tree_state;  // Recall editor tree state
     ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     std::vector<Parameter> parameters;
-
-    Parameter* FindParameter(const QString& layer_name);  // Find the layer if it exists
 
     bool IsEmpty() const;
 };

@@ -21,21 +21,17 @@
 
 #pragma once
 
-#include "configurator.h"
+#include "ui_dlgcreateassociation.h"
 
-#include <QDialog>
-#include <QTreeWidgetItem>
+#include "../vkconfig_core/application.h"
 
-namespace Ui {
-class dlgCreateAssociation;
-}
+#include <memory>
 
-class dlgCreateAssociation : public QDialog {
+class ApplicationDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit dlgCreateAssociation(QWidget *parent = nullptr);
-    ~dlgCreateAssociation();
+    explicit ApplicationDialog(QWidget *parent = nullptr);
 
     static void GetExecutableFromAppBundle(QString &path);
     int GetSelectedLaunchApplicationIndex() const { return _last_selected_application_index; }
@@ -45,9 +41,6 @@ class dlgCreateAssociation : public QDialog {
 
     virtual void closeEvent(QCloseEvent *) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
-
-    Ui::dlgCreateAssociation *ui;
-    int _last_selected_application_index;
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();                                                // Pick the application
@@ -62,6 +55,9 @@ class dlgCreateAssociation : public QDialog {
     void editLogFile(const QString &log_file);
 
    private:
-    dlgCreateAssociation(const dlgCreateAssociation &) = delete;
-    dlgCreateAssociation &operator=(const dlgCreateAssociation &) = delete;
+    ApplicationDialog(const ApplicationDialog &) = delete;
+    ApplicationDialog &operator=(const ApplicationDialog &) = delete;
+
+    std::unique_ptr<Ui::dlgCreateAssociation> ui;
+    int _last_selected_application_index;
 };

@@ -20,7 +20,6 @@
  */
 
 #include "dlgvulkananalysis.h"
-#include "ui_dlgvulkananalysis.h"
 
 #include "../vkconfig_core/platform.h"
 
@@ -29,10 +28,10 @@
 #include <QDir>
 #include <QByteArray>
 #include <QTextStream>
-
 #include <QMessageBox>
+#include <QJsonDocument>
 
-dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanAnalysis) {
+VulkanAnalysisDialog::VulkanAnalysisDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dlgVulkanAnalysis) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -41,9 +40,7 @@ dlgVulkanAnalysis::dlgVulkanAnalysis(QWidget *parent) : QDialog(parent), ui(new 
     ui->tabWidget->removeTab(2);
 }
 
-dlgVulkanAnalysis::~dlgVulkanAnalysis() { delete ui; }
-
-void dlgVulkanAnalysis::RunTool() {
+void VulkanAnalysisDialog::RunTool() {
     ui->envTable->clear();
     ui->cleanupTable->clear();
     ui->hardwareTable->clear();
@@ -180,7 +177,7 @@ void dlgVulkanAnalysis::RunTool() {
     show();
 }
 
-void dlgVulkanAnalysis::LoadTable(QJsonObject &jsonParent, QTableWidget *pTable) {
+void VulkanAnalysisDialog::LoadTable(QJsonObject &jsonParent, QTableWidget *pTable) {
     // How many items does this object contain?
     int nHowManyRows = jsonParent.size();
     pTable->setRowCount(nHowManyRows);

@@ -21,19 +21,15 @@
 
 #pragma once
 
-#include <QDialog>
-#include <QTreeWidgetItem>
+#include "ui_dlgvulkaninfo.h"
 
-namespace Ui {
-class dlgVulkanInfo;
-}
+#include <memory>
 
-class dlgVulkanInfo : public QDialog {
+class VulkanInfoDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit dlgVulkanInfo(QWidget *parent = nullptr);
-    ~dlgVulkanInfo();
+    explicit VulkanInfoDialog(QWidget *parent = nullptr);
 
     void BuildExtensions(QJsonValue &json_value, QTreeWidgetItem *root);
     void BuildLayers(QJsonValue &json_value, QTreeWidgetItem *root);
@@ -45,8 +41,8 @@ class dlgVulkanInfo : public QDialog {
     void RunTool();
 
    private:
-    Ui::dlgVulkanInfo *ui;
+    VulkanInfoDialog(const VulkanInfoDialog &) = delete;
+    VulkanInfoDialog &operator=(const VulkanInfoDialog &) = delete;
 
-    dlgVulkanInfo(const dlgVulkanInfo &) = delete;
-    dlgVulkanInfo &operator=(const dlgVulkanInfo &) = delete;
+    std::unique_ptr<Ui::dlgVulkanInfo> ui;
 };

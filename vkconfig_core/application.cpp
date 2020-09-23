@@ -15,31 +15,18 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "application.h"
 
-#include "ui_dlgvulkananalysis.h"
+#include <QDir>
+#include <QFileInfo>
 
-#include <QJsonObject>
-
-#include <memory>
-
-class VulkanAnalysisDialog : public QDialog {
-    Q_OBJECT
-
-   public:
-    explicit VulkanAnalysisDialog(QWidget* parent = nullptr);
-
-    void RunTool();
-
-   private:
-    VulkanAnalysisDialog(const VulkanAnalysisDialog&) = delete;
-    VulkanAnalysisDialog& operator=(const VulkanAnalysisDialog&) = delete;
-
-    void LoadTable(QJsonObject& json_parent, QTableWidget* table);
-
-    std::unique_ptr<Ui::dlgVulkanAnalysis> ui;
-};
+Application::Application(const QString& executable_full_path, const QString& arguments)
+    : executable_path(QDir::toNativeSeparators(executable_full_path)),
+      working_folder(QDir::toNativeSeparators(QFileInfo(executable_full_path).path())),
+      arguments(arguments),
+      log_file(
+          QDir::toNativeSeparators(QDir::homePath() + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
+      override_layers(true) {}

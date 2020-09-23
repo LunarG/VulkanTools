@@ -31,15 +31,9 @@
 
 class MuteMessageWidget : public QWidget {
     Q_OBJECT
+
    public:
     explicit MuteMessageWidget(LayerSetting &layer_setting);
-
-   private:
-    LayerSetting &_layer_setting;
-    QListWidget *_list_widget;
-    QPushButton *_remove_button;
-
-    void resizeEvent(QResizeEvent *event) override;
 
    public Q_SLOTS:
     void addItem(const QString &item);  // Added from combo box
@@ -52,4 +46,10 @@ class MuteMessageWidget : public QWidget {
    private:
     MuteMessageWidget(const MuteMessageWidget &) = delete;
     MuteMessageWidget &operator=(const MuteMessageWidget &) = delete;
+
+    void resizeEvent(QResizeEvent *event) override;
+
+    LayerSetting &_layer_setting;
+    QListWidget *_list_widget;
+    QPushButton *_remove_button;
 };

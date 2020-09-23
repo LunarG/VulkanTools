@@ -34,8 +34,8 @@
 #include <cassert>
 #include <cstdio>
 
-Configuration::Configuration() : _name("New Configuration"), _preset(ValidationPresetNone) {}
-
+Configuration::Configuration() : name("New Configuration"), _preset(ValidationPresetNone) {}
+/*
 ///////////////////////////////////////////////////////////
 // Find the layer if it exists.
 Parameter* Configuration::FindParameter(const QString& layer_name) {
@@ -50,7 +50,7 @@ Parameter* Configuration::FindParameter(const QString& layer_name) {
 
     return nullptr;
 }
-
+*/
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
         return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
@@ -97,20 +97,20 @@ bool Configuration::Load(const QString& full_path) {
     }
 
     if (SUPPORT_VKCONFIG_2_0_1 && version <= Version("2.0.1")) {
-        _name = filename.left(filename.length() - 5);
-        if (_name == "Validation - Shader Printf") {
-            _name = "Validation - Debug Printf";
+        name = filename.left(filename.length() - 5);
+        if (name == "Validation - Shader Printf") {
+            name = "Validation - Debug Printf";
             const int result = std::remove(full_path.toStdString().c_str());
             assert(result == 0);
         }
     } else {
         const QJsonValue& json_name_value = configuration_entry_object.value("name");
         assert(json_name_value != QJsonValue::Undefined);
-        _name = json_name_value.toString();
+        name = json_name_value.toString();
     }
 
-    if (_name.isEmpty()) {
-        _name = "Configuration";
+    if (name.isEmpty()) {
+        name = "Configuration";
         const int result = std::remove(full_path.toStdString().c_str());
         assert(result == 0);
     }
@@ -148,7 +148,7 @@ bool Configuration::Load(const QString& full_path) {
         alert.setWindowTitle("Vulkan Configurator version is too old...");
         alert.setText(format("The \"%s\" configuration was created with a newer version of %s. Use %s from the "
                              "latest Vulkan SDK to resolve the issue. ",
-                             _name.toUtf8().constData(), VKCONFIG_NAME, VKCONFIG_NAME)
+                             name.toUtf8().constData(), VKCONFIG_NAME, VKCONFIG_NAME)
                           .c_str());
         alert.setInformativeText("Do you want to continue?");
         alert.setIcon(QMessageBox::Warning);
@@ -162,8 +162,8 @@ bool Configuration::Load(const QString& full_path) {
         const QJsonObject& layer_object = layer_value.toObject();
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
 
-        Parameter* parameter = FindParameter(layers[layer_index]);
-        if (parameter) {
+        auto parameter = FindParameter(parameters, layers[layer_index]);
+        if (parameter != parameters.end()) {
             parameter->overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
             LoadSettings(layer_object, *parameter);
         } else {
@@ -213,7 +213,7 @@ bool Configuration::Save(const QString& full_path) const {
     }
 
     QJsonObject json_configuration;
-    json_configuration.insert("name", _name);
+    json_configuration.insert("name", name);
     json_configuration.insert("blacklisted_layers", excluded_list);
     json_configuration.insert("description", _description);
     json_configuration.insert("preset", _preset);
@@ -231,7 +231,7 @@ bool Configuration::Save(const QString& full_path) const {
     if (!json_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox alert;
         alert.setText("Could not save the configuration file!");
-        alert.setWindowTitle(_name);
+        alert.setWindowTitle(name);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return false;

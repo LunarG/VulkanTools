@@ -48,7 +48,7 @@ void RemoveString(QString& delimitedString, QString value) {
 
 /////////////////////////////////////////////////////////////////////////////////
 // Pretty simple, add to list if it's not already in it
-void AddString(QString& delimitedString, QString value) {
+void AppendString(QString& delimitedString, QString value) {
     // Do I have anything to do?
     if (delimitedString.contains(value))  // Nope
         return;
@@ -140,43 +140,28 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     return IsValid();  // Not all JSON file are layer JSON valid
 }
 
-bool Layer::operator==(const Layer& layer) const {
-    if (_file_format_version != layer._file_format_version)
-        return false;
-    else if (_name != layer._name)
-        return false;
-    else if (_type != layer._type)
-        return false;
-    else if (_library_path != layer._library_path)
-        return false;
-    else if (_api_version != layer._api_version)
-        return false;
-    else if (_implementation_version != layer._implementation_version)
-        return false;
-    else if (_description != layer._description)
-        return false;
-    else if (_layer_path != layer._layer_path)
-        return false;
-    else if (_layer_type != layer._layer_type)
-        return false;
-
-    //    for (std::size_t i = 0, n = _layer_settings.size(); i < n; ++i)
-    //        if (_layer_settings[i] != layer._layer_settings[i]) return false;
-
-    return true;
-}
-
-bool Layer::operator!=(const Layer& layer) const { return !(*this == layer); }
-
-const Layer* FindLayer(const QVector<Layer*>& layers, QString layer_name) {
+const Layer* FindLayer(const std::vector<Layer>& layers, const QString& layer_name) {
     assert(!layer_name.isEmpty());
 
-    for (int i = 0; i < layers.size(); ++i) {
-        const Layer* layer = layers[i];
+    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
+        const Layer& layer = layers[i];
 
-        if (layer_name != layer->_name) continue;
-        return layer;
+        if (layer_name != layer._name) continue;
+        return &layer;
     }
 
     return nullptr;
+}
+
+bool IsLayerFound(const std::vector<Layer>& layers, const QString& layer_name) {
+    assert(!layer_name.isEmpty());
+
+    for (auto it = layers.begin(), end = layers.end(); it != end; ++it) {
+        if (layer_name != it->_name) continue;
+
+        assert(it->IsValid());
+        return true;
+    }
+
+    return false;
 }

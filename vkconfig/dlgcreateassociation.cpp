@@ -20,7 +20,8 @@
  */
 
 #include "dlgcreateassociation.h"
-#include "ui_dlgcreateassociation.h"
+
+#include "configurator.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -30,8 +31,7 @@
 
 #include <cassert>
 
-//////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
+ApplicationDialog::ApplicationDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::dlgCreateAssociation), _last_selected_application_index(-1) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -69,11 +69,8 @@ dlgCreateAssociation::dlgCreateAssociation(QWidget *parent)
     ui->treeWidget->setCurrentItem(pItem);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-dlgCreateAssociation::~dlgCreateAssociation() { delete ui; }
-
 //////////////////////////////////////////////////////////////////////////////
-bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event) {
+bool ApplicationDialog::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method
     // of this window.
@@ -90,7 +87,7 @@ bool dlgCreateAssociation::eventFilter(QObject *target, QEvent *event) {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Make sure any changes are saved
-void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
+void ApplicationDialog::closeEvent(QCloseEvent *event) {
     Environment &environment = Configurator::Get().environment;
 
     event->accept();
@@ -112,7 +109,7 @@ void dlgCreateAssociation::closeEvent(QCloseEvent *event) {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Browse for and select an executable file to add to the list.
-void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test application
+void ApplicationDialog::on_pushButtonAdd_clicked()  // Pick the test application
 {
     Configurator &configurator = Configurator::Get();
 
@@ -139,7 +136,7 @@ void dlgCreateAssociation::on_pushButtonAdd_clicked()  // Pick the test applicat
     }
 }
 
-QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &application) const {
+QTreeWidgetItem *ApplicationDialog::CreateApplicationItem(const Application &application) const {
     Configurator &configurator = Configurator::Get();
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -159,7 +156,7 @@ QTreeWidgetItem *dlgCreateAssociation::CreateApplicationItem(const Application &
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Easy enough, just remove the selected program from the list
-void dlgCreateAssociation::on_pushButtonRemove_clicked() {
+void ApplicationDialog::on_pushButtonRemove_clicked() {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
     int selection = ui->treeWidget->indexOfTopLevelItem(current);
     assert(selection >= 0 && selection < ui->treeWidget->topLevelItemCount());
@@ -184,7 +181,7 @@ void dlgCreateAssociation::on_pushButtonRemove_clicked() {
 //////////////////////////////////////////////////////////////////////////////
 // Dismiss the dialog, and preserve app information so it can be set to
 // the launcher.
-void dlgCreateAssociation::on_pushButtonSelect_clicked() {
+void ApplicationDialog::on_pushButtonSelect_clicked() {
     Configurator &configurator = Configurator::Get();
     QTreeWidgetItem *item = ui->treeWidget->currentItem();
     if (item != nullptr) {
@@ -197,7 +194,7 @@ void dlgCreateAssociation::on_pushButtonSelect_clicked() {
 ///////////////////////////////////////////////////////////////////////////////
 /// The remove button is disabled until/unless something is selected that can
 /// be removed. Also the working folder and command line arguments are updated
-void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *current_item, QTreeWidgetItem *previous_item) {
+void ApplicationDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTreeWidgetItem *previous_item) {
     (void)previous_item;
     int application_index = ui->treeWidget->indexOfTopLevelItem(current_item);
 
@@ -220,7 +217,7 @@ void dlgCreateAssociation::selectedPathChanged(QTreeWidgetItem *current_item, QT
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
+void ApplicationDialog::itemChanged(QTreeWidgetItem *item, int column) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(item);
     QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, column));
     if (check_box != nullptr) {
@@ -234,7 +231,7 @@ void dlgCreateAssociation::itemChanged(QTreeWidgetItem *item, int column) {
 /// all of them. There aren't that many, so KISS (keep it simple stupid)
 /// If one of them had their state flipped, that's the one that was checked, make
 /// it the currently selected one.
-void dlgCreateAssociation::itemClicked(bool clicked) {
+void ApplicationDialog::itemClicked(bool clicked) {
     (void)clicked;
 
     Environment &environment = Configurator::Get().environment;
@@ -251,7 +248,7 @@ void dlgCreateAssociation::itemClicked(bool clicked) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void dlgCreateAssociation::editCommandLine(const QString &cmdLine) {
+void ApplicationDialog::editCommandLine(const QString &cmdLine) {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
@@ -260,7 +257,7 @@ void dlgCreateAssociation::editCommandLine(const QString &cmdLine) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
+void ApplicationDialog::editWorkingFolder(const QString &workingFolder) {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
@@ -268,7 +265,7 @@ void dlgCreateAssociation::editWorkingFolder(const QString &workingFolder) {
     Configurator::Get().environment.GetApplication(_last_selected_application_index).working_folder = workingFolder;
 }
 
-void dlgCreateAssociation::editLogFile(const QString &logFile) {
+void ApplicationDialog::editLogFile(const QString &logFile) {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
@@ -282,7 +279,7 @@ void dlgCreateAssociation::editLogFile(const QString &logFile) {
 /// you find in the /MacOS folder is the executable.
 /// The initial path is the folder where info.plist resides, and the
 /// path is completed to the executable upon completion.
-void dlgCreateAssociation::GetExecutableFromAppBundle(QString &app_path) {
+void ApplicationDialog::GetExecutableFromAppBundle(QString &app_path) {
     QString path = app_path;
     path += "/Contents/";
     QString list_file = path + "Info.plist";

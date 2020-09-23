@@ -98,14 +98,6 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Application::Application(const QString& executable_full_path, const QString& arguments)
-    : executable_path(QDir::toNativeSeparators(executable_full_path)),
-      working_folder(QDir::toNativeSeparators(QFileInfo(executable_full_path).path())),
-      arguments(arguments),
-      log_file(
-          QDir::toNativeSeparators(QDir::homePath() + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
-      override_layers(true) {}
-
 Environment::Environment(PathManager& paths) : paths(paths) {
     const bool result = Load();
     assert(result);

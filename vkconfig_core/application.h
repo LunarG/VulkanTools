@@ -15,34 +15,20 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
-#include "../vkconfig_core/layer_setting.h"
-
-#include <QWidget>
-#include <QCheckBox>
-#include <QTreeWidgetItem>
 #include <QString>
 
-class MultiEnumSettingWidget : public QCheckBox {
-    Q_OBJECT
-   public:
-    explicit MultiEnumSettingWidget(LayerSetting& layer_setting, QString setting_name);
+struct Application {
+    Application() {}
+    Application(const QString& executable_full_path, const QString& arguments);
 
-   public Q_SLOTS:
-    void itemChecked(bool checked);
-
-   Q_SIGNALS:
-    void itemChanged();
-
-   private:
-    MultiEnumSettingWidget(const MultiEnumSettingWidget&) = delete;
-    MultiEnumSettingWidget& operator=(const MultiEnumSettingWidget&) = delete;
-
-    LayerSetting& _layer_setting;
-    QString _setting_name;
+    QString executable_path;
+    QString working_folder;
+    QString arguments;
+    QString log_file;
+    bool override_layers;
 };

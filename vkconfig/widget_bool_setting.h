@@ -30,11 +30,9 @@
 
 class BoolSettingWidget : public QCheckBox {
     Q_OBJECT
+
    public:
     explicit BoolSettingWidget(LayerSetting& layer_setting, SettingType setting_type);
-
-   private:
-    LayerSetting& _layer_setting;
 
    public Q_SLOTS:
     void itemToggled();
@@ -43,13 +41,14 @@ class BoolSettingWidget : public QCheckBox {
     void itemChanged();
 
    private:
+    BoolSettingWidget(const BoolSettingWidget&) = delete;
+    BoolSettingWidget& operator=(const BoolSettingWidget&) = delete;
+
     enum Mode { BOOL_NUMERIC, BOOL_STRING };
 
     QString GetToken(bool state, SettingType type) const;
     const QString _true_token;
     const QString _false_token;
 
-   private:
-    BoolSettingWidget(const BoolSettingWidget&) = delete;
-    BoolSettingWidget& operator=(const BoolSettingWidget&) = delete;
+    LayerSetting& _layer_setting;
 };

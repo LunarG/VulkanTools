@@ -21,26 +21,22 @@
 
 #pragma once
 
-#include <QDialog>
+#include "ui_dlgabout.h"
 
-namespace Ui {
-class dlgAbout;
-}
+#include <memory>
 
-class dlgAbout : public QDialog {
+class AboutDialog : public QDialog {
     Q_OBJECT
 
    public Q_SLOTS:
     void aboutQt();
 
    public:
-    explicit dlgAbout(QWidget *parent = nullptr);
-    ~dlgAbout();
+    explicit AboutDialog(QWidget *parent = nullptr);
 
    private:
-    Ui::dlgAbout *ui;
+    AboutDialog(const AboutDialog &) = delete;
+    AboutDialog &operator=(const AboutDialog &) = delete;
 
-   private:
-    dlgAbout(const dlgAbout &) = delete;
-    dlgAbout &operator=(const dlgAbout &) = delete;
+    std::unique_ptr<Ui::dlgAbout> ui;
 };

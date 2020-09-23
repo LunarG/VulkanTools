@@ -21,6 +21,7 @@
 #pragma once
 
 #include "version.h"
+#include "application.h"
 #include "path_manager.h"
 
 #include <QByteArray>
@@ -78,17 +79,6 @@ enum Active {
 };
 
 enum { ACTIVE_COUNT = ACTIVE_LAST - ACTIVE_FIRST + 1 };
-
-struct Application {
-    Application() {}
-    Application(const QString& executable_full_path, const QString& arguments);
-
-    QString executable_path;
-    QString working_folder;
-    QString arguments;
-    QString log_file;
-    bool override_layers;
-};
 
 class Environment {
    public:

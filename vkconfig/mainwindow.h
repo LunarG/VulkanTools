@@ -23,8 +23,11 @@
 
 #include "configurator.h"
 #include "settingstreemanager.h"
+
 #include "dlgvulkananalysis.h"
 #include "dlgvulkaninfo.h"
+
+#include "ui_mainwindow.h"
 
 #include <QVector>
 #include <QMainWindow>
@@ -37,13 +40,6 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
-
-//////////////////////////////////////////////////
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
 class ConfigurationListItem : public QTreeWidgetItem {
@@ -59,8 +55,6 @@ class ConfigurationListItem : public QTreeWidgetItem {
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
-
-    Ui::MainWindow *ui;
 
    public:
     MainWindow(QWidget *parent = nullptr);
@@ -83,8 +77,8 @@ class MainWindow : public QMainWindow {
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-    dlgVulkanAnalysis *_vk_via;
-    dlgVulkanInfo *_vk_info;
+    VulkanAnalysisDialog *_vk_via;
+    VulkanInfoDialog *_vk_info;
 
    private:
     void Log(const QString &log);
@@ -165,4 +159,6 @@ class MainWindow : public QMainWindow {
     MainWindow &operator=(const MainWindow &) = delete;
 
     void ResetLaunchApplication();
+
+    std::unique_ptr<Ui::MainWindow> ui;
 };

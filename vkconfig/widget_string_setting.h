@@ -23,18 +23,15 @@
 
 #include "../vkconfig_core/layer_setting.h"
 
-#include <QObject>
-#include <QWidget>
-#include <QLineEdit>
+#include <QString>
 #include <QTreeWidgetItem>
+#include <QLineEdit>
 
 class StringSettingWidget : public QLineEdit {
     Q_OBJECT
+
    public:
     StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting);
-
-   private:
-    LayerSetting& _layer_setting;
 
    public Q_SLOTS:
     void itemEdited(const QString& newString);
@@ -45,4 +42,6 @@ class StringSettingWidget : public QLineEdit {
    private:
     StringSettingWidget(const StringSettingWidget&) = delete;
     StringSettingWidget& operator=(const StringSettingWidget&) = delete;
+
+    LayerSetting& _layer_setting;
 };
