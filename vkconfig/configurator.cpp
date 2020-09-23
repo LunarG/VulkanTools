@@ -86,7 +86,7 @@ static const DefaultConfiguration default_configurations[] = {
 #endif
 #if !PLATFORM_MACOS
     {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
-    {"Frame Capture - Range (F10 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
+    {"Frame Capture - Range (F5 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
      ValidationPresetNone},
 #endif
     {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "", ValidationPresetNone}};

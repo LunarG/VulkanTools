@@ -152,7 +152,7 @@
                 }
             }
         },
-        "name": "Frame Capture - Range (F10 to start and to stop)",
+        "name": "Frame Capture - Range (F5 to start and to stop)",
         "preset": 0
     },
     "file_format_version": "2.0.2"
