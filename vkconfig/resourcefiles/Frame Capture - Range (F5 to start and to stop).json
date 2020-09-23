@@ -1,5 +1,5 @@
 {
-    "Frame Capture - Range (F10 to start and to stop)": {
+    "Frame Capture - Range (F5 to start and to stop)": {
         "blacklisted_layers": [
         ],
         "description": "Capture a range of frames",
@@ -37,7 +37,7 @@
                     "type": "bool"
                 },
                 "capture_frames": {
-                    "default": "1",
+                    "default": "",
                     "description": "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. Default is: Empty string (all frames are captured).",
                     "name": "Capture Specific Frames",
                     "type": "string"

@@ -106,7 +106,7 @@ TEST(test_configuration, load_and_save_v2_0_2_frame_capture) {
     Parameter* parameter = configuration_loaded.FindParameter("VK_LAYER_LUNARG_gfxreconstruct");
     ASSERT_TRUE(parameter != nullptr);
 
-    EXPECT_STREQ("Frame Capture - Range (F10 to start and to stop)", configuration_loaded._name.toStdString().c_str());
+    EXPECT_STREQ("Frame Capture - Range (F5 to start and to stop)", configuration_loaded._name.toStdString().c_str());
     configuration_loaded.Save("test_v2_0_2_frame_capture.json");
 
     Configuration configuration_saved;
