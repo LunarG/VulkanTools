@@ -38,7 +38,7 @@
 #include <QMessageBox>
 #include <QStringList>
 
-VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_vulkan_info) {
+VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(std::make_unique<Ui::dialog_vulkan_info>()) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 

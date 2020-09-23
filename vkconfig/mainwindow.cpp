@@ -69,7 +69,7 @@ static const int LAUNCH_ROW_HEIGHT = 28;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      ui(new Ui::MainWindow),
+      ui(std::make_unique<Ui::MainWindow>()),
       _launch_application(nullptr),
       _log_file(nullptr),
       _launcher_apps_combo(nullptr),

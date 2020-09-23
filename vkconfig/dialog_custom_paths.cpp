@@ -26,8 +26,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths) {
-    _paths_changed = false;
+CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(std::make_unique<Ui::dialog_custom_paths>()) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -57,7 +56,6 @@ void CustomPathsDialog::on_pushButtonAdd_clicked() {
         item->setText(0, custom_path);
         ui->treeWidget->addTopLevelItem(item);
 
-        _paths_changed = true;
         RepopulateTree();
     }
 
@@ -91,5 +89,4 @@ void CustomPathsDialog::on_pushButtonRemove_clicked() {
 
     // Nothing is selected, so disable remove button
     ui->buttonBox->setEnabled(false);
-    _paths_changed = true;
 }
