@@ -407,38 +407,14 @@ void MainWindow::toolsResetToDefault(bool checked) {
     alert.setDefaultButton(QMessageBox::Yes);
     if (alert.exec() == QMessageBox::No) return;
 
-    Configurator &configurator = Configurator::Get();
-
-    // Clear the current profile as we may be about to remove it.
-    configurator.SetActiveConfiguration(nullptr);
-
-    configurator.environment.Reset(Environment::DEFAULT);
-
-    // Delete all the *.json files in the storage folder
-    QDir dir(configurator.path.GetPath(PATH_CONFIGURATION));
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.json");
-    QFileInfoList configuration_files = dir.entryInfoList();
-
-    // Loop through all the profiles found and remove them
-    for (int i = 0; i < configuration_files.size(); i++) {
-        QFileInfo info = configuration_files.at(i);
-        if (info.absoluteFilePath().contains("applist.json")) continue;
-        remove(info.filePath().toUtf8().constData());
-    }
-
-    // Now we need to kind of restart everything
     _settings_tree_manager.CleanupGUI();
-    configurator.LoadAllConfigurations();
 
-    // Find the "Validation - Standard" configuration and make it current if we are active
-    Configuration *active_configuration = configurator.FindConfiguration(configurator.environment.Get(ACTIVE_CONFIGURATION));
-    if (configurator.environment.UseOverride()) {
-        configurator.SetActiveConfiguration(active_configuration);
-    }
+    Configurator &configurator = Configurator::Get();
+    configurator.ResetDefaultsConfigurations();
 
     LoadConfigurationList();
 
+    Configuration *active_configuration = configurator.FindConfiguration(configurator.environment.Get(ACTIVE_CONFIGURATION));
     if (active_configuration) _settings_tree_manager.CreateGUI(ui->layerSettingsTree, active_configuration);
 
     ui->logBrowser->clear();
