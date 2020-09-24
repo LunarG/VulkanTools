@@ -229,25 +229,27 @@ bool Configurator::Init() {
     // manually manipulated
     SetActiveConfiguration(_active_configuration);
 
-    if (HasMissingLayers(*_active_configuration)) {
-        QSettings settings;
-        if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
-            QMessageBox alert;
-            alert.setWindowTitle("Vulkan Configurator couldn't find some Vulkan layers...");
-            alert.setText(format("%s is missing layers", _active_configuration->_name.toUtf8().constData()).c_str());
-            alert.setInformativeText("Do you want to add a custom path to find the layers?");
-            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            alert.setDefaultButton(QMessageBox::Yes);
-            alert.setIcon(QMessageBox::Warning);
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-            if (alert.exec() == QMessageBox::Yes) {
-                dlgCustomPaths dlg;
-                dlg.exec();
+    if (_active_configuration) {
+        if (HasMissingLayers(*_active_configuration)) {
+            QSettings settings;
+            if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
+                QMessageBox alert;
+                alert.setWindowTitle("Vulkan Configurator couldn't find some Vulkan layers...");
+                alert.setText(format("%s is missing layers", _active_configuration->_name.toUtf8().constData()).c_str());
+                alert.setInformativeText("Do you want to add a custom path to find the layers?");
+                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                alert.setDefaultButton(QMessageBox::Yes);
+                alert.setIcon(QMessageBox::Warning);
+                alert.setCheckBox(new QCheckBox("Do not show again."));
+                if (alert.exec() == QMessageBox::Yes) {
+                    dlgCustomPaths dlg;
+                    dlg.exec();
 
-                LoadAllInstalledLayers();
-            }
-            if (alert.checkBox()->isChecked()) {
-                settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", true);
+                    LoadAllInstalledLayers();
+                }
+                if (alert.checkBox()->isChecked()) {
+                    settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", true);
+                }
             }
         }
     }
