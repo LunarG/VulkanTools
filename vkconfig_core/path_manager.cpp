@@ -85,6 +85,26 @@ PathManager::~PathManager() {
     assert(result);
 }
 
+static void CheckHomePathsExist(const QString& path) {
+    QDir dir = QDir::home();
+    if (!dir.exists(path)) {
+        dir.mkpath(path);
+        assert(dir.exists(path));
+    }
+}
+
+void PathManager::CheckDefaultDirectories() const {
+    if (PLATFORM_WINDOWS) {
+        CheckHomePathsExist("AppData/Local/LunarG/vkconfig/override");
+    } else if (PLATFORM_LINUX || PLATFORM_MACOS) {
+        CheckHomePathsExist(".local/share/vulkan/implicit_layer.d");
+        CheckHomePathsExist(".local/share/vulkan/settings.d");
+        CheckHomePathsExist(".local/share/vulkan/lunarg-vkconfig");
+    } else {
+        assert(0);  // Platform unknown
+    }
+}
+
 bool PathManager::Load() {
     paths[PATH_HOME] = QDir::toNativeSeparators(QDir::homePath()).toStdString();
 
@@ -95,69 +115,19 @@ bool PathManager::Load() {
         paths[type] = settings.value(GetDesc(type).setting).toString().toUtf8().constData();
     }
 
-// Where is stuff
-#if PLATFORM_WINDOWS
-    QDir home = QDir::home();
-    QString main_path = home.path() + QString("/AppData/Local/");
-    home.setPath(main_path);
-    if (!home.cd("LunarG")) {
-        home.mkpath("LunarG");
-        home.cd("LunarG");
-    }
+    CheckDefaultDirectories();
 
-    if (!home.cd("vkconfig")) {
-        home.mkpath("vkconfig");
+    if (PLATFORM_WINDOWS) {
+        SetPath(PATH_CONFIGURATION, QDir::home().path() + "/AppData/Local/LunarG/vkconfig");
+        SetPath(PATH_OVERRIDE_LAYERS, QDir::home().path() + "/AppData/Local/LunarG/vkconfig/override");
+        SetPath(PATH_OVERRIDE_SETTINGS, QDir::home().path() + "/AppData/Local/LunarG/vkconfig/override");
+    } else if (PLATFORM_LINUX || PLATFORM_MACOS) {
+        SetPath(PATH_CONFIGURATION, QDir::home().path() + "/.local/share/vulkan/lunarg-vkconfig/");
+        SetPath(PATH_OVERRIDE_LAYERS, QDir::home().path() + "/.local/share/vulkan/implicit_layer.d");
+        SetPath(PATH_OVERRIDE_SETTINGS, QDir::home().path() + "/.local/share/vulkan/settings.d");
+    } else {
+        assert(0);  // Platform unknown
     }
-
-    if (!home.cd("override")) {
-        home.mkpath("override");
-    }
-
-    SetPath(PATH_CONFIGURATION, main_path + "LunarG/vkconfig");
-    SetPath(PATH_OVERRIDE_LAYERS, main_path + "LunarG/vkconfig/override");
-    SetPath(PATH_OVERRIDE_SETTINGS, main_path + "LunarG/vkconfig/override");
-#elif PLATFORM_LINUX || PLATFORM_MACOS
-    QDir home = QDir::home();
-    if (!home.cd(".local")) {
-        home.mkpath(".local");
-        home.cd(".local");
-    }
-
-    if (!home.cd("share")) {
-        home.mkpath("share");
-        home.cd("share");
-    }
-
-    if (!home.cd("vulkan")) {
-        home.mkpath("vulkan");
-        home.cd("vulkan");
-    }
-
-    if (!home.cd("implicit_layer.d")) {
-        home.mkpath("implicit_layer.d");
-        home.cd("implicit_layer.d");
-    }
-
-    home.cd("..");
-    if (!home.cd("settings.d")) {
-        home.mkpath("settings.d");
-        home.cd("settings.d");
-    }
-
-    home.cd("..");
-    if (!home.cd("lunarg-vkconfig")) {
-        home.mkpath("lunarg-vkconfig");
-        home.cd("lunarg-vkconfig");
-    }
-
-    home = QDir::home();
-    const QString& main_path = home.path() + QString("/.local/share/vulkan/");
-    SetPath(PATH_CONFIGURATION, main_path + "lunarg-vkconfig/");
-    SetPath(PATH_OVERRIDE_LAYERS, main_path + "implicit_layer.d");
-    SetPath(PATH_OVERRIDE_SETTINGS, main_path + "settings.d");
-#else
-#error "Unknown platform"
-#endif
 
     return true;
 }
@@ -195,6 +165,8 @@ void PathManager::Reset() {
 const char* PathManager::GetPath(Path path) const {
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
+    CheckDefaultDirectories();
+
     if (!paths[path].empty()) {
         return paths[path].c_str();
     }
@@ -212,6 +184,8 @@ const char* PathManager::GetPath(Path path) const {
 void PathManager::SetPath(Path path, const char* path_value) {
     assert(path >= PATH_FIRST && path <= PATH_LAST);
     assert(path_value);
+
+    CheckDefaultDirectories();
 
     const QDir directory(path_value);
     const QString native_path = QDir::toNativeSeparators(directory.absolutePath());

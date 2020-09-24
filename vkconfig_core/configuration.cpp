@@ -223,7 +223,7 @@ bool Configuration::Save(const QString& full_path) const {
     QFile json_file(full_path);
     if (!json_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox alert;
-        alert.setText("Could not save configuration file!");
+        alert.setText("Could not save the configuration file!");
         alert.setWindowTitle(_name);
         alert.setIcon(QMessageBox::Warning);
         alert.exec();

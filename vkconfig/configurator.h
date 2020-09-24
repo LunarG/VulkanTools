@@ -137,6 +137,7 @@ class Configurator {
     void ImportConfiguration(const QString& full_import_path);
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
     bool HasMissingLayers(const Configuration& configuration) const;
+    void ResetDefaultsConfigurations();
 
     bool HasLayers() const;
 

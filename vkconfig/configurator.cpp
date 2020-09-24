@@ -225,6 +225,20 @@ bool Configurator::Init() {
 
     LoadAllConfigurations();
 
+    if (_available_configurations.empty()) {
+        QMessageBox alert;
+        alert.setWindowTitle("Vulkan Configurator couldn't find any layers configuration.");
+        alert.setText(
+            "A layers configuration is required to override Vulkan layers but none could be found during the initialization...");
+        alert.setInformativeText("Do you want to restore the default layers configurations?");
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::Yes);
+        alert.setIcon(QMessageBox::Warning);
+        if (alert.exec() == QMessageBox::Yes) {
+            ResetDefaultsConfigurations();
+        }
+    }
+
     // This will reset or clear the current profile if the files have been
     // manually manipulated
     SetActiveConfiguration(_active_configuration);
@@ -258,6 +272,10 @@ bool Configurator::Init() {
 }
 
 Configurator::~Configurator() {
+    for (int i = 0, n = _available_configurations.size(); i < n; ++i) {
+        _available_configurations[i]->Save(path.GetFullPath(PATH_CONFIGURATION, _available_configurations[i]->_name));
+    }
+
     ClearLayerLists();
     qDeleteAll(_available_configurations.begin(), _available_configurations.end());
     _available_configurations.clear();
@@ -1039,4 +1057,33 @@ bool Configurator::HasMissingLayers(const Configuration &configuration) const {
     }
 
     return false;
+}
+
+void Configurator::ResetDefaultsConfigurations() {
+    // Clear the current profile as we may be about to remove it.
+    SetActiveConfiguration(nullptr);
+
+    environment.Reset(Environment::DEFAULT);
+
+    // Delete all the *.json files in the storage folder
+    QDir dir(path.GetPath(PATH_CONFIGURATION));
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.json");
+    QFileInfoList configuration_files = dir.entryInfoList();
+
+    // Loop through all the profiles found and remove them
+    for (int i = 0; i < configuration_files.size(); i++) {
+        QFileInfo info = configuration_files.at(i);
+        if (info.absoluteFilePath().contains("applist.json")) continue;
+        remove(info.filePath().toUtf8().constData());
+    }
+
+    // Now we need to kind of restart everything
+    LoadAllConfigurations();
+
+    // Find the "Validation - Standard" configuration and make it current if we are active
+    Configuration *active_configuration = FindConfiguration(environment.Get(ACTIVE_CONFIGURATION));
+    if (environment.UseOverride()) {
+        SetActiveConfiguration(active_configuration);
+    }
 }
