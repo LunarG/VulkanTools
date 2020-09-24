@@ -634,7 +634,6 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionVulkan_Info"/>
     <addaction name="actionVulkan_Installation"/>
     <addaction name="actionCustom_Layer_Paths"/>
     <addaction name="separator"/>
