@@ -79,10 +79,19 @@ TEST(test_parameter, ordering_missing_layers) {
     std::vector<Layer> layers_empty;
     std::vector<Layer> layers = GenerateTestLayers();
 
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
+    std::vector<Parameter> parameters_exist;
+    parameters_exist.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
+    parameters_exist.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
+    parameters_exist.push_back(Parameter("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
 
-    EXPECT_EQ(true, HasMissingParameter(parameters, layers_empty));
-    EXPECT_EQ(false, HasMissingParameter(parameters, layers));
+    EXPECT_EQ(true, HasMissingParameter(parameters_exist, layers_empty));
+    EXPECT_EQ(false, HasMissingParameter(parameters_exist, layers));
+
+    std::vector<Parameter> parameters_missing;
+    parameters_missing.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
+    parameters_missing.push_back(Parameter("Layer E2", LAYER_STATE_EXCLUDED));
+    parameters_missing.push_back(Parameter("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
+
+    EXPECT_EQ(true, HasMissingParameter(parameters_missing, layers_empty));
+    EXPECT_EQ(true, HasMissingParameter(parameters_missing, layers));
 }
