@@ -52,6 +52,7 @@ struct Parameter {
     static const int UNRANKED = -1;
 
     Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
+    Parameter(const QString& name, const LayerState state) : name(name), state(state), overridden_rank(UNRANKED) {}
 
     QString name;
     LayerState state;
