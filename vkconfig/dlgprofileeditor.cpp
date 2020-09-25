@@ -603,7 +603,7 @@ static ParameterRank GetParameterOrdering(const Parameter &parameter) {
     } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_IMPLICIT_AVAILABLE;
     } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
+        return PARAMETER_RANK_IMPLICIT_OVERRIDDEN;
     } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
     } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
