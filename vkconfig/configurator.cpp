@@ -677,8 +677,12 @@ void Configurator::LoadAllConfigurations() {
 
     // Cache the active configuration
     const QString &active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
-    _active_configuration = FindConfiguration(available_configurations, active_configuration_name);
-    assert(_active_configuration != available_configurations.end());
+    if (!active_configuration_name.isEmpty()) {
+        _active_configuration = FindConfiguration(available_configurations, active_configuration_name);
+        assert(_active_configuration != available_configurations.end());
+    } else {
+        _active_configuration = available_configurations.end();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
