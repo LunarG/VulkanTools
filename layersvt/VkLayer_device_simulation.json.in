@@ -13,10 +13,6 @@
                  "spec_version": "1",
                  "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"
                         ]
-            },
-            {
-                 "name": "VK_KHR_portability_subset",
-                 "spec_version": "1"
             }
         ]
 
