@@ -41,6 +41,7 @@ void AppendString(QString& delimited_string, QString value);
 class Layer {
    public:
     Layer();
+    Layer(const QString& name, const LayerType type);
 
     bool IsValid() const;
 

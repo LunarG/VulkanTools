@@ -60,6 +60,8 @@ void AppendString(QString& delimitedString, QString value) {
 
 Layer::Layer() {}
 
+Layer::Layer(const QString& name, const LayerType type) : _name(name), _layer_type(type) {}
+
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
     return _file_format_version != Version::VERSION_NULL && !_name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
