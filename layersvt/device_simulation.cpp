@@ -86,13 +86,13 @@ const char *kOurLayerName = kLayerProperties[0].layerName;
 
 // Instance extensions that this layer provides:
 const std::array<VkExtensionProperties, 0> kInstanceExtensionProperties = {};
-const uint32_t kInstanceExtensionPropertiesCount = kInstanceExtensionProperties.size();
+const uint32_t kInstanceExtensionPropertiesCount = static_cast<uint32_t>(kInstanceExtensionProperties.size());
 
 // Device extensions that this layer provides:
 const std::array<VkExtensionProperties, 2> kDeviceExtensionProperties = {
     {{VK_EXT_TOOLING_INFO_EXTENSION_NAME, VK_EXT_TOOLING_INFO_SPEC_VERSION},
      {VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_KHR_PORTABILITY_SUBSET_SPEC_VERSION}}};
-const uint32_t kDeviceExtensionPropertiesCount = kDeviceExtensionProperties.size();
+const uint32_t kDeviceExtensionPropertiesCount = static_cast<uint32_t>(kDeviceExtensionProperties.size());
 
 // The "standard" core VkFormat enum values:
 const VkFormat StandardVkFormatEnumList[] = {
