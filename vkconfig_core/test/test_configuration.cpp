@@ -22,6 +22,7 @@
 #include "../util.h"
 
 #include <array>
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -438,4 +439,91 @@ TEST(test_configuration, find_layer_parameter) {
     ASSERT_TRUE(parameter != configuration_2_0_1.parameters.end());
 
     EXPECT_STREQ(parameter->name.toStdString().c_str(), "VK_LAYER_KHRONOS_validation");
+}
+
+static std::vector<Configuration> GenerateConfigurations() {
+    std::vector<Configuration> configurations;
+
+    {
+        Configuration configuration;
+        configuration.name = "Duplicate Configuration";
+        configurations.push_back(configuration);
+    }
+
+    {
+        Configuration configuration;
+        configuration.name = "Duplicate Configuration (2)";
+        configurations.push_back(configuration);
+    }
+
+    {
+        Configuration configuration;
+        configuration.name = "My Configuration";
+        configurations.push_back(configuration);
+    }
+
+    {
+        Configuration configuration;
+        configuration.name = "Old Configuration (3)";
+        configurations.push_back(configuration);
+    }
+
+    {
+        Configuration configuration;
+        configuration.name = "Old Configuration (1)";
+        configurations.push_back(configuration);
+    }
+
+    {
+        Configuration configuration;
+        configuration.name = "Tag Configuration (tag)";
+        configurations.push_back(configuration);
+    }
+
+    return configurations;
+}
+
+TEST(test_configuration, make_first_duplicate_name) {
+    const std::vector<Configuration>& configurations = GenerateConfigurations();
+
+    const QString& new_name = MakeConfigurationName(configurations, "My Configuration");
+
+    EXPECT_STREQ("My Configuration (2)", new_name.toStdString().c_str());
+    EXPECT_TRUE(!new_name.isEmpty());
+}
+
+TEST(test_configuration, make_additional_duplicate_name) {
+    const std::vector<Configuration>& configurations = GenerateConfigurations();
+
+    const QString& new_name = MakeConfigurationName(configurations, "Duplicate Configuration");
+
+    EXPECT_STREQ("Duplicate Configuration (3)", new_name.toStdString().c_str());
+    EXPECT_TRUE(!new_name.isEmpty());
+}
+
+TEST(test_configuration, make_extra_duplicate_name) {
+    const std::vector<Configuration>& configurations = GenerateConfigurations();
+
+    const QString& new_name = MakeConfigurationName(configurations, "Old Configuration (2)");
+
+    EXPECT_STREQ("Old Configuration (4)", new_name.toStdString().c_str());
+    EXPECT_TRUE(!new_name.isEmpty());
+}
+
+TEST(test_configuration, make_new_name) {
+    const std::vector<Configuration>& configurations = GenerateConfigurations();
+
+    const QString& new_name = MakeConfigurationName(configurations, "New Configuration");
+
+    EXPECT_STREQ("New Configuration", new_name.toStdString().c_str());
+    EXPECT_TRUE(!new_name.isEmpty());
+}
+
+TEST(test_configuration, make_duplicate_tagged_name) {
+    const std::vector<Configuration>& configurations = GenerateConfigurations();
+
+    const QString& new_name = MakeConfigurationName(configurations, "Tag Configuration (tag)");
+
+    EXPECT_STREQ("Tag Configuration (tag) (2)", new_name.toStdString().c_str());
+    EXPECT_TRUE(!new_name.isEmpty());
 }

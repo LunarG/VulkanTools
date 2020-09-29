@@ -43,3 +43,13 @@ std::string format(const char* message, ...) {
 
     return buffer;
 }
+
+bool IsNumber(const std::string& s) {
+    for (std::size_t i = 0, n = s.length(); i < n; ++i) {
+        if (std::isdigit(s[i])) continue;
+
+        return false;
+    }
+
+    return true;
+}
