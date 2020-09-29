@@ -24,16 +24,16 @@ Release: DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
-    ..\vkconfig_core\application_singleton.cpp \
-    ..\vkconfig_core\configuration.cpp \
-    ..\vkconfig_core\command_line.cpp \
-    ..\vkconfig_core\environment.cpp \
-    ..\vkconfig_core\util.cpp \
-    ..\vkconfig_core\version.cpp \
-    ..\vkconfig_core\layer.cpp \
-    ..\vkconfig_core\layer_setting.cpp \
-    ..\vkconfig_core\layer_type.cpp \
-    ..\vkconfig_core\path_manager.cpp \
+    ../vkconfig_core/application_singleton.cpp \
+    ../vkconfig_core/configuration.cpp \
+    ../vkconfig_core/command_line.cpp \
+    ../vkconfig_core/environment.cpp \
+    ../vkconfig_core/util.cpp \
+    ../vkconfig_core/version.cpp \
+    ../vkconfig_core/layer.cpp \
+    ../vkconfig_core/layer_setting.cpp \
+    ../vkconfig_core/layer_type.cpp \
+    ../vkconfig_core/path_manager.cpp \
     vulkan.cpp \
     alert.cpp \
     widget_bool_setting.cpp \
