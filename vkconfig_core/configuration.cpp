@@ -32,6 +32,7 @@
 #include <QMessageBox>
 
 #include <cassert>
+#include <cstdio>
 
 Configuration::Configuration() : _name("New Configuration"), _preset(ValidationPresetNone) {}
 
@@ -99,13 +100,19 @@ bool Configuration::Load(const QString& full_path) {
         _name = filename.left(filename.length() - 5);
         if (_name == "Validation - Shader Printf") {
             _name = "Validation - Debug Printf";
-            QFile file(full_path);
-            file.remove();
+            const int result = std::remove(full_path.toStdString().c_str());
+            assert(result == 0);
         }
     } else {
         const QJsonValue& json_name_value = configuration_entry_object.value("name");
         assert(json_name_value != QJsonValue::Undefined);
         _name = json_name_value.toString();
+    }
+
+    if (_name.isEmpty()) {
+        _name = "Configuration";
+        const int result = std::remove(full_path.toStdString().c_str());
+        assert(result == 0);
     }
 
     const QJsonValue& excluded_value = configuration_entry_object.value("blacklisted_layers");
