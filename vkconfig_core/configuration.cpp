@@ -33,6 +33,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <algorithm>
 
 Configuration::Configuration() : name("New Configuration"), _preset(ValidationPresetNone) {}
 
@@ -228,17 +229,43 @@ bool Configuration::Save(const QString& full_path) const {
 
 bool Configuration::IsEmpty() const { return parameters.empty(); }
 
+static const size_t NOT_FOUND = static_cast<size_t>(-1);
+
+static std::size_t ExtractDuplicateNumber(const std::string& configuration_name) {
+    const std::size_t name_open = configuration_name.find_first_of("(");
+    if (name_open == NOT_FOUND) return NOT_FOUND;
+
+    const std::size_t name_close = configuration_name.find_first_of(")");
+    if (name_close == NOT_FOUND) return NOT_FOUND;
+
+    const std::string number = configuration_name.substr(name_open + 1, name_close - (name_open + 1));
+    if (!IsNumber(number)) return NOT_FOUND;
+
+    return std::stoi(number);
+}
+
+static std::string ExtractDuplicateBaseName(const std::string& configuration_name) {
+    assert(ExtractDuplicateNumber(configuration_name) != NOT_FOUND);
+    const std::size_t found = configuration_name.find_first_of("(");
+    assert(found != NOT_FOUND);
+    return configuration_name.substr(0, found - 1);
+}
+
 QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name) {
-    std::size_t named_new_count = 0;
+    const std::string name = configuration_name.toStdString();
+    const std::string base_name = ExtractDuplicateNumber(name) != NOT_FOUND ? ExtractDuplicateBaseName(name) : name;
+
+    std::size_t max_duplicate = 0;
     for (std::size_t i = 0, n = configurations.size(); i < n; ++i) {
-        if (configurations[i].name.startsWith(configuration_name)) ++named_new_count;
+        const std::string& search_name = configurations[i].name.toStdString();
+
+        if (search_name.compare(0, base_name.length(), base_name) != 0) continue;
+
+        const std::size_t found_number = ExtractDuplicateNumber(search_name);
+        max_duplicate = std::max<std::size_t>(max_duplicate, found_number != NOT_FOUND ? found_number : 1);
     }
 
-    if (named_new_count > 0) {
-        return configuration_name + format(" (%d)", named_new_count + 1).c_str();
-    } else {
-        return configuration_name;
-    }
+    return QString(base_name.c_str()) + (max_duplicate > 0 ? format(" (%d)", max_duplicate + 1).c_str() : "");
 }
 
 std::vector<Configuration>::iterator FindConfiguration(std::vector<Configuration>& configurations,

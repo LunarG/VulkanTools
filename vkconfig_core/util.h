@@ -49,3 +49,5 @@ inline constexpr std::size_t countof(C<T, Alloc> const& data) noexcept {
 }
 
 std::string format(const char* message, ...);
+
+bool IsNumber(const std::string& s);
