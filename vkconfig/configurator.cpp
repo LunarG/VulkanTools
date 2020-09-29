@@ -42,6 +42,7 @@
 #endif
 
 #include <cassert>
+#include <cstdio>
 
 //////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work. Abstracts away instances where we might
@@ -831,8 +832,8 @@ void Configurator::SetActiveConfiguration(Configuration *active_configuration) {
     }
 
     if (need_remove_of_configuration_files) {
-        remove(override_settings_path.toUtf8().constData());
-        remove(override_layers_path.toUtf8().constData());
+        std::remove(override_settings_path.toUtf8().constData());
+        std::remove(override_layers_path.toUtf8().constData());
 
         // On Windows only, we need clear these values from the registry
         // This works without any Win32 specific functions for the registry
