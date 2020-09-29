@@ -17,18 +17,17 @@ if(Qt5_FOUND)
     add_definitions(-DQT_NO_DEBUG_OUTPUT)
     add_definitions(-DQT_NO_WARNING_OUTPUT)
 
-    if(NOT APPLE)
-        add_library(vkconfig_core STATIC ${FILES_ALL})
 
-        if(WIN32)
-            add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-            target_link_libraries(vkconfig_core Cfgmgr32)
-        endif()
+    add_library(vkconfig_core STATIC ${FILES_ALL})
 
-        target_include_directories(vkconfig_core PRIVATE "${Vulkan_INCLUDE_DIR}")
-        target_link_libraries(vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
-        target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
-
-        add_subdirectory(test)
+    if(WIN32)
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+        target_link_libraries(vkconfig_core Cfgmgr32)
     endif()
+
+    target_include_directories(vkconfig_core PRIVATE "${Vulkan_INCLUDE_DIR}")
+    target_link_libraries(vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+    target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
+
+    add_subdirectory(test)
 endif()
