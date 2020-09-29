@@ -50,7 +50,7 @@ DevSim builds its internal data tables by querying the capabilities of the under
 ```
 
 ### Simulating Entire Real-World Devices
-If you instead wish to simulate entire real-world devices, LunarG has collaborated with the Vulkan Hardware Database to make their data compatible with the DevSim schema. You can download device configurations from the website in JSON format, and use those configuration files directly with DevSim.
+If you instead wish to simulate entire real-world devices, LunarG has collaborated with the [Vulkan Hardware Database](https://vulkan.gpuinfo.org/) to make their data compatible with the DevSim schema. You can download device configurations from the website in JSON format, and use those configuration files directly with DevSim.
 
 # Technical Details
 
