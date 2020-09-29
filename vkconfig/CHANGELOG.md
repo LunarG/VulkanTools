@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.153.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.153.0) - 2020-10-XX
+## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-XX
 
 ### Features:
 - Add multiple debug actions simulaneously #1119
