@@ -140,7 +140,10 @@ MainWindow::MainWindow(QWidget *parent)
     UpdateUI();
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() {
+    ResetLaunchApplication();
+    delete ui;
+}
 
 static std::string GetMainWindowTitle(bool active) {
     std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
@@ -241,7 +244,7 @@ void MainWindow::UpdateUI() {
     // Launcher states
     const bool has_application_list = !environment.GetApplications().empty();
     ui->pushButtonLaunch->setEnabled(has_application_list);
-    ui->pushButtonLaunch->setText(_launch_application == nullptr ? "Launch" : "Terminate");
+    ui->pushButtonLaunch->setText(_launch_application ? "Terminate" : "Launch");
     ui->checkBoxClearOnLaunch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
     if (_launcher_working_browse_button) {
         _launcher_working_browse_button->setEnabled(has_application_list);
@@ -622,10 +625,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     // If a child process is still running, destroy it
     if (_launch_application) {
-        _launch_application->terminate();
-        _launch_application->waitForFinished();
-        delete _launch_application;
-        _launch_application = nullptr;
+        ResetLaunchApplication();
     }
 
     _settings_tree_manager.CleanupGUI();
@@ -1298,6 +1298,16 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
+void MainWindow::ResetLaunchApplication() {
+    if (_launch_application) {
+        _launch_application->kill();
+        _launch_application->waitForFinished();
+        _launch_application.reset();
+
+        UpdateUI();
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 /// Launch the app and monitor it's stdout to get layer output.
 /// stdout is buffered by default, so in order to see realtime output it must
@@ -1314,21 +1324,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 void MainWindow::on_pushButtonLaunch_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
-        _launch_application->terminate();
-        _launch_application->waitForFinished();
-
-        // This get's deleted by the slot called on termination.
-        // do not delete it here.
-        _launch_application = nullptr;
-        // ui->pushButtonLaunch->setText("Launch");
-
-        Log("Process terminated");
-
-        if (_log_file.isOpen()) {
-            _log_file.close();
-        }
-
-        UpdateUI();
+        ResetLaunchApplication();
         return;
     }
 
@@ -1388,10 +1384,11 @@ void MainWindow::on_pushButtonLaunch_clicked() {
     Log(launch_log);
 
     // Launch the test application
-    _launch_application = new QProcess(this);
-    connect(_launch_application, SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-    connect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-    connect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int, QProcess::ExitStatus)));
+    _launch_application.reset(new QProcess(this));
+    connect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+    connect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+    connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
+            SLOT(processClosed(int, QProcess::ExitStatus)));
 
     _launch_application->setProgram(active_application.executable_path);
     _launch_application->setWorkingDirectory(active_application.working_folder);
@@ -1416,8 +1413,6 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         return;
     }
 
-    // We are off to the races....
-    // ui->pushButtonLaunch->setText("Terminate");
     UpdateUI();
 }
 
@@ -1430,20 +1425,20 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
     (void)exit_code;
     (void)status;
 
-    // Not likely, but better to be sure...
-    if (_launch_application == nullptr) return;
+    assert(_launch_application);
 
-    disconnect(_launch_application, SIGNAL(finished(int, QProcess::ExitStatus)), this,
+    disconnect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
                SLOT(processClosed(int, QProcess::ExitStatus)));
-    disconnect(_launch_application, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-    disconnect(_launch_application, SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+    disconnect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+    disconnect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
 
-    // ui->pushButtonLaunch->setText(tr("Launch"));
+    Log("Process terminated");
 
-    delete _launch_application;
-    _launch_application = nullptr;
+    if (_log_file.isOpen()) {
+        _log_file.close();
+    }
 
-    UpdateUI();
+    ResetLaunchApplication();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1453,13 +1448,16 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
 /// the string and append it to the text browser.
 /// If a log file is open, we also write the output to the log.
 void MainWindow::standardOutputAvailable() {
-    if (_launch_application == nullptr) return;
-
-    Log(_launch_application->readAllStandardOutput());
-    ui->pushButtonClearLog->setEnabled(true);
+    if (_launch_application) {
+        Log(_launch_application->readAllStandardOutput());
+    }
 }
 
-void MainWindow::errorOutputAvailable() { standardOutputAvailable(); }
+void MainWindow::errorOutputAvailable() {
+    if (_launch_application) {
+        Log(_launch_application->readAllStandardError());
+    }
+}
 
 void MainWindow::Log(const QString &log) {
     ui->logBrowser->append(log);
