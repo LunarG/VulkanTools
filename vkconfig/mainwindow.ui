@@ -239,7 +239,7 @@
              <number>6</number>
             </property>
             <item row="0" column="0">
-             <widget class="QTreeWidget" name="profileTree">
+             <widget class="QTreeWidget" name="configuration_tree">
               <property name="font">
                <font>
                 <family>Arial</family>
@@ -461,7 +461,7 @@
           <number>9</number>
          </property>
          <item row="1" column="0">
-          <widget class="QTreeWidget" name="layerSettingsTree">
+          <widget class="QTreeWidget" name="settings_tree">
            <property name="font">
             <font>
              <family>Arial</family>
