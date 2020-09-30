@@ -27,6 +27,7 @@
 #include <cstring>
 #include <cassert>
 #include <cstdarg>
+#include <cctype>
 
 std::string format(const char* message, ...) {
     std::size_t const STRING_BUFFER(4096);
