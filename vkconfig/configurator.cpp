@@ -995,7 +995,7 @@ void Configurator::ExportConfiguration(const QString &source_file, const QString
 }
 
 void Configurator::ResetDefaultsConfigurations() {
-    // Clear the current profile as we may be about to remove it.
+    // Clear the current configuration as we may be about to remove it.
     SetActiveConfiguration(nullptr);
 
     environment.Reset(Environment::DEFAULT);
