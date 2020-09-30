@@ -35,6 +35,8 @@
 #include <QResizeEvent>
 #include <QProcess>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -70,8 +72,8 @@ class MainWindow : public QMainWindow {
    protected:
     SettingsTreeManager _settings_tree_manager;
 
-    QProcess *_launch_application;  // Keeps track of the monitored app
-    QFile _log_file;                // Log file for layer output
+    std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
+    QFile _log_file;                                // Log file for layer output
 
     void LoadConfigurationList();
     void SetupLaunchTree();
@@ -161,4 +163,6 @@ class MainWindow : public QMainWindow {
    private:
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
+
+    void ResetLaunchApplication();
 };
