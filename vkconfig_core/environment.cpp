@@ -178,6 +178,8 @@ void Environment::Reset(ResetMode mode) {
 
             applications.clear();
             UpdateDefaultApplications(true);
+
+            Set(ACTIVE_CONFIGURATION, "Validation - Standard");
             break;
         }
         case SYSTEM: {
