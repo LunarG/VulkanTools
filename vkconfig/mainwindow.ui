@@ -75,7 +75,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="groupBoxMgmnt">
+          <widget class="QGroupBox" name="group_box_management">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>4</horstretch>
@@ -102,7 +102,7 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_7">
             <item row="0" column="0">
-             <widget class="QRadioButton" name="radioFully">
+             <widget class="QRadioButton" name="radio_fully">
               <property name="font">
                <font>
                 <family>Arial</family>
@@ -115,7 +115,7 @@
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QRadioButton" name="radioOverride">
+             <widget class="QRadioButton" name="radio_override">
               <property name="font">
                <font>
                 <family>Arial</family>
@@ -140,7 +140,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QCheckBox" name="checkBoxApplyList">
+               <widget class="QCheckBox" name="check_box_apply_list">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -159,7 +159,7 @@
                </widget>
               </item>
               <item row="0" column="2">
-               <widget class="QPushButton" name="pushButtonAppList">
+               <widget class="QPushButton" name="push_button_applications">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -200,7 +200,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QCheckBox" name="checkBoxPersistent">
+               <widget class="QCheckBox" name="check_box_persistent">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -293,7 +293,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="1" column="0">
-          <widget class="QCheckBox" name="checkBoxClearOnLaunch">
+          <widget class="QCheckBox" name="check_box_clear_on_launch">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -379,7 +379,7 @@
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="QPushButton" name="pushButtonLaunch">
+          <widget class="QPushButton" name="push_button_launcher">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -391,7 +391,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QPushButton" name="pushButtonClearLog">
+          <widget class="QPushButton" name="push_button_clear_log">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -506,7 +506,7 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QPushButton" name="pushButtonEditProfile">
+          <widget class="QPushButton" name="push_button_select_configuration">
            <property name="font">
             <font>
              <family>Arial</family>

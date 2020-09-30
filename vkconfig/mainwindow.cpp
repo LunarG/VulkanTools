@@ -158,8 +158,8 @@ void MainWindow::UpdateUI() {
     ui->configuration_tree->blockSignals(true);
 
     // Mode states
-    ui->radioOverride->setChecked(environment.UseOverride());
-    ui->radioFully->setChecked(!environment.UseOverride());
+    ui->radio_override->setChecked(environment.UseOverride());
+    ui->radio_fully->setChecked(!environment.UseOverride());
 
     // Update configurations
     ui->group_box_configurations->setEnabled(environment.UseOverride());
@@ -197,19 +197,19 @@ void MainWindow::UpdateUI() {
         Version loader_version;
         const bool support_application_list = configurator.SupportApplicationList(false, &loader_version);
 
-        ui->checkBoxApplyList->setEnabled(support_application_list && environment.UseOverride());
-        ui->checkBoxApplyList->setChecked(support_application_list && environment.UseApplicationListOverrideMode());
+        ui->check_box_apply_list->setEnabled(support_application_list && environment.UseOverride());
+        ui->check_box_apply_list->setChecked(support_application_list && environment.UseApplicationListOverrideMode());
         if (!support_application_list) {
             const std::string version = GetVulkanLoaderVersion().str();
             const std::string message =
                 format("The detected Vulkan loader version is %s but version 1.2.141 or newer is required", version.c_str());
-            ui->checkBoxApplyList->setToolTip(message.c_str());
+            ui->check_box_apply_list->setToolTip(message.c_str());
         }
     } else {
-        ui->checkBoxApplyList->setEnabled(environment.UseOverride());
-        ui->checkBoxApplyList->setChecked(environment.UseApplicationListOverrideMode());
+        ui->check_box_apply_list->setEnabled(environment.UseOverride());
+        ui->check_box_apply_list->setChecked(environment.UseApplicationListOverrideMode());
     }
-    ui->pushButtonAppList->setEnabled(ui->checkBoxApplyList->isChecked());
+    ui->push_button_applications->setEnabled(ui->check_box_apply_list->isChecked());
 
     _launcher_apps_combo->blockSignals(true);
     _launcher_apps_combo->clear();
@@ -234,14 +234,14 @@ void MainWindow::UpdateUI() {
     _launcher_apps_combo->blockSignals(false);
 
     // Handle persistent states
-    ui->checkBoxPersistent->setEnabled(environment.UseOverride());
-    ui->checkBoxPersistent->setChecked(environment.UsePersistentOverrideMode());
+    ui->check_box_persistent->setEnabled(environment.UseOverride());
+    ui->check_box_persistent->setChecked(environment.UsePersistentOverrideMode());
 
     // Launcher states
     const bool has_application_list = !environment.GetApplications().empty();
-    ui->pushButtonLaunch->setEnabled(has_application_list);
-    ui->pushButtonLaunch->setText(_launch_application ? "Terminate" : "Launch");
-    ui->checkBoxClearOnLaunch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
+    ui->push_button_launcher->setEnabled(has_application_list);
+    ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
+    ui->check_box_clear_on_launch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
     if (_launcher_working_browse_button) {
         _launcher_working_browse_button->setEnabled(has_application_list);
     }
@@ -328,7 +328,7 @@ ConfigurationListItem *MainWindow::GetCheckedItem() {
 
 //////////////////////////////////////////////////////////
 /// Use the active profile as the override
-void MainWindow::on_radioOverride_clicked() {
+void MainWindow::on_radio_override_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
@@ -345,7 +345,7 @@ void MainWindow::on_radioOverride_clicked() {
 
 //////////////////////////////////////////////////////////
 // No override at all, fully controlled by the application
-void MainWindow::on_radioFully_clicked() {
+void MainWindow::on_radio_fully_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
@@ -357,7 +357,7 @@ void MainWindow::on_radioFully_clicked() {
 ///////////////////////////////////////////////////////////////////////
 // We want to apply to just the app list... hang on there. Doe we have
 // the new loader?
-void MainWindow::on_checkBoxApplyList_clicked() {
+void MainWindow::on_check_box_apply_list_clicked() {
     Configurator &configurator = Configurator::Get();
 
     // Handle old loader case
@@ -367,11 +367,11 @@ void MainWindow::on_checkBoxApplyList_clicked() {
         return;
     }
 
-    configurator.environment.SetMode(OVERRIDE_MODE_LIST, ui->checkBoxApplyList->isChecked());
+    configurator.environment.SetMode(OVERRIDE_MODE_LIST, ui->check_box_apply_list->isChecked());
 
     // Handle the case where no application with active override is present
     const bool application_list_requires_update = !configurator.environment.HasOverriddenApplications();
-    if (ui->checkBoxApplyList->isChecked() && application_list_requires_update) {
+    if (ui->check_box_apply_list->isChecked() && application_list_requires_update) {
         ApplicationsDialog dialog(this);
         dialog.exec();
     }
@@ -381,12 +381,12 @@ void MainWindow::on_checkBoxApplyList_clicked() {
     UpdateUI();
 }
 
-void MainWindow::on_checkBoxPersistent_clicked() {
-    Configurator::Get().environment.SetMode(OVERRIDE_MODE_PERISTENT, ui->checkBoxPersistent->isChecked());
+void MainWindow::on_check_box_persistent_clicked() {
+    Configurator::Get().environment.SetMode(OVERRIDE_MODE_PERISTENT, ui->check_box_persistent->isChecked());
 }
 
-void MainWindow::on_checkBoxClearOnLaunch_clicked() {
-    Configurator::Get().environment.Set(LAYOUT_LAUNCHER_NOT_CLEAR, ui->checkBoxClearOnLaunch->isChecked() ? "false" : "true");
+void MainWindow::on_check_box_clear_on_launch_clicked() {
+    Configurator::Get().environment.Set(LAYOUT_LAUNCHER_NOT_CLEAR, ui->check_box_clear_on_launch->isChecked() ? "false" : "true");
 }
 
 void MainWindow::toolsResetToDefault(bool checked) {
@@ -645,7 +645,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Edit the list of apps that can be filtered.
-void MainWindow::on_pushButtonAppList_clicked() {
+void MainWindow::on_push_button_applications_clicked() {
     ApplicationsDialog dlg(this);
     dlg.exec();
 
@@ -656,7 +656,7 @@ void MainWindow::on_pushButtonAppList_clicked() {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Just resave the list anytime we go into the editor
-void MainWindow::on_pushButtonEditProfile_clicked() {
+void MainWindow::on_push_button_select_configuration_clicked() {
     ConfigurationListItem *item = SaveLastItem();
     if (item == nullptr) return;
 
@@ -978,7 +978,7 @@ void MainWindow::SetupLauncherTree() {
     _launcher_apps_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launcher_tree->setItemWidget(launcher_parent, 2, _launcher_apps_browse_button);
     connect(_launcher_apps_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
-    connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_pushButtonAppList_clicked()));
+    connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
 
     //////////////////////////////////////////////////////////////////
     // Working folder
@@ -1144,10 +1144,10 @@ void MainWindow::launchArgsEdited(const QString &arguments) {
 
 //////////////////////////////////////////////////////////////////////
 // Clear the browser window
-void MainWindow::on_pushButtonClearLog_clicked() {
+void MainWindow::on_push_button_clear_log_clicked() {
     ui->log_browser->clear();
     ui->log_browser->update();
-    ui->pushButtonClearLog->setEnabled(false);
+    ui->push_button_clear_log->setEnabled(false);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1305,7 +1305,7 @@ void MainWindow::ResetLaunchApplication() {
 ///
 /// If logging is enbabled (by setting a logging file), then the log file
 /// is also opened.
-void MainWindow::on_pushButtonLaunch_clicked() {
+void MainWindow::on_push_button_launch_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
         ResetLaunchApplication();
@@ -1353,7 +1353,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
 
             // Open and append, or open and truncate?
             QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
-            if (!ui->checkBoxClearOnLaunch->isChecked()) mode |= QIODevice::Append;
+            if (!ui->check_box_clear_on_launch->isChecked()) mode |= QIODevice::Append;
 
             if (!_log_file.open(mode)) {
                 QMessageBox err;
@@ -1364,7 +1364,7 @@ void MainWindow::on_pushButtonLaunch_clicked() {
         }
     }
 
-    if (ui->checkBoxClearOnLaunch->isChecked()) ui->log_browser->clear();
+    if (ui->check_box_clear_on_launch->isChecked()) ui->log_browser->clear();
     Log(launch_log);
 
     // Launch the test application
@@ -1445,7 +1445,7 @@ void MainWindow::errorOutputAvailable() {
 
 void MainWindow::Log(const QString &log) {
     ui->log_browser->append(log);
-    ui->pushButtonClearLog->setEnabled(true);
+    ui->push_button_clear_log->setEnabled(true);
 
     if (_log_file.isOpen()) {
         _log_file.write(log.toUtf8().constData(), log.length());

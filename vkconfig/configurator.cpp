@@ -50,14 +50,13 @@
 // TBD, does this really need it's own file/module?
 PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
     if (!bForceFileSystem) {
-        QSettings files(qsPath, QSettings::NativeFormat);
-        file_list_ = files.allKeys();
+        QSettings settings(qsPath, QSettings::NativeFormat);
+        files = settings.allKeys();
     } else {
         QDir dir(qsPath);
         QFileInfoList file_info_list = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
 
-        for (int file_index = 0; file_index < file_info_list.size(); file_index++)
-            file_list_ << file_info_list[file_index].filePath();
+        for (int file_index = 0; file_index < file_info_list.size(); file_index++) files << file_info_list[file_index].filePath();
     }
 }
 
@@ -175,13 +174,12 @@ Configurator::Configurator()
     // assemble a list of paths that take precidence for layer discovery.
     QString layer_path = qgetenv("VK_LAYER_PATH");
     if (!layer_path.isEmpty()) {
-#if PLATFORM_WINDOWS
-        VK_LAYER_PATH = layer_path.split(";");  // Windows uses ; as seperator
-#elif PLATFORM_LINUX || PLATFORM_MACOS
-        VK_LAYER_PATH = layer_path.split(":");  // Linux/macOS uses : as seperator
-#else
-#error "Unknown platform"
-#endif
+        if (PLATFORM_WINDOWS)
+            VK_LAYER_PATH = layer_path.split(";");  // Windows uses ; as seperator
+        else if (PLATFORM_LINUX || PLATFORM_MACOS)
+            VK_LAYER_PATH = layer_path.split(":");  // Linux/macOS uses : as seperator
+        else
+            assert(0);  // Unknown platform
     }
 }
 
@@ -487,7 +485,6 @@ bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_ver
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // Find all installed layers on the system.
 void Configurator::LoadAllInstalledLayers() {
     // This is called initially, but also when custom search paths are set, so
@@ -518,7 +515,6 @@ void Configurator::LoadAllInstalledLayers() {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Search a folder and load up all the layers found there. This does NOT
 /// load the default settings for each layer. This is just a master list of
 /// layers found. Do NOT load duplicate layer names. The type of layer (explicit or implicit) is
@@ -531,26 +527,29 @@ void Configurator::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
 
     if (path.contains("implicit", Qt::CaseInsensitive)) type = LAYER_TYPE_IMPLICIT;
 
-#if PLATFORM_WINDOWS
-    if (path.contains("...")) {
-        LoadRegistryLayers(path, layers, type);
-        return;
+    PathFinder file_list;
+
+    if (PLATFORM_WINDOWS) {
+        if (path.contains("...")) {
+            LoadRegistryLayers(path, layers, type);
+            return;
+        }
+
+        file_list = PathFinder(path, (type == LAYER_TYPE_CUSTOM));
+    } else if (PLATFORM_MACOS || PLATFORM_LINUX) {
+        // On Linux/Mac, we also need the home folder
+        QString search_path = path;
+        if (path[0] == '.') {
+            search_path = QDir().homePath();
+            search_path += "/";
+            search_path += path;
+        }
+
+        file_list = PathFinder(search_path, true);
+    } else {
+        assert(0);  // Platform
     }
 
-    PathFinder file_list(path, (type == LAYER_TYPE_CUSTOM));
-#elif PLATFORM_MACOS || PLATFORM_LINUX
-    // On Linux/Mac, we also need the home folder
-    QString search_path = path;
-    if (path[0] == '.') {
-        search_path = QDir().homePath();
-        search_path += "/";
-        search_path += path;
-    }
-
-    PathFinder file_list(search_path, true);
-#else
-#error Unknown platform
-#endif
     if (file_list.FileCount() == 0) return;
 
     // We have a list of layer files. Add to the list as long as the layer name has
@@ -569,7 +568,6 @@ void Configurator::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
     }
 }
 
-//////////////////////////////////////////////////////////////////////////
 // Populate a tree widget with the custom layer paths and the layers that
 // are being used in them.
 void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
@@ -607,7 +605,6 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Find the settings for this named layer. If none found, return nullptr
 const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &layer_name) const {
     for (std::size_t i = 0, n = _default_layers_settings.size(); i < n; ++i)
@@ -616,14 +613,12 @@ const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &laye
     return nullptr;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// Load all the  profiles. If the canned profiles don't exist,
+/// Load all the configurations. If the built-in configurations don't exist,
 /// they are created from the embedded json files
 void Configurator::LoadAllConfigurations() {
     available_configurations.clear();
     _active_configuration = available_configurations.end();
 
-    // //////////////////////////////////////////////////////////////////////////
     // If this is the first time, we need to create the initial set of
     // configuration files.
     if (environment.first_run) {
@@ -684,10 +679,6 @@ void Configurator::LoadAllConfigurations() {
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// This function loads the (currently four) sets of profile settings into
-// the defaults. These are all stored in layer_info.json
-// 4/8/2020
 void Configurator::LoadDefaultLayerSettings() {
     assert(!available_layers.empty());  // layers should be loaded before default settings
 
