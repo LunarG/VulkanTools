@@ -349,7 +349,7 @@ void MainWindow::on_radioFully_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
-    configurator.SetActiveConfiguration(nullptr);
+    configurator.SetActiveConfiguration(configurator.available_configurations.end());
 
     UpdateUI();
 }
@@ -819,7 +819,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     // What if this is the active profile? We will go boom boom soon...
     Configurator &configurator = Configurator::Get();
     if (configurator.GetActiveConfiguration()->name == &item->configuration_name) {
-        configurator.SetActiveConfiguration(nullptr);
+        configurator.SetActiveConfiguration(configurator.available_configurations.end());
     }
 
     // Delete the configuration file
