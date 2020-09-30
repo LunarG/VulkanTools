@@ -25,8 +25,9 @@
 #include "../vkconfig_core/path_manager.h"
 #include "../vkconfig_core/environment.h"
 #include "../vkconfig_core/configuration.h"
+#include "../vkconfig_core/platform.h"
 
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
 #include <windows.h>
 #include <winreg.h>
 #include <Cfgmgr32.h>
@@ -51,7 +52,7 @@
 /// the registry to directory entries.
 class PathFinder {
    public:
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     PathFinder(const QString& path, bool force_file_system = false);
 #else
     PathFinder(const QString& path, bool force_file_system = true);
@@ -156,7 +157,7 @@ class Configurator {
 
     void ClearLayerLists();
 
-#ifdef _WIN32
+#if PLATFORM_WINDOWS
     void LoadDeviceRegistry(DEVINST id, const QString& entry, std::vector<Layer>& layers, LayerType type);
     void LoadRegistryLayers(const QString& path, std::vector<Layer>& layers, LayerType type);
 
