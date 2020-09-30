@@ -224,7 +224,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBoxProfiles">
+          <widget class="QGroupBox" name="group_box_configurations">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>1</horstretch>
@@ -281,7 +281,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QGroupBox" name="groupBoxLauncher">
+       <widget class="QGroupBox" name="group_box_launcher">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -308,7 +308,7 @@
           </widget>
          </item>
          <item row="2" column="0" colspan="4">
-          <widget class="QTextBrowser" name="logBrowser">
+          <widget class="QTextBrowser" name="log_browser">
            <property name="font">
             <font>
              <family>Consolas</family>
@@ -318,7 +318,7 @@
           </widget>
          </item>
          <item row="0" column="0" colspan="4">
-          <widget class="QTreeWidget" name="launchTree">
+          <widget class="QTreeWidget" name="launcher_tree">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -422,7 +422,7 @@
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QGroupBox" name="groupBoxEditor">
+       <widget class="QGroupBox" name="group_box_settings">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>

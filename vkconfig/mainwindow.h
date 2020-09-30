@@ -67,7 +67,7 @@ class MainWindow : public QMainWindow {
     QFile _log_file;                                // Log file for layer output
 
     void LoadConfigurationList();
-    void SetupLaunchTree();
+    void SetupLauncherTree();
 
     virtual void closeEvent(QCloseEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
@@ -82,7 +82,7 @@ class MainWindow : public QMainWindow {
     ConfigurationListItem *GetCheckedItem();
 
     QComboBox *_launcher_apps_combo;
-    QLineEdit *_launch_arguments;
+    QLineEdit *_launcher_arguments;
     QLineEdit *_launcher_working;
     QLineEdit *_launcher_log_file_edit;
     QPushButton *_launcher_apps_browse_button;
