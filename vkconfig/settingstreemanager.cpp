@@ -490,7 +490,7 @@ void SettingsTreeManager::CleanupGUI() {
 
     if (_validation_settings) delete _validation_settings;
 
-    for (int i = 0; i < _compound_widgets.size(); i++)
+    for (std::size_t i = 0; i < _compound_widgets.size(); i++)
         _configuration_settings_tree->setItemWidget(_compound_widgets[i], 1, nullptr);
 
     _compound_widgets.clear();

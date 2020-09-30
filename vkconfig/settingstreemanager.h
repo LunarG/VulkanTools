@@ -68,8 +68,8 @@ class SettingsTreeManager : QObject {
 
     QTreeWidget *_configuration_settings_tree;
     Configuration *_configuration;
-    QVector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
-    QVector<QTreeWidgetItem *> _layer_items;       // These parallel the profiles layers
+    std::vector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
+    std::vector<QTreeWidgetItem *> _layer_items;       // These parallel the profiles layers
 
     QComboBox *_validation_presets_combo_box;
     std::vector<ValidationPreset> _validation_presets;  // The preset in the combobox

@@ -34,7 +34,6 @@
 #define WIN_BUFFER_SIZE 1024
 #endif
 #include <QString>
-#include <QVector>
 #include <QDir>
 #include <QTreeWidget>
 

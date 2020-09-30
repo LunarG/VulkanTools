@@ -42,14 +42,14 @@ ApplicationSingleton::ApplicationSingleton(const QString& application_name, int 
     // connect. Too small a timeout on the other hand can give false
     // assurance that another copy is not running.
     if (localSocket.waitForConnected(timeout)) {
-        _is_first_instance = false;
+        is_first_instance = false;
         localSocket.close();
         return;
     }
 
     // Not connected, OR timed out
     // We are the first, start a server
-    _is_first_instance = true;
+    is_first_instance = true;
     _local_server.listen(application_name);
 }
 

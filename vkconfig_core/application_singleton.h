@@ -36,11 +36,11 @@ class ApplicationSingleton {
     ApplicationSingleton(const QString &application_name, int timeout = 5000);
     ~ApplicationSingleton();
 
-    bool IsFirstInstance() const { return _is_first_instance; }
+    bool IsFirstInstance() const { return is_first_instance; }
 
    private:
     QLocalServer _local_server;
-    bool _is_first_instance;
+    bool is_first_instance;
 
     ApplicationSingleton(const ApplicationSingleton &) = delete;
     ApplicationSingleton &operator=(const ApplicationSingleton &) = delete;

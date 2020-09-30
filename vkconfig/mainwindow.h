@@ -26,7 +26,6 @@
 
 #include "ui_mainwindow.h"
 
-#include <QVector>
 #include <QDialog>
 #include <QMainWindow>
 #include <QListWidgetItem>
@@ -139,13 +138,12 @@ class MainWindow : public QMainWindow {
     void on_pushButtonAppList_clicked();
     void on_pushButtonEditProfile_clicked();
 
-    void profileItemChanged(QTreeWidgetItem *item, int column);
-    void profileTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void profileItemClicked(bool checked);
-    void profileItemExpanded(QTreeWidgetItem *item);
-
+    void OnConfigurationItemExpanded(QTreeWidgetItem *item);
+    void OnConfigurationItemClicked(bool checked);
+    void OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void OnConfigurationItemChanged(QTreeWidgetItem *item, int column);
     void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
-    void OnConfigurationSettingsTreeClicked(QTreeWidgetItem *item, int column);
+    void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
