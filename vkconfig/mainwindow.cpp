@@ -1105,7 +1105,7 @@ void MainWindow::launchSetWorkingFolder() {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    const QString path = Configurator::Get().path.SelectPath(this, PATH_EXECUTABLE, application.working_folder);
+    const QString path = Configurator::Get().path.SelectPath(this, PATH_WORKING_DIR, application.working_folder);
 
     // The user has cancel the operation
     if (path.isEmpty()) return;
