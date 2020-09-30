@@ -28,8 +28,6 @@
 #include <QCheckBox>
 #include <QMessageBox>
 
-#ifndef UNIT_TEST
-
 int main(int argc, char* argv[]) {
     const CommandLine command_line(argc, argv);
 
@@ -87,5 +85,3 @@ int main(int argc, char* argv[]) {
         }
     }
 }
-
-#endif  // UNIT_TEST

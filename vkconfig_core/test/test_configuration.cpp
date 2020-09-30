@@ -476,7 +476,19 @@ static std::vector<Configuration> GenerateConfigurations() {
 
     {
         Configuration configuration;
+        configuration.name = "Tag Configuration (tag) (3)";
+        configurations.push_back(configuration);
+    }
+
+    {
+        Configuration configuration;
         configuration.name = "Tag Configuration (tag)";
+        configurations.push_back(configuration);
+    }
+
+    {
+        Configuration configuration;
+        configuration.name = "Tag Configuration Bla";
         configurations.push_back(configuration);
     }
 
@@ -519,11 +531,29 @@ TEST(test_configuration, make_new_name) {
     EXPECT_TRUE(!new_name.isEmpty());
 }
 
+TEST(test_configuration, make_new_name_tagged) {
+    const std::vector<Configuration>& configurations = GenerateConfigurations();
+
+    const QString& new_name = MakeConfigurationName(configurations, "New Configuration (tag)");
+
+    EXPECT_STREQ("New Configuration (tag)", new_name.toStdString().c_str());
+    EXPECT_TRUE(!new_name.isEmpty());
+}
+
 TEST(test_configuration, make_duplicate_tagged_name) {
     const std::vector<Configuration>& configurations = GenerateConfigurations();
 
-    const QString& new_name = MakeConfigurationName(configurations, "Tag Configuration (tag)");
+    const QString& new_name = MakeConfigurationName(configurations, "Tag Configuration Bla (tag)");
 
-    EXPECT_STREQ("Tag Configuration (tag) (2)", new_name.toStdString().c_str());
+    EXPECT_STREQ("Tag Configuration Bla (tag)", new_name.toStdString().c_str());
+    EXPECT_TRUE(!new_name.isEmpty());
+}
+
+TEST(test_configuration, make_duplicate_tagged_name_mix) {
+    const std::vector<Configuration>& configurations = GenerateConfigurations();
+
+    const QString& new_name = MakeConfigurationName(configurations, "Tag Configuration (tag) Bla");
+
+    EXPECT_STREQ("Tag Configuration (tag) Bla", new_name.toStdString().c_str());
     EXPECT_TRUE(!new_name.isEmpty());
 }
