@@ -50,15 +50,15 @@ void VulkanInfoDialog::Run() {
 
     QProcess *vulkan_info = new QProcess(this);
 
-#if PLATFORM_WINDOWS
-    vulkan_info->setProgram("vulkaninfoSDK");
-#elif PLATFORM_LINUX
-    vulkan_info->setProgram("vulkaninfo");
-#elif PLATFORM_MACOS
-    vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
-#else
-#error "Unknown platform"
-#endif
+    if (PLATFORM_WINDOWS)
+        vulkan_info->setProgram("vulkaninfoSDK");
+    else if (PLATFORM_LINUX)
+        vulkan_info->setProgram("vulkaninfo");
+    else if (PLATFORM_MACOS)
+        vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
+    else
+        assert(0);  // Unknown platform
+
     QString filePath = QDir::temp().path();
 
     QStringList args;
@@ -78,7 +78,7 @@ void VulkanInfoDialog::Run() {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox msgBox;
-        msgBox.setText(tr("Error running vulkaninfo. Is your SDK up to date and installed properly?"));
+        msgBox.setText("Error running vulkaninfo. Is your SDK up to date and installed properly?");
         msgBox.exec();
         return;
     }
@@ -88,9 +88,8 @@ void VulkanInfoDialog::Run() {
 
     //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it
-    QJsonDocument jsonDoc;
     QJsonParseError parseError;
-    jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
         QMessageBox msgBox;
         msgBox.setWindowTitle("Cannot parse vulkaninfo output.");
@@ -109,7 +108,7 @@ void VulkanInfoDialog::Run() {
     /////////////////////////////////////////////////////////
     // Get the instance version and set that to the header
     QJsonObject jsonTopObject = jsonDoc.object();
-    QJsonValue instance = jsonTopObject.value(QString("Vulkan Instance Version"));
+    QJsonValue instance = jsonTopObject.value("Vulkan Instance Version");
     QString output = "Vulkan Instance Version: " + instance.toString();
 
     QTreeWidgetItem *header = ui->treeWidget->headerItem();
@@ -120,7 +119,7 @@ void VulkanInfoDialog::Run() {
     // All of these are the top layer nodes on the tree.
     QJsonValue rootObject = jsonTopObject.value(QString("Instance Extensions"));
     QTreeWidgetItem *parent_node = new QTreeWidgetItem();
-    parent_node->setText(0, tr("Instance Extensions"));
+    parent_node->setText(0, "Instance Extensions");
     ui->treeWidget->addTopLevelItem(parent_node);
     BuildExtensions(rootObject, parent_node);
 
@@ -144,10 +143,6 @@ void VulkanInfoDialog::Run() {
     show();
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-/// \brief TraverseGenericProperties
-/// \param parentJson       - Top JSon node
-/// \param pParentTreeItem  - Parent tree (GUI) item to add elements to
 /// Many large sections are generic enough to simply parse and construct a tree,
 /// without the need for any special formatting or extra text that is not in the
 /// json file.
@@ -195,11 +190,6 @@ void VulkanInfoDialog::TraverseGenericProperties(QJsonValue &parentJson, QTreeWi
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-/// \brief dlgVulkanInfo::BuildExtensions
-/// \param jsonValue    - Top of tree
-/// \param pRoot        - Root of GUI element for the tree
-///
 /// Populate the a subtree with extension names. Extensions also report their
 /// spec version, so some extra text is needed, and thus the need for a special
 /// function as opposed to just calling TraverseGenericProperties()
@@ -225,10 +215,6 @@ void VulkanInfoDialog::BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *p
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-/// \brief dlgVulkanInfo::BuildLayers
-/// \param jsonValue    - Root of Json tree
-/// \param pRoot        - Root of GUI tree
 /// This tree section has some different "kinds" of subtrees (the extensions)
 /// and some extra text formatting requirements, so it had to be treated specially.
 void VulkanInfoDialog::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *root) {
@@ -301,39 +287,25 @@ void VulkanInfoDialog::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *root)
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-/// \brief dlgVulkanInfo::BuildSurfaces
-/// \param jsonValue        Json Root
-/// \param pRoot            GUI tree root
-///
 /// Nice and well behaved. TraverseGenericProperties will build the whole tree.
 void VulkanInfoDialog::BuildSurfaces(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     QJsonObject surfaces = jsonValue.toObject();
 
-    pRoot->setText(0, tr("Presentable Surfaces"));
+    pRoot->setText(0, "Presentable Surfaces");
     ui->treeWidget->addTopLevelItem(pRoot);
 
     TraverseGenericProperties(jsonValue, pRoot);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \brief dlgVulkanInfo::BuildGroups
-/// \param jsonValue        Json Root
-/// \param pRoot            GUI tree root
-///
 /// Nice and well behaved. TraverseGenericProperties will build the whole tree.
 void VulkanInfoDialog::BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot) {
     QJsonObject groupsObject = jsonValue.toObject();
-    pRoot->setText(0, tr("Device Groups"));
+    pRoot->setText(0, "Device Groups");
     ui->treeWidget->addTopLevelItem(pRoot);
 
     TraverseGenericProperties(jsonValue, pRoot);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \brief dlgVulkanInfo::BuildDevices
-/// \param jsonValue    Json Root
-/// \param pRoot        GUI tree root
 /// The Device Properties and Extensions tree is mostly pretty well behaved.
 /// There is one section that can be handled by the TraverseGenericProperties()
 /// function, and just one section that is specifially needing the
@@ -341,7 +313,7 @@ void VulkanInfoDialog::BuildGroups(QJsonValue &jsonValue, QTreeWidgetItem *pRoot
 void VulkanInfoDialog::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *root) {
     QJsonObject gpuObject = jsonValue.toObject();
 
-    root->setText(0, tr("Device Properties and Extensions"));
+    root->setText(0, "Device Properties and Extensions");
     ui->treeWidget->addTopLevelItem(root);
 
     // For each like GPU0 object
@@ -361,7 +333,7 @@ void VulkanInfoDialog::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *root
             pGPU->addChild(parent);
             QJsonValue value = propertiesObject.value(propertyParents[j]);
 
-            if (propertyParents[j] == QString("Device Extensions"))
+            if (propertyParents[j] == "Device Extensions")
                 BuildExtensions(value, parent);
             else
                 TraverseGenericProperties(value, parent);

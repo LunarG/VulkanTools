@@ -128,15 +128,15 @@ class MainWindow : public QMainWindow {
     void launchChangeWorkingFolder(const QString &new_text);
     void launchArgsEdited(const QString &new_text);
 
-    void on_pushButtonLaunch_clicked();
-    void on_pushButtonClearLog_clicked();
-    void on_radioFully_clicked();
-    void on_radioOverride_clicked();
-    void on_checkBoxApplyList_clicked();
-    void on_checkBoxPersistent_clicked();
-    void on_checkBoxClearOnLaunch_clicked();
-    void on_pushButtonAppList_clicked();
-    void on_pushButtonEditProfile_clicked();
+    void on_push_button_launch_clicked();
+    void on_push_button_clear_log_clicked();
+    void on_radio_fully_clicked();
+    void on_radio_override_clicked();
+    void on_check_box_apply_list_clicked();
+    void on_check_box_persistent_clicked();
+    void on_check_box_clear_on_launch_clicked();
+    void on_push_button_applications_clicked();
+    void on_push_button_select_configuration_clicked();
 
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);

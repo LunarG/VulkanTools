@@ -51,16 +51,18 @@
 /// the registry to directory entries.
 class PathFinder {
    public:
+    PathFinder() {}
+
 #if PLATFORM_WINDOWS
     PathFinder(const QString& path, bool force_file_system = false);
 #else
     PathFinder(const QString& path, bool force_file_system = true);
 #endif
-    int FileCount() { return file_list_.size(); }
-    QString GetFileName(int i) { return file_list_[i]; }
+    int FileCount() { return files.size(); }
+    QString GetFileName(int i) { return files[i]; }
 
    private:
-    QStringList file_list_;
+    QStringList files;
 };
 
 // This is a master list of layer settings. All the settings
