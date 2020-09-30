@@ -109,6 +109,7 @@ The top-level sections of such configuration files are processed as follows:
 * `VkPhysicalDeviceMemoryProperties` - Optional.  Only values specified in the JSON will be modified.
 * `ArrayOfVkQueueFamilyProperties` - Optional.  If present, all values of all elements must be specified.
 * `ArrayOfVkFormatProperties` - Optional.  If present, all values of all elements must be specified.
+* `ArrayOfVkExtensionProperties` - Optional.  If present, all values of all elements must be specified. Modifies the list returned by `vkEnumerateDeviceExtensionProperties`.
 * The remaining top-level sections of the schema are not yet supported by DevSim.
 
 The schema permits additional top-level sections to be optionally included in configuration files;
@@ -157,6 +158,7 @@ DevSim config files that use this feature should validate to the portability spe
 | `VK_DEVSIM_DEBUG_ENABLE` | `lunarg_device_simulation.debug_enable` | A non-zero integer enables debug message output. |
 | `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | A non-zero integer enables exit-on-error. |
 | `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | A non-zero integer enables emulation of the `VK_KHR_portability_subset` extension. |
+| `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | A non-zero integer enables modification of the device extensions list from the JSON config file. |
 
 **Note:** Environment variables take precedence over vk_layer_settings.txt options.
 

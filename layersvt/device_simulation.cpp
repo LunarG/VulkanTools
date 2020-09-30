@@ -69,7 +69,7 @@ namespace {
 
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 4;
-const uint32_t kVersionDevsimPatch = 0;
+const uint32_t kVersionDevsimPatch = 1;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 // Properties of this layer:
@@ -291,6 +291,8 @@ const char *const kEnvarDevsimExitOnError = "debug.vulkan.devsim.exitonerror";  
 const char *const kEnvarDevsimEmulatePortability =
     "debug.vulkan.devsim.emulateportability";  // a non-zero integer will enable emulation of the VK_KHR_portability_subset
                                                // extension.
+const char *const kEnvarDevsimModifyExtensionList =
+    "debug.vulkan.devsim.modifyextensionlist";  // a non-zero integer will enable modifying device extensions list.
 #else
 const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // path of the configuration file(s) to load.
 const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non-zero integer will enable debugging output.
@@ -298,6 +300,8 @@ const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non
 const char *const kEnvarDevsimEmulatePortability =
     "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION";  // a non-zero integer will enable emulation of the VK_KHR_portability_subset
                                                        // extension.
+const char *const kEnvarDevsimModifyExtensionList =
+    "VK_DEVSIM_MODIFY_EXTENSION_LIST";  // a non-zero integer will enable modifying device extensions list.
 #endif
 
 const char *const kLayerSettingsDevsimFilename =
@@ -308,6 +312,9 @@ const char *const kLayerSettingsDevsimExitOnError =
     "lunarg_device_simulation.exit_on_error";  // vk_layer_settings.txt equivalent for kEnvarDevsimExitOnError
 const char *const kLayerSettingsDevsimEmulatePortability =
     "lunarg_device_simulation.emulate_portability";  // vk_layer_settings.txt equivalent for kEnvarDevsimEmulatePortability
+
+const char *const kLayerSettingsDevsimModifyExtensionList =
+    "lunarg_device_simulation.modify_extension_list";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyExtensionList
 
 struct IntSetting {
     int num;
@@ -323,6 +330,7 @@ struct StringSetting inputFilename;
 struct IntSetting debugLevel;
 struct IntSetting errorLevel;
 struct IntSetting emulatePortability;
+struct IntSetting modifyExtensionList;
 
 // Various small utility functions ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -464,6 +472,7 @@ uint32_t loader_layer_iface_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
 typedef std::vector<VkQueueFamilyProperties> ArrayOfVkQueueFamilyProperties;
 typedef std::unordered_map<uint32_t /*VkFormat*/, VkFormatProperties> ArrayOfVkFormatProperties;
 typedef std::vector<VkLayerProperties> ArrayOfVkLayerProperties;
+typedef std::vector<VkExtensionProperties> ArrayOfVkExtensionProperties;
 
 // FormatProperties utilities ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -525,6 +534,27 @@ class PhysicalDeviceData {
         return false;
     }
 
+    static bool HasSimulatedExtension(VkPhysicalDevice pd, const char *extension_name) {
+        return HasSimulatedExtension(Find(pd), extension_name);
+    }
+
+    static bool HasSimulatedExtension(PhysicalDeviceData *pdd, const char *extension_name) {
+        for (const auto &ext_prop : pdd->arrayof_extension_properties_) {
+            if (strncmp(extension_name, ext_prop.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static bool HasSimulatedOrRealExtension(VkPhysicalDevice pd, const char *extension_name) {
+        return HasSimulatedOrRealExtension(Find(pd), extension_name);
+    }
+
+    static bool HasSimulatedOrRealExtension(PhysicalDeviceData *pdd, const char *extension_name) {
+        return HasSimulatedExtension(pdd, extension_name) || HasExtension(pdd, extension_name);
+    }
+
     VkInstance instance() const { return instance_; }
 
     std::vector<VkExtensionProperties> device_extensions;
@@ -535,6 +565,7 @@ class PhysicalDeviceData {
     ArrayOfVkQueueFamilyProperties arrayof_queue_family_properties_;
     ArrayOfVkFormatProperties arrayof_format_properties_;
     ArrayOfVkLayerProperties arrayof_layer_properties_;
+    ArrayOfVkExtensionProperties arrayof_extension_properties_;
 
     // VK_KHR_portability_subset structs
     VkPhysicalDevicePortabilitySubsetPropertiesKHR physical_device_portability_subset_properties_;
@@ -593,6 +624,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, int index, VkQueueFamilyProperties *dest);
     void GetValue(const Json::Value &parent, int index, DevsimFormatProperties *dest);
     void GetValue(const Json::Value &parent, int index, VkLayerProperties *dest);
+    void GetValue(const Json::Value &parent, int index, VkExtensionProperties *dest);
 
     // For use as warn_func in GET_VALUE_WARN().  Return true if warning occurred.
     static bool WarnIfGreater(const char *name, const uint64_t new_value, const uint64_t old_value) {
@@ -811,6 +843,22 @@ class JsonLoader {
         return static_cast<int>(dest->size());
     }
 
+    int GetArray(const Json::Value &parent, const char *name, ArrayOfVkExtensionProperties *dest) {
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        DebugPrintf("\t\tJsonLoader::GetArray(ArrayOfVkExtensionProperties)\n");
+        dest->clear();
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            VkExtensionProperties extension_properties = {};
+            GetValue(value, i, &extension_properties);
+            dest->push_back(extension_properties);
+        }
+        return static_cast<int>(dest->size());
+    }
+
     void WarnDeprecated(const Json::Value &parent, const char *name) {
         const Json::Value value = parent[name];
         if (value.type() != Json::nullValue) {
@@ -889,7 +937,7 @@ bool JsonLoader::LoadFile(const char *filename) {
             GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
             GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
             GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
-            WarnDeprecated(root, "ArrayOfVkExtensionProperties");
+            GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
             result = true;
             break;
 
@@ -1263,6 +1311,15 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, VkLayerPropertie
     GET_ARRAY(description);  // size < VK_MAX_DESCRIPTION_SIZE
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, int index, VkExtensionProperties *dest) {
+    const Json::Value value = parent[index];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_ARRAY(extensionName);  // size < VK_MAX_EXTENSION_NAME_SIZE
+    GET_VALUE(specVersion);
+}
+
 #undef GET_VALUE
 #undef GET_ARRAY
 
@@ -1331,6 +1388,23 @@ static void GetDevSimEmulatePortability() {
 #endif
 }
 
+// Fill the modifyExtensionList variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void GetDevSimModifyExtensionList() {
+    std::string modify_extension_list = getLayerOption(kLayerSettingsDevsimModifyExtensionList);
+    modifyExtensionList.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimModifyExtensionList);
+    if (!env_var.empty()) {
+        modify_extension_list = env_var;
+        modifyExtensionList.fromEnvVar = true;
+    }
+#if defined(__ANDROID__)
+    modifyExtensionList.num = atoi(modify_extension_list.c_str());
+#else
+    modifyExtensionList.num = std::atoi(modify_extension_list.c_str());
+#endif
+}
+
 // Generic layer dispatch table setup, see [LALI].
 static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                          VkInstance *pInstance) {
@@ -1338,6 +1412,7 @@ static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo
     GetDevSimFilename();
     GetDevSimDebugLevel();
     GetDevSimErrorLevel();
+    GetDevSimModifyExtensionList();
 
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo);
@@ -1605,14 +1680,18 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     std::lock_guard<std::mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_extension_properties_.size()) : 0;
     if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
         result = EnumerateProperties(kDeviceExtensionPropertiesCount, kDeviceExtensionProperties.data(), pCount, pProperties);
-    } else {
+    } else if (src_count == 0 || modifyExtensionList.num == 0) {
         result = dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
+    } else {
+        result = EnumerateProperties(src_count, pdd->arrayof_extension_properties_.data(), pCount, pProperties);
     }
 
     if (result == VK_SUCCESS && !pLayerName && emulatePortability.num > 0 &&
-        !PhysicalDeviceData::HasExtension(physicalDevice, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)) {
+        !PhysicalDeviceData::HasSimulatedOrRealExtension(physicalDevice, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)) {
         *pCount += 1;
         if (pProperties) {
             strncpy(pProperties[(*pCount) - 1].extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_MAX_EXTENSION_NAME_SIZE);
