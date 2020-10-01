@@ -319,7 +319,7 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
 #error "Unknown platform"
 #endif
 
-#if PLATFORM_MACOS
+if(PLATFORM_MACOS) {
     // Using the standard install loation on macOS
     {
         const QString search_path = "/Applications/" + executable_name;
@@ -336,7 +336,7 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
             return file_info.absoluteFilePath();  // This cannot be file path like the others
     }
     // Allow fall through to below. Really, only the VULKAN_SDK is likely to catch anything
-#endif
+}
 
     // Using relative path to vkconfig
     {
