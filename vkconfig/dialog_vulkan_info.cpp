@@ -23,9 +23,6 @@
 
 #include "../vkconfig_core/platform.h"
 
-#include <cstdio>
-#include <cstdlib>
-
 #include <QProcess>
 #include <QFile>
 #include <QTextStream>
@@ -37,6 +34,10 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QStringList>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(std::make_unique<Ui::dialog_vulkan_info>()) {
     ui->setupUi(this);
