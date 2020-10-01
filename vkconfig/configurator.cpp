@@ -84,7 +84,7 @@ static const DefaultConfiguration default_configurations[] = {
     {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "GPU-Assisted", ValidationPresetGPUAssisted},
     {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Debug Printf", ValidationPresetDebugPrintf},
 #endif
-#if !PLATFORM_MACOS
+#if HAS_GFXRECONSTRUCT
     {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
     {"Frame Capture - Range (F5 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
      ValidationPresetNone},
@@ -274,16 +274,13 @@ Configurator::~Configurator() {
         available_configurations[i].Save(path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].name));
     }
 
-    ClearLayerLists();
+    available_layers.clear();
     available_configurations.clear();
 }
 
 bool Configurator::HasLayers() const { return !available_layers.empty(); }
 
-void Configurator::ClearLayerLists() { available_layers.clear(); }
-
 #if PLATFORM_WINDOWS
-///////////////////////////////////////////////////////////////////////
 /// Look for device specific layers
 void Configurator::LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Layer> &layers, LayerType type) {
     HKEY key;
@@ -320,9 +317,7 @@ void Configurator::LoadDeviceRegistry(DEVINST id, const QString &entry, std::vec
     RegCloseKey(key);
 }
 
-////////////////////////////////////////////////////////////////
-/// This is for Windows only. It looks for device specific layers in
-/// the Windows registry.
+/// This is for Windows only. It looks for device specific layers in the Windows registry.
 void Configurator::LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type) {
     QString root_string = path.section('\\', 0, 0);
     static QHash<QString, HKEY> root_keys = {
@@ -400,7 +395,6 @@ void Configurator::LoadRegistryLayers(const QString &path, std::vector<Layer> &l
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
 void Configurator::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
@@ -430,7 +424,6 @@ void Configurator::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSet
     RegCloseKey(key);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
 void Configurator::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
@@ -489,7 +482,7 @@ bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_ver
 void Configurator::LoadAllInstalledLayers() {
     // This is called initially, but also when custom search paths are set, so
     // we need to clear out the old data and just do a clean refresh
-    ClearLayerLists();
+    available_layers.clear();
 
     // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
     int lp = VK_LAYER_PATH.count();
@@ -729,7 +722,6 @@ void Configurator::LoadDefaultLayerSettings() {
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
 /// To do a full match, not only the layer name, but the layer path/location
 /// must also be a match. It IS possible to have two layers with the same name
 /// as long as they are in different locations.
@@ -755,7 +747,6 @@ void Configurator::SetActiveConfiguration(const QString &configuration_name) {
     SetActiveConfiguration(configuration);
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // Set this as the current override profile. The profile definition passed in
 // is used to construct the override and settings files.
 // Passing in nullptr IS valid, and will clear the current profile
@@ -788,7 +779,6 @@ void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator a
         return;
     }
 
-    /////////////////////////
     // vk_layer_settings.txt
     QFile file(override_settings_path);
     const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);

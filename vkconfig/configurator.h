@@ -156,8 +156,6 @@ class Configurator {
 
     std::vector<Configuration>::iterator _active_configuration;
 
-    void ClearLayerLists();
-
 #if PLATFORM_WINDOWS
     void LoadDeviceRegistry(DEVINST id, const QString& entry, std::vector<Layer>& layers, LayerType type);
     void LoadRegistryLayers(const QString& path, std::vector<Layer>& layers, LayerType type);
