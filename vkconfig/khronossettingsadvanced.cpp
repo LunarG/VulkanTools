@@ -460,7 +460,6 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
             alert.setCheckBox(new QCheckBox("Do not show again."));
             alert.exec();
             if (alert.checkBox()->isChecked()) settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
-            return;
         }
     }
 
