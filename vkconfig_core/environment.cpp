@@ -304,13 +304,7 @@ bool Environment::LoadApplications() {
 }
 
 static QString GetDefaultExecutablePath(const QString& executable_name) {
-#if PLATFORM_MACOS
-    static const char* DEFAULT_PATH = "/../..";
-#elif PLATFORM_WINDOWS || PLATFORM_LINUX
-    static const char* DEFAULT_PATH = "";
-#else
-#error "Unknown platform"
-#endif
+    static const char* DEFAULT_PATH = PLATFORM_MACOS ? "/../.." : "";
 
     if (PLATFORM_MACOS) {
         // Using the standard install loation on macOS

@@ -153,8 +153,6 @@ void MainWindow::UpdateUI() {
     const bool has_active_configuration = configurator.HasActiveConfiguration();
     const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-    assert(configurator.HasLayers());
-
     ui->configuration_tree->blockSignals(true);
 
     // Mode states
@@ -551,45 +549,36 @@ void MainWindow::toolsVulkanInstallation(bool checked) {
     vk_installation_dialog.reset(new VulkanAnalysisDialog(this));
 }
 
-////////////////////////////////////////////////////////////////
-/// Show help, which is just a rich text file
 void MainWindow::helpShowHelp(bool checked) {
     (void)checked;
     QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/vkconfig.html"));
 }
 
-////////////////////////////////////////////////////////////////
-// Open the web browser to the Vulkan specification
 void MainWindow::helpShowVulkanSpec(bool checked) {
     (void)checked;
-#if PLATFORM_WINDOWS
-    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/1.2-extensions/vkspec.html"));
-#elif PLATFORM_MACOS
-    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/1.2-extensions/vkspec.html"));
-#elif PLATFORM_LINUX
-    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/1.2-extensions/vkspec.html"));
-#else
-#error "Unknown platform"
-#endif
+    if (PLATFORM_WINDOWS)
+        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/1.2-extensions/vkspec.html"));
+    else if (PLATFORM_MACOS)
+        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/1.2-extensions/vkspec.html"));
+    else if (PLATFORM_LINUX)
+        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/1.2-extensions/vkspec.html"));
+    else
+        assert(0);  //"Unknown platform"
 }
 
-////////////////////////////////////////////////////////////////
-// Open the web browser to the Vulkan Layers specification
 void MainWindow::helpShowLayerSpec(bool checked) {
     (void)checked;
-#if PLATFORM_WINDOWS
-    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html"));
-#elif PLATFORM_MACOS
-    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/layer_configuration.html"));
-#elif PLATFORM_LINUX
-    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/layer_configuration.html"));
-#else
-#error "Unknown platform"
-#endif
+    if (PLATFORM_WINDOWS)
+        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html"));
+    else if (PLATFORM_MACOS)
+        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/layer_configuration.html"));
+    else if (PLATFORM_LINUX)
+        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/layer_configuration.html"));
+    else
+        assert(0);  //"Unknown platform"
 }
 
-////////////////////////////////////////////////////////////////
-/// The only thing we need to do here is clear the profile if
+/// The only thing we need to do here is clear the configuration if
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
     Configurator &configurator = Configurator::Get();
@@ -625,14 +614,12 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     QMainWindow::closeEvent(event);
 }
 
-////////////////////////////////////////////////////////////////
 /// Resizing needs a little help. Yes please, there has to be
 /// a better way of doing this.
 void MainWindow::resizeEvent(QResizeEvent *event) {
     if (event != nullptr) event->accept();
 }
 
-/////////////////////////////////////////////////////////////
 void MainWindow::showEvent(QShowEvent *event) {
     (void)event;
 
@@ -643,7 +630,6 @@ void MainWindow::showEvent(QShowEvent *event) {
     event->accept();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Edit the list of apps that can be filtered.
 void MainWindow::on_push_button_applications_clicked() {
     ApplicationsDialog dlg(this);
@@ -654,7 +640,6 @@ void MainWindow::on_push_button_applications_clicked() {
     UpdateUI();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Just resave the list anytime we go into the editor
 void MainWindow::on_push_button_select_configuration_clicked() {
     ConfigurationListItem *item = SaveLastItem();
@@ -679,7 +664,6 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configurator.GetActiveConfiguration()));
 }
 
-///////////////////////////////////////////////////////////////
 // When changes are made to the layer list, it forces a reload
 // of the configuration list. This wipes everything out, so we
 // need a way to restore the currently selected item whenever
@@ -714,9 +698,7 @@ bool MainWindow::SelectConfigurationItem(const QString &configuration_name) {
     return false;
 }
 
-////////////////////////////////////////////////////////////////
-// Partner for above function. Returns false if the last config
-// could not be found.
+// Partner for above function. Returns false if the last config could not be found.
 bool MainWindow::RestoreLastItem(const char *configuration_override) {
     if (configuration_override != nullptr) _last_item = configuration_override;
 
@@ -734,7 +716,6 @@ bool MainWindow::RestoreLastItem(const char *configuration_override) {
     return false;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
 void MainWindow::addCustomPaths() {
@@ -752,7 +733,6 @@ void MainWindow::addCustomPaths() {
     RestoreLastItem();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 // Edit the layers for the given configuration.
 void MainWindow::EditClicked(ConfigurationListItem *item) {
     assert(item);
@@ -774,8 +754,6 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configurator.GetActiveConfiguration()));
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Create a new blank configuration
 void MainWindow::NewClicked() {
     // SaveLastItem();
     _settings_tree_manager.CleanupGUI();
@@ -795,11 +773,6 @@ void MainWindow::NewClicked() {
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
-/// Remove the currently selected user defined profile.
-// This option does not automatically select another profile when you
-// delete the current one. Since it's not possible to select it without
-// making it current, this is the only reasonable option I see.
 void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     assert(item);
     assert(!item->configuration_name.isEmpty());
@@ -838,7 +811,6 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
     ui->configuration_tree->editItem(item, 1);
 }
 
-// Copy the current configuration
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(item);
 
@@ -878,7 +850,6 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configurator.GetActiveConfiguration()));
 }
 
-// Import a configuration file. File copy followed by a reload.
 void MainWindow::ImportClicked(ConfigurationListItem *item) {
     (void)item;  // We don't need this
     Configurator &configurator = Configurator::Get();
@@ -892,7 +863,6 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     LoadConfigurationList();
 }
 
-// Export a configuration file. Basically just a file copy
 void MainWindow::ExportClicked(ConfigurationListItem *item) {
     assert(item);
 
@@ -905,7 +875,6 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
     configurator.ExportConfiguration(item->configuration_name + ".json", full_export_path);
 }
 
-// Export a configuration file. Basically just a file copy
 void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
     (void)item;
     addCustomPaths();
@@ -956,10 +925,7 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     UpdateUI();
 }
 
-///////////////////////////////////////////////////////////////////
-/// Launch and log area
 void MainWindow::SetupLauncherTree() {
-    /////////////////////////////////////////////////////////////////
     // Executable
     QTreeWidgetItem *launcher_parent = new QTreeWidgetItem();
     launcher_parent->setText(0, "Executable Path");
@@ -980,7 +946,6 @@ void MainWindow::SetupLauncherTree() {
     connect(_launcher_apps_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
     connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
 
-    //////////////////////////////////////////////////////////////////
     // Working folder
     QTreeWidgetItem *launcher_folder_item = new QTreeWidgetItem();
     launcher_folder_item->setText(0, "Working Directory");
@@ -1001,7 +966,6 @@ void MainWindow::SetupLauncherTree() {
     ui->launcher_tree->setItemWidget(launcher_folder_item, 2, _launcher_working_browse_button);
     connect(_launcher_working_browse_button, SIGNAL(clicked()), this, SLOT(launchSetWorkingFolder()));
 
-    //////////////////////////////////////////////////////////////////
     // Command line arguments
     QTreeWidgetItem *launcher_arguments_item = new QTreeWidgetItem();
     launcher_arguments_item->setText(0, "Command-line Arguments");
@@ -1013,8 +977,7 @@ void MainWindow::SetupLauncherTree() {
     ui->launcher_tree->setItemWidget(launcher_arguments_item, 1, _launcher_arguments);
     connect(_launcher_arguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
 
-    //////////////////////////////////////////////////////////////////
-    // LOG FILE
+    // Log file
     QTreeWidgetItem *launcher_log_file_item = new QTreeWidgetItem();
     launcher_log_file_item->setText(0, "Output Log");
     launcher_parent->addChild(launcher_log_file_item);
@@ -1033,7 +996,7 @@ void MainWindow::SetupLauncherTree() {
     ui->launcher_tree->setItemWidget(launcher_log_file_item, 2, _launcher_log_file_browse_button);
     connect(_launcher_log_file_browse_button, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
 
-    //////////////////////////////////////////////////////////////////
+    // Launcher tree
     ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
     ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
 
@@ -1051,7 +1014,6 @@ void MainWindow::SetupLauncherTree() {
     ui->launcher_tree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
-////////////////////////////////////////////////////////////////////
 // Expanding the tree also grows the tree to match
 void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
     (void)item;
@@ -1060,9 +1022,7 @@ void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
     Configurator::Get().environment.Set(LAYOUT_LAUNCHER_COLLAPSED, QByteArray("false"));
 }
 
-////////////////////////////////////////////////////////////////////
-// Collapsing the tree also shrinks the tree to match and show only
-// the first line
+// Collapsing the tree also shrinks the tree to match and show only the first line
 void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
     (void)item;
     ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT + 6);
@@ -1098,7 +1058,6 @@ void MainWindow::launchSetWorkingFolder() {
     _launcher_working->setText(path);
 }
 
-///////////////////////////////////////////////////////////////////
 // Log file path edited manually.
 void MainWindow::launchChangeLogFile(const QString &log_file) {
     int current_application_index = _launcher_apps_combo->currentIndex();
@@ -1108,7 +1067,6 @@ void MainWindow::launchChangeLogFile(const QString &log_file) {
     application.log_file = log_file;
 }
 
-////////////////////////////////////////////////////////////////////
 void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
@@ -1117,8 +1075,7 @@ void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     application.working_folder = working_folder;
 }
 
-////////////////////////////////////////////////////////////////////
-/// Launch app change
+// Launch app change
 void MainWindow::launchItemChanged(int application_index) {
     if (application_index < 0) return;
 
@@ -1132,7 +1089,6 @@ void MainWindow::launchItemChanged(int application_index) {
     _launcher_log_file_edit->setText(application.log_file);
 }
 
-/////////////////////////////////////////////////////////////////////
 /// New command line arguments. Update them.
 void MainWindow::launchArgsEdited(const QString &arguments) {
     int application_index = _launcher_apps_combo->currentIndex();
@@ -1142,7 +1098,6 @@ void MainWindow::launchArgsEdited(const QString &arguments) {
     application.arguments = arguments;
 }
 
-//////////////////////////////////////////////////////////////////////
 // Clear the browser window
 void MainWindow::on_push_button_clear_log_clicked() {
     ui->log_browser->clear();
@@ -1150,10 +1105,7 @@ void MainWindow::on_push_button_clear_log_clicked() {
     ui->push_button_clear_log->setEnabled(false);
 }
 
-//////////////////////////////////////////////////////////////////////
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
-    // UpdateUI();
-
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method
     // of this window. Any resize coming through needs to trigger this
@@ -1225,52 +1177,24 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // all of these just seemed ridiculous. Every problem is not a nail,
             // put the hammer away....
 
-            // Edit the selected profile
             if (action == edit_action) {
                 EditClicked(item);
-                return true;
-            }
-
-            // New Profile...
-            if (action == new_action) {
+            } else if (action == new_action) {
                 NewClicked();
-                return true;
-            }
-
-            // Duplicate
-            if (action == duplicate_action) {
+            } else if (action == duplicate_action) {
                 DuplicateClicked(item);
-                return true;
-            }
-
-            // Remove this profile....
-            if (action == remove_action) {
+            } else if (action == remove_action) {
                 RemoveClicked(item);
-                return true;
-            }
-
-            // Rename this profile...
-            if (action == rename_action) {
+            } else if (action == rename_action) {
                 RenameClicked(item);
-                return true;
-            }
-
-            // Export this profile (copy the .json)
-            if (action == export_action) {
+            } else if (action == export_action) {
                 ExportClicked(item);
-                return true;
-            }
-
-            // Import a profile (copy a json)
-            if (action == import_action) {
+            } else if (action == import_action) {
                 ImportClicked(item);
-                return true;
-            }
-
-            // Edit Layer custom paths
-            if (action == custom_path_action) {
+            } else if (action == custom_path_action) {
                 EditCustomPathsClicked(item);
-                return true;
+            } else {
+                assert(0);  // Unknown action
             }
 
             // Do not pass on
@@ -1292,19 +1216,6 @@ void MainWindow::ResetLaunchApplication() {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-/// Launch the app and monitor it's stdout to get layer output.
-/// stdout is buffered by default, so in order to see realtime output it must
-/// be flushed. Either of the following in the other app will do.
-/// > fflush(stdout);    // Flush now
-/// setlinebuf(stdout);  // always flush at the end of a line
-///
-/// The layers are automtically flushed, so they should show up as they
-/// generated. One note... any other stdout generated by the monitored
-/// application will also be captured.
-///
-/// If logging is enbabled (by setting a logging file), then the log file
-/// is also opened.
 void MainWindow::on_push_button_launch_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
@@ -1400,7 +1311,6 @@ void MainWindow::on_push_button_launch_clicked() {
     UpdateUI();
 }
 
-/////////////////////////////////////////////////////////////////////////////
 /// The process we are following is closed. We don't actually care about the
 /// exit status/code, we just need to know to destroy the QProcess object
 /// and set it back to nullptr so that we know we can launch a new app.
@@ -1425,7 +1335,6 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
     ResetLaunchApplication();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 /// This signal get's raised whenever the spawned Vulkan appliction writes
 /// to stdout and there is data to be read. The layers flush after all stdout
 /// writes, so we should see layer output here in realtime, as we just read
