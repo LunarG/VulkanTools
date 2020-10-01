@@ -137,18 +137,16 @@ bool Environment::Notify(Notification notification) {
         case NOTIFICATION_EXIT: {
             QString shut_down_state;
 
-            if (override_state == OVERRIDE_STATE_DISABLED) {
-                shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
-            } else {
+            if (override_state & OVERRIDE_FLAG_PERSISTENT) {
                 shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
 
                 if (override_state & OVERRIDE_FLAG_SELECTED)
                     shut_down_state += " Overrides will be applied only to the application list.";
                 else
                     shut_down_state += " Overrides will be applied to ALL Vulkan applications.";
+            } else {
+                shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
             }
-
-            shut_down_state += "\n\nAre you still ready to close Vulkan Configurator?";
 
             QMessageBox alert;
             alert.setWindowTitle("Vulkan Layers configuration state on exit");
@@ -156,6 +154,7 @@ bool Environment::Notify(Notification notification) {
             alert.setIcon(QMessageBox::Question);
             alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             alert.setCheckBox(new QCheckBox("Do not show again."));
+            alert.setInformativeText("Are you still ready to close Vulkan Configurator?");
 
             int ret_val = alert.exec();
             hide_notification = alert.checkBox()->isChecked();
