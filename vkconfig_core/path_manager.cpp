@@ -85,14 +85,6 @@ PathManager::~PathManager() {
     assert(result);
 }
 
-static void CheckHomePathsExist(const QString& path) {
-    QDir dir = QDir::home();
-    if (!dir.exists(path)) {
-        dir.mkpath(path);
-        assert(dir.exists(path));
-    }
-}
-
 void PathManager::CheckDefaultDirectories() const {
     if (PLATFORM_WINDOWS) {
         CheckHomePathsExist("AppData/Local/LunarG/vkconfig/override");
