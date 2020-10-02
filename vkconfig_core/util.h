@@ -21,15 +21,17 @@
 
 #pragma once
 
+#include <QString>
+
+#if defined(_WIN32) && defined(_DEBUG)
+#include <windows.h>  // For OutputDebugString
+#endif
+
 #include <cstddef>
 #include <cstdio>
 #include <string>
 #include <array>
 #include <vector>
-
-#if defined(_WIN32) && defined(_DEBUG)
-#include <windows.h>  // For OutputDebugString
-#endif
 
 // Based on https://www.g-truc.net/post-0708.html#menu
 template <typename T, std::size_t N>
@@ -49,3 +51,12 @@ inline constexpr std::size_t countof(C<T, Alloc> const& data) noexcept {
 }
 
 std::string format(const char* message, ...);
+
+// Create a directory from the home directory if it doesn't exist
+void CheckHomePathsExist(const QString& path);
+
+// Replace "$HOME" built-in variable by the actual system home directory
+std::string ReplacePathBuiltInVariables(const std::string& path);
+
+// Exact the filename and change the path to "$HOME" directory if necessary
+std::string ValidatePath(const std::string& path);
