@@ -43,7 +43,7 @@
                     "type": "string"
                 },
                 "capture_trigger": {
-                    "default": "F10",
+                    "default": "F5",
                     "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
                     "name": "Hotkey Capture Trigger",
                     "options": {
