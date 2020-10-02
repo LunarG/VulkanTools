@@ -46,8 +46,6 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Load from a configuration file (.json really)
 bool Configuration::Load(const QString& full_path) {
     assert(!full_path.isEmpty());
 

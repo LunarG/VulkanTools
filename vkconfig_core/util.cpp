@@ -64,6 +64,7 @@ std::string ReplacePathBuiltInVariables(const std::string& path) {
 
     const std::size_t found = path.find_first_of(HOME);
     if (found < path.size()) {
+        assert(found == 0);  // The home variable must be first in the path
         const std::size_t offset = found + HOME.size();
         return QDir().homePath().toStdString() + path.substr(found + offset, path.size() - offset);
     }
