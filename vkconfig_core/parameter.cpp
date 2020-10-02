@@ -197,6 +197,7 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
                 }
             } break;
             case SETTING_SAVE_FILE: {
+                setting.value = ValidatePath(setting.value.toStdString()).c_str();
                 setting.value = ReplacePathBuiltInVariables(setting.value.toStdString()).c_str();
             } break;
             case SETTING_LOAD_FILE:

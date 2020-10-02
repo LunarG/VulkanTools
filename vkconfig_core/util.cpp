@@ -59,6 +59,14 @@ bool IsNumber(const std::string& s) {
     return true;
 }
 
+void CheckHomePathsExist(const QString& path) {
+    QDir dir = QDir::home();
+    if (!dir.exists(path)) {
+        dir.mkpath(path);
+        assert(dir.exists(path));
+    }
+}
+
 std::string ReplacePathBuiltInVariables(const std::string& path) {
     static const std::string HOME("$HOME");
 
@@ -66,9 +74,24 @@ std::string ReplacePathBuiltInVariables(const std::string& path) {
     if (found < path.size()) {
         assert(found == 0);  // The home variable must be first in the path
         const std::size_t offset = found + HOME.size();
-        return QDir().homePath().toStdString() + path.substr(found + offset, path.size() - offset);
+        return QDir::toNativeSeparators(QDir().homePath() + path.substr(found + offset, path.size() - offset).c_str())
+            .toStdString();
     }
 
     // No built-in variable found, return unchanged
     return path;
+}
+
+std::string ValidatePath(const std::string& path) {
+    if (path.empty()) return path;
+
+    FILE* file = fopen(path.c_str(), "w+");
+    if (file == nullptr) {
+        CheckHomePathsExist("vulkan-sdk");
+        const QFileInfo file_info(path.c_str());
+        return QDir::toNativeSeparators(QDir().homePath() + "/vulkan-sdk/" + file_info.fileName()).toStdString();
+    } else {
+        fclose(file);
+        return path;
+    }
 }
