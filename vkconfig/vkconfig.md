@@ -15,8 +15,9 @@ A Vulkan application may configure layers when creating a Vulkan Instance. This 
 
 Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
+* **[Change Log and Known Issues](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CHANGELOG.md)**
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
-* **Information for contributors**: [All contribution information](https://github.com/LunarG/VulkanTools/blob/master/CONTRIBUTING.md), [FAQ](#faq), [Roadmap](https://github.com/LunarG/VulkanTools/projects/2), [Known Issues](#known-issues)
+* **Information for contributors**: [All contribution information](https://github.com/LunarG/VulkanTools/blob/master/CONTRIBUTING.md), [FAQ](#faq), [Roadmap](https://github.com/LunarG/VulkanTools/projects/2)
 * **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
 
 --------------
@@ -125,15 +126,3 @@ The short answer is that environment variables and *Vulkan Configurator* layers 
 This is because the interaction between environment variables and *Vulkan* Configuration layers settings are handled by the layers directly so the responsability of the layers developers.
 
 We are working on defining layers development conventions to resolve this issue properly but in the meantime we highly recommend to use exclusively either environment variables or Vulkan Configurator.
-
---------------
-## Known Issues
-
-- *Using Vulkan Configurator is exclusive from using layer environment variables. Choose one or the other method.*
-- Layers will use the override layer settings and ignore the local file with no warning to the user.
-- Layers settings fields are not checked for syntax errors.
-- Layer changes are not autodetected. If changes are made to the layer environment, *Vulkan Configurator* must be restarted to take into account these changes.
-- On *macOS*, *vkcube* and *vkcubepp* need to be run at least once to get past the security checks before they can be used from *Vulkan Configurator*.
-- The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
-- Minor GUI formating issues may still occur on some Linux distributions (Fedora particularly)
-- *Vulkaninfo* output is now sorted alphabetically.

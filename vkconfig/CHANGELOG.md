@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-XX
+## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-05
 
 ### Features:
 - Add multiple debug actions simulaneously #1119
@@ -39,12 +39,34 @@
 - Fix `debug_output` setting displayed on Linux and macOS but not avaiable #1086
 - Fix `numeric_bool` setting display #1166
 
+### Known issues:
+- *Using Vulkan Configurator is exclusive from using layer environment variables. Choose one or the other method.*
+- Layers will use the override layer settings and ignore the local file with no warning to the user.
+- Layers settings fields are not checked for syntax errors.
+- Layer changes are not autodetected. If changes are made to the layer environment, *Vulkan Configurator* must be restarted to take into account these changes.
+- On *macOS*, *vkcube* and *vkcubepp* need to be run at least once to get past the security checks before they can be used from *Vulkan Configurator*.
+- The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
+
 ## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.1) - 2020-08-08
 
 ### Fixes:
 - Fix Shader Printf built-in configuration that was setup for GPU-Assisted validation isntead
 - Fix layer configurations selection on Linux
 - Fix debug output setting not working
+
+### Known issues:
+- Minor GUI formating issues may still occur on some Linux distributions (Fedora particularly)
+- Layers will use the override layer settings and ignore the local file with no warning to the user.
+- Layer paths may not be duplicated in the layer override json file. They currently are.
+- Layer execution order express in the "Select Layers" window is not accurate, only forced on layers can be ordered.
+- Layers settings fields are not checked for syntax errors.
+- The user can't reorder the layers configurations in the list.
+- Vulkaninfo output is now sorted alphabetically.
+- On Linux, when run for the first time from the command line, vkcube may not be located and added to the application launcher automatically.
+- A version or build # needs to be added to the about box.
+- Layer changes are not autodetected. If changes are made to the layer environment, vkconfig must be restarted.
+- On macOS, vkcube and vkcubepp need to be run at least once to get past the security checks before they can be used from vkconfig.
+- The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
 
 ## [Vulkan Configurator 2.0.0 for Vulkan SDK 1.2.148.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.0) - 2020-08-03
 
