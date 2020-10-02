@@ -100,8 +100,7 @@ bool Configuration::Load(const QString& full_path) {
         _name = filename.left(filename.length() - 5);
         if (_name == "Validation - Shader Printf") {
             _name = "Validation - Debug Printf";
-            const int result = std::remove(full_path.toStdString().c_str());
-            assert(result == 0);
+            std::remove(full_path.toStdString().c_str());
         }
     } else {
         const QJsonValue& json_name_value = configuration_entry_object.value("name");

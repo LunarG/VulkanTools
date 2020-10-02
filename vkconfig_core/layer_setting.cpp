@@ -26,6 +26,7 @@
 #include "layer_setting.h"
 
 #include <QJsonArray>
+#include <QDir>
 
 #include <cassert>
 #include <algorithm>
@@ -96,6 +97,19 @@ LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) 
     }
 
     return nullptr;
+}
+
+std::string ReplacePathBuiltInVariables(const std::string& path) {
+    static const std::string HOME("$HOME");
+
+    const std::size_t found = path.find_first_of(HOME);
+    if (found < path.size()) {
+        const std::size_t offset = found + HOME.size();
+        return QDir().homePath().toStdString() + path.substr(found + offset, path.size() - offset);
+    }
+
+    // No built-in variable found, return unchanged
+    return path;
 }
 
 bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) {
@@ -178,7 +192,9 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
                         assert(0);
                 }
             } break;
-            case SETTING_SAVE_FILE:
+            case SETTING_SAVE_FILE: {
+                setting.value = ReplacePathBuiltInVariables(setting.value.toStdString()).c_str();
+            } break;
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER:
             case SETTING_BOOL:
