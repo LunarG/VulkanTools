@@ -7,7 +7,7 @@
         "layer_options": {
             "VK_LAYER_LUNARG_gfxreconstruct": {
                 "capture_file": {
-                    "default": "gfxrecon_capture.gfxr",
+                    "default": "$HOME/vulkan-sdk/gfxrecon_capture.gfxr",
                     "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
                     "name": "Capture File Name",
                     "type": "save_file"

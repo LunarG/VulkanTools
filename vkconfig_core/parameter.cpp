@@ -21,6 +21,7 @@
 #include "parameter.h"
 #include "platform.h"
 #include "version.h"
+#include "util.h"
 
 #include <QJsonArray>
 
@@ -154,7 +155,6 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
         } else
             setting.value = json_value_default.toString();
 
-        ///////////////////////////////////////////////////////////////////////
         // Everything from here down revolves around the data type
         // Data types and values start getting a little more involved.
         const QJsonValue& json_value_type = json_object.value("type");
@@ -196,7 +196,9 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
                         assert(0);
                 }
             } break;
-            case SETTING_SAVE_FILE:
+            case SETTING_SAVE_FILE: {
+                setting.value = ReplacePathBuiltInVariables(setting.value.toStdString()).c_str();
+            } break;
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER:
             case SETTING_BOOL:

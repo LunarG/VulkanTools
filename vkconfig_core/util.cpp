@@ -29,6 +29,8 @@
 #include <cstdarg>
 #include <cctype>
 
+#include <QDir>
+
 std::string format(const char* message, ...) {
     std::size_t const STRING_BUFFER(4096);
 
@@ -55,4 +57,17 @@ bool IsNumber(const std::string& s) {
     }
 
     return true;
+}
+
+std::string ReplacePathBuiltInVariables(const std::string& path) {
+    static const std::string HOME("$HOME");
+
+    const std::size_t found = path.find_first_of(HOME);
+    if (found < path.size()) {
+        const std::size_t offset = found + HOME.size();
+        return QDir().homePath().toStdString() + path.substr(found + offset, path.size() - offset);
+    }
+
+    // No built-in variable found, return unchanged
+    return path;
 }

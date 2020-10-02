@@ -51,3 +51,6 @@ inline constexpr std::size_t countof(C<T, Alloc> const& data) noexcept {
 std::string format(const char* message, ...);
 
 bool IsNumber(const std::string& s);
+
+// Replace "$HOME" built-in variable by the actual system home directory
+std::string ReplacePathBuiltInVariables(const std::string& path);
