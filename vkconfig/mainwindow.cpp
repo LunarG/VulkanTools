@@ -116,9 +116,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
     // We need to resetup the new profile for consistency sake.
-    auto current_configuration = FindConfiguration(configurator.available_configurations, environment.Get(ACTIVE_CONFIGURATION));
+    auto active_configuration = FindConfiguration(configurator.available_configurations, environment.Get(ACTIVE_CONFIGURATION));
     if (environment.UseOverride()) {
-        configurator.SetActiveConfiguration(current_configuration);
+        configurator.SetActiveConfiguration(active_configuration);
     }
 
     LoadConfigurationList();
@@ -132,8 +132,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->append(GenerateVulkanStatus());
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    if (current_configuration != configurator.available_configurations.end()) {
-        _settings_tree_manager.CreateGUI(ui->settings_tree, &(*current_configuration));
+    if (active_configuration != configurator.available_configurations.end()) {
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
     UpdateUI();
@@ -271,8 +271,7 @@ void MainWindow::UpdateUI() {
 
 void MainWindow::UpdateConfiguration() {}
 
-///////////////////////////////////////////////////////////////////////////////
-// Load or refresh the list of profiles. Any profile that uses a layer that
+// Load or refresh the list of configuration. Any profile that uses a layer that
 // is not detected on the system is disabled.
 void MainWindow::LoadConfigurationList() {
     // There are lots of ways into this, and in none of them
@@ -289,9 +288,9 @@ void MainWindow::LoadConfigurationList() {
         ConfigurationListItem *item = new ConfigurationListItem(configuration.name);
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-#if PLATFORM_MACOS  // Mac OS does not leave enough space without this
-        item->radio_button->setText(" ");
-#endif
+        if (PLATFORM_MACOS)  // Mac OS does not leave enough space without this
+            item->radio_button->setText(" ");
+
         item->radio_button->setToolTip(configuration._description);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -306,7 +305,6 @@ void MainWindow::LoadConfigurationList() {
     UpdateUI();
 }
 
-//////////////////////////////////////////////////////////
 /// Okay, because we are using custom controls, some of
 /// the signaling is not happening as expected. So, we cannot
 /// always get an accurate answer to the currently selected
@@ -324,7 +322,6 @@ ConfigurationListItem *MainWindow::GetCheckedItem() {
     return nullptr;
 }
 
-//////////////////////////////////////////////////////////
 /// Use the active profile as the override
 void MainWindow::on_radio_override_clicked() {
     Configurator &configurator = Configurator::Get();
@@ -341,7 +338,6 @@ void MainWindow::on_radio_override_clicked() {
     UpdateUI();
 }
 
-//////////////////////////////////////////////////////////
 // No override at all, fully controlled by the application
 void MainWindow::on_radio_fully_clicked() {
     Configurator &configurator = Configurator::Get();
@@ -352,9 +348,7 @@ void MainWindow::on_radio_fully_clicked() {
     UpdateUI();
 }
 
-///////////////////////////////////////////////////////////////////////
-// We want to apply to just the app list... hang on there. Doe we have
-// the new loader?
+// We want to apply to just the app list... hang on there. Doe we have the new loader?
 void MainWindow::on_check_box_apply_list_clicked() {
     Configurator &configurator = Configurator::Get();
 
@@ -417,7 +411,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     LoadConfigurationList();
 
     if (active_configuration != configurator.available_configurations.end()) {
-        _settings_tree_manager.CreateGUI(ui->settings_tree, &(*active_configuration));
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
     ui->log_browser->clear();
@@ -427,8 +421,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     UpdateUI();
 }
 
-////////////////////////////////////////////////////////////////////////////
-/// Thist signal actually comes from the radio button
+// Thist signal actually comes from the radio button
 void MainWindow::OnConfigurationItemClicked(bool checked) {
     (void)checked;
     // Someone just got checked, they are now the current profile
@@ -445,7 +438,6 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     configurator.SetActiveConfiguration(FindConfiguration(configurator.available_configurations, item->configuration_name));
 }
 
-/////////////////////////////////////////////////////////////////////////////
 /// An item has been changed. Check for edit of the items name (configuration name)
 void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
     // This pointer will only be valid if it's one of the elements with
@@ -497,11 +489,10 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         configurator.SetActiveConfiguration(configuration);
 
-        _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configuration));
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
 /// This gets called with keyboard selections and clicks that do not necessarily
 /// result in a radio button change (but it may). So we need to do two checks here, one
 /// for the radio button, and one to change the editor/information at lower right.
@@ -517,12 +508,11 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
     auto configuration = FindConfiguration(Configurator::Get().available_configurations, configuration_item->configuration_name);
     Configurator::Get().SetActiveConfiguration(configuration);
 
-    _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configuration));
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 
     ui->settings_tree->resizeColumnToContents(0);
 }
 
-////////////////////////////////////////////////////
 // Unused flag, just display the about Qt dialog
 void MainWindow::aboutVkConfig(bool checked) {
     (void)checked;
@@ -531,18 +521,14 @@ void MainWindow::aboutVkConfig(bool checked) {
     dlg.exec();
 }
 
-//////////////////////////////////////////////////////////
-/// Create the VulkanInfo dialog if it doesn't already
-/// exits & show it.
+/// Create the VulkanInfo dialog if it doesn't already exits & show it.
 void MainWindow::toolsVulkanInfo(bool checked) {
     (void)checked;
 
     vk_info_dialog.reset(new VulkanInfoDialog(this));
 }
 
-//////////////////////////////////////////////////////////
-/// Create the VulkanTools dialog if it doesn't already
-/// exist & show it.
+/// Create the VulkanTools dialog if it doesn't already exist & show it.
 void MainWindow::toolsVulkanInstallation(bool checked) {
     (void)checked;
 
@@ -661,7 +647,7 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     LoadConfigurationList();
 
     RestoreLastItem();
-    _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configurator.GetActiveConfiguration()));
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 // When changes are made to the layer list, it forces a reload
@@ -751,7 +737,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     LoadConfigurationList();
 
     RestoreLastItem();
-    _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configurator.GetActiveConfiguration()));
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::NewClicked() {
@@ -769,7 +755,7 @@ void MainWindow::NewClicked() {
         LoadConfigurationList();
 
         RestoreLastItem(dlg.GetConfigurationName().toUtf8().constData());
-        _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configurator.GetActiveConfiguration()));
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 }
 
@@ -847,7 +833,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(new_item);
     ui->configuration_tree->editItem(new_item, 1);
 
-    _settings_tree_manager.CreateGUI(ui->settings_tree, &(*configurator.GetActiveConfiguration()));
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::ImportClicked(ConfigurationListItem *item) {
@@ -1216,7 +1202,7 @@ void MainWindow::ResetLaunchApplication() {
     }
 }
 
-void MainWindow::on_push_button_launch_clicked() {
+void MainWindow::on_push_button_launcher_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
         ResetLaunchApplication();
