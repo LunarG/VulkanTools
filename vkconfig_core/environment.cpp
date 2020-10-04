@@ -636,7 +636,7 @@ bool Environment::RemoveCustomLayerPath(const QString& path) {
     assert(!path.isEmpty());
 
     for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
-        if (custom_layer_paths[i] == QDir::toNativeSeparators(path)) {
+        if (QDir::QDir::toNativeSeparators(custom_layer_paths[i]) == QDir::toNativeSeparators(path)) {
             custom_layer_paths.removeAt(i);
             return true;
         }
