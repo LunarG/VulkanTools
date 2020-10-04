@@ -192,6 +192,7 @@ void MainWindow::UpdateUI() {
     }
 
     // Update settings
+    ui->pushButtonEditProfile->setEnabled(environment.UseOverride() && !active_contiguration_name.isEmpty());
     ui->layerSettingsTree->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->groupBoxEditor->setTitle(active_contiguration_name.isEmpty() ? "Configuration Settings"
                                                                      : active_contiguration_name + " Settings");
@@ -1190,41 +1191,47 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QTreeWidgetItem *configuration_item = ui->profileTree->itemAt(right_click->pos());
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
+            Configurator &configurator = Configurator::Get();
+            const Environment &environment = Configurator::Get().environment;
+            const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
+
+            const bool active = environment.UseOverride() && !active_contiguration_name.isEmpty();
+
             // Create context menu here
             QMenu menu(ui->profileTree);
 
             QAction *new_action = new QAction("New...", nullptr);
-            new_action->setEnabled(true);
+            new_action->setEnabled(active);
             menu.addAction(new_action);
 
             menu.addSeparator();
 
             QAction *duplicate_action = new QAction("Duplicate", nullptr);
-            duplicate_action->setEnabled(item != nullptr);
+            duplicate_action->setEnabled(active && item != nullptr);
             menu.addAction(duplicate_action);
 
             QAction *remove_action = new QAction("Remove", nullptr);
-            remove_action->setEnabled(item != nullptr);
+            remove_action->setEnabled(active && item != nullptr);
             menu.addAction(remove_action);
 
             QAction *rename_action = new QAction("Rename", nullptr);
-            rename_action->setEnabled(item != nullptr);
+            rename_action->setEnabled(active && item != nullptr);
             menu.addAction(rename_action);
 
             menu.addSeparator();
 
             QAction *import_action = new QAction("Import...", nullptr);
-            import_action->setEnabled(true);
+            import_action->setEnabled(active);
             menu.addAction(import_action);
 
             QAction *export_action = new QAction("Export...", nullptr);
-            export_action->setEnabled(item != nullptr);
+            export_action->setEnabled(active && item != nullptr);
             menu.addAction(export_action);
 
             menu.addSeparator();
 
             QAction *edit_action = new QAction("Select Layers...", nullptr);
-            edit_action->setEnabled(item != nullptr);
+            edit_action->setEnabled(active && item != nullptr);
             menu.addAction(edit_action);
 
             menu.addSeparator();
