@@ -24,6 +24,7 @@
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
+#include "../vkconfig_core/util.h"
 
 #include <QComboBox>
 #include <QLineEdit>
@@ -65,14 +66,15 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             Parameter &parameter = configuration->parameters[i];
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-            const Layer *layer = Configurator::Get().FindLayerNamed(parameter.name);
+            const std::vector<Layer> &available_layers = Configurator::Get().available_layers;
+            const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
 
             QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, parameter.name + (layer ? "" : " (Missing)"));
+            item->setText(0, parameter.name + (layer != available_layers.end() ? "" : " (Missing)"));
             _configuration_settings_tree->addTopLevelItem(item);
             _layer_items.push_back(item);
 
-            if (layer == nullptr) continue;
+            if (layer == available_layers.end()) continue;
 
             // Handle the case were we get off easy. No settings.
             if (parameter.settings.empty()) {
@@ -102,10 +104,10 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             Parameter &parameter = configuration->parameters[i];
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
-            const Layer *layer = Configurator::Get().FindLayerNamed(parameter.name);
+            const std::vector<Layer>::const_iterator layer = Find(Configurator::Get().available_layers, parameter.name);
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, parameter.name + (layer ? "" : " (Missing)"));
+            child->setText(0, parameter.name + (layer != Configurator::Get().available_layers.end() ? "" : " (Missing)"));
             excluded_layers->addChild(child);
         }
 
@@ -128,7 +130,9 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     _validation_preset_item->setText(0, "Validation Preset");
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
 
-    const Layer *validation_layer = Configurator::Get().FindLayerNamed("VK_LAYER_KHRONOS_validation");
+    Configurator &configurator = Configurator::Get();
+    std::vector<Layer> &available_layers = configurator.available_layers;
+    const std::vector<Layer>::const_iterator validation_layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
 
     _validation_presets_combo_box = new QComboBox();
     _validation_presets_combo_box->blockSignals(true);
@@ -141,7 +145,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
             continue;
         }
 
-        QString preset_name = Configurator::Get().GetValidationPresetLabel(validation_preset);
+        QString preset_name = configurator.GetValidationPresetLabel(validation_preset);
 
         // There is no preset for a user defined group of settings, so watch for blank.
         if (preset_name.isEmpty()) preset_name = "User Defined";
@@ -150,7 +154,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
         _validation_presets.push_back(validation_preset);
     }
 
-    auto configuration = Configurator::Get().GetActiveConfiguration();
+    auto configuration = configurator.GetActiveConfiguration();
     _validation_presets_combo_box->setCurrentIndex(GetValidationPresentIndex(configuration->_preset));
 
     connect(_validation_presets_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
@@ -227,7 +231,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
                 connect(control, SIGNAL(itemChanged()), this, SLOT(OnSettingEdited()));
             }
         } else if (layer_setting.key == "duplicate_message_limit") {
-            if (validation_layer) {  // duplicate_message_limit is new with 1.2.148
+            if (validation_layer != available_layers.end()) {  // duplicate_message_limit is new with 1.2.148
                 if (validation_layer->_api_version < Version("1.2.148")) continue;
             }
 
@@ -306,8 +310,9 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             {
                 // Don't display "emulate_portability" setting if the layer doesn't support it
                 if (setting.key == "emulate_portability" && parameter.name == "VK_LAYER_LUNARG_device_simulation") {
-                    Layer *layer = Configurator::Get().FindLayerNamed("VK_LAYER_LUNARG_device_simulation");
-                    if (layer) {
+                    std::vector<Layer>::iterator layer =
+                        Find(Configurator::Get().available_layers, "VK_LAYER_LUNARG_device_simulation");
+                    if (layer != Configurator::Get().available_layers.end()) {
                         if (Version(layer->_implementation_version) <= Version("1.3.0")) break;
                     }
                 }

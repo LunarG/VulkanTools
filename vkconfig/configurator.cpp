@@ -43,8 +43,8 @@
 
 #include <cassert>
 #include <cstdio>
+#include <algorithm>
 
-//////////////////////////////////////////////////////////////////////////////
 // Constructor does all the work. Abstracts away instances where we might
 // be searching a disk path, or a registry path.
 // TBD, does this really need it's own file/module?
@@ -552,10 +552,10 @@ void Configurator::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
     for (int i = 0; i < file_list.FileCount(); ++i) {
         Layer layer;
         if (layer.Load(file_list.GetFileName(i), type)) {
-            if (layer._name == "VK_LAYER_LUNARG_override") continue;
+            if (layer.name == "VK_LAYER_LUNARG_override") continue;
 
             // Make sure this layer name has not already been added
-            if (FindLayerNamed(layer._name)) continue;
+            if (Find(available_layers, layer.name) != available_layers.end()) continue;
 
             // Good to go, add the layer
             layers.push_back(layer);
@@ -593,7 +593,7 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
             if (path != custom_path) continue;
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, layer._name);
+            child->setText(0, layer.name);
             item->addChild(child);
         }
         item->setExpanded(true);
@@ -667,7 +667,7 @@ void Configurator::LoadAllConfigurations() {
     // Cache the active configuration
     const QString &active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
     if (!active_configuration_name.isEmpty()) {
-        _active_configuration = FindConfiguration(available_configurations, active_configuration_name);
+        _active_configuration = Find(available_configurations, active_configuration_name);
         if (_active_configuration == available_configurations.end()) {
             environment.Set(ACTIVE_CONFIGURATION, "");  // The configuration no longer exist
         }
@@ -726,26 +726,10 @@ void Configurator::LoadDefaultLayerSettings() {
     }
 }
 
-/// To do a full match, not only the layer name, but the layer path/location
-/// must also be a match. It IS possible to have two layers with the same name
-/// as long as they are in different locations.
-Layer *Configurator::FindLayerNamed(const QString &layer_name) {
-    assert(!layer_name.isEmpty());
-
-    for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
-        Layer &layer = available_layers[i];
-
-        if (!(layer_name == layer._name)) continue;
-        return &layer;
-    }
-
-    return nullptr;
-}
-
 void Configurator::SetActiveConfiguration(const QString &configuration_name) {
     assert(!configuration_name.isEmpty());
 
-    auto configuration = FindConfiguration(available_configurations, configuration_name);
+    auto configuration = Find(available_configurations, configuration_name);
     assert(configuration != available_configurations.end());
 
     SetActiveConfiguration(configuration);
@@ -793,22 +777,22 @@ void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator a
     for (std::size_t j = 0, n = _active_configuration->parameters.size(); j < n; ++j) {
         const Parameter &parameter = _active_configuration->parameters[j];
 
-        const Layer *layer = FindLayerNamed(parameter.name);
-        if (layer == nullptr) continue;
+        const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+        if (layer == available_layers.end()) continue;
 
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
         stream << "\n";
-        stream << "# " << layer->_name << "\n";
+        stream << "# " << layer->name << "\n";
 
-        QString short_layer_name = layer->_name;
+        QString short_layer_name = layer->name;
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
         for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
             const LayerSetting &setting = parameter.settings[i];
 
-            if (layer->_name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
+            if (layer->name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
                 stream << "lunarg_gfxrecon"
                        << "." << setting.key << " = " << setting.value << "\n";
             } else {
@@ -835,9 +819,8 @@ void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator a
 
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-        const Layer *layer = FindLayerNamed(parameter.name);
-
-        if (!layer) continue;
+        const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+        if (layer == available_layers.end()) continue;
 
         // Extract just the path
         const QFileInfo file(layer->_layer_path);
@@ -1002,7 +985,7 @@ void Configurator::ResetDefaultsConfigurations() {
     LoadAllConfigurations();
 
     // Find the "Validation - Standard" configuration and make it current if we are active
-    auto active_configuration = FindConfiguration(available_configurations, environment.Get(ACTIVE_CONFIGURATION));
+    auto active_configuration = Find(available_configurations, environment.Get(ACTIVE_CONFIGURATION));
     if (environment.UseOverride()) {
         SetActiveConfiguration(active_configuration);
     }

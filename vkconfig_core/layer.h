@@ -50,7 +50,7 @@ class Layer {
    public:
     // Standard pieces of a layer
     Version _file_format_version;
-    QString _name;
+    QString name;
     QString _type;
     QString _library_path;  // This is a relative path, straight out of the json
     Version _api_version;
@@ -63,7 +63,3 @@ class Layer {
     // File based layers
     bool Load(QString full_path_to_file, LayerType layer_type);
 };
-
-const Layer* FindLayer(const std::vector<Layer>& layers, const QString& layer_name);
-
-bool IsLayerFound(const std::vector<Layer>& layers, const QString& layer_name);

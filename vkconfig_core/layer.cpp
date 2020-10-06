@@ -60,11 +60,11 @@ void AppendString(QString& delimitedString, QString value) {
 
 Layer::Layer() {}
 
-Layer::Layer(const QString& name, const LayerType layer_type) : _name(name), _layer_type(layer_type) {}
+Layer::Layer(const QString& name, const LayerType layer_type) : name(name), _layer_type(layer_type) {}
 
 Layer::Layer(const QString& name, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const QString& implementation_version, const QString& library_path, const QString& type)
-    : _name(name),
+    : name(name),
       _layer_type(layer_type),
       _file_format_version(file_format_version),
       _api_version(api_version),
@@ -74,7 +74,7 @@ Layer::Layer(const QString& name, const LayerType layer_type, const Version& fil
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return _file_format_version != Version::VERSION_NULL && !_name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
+    return _file_format_version != Version::VERSION_NULL && !name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
            _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
 }
 
@@ -131,7 +131,7 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     QJsonObject layer_object = layer_value.toObject();
 
     json_value = layer_object.value("name");
-    _name = json_value.toString();
+    name = json_value.toString();
 
     json_value = layer_object.value("type");
     _type = json_value.toString();
@@ -150,30 +150,4 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
     // The layer file is loaded
     return IsValid();  // Not all JSON file are layer JSON valid
-}
-
-const Layer* FindLayer(const std::vector<Layer>& layers, const QString& layer_name) {
-    assert(!layer_name.isEmpty());
-
-    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
-        const Layer& layer = layers[i];
-
-        if (layer_name != layer._name) continue;
-        return &layer;
-    }
-
-    return nullptr;
-}
-
-bool IsLayerFound(const std::vector<Layer>& layers, const QString& layer_name) {
-    assert(!layer_name.isEmpty());
-
-    for (auto it = layers.begin(), end = layers.end(); it != end; ++it) {
-        if (layer_name != it->_name) continue;
-
-        assert(it->IsValid());
-        return true;
-    }
-
-    return false;
 }

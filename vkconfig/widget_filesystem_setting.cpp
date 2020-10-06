@@ -15,9 +15,9 @@
  * limitations under the License.
  *
  * Authors:
- * - Lenny Komow
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Lenny Komow  <lenny@lunarg.com>
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "widget_filesystem_setting.h"

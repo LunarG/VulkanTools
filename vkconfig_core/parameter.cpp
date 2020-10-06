@@ -31,8 +31,8 @@
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter) {
     assert(!parameter.name.isEmpty());
 
-    const Layer* layer = FindLayer(available_layers, parameter.name);
-    if (!layer) {
+    const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+    if (layer == available_layers.end()) {
         return PARAMETER_RANK_MISSING;
     } else if (parameter.state == LAYER_STATE_EXCLUDED) {
         return PARAMETER_RANK_EXCLUDED;
@@ -112,7 +112,7 @@ std::vector<Parameter>::iterator FindParameter(std::vector<Parameter>& parameter
 
 bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
     for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
-        if (!IsLayerFound(layers, it->name)) return true;
+        if (!IsFound(layers, it->name)) return true;
     }
     return false;
 }

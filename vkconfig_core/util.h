@@ -29,6 +29,7 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <cassert>
 #include <string>
 #include <array>
 #include <vector>
@@ -62,3 +63,34 @@ std::string ReplacePathBuiltInVariables(const std::string& path);
 
 // Exact the filename and change the path to "$HOME" directory if necessary
 std::string ValidatePath(const std::string& path);
+
+template <typename T>
+typename std::vector<T>::iterator Find(std::vector<T>& container, const QString& name) {
+    assert(!name.isEmpty());
+
+    for (auto it = container.begin(), end = container.end(); it != end; ++it)
+        if (it->name == name) return it;
+    return container.end();
+}
+
+template <typename T>
+typename std::vector<T>::const_iterator Find(const std::vector<T>& container, const QString& name) {
+    assert(!name.isEmpty());
+
+    for (auto it = container.begin(), end = container.end(); it != end; ++it) {
+        if (it->name == name) return it;
+    }
+
+    return container.end();
+}
+
+template <typename T>
+bool IsFound(const std::vector<T>& container, const QString& name) {
+    assert(!name.isEmpty());
+
+    for (auto it = container.begin(), end = container.end(); it != end; ++it) {
+        if (name == it->name) return true;
+    }
+
+    return false;
+}
