@@ -611,7 +611,7 @@ bool Environment::AppendCustomLayerPath(const QString& path) {
     assert(!path.isEmpty());
 
     for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
-        if (custom_layer_paths[i] == QDir::toNativeSeparators(path)) {
+        if (QDir::toNativeSeparators(custom_layer_paths[i]) == QDir::toNativeSeparators(path)) {
             return false;
         }
     }
