@@ -116,7 +116,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
     // We need to resetup the new profile for consistency sake.
-    auto active_configuration = FindConfiguration(configurator.available_configurations, environment.Get(ACTIVE_CONFIGURATION));
+    auto active_configuration = Find(configurator.available_configurations, environment.Get(ACTIVE_CONFIGURATION));
     if (environment.UseOverride()) {
         configurator.SetActiveConfiguration(active_configuration);
     }
@@ -167,7 +167,7 @@ void MainWindow::UpdateUI() {
         assert(item);
         assert(!item->configuration_name.isEmpty());
 
-        auto configuration = FindConfiguration(configurator.available_configurations, item->configuration_name);
+        auto configuration = Find(configurator.available_configurations, item->configuration_name);
         if (configuration == configurator.available_configurations.end()) continue;
 
         if (!HasMissingParameter(configuration->parameters, configurator.available_layers)) {
@@ -332,7 +332,7 @@ void MainWindow::on_radio_override_clicked() {
     // This just doesn't work. Make a function to look for the radio button checked.
     ConfigurationListItem *item = GetCheckedItem();
     auto configuration = item == nullptr ? configurator.available_configurations.end()
-                                         : FindConfiguration(configurator.available_configurations, item->configuration_name);
+                                         : Find(configurator.available_configurations, item->configuration_name);
 
     configurator.SetActiveConfiguration(configuration);
 
@@ -403,8 +403,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     configurator.ResetDefaultsConfigurations();
 
     // Find the "Validation - Standard" configuration and make it current if we are active
-    auto active_configuration =
-        FindConfiguration(configurator.available_configurations, configurator.environment.Get(ACTIVE_CONFIGURATION));
+    auto active_configuration = Find(configurator.available_configurations, configurator.environment.Get(ACTIVE_CONFIGURATION));
     if (configurator.environment.UseOverride()) {
         configurator.SetActiveConfiguration(active_configuration);
     }
@@ -436,7 +435,7 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     ui->configuration_tree->setCurrentItem(item);
 
     Configurator &configurator = Configurator::Get();
-    configurator.SetActiveConfiguration(FindConfiguration(configurator.available_configurations, item->configuration_name));
+    configurator.SetActiveConfiguration(Find(configurator.available_configurations, item->configuration_name));
 }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
@@ -462,15 +461,14 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
         }
 
         auto end = configurator.available_configurations.end();
-        auto duplicate_configuration = new_configuration_name.isEmpty()
-                                           ? end
-                                           : FindConfiguration(configurator.available_configurations, new_configuration_name);
+        auto duplicate_configuration =
+            new_configuration_name.isEmpty() ? end : Find(configurator.available_configurations, new_configuration_name);
         if (duplicate_configuration != end) {
             Alert::ConfigurationRenamingFailed();
         }
 
         // Find existing configuration using it's old name
-        auto configuration = FindConfiguration(configurator.available_configurations, configuration_item->configuration_name);
+        auto configuration = Find(configurator.available_configurations, configuration_item->configuration_name);
 
         if (new_configuration_name.isEmpty() || duplicate_configuration != end) {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
@@ -506,7 +504,7 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
     if (configuration_item == nullptr) return;
 
     configuration_item->radio_button->setChecked(true);
-    auto configuration = FindConfiguration(Configurator::Get().available_configurations, configuration_item->configuration_name);
+    auto configuration = Find(Configurator::Get().available_configurations, configuration_item->configuration_name);
     Configurator::Get().SetActiveConfiguration(configuration);
 
     _settings_tree_manager.CreateGUI(ui->settings_tree);
@@ -730,7 +728,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    LayersDialog dlg(this, *FindConfiguration(configurator.available_configurations, item->configuration_name));
+    LayersDialog dlg(this, *Find(configurator.available_configurations, item->configuration_name));
     dlg.exec();
 
     configurator.LoadAllConfigurations();
@@ -805,7 +803,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     assert(!item->configuration_name.isEmpty());
 
-    auto configuration = FindConfiguration(configurator.available_configurations, item->configuration_name);
+    auto configuration = Find(configurator.available_configurations, item->configuration_name);
     assert(configuration != configurator.available_configurations.end());
 
     const QString &new_name = MakeConfigurationName(configurator.available_configurations, item->configuration_name);
@@ -891,9 +889,8 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     configurator.environment.Notify(NOTIFICATION_RESTART);
 
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
-    auto configuration = item == nullptr
-                             ? configurator.available_configurations.end()
-                             : FindConfiguration(configurator.available_configurations, configuration_item->configuration_name);
+    auto configuration = item == nullptr ? configurator.available_configurations.end()
+                                         : Find(configurator.available_configurations, configuration_item->configuration_name);
 
     configurator.SetActiveConfiguration(configuration);
     SaveLastItem();
@@ -1187,7 +1184,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             } else if (action == custom_path_action) {
                 EditCustomPathsClicked(item);
             } else {
-                assert(0);  // Unknown action
+                return false;  // Unknown action
             }
 
             // Do not pass on

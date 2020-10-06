@@ -41,7 +41,6 @@
 
 #include <vector>
 
-////////////////////////////////////////////////////////////////////////////////
 /// Going back and forth between the Windows registry and looking for files
 /// in specific folders is just a mess. This class consolidates all that into
 /// one single abstraction that knows whether to look in the registry or in
@@ -84,13 +83,11 @@ class Configurator {
    private:
     const bool _running_as_administrator;  // Are we being "Run as Administrator"
 
-    /////////////////////////////////////////////////////////////////////////
     // Validation Preset
    public:
     const char* GetValidationPresetName(ValidationPreset preset) const;
     const char* GetValidationPresetLabel(ValidationPreset preset) const;
 
-    /////////////////////////////////////////////////////////////////////////
     // Additional places to look for layers
    public:
     void BuildCustomLayerTree(QTreeWidget* tree_widget);
@@ -100,7 +97,6 @@ class Configurator {
                                 // Vulkan layers. (Named as environment variable for
                                 // clarity as to where this comes from).
 
-    /////////////////////////////////////////////////////////////////////////
     // The list of applications affected
    public:
     // If return_loader_version is not null, the function will return the loader version
@@ -111,7 +107,6 @@ class Configurator {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
     }
 
-    ////////////////////////////////////////////////////////////////////////
     // A readonly list of layer names with the associated settings
     // and their default values. This is for reference by individual profile
     // objects.
@@ -119,7 +114,6 @@ class Configurator {
     void LoadDefaultLayerSettings();
     const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
 
-    ////////////////////////////////////////////////////////////////////////
     // Look for all installed layers. This contains their path, version info, etc.
     // but does not contain settings information. The default settings are stored
     // in the above (defaultLayerSettings). The binding of a layer with it's
@@ -127,23 +121,20 @@ class Configurator {
     // This includes all found implicit, explicit, or layers found in custom folders
     std::vector<Layer> available_layers;  // All the found layers, lumped together
     void LoadAllInstalledLayers();
-    Layer* FindLayerNamed(const QString& layer_name);
     void LoadLayersFromPath(const QString& path, std::vector<Layer>& layers);
 
     std::vector<Configuration> available_configurations;
-
     void LoadAllConfigurations();  // Load all the .profile files found
     void ImportConfiguration(const QString& full_import_path);
     void ExportConfiguration(const QString& source_file, const QString& full_export_path);
-    bool HasMissingLayers(const Configuration& configuration) const;
     void ResetDefaultsConfigurations();
 
     bool HasLayers() const;
 
     // Set this as the current override configuration
+    std::vector<Configuration>::iterator GetActiveConfiguration() const { return _active_configuration; }
     void SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration);
     void SetActiveConfiguration(const QString& configuration_name);
-    std::vector<Configuration>::iterator GetActiveConfiguration() const { return _active_configuration; }
     void RefreshConfiguration();
     bool HasActiveConfiguration() const;
 

@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "widget_bool_setting.h"
@@ -45,9 +45,9 @@ QString BoolSettingWidget::GetToken(bool state, SettingType setting_type) const 
 
     switch (setting_type) {
         case SETTING_BOOL:
-            return state ? QString("TRUE") : QString("FALSE");
+            return state ? "TRUE" : "FALSE";
         case SETTING_BOOL_NUMERIC:
-            return state ? QString("1") : QString("0");
+            return state ? "1" : "0";
         default:
             assert(0);
             return "ERROR";

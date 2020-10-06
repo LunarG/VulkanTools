@@ -267,10 +267,3 @@ QString MakeConfigurationName(const std::vector<Configuration>& configurations, 
 
     return QString(base_name.c_str()) + (max_duplicate > 0 ? format(" (%d)", max_duplicate + 1).c_str() : "");
 }
-
-std::vector<Configuration>::iterator FindConfiguration(std::vector<Configuration>& configurations,
-                                                       const QString& configuration_name) {
-    for (auto it = configurations.begin(), end = configurations.end(); it != end; ++it)
-        if (it->name == configuration_name) return it;
-    return configurations.end();
-}

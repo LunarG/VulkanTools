@@ -25,7 +25,7 @@
 bool operator==(const Layer& a, const Layer& b) {
     if (a._file_format_version != b._file_format_version)
         return false;
-    else if (a._name != b._name)
+    else if (a.name != b.name)
         return false;
     else if (a._type != b._type)
         return false;
