@@ -31,7 +31,7 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 
-VulkanAnalysisDialog::VulkanAnalysisDialog(QWidget *parent) : QDialog(parent), ui(std::make_unique<Ui::dialog_vulkan_analysis>()) {
+VulkanAnalysisDialog::VulkanAnalysisDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_vulkan_analysis) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 

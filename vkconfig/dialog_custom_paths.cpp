@@ -26,7 +26,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(std::make_unique<Ui::dialog_custom_paths>()) {
+CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
