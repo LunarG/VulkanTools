@@ -524,7 +524,9 @@ void Configurator::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
 
     if (PLATFORM_WINDOWS) {
         if (path.contains("...")) {
+#if PLATFORM_WINDOWS
             LoadRegistryLayers(path, layers, type);
+#endif
             return;
         }
 

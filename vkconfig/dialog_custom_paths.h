@@ -23,6 +23,8 @@
 
 #include "ui_dialog_custom_paths.h"
 
+#include <memory>
+
 class CustomPathsDialog : public QDialog {
     Q_OBJECT
 
