@@ -1,19 +1,25 @@
 <RCC>
     <qresource prefix="/">
         <file>vkconfig.md</file>
-        <file>images/NewLunarGLogoBlack.png</file>
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
-        <file>resourcefiles/layer_info.json</file>
-        <file>resourcefiles/presets_info.json</file>
-        <file>resourcefiles/API dump.json</file>
-        <file>resourcefiles/Validation - Best Practices.json</file>
-        <file>resourcefiles/Validation - GPU-Assisted.json</file>
-        <file>resourcefiles/Validation - Reduced-Overhead.json</file>
-        <file>resourcefiles/Validation - Shader Printf.json</file>
-        <file>resourcefiles/Validation - Standard.json</file>
-        <file>resourcefiles/Validation - Synchronization (Alpha).json</file>
-        <file>resourcefiles/Frame Capture - First two frames.json</file>
-        <file>resourcefiles/Frame Capture - Range (F5 to start and to stop).json</file>
+
+        <file>resourcefiles/configurations/api_dump.json</file>
+        <file>resourcefiles/configurations/validation.json</file>
+        <file>resourcefiles/configurations/frames_capture.json</file>
+
+        <file>resourcefiles/layers_1_2_148/VkLayer_api_dump.json</file>
+        <file>resourcefiles/layers_1_2_148/VkLayer_device_simulation.json</file>
+        <file>resourcefiles/layers_1_2_148/VkLayer_gfxreconstruct.json</file>
+        <file>resourcefiles/layers_1_2_148/VkLayer_khronos_validation.json</file>
+        <file>resourcefiles/layers_1_2_148/VkLayer_monitor.json</file>
+        <file>resourcefiles/layers_1_2_148/VkLayer_screenshot.json</file>
+
+        <file>resourcefiles/layers_1_2_154/VkLayer_api_dump.json</file>
+        <file>resourcefiles/layers_1_2_154/VkLayer_device_simulation.json</file>
+        <file>resourcefiles/layers_1_2_154/VkLayer_gfxreconstruct.json</file>
+        <file>resourcefiles/layers_1_2_154/VkLayer_khronos_validation.json</file>
+        <file>resourcefiles/layers_1_2_154/VkLayer_monitor.json</file>
+        <file>resourcefiles/layers_1_2_154/VkLayer_screenshot.json</file>
     </qresource>
 </RCC>

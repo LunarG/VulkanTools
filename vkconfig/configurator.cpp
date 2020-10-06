@@ -403,7 +403,7 @@ void Configurator::LoadDefaultLayerSettings() {
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
         parameter.settings = settings_defaults.settings;
 
-        ::LoadSettings(layer_object, parameter);
+        ::LoadConfigurationSettings(layer_object, parameter);
 
         settings_defaults.settings = parameter.settings;
 

@@ -1,0 +1,16 @@
+{
+    "file_format_version": "1.1.0",
+    "layer" : {
+        "name": "VK_LAYER_LUNARG_gfxreconstruct",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_gfxreconstruct.dll",
+        "api_version": "1.2.148",
+        "implementation_version": "36866",
+        "description": "GFXReconstruct Capture Layer Version 0.9.2",
+        "device_extensions": [{
+            "name": "VK_EXT_tooling_info",
+            "spec_version": "1",
+            "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"]
+        }]
+    }
+}

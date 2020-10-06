@@ -67,5 +67,5 @@ std::vector<Parameter>::iterator FindParameter(std::vector<Parameter>& parameter
 
 bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 
-bool LoadSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);
-bool SaveSettings(const Parameter& parameter, QJsonObject& layer_settings_descriptors);
+bool LoadConfigurationSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);
+bool SaveConfigurationSettings(const Parameter& parameter, QJsonObject& layer_settings_descriptors);

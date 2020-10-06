@@ -28,10 +28,7 @@
 
 #include <cassert>
 
-////////// A couple of utility functions for building/modifying enable/disable lists
-
-///////////////////////////////////////////////////////////////////////////////
-// delimted string is a comma delimited string. If value is found remove it
+// delimited string is a comma delimited string. If value is found remove it
 void RemoveString(QString& delimitedString, QString value) {
     // Well, it's not there now is it...
     if (!delimitedString.contains(value)) return;
@@ -46,7 +43,6 @@ void RemoveString(QString& delimitedString, QString value) {
     delimitedString = list.join(",");
 }
 
-/////////////////////////////////////////////////////////////////////////////////
 // Pretty simple, add to list if it's not already in it
 void AppendString(QString& delimitedString, QString value) {
     // Do I have anything to do?
@@ -78,9 +74,6 @@ bool Layer::IsValid() const {
            _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// Reports errors via a message box. This might be a bad idea?
-/// //////////////////////////////////////////////////////////////////////////
 bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     _layer_type = layer_type;  // Set layer type, no way to know this from the json file
 
@@ -102,7 +95,6 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
     _layer_path = full_path_to_file;
 
-    //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
     QJsonParseError parseError;
@@ -147,6 +139,9 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
     json_value = layer_object.value("description");
     _description = json_value.toString();
+
+    json_value = layer_object.value("default_preset_index");
+    _default_preset_index = json_value.toInt();
 
     // The layer file is loaded
     return IsValid();  // Not all JSON file are layer JSON valid

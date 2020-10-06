@@ -1,0 +1,106 @@
+{
+    "file_format_version" : "1.2.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_screenshot",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_screenshot.dll",
+        "api_version": "1.2.155",
+        "implementation_version": "1",
+        "description": "LunarG image capture layer",
+        "device_extensions": [
+            {
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [ "vkGetPhysicalDeviceToolPropertiesEXT" ]
+            }
+        ],
+        "settings": [
+            {
+                "key": "frames",
+                "name": "Frames",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "STABLE",
+                "description": "Comma separated list of frames to output as screen shots or a range of frames with a start, count, and optional interval separated by a dash. Setting the variable to \"all\" will output every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "string",
+                "default": ""
+            },
+            {
+                "key": "dir",
+                "name": "Directory",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "STABLE",
+                "description": "This can be set to specify the directory in which to create the screenshot files.",
+                "type": "save_folder",
+                "default": ""
+            },
+            {
+                "key": "format",
+                "name": "Format",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "STABLE",
+                "description": "This can be set to a color space for the output.",
+                "type": "enum",
+                "options": [
+                    {
+                        "key": "UNORM",
+                        "label": "UNORM",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    },
+                    {
+                        "key": "SNORM",
+                        "label": "SNORM",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    },
+                    {
+                        "key": "USCALED",
+                        "label": "USCALED",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    },
+                    {
+                        "key": "SSCALED",
+                        "label": "SSCALED",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    },
+                    {
+                        "key": "UINT",
+                        "label": "UINT",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    },
+                    {
+                        "key": "SINT",
+                        "label": "SINT",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    },
+                    {
+                        "key": "SRGB",
+                        "label": "SRGB",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    },
+                    {
+                        "key": "USE_SWAPCHAIN_COLORSPACE",
+                        "label": "USE_SWAPCHAIN_COLORSPACE",
+                        "platform": [ "Windows", "Linux", "macOS" ],
+                        "status": "STABLE",
+                        "description": ""
+                    }
+                ],
+                "default": "USE_SWAPCHAIN_COLORSPACE"
+            }
+        ]
+    }
+}
+

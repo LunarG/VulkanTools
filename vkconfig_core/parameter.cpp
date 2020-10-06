@@ -117,7 +117,7 @@ bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::ve
     return false;
 }
 
-bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) {
+bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter& parameter) {
     const QStringList& settings_names = json_layer_settings.keys();
 
     for (int setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; ++setting_index) {
@@ -239,7 +239,7 @@ bool LoadSettings(const QJsonObject& json_layer_settings, Parameter& parameter) 
     return true;
 }
 
-bool SaveSettings(const Parameter& parameter, QJsonObject& json_settings) {
+bool SaveConfigurationSettings(const Parameter& parameter, QJsonObject& json_settings) {
     assert(&json_settings);
 
     // Loop through the actual settings

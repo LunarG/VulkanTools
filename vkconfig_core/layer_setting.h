@@ -45,9 +45,25 @@ enum SettingType {  // Enum value can't be changed
 
 enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
 
+enum PlatformType {
+    PLATFORM_WINDOWS = 0,
+    PLATFORM_LINUX,
+    PLATFORM_MACOS,
+};
+
+enum PlatformFlags {
+    PLATFORM_WINDOWS_BIT = (1 << PLATFORM_WINDOWS),
+    PLATFORM_LINUX_BIT = (1 << PLATFORM_LINUX),
+    PLATFORM_MACOS_BIT = (1 << PLATFORM_MACOS)
+};
+
+enum StatusType { STATUS_STABLE = 0, STATUS_BETA, STATUS_ALPHA };
+
 struct LayerSetting {
     QString key;                   // Name of the setting the layer looks for (programatic variable name)
     QString label;                 // Short name to prompt end user
+    StatusType status;             // Is the setting qualified as "stable", "beta" or "alpha"
+    int platform_flags;            // Platforms on which the setting is supported
     QString description;           // Human version, describes the setting
     SettingType type;              // The data type
     QVariant max_value;            // For range based
@@ -58,6 +74,9 @@ struct LayerSetting {
     QStringList inclusive_labels;  // List of non-exclusive item prompts (more than one item can be selected)
     QString value;                 // Default value as a string
 };
+
+bool LoadLayerSettings(const QJsonObject& json_layer_settings, std::vector<LayerSetting>& settings);
+bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& json_settings);
 
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);
 

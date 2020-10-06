@@ -151,13 +151,13 @@ bool Configuration::Load(const QString& full_path) {
         auto parameter = FindParameter(parameters, layers[layer_index]);
         if (parameter != parameters.end()) {
             parameter->overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
-            LoadSettings(layer_object, *parameter);
+            LoadConfigurationSettings(layer_object, *parameter);
         } else {
             Parameter parameter;
             parameter.name = layers[layer_index];
             parameter.state = LAYER_STATE_OVERRIDDEN;
             parameter.overridden_rank = Parameter::UNRANKED;
-            LoadSettings(layer_object, parameter);
+            LoadConfigurationSettings(layer_object, parameter);
             parameters.push_back(parameter);
         }
     }
@@ -192,7 +192,7 @@ bool Configuration::Save(const QString& full_path) const {
         // Rank goes in here with settings
         json_settings.insert("layer_rank", parameter.overridden_rank);
 
-        const bool result = SaveSettings(parameter, json_settings);
+        const bool result = SaveConfigurationSettings(parameter, json_settings);
         assert(result);
 
         overridden_list.insert(parameter.name, json_settings);

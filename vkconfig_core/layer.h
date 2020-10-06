@@ -56,9 +56,13 @@ class Layer {
     Version _api_version;
     QString _implementation_version;
     QString _description;
+    int _default_preset_index;
 
     QString _layer_path;  // Actual path to the folder that contains the layer (this is important!)
     LayerType _layer_type;
+
+    std::vector<LayerSetting> settings;
+    std::vector<std::vector<LayerSetting>> presets;
 
     // File based layers
     bool Load(QString full_path_to_file, LayerType layer_type);
