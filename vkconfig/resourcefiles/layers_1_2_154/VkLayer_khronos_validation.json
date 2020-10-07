@@ -1,6 +1,6 @@
 {
-    "file_format_version" : "1.1.0",
-    "layer" : {
+    "file_format_version" : "1.3.0",
+    "layer": {
         "name": "VK_LAYER_KHRONOS_validation",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_khronos_validation.dll",
@@ -8,45 +8,139 @@
         "implementation_version": "1",
         "description": "Khronos Validation Layer",
         "instance_extensions": [
-             {
-                 "name": "VK_EXT_debug_report",
-                 "spec_version": "9"
-             },
-             {
-                 "name": "VK_EXT_debug_utils",
-                 "spec_version": "1"
-             },
-             {
-                 "name": "VK_EXT_validation_features",
-                 "spec_version": "2"
-             }
-         ],
+            {
+                "name": "VK_EXT_debug_report",
+                "spec_version": "9"
+            },
+            {
+                "name": "VK_EXT_debug_utils",
+                "spec_version": "1"
+            },
+            {
+                "name": "VK_EXT_validation_features",
+                "spec_version": "2"
+            }
+        ],
         "device_extensions": [
-             {
-                 "name": "VK_EXT_debug_marker",
-                 "spec_version": "4",
-                 "entrypoints": ["vkDebugMarkerSetObjectTagEXT",
-                        "vkDebugMarkerSetObjectNameEXT",
-                        "vkCmdDebugMarkerBeginEXT",
-                        "vkCmdDebugMarkerEndEXT",
-                        "vkCmdDebugMarkerInsertEXT"
-                       ]
-             },
-             {
-                 "name": "VK_EXT_validation_cache",
-                 "spec_version": "1",
-                 "entrypoints": ["vkCreateValidationCacheEXT",
-                         "vkDestroyValidationCacheEXT",
-                         "vkGetValidationCacheDataEXT",
-                         "vkMergeValidationCachesEXT"
-                        ]
-             },
-             {
-                 "name": "VK_EXT_tooling_info",
-                 "spec_version": "1",
-                 "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"
-                        ]
-             }
-         ]
+            {
+                "name": "VK_EXT_debug_marker",
+                "spec_version": "4",
+                "entrypoints": [
+                    "vkDebugMarkerSetObjectTagEXT",
+                    "vkDebugMarkerSetObjectNameEXT",
+                    "vkCmdDebugMarkerBeginEXT",
+                    "vkCmdDebugMarkerEndEXT",
+                    "vkCmdDebugMarkerInsertEXT"
+                ]
+            },
+            {
+                "name": "VK_EXT_validation_cache",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkCreateValidationCacheEXT",
+                    "vkDestroyValidationCacheEXT",
+                    "vkGetValidationCacheDataEXT",
+                    "vkMergeValidationCachesEXT"
+                ]
+            },
+            {
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
+            }
+        ],
+        "default_preset_index": "0",
+        "settings": [
+            {
+                "key": "debug_action",
+                "label": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            {
+                "key": "report_flags",
+                "label": "Message Severity",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
+            },
+            {
+                "key": "log_filename",
+                "label": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            },
+            {
+                "key": "duplicate_message_limit",
+                "label": "Duplicated messages limit",
+                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
+                "type": "string",
+                "default": "10"
+            },
+            {
+                "key": "message_id_filter",
+                "label": "Message Filter",
+                "description": "VUID's to ignore",
+                "type": "vuid_exclude",
+                "default": ""
+            },
+            {
+                "key": "disables",
+                "label": "Disables",
+                "description": "Setting an option here will disable areas of validation",
+                "type": "multi_enum",
+                "options": {
+                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Object lifetime validation",
+                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core validation checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping",
+                    "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT": "Disable Shaders",
+                    "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE": "Command Buffer State",
+                    "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION": "Image Layout Validation",
+                    "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION": "Query Validation",
+                    "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE": "Push Constant Range",
+                    "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE": "Object in Use",
+                    "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET": "Idle Descritor Set"
+                },
+                "default": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
+            },
+            {
+                "key": "enables",
+                "label": "Enables",
+                "description": "Setting an option here will enable specialized areas of validation",
+                "type": "multi_enum",
+                "options": {
+                    "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT": "Debug printf",
+                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
+                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
+                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
+                    "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM-specific validation"
+                },
+                "default": []
+            }
+        ]
     }
 }

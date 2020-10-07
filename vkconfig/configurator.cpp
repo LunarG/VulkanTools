@@ -42,12 +42,9 @@
 #include <cstdio>
 #include <algorithm>
 
-//////////////////////////////////////////////////////////////////////////////
-// These are the built-in configurations that are pulled in from the resource
-// file.
-
 struct DefaultConfiguration {
     const char *name;
+    const char *file;
     const char *required_layer;
     Version required_api_version;
     const char *preset_label;
@@ -55,23 +52,14 @@ struct DefaultConfiguration {
 };
 
 static const DefaultConfiguration default_configurations[] = {
-    {"Validation - Standard", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Standard", ValidationPresetStandard},
-    {"Validation - Reduced-Overhead", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Reduced-Overhead",
-     ValidationPresetReducedOverhead},
-    {"Validation - Best Practices", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Best Practices",
-     ValidationPresetBestPractices},
-    {"Validation - Synchronization (Alpha)", "VK_LAYER_KHRONOS_validation", Version("1.2.147"), "Synchronization (Alpha)",
-     ValidationPresetSynchronization},
-#if HAS_SHADER_BASED
-    {"Validation - GPU-Assisted", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "GPU-Assisted", ValidationPresetGPUAssisted},
-    {"Validation - Shader Printf", "VK_LAYER_KHRONOS_validation", Version("1.1.126"), "Debug Printf", ValidationPresetDebugPrintf},
-#endif
+    {"Validation", ":/resourcefiles/configurations/validation.json", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Standard",
+     ValidationPresetStandard},
 #if HAS_GFXRECONSTRUCT
-    {"Frame Capture - First two frames", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "", ValidationPresetNone},
-    {"Frame Capture - Range (F5 to start and to stop)", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"), "",
-     ValidationPresetNone},
+    {"Frames Capture", ":/resourcefiles/configurations/frames_capture.json", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"),
+     "", ValidationPresetNone},
 #endif
-    {"API dump", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "", ValidationPresetNone}};
+    {"API dump", ":/resourcefiles/configurations/api_dump.json", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "",
+     ValidationPresetNone}};
 
 ValidationPreset GetValidationPreset(const QString &configuration_name) {
     assert(!configuration_name.isEmpty());
@@ -110,7 +98,6 @@ const char *Configurator::GetValidationPresetLabel(ValidationPreset preset) cons
     const DefaultConfiguration *configuration = FindDefaultConfiguration(preset);
     if (configuration) return configuration->preset_label;
 
-    assert(0);
     return nullptr;
 }
 
@@ -121,15 +108,10 @@ Configurator &Configurator::Get() {
 
 Configurator::Configurator() : environment(path), layers(environment) {}
 
-///////////////////////////////////////////////////////////////////////////////////
-/// A good rule of C++ is to not put things in the constructor that can fail, or
-/// that might require recursion. This initializes
-///
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
     layers.LoadAllInstalledLayers();
-    LoadDefaultLayerSettings();
 
     const bool has_layers = !layers.Empty();
 
@@ -286,14 +268,6 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
     }
 }
 
-/// Find the settings for this named layer. If none found, return nullptr
-const LayerSettingsDefaults *Configurator::FindLayerSettings(const QString &layer_name) const {
-    for (std::size_t i = 0, n = _default_layers_settings.size(); i < n; ++i)
-        if (layer_name == _default_layers_settings[i].layer_name) return &_default_layers_settings[i];
-
-    return nullptr;
-}
-
 /// Load all the configurations. If the built-in configurations don't exist,
 /// they are created from the embedded json files
 void Configurator::LoadAllConfigurations() {
@@ -318,7 +292,7 @@ void Configurator::LoadAllConfigurations() {
 
         for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
             // Search the list of loaded configurations
-            const QString file = QString(":/resourcefiles/") + default_configurations[i].name + ".json";
+            const QString file = default_configurations[i].file;
 
             Configuration configuration;
             const bool result = configuration.Load(file);
@@ -359,56 +333,6 @@ void Configurator::LoadAllConfigurations() {
         }
     } else {
         _active_configuration = available_configurations.end();
-    }
-}
-
-void Configurator::LoadDefaultLayerSettings() {
-    assert(!layers.Empty());  // layers should be loaded before default settings
-
-    // Load the main object into the json document
-    QFile file(":/resourcefiles/layer_info.json");
-    file.open(QFile::ReadOnly);
-    QString data = file.readAll();
-    file.close();
-
-    QJsonDocument json_layer_info_doc;
-    json_layer_info_doc = QJsonDocument::fromJson(data.toLocal8Bit());
-    if (!json_layer_info_doc.isObject()) return;
-
-    // Isolate the Json object for each layer
-    QJsonObject doc_object = json_layer_info_doc.object();
-    QJsonValue layer_options_value = doc_object.value("layer_options");
-    QJsonObject layers_options_object = layer_options_value.toObject();
-
-    // This is a list of layers for which we have user editable settings.
-    // there are nine as of this writing, but this code should accomodate
-    // if more are added at a later time.
-    // All the layers have been loaded, so we can look for matches
-    // and let the layers parse the json data to create their own list
-    // of settings.
-    QStringList layers_with_settings = layers_options_object.keys();
-    for (int i = 0; i < layers_with_settings.size(); i++) {  // For each setting
-        LayerSettingsDefaults settings_defaults;
-        settings_defaults.layer_name = layers_with_settings[i];
-
-        // Save the name of the layer, and by default none are read only
-        settings_defaults.layer_name = layers_with_settings[i];
-
-        // Get the object for just this layer
-        const QJsonValue &layer_value = layers_options_object.value(layers_with_settings[i]);
-        const QJsonObject &layer_object = layer_value.toObject();
-
-        Parameter parameter;
-        parameter.name = settings_defaults.layer_name;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        parameter.settings = settings_defaults.settings;
-
-        ::LoadConfigurationSettings(layer_object, parameter);
-
-        settings_defaults.settings = parameter.settings;
-
-        // Add to my list of layer settings
-        _default_layers_settings.push_back(settings_defaults);
     }
 }
 

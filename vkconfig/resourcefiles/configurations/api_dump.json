@@ -1,8 +1,9 @@
- {
-    "API dump": {
+{
+    "configuration": {
         "blacklisted_layers": [
         ],
         "description": "A Simple API dump configuration",
+        "editor_state": "011111111111111111111111",
         "layer_options": {
             "VK_LAYER_LUNARG_api_dump": {
                 "detailed": {
@@ -29,7 +30,7 @@
                     "name": "Indent Size",
                     "type": "string"
                 },
-                "layer_rank": 0,
+                "layer_rank": -1,
                 "log_filename": {
                     "default": "stdout",
                     "description": "Specifies the file to dump to when output files are enabled",
@@ -49,16 +50,15 @@
                     "type": "bool"
                 },
                 "output_format": {
-                    "default": "",
-                    "name": "Output Format",
+                    "default": "Text",
                     "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
-                    "type": "enum",
+                    "name": "Output Format",
                     "options": {
-                        "Text": "Text",
                         "Html": "Html",
-                        "Json": "Json"
+                        "Json": "Json",
+                        "Text": "Text"
                     },
-                    "default": "Text"
+                    "type": "enum"
                 },
                 "output_range": {
                     "default": "0-0",
@@ -97,6 +97,9 @@
                     "type": "bool"
                 }
             }
-        }
-    }
+        },
+        "name": "API dump",
+        "preset": 0
+    },
+    "file_format_version": "2.0.2"
 }

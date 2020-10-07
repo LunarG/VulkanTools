@@ -181,7 +181,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     // Each debug action has it's own checkbox
     for (int i = 0, n = debug_action.inclusive_values.size(); i < n; ++i) {
         // Debug output is only for Windows
-        if (!PLATFORM_WINDOWS && debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
+        if (!VKC_PLATFORM_WINDOWS && debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
         MultiEnumSettingWidget *this_control = new MultiEnumSettingWidget(debug_action, debug_action.inclusive_values[i]);

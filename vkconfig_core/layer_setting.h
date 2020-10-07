@@ -75,7 +75,7 @@ struct LayerSetting {
     QString value;                 // Default value as a string
 };
 
-bool LoadLayerSettings(const QJsonObject& json_layer_settings, std::vector<LayerSetting>& settings);
+bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerSetting>& settings);
 bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& json_settings);
 
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);

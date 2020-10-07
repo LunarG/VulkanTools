@@ -68,74 +68,56 @@ LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) 
     return nullptr;
 }
 
-bool LoadLayerSettings(const QJsonObject& json_layer_settings, std::vector<LayerSetting>& settings) {
-    const QStringList& settings_names = json_layer_settings.keys();
+bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerSetting>& settings) {
+    assert(json_layer_settings.isArray());
 
-    for (int setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; ++setting_index) {
-        // The layer rank may or may not be here, but it is not a
-        // user setting.
-        if (settings_names[setting_index] == "layer_rank") continue;
+    const QJsonArray& json_settings = json_layer_settings.toArray();
 
+    for (int setting_index = 0, setting_count = json_settings.size(); setting_index < setting_count; ++setting_index) {
         LayerSetting setting;
-        setting.key = settings_names[setting_index];
 
-        const QJsonValue& json_value = json_layer_settings.value(settings_names[setting_index]);
-        const QJsonObject& json_object = json_value.toObject();
+        const QJsonObject& json_setting = json_settings[setting_index].toObject();
 
-        // The easy stuff...
-        const QJsonValue& json_value_description = json_object.value("description");
-        assert(json_value_description != QJsonValue::Undefined);
+        const QJsonValue& json_key = json_setting.value("key");
+        assert(json_key != QJsonValue::Undefined);
+        setting.key = json_key.toString();
 
-        setting.description = json_value_description.toString();
+        const QJsonValue& json_label = json_setting.value("label");
+        assert(json_label != QJsonValue::Undefined);
+        setting.label = json_label.toString();
 
-        const QJsonValue& json_value_name = json_object.value("name");
-        assert(json_value_name != QJsonValue::Undefined);
+        const QJsonValue& json_description = json_setting.value("description");
+        assert(json_description != QJsonValue::Undefined);
+        setting.description = json_description.toString();
 
-        setting.label = json_value_name.toString();
+        const QJsonValue& json_type = json_setting.value("type");
+        assert(json_type != QJsonValue::Undefined);
+        setting.type = GetSettingType(json_type.toString().toStdString().c_str());
 
         // This is either a single value, or a comma delimted set of strings
         // selected from a nonexclusive list
-        const QJsonValue& json_value_default = json_object.value("default");
-        if (json_value_default.isArray()) {
-            const QJsonArray& json_array = json_value_default.toArray();
-            for (int a = 0; a < json_array.size(); a++) {
-                setting.value += json_array[a].toString();
-                if (a != json_array.size() - 1) setting.value += ",";
+        const QJsonValue& json_default = json_setting.value("default");
+        assert(json_default != QJsonValue::Undefined);
+        if (json_default.isArray()) {
+            const QJsonArray& json_array = json_default.toArray();
+            for (int i = 0, n = json_array.size(); i < n; ++i) {
+                setting.value += json_array[i].toString();
+                if (i != json_array.size() - 1) setting.value += ",";
             }
-
         } else
-            setting.value = json_value_default.toString();
-
-        // Everything from here down revolves around the data type
-        // Data types and values start getting a little more involved.
-        const QJsonValue& json_value_type = json_object.value("type");
-        assert(json_value_type != QJsonValue::Undefined);
-
-        setting.type = GetSettingType(json_value_type.toString().toUtf8().constData());
-
-        // debug_action used to be stored as SETTING_EXCLUSIVE_LIST
-        const bool convert_debug_action_to_inclusive =
-            SUPPORT_VKCONFIG_2_0_1 && setting.key == "debug_action" && setting.type == SETTING_EXCLUSIVE_LIST;
-        if (convert_debug_action_to_inclusive) setting.type = SETTING_INCLUSIVE_LIST;
+            setting.value = json_default.toString();
 
         switch (setting.type) {
             case SETTING_EXCLUSIVE_LIST:
             case SETTING_INCLUSIVE_LIST: {
-                // Now we have a list of options, both the enum for the settings file, and the prompts
-                const QJsonValue& json_value_options = json_object.value("options");
-                assert(json_value_options != QJsonValue::Undefined);
+                const QJsonValue& json_options = json_setting.value("options");
+                assert(json_options != QJsonValue::Undefined);
 
-                const QJsonObject& object = json_value_options.toObject();
+                const QJsonObject& object = json_options.toObject();
                 const QStringList& keys = object.keys();
                 for (int v = 0; v < keys.size(); v++) {
                     QString key = keys[v];
                     const QString value = object.value(key).toString();
-
-                    // The configuration files used to store VK_DBG_LAYER_DEBUG_OUTPUT isntead of VK_DBG_LAYER_ACTION_DEBUG_OUTPUT
-                    if (SUPPORT_VKCONFIG_2_0_1 && key == "VK_DBG_LAYER_DEBUG_OUTPUT") key = "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
-
-                    // Remove ignore now that we are an inclusive list instead of exclusive
-                    if (convert_debug_action_to_inclusive && key == "VK_DBG_LAYER_ACTION_IGNORE") continue;
 
                     if (setting.type == SETTING_INCLUSIVE_LIST) {
                         setting.inclusive_values << key;
@@ -166,11 +148,11 @@ bool LoadLayerSettings(const QJsonObject& json_layer_settings, std::vector<Layer
         settings.push_back(setting);
     }
 
-    struct ParameterCompare {
+    struct LayerCompare {
         bool operator()(const LayerSetting& a, const LayerSetting& b) const { return a.key < b.key; }
     };
 
-    std::sort(settings.begin(), settings.end(), ParameterCompare());
+    std::sort(settings.begin(), settings.end(), LayerCompare());
 
     return true;
 }

@@ -33,11 +33,11 @@
 
 #include <cassert>
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
 static const char *VULKAN_LIBRARY = "vulkan-1.dll";
-#elif PLATFORM_MACOS
+#elif VKC_PLATFORM_MACOS
 static const char *VULKAN_LIBRARY = "/usr/local/lib/libvulkan";
-#elif PLATFORM_LINUX
+#elif VKC_PLATFORM_LINUX
 static const char *VULKAN_LIBRARY = "libvulkan";
 #else
 #error "Unknown platform"

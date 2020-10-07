@@ -48,7 +48,6 @@ class Layer {
     bool IsValid() const;
 
    public:
-    // Standard pieces of a layer
     Version _file_format_version;
     QString name;
     QString _type;
@@ -64,6 +63,9 @@ class Layer {
     std::vector<LayerSetting> settings;
     std::vector<std::vector<LayerSetting>> presets;
 
-    // File based layers
     bool Load(QString full_path_to_file, LayerType layer_type);
+
+   private:
+    // Load settings for built-in layers using built-in json files
+    bool LoadLayerSettingsDefault(const QString& name, const Version& api_version, std::vector<LayerSetting>& settings);
 };

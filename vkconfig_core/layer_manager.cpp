@@ -64,7 +64,7 @@ class PathFinder {
 
 // I am purposly not flagging these as explicit or implicit as this can be parsed from the location
 // and future updates to layer locations will only require a smaller change.
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
 static const QString szSearchPaths[] = {"HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
                                         "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
                                         "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
@@ -91,9 +91,9 @@ LayerManager::LayerManager(const Environment &environment) : environment(environ
     // assemble a list of paths that take precidence for layer discovery.
     QString layer_path = qgetenv("VK_LAYER_PATH");
     if (!layer_path.isEmpty()) {
-        if (PLATFORM_WINDOWS)
+        if (VKC_PLATFORM_WINDOWS)
             VK_LAYER_PATH = layer_path.split(";");  // Windows uses ; as seperator
-        else if (PLATFORM_LINUX || PLATFORM_MACOS)
+        else if (VKC_PLATFORM_LINUX || VKC_PLATFORM_MACOS)
             VK_LAYER_PATH = layer_path.split(":");  // Linux/macOS uses : as seperator
         else
             assert(0);  // Unknown platform
@@ -148,16 +148,16 @@ void LayerManager::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
 
     PathFinder file_list;
 
-    if (PLATFORM_WINDOWS) {
+    if (VKC_PLATFORM_WINDOWS) {
         if (path.contains("...")) {
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
             LoadRegistryLayers(path, layers, type);
 #endif
             return;
         }
 
         file_list = PathFinder(path, (type == LAYER_TYPE_CUSTOM));
-    } else if (PLATFORM_MACOS || PLATFORM_LINUX) {
+    } else if (VKC_PLATFORM_MACOS || VKC_PLATFORM_LINUX) {
         // On Linux/Mac, we also need the home folder
         QString search_path = path;
         if (path[0] == '.') {

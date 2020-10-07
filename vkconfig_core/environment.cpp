@@ -22,7 +22,7 @@
 #include "platform.h"
 #include "util.h"
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
 #include <shlobj.h>
 #endif
 
@@ -75,8 +75,8 @@ static const char* GetActiveDefault(Active active) {
     assert(active >= ACTIVE_FIRST && active <= ACTIVE_LAST);
 
     static const char* table[] = {
-        "Validation - Standard",  // ACTIVE_CONFIGURATION
-        ""                        // ACTIVE_EXECUTABLE
+        "Validation",  // ACTIVE_CONFIGURATION
+        ""             // ACTIVE_EXECUTABLE
     };
     static_assert(countof(table) == ACTIVE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -105,7 +105,7 @@ static const char* GetLayoutStateToken(LayoutState state) {
 Environment::Environment(PathManager& paths)
     : paths_manager(paths),
 // Hack for GitHub C.I.
-#if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+#if VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       running_as_administrator(IsUserAnAdmin()),
 #else
       running_as_administrator(false),
@@ -191,7 +191,7 @@ void Environment::Reset(ResetMode mode) {
             applications.clear();
             UpdateDefaultApplications(true);
 
-            Set(ACTIVE_CONFIGURATION, "Validation - Standard");
+            Set(ACTIVE_CONFIGURATION, "Validation");
             break;
         }
         case SYSTEM: {
@@ -317,9 +317,9 @@ bool Environment::LoadApplications() {
 }
 
 static QString GetDefaultExecutablePath(const QString& executable_name) {
-    static const char* DEFAULT_PATH = PLATFORM_MACOS ? "/../.." : "";
+    static const char* DEFAULT_PATH = VKC_PLATFORM_MACOS ? "/../.." : "";
 
-    if (PLATFORM_MACOS) {
+    if (VKC_PLATFORM_MACOS) {
         // Using the standard install loation on macOS
         {
             const QString search_path = "/Applications/" + executable_name;
@@ -382,11 +382,11 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
     if (!add_default_applications) return;
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
     static const char* SUFFIX = ".exe";
-#elif PLATFORM_MACOS
+#elif VKC_PLATFORM_MACOS
     static const char* SUFFIX = ".app";
-#elif PLATFORM_LINUX
+#elif VKC_PLATFORM_LINUX
     static const char* SUFFIX = "";
 #else
 #error "Unknown platform"

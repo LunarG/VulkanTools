@@ -25,7 +25,7 @@
 
 #include <QString>
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
 
 void AppendRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
 
@@ -33,4 +33,4 @@ void RemoveRegistryEntriesForLayers(bool running_as_administrator, QString overr
 
 void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type);
 
-#endif  // PLATFORM_WINDOWS
+#endif //VKC_PLATFORM_WINDOWS

@@ -28,7 +28,7 @@
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
 #include <windows.h>
 #endif
 
@@ -39,7 +39,7 @@
 
 #include <cassert>
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
 // From Stack Overflow.
 #define MKPTR(p1, p2) ((DWORD_PTR)(p1) + (DWORD_PTR)(p2))
 
@@ -82,7 +82,7 @@ PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 
 /// Utility function to see if the file is 32-bit
 bool IsDLL32Bit(QString full_path) {
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM_WINDOWS
     if (full_path.isEmpty()) return false;
 
     QFile file(full_path);
@@ -308,9 +308,9 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
         it->overridden_rank = Parameter::UNRANKED;
 
-        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(it->name);
-        if (defaults) {
-            it->settings = defaults->settings;
+        auto layer = Find(Configurator::Get().available_layers, it->name);
+        if (layer != Configurator::Get().available_layers.end()) {
+            it->settings = layer->settings;
 
             if (it->name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
         }
@@ -556,12 +556,10 @@ void LayersDialog::BuildParameters() {
         Parameter parameter;
         parameter.name = layer.name;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+        parameter.settings = layer.settings;
 
-        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer.name);
-        if (defaults) {
-            parameter.settings = defaults->settings;
-
-            if (layer.name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
+        if (layer.name == "VK_LAYER_KHRONOS_validation") {
+            configuration._preset = ValidationPresetStandard;
         }
 
         parameters.push_back(parameter);

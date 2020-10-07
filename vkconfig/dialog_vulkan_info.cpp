@@ -51,11 +51,11 @@ void VulkanInfoDialog::Run() {
 
     QProcess *vulkan_info = new QProcess(this);
 
-    if (PLATFORM_WINDOWS)
+    if (VKC_PLATFORM_WINDOWS)
         vulkan_info->setProgram("vulkaninfoSDK");
-    else if (PLATFORM_LINUX)
+    else if (VKC_PLATFORM_LINUX)
         vulkan_info->setProgram("vulkaninfo");
-    else if (PLATFORM_MACOS)
+    else if (VKC_PLATFORM_MACOS)
         vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
     else
         assert(0);  // Unknown platform

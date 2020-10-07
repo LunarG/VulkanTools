@@ -49,7 +49,7 @@
 #include <QFileDialog>
 #include <QLineEdit>
 
-#if PLATFORM_LINUX || PLATFORM_MACOS
+#if VKC_PLATFORM_LINUX || VKC_PLATFORM_MACOS
 #include <unistd.h>
 #endif
 
@@ -61,7 +61,7 @@ bool been_warned_about_old_loader = false;
 static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
-#if PLATFORM_MACOS
+#if VKC_PLATFORM_MACOS
 static const int LAUNCH_ROW_HEIGHT = 26;
 #else
 static const int LAUNCH_ROW_HEIGHT = 28;

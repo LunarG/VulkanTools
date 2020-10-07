@@ -28,11 +28,11 @@
 #include <cassert>
 
 static const char* GetOS() {
-    if (PLATFORM_WINDOWS)
+    if (VKC_PLATFORM_WINDOWS)
         return "windows";
-    else if (PLATFORM_MACOS)
+    else if (VKC_PLATFORM_MACOS)
         return "mac";
-    else if (PLATFORM_LINUX)
+    else if (VKC_PLATFORM_LINUX)
         return "linux";
     else {
         assert(0);  //"Unknown platform"

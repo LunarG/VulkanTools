@@ -36,17 +36,6 @@
 
 #include <vector>
 
-// This is a master list of layer settings. All the settings
-// for what layers can have user modified settings. It contains
-// the names of the layers and the properties of the settings.
-// THIS IS TO BE READ ONLY, as it is copied from frequently
-// to reset or initialize the a full layer definition for the
-// profiles.
-struct LayerSettingsDefaults {
-    QString layer_name;                  // Name of layer
-    std::vector<LayerSetting> settings;  // Default settings for this layer
-};
-
 class Configurator {
    public:
     static Configurator& Get();
@@ -71,12 +60,12 @@ class Configurator {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
     }
 
-    // A readonly list of layer names with the associated settings
-    // and their default values. This is for reference by individual profile
-    // objects.
-    std::vector<LayerSettingsDefaults> _default_layers_settings;
-    void LoadDefaultLayerSettings();
-    const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
+    // Look for all installed layers. This contains their path, version info, etc.
+    // but does not contain settings information. The default settings are stored
+    // in the above (defaultLayerSettings). The binding of a layer with it's
+    // particular settings is done in the profile (Configuration - in configuration list).
+    // This includes all found implicit, explicit, or layers found in custom folders
+    std::vector<Layer> available_layers;  // All the found layers, lumped together
 
     std::vector<Configuration> available_configurations;
     void LoadAllConfigurations();  // Load all the .profile files found
