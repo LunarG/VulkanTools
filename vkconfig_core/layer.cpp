@@ -119,12 +119,12 @@ Layer::Layer(const QString& name, const LayerType layer_type, const Version& fil
              const QString& implementation_version, const QString& library_path, const QString& type)
     : name(name),
       _layer_type(layer_type),
+      _type(type),
       _file_format_version(file_format_version),
       _api_version(api_version),
       _implementation_version(implementation_version),
       _library_path(library_path),
-      _type(type),
-      _default_preset_index(-1) {}
+      _default_preset_index(PRESET_INDEX_USER_DEFINED) {}
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
@@ -214,12 +214,6 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
         _description = value.toString();
     }
     {
-        const QJsonValue value = json_object_layer.value("default_preset_index");
-        assert((_file_format_version < version_1_3_0 && value == QJsonValue::Undefined) ||
-               (_file_format_version >= version_1_3_0 && value != QJsonValue::Undefined));
-        if (value != QJsonValue::Undefined) _default_preset_index = value.toInt();
-    }
-    {
         const QJsonValue value = json_object_layer.value("settings");
         assert((_file_format_version < version_1_3_0 && value == QJsonValue::Undefined) ||
                (_file_format_version >= version_1_3_0 && value != QJsonValue::Undefined));
@@ -228,6 +222,18 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
         } else if (!full_path_to_file.startsWith(":/resourcefiles/")) {
             // When the path start with :/resourcefiles/ we already called LoadLayerSettingsDefault
             LoadLayerSettingsDefault(name, _api_version, settings);
+        }
+    }
+    {
+        const QJsonValue value = json_object_layer.value("default_preset_index");
+        assert((_file_format_version < version_1_3_0 && value == QJsonValue::Undefined) ||
+               (_file_format_version >= version_1_3_0 && value != QJsonValue::Undefined));
+        if (value != QJsonValue::Undefined) _default_preset_index = value.toInt();
+    }
+    {
+        const QJsonValue value = json_object_layer.value("presets");
+        if (value != QJsonValue::Undefined) {
+            LoadLayerPresets(value, presets);
         }
     }
 

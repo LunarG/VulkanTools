@@ -16,7 +16,7 @@
  *
  * Authors:
  * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once

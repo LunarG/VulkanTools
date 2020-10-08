@@ -52,7 +52,159 @@
             }
         ],
         "default_preset_index": "0",
+        "presets": [
+            {
+                "index": "0",
+                "label": "Standard",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "STABLE",
+                "description": "Default validation settings and should serve most needs most of the time.",
+                "settings": [
+                    {
+                        "key": "disables",
+                        "values": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
+                    },
+                    {
+                        "key": "enables",
+                        "values": []
+                    }
+                ]
+            },
+            {
+                "index": "1",
+                "label": "GPU-Assisted",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "BETA",
+                "description": "Using GPU to check for API usage errors at shader execution time. ",
+                "settings": [
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    },
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "index": "2",
+                "label": "Debug Printf",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "STABLE",
+                "description": "Debug shader code by 'printing' any values of interest.",
+                "settings": [
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    },
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "index": "3",
+                "label": "Reduced-Overhead",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "STABLE",
+                "description": "Disables some of the checks of Standard Validation for better runtime performance.",
+                "settings": [
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
+                            "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
+                            "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
+                            "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
+                            "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
+                            "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE"
+                        ]
+                    },
+                    {
+                        "key": "enables",
+                        "values": []
+                    }
+                ]
+            },
+            {
+                "index": "4",
+                "label": "Best Practices",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "STABLE",
+                "description": "Provides warnings about potential API misuse but yet valid usages.",
+                "settings": [
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    },
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "index": "5",
+                "label": "Synchronization",
+                "platform": [ "Windows", "Linux", "macOS" ],
+                "status": "ALPHA",
+                "description": "Provides warnings about potential API misuse but yet valid usages.",
+                "settings": [
+                    {
+                        "key": "disables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    },
+                    {
+                        "key": "enables",
+                        "values": [
+                            "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION"
+                        ]
+                    }
+                ]
+            }
+        ],
         "settings": [
+            {
+                "key": "preset_index",
+                "label": "Duplicated messages limit",
+                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
+                "type": "string",
+                "default": "10"
+            },
             {
                 "key": "debug_action",
                 "label": "Debug Action",

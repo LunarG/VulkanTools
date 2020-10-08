@@ -20,20 +20,54 @@
 
 #pragma once
 
+#define APP_SHORT_NAME "vkconfig"
+
+enum PlatformType {
+    PLATFORM_WINDOWS = 0,
+    PLATFORM_LINUX,
+    PLATFORM_MACOS,
+};
+
+enum PlatformFlags {
+    PLATFORM_WINDOWS_BIT = (1 << PLATFORM_WINDOWS),
+    PLATFORM_LINUX_BIT = (1 << PLATFORM_LINUX),
+    PLATFORM_MACOS_BIT = (1 << PLATFORM_MACOS)
+};
+
+enum StatusType {
+    STATUS_STABLE = 0,
+    STATUS_BETA,
+    STATUS_ALPHA,
+
+    STATUS_FIRST = STATUS_STABLE,
+    STATUS_LAST = STATUS_ALPHA
+};
+
+enum { STATUS_COUNT = STATUS_LAST - STATUS_FIRST + 1 };
+
+const char* GetToken(StatusType type);
+StatusType GetStatusType(const char* token);
+
 #ifdef _WIN32
 #define VKC_PLATFORM_WINDOWS 1
 #define VKC_PLATFORM_LINUX 0
 #define VKC_PLATFORM_MACOS 0
+
+#define VKC_CURRENT_PLATFORM VKC_PLATFORM_WINDOWS
 
 #elif defined(__linux__)
 #define VKC_PLATFORM_WINDOWS 0
 #define VKC_PLATFORM_LINUX 1
 #define VKC_PLATFORM_MACOS 0
 
+#define VKC_CURRENT_PLATFORM VKC_PLATFORM_LINUX
+
 #elif defined(__APPLE__)
 #define VKC_PLATFORM_WINDOWS 0
 #define VKC_PLATFORM_LINUX 0
 #define VKC_PLATFORM_MACOS 1
+
+#define VKC_CURRENT_PLATFORM PLATFORM_MACOS
 
 #else
 #error "Unknown platform"

@@ -31,6 +31,7 @@
 #include "widget_mute_message.h"
 
 #include "../vkconfig_core/configuration.h"
+#include "../vkconfig_core/preset.h"
 
 #include <QObject>
 #include <QTreeWidget>
@@ -61,17 +62,17 @@ class SettingsTreeManager : QObject {
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
-    void BuildKhronosTree(std::vector<LayerSetting> &settings);
+    void BuildKhronosTree(const std::vector<Preset> &presets, Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
 
-    int GetValidationPresentIndex(const ValidationPreset preset) const;
+    int GetComboBoxPresetIndex(const int preset_index) const;
 
     QTreeWidget *_configuration_settings_tree;
     std::vector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
     std::vector<QTreeWidgetItem *> _layer_items;       // These parallel the configuration layers
 
-    QComboBox *_validation_presets_combo_box;
-    std::vector<ValidationPreset> _validation_presets;  // The preset in the combobox
+    QComboBox *_presets_combo_box;
+    std::vector<int> _preset_indexes;  // The preset in the combobox
 
     QTreeWidgetItem *_validation_tree_item;
     QTreeWidgetItem *_validation_file_item;

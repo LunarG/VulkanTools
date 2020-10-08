@@ -46,60 +46,12 @@ struct DefaultConfiguration {
     const char *name;
     const char *file;
     const char *required_layer;
-    Version required_api_version;
-    const char *preset_label;
-    ValidationPreset preset;
 };
 
 static const DefaultConfiguration default_configurations[] = {
-    {"Validation", ":/resourcefiles/configurations/validation.json", "VK_LAYER_KHRONOS_validation", Version("1.0.0"), "Standard",
-     ValidationPresetStandard},
-#if HAS_GFXRECONSTRUCT
-    {"Frames Capture", ":/resourcefiles/configurations/frames_capture.json", "VK_LAYER_LUNARG_gfxreconstruct", Version("1.2.147"),
-     "", ValidationPresetNone},
-#endif
-    {"API dump", ":/resourcefiles/configurations/api_dump.json", "VK_LAYER_LUNARG_api_dump", Version("1.1.126"), "",
-     ValidationPresetNone}};
-
-ValidationPreset GetValidationPreset(const QString &configuration_name) {
-    assert(!configuration_name.isEmpty());
-
-    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-        if (default_configurations[i].name != configuration_name) continue;
-        return default_configurations[i].preset;
-    }
-
-    return ValidationPresetNone;  // Not found
-}
-
-static const DefaultConfiguration *FindDefaultConfiguration(ValidationPreset preset) {
-    assert(preset >= ValidationPresetFirst && preset <= ValidationPresetLast);
-
-    for (std::size_t i = 0, n = countof(default_configurations); i < n; ++i) {
-        if (default_configurations[i].preset != preset) continue;
-        return &default_configurations[i];
-    }
-
-    return nullptr;  // Not found
-}
-
-const char *Configurator::GetValidationPresetName(ValidationPreset preset) const {
-    // 0 is user defined, there is no file for that
-    assert(preset > ValidationPresetUserDefined);
-
-    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset);
-    if (configuration) return configuration->name;
-
-    assert(0);
-    return nullptr;
-}
-
-const char *Configurator::GetValidationPresetLabel(ValidationPreset preset) const {
-    const DefaultConfiguration *configuration = FindDefaultConfiguration(preset);
-    if (configuration) return configuration->preset_label;
-
-    return nullptr;
-}
+    {"Validation", ":/resourcefiles/configurations/validation.json", "VK_LAYER_KHRONOS_validation"},
+    {"Frames Capture", ":/resourcefiles/configurations/frames_capture.json", "VK_LAYER_LUNARG_gfxreconstruct"},
+    {"API dump", ":/resourcefiles/configurations/api_dump.json", "VK_LAYER_LUNARG_api_dump"}};
 
 Configurator &Configurator::Get() {
     static Configurator configurator;

@@ -29,9 +29,7 @@ vkConfigTest(test_configuration)
 vkConfigTest(test_configuration_manager)
 vkConfigTest(test_path_manager)
 vkConfigTest(test_override)
+vkConfigTest(test_preset)
 vkConfigTest(test_environment)
 vkConfigTest(test_application_singleton)
 vkConfigTest(test_vulkan)
-
-
-

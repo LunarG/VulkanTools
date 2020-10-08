@@ -28,23 +28,6 @@
 
 #include <vector>
 
-// json file preset_index must match the preset enum values
-enum ValidationPreset {
-    ValidationPresetNone = 0,
-    ValidationPresetUserDefined = ValidationPresetNone,
-    ValidationPresetStandard = 1,
-    ValidationPresetGPUAssisted = 2,
-    ValidationPresetDebugPrintf = 3,
-    ValidationPresetReducedOverhead = 4,
-    ValidationPresetBestPractices = 5,
-    ValidationPresetSynchronization = 6,
-
-    ValidationPresetFirst = ValidationPresetUserDefined,
-    ValidationPresetLast = ValidationPresetSynchronization
-};
-
-enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };
-
 class Configuration {
    public:
     Configuration();
@@ -55,7 +38,6 @@ class Configuration {
     QString name;                    // User readable display of the profile name (may contain spaces)
     QString _description;            // A friendly description of what this profile does
     QByteArray _setting_tree_state;  // Recall editor tree state
-    ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
 
     std::vector<Parameter> parameters;
 

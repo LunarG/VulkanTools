@@ -300,7 +300,6 @@ void LayersDialog::resizeEvent(QResizeEvent *event) {
 }
 
 void LayersDialog::on_pushButtonResetLayers_clicked() {
-    configuration._preset = ValidationPresetNone;
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
 
@@ -308,11 +307,9 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
         it->overridden_rank = Parameter::UNRANKED;
 
-        auto layer = Find(Configurator::Get().available_layers, it->name);
-        if (layer != Configurator::Get().available_layers.end()) {
+        auto layer = Find(Configurator::Get().layers.available_layers, it->name);
+        if (layer != Configurator::Get().layers.available_layers.end()) {
             it->settings = layer->settings;
-
-            if (it->name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
         }
     }
 
@@ -557,10 +554,6 @@ void LayersDialog::BuildParameters() {
         parameter.name = layer.name;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
         parameter.settings = layer.settings;
-
-        if (layer.name == "VK_LAYER_KHRONOS_validation") {
-            configuration._preset = ValidationPresetStandard;
-        }
 
         parameters.push_back(parameter);
     }

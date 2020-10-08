@@ -22,6 +22,7 @@
 #pragma once
 
 #include "layer_type.h"
+#include "platform.h"
 
 #include <QString>
 #include <QVariant>
@@ -44,20 +45,6 @@ enum SettingType {  // Enum value can't be changed
 };
 
 enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
-
-enum PlatformType {
-    PLATFORM_WINDOWS = 0,
-    PLATFORM_LINUX,
-    PLATFORM_MACOS,
-};
-
-enum PlatformFlags {
-    PLATFORM_WINDOWS_BIT = (1 << PLATFORM_WINDOWS),
-    PLATFORM_LINUX_BIT = (1 << PLATFORM_LINUX),
-    PLATFORM_MACOS_BIT = (1 << PLATFORM_MACOS)
-};
-
-enum StatusType { STATUS_STABLE = 0, STATUS_BETA, STATUS_ALPHA };
 
 struct LayerSetting {
     QString key;                   // Name of the setting the layer looks for (programatic variable name)

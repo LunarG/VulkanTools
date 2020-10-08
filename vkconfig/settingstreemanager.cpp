@@ -36,7 +36,7 @@
 
 SettingsTreeManager::SettingsTreeManager()
     : _configuration_settings_tree(nullptr),
-      _validation_presets_combo_box(nullptr),
+      _presets_combo_box(nullptr),
       _validation_tree_item(nullptr),
       _validation_file_item(nullptr),
       _validation_log_file_item(nullptr),
@@ -86,7 +86,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             if (parameter.name == "VK_LAYER_KHRONOS_validation") {
                 _validation_tree_item = item;
-                BuildKhronosTree(parameter.settings);
+                BuildKhronosTree(layer->presets, parameter);
                 continue;
             }
 
@@ -125,53 +125,50 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     build_tree->blockSignals(false);
 }
 
-void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) {
+void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, Parameter &parameter) {
     _validation_preset_item = new QTreeWidgetItem();
-    _validation_preset_item->setText(0, "Validation Preset");
+    _validation_preset_item->setText(0, "Preset");
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
 
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
     const std::vector<Layer>::const_iterator validation_layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
 
-    _validation_presets_combo_box = new QComboBox();
-    _validation_presets_combo_box->blockSignals(true);
-    _validation_presets.clear();
-    for (int i = ValidationPresetFirst; i <= ValidationPresetLast; ++i) {
-        const ValidationPreset validation_preset = static_cast<ValidationPreset>(i);
+    _presets_combo_box = new QComboBox();
+    _presets_combo_box->blockSignals(true);
+    _preset_indexes.clear();
 
-        if (!HAS_SHADER_BASED &&
-            (validation_preset == ValidationPresetGPUAssisted || validation_preset == ValidationPresetDebugPrintf)) {
-            continue;
-        }
+    // First add user defined preset
+    _presets_combo_box->addItem("User Defined");
+    _preset_indexes.push_back(PRESET_INDEX_USER_DEFINED);
 
-        QString preset_name = configurator.GetValidationPresetLabel(validation_preset);
+    for (std::size_t i = 0, n = validation_layer->presets.size(); i < n; ++i) {
+        const Preset &preset = presets[i];
 
-        // There is no preset for a user defined group of settings, so watch for blank.
-        if (preset_name.isEmpty()) preset_name = "User Defined";
+        // Is the preset supported on this platform
+        if ((preset.platforms_flags & (1 << VKC_CURRENT_PLATFORM)) == 0) continue;
 
-        _validation_presets_combo_box->addItem(preset_name);
-        _validation_presets.push_back(validation_preset);
+        _presets_combo_box->addItem(preset.label);
+        _preset_indexes.push_back(preset.index);
     }
 
-    auto configuration = configurator.GetActiveConfiguration();
-    _validation_presets_combo_box->setCurrentIndex(GetValidationPresentIndex(configuration->_preset));
+    _presets_combo_box->setCurrentIndex(GetComboBoxPresetIndex(parameter.preset_index));
 
-    connect(_validation_presets_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
+    connect(_presets_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     _validation_tree_item->addChild(_validation_preset_item);
     _validation_preset_item->addChild(next_line);
-    _configuration_settings_tree->setItemWidget(next_line, 0, _validation_presets_combo_box);
+    _configuration_settings_tree->setItemWidget(next_line, 0, _presets_combo_box);
 
     QTreeWidgetItem *_validation_settingsitem = new QTreeWidgetItem();
     _validation_settingsitem->setText(0, "Individual Settings");
     _validation_preset_item->addChild(_validation_settingsitem);
 
     // This just finds the enables and disables
-    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, settings);
+    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, parameter.settings);
 
     // Get the Debug Action and log file settings (and they must exist)
-    LayerSetting &debug_action = *FindSetting(settings, "debug_action");
-    LayerSetting &log_file = *FindSetting(settings, "log_filename");
+    LayerSetting &debug_action = *FindSetting(parameter.settings, "debug_action");
+    LayerSetting &log_file = *FindSetting(parameter.settings, "log_filename");
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
@@ -211,8 +208,9 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     }
 
     // This is looking for the report flags
-    for (std::size_t setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
-        LayerSetting &layer_setting = settings[setting_index];
+    for (std::size_t setting_index = 0, settings_count = parameter.settings.size(); setting_index < settings_count;
+         ++setting_index) {
+        LayerSetting &layer_setting = parameter.settings[setting_index];
 
         // Multi-enum - report flags only
         if (layer_setting.key == "report_flags") {
@@ -246,8 +244,9 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     }
 
     // VUID message filtering
-    for (std::size_t setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
-        LayerSetting &layer_setting = settings[setting_index];
+    for (std::size_t setting_index = 0, settings_count = parameter.settings.size(); setting_index < settings_count;
+         setting_index++) {
+        LayerSetting &layer_setting = parameter.settings[setting_index];
 
         if (layer_setting.type != SETTING_VUID_FILTER) {
             continue;
@@ -281,7 +280,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
 
     // This really does go way down here.
     connect(_validation_settings, SIGNAL(settingChanged()), this, SLOT(OnPresetEdited()));
-    _validation_presets_combo_box->blockSignals(false);
+    _presets_combo_box->blockSignals(false);
 
     _validation_tree_item->addChild(_validation_preset_item);
 }
@@ -370,9 +369,9 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
     }
 }
 
-int SettingsTreeManager::GetValidationPresentIndex(const ValidationPreset preset) const {
-    for (std::size_t i = 0, n = _validation_presets.size(); i < n; ++i) {
-        if (_validation_presets[i] == preset) return static_cast<int>(i);
+int SettingsTreeManager::GetComboBoxPresetIndex(const int preset_index) const {
+    for (std::size_t i = 0, n = _preset_indexes.size(); i < n; ++i) {
+        if (_preset_indexes[i] == preset_index) return static_cast<int>(i);
     }
 
     assert(0);
@@ -380,37 +379,36 @@ int SettingsTreeManager::GetValidationPresentIndex(const ValidationPreset preset
 }
 
 /// The user has selected a preset for this layer
-void SettingsTreeManager::khronosPresetChanged(int preset_index) {
-    assert(preset_index >= 0 && preset_index < _validation_presets.size());
-    const ValidationPreset preset = _validation_presets[preset_index];
+void SettingsTreeManager::khronosPresetChanged(int combo_box_preset_index) {
+    assert(combo_box_preset_index >= 0 && combo_box_preset_index < _preset_indexes.size());
+    const int preset_index = _preset_indexes[combo_box_preset_index];
 
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.Notify(NOTIFICATION_RESTART);
 
     // We really just don't care
-    if (preset == ValidationPresetUserDefined) return;
-
-    // The easiest way to do this is to create a new profile, and copy the layer over
-    const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
-
-    Configuration preset_configuration;
-    const bool result = preset_configuration.Load(preset_file);
-    assert(result);
+    if (preset_index == PRESET_INDEX_USER_DEFINED) return;
 
     auto configuration = configurator.GetActiveConfiguration();
     auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
     assert(parameter != configuration->parameters.end());
 
+    auto layer = Find(configurator.layers.available_layers, "VK_LAYER_KHRONOS_validation");
+    assert(layer != configurator.layers.available_layers.end());
+
+    const Preset &preset = layer->presets[preset_index];
+
     // Reset just specific layer settings
     for (std::size_t i = 0, n = parameter->settings.size(); i < n; ++i) {
         LayerSetting &setting = parameter->settings[i];
 
-        if (setting.key == "disables" || setting.key == "enables")
-            setting.value = preset_configuration.parameters[0].settings[i].value;
+        if (setting.key == "disables") {
+            setting.value = Find(preset.settings, "disables")->value;
+        } else if (setting.key == "enables") {
+            setting.value = Find(preset.settings, "enables")->value;
+        }
     }
-
-    configuration->_preset = preset;
 
     // Now we need to reload the Khronos tree item.
     _configuration_settings_tree->blockSignals(true);
@@ -425,7 +423,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
         _validation_tree_item->takeChild(0);
     }
 
-    BuildKhronosTree(parameter->settings);
+    BuildKhronosTree(layer->presets, *parameter);
     SetTreeState(saved_state, 0, validation_preset_parent);
     _configuration_settings_tree->blockSignals(false);
     OnSettingEdited();
@@ -434,11 +432,12 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
 // Any edit to these settings means we are not user defined
 // (and that we need to save the settings)
 void SettingsTreeManager::OnPresetEdited() {
-    _validation_presets_combo_box->blockSignals(true);
-    _validation_presets_combo_box->setCurrentIndex(GetValidationPresentIndex(ValidationPresetUserDefined));
+    _presets_combo_box->blockSignals(true);
+    _presets_combo_box->setCurrentIndex(GetComboBoxPresetIndex(PRESET_INDEX_USER_DEFINED));
     auto configuration = Configurator::Get().GetActiveConfiguration();
-    configuration->_preset = ValidationPresetUserDefined;
-    _validation_presets_combo_box->blockSignals(false);
+    auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
+    FindSetting(parameter->settings, "preset-index")->value = PRESET_INDEX_USER_DEFINED;
+    _presets_combo_box->blockSignals(false);
     OnSettingEdited();
 }
 
@@ -502,7 +501,7 @@ void SettingsTreeManager::CleanupGUI() {
 
     _configuration_settings_tree->clear();
     _configuration_settings_tree = nullptr;
-    _validation_presets_combo_box = nullptr;
+    _presets_combo_box = nullptr;
     _validation_tree_item = nullptr;
     _validation_debug_action = nullptr;
     _validation_preset_item = nullptr;

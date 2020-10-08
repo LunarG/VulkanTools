@@ -289,7 +289,7 @@ void MainWindow::LoadConfigurationList() {
         ConfigurationListItem *item = new ConfigurationListItem(configuration.name);
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-        if (PLATFORM_MACOS)  // Mac OS does not leave enough space without this
+        if (VKC_PLATFORM_MACOS)  // Mac OS does not leave enough space without this
             item->radio_button->setText(" ");
 
         item->radio_button->setToolTip(configuration._description);

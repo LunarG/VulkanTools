@@ -35,7 +35,7 @@
 #include <cstdio>
 #include <algorithm>
 
-Configuration::Configuration() : name("New Configuration"), _preset(ValidationPresetNone) {}
+Configuration::Configuration() : name("New Configuration") {}
 
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_VKCONFIG_2_0_1) {
@@ -73,7 +73,7 @@ bool Configuration::Load(const QString& full_path) {
     const QJsonValue& configuration_entry_value = json_top_object.value(key[0]);
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
-    if (SUPPORT_VKCONFIG_2_0_1 && !HAS_SHADER_BASED) {
+    if (SUPPORT_VKCONFIG_2_0_1 && VKC_PLATFORM_MACOS) {
         if (full_path.contains("Validation - Shader Printf.json") || full_path.contains("Validation - Debug Printf.json") ||
             full_path.contains("Validation - GPU-Assisted.json")) {
             return false;
@@ -113,8 +113,10 @@ bool Configuration::Load(const QString& full_path) {
         parameters.push_back(parameter);
     }
 
+    /*
     const QJsonValue& preset_index = configuration_entry_object.value("preset");
     _preset = static_cast<ValidationPreset>(preset_index.toInt());
+    */
 
     const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
     _setting_tree_state = editor_state.toVariant().toByteArray();
@@ -202,7 +204,6 @@ bool Configuration::Save(const QString& full_path) const {
     json_configuration.insert("name", name);
     json_configuration.insert("blacklisted_layers", excluded_list);
     json_configuration.insert("description", _description);
-    json_configuration.insert("preset", _preset);
     json_configuration.insert("editor_state", _setting_tree_state.data());
     json_configuration.insert("layer_options", overridden_list);
     root.insert("configuration", json_configuration);

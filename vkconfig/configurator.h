@@ -41,11 +41,6 @@ class Configurator {
     static Configurator& Get();
     bool Init();
 
-    // Validation Preset
-   public:
-    const char* GetValidationPresetName(ValidationPreset preset) const;
-    const char* GetValidationPresetLabel(ValidationPreset preset) const;
-
     // Additional places to look for layers
    public:
     void BuildCustomLayerTree(QTreeWidget* tree_widget);
@@ -59,13 +54,6 @@ class Configurator {
     bool HasActiveOverrideOnApplicationListOnly() const {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
     }
-
-    // Look for all installed layers. This contains their path, version info, etc.
-    // but does not contain settings information. The default settings are stored
-    // in the above (defaultLayerSettings). The binding of a layer with it's
-    // particular settings is done in the profile (Configuration - in configuration list).
-    // This includes all found implicit, explicit, or layers found in custom folders
-    std::vector<Layer> available_layers;  // All the found layers, lumped together
 
     std::vector<Configuration> available_configurations;
     void LoadAllConfigurations();  // Load all the .profile files found
@@ -96,5 +84,3 @@ class Configurator {
     Environment environment;
     LayerManager layers;
 };
-
-ValidationPreset GetValidationPreset(const QString& configuration_name);

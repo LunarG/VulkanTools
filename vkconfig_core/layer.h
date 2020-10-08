@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "../vkconfig_core/preset.h"
 #include "../vkconfig_core/layer_setting.h"
 #include "../vkconfig_core/version.h"
 
@@ -61,7 +62,7 @@ class Layer {
     LayerType _layer_type;
 
     std::vector<LayerSetting> settings;
-    std::vector<std::vector<LayerSetting>> presets;
+    std::vector<Preset> presets;
 
     bool Load(QString full_path_to_file, LayerType layer_type);
 
