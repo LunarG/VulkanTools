@@ -205,13 +205,14 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
     assert(!parameter.name.isEmpty());
 
     Configurator &configurator = Configurator::Get();
+    std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
-    const std::vector<Layer>::const_iterator layer = Find(configurator.available_layers, parameter.name);
+    const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
 
     QString decorated_name = parameter.name;
 
     bool is_implicit_layer = false;
-    if (layer != configurator.available_layers.end()) {
+    if (layer != available_layers.end()) {
         if (IsDLL32Bit(layer->_layer_path)) decorated_name += " (32-bit)";
 
         if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
@@ -226,7 +227,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 
     item->setText(0, decorated_name);
     item->setFlags(item->flags() | Qt::ItemIsSelectable);
-    item->setDisabled(layer == configurator.available_layers.end());
+    item->setDisabled(layer == available_layers.end());
 
     // Add the top level item
     ui->layerTree->addTopLevelItem(item);
@@ -315,7 +316,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
         }
     }
 
-    OrderParameter(parameters, Configurator::Get().available_layers);
+    OrderParameter(parameters, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();
     UpdateUI();
 }
@@ -340,7 +341,7 @@ void LayersDialog::OverrideOrder(const QString layer_name, const TreeWidgetItemP
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
     std::swap(*below_parameter, *above_parameter);
 
-    OrderParameter(parameters, Configurator::Get().available_layers);
+    OrderParameter(parameters, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
 
@@ -376,13 +377,15 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
         return;
     }
 
+    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+
     // Populate the side label
     assert(!layer_item->layer_name.isEmpty());
 
     selected_available_layer_name = layer_item->layer_name;
 
-    const std::vector<Layer>::const_iterator layer = Find(Configurator::Get().available_layers, layer_item->layer_name);
-    if (layer != Configurator::Get().available_layers.end()) {
+    const std::vector<Layer>::const_iterator layer = Find(available_layers, layer_item->layer_name);
+    if (layer != available_layers.end()) {
         QString detailsText = layer->_description;
         detailsText += "\n";
         detailsText += QString("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
@@ -415,9 +418,10 @@ void LayersDialog::OverrideAllExplicitLayers() {
         if (it->state != LAYER_STATE_APPLICATION_CONTROLLED) continue;
 
         Configurator &configurator = Configurator::Get();
+        std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
-        const std::vector<Layer>::const_iterator layer = Find(configurator.available_layers, it->name);
-        if (layer == configurator.available_layers.end()) continue;
+        const std::vector<Layer>::const_iterator layer = Find(available_layers, it->name);
+        if (layer == available_layers.end()) continue;
 
         if (layer->_layer_type == LAYER_TYPE_IMPLICIT) continue;
 
@@ -455,7 +459,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
             OverrideAllExplicitLayers();
         }
     } else if (layer_state == LAYER_STATE_EXCLUDED) {
-        const std::vector<Layer> &available_layers = Configurator::Get().available_layers;
+        const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
         const std::vector<Layer>::const_iterator layer = Find(available_layers, tree_layer_item->layer_name);
 
         if (layer != available_layers.end()) {
@@ -479,7 +483,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     current_parameter->state = layer_state;
     current_parameter->overridden_rank = Parameter::UNRANKED;
 
-    OrderParameter(parameters, Configurator::Get().available_layers);
+    OrderParameter(parameters, Configurator::Get().layers.available_layers);
 
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
@@ -514,7 +518,7 @@ void LayersDialog::accept() {
 
 void LayersDialog::BuildParameters() {
     Configurator &configurator = Configurator::Get();
-    std::vector<Layer> &available_layers = configurator.available_layers;
+    std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
     parameters.clear();
 

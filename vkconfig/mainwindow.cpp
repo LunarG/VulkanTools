@@ -170,7 +170,7 @@ void MainWindow::UpdateUI() {
         auto configuration = Find(configurator.available_configurations, item->configuration_name);
         if (configuration == configurator.available_configurations.end()) continue;
 
-        if (!HasMissingParameter(configuration->parameters, configurator.available_layers)) {
+        if (!HasMissingParameter(configuration->parameters, configurator.layers.available_layers)) {
             item->setText(1, item->configuration_name);
             item->radio_button->setToolTip(configuration->_description);
         } else {
@@ -1223,7 +1223,7 @@ void MainWindow::on_push_button_launcher_clicked() {
 
     if (configuration == configurator.available_configurations.end()) {
         launch_log += "- Layers fully controlled by the application.\n";
-    } else if (HasMissingParameter(configuration->parameters, configurator.available_layers)) {
+    } else if (HasMissingParameter(configuration->parameters, configurator.layers.available_layers)) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
                                          configuration->name.toUtf8().constData());
     } else if (configurator.environment.UseOverride()) {

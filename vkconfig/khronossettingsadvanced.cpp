@@ -263,8 +263,10 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
     ///////////////////////////////////////////////////////////////
     // Synchronization
 
-    const std::vector<Layer>::const_iterator layer = Find(Configurator::Get().available_layers, "VK_LAYER_KHRONOS_validation");
-    if (layer != Configurator::Get().available_layers.end()) {
+    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+
+    const std::vector<Layer>::const_iterator layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
+    if (layer != available_layers.end()) {
         // To handle this change: https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/2146
         if (layer->_api_version <= Version("1.2.148")) {
             syncChecks[0].token = "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION";

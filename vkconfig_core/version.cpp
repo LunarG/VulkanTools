@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "version.h"
@@ -28,7 +28,7 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(2, 0, 2);
+const Version Version::VKCONFIG(2, 0, 3);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 const Version Version::VERSION_NULL(0u);
 

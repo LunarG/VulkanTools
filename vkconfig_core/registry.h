@@ -17,3 +17,20 @@
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
+
+#include "platform.h"
+#include "layer.h"
+
+#include <QString>
+
+#if PLATFORM_WINDOWS
+
+void AppendRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
+
+void RemoveRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
+
+void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type);
+
+#endif  // PLATFORM_WINDOWS
