@@ -32,7 +32,7 @@ TEST(test_command_line, execute_mode) {
 
     CommandLine command_line(argc, argv);
 
-    EXPECT_EQ(CommandLine::ModeExecute, command_line.mode);
+    EXPECT_EQ(CommandLine::ModeGUI, command_line.mode);
 }
 
 TEST(test_command_line, usage_mode_help) {

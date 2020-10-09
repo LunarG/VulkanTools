@@ -119,6 +119,8 @@ class Environment {
 
     void SetMode(OverrideMode mode, bool enabled);
 
+    const bool running_as_administrator;  // Are we being "Run as Administrator"
+
     bool first_run;
 
     bool AppendCustomLayerPath(const QString& path);
@@ -140,5 +142,8 @@ class Environment {
     QStringList custom_layer_paths;
     std::vector<Application> applications;
 
-    PathManager& paths;
+    PathManager& paths_manager;
+
+   public:
+    const PathManager& paths;
 };

@@ -22,6 +22,10 @@
 #include "platform.h"
 #include "util.h"
 
+#if PLATFORM_WINDOWS
+#include <shlobj.h>
+#endif
+
 #include <QSettings>
 #include <QMessageBox>
 #include <QCheckBox>
@@ -98,7 +102,16 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Environment::Environment(PathManager& paths) : paths(paths) {
+Environment::Environment(PathManager& paths)
+    : paths_manager(paths),
+// Hack for GitHub C.I.
+#if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+      running_as_administrator(IsUserAnAdmin()),
+#else
+      running_as_administrator(false),
+#endif
+      paths(paths_manager) {
+
     const bool result = Load();
     assert(result);
 }
@@ -184,7 +197,7 @@ void Environment::Reset(ResetMode mode) {
         case SYSTEM: {
             const bool result_env = Load();
             assert(result_env);
-            const bool result_path = paths.Load();
+            const bool result_path = paths_manager.Load();
             assert(result_path);
             break;
         }

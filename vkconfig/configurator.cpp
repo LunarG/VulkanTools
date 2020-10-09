@@ -27,6 +27,7 @@
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/override.h"
 
 #include <Qt>
 #include <QDir>
@@ -37,28 +38,9 @@
 #include <QCheckBox>
 #include <QJsonArray>
 
-#if PLATFORM_WINDOWS
-#include <shlobj.h>
-#endif
-
 #include <cassert>
 #include <cstdio>
 #include <algorithm>
-
-// Constructor does all the work. Abstracts away instances where we might
-// be searching a disk path, or a registry path.
-// TBD, does this really need it's own file/module?
-PathFinder::PathFinder(const QString &qsPath, bool bForceFileSystem) {
-    if (!bForceFileSystem) {
-        QSettings settings(qsPath, QSettings::NativeFormat);
-        files = settings.allKeys();
-    } else {
-        QDir dir(qsPath);
-        QFileInfoList file_info_list = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
-
-        for (int file_index = 0; file_index < file_info_list.size(); file_index++) files << file_info_list[file_index].filePath();
-    }
-}
 
 //////////////////////////////////////////////////////////////////////////////
 // These are the built-in configurations that are pulled in from the resource
@@ -132,56 +114,12 @@ const char *Configurator::GetValidationPresetLabel(ValidationPreset preset) cons
     return nullptr;
 }
 
-// I am purposly not flagging these as explicit or implicit as this can be parsed from the location
-// and future updates to layer locations will only require a smaller change.
-#if PLATFORM_WINDOWS
-static const QString szSearchPaths[] = {"HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
-                                        "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
-                                        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
-                                        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers",
-                                        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
-                                        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers"};
-#else
-static const QString szSearchPaths[] = {"/usr/local/etc/vulkan/explicit_layer.d",  // Not used on macOS, okay to just ignore
-                                        "/usr/local/etc/vulkan/implicit_layer.d",  // Not used on macOS, okay to just ignore
-                                        "/usr/local/share/vulkan/explicit_layer.d",
-                                        "/usr/local/share/vulkan/implicit_layer.d",
-                                        "/etc/vulkan/explicit_layer.d",
-                                        "/etc/vulkan/implicit_layer.d",
-                                        "/usr/share/vulkan/explicit_layer.d",
-                                        "/usr/share/vulkan/implicit_layer.d",
-                                        ".local/share/vulkan/explicit_layer.d",
-                                        ".local/share/vulkan/implicit_layer.d"};
-#endif
-
 Configurator &Configurator::Get() {
     static Configurator configurator;
     return configurator;
 }
 
-Configurator::Configurator()
-    : environment(path),
-// Hack for GitHub C.I.
-#if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-      _running_as_administrator(IsUserAnAdmin())
-#else
-      _running_as_administrator(false)
-#endif
-{
-    available_layers.reserve(10);
-
-    // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
-    // assemble a list of paths that take precidence for layer discovery.
-    QString layer_path = qgetenv("VK_LAYER_PATH");
-    if (!layer_path.isEmpty()) {
-        if (PLATFORM_WINDOWS)
-            VK_LAYER_PATH = layer_path.split(";");  // Windows uses ; as seperator
-        else if (PLATFORM_LINUX || PLATFORM_MACOS)
-            VK_LAYER_PATH = layer_path.split(":");  // Linux/macOS uses : as seperator
-        else
-            assert(0);  // Unknown platform
-    }
-}
+Configurator::Configurator() : environment(path), layers(environment) {}
 
 ///////////////////////////////////////////////////////////////////////////////////
 /// A good rule of C++ is to not put things in the constructor that can fail, or
@@ -190,11 +128,13 @@ Configurator::Configurator()
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
-    LoadAllInstalledLayers();
+    layers.LoadAllInstalledLayers();
     LoadDefaultLayerSettings();
 
+    const bool has_layers = !layers.Empty();
+
     // If no layers are found, give the user another chance to add some custom paths
-    if (available_layers.empty()) {
+    if (!has_layers) {
         QMessageBox alert;
         alert.setWindowTitle("No Vulkan Layers found");
         alert.setText(
@@ -208,10 +148,10 @@ bool Configurator::Init() {
         dlg.exec();
 
         // Give it one more chance... If there are still no layers, bail
-        LoadAllInstalledLayers();
+        layers.LoadAllInstalledLayers();
     }
 
-    if (available_layers.empty()) {
+    if (!has_layers) {
         QMessageBox alert;
         alert.setWindowTitle(VKCONFIG_NAME);
         alert.setText("Could not initialize Vulkan Configurator.");
@@ -242,7 +182,7 @@ bool Configurator::Init() {
     SetActiveConfiguration(_active_configuration);
 
     if (_active_configuration != available_configurations.end()) {
-        if (HasMissingParameter(_active_configuration->parameters, available_layers)) {
+        if (HasMissingParameter(_active_configuration->parameters, layers.available_layers)) {
             QSettings settings;
             if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
                 QMessageBox alert;
@@ -257,7 +197,7 @@ bool Configurator::Init() {
                     CustomPathsDialog dlg;
                     dlg.exec();
 
-                    LoadAllInstalledLayers();
+                    layers.LoadAllInstalledLayers();
                 }
                 if (alert.checkBox()->isChecked()) {
                     settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", true);
@@ -274,180 +214,11 @@ Configurator::~Configurator() {
         available_configurations[i].Save(path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].name));
     }
 
-    available_layers.clear();
+    layers.Clear();
     available_configurations.clear();
 }
 
-bool Configurator::HasLayers() const { return !available_layers.empty(); }
-
-#if PLATFORM_WINDOWS
-/// Look for device specific layers
-void Configurator::LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Layer> &layers, LayerType type) {
-    HKEY key;
-    if (CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS) return;
-
-    DWORD path_size;
-    if (RegQueryValueExW(key, (LPCWSTR)entry.utf16(), nullptr, nullptr, nullptr, &path_size) != ERROR_SUCCESS) {
-        RegCloseKey(key);
-        return;
-    }
-
-    DWORD data_type;
-    wchar_t *path = new wchar_t[path_size];
-    if (RegQueryValueExW(key, (LPCWSTR)entry.utf16(), nullptr, &data_type, (LPBYTE)path, &path_size) != ERROR_SUCCESS) {
-        delete[] path;
-        RegCloseKey(key);
-        return;
-    }
-
-    if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
-        for (wchar_t *curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
-            Layer layer;
-            if (layer.Load(QString::fromWCharArray(curr_filename), type)) {
-                layers.push_back(layer);
-            }
-
-            if (data_type == REG_SZ) {
-                break;
-            }
-        }
-    }
-
-    delete[] path;
-    RegCloseKey(key);
-}
-
-/// This is for Windows only. It looks for device specific layers in the Windows registry.
-void Configurator::LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type) {
-    QString root_string = path.section('\\', 0, 0);
-    static QHash<QString, HKEY> root_keys = {
-        {"HKEY_CLASSES_ROOT", HKEY_CLASSES_ROOT},
-        {"HKEY_CURRENT_CONFIG", HKEY_CURRENT_CONFIG},
-        {"HKEY_CURRENT_USER", HKEY_CURRENT_USER},
-        {"HKEY_LOCAL_MACHINE", HKEY_LOCAL_MACHINE},
-        {"HKEY_USERS", HKEY_USERS},
-    };
-
-    HKEY root = HKEY_CURRENT_USER;
-    for (auto label : root_keys.keys()) {
-        if (label == root_string) {
-            root = root_keys[label];
-            break;
-        }
-    }
-
-    static const QString DISPLAY_GUID = "{4d36e968-e325-11ce-bfc1-08002be10318}";
-    static const QString SOFTWARE_COMPONENT_GUID = "{5c4c3332-344d-483c-8739-259e934c9cc8}";
-    static const ULONG FLAGS = CM_GETIDLIST_FILTER_CLASS | CM_GETIDLIST_FILTER_PRESENT;
-
-    ULONG device_names_size;
-    wchar_t *device_names = nullptr;
-    do {
-        CM_Get_Device_ID_List_SizeW(&device_names_size, (LPCWSTR)DISPLAY_GUID.utf16(), FLAGS);
-        if (device_names != nullptr) {
-            delete[] device_names;
-        }
-        device_names = new wchar_t[device_names_size];
-    } while (CM_Get_Device_ID_ListW((LPCWSTR)DISPLAY_GUID.utf16(), device_names, device_names_size, FLAGS) == CR_BUFFER_SMALL);
-
-    if (device_names != nullptr) {
-        QString entry;
-        // This has already been set by now
-        if (path.endsWith("VulkanExplicitLayers")) {
-            entry = "VulkanExplicitLayers";
-            type = LAYER_TYPE_EXPLICIT;
-        } else if (path.endsWith("VulkanImplicitLayers")) {
-            entry = "VulkanImplicitLayers";
-            type = LAYER_TYPE_IMPLICIT;
-        }
-
-        for (wchar_t *device_name = device_names; device_name[0] != '\0'; device_name += wcslen(device_name) + 1) {
-            DEVINST device_id;
-            if (CM_Locate_DevNodeW(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL) != CR_SUCCESS) {
-                continue;
-            }
-            LoadDeviceRegistry(device_id, entry, layers, type);
-
-            DEVINST child_id;
-            if (CM_Get_Child(&child_id, device_id, 0) != CR_SUCCESS) {
-                continue;
-            }
-            do {
-                wchar_t child_buffer[MAX_DEVICE_ID_LEN];
-                CM_Get_Device_IDW(child_id, child_buffer, MAX_DEVICE_ID_LEN, 0);
-
-                wchar_t child_guid[MAX_GUID_STRING_LEN + 2];
-                ULONG child_guid_size = sizeof(child_guid);
-                if (CM_Get_DevNode_Registry_Property(child_id, CM_DRP_CLASSGUID, nullptr, &child_guid, &child_guid_size, 0) !=
-                    CR_SUCCESS) {
-                    continue;
-                }
-                if (wcscmp(child_guid, (LPCWSTR)SOFTWARE_COMPONENT_GUID.utf16()) == 0) {
-                    LoadDeviceRegistry(child_id, entry, layers, type);
-                    break;
-                }
-            } while (CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
-        }
-    }
-
-    if (device_names != nullptr) {
-        delete[] device_names;
-    }
-}
-
-/// On Windows the overide json file and settings file are not used unless the path to those
-/// files are stored in the registry.
-void Configurator::AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
-    // Layer override json file
-    HKEY key;
-    HKEY userKey = (_running_as_administrator) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-
-    REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
-                                 access, NULL, &key, NULL);
-    if (err != ERROR_SUCCESS) return;
-
-    QString file_path;
-    DWORD value_count;
-    DWORD value = 0;
-    RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueExW(key, (LPCWSTR)qsJSONFile.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
-    RegCloseKey(key);
-
-    // Layer settings file
-    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key,
-                         NULL);
-    if (err != ERROR_SUCCESS) return;
-
-    RegQueryInfoKeyW(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueExW(key, (LPCWSTR)qsSettingsFile.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
-    RegCloseKey(key);
-}
-
-/// On Windows the overide json file and settings file are not used unless the path to those
-/// files are stored in the registry.
-void Configurator::RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile) {
-    // Layer override json file
-    HKEY key;
-    HKEY userKey = (_running_as_administrator) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-
-    REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
-                                 access, NULL, &key, NULL);
-    if (err != ERROR_SUCCESS) return;
-
-    RegDeleteValueW(key, (LPCWSTR)qsJSONFile.utf16());
-    RegCloseKey(key);
-
-    // Layer settings file
-    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key,
-                         NULL);
-    if (err != ERROR_SUCCESS) return;
-
-    RegDeleteValueW(key, (LPCWSTR)qsSettingsFile.utf16());
-    RegCloseKey(key);
-}
-#endif  // PLATFORM_WINDOWS
+bool Configurator::HasLayers() const { return !layers.Empty(); }
 
 bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_version) const {
     // Check loader version
@@ -478,91 +249,6 @@ bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_ver
     return true;
 }
 
-// Find all installed layers on the system.
-void Configurator::LoadAllInstalledLayers() {
-    // This is called initially, but also when custom search paths are set, so
-    // we need to clear out the old data and just do a clean refresh
-    available_layers.clear();
-
-    // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
-    int lp = VK_LAYER_PATH.count();
-    if (lp != 0)
-        for (int i = 0; i < lp; i++) LoadLayersFromPath(VK_LAYER_PATH[i], available_layers);
-
-    // SECOND: Any custom paths? Search for those too
-    const QStringList &custom_layers_paths = environment.GetCustomLayerPaths();
-    for (int i = 0; i < custom_layers_paths.size(); i++) {
-        LoadLayersFromPath(custom_layers_paths[i], available_layers);
-    }
-
-    // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
-    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) {
-        LoadLayersFromPath(szSearchPaths[i], available_layers);
-    }
-
-    // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
-    QString vulkanSDK = qgetenv("VULKAN_SDK");
-    if (!vulkanSDK.isEmpty()) {
-        vulkanSDK += "/etc/vulkan/explicit_layer.d";
-        LoadLayersFromPath(vulkanSDK, available_layers);
-    }
-}
-
-/// Search a folder and load up all the layers found there. This does NOT
-/// load the default settings for each layer. This is just a master list of
-/// layers found. Do NOT load duplicate layer names. The type of layer (explicit or implicit) is
-/// determined from the path name.
-void Configurator::LoadLayersFromPath(const QString &path, std::vector<Layer> &layers) {
-    // On Windows custom files are in the file system. On non Windows all layers are
-    // searched this way
-    LayerType type = LAYER_TYPE_CUSTOM;
-    if (path.contains("explicit", Qt::CaseInsensitive)) type = LAYER_TYPE_EXPLICIT;
-
-    if (path.contains("implicit", Qt::CaseInsensitive)) type = LAYER_TYPE_IMPLICIT;
-
-    PathFinder file_list;
-
-    if (PLATFORM_WINDOWS) {
-        if (path.contains("...")) {
-#if PLATFORM_WINDOWS
-            LoadRegistryLayers(path, layers, type);
-#endif
-            return;
-        }
-
-        file_list = PathFinder(path, (type == LAYER_TYPE_CUSTOM));
-    } else if (PLATFORM_MACOS || PLATFORM_LINUX) {
-        // On Linux/Mac, we also need the home folder
-        QString search_path = path;
-        if (path[0] == '.') {
-            search_path = QDir().homePath();
-            search_path += "/";
-            search_path += path;
-        }
-
-        file_list = PathFinder(search_path, true);
-    } else {
-        assert(0);  // Platform
-    }
-
-    if (file_list.FileCount() == 0) return;
-
-    // We have a list of layer files. Add to the list as long as the layer name has
-    // not already been added.
-    for (int i = 0; i < file_list.FileCount(); ++i) {
-        Layer layer;
-        if (layer.Load(file_list.GetFileName(i), type)) {
-            if (layer.name == "VK_LAYER_LUNARG_override") continue;
-
-            // Make sure this layer name has not already been added
-            if (Find(available_layers, layer.name) != available_layers.end()) continue;
-
-            // Good to go, add the layer
-            layers.push_back(layer);
-        }
-    }
-}
-
 // Populate a tree widget with the custom layer paths and the layers that
 // are being used in them.
 void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
@@ -585,8 +271,8 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
         tree_widget->addTopLevelItem(item);
 
         // Look for layers that are loaded that are also from this folder
-        for (std::size_t i = 0, n = available_layers.size(); i < n; i++) {
-            const Layer &layer = available_layers[i];
+        for (std::size_t i = 0, n = layers.available_layers.size(); i < n; i++) {
+            const Layer &layer = layers.available_layers[i];
 
             QFileInfo fileInfo = layer._layer_path;
             QString path = QDir::toNativeSeparators(fileInfo.path());
@@ -677,7 +363,7 @@ void Configurator::LoadAllConfigurations() {
 }
 
 void Configurator::LoadDefaultLayerSettings() {
-    assert(!available_layers.empty());  // layers should be loaded before default settings
+    assert(!layers.Empty());  // layers should be loaded before default settings
 
     // Load the main object into the json document
     QFile file(":/resourcefiles/layer_info.json");
@@ -740,157 +426,22 @@ void Configurator::SetActiveConfiguration(const QString &configuration_name) {
 // Passing in nullptr IS valid, and will clear the current profile
 void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration) {
     _active_configuration = active_configuration;
-    QSettings settings;
 
-    const QString override_settings_path = path.GetFullPath(PATH_OVERRIDE_SETTINGS);
-    const QString override_layers_path = path.GetFullPath(PATH_OVERRIDE_LAYERS);
-
-    bool need_remove_of_configuration_files = false;
+    bool surrender = false;
     if (_active_configuration != available_configurations.end()) {
         assert(!_active_configuration->name.isEmpty());
         environment.Set(ACTIVE_CONFIGURATION, _active_configuration->name);
-        need_remove_of_configuration_files = _active_configuration->IsEmpty();
+        surrender = _active_configuration->IsEmpty();
     } else {
         environment.Set(ACTIVE_CONFIGURATION, "");
-        need_remove_of_configuration_files = true;
+        surrender = true;
     }
 
-    if (need_remove_of_configuration_files) {
-        std::remove(override_settings_path.toUtf8().constData());
-        std::remove(override_layers_path.toUtf8().constData());
-
-        // On Windows only, we need clear these values from the registry
-        // This works without any Win32 specific functions for the registry
-#if PLATFORM_WINDOWS
-        RemoveRegistryEntriesForLayers(override_layers_path, override_settings_path);  // Clear out the registry settings
-#endif
-        return;
+    if (surrender) {
+        SurrenderLayers(environment);
+    } else {
+        OverrideLayers(environment, layers.available_layers, *active_configuration);
     }
-
-    // vk_layer_settings.txt
-    QFile file(override_settings_path);
-    const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result_settings_file);
-    QTextStream stream(&file);
-
-    // Loop through all the layers
-    for (std::size_t j = 0, n = _active_configuration->parameters.size(); j < n; ++j) {
-        const Parameter &parameter = _active_configuration->parameters[j];
-
-        const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
-        if (layer == available_layers.end()) continue;
-
-        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
-
-        stream << "\n";
-        stream << "# " << layer->name << "\n";
-
-        QString short_layer_name = layer->name;
-        short_layer_name.remove("VK_LAYER_");
-        QString lc_layer_name = short_layer_name.toLower();
-
-        for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
-            const LayerSetting &setting = parameter.settings[i];
-
-            if (layer->name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
-                stream << "lunarg_gfxrecon"
-                       << "." << setting.key << " = " << setting.value << "\n";
-            } else {
-                stream << lc_layer_name << "." << setting.key << " = " << setting.value << "\n";
-            }
-        }
-    }
-    file.close();
-
-    ////////////////////////
-    // VkLayer_override.json
-
-    ///////////////////////////////////////////////////////////////////////
-    // Paths are listed in the same order as the layers. Earlier, the value
-    // of VK_LAYER_PATH was used to discover layers, then the user override
-    // paths, then the standard paths, then the SDK path if the VULKAN_SDK
-    // environment variable was set. All these paths must go in the
-    // override_paths array, or the standard default system paths will be
-    // used instead. A major departure from vkConfig1 is that now ALL
-    // layer paths go in here.
-    QStringList layer_override_paths;
-    for (std::size_t i = 0, n = _active_configuration->parameters.size(); i < n; ++i) {
-        const Parameter &parameter = _active_configuration->parameters[i];
-
-        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
-
-        const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
-        if (layer == available_layers.end()) continue;
-
-        // Extract just the path
-        const QFileInfo file(layer->_layer_path);
-        const QString absolute_path = QDir().toNativeSeparators(file.absolutePath());
-
-        // Make sure the path is not already in the list
-        if (layer_override_paths.contains(absolute_path)) continue;
-
-        // Okay, add to the list
-        layer_override_paths << absolute_path;
-    }
-
-    QJsonArray json_paths;
-    for (int i = 0, n = layer_override_paths.count(); i < n; i++) {
-        json_paths.append(QDir::toNativeSeparators(layer_override_paths[i]));
-    }
-
-    QJsonArray json_overridden_layers;
-    QJsonArray json_excluded_layers;
-    for (std::size_t i = 0, n = _active_configuration->parameters.size(); i < n; ++i) {
-        const Parameter &parameter = _active_configuration->parameters[i];
-        if (parameter.state == LAYER_STATE_OVERRIDDEN)
-            json_overridden_layers.append(parameter.name);
-        else if (parameter.state == LAYER_STATE_EXCLUDED)
-            json_excluded_layers.append(parameter.name);
-    }
-
-    // Only supply this list if an app list is specified
-    const std::vector<Application> &applications = environment.GetApplications();
-    QJsonArray json_applist;
-    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        if (applications[i].override_layers) {
-            json_applist.append(QDir::toNativeSeparators(applications[i].executable_path));
-        }
-    }
-
-    QJsonObject disable;
-    disable.insert("DISABLE_VK_LAYER_LUNARG_override", "1");
-
-    QJsonObject layer;
-    layer.insert("name", "VK_LAYER_LUNARG_override");
-    layer.insert("type", "GLOBAL");
-    layer.insert("api_version", "1.2." + QString::number(VK_HEADER_VERSION));
-    layer.insert("implementation_version", "1");
-    layer.insert("description", "LunarG Override Layer");
-    layer.insert("override_paths", json_paths);
-    layer.insert("component_layers", json_overridden_layers);
-    layer.insert("blacklisted_layers", json_excluded_layers);
-    layer.insert("disable_environment", disable);
-
-    // This has to contain something, or it will apply globally!
-    if (environment.UseApplicationListOverrideMode()) {
-        layer.insert("app_keys", json_applist);
-    }
-
-    QJsonObject root;
-    root.insert("file_format_version", QJsonValue("1.1.2"));
-    root.insert("layer", layer);
-    QJsonDocument doc(root);
-
-    QFile jsonFile(override_layers_path);
-    const bool result_layers_file = jsonFile.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result_layers_file);
-    jsonFile.write(doc.toJson());
-    jsonFile.close();
-
-    // On Windows only, we need to write these values to the registry
-#if PLATFORM_WINDOWS
-    AddRegistryEntriesForLayers(override_layers_path, override_settings_path);
-#endif
 }
 
 void Configurator::RefreshConfiguration() {
@@ -899,7 +450,7 @@ void Configurator::RefreshConfiguration() {
 
 bool Configurator::HasActiveConfiguration() const {
     return _active_configuration != available_configurations.end()
-               ? !HasMissingParameter(_active_configuration->parameters, available_layers)
+               ? !HasMissingParameter(_active_configuration->parameters, layers.available_layers)
                : false;
 }
 

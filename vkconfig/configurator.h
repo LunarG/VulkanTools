@@ -22,17 +22,12 @@
 #pragma once
 
 #include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/layer_manager.h"
 #include "../vkconfig_core/path_manager.h"
 #include "../vkconfig_core/environment.h"
 #include "../vkconfig_core/configuration.h"
 #include "../vkconfig_core/platform.h"
 
-#if PLATFORM_WINDOWS
-#include <windows.h>
-#include <winreg.h>
-#include <Cfgmgr32.h>
-#define WIN_BUFFER_SIZE 1024
-#endif
 #include <QString>
 #include <QDir>
 #include <QTreeWidget>
@@ -40,29 +35,6 @@
 #include <vulkan/vulkan.h>
 
 #include <vector>
-
-/// Going back and forth between the Windows registry and looking for files
-/// in specific folders is just a mess. This class consolidates all that into
-/// one single abstraction that knows whether to look in the registry or in
-/// a folder with QDir.
-/// This is a little weird because generally QSettings is for going back
-/// and forth between the Registry or .ini files. Here, I'm going from
-/// the registry to directory entries.
-class PathFinder {
-   public:
-    PathFinder() {}
-
-#if PLATFORM_WINDOWS
-    PathFinder(const QString& path, bool force_file_system = false);
-#else
-    PathFinder(const QString& path, bool force_file_system = true);
-#endif
-    int FileCount() { return files.size(); }
-    QString GetFileName(int i) { return files[i]; }
-
-   private:
-    QStringList files;
-};
 
 // This is a master list of layer settings. All the settings
 // for what layers can have user modified settings. It contains
@@ -80,9 +52,6 @@ class Configurator {
     static Configurator& Get();
     bool Init();
 
-   private:
-    const bool _running_as_administrator;  // Are we being "Run as Administrator"
-
     // Validation Preset
    public:
     const char* GetValidationPresetName(ValidationPreset preset) const;
@@ -91,11 +60,6 @@ class Configurator {
     // Additional places to look for layers
    public:
     void BuildCustomLayerTree(QTreeWidget* tree_widget);
-
-    QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
-                                // a list of paths that should be searched first for
-                                // Vulkan layers. (Named as environment variable for
-                                // clarity as to where this comes from).
 
     // The list of applications affected
    public:
@@ -113,15 +77,6 @@ class Configurator {
     std::vector<LayerSettingsDefaults> _default_layers_settings;
     void LoadDefaultLayerSettings();
     const LayerSettingsDefaults* FindLayerSettings(const QString& layer_name) const;
-
-    // Look for all installed layers. This contains their path, version info, etc.
-    // but does not contain settings information. The default settings are stored
-    // in the above (defaultLayerSettings). The binding of a layer with it's
-    // particular settings is done in the profile (Configuration - in configuration list).
-    // This includes all found implicit, explicit, or layers found in custom folders
-    std::vector<Layer> available_layers;  // All the found layers, lumped together
-    void LoadAllInstalledLayers();
-    void LoadLayersFromPath(const QString& path, std::vector<Layer>& layers);
 
     std::vector<Configuration> available_configurations;
     void LoadAllConfigurations();  // Load all the .profile files found
@@ -147,17 +102,10 @@ class Configurator {
 
     std::vector<Configuration>::iterator _active_configuration;
 
-#if PLATFORM_WINDOWS
-    void LoadDeviceRegistry(DEVINST id, const QString& entry, std::vector<Layer>& layers, LayerType type);
-    void LoadRegistryLayers(const QString& path, std::vector<Layer>& layers, LayerType type);
-
-    void AddRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
-    void RemoveRegistryEntriesForLayers(QString qsJSONFile, QString qsSettingsFile);
-#endif
-
    public:
     PathManager path;
     Environment environment;
+    LayerManager layers;
 };
 
 ValidationPreset GetValidationPreset(const QString& configuration_name);

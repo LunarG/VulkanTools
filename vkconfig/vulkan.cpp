@@ -93,7 +93,7 @@ QString GenerateVulkanStatus() {
         log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str()).c_str();
     }
 
-    const QStringList &layer_paths = Configurator::Get().VK_LAYER_PATH;
+    const QStringList &layer_paths = Configurator::Get().layers.VK_LAYER_PATH;
     if (!layer_paths.isEmpty()) log += "- Using Layers from VK_LAYER_PATH\n";
 
     // Check layer paths

@@ -15,8 +15,8 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Richard S. Wright Jr. <richard@lunarg.com>
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "command_line.h"
@@ -26,13 +26,15 @@
 #include <cstdio>
 #include <cassert>
 
-CommandLine::CommandLine(int argc, char* argv[]) : mode(_mode), _mode(ModeExecute) {
+CommandLine::CommandLine(int argc, char* argv[]) : mode(_mode), _mode(ModeGUI) {
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if ((arg == "-h") || (arg == "--help")) {
             _mode = ModeShowUsage;
             usage();
             return;
+        } else if ((arg == "-o") || (arg == "--override")) {
+        } else if ((arg == "-s") || (arg == "--surrender")) {
         } else {  // Invalid argument
             _mode = ModeShowUsage;
             usage();
@@ -42,7 +44,7 @@ CommandLine::CommandLine(int argc, char* argv[]) : mode(_mode), _mode(ModeExecut
 }
 
 void CommandLine::usage() const {
-    printf("%s %s\n", VKCONFIG_NAME, Version::VKHEADER.str().c_str());
+    printf("%s %s\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
     printf("\n");
     printf("Usage\n");
     printf("\tvkconfig [options]\n");

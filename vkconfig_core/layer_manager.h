@@ -15,26 +15,30 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
-#include <cstring>
+#include "layer.h"
+#include "environment.h"
 
-class CommandLine {
+class LayerManager {
    public:
-    enum Mode { ModeGUI, ModeConsole, ModeShowUsage };
+    LayerManager(const Environment& environment);
 
-    CommandLine(int argc, char* argv[]);
-    void usage() const;
+    void Clear();
+    bool Empty() const;
 
-    const Mode& mode;
+    void LoadAllInstalledLayers();
+    void LoadLayersFromPath(const QString& path, std::vector<Layer>& layers);
 
-   private:
-    CommandLine(const CommandLine&) = delete;
-    CommandLine& operator=(const CommandLine&) = delete;
+    QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
+                                // a list of paths that should be searched first for
+                                // Vulkan layers. (Named as environment variable for
+                                // clarity as to where this comes from).
 
-    Mode _mode;
+    std::vector<Layer> available_layers;
+
+    const Environment& environment;
 };

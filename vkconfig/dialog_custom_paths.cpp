@@ -48,7 +48,7 @@ void CustomPathsDialog::on_pushButtonAdd_clicked() {
 
     if (!custom_path.isEmpty()) {
         if (configurator.environment.AppendCustomLayerPath(custom_path)) {
-            configurator.LoadAllInstalledLayers();
+            configurator.layers.LoadAllInstalledLayers();
             configurator.LoadAllConfigurations();
         }
 
@@ -80,7 +80,7 @@ void CustomPathsDialog::on_pushButtonRemove_clicked() {
 
     // Now actually remove it.
     if (configurator.environment.RemoveCustomLayerPath(selected->text(0))) {
-        configurator.LoadAllInstalledLayers();
+        configurator.layers.LoadAllInstalledLayers();
         configurator.LoadAllConfigurations();
     }
 

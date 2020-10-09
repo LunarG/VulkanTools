@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     const CommandLine command_line(argc, argv);
 
     switch (command_line.mode) {
-        case CommandLine::ModeExecute: {
+        case CommandLine::ModeGUI: {
             QCoreApplication::setOrganizationName("LunarG");
             QCoreApplication::setOrganizationDomain("lunarg.com");
 
@@ -78,7 +78,10 @@ int main(int argc, char* argv[]) {
             main_window.show();
 
             return app.exec();
-        } break;
+        }
+        case CommandLine::ModeConsole: {
+            return 0;
+        }
         case CommandLine::ModeShowUsage: {
             command_line.usage();
             return 0;

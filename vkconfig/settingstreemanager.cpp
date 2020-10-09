@@ -66,7 +66,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             Parameter &parameter = configuration->parameters[i];
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-            const std::vector<Layer> &available_layers = Configurator::Get().available_layers;
+            const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
             const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
 
             QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -104,10 +104,10 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             Parameter &parameter = configuration->parameters[i];
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
-            const std::vector<Layer>::const_iterator layer = Find(Configurator::Get().available_layers, parameter.name);
+            const std::vector<Layer>::const_iterator layer = Find(Configurator::Get().layers.available_layers, parameter.name);
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, parameter.name + (layer != Configurator::Get().available_layers.end() ? "" : " (Missing)"));
+            child->setText(0, parameter.name + (layer != Configurator::Get().layers.available_layers.end() ? "" : " (Missing)"));
             excluded_layers->addChild(child);
         }
 
@@ -131,7 +131,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
 
     Configurator &configurator = Configurator::Get();
-    std::vector<Layer> &available_layers = configurator.available_layers;
+    std::vector<Layer> &available_layers = configurator.layers.available_layers;
     const std::vector<Layer>::const_iterator validation_layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
 
     _validation_presets_combo_box = new QComboBox();
@@ -298,6 +298,7 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
 
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
     std::vector<LayerSetting> &settings = parameter.settings;
+    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
     for (std::size_t setting_index = 0, n = settings.size(); setting_index < n; setting_index++) {
         LayerSetting &setting = settings[setting_index];
@@ -310,9 +311,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             {
                 // Don't display "emulate_portability" setting if the layer doesn't support it
                 if (setting.key == "emulate_portability" && parameter.name == "VK_LAYER_LUNARG_device_simulation") {
-                    std::vector<Layer>::iterator layer =
-                        Find(Configurator::Get().available_layers, "VK_LAYER_LUNARG_device_simulation");
-                    if (layer != Configurator::Get().available_layers.end()) {
+                    std::vector<Layer>::iterator layer = Find(available_layers, "VK_LAYER_LUNARG_device_simulation");
+                    if (layer != available_layers.end()) {
                         if (Version(layer->_implementation_version) <= Version("1.3.0")) break;
                     }
                 }
