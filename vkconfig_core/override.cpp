@@ -195,3 +195,13 @@ bool OverrideLayers(const Environment& environment, const std::vector<Layer>& av
 
     return result_settings && result_override;
 }
+
+bool HasOverriddenLayers(const Environment& environment) {
+    const QString override_settings_path = environment.paths.GetFullPath(PATH_OVERRIDE_SETTINGS);
+    const QString override_layers_path = environment.paths.GetFullPath(PATH_OVERRIDE_LAYERS);
+
+    const QFileInfo override_settings_file_info(override_layers_path);
+    const QFileInfo override_layers_file_info(override_settings_path);
+
+    return override_settings_file_info.exists() || override_layers_file_info.exists();
+}

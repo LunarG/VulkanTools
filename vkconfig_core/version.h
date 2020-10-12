@@ -27,9 +27,11 @@
 #include <QString>
 
 static const char *VKCONFIG_NAME = "Vulkan Configurator";
+static const char *VKCONFIG_SHORT_NAME = "vkconfig";
 
 static const bool SUPPORT_VKCONFIG_2_0_0 = true;
 static const bool SUPPORT_VKCONFIG_2_0_1 = true;
+static const bool SUPPORT_VKCONFIG_2_0_2 = true;
 
 class Version {
    public:

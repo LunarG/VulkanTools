@@ -29,3 +29,6 @@ bool OverrideLayers(const Environment& environment, const std::vector<Layer>& av
 
 // Remove the VkLayer_override.json and vk_layer_settings.txt files to return full control of the layers to the Vulkan applications
 bool SurrenderLayers(const Environment& environment);
+
+// Check whether a layers configuration is activated
+bool HasOverriddenLayers(const Environment& environment);

@@ -29,11 +29,15 @@ SOURCES += \
     ../vkconfig_core/command_line.cpp \
     ../vkconfig_core/configuration.cpp \
     ../vkconfig_core/environment.cpp \
+    ../vkconfig_core/help.cpp \
     ../vkconfig_core/layer.cpp \
+    ../vkconfig_core/layer_manager.cpp \
     ../vkconfig_core/layer_setting.cpp \
     ../vkconfig_core/layer_type.cpp \
+    ../vkconfig_core/override.cpp \
     ../vkconfig_core/parameter.cpp \
     ../vkconfig_core/path_manager.cpp \
+    ../vkconfig_core/registry.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
     vulkan.cpp \
@@ -53,6 +57,8 @@ SOURCES += \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
     main.cpp \
+    main_gui.cpp \
+    main_layers.cpp \
     mainwindow.cpp \
     settingstreemanager.cpp \
     khronossettingsadvanced.cpp \
@@ -64,11 +70,15 @@ HEADERS += \
     ../vkconfig_core/command_line.h \
     ../vkconfig_core/configuration.h \
     ../vkconfig_core/environment.h \
+    ../vkconfig_core/help.h \
     ../vkconfig_core/layer.h \
+    ../vkconfig_core/layer_manager.h \
     ../vkconfig_core/layer_setting.h \
     ../vkconfig_core/layer_type.h \
+    ../vkconfig_core/override.h \
     ../vkconfig_core/parameter.h \
     ../vkconfig_core/path_manager.h \
+    ../vkconfig_core/registry.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \
     vulkan.h \
@@ -88,6 +98,8 @@ HEADERS += \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
     khronossettingsadvanced.h \
+    main_gui.h \
+    main_layers.h \
     mainwindow.h \
     settingstreemanager.h \
     configurator.h
