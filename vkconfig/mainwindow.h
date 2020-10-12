@@ -157,3 +157,5 @@ class MainWindow : public QMainWindow {
 
     std::unique_ptr<Ui::MainWindow> ui;
 };
+
+int run_gui(int argc, char *argv[]);

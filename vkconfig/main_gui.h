@@ -20,24 +20,4 @@
 
 #pragma once
 
-#ifdef _WIN32
-#define PLATFORM_WINDOWS 1
-#define PLATFORM_LINUX 0
-#define PLATFORM_MACOS 0
-
-#elif defined(__linux__)
-#define PLATFORM_WINDOWS 0
-#define PLATFORM_LINUX 1
-#define PLATFORM_MACOS 0
-
-#elif defined(__APPLE__)
-#define PLATFORM_WINDOWS 0
-#define PLATFORM_LINUX 0
-#define PLATFORM_MACOS 1
-
-#else
-#error "Unknown platform"
-#endif
-
-#define HAS_SHADER_BASED (PLATFORM_WINDOWS || PLATFORM_LINUX)
-#define HAS_GFXRECONSTRUCT (PLATFORM_WINDOWS || PLATFORM_LINUX)
+int run_gui(int argc, char* argv[]);

@@ -11,6 +11,11 @@
 
 # Release notes
 
+## [Vulkan Configurator 2.0.3](https://github.com/LunarG/VulkanTools/tree/master) - 2020-12-XX
+
+### Features:
+- Add command line arguments to manage layers override #1213
+
 ## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-05
 
 ### Features:

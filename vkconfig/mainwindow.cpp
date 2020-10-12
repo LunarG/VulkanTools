@@ -36,6 +36,7 @@
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
+#include "../vkconfig_core/help.h"
 
 #include <QProcess>
 #include <QDir>
@@ -47,7 +48,6 @@
 #include <QContextMenuEvent>
 #include <QFileDialog>
 #include <QLineEdit>
-#include <QDesktopServices>
 
 #if PLATFORM_LINUX || PLATFORM_MACOS
 #include <unistd.h>
@@ -536,31 +536,20 @@ void MainWindow::toolsVulkanInstallation(bool checked) {
 
 void MainWindow::helpShowHelp(bool checked) {
     (void)checked;
-    QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/vkconfig.html"));
+
+    ShowDoc(DOC_VKCONFIG_README);
 }
 
 void MainWindow::helpShowVulkanSpec(bool checked) {
     (void)checked;
-    if (PLATFORM_WINDOWS)
-        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/1.2-extensions/vkspec.html"));
-    else if (PLATFORM_MACOS)
-        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/1.2-extensions/vkspec.html"));
-    else if (PLATFORM_LINUX)
-        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/1.2-extensions/vkspec.html"));
-    else
-        assert(0);  //"Unknown platform"
+
+    ShowDoc(DOC_VULKAN_SPEC);
 }
 
 void MainWindow::helpShowLayerSpec(bool checked) {
     (void)checked;
-    if (PLATFORM_WINDOWS)
-        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html"));
-    else if (PLATFORM_MACOS)
-        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/mac/layer_configuration.html"));
-    else if (PLATFORM_LINUX)
-        QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/linux/layer_configuration.html"));
-    else
-        assert(0);  //"Unknown platform"
+
+    ShowDoc(DOC_VULKAN_LAYERS);
 }
 
 /// The only thing we need to do here is clear the configuration if

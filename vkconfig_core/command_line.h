@@ -21,20 +21,53 @@
 
 #pragma once
 
-#include <cstring>
+#include <string>
+#include <vector>
+
+enum CommandType { COMMAND_NONE = 0, COMMAND_SHOW_USAGE, COMMAND_VERSION, COMMAND_GUI, COMMAND_LAYERS };
+enum CommandLayersArg {
+    COMMAND_LAYERS_NONE = 0,
+    COMMAND_LAYERS_OVERRIDE,
+    COMMAND_LAYERS_SURRENDER,
+    COMMAND_LAYERS_LIST,
+    COMMAND_LAYERS_VERBOSE
+};
+enum CommandError {
+    ERROR_NONE = 0,
+    ERROR_INVALID_COMMAND_USAGE,
+    ERROR_INVALID_COMMAND_ARGUMENT,
+    ERROR_TOO_MANY_COMMAND_ARGUMENTS,
+    ERROR_MISSING_COMMAND_ARGUMENT,
+    ERROR_UNKNOWN_ARGUMENT,
+    ERROR_FILE_NOTFOUND
+};
+
+enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_GUI, HELP_LAYERS };
 
 class CommandLine {
    public:
-    enum Mode { ModeGUI, ModeConsole, ModeShowUsage };
-
     CommandLine(int argc, char* argv[]);
+    void log() const;
     void usage() const;
+    void version() const;
 
-    const Mode& mode;
+    const CommandType& command;
+    const CommandLayersArg& command_layers_arg;
+    const std::string& layers_configuration_path;
+
+    const CommandError& error;
+    const std::vector<std::string>& error_args;
 
    private:
     CommandLine(const CommandLine&) = delete;
     CommandLine& operator=(const CommandLine&) = delete;
 
-    Mode _mode;
+    CommandType _command;
+    CommandLayersArg _command_layers_arg;
+    std::string _layers_configuration_path;
+
+    CommandError _error;
+    std::vector<std::string> _error_args;
+
+    HelpType _help;
 };

@@ -130,9 +130,9 @@ QString GenerateVulkanStatus() {
     VkApplicationInfo app = {};
     app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app.pNext = NULL;
-    app.pApplicationName = APP_SHORT_NAME;
+    app.pApplicationName = VKCONFIG_SHORT_NAME;
     app.applicationVersion = 0;
-    app.pEngineName = APP_SHORT_NAME;
+    app.pEngineName = VKCONFIG_SHORT_NAME;
     app.engineVersion = 0;
     app.apiVersion = VK_API_VERSION_1_0;
 

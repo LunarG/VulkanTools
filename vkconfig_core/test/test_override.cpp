@@ -42,7 +42,7 @@ TEST(test_override, override_and_surrender) {
     EXPECT_EQ(true, OverrideLayers(environment, available_layers, configuration));
     EXPECT_EQ(true, SurrenderLayers(environment));
 
-    environment.Reset(Environment::SYSTEM);  // Don't change the system settings
+    environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
 
 TEST(test_override, missing_layers) {
@@ -58,5 +58,5 @@ TEST(test_override, missing_layers) {
     EXPECT_EQ(false, OverrideLayers(environment, std::vector<Layer>(), configuration));
     EXPECT_EQ(true, SurrenderLayers(environment));
 
-    environment.Reset(Environment::SYSTEM);  // Don't change the system settings
+    environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
