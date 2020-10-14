@@ -36,9 +36,6 @@
 
 #include <vector>
 
-void RemoveString(QString& delimited_string, QString value);
-void AppendString(QString& delimited_string, QString value);
-
 class Layer {
    public:
     Layer();

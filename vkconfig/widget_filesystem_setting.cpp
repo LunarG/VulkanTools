@@ -36,7 +36,7 @@ FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, LayerSet
     item->setToolTip(0, layer_setting.description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_setting.value);
+    _line_edit->setText(_layer_setting.defaults[0]);
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -80,14 +80,23 @@ void FileSystemSettingWidget::browseButtonClicked() {
 
     if (!file.isEmpty()) {
         file = QDir::toNativeSeparators(file);
-        _layer_setting.value = file;
+        if (_layer_setting.defaults.empty()) {
+            _layer_setting.defaults.push_back(file);
+        } else {
+            _layer_setting.defaults[0] = file;
+        }
         _line_edit->setText(file);
         emit itemChanged();
     }
 }
 
 void FileSystemSettingWidget::textFieldChanged(const QString& new_text) {
-    _layer_setting.value = new_text;
+    if (_layer_setting.defaults.empty()) {
+        _layer_setting.defaults.push_back(new_text);
+    } else {
+        _layer_setting.defaults[0] = new_text;
+    }
+
     emit itemChanged();
 }
 

@@ -29,32 +29,6 @@
 
 #include <cassert>
 
-// delimited string is a comma delimited string. If value is found remove it
-void RemoveString(QString& delimitedString, QString value) {
-    // Well, it's not there now is it...
-    if (!delimitedString.contains(value)) return;
-
-    QStringList list = delimitedString.split(",");
-    for (int i = 0; i < list.size(); i++)
-        if (list[i] == value) {
-            list.removeAt(i);
-            break;
-        }
-
-    delimitedString = list.join(",");
-}
-
-// Pretty simple, add to list if it's not already in it
-void AppendString(QString& delimitedString, QString value) {
-    // Do I have anything to do?
-    if (delimitedString.contains(value))  // Nope
-        return;
-
-    if (!delimitedString.isEmpty()) delimitedString += ",";
-
-    delimitedString += value;
-}
-
 enum LayerID {
     LAYER_THIRD_PARTY = -1,
     LAYER_KHRONOS_VALIDATION = 0,
@@ -111,9 +85,10 @@ QString GetBuiltinFolder(const Version& version) {
     */
 }
 
-Layer::Layer() {}
+Layer::Layer() : _default_preset_index(PRESET_INDEX_USER_DEFINED) {}
 
-Layer::Layer(const QString& name, const LayerType layer_type) : name(name), _layer_type(layer_type) {}
+Layer::Layer(const QString& name, const LayerType layer_type)
+    : name(name), _layer_type(layer_type), _default_preset_index(PRESET_INDEX_USER_DEFINED) {}
 
 Layer::Layer(const QString& name, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const QString& implementation_version, const QString& library_path, const QString& type)
@@ -232,7 +207,7 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     }
     {
         const QJsonValue value = json_object_layer.value("presets");
-        if (value != QJsonValue::Undefined) {
+        if (value != QJsonValue::Undefined && value.isArray()) {
             LoadLayerPresets(value, presets);
         }
     }

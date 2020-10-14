@@ -47,19 +47,17 @@ enum SettingType {  // Enum value can't be changed
 enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
 
 struct LayerSetting {
-    QString key;                   // Name of the setting the layer looks for (programatic variable name)
-    QString label;                 // Short name to prompt end user
-    StatusType status;             // Is the setting qualified as "stable", "beta" or "alpha"
-    int platform_flags;            // Platforms on which the setting is supported
-    QString description;           // Human version, describes the setting
-    SettingType type;              // The data type
-    QVariant max_value;            // For range based
-    QVariant min_value;            // For range based
-    QStringList exclusive_values;  // List of exclusive items
-    QStringList exclusive_labels;  // List of exclusive item prompts
-    QStringList inclusive_values;  // List of non-exclusive items (more than one item can be selected)
-    QStringList inclusive_labels;  // List of non-exclusive item prompts (more than one item can be selected)
-    QString value;                 // Default value as a string
+    QString key;                    // Name of the setting the layer looks for (programatic variable name)
+    QString label;                  // Short name to prompt end user
+    StatusType status;              // Is the setting qualified as "stable", "beta" or "alpha"
+    int platform_flags;             // Platforms on which the setting is supported
+    QString description;            // Human version, describes the setting
+    SettingType type;               // The data type
+    QVariant max_value;             // For range based
+    QVariant min_value;             // For range based
+    std::vector<QString> labels;    // List of labels
+    std::vector<QString> values;    // List of values
+    std::vector<QString> defaults;  // List of default values
 };
 
 bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerSetting>& settings);
@@ -69,3 +67,5 @@ LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);
 
 SettingType GetSettingType(const char* token);
 const char* GetSettingTypeToken(SettingType type);
+
+bool IsStringFound(const std::vector<QString>& data, const QString& token);

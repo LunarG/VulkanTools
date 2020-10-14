@@ -32,10 +32,12 @@ enum { PRESET_INDEX_USER_DEFINED = -1 };
 
 struct PresetSetting {
     QString key;
-    QString value;  // Todo std::vector<std::string> values
+    std::vector<QString> values;
 };
 
 struct Preset {
+    Preset();
+
     int index;
     QString label;
     int platforms_flags;  // PlatformFlags

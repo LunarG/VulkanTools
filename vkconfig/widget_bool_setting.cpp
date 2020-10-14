@@ -30,12 +30,16 @@ BoolSettingWidget::BoolSettingWidget(LayerSetting& layer_setting, SettingType se
 
     setText(layer_setting.label);
     setToolTip(layer_setting.description);
-    setChecked(layer_setting.value == GetToken(true, setting_type));
+    setChecked(layer_setting.defaults[0] == GetToken(true, setting_type));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
 void BoolSettingWidget::itemToggled() {
-    _layer_setting.value = isChecked() ? _true_token : _false_token;
+    if (_layer_setting.defaults.empty()) {
+        _layer_setting.defaults.push_back(isChecked() ? _true_token : _false_token);
+    } else {
+        _layer_setting.defaults[0] = isChecked() ? _true_token : _false_token;
+    }
 
     emit itemChanged();
 }

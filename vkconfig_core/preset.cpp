@@ -20,12 +20,30 @@
  */
 
 #include "preset.h"
+#include "util.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
 
-static int GetPlatformFlags(QString value) {
-    // TODO
+Preset::Preset()
+    : index(-1), platforms_flags(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT), status(STATUS_STABLE) {}
+
+struct PlatformDesc {
+    PlatformType type;
+    const char* token;
+};
+
+static int GetPlatformFlags(const QString& value) {
+    static const PlatformDesc platform_table[] = {
+        {PLATFORM_WINDOWS, "Windows"}, {PLATFORM_LINUX, "Linux"}, {PLATFORM_MACOS, "macOS"}};
+
+    for (std::size_t i = 0, n = countof(platform_table); i < n; ++i) {
+        if (value != platform_table[i].token) continue;
+
+        return 1 << platform_table[i].type;
+    }
+
+    assert(0);
     return 0;
 }
 
@@ -41,7 +59,7 @@ bool LoadLayerPresets(const QJsonValue& json_layer_presets, std::vector<Preset>&
 
         {
             const QJsonValue& json_value = json_preset.value("index");
-            assert(json_value != QJsonValue::Undefined && json_value.isString());
+            assert(json_value != QJsonValue::Undefined && !json_value.isString());
             preset.index = json_value.toInt();
         }
         {
@@ -52,7 +70,11 @@ bool LoadLayerPresets(const QJsonValue& json_layer_presets, std::vector<Preset>&
         {
             const QJsonValue& json_value = json_preset.value("platform");
             assert(json_value != QJsonValue::Undefined && json_value.isArray());
-            preset.platforms_flags = GetPlatformFlags(json_value.toString());
+            preset.platforms_flags = 0;
+            const QJsonArray& json_array = json_value.toArray();
+            for (int j = 0, m = json_array.size(); j < m; ++j) {
+                preset.platforms_flags |= GetPlatformFlags(json_array[j].toString());
+            }
         }
         {
             const QJsonValue& json_value = json_preset.value("status");
@@ -80,8 +102,10 @@ bool LoadLayerPresets(const QJsonValue& json_layer_presets, std::vector<Preset>&
                 {
                     const QJsonValue& json_value = json_setting.value("values");
                     assert(json_value != QJsonValue::Undefined && json_value.isArray());
-                    // TODO
-                    // preset_setting.value = json_value.toString();
+                    const QJsonArray& json_array = json_value.toArray();
+                    for (int j = 0, m = json_array.size(); j < m; ++j) {
+                        preset_setting.values.push_back(json_array[j].toString());
+                    }
                 }
 
                 preset.settings.push_back(preset_setting);

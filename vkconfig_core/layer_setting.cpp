@@ -28,6 +28,14 @@
 
 #include <cassert>
 
+bool IsStringFound(const std::vector<QString>& data, const QString& token) {
+    for (std::size_t i = 0, n = data.size(); i < n; ++i) {
+        if (data[i] == token) return true;
+    }
+
+    return false;
+}
+
 SettingType GetSettingType(const char* token) {
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
@@ -101,11 +109,10 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
         if (json_default.isArray()) {
             const QJsonArray& json_array = json_default.toArray();
             for (int i = 0, n = json_array.size(); i < n; ++i) {
-                setting.value += json_array[i].toString();
-                if (i != json_array.size() - 1) setting.value += ",";
+                setting.values.push_back(json_array[i].toString());
             }
         } else
-            setting.value = json_default.toString();
+            setting.values.push_back(json_default.toString());
 
         switch (setting.type) {
             case SETTING_EXCLUSIVE_LIST:
@@ -118,20 +125,13 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
                 for (int v = 0; v < keys.size(); v++) {
                     QString key = keys[v];
                     const QString value = object.value(key).toString();
-
-                    if (setting.type == SETTING_INCLUSIVE_LIST) {
-                        setting.inclusive_values << key;
-                        setting.inclusive_labels << value;
-                    } else if (setting.type == SETTING_EXCLUSIVE_LIST) {
-                        setting.exclusive_values << key;
-                        setting.exclusive_labels << value;
-                    } else
-                        assert(0);
+                    setting.values.push_back(key);
+                    setting.labels.push_back(value);
                 }
             } break;
             case SETTING_SAVE_FILE: {
-                setting.value = ValidatePath(setting.value.toStdString()).c_str();
-                setting.value = ReplacePathBuiltInVariables(setting.value.toStdString()).c_str();
+                setting.values[0] = ValidatePath(setting.values[0].toStdString()).c_str();
+                setting.values[0] = ReplacePathBuiltInVariables(setting.values[0].toStdString()).c_str();
             } break;
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER:
@@ -177,16 +177,18 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& j
             case SETTING_BOOL_NUMERIC:
             case SETTING_VUID_FILTER:
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.value);
+                json_setting.insert("default", setting.values[0]);
                 break;
 
             case SETTING_EXCLUSIVE_LIST: {
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.value);
+                json_setting.insert("default", setting.values[0]);
 
                 QJsonObject options;
-                for (int i = 0; i < setting.exclusive_labels.size(); i++)
-                    options.insert(setting.exclusive_values[i], setting.exclusive_labels[i]);
+                for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) {
+                    options.insert(setting.values[i], setting.labels[i]);
+                }
+
                 json_setting.insert("options", options);
             } break;
 
@@ -194,25 +196,25 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& j
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
 
                 QJsonObject options;
-                for (int i = 0; i < setting.inclusive_labels.size(); i++)
-                    options.insert(setting.inclusive_values[i], setting.inclusive_labels[i]);
+                for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) {
+                    options.insert(setting.values[i], setting.labels[i]);
+                }
                 json_setting.insert("options", options);
 
                 QJsonArray defaults;
-                if (!setting.value.isEmpty()) {
-                    QStringList list = setting.value.split(",");
-                    for (int i = 0; i < list.size(); i++) defaults.append(list[i]);
+                for (std::size_t i = 0; i < setting.values.size(); ++i) {
+                    defaults.append(setting.values[i]);
                 }
-
                 json_setting.insert("default", defaults);
             } break;
 
             // There is a string field that is actually a complicted series of number or
             // ranges of numbers. We should at some point add this to allow more error free editing of it.
             case SETTING_RANGE_INT:
-            default:
                 assert(0);
                 break;
+            default: {
+            }
         }
 
         json_settings.insert(setting.key, json_setting);

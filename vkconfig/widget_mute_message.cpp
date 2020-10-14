@@ -37,9 +37,8 @@ MuteMessageWidget::MuteMessageWidget(LayerSetting &layer_setting) : QWidget(null
     _remove_button->show();
 
     // Load with existing settings
-    if (!_layer_setting.value.isEmpty()) {
-        QStringList list = _layer_setting.value.split(",");
-        _list_widget->addItems(list);
+    if (!_layer_setting.defaults.empty()) {
+        for (std::size_t i = 0, n = _layer_setting.defaults.size(); i < n; ++i) _list_widget->addItem(_layer_setting.defaults[i]);
         _list_widget->setCurrentRow(_list_widget->count() - 1);
     } else
         _remove_button->setEnabled(false);
@@ -61,7 +60,7 @@ void MuteMessageWidget::addItem(const QString &item) {
     _list_widget->setCurrentRow(_list_widget->count() - 1);
 
     // Update Setting
-    AppendString(_layer_setting.value, item);
+    _layer_setting.defaults.push_back(item);
     _remove_button->setEnabled(true);
     emit itemChanged();
 }
@@ -74,7 +73,9 @@ void MuteMessageWidget::removePushed() {
     _list_widget->takeItem(row);
 
     // Update Setting
-    RemoveString(_layer_setting.value, item_name);
+    auto it = std::find(_layer_setting.defaults.begin(), _layer_setting.defaults.end(), item_name);
+    _layer_setting.defaults.erase(it);
+
     emit itemChanged();
     emit itemRemoved(item_name);
 }

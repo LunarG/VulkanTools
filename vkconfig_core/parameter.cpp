@@ -134,12 +134,10 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
         // The easy stuff...
         const QJsonValue& json_value_description = json_object.value("description");
         assert(json_value_description != QJsonValue::Undefined);
-
         setting.description = json_value_description.toString();
 
         const QJsonValue& json_value_name = json_object.value("name");
         assert(json_value_name != QJsonValue::Undefined);
-
         setting.label = json_value_name.toString();
 
         // This is either a single value, or a comma delimted set of strings
@@ -148,12 +146,11 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
         if (json_value_default.isArray()) {
             const QJsonArray& array = json_value_default.toArray();
             for (int a = 0; a < array.size(); a++) {
-                setting.value += array[a].toString();
-                if (a != array.size() - 1) setting.value += ",";
+                setting.defaults.push_back(array[a].toString());
             }
 
         } else
-            setting.value = json_value_default.toString();
+            setting.defaults.push_back(json_value_default.toString());
 
         // Everything from here down revolves around the data type
         // Data types and values start getting a little more involved.
@@ -186,19 +183,13 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
                     // Remove ignore now that we are an inclusive list instead of exclusive
                     if (convert_debug_action_to_inclusive && key == "VK_DBG_LAYER_ACTION_IGNORE") continue;
 
-                    if (setting.type == SETTING_INCLUSIVE_LIST) {
-                        setting.inclusive_values << key;
-                        setting.inclusive_labels << value;
-                    } else if (setting.type == SETTING_EXCLUSIVE_LIST) {
-                        setting.exclusive_values << key;
-                        setting.exclusive_labels << value;
-                    } else
-                        assert(0);
+                    setting.values.push_back(key);
+                    setting.labels.push_back(value);
                 }
             } break;
             case SETTING_SAVE_FILE: {
-                setting.value = ValidatePath(setting.value.toStdString()).c_str();
-                setting.value = ReplacePathBuiltInVariables(setting.value.toStdString()).c_str();
+                setting.defaults[0] = ValidatePath(setting.defaults[0].toStdString()).c_str();
+                setting.defaults[0] = ReplacePathBuiltInVariables(setting.defaults[0].toStdString()).c_str();
             } break;
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER:
@@ -224,7 +215,7 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
             setting.label = "Duplicated messages limit";
             setting.description = "Limit the number of times any single validation message would be reported. Empty is unlimited.";
             setting.type = SETTING_STRING;
-            setting.value = "10";
+            setting.defaults.push_back("10");
 
             parameter.settings.push_back(setting);
         }
@@ -259,16 +250,15 @@ bool SaveConfigurationSettings(const Parameter& parameter, QJsonObject& json_set
             case SETTING_BOOL_NUMERIC:
             case SETTING_VUID_FILTER:
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.value);
+                json_setting.insert("default", setting.defaults[0]);
                 break;
 
             case SETTING_EXCLUSIVE_LIST: {
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.value);
+                json_setting.insert("default", setting.defaults[0]);
 
                 QJsonObject options;
-                for (int i = 0; i < setting.exclusive_labels.size(); i++)
-                    options.insert(setting.exclusive_values[i], setting.exclusive_labels[i]);
+                for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) options.insert(setting.values[i], setting.labels[i]);
                 json_setting.insert("options", options);
             } break;
 
@@ -276,16 +266,11 @@ bool SaveConfigurationSettings(const Parameter& parameter, QJsonObject& json_set
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
 
                 QJsonObject options;
-                for (int i = 0; i < setting.inclusive_labels.size(); i++)
-                    options.insert(setting.inclusive_values[i], setting.inclusive_labels[i]);
+                for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) options.insert(setting.values[i], setting.labels[i]);
                 json_setting.insert("options", options);
 
                 QJsonArray defaults;
-                if (!setting.value.isEmpty()) {
-                    QStringList list = setting.value.split(",");
-                    for (int i = 0; i < list.size(); i++) defaults.append(list[i]);
-                }
-
+                for (std::size_t i = 0, n = setting.defaults.size(); i < n; ++i) defaults.append(setting.defaults[i]);
                 json_setting.insert("default", defaults);
             } break;
 

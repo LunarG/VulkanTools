@@ -151,12 +151,12 @@ static bool WriteLayerSettings(const PathManager& path, const std::vector<Layer>
         for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
             const LayerSetting& setting = parameter.settings[i];
 
-            if (layer->name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
-                stream << "lunarg_gfxrecon"
-                       << "." << setting.key << " = " << setting.value << "\n";
-            } else {
-                stream << lc_layer_name << "." << setting.key << " = " << setting.value << "\n";
+            stream << lc_layer_name << "." << setting.key << " = ";
+            for (std::size_t i = 0, n = setting.defaults.size(); i < n; ++i) {
+                stream << setting.defaults[i];
+                if (i < n - 1) stream << ",";
             }
+            stream << "\n";
         }
     }
     file.close();

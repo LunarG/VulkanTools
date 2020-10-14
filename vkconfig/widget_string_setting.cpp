@@ -29,11 +29,11 @@ StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, LayerSetting& la
 
     item->setText(0, layer_setting.label);
     item->setToolTip(0, layer_setting.description);
-    this->setText(layer_setting.value);
+    this->setText(layer_setting.defaults[0]);
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
 void StringSettingWidget::itemEdited(const QString& new_string) {
-    _layer_setting.value = new_string;
+    _layer_setting.defaults[0] = new_string;
     emit itemChanged();
 }
