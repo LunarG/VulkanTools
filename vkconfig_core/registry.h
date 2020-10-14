@@ -33,4 +33,4 @@ void RemoveRegistryEntriesForLayers(bool running_as_administrator, QString overr
 
 void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type);
 
-#endif //VKC_PLATFORM_WINDOWS
+#endif

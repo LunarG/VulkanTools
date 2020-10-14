@@ -210,11 +210,10 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& j
 
             // There is a string field that is actually a complicted series of number or
             // ranges of numbers. We should at some point add this to allow more error free editing of it.
+            default:
             case SETTING_RANGE_INT:
                 assert(0);
                 break;
-            default: {
-            }
         }
 
         json_settings.insert(setting.key, json_setting);
