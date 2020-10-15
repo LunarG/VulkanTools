@@ -33,8 +33,6 @@ static bool operator==(const Configuration& a, const Configuration& b) {
         return false;
     else if (a._setting_tree_state != b._setting_tree_state)
         return false;
-    else if (a._preset != b._preset)
-        return false;
     else if (a.parameters != b.parameters)
         return false;
     return true;
@@ -55,15 +53,11 @@ static bool operator==(const LayerSetting& a, const LayerSetting& b) {
         return false;
     else if (a.min_value != b.min_value)
         return false;
-    else if (a.exclusive_values != b.exclusive_values)
+    else if (a.values != b.values)
         return false;
-    else if (a.exclusive_labels != b.exclusive_labels)
+    else if (a.labels != b.labels)
         return false;
-    else if (a.inclusive_values != b.inclusive_values)
-        return false;
-    else if (a.inclusive_labels != b.inclusive_labels)
-        return false;
-    else if (a.value != b.value)
+    else if (a.defaults != b.defaults)
         return false;
     return true;
 }
@@ -107,7 +101,6 @@ TEST(test_configuration, load_and_save_v2_0_1_api_dump) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetNone, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
@@ -128,7 +121,6 @@ TEST(test_configuration, load_and_save_v2_0_1_frame_capture) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetNone, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
@@ -149,7 +141,6 @@ TEST(test_configuration, load_and_save_v2_0_2_frame_capture) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetNone, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
@@ -170,7 +161,6 @@ TEST(test_configuration, load_and_save_v2_0_1_gpu_assisted) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetGPUAssisted, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
@@ -191,7 +181,6 @@ TEST(test_configuration, load_and_save_v2_0_2_gpu_assisted) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetGPUAssisted, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
@@ -212,7 +201,6 @@ TEST(test_configuration, load_and_save_v2_0_1_shader_printf) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetDebugPrintf, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
@@ -233,7 +221,6 @@ TEST(test_configuration, load_and_save_v2_0_2_debug_printf) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetDebugPrintf, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
@@ -254,7 +241,6 @@ TEST(test_configuration, load_and_save_v2_0_1_best_practices) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetBestPractices, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
@@ -275,7 +261,6 @@ TEST(test_configuration, load_and_save_v2_0_2_best_practices) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
-    EXPECT_EQ(ValidationPresetBestPractices, configuration_loaded._preset);
     EXPECT_TRUE(!configuration_loaded._description.isEmpty());
 
     auto parameter = FindParameter(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
@@ -378,7 +363,6 @@ TEST(test_configuration, load_standard) {
 
     EXPECT_STREQ("Validation - Standard", configuration.name.toStdString().c_str());
     EXPECT_EQ(1, configuration.parameters.size());
-    EXPECT_EQ(ValidationPresetStandard, configuration._preset);
     EXPECT_TRUE(!configuration._description.isEmpty());
 }
 

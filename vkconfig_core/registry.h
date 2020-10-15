@@ -25,7 +25,7 @@
 
 #include <QString>
 
-#if VKC_PLATFORM_WINDOWS
+#if VKC_PLATFORM == PLATFORM_WINDOWS
 
 void AppendRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
 

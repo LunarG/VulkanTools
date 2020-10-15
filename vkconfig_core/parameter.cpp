@@ -133,8 +133,7 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
 
         // The easy stuff...
         const QJsonValue& json_value_description = json_object.value("description");
-        assert(json_value_description != QJsonValue::Undefined);
-        setting.description = json_value_description.toString();
+        if (json_value_description != QJsonValue::Undefined) setting.description = json_value_description.toString();
 
         const QJsonValue& json_value_name = json_object.value("name");
         assert(json_value_name != QJsonValue::Undefined);

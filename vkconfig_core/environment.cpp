@@ -317,9 +317,9 @@ bool Environment::LoadApplications() {
 }
 
 static QString GetDefaultExecutablePath(const QString& executable_name) {
-    static const char* DEFAULT_PATH = VKC_PLATFORM_MACOS ? "/../.." : "";
+    static const char* DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
 
-    if (VKC_PLATFORM_MACOS) {
+    if (VKC_PLATFORM == PLATFORM_MACOS) {
         // Using the standard install loation on macOS
         {
             const QString search_path = "/Applications/" + executable_name;
@@ -365,7 +365,6 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
     return "";
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // Search for vkcube and add it to the app list.
 void Environment::UpdateDefaultApplications(const bool add_default_applications) {
     std::vector<Application> new_applications;
@@ -382,15 +381,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
     if (!add_default_applications) return;
 
-#if VKC_PLATFORM_WINDOWS
-    static const char* SUFFIX = ".exe";
-#elif VKC_PLATFORM_MACOS
-    static const char* SUFFIX = ".app";
-#elif VKC_PLATFORM_LINUX
-    static const char* SUFFIX = "";
-#else
-#error "Unknown platform"
-#endif
+    const char* suffix = GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
 
     struct Default {
         QString name;
@@ -406,7 +397,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
         for (std::size_t i = 0; i < new_applications.size(); ++i) {
             const Application& application = new_applications[i];
 
-            if (!application.executable_path.endsWith(defaults[name_index].name + SUFFIX)) continue;
+            if (!application.executable_path.endsWith(defaults[name_index].name + suffix)) continue;
 
             found;
             break;
@@ -414,7 +405,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
         if (found) continue;
 
-        const QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + SUFFIX);
+        const QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + suffix);
         if (executable_path.isEmpty()) continue;  // application could not be found..
 
         Application application(executable_path, "--suppress_popups");

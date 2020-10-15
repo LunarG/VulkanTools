@@ -50,11 +50,8 @@ static const DirectoryDesc& GetDesc(Path directory) {
         {"override layers", ".json", nullptr, "VkLayer_override", false, PATH_OVERRIDE_LAYERS},         // PATH_OVERRIDE_LAYERS
         {"configuration import", ".json", "lastImportPath", nullptr, true, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
         {"configuration export", ".json", "lastExportPath", nullptr, true, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
-#if VKC_PLATFORM_WINDOWS
-        {"executable", ".exe", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
-#else
-        {"executable", "", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
-#endif
+        {"executable", GetPlatformString(PLATFORM_STRING_EXE_SUFFIX), "lastExecutablePath", nullptr, true,
+         PATH_WORKING_DIR},                                                                            // PATH_EXECUTABLE
         {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},          // PATH_EXECUTABLE
         {"home path", nullptr, nullptr, nullptr, false, PATH_HOME},                                    // PATH_HOME
         {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},              // PATH_LAUNCHER_LOG_FILE
@@ -86,15 +83,9 @@ PathManager::~PathManager() {
 }
 
 void PathManager::CheckDefaultDirectories() const {
-    if (VKC_PLATFORM_WINDOWS) {
-        CheckHomePathsExist("AppData/Local/LunarG/vkconfig/override");
-    } else if (VKC_PLATFORM_LINUX || VKC_PLATFORM_MACOS) {
-        CheckHomePathsExist(".local/share/vulkan/implicit_layer.d");
-        CheckHomePathsExist(".local/share/vulkan/settings.d");
-        CheckHomePathsExist(".local/share/vulkan/lunarg-vkconfig");
-    } else {
-        assert(0);  // Platform unknown
-    }
+    CheckHomePathsExist(GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
+    CheckHomePathsExist(GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
+    CheckHomePathsExist(GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
 }
 
 bool PathManager::Load() {
@@ -109,17 +100,9 @@ bool PathManager::Load() {
 
     CheckDefaultDirectories();
 
-    if (VKC_PLATFORM_WINDOWS) {
-        SetPath(PATH_CONFIGURATION, QDir::home().path() + "/AppData/Local/LunarG/vkconfig");
-        SetPath(PATH_OVERRIDE_LAYERS, QDir::home().path() + "/AppData/Local/LunarG/vkconfig/override");
-        SetPath(PATH_OVERRIDE_SETTINGS, QDir::home().path() + "/AppData/Local/LunarG/vkconfig/override");
-    } else if (VKC_PLATFORM_LINUX || VKC_PLATFORM_MACOS) {
-        SetPath(PATH_CONFIGURATION, QDir::home().path() + "/.local/share/vulkan/lunarg-vkconfig/");
-        SetPath(PATH_OVERRIDE_LAYERS, QDir::home().path() + "/.local/share/vulkan/implicit_layer.d");
-        SetPath(PATH_OVERRIDE_SETTINGS, QDir::home().path() + "/.local/share/vulkan/settings.d");
-    } else {
-        assert(0);  // Platform unknown
-    }
+    SetPath(PATH_CONFIGURATION, QDir::home().path() + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
+    SetPath(PATH_OVERRIDE_LAYERS, QDir::home().path() + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
+    SetPath(PATH_OVERRIDE_SETTINGS, QDir::home().path() + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
 
     return true;
 }
@@ -200,7 +183,7 @@ QString PathManager::GetFullPath(Path path, const char* filename) const {
 
     const QString path_suffix =
         !file_info.completeSuffix().isEmpty() ? QString(".") + file_info.completeSuffix() : GetDesc(path).default_extension;
-    assert(!path_suffix.isEmpty() || !VKC_PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
+    assert(!path_suffix.isEmpty() || VKC_PLATFORM != PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
 
     const QString full_path = QDir::toNativeSeparators(path_base + "/" + path_filename + path_suffix);
     return full_path;
@@ -256,16 +239,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             return GetFullPath(path, QFileInfo(selected_path).baseName());
         } break;
         case PATH_EXECUTABLE: {
-#if VKC_PLATFORM_MACOS
-            const QString filter("Applications (*.app, *)");
-#elif VKC_PLATFORM_WINDOWS
-            const QString filter("Applications (*.exe)");
-#elif VKC_PLATFORM_LINUX
-            const QString filter("Applications (*)");
-#else
-#error "Unknown platform"
-#endif
-
+            const QString filter = GetPlatformString(PLATFORM_STRING_FILTER);
             const QString selected_path =
                 QFileDialog::getOpenFileName(parent, "Select a Vulkan Executable...", suggested_path, filter);
             if (selected_path.isEmpty())  // The user cancelled

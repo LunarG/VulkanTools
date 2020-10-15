@@ -73,7 +73,7 @@ bool Configuration::Load(const QString& full_path) {
     const QJsonValue& configuration_entry_value = json_top_object.value(key[0]);
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
-    if (SUPPORT_VKCONFIG_2_0_1 && VKC_PLATFORM_MACOS) {
+    if (SUPPORT_VKCONFIG_2_0_1 && VKC_PLATFORM == PLATFORM_MACOS) {
         if (full_path.contains("Validation - Shader Printf.json") || full_path.contains("Validation - Debug Printf.json") ||
             full_path.contains("Validation - GPU-Assisted.json")) {
             return false;
@@ -112,11 +112,6 @@ bool Configuration::Load(const QString& full_path) {
 
         parameters.push_back(parameter);
     }
-
-    /*
-    const QJsonValue& preset_index = configuration_entry_object.value("preset");
-    _preset = static_cast<ValidationPreset>(preset_index.toInt());
-    */
 
     const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
     _setting_tree_state = editor_state.toVariant().toByteArray();

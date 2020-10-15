@@ -215,7 +215,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
     const bool shader_based = IsStringFound(_enables.defaults, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
                               IsStringFound(_enables.defaults, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
 
-    if (VKC_PLATFORM_MACOS) {
+    if (VKC_PLATFORM == PLATFORM_MACOS) {
         _shader_based_box = new QTreeWidgetItem();
         _shader_based_box->setText(0, "Shader-Based Validation");
         _shader_based_box->setCheckState(0, shader_based ? Qt::Checked : Qt::Unchecked);
@@ -258,7 +258,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
             _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
             _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() & ~Qt::ItemIsEnabled);
         }
-    }  // HAS_SHADER_BASED
+    }
 
     // Synchronization
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
@@ -307,7 +307,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
     connect(_main_tree_widget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
     connect(_main_tree_widget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(itemClicked(QTreeWidgetItem *, int)));
 
-    if (VKC_PLATFORM_MACOS) {
+    if (VKC_PLATFORM == PLATFORM_MACOS) {
         connect(_gpu_assisted_radio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
         connect(_debug_printf_radio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
     }
@@ -358,18 +358,19 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *item, int column) {
     }
 
     // GPU Stuff
-    if (VKC_PLATFORM_MACOS && item == _gpu_assisted_box) {
-        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT", url);
-    } else if (VKC_PLATFORM_MACOS && item == _reserve_box) {
-        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT", url);
-    } else if (VKC_PLATFORM_MACOS && item == _debug_printf_box) {
-        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT", url);
-    } else if (VKC_PLATFORM_MACOS && item == _synchronization_box) {
-        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION", url);
+    if (VKC_PLATFORM == PLATFORM_MACOS) {
+        if (item == _gpu_assisted_box) {
+            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT", url);
+        } else if (item == _reserve_box) {
+            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT", url);
+        } else if (item == _debug_printf_box) {
+            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT", url);
+        } else if (item == _synchronization_box) {
+            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION", url);
+        }
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Something was checked or unchecked
 void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     if (column != 0) return;
@@ -409,7 +410,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     }
 
     // Shader based stuff
-    if (VKC_PLATFORM_MACOS && item == _shader_based_box) {  // Just enable/disable the items below it
+    if (VKC_PLATFORM == PLATFORM_MACOS && item == _shader_based_box) {  // Just enable/disable the items below it
         if (_shader_based_box->checkState(0) == Qt::Checked) {
             _debug_printf_radio->setEnabled(true);
             _gpu_assisted_radio->setEnabled(true);
@@ -426,7 +427,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     }
 
     // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
-    if (VKC_PLATFORM_MACOS && item == _debug_printf_box && _debug_printf_radio->isChecked())
+    if (VKC_PLATFORM == PLATFORM_MACOS && item == _debug_printf_box && _debug_printf_radio->isChecked())
         _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
 
     _main_tree_widget->blockSignals(false);
@@ -437,7 +438,7 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     const bool features_to_run_alone[] = {_core_checks_parent->checkState(0) == Qt::Checked,
                                           _synchronization_box->checkState(0) == Qt::Checked,
                                           bestPractices[0].item->checkState(0) == Qt::Checked,
-                                          VKC_PLATFORM_MACOS ? _shader_based_box->checkState(0) == Qt::Checked : false};
+                                          VKC_PLATFORM == PLATFORM_MACOS ? _shader_based_box->checkState(0) == Qt::Checked : false};
 
     int count_enabled_features = 0;
     for (std::size_t i = 0, n = countof(features_to_run_alone); i < n; ++i)
@@ -463,14 +464,14 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
 }
 
 void KhronosSettingsAdvanced::gpuToggled(bool toggle) {
-    if (VKC_PLATFORM_MACOS && toggle) _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
+    if (VKC_PLATFORM == PLATFORM_MACOS && toggle) _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
 
     CollectSettings();
     emit settingChanged();
 }
 
 void KhronosSettingsAdvanced::printfToggled(bool toggle) {
-    if (VKC_PLATFORM_MACOS && toggle) {
+    if (VKC_PLATFORM == PLATFORM_MACOS && toggle) {
         _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
         _reserve_box->setCheckState(0, Qt::Unchecked);
     }
@@ -485,7 +486,7 @@ bool KhronosSettingsAdvanced::CollectSettings() {
     std::vector<QString> disables;
 
     // GPU stuff
-    if (VKC_PLATFORM_MACOS && _shader_based_box->checkState(0) == Qt::Checked) {
+    if (VKC_PLATFORM == PLATFORM_MACOS && _shader_based_box->checkState(0) == Qt::Checked) {
         if (_gpu_assisted_radio->isChecked()) {
             enables.push_back("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
 

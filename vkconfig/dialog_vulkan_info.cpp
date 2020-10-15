@@ -50,15 +50,7 @@ void VulkanInfoDialog::Run() {
     ui->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
-
-    if (VKC_PLATFORM_WINDOWS)
-        vulkan_info->setProgram("vulkaninfoSDK");
-    else if (VKC_PLATFORM_LINUX)
-        vulkan_info->setProgram("vulkaninfo");
-    else if (VKC_PLATFORM_MACOS)
-        vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
-    else
-        assert(0);  // Unknown platform
+    vulkan_info->setProgram(GetPlatformString(PLATFORM_STRING_VULKAN_INFO));
 
     QString filePath = QDir::temp().path();
 
@@ -87,7 +79,6 @@ void VulkanInfoDialog::Run() {
     QString jsonText = file.readAll();
     file.close();
 
-    //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it
     QJsonParseError parseError;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
@@ -106,7 +97,6 @@ void VulkanInfoDialog::Run() {
         return;
     }
 
-    /////////////////////////////////////////////////////////
     // Get the instance version and set that to the header
     QJsonObject jsonTopObject = jsonDoc.object();
     QJsonValue instance = jsonTopObject.value("Vulkan Instance Version");
@@ -115,7 +105,6 @@ void VulkanInfoDialog::Run() {
     QTreeWidgetItem *header = ui->treeWidget->headerItem();
     header->setText(0, output);
 
-    ////////////////////////////////////////////////////////////
     // Setp through each major section and parse.
     // All of these are the top layer nodes on the tree.
     QJsonValue rootObject = jsonTopObject.value(QString("Instance Extensions"));

@@ -171,7 +171,7 @@ bool SurrenderLayers(const Environment& environment) {
     const bool result_override_settings = std::remove(override_settings_path.toUtf8().constData()) == 0;
     const bool result_override_layers = std::remove(override_layers_path.toUtf8().constData()) == 0;
 
-#if VKC_PLATFORM_WINDOWS
+#if VKC_PLATFORM == PLATFORM_WINDOWS
     RemoveRegistryEntriesForLayers(environment.running_as_administrator, override_layers_path, override_settings_path);
 #endif
 
@@ -188,7 +188,7 @@ bool OverrideLayers(const Environment& environment, const std::vector<Layer>& av
         WriteLayerOverride(environment.paths, environment.GetApplications(), available_layers, configuration);
 
     // On Windows only, we need to write these values to the registry
-#if VKC_PLATFORM_WINDOWS
+#if VKC_PLATFORM == PLATFORM_WINDOWS
     AppendRegistryEntriesForLayers(environment.running_as_administrator, environment.paths.GetFullPath(PATH_OVERRIDE_LAYERS),
                                    environment.paths.GetFullPath(PATH_OVERRIDE_SETTINGS));
 #endif

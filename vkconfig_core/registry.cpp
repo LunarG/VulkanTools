@@ -20,7 +20,7 @@
 
 #include "registry.h"
 
-#if VKC_PLATFORM_WINDOWS
+#if VKC_PLATFORM == PLATFORM_WINDOWS
 #include <windows.h>
 #include <winreg.h>
 #include <Cfgmgr32.h>
@@ -193,4 +193,4 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
     }
 }
 
-#endif  // VKC_PLATFORM_WINDOWS
+#endif

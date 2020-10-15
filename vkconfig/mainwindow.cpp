@@ -49,7 +49,7 @@
 #include <QFileDialog>
 #include <QLineEdit>
 
-#if VKC_PLATFORM_LINUX || VKC_PLATFORM_MACOS
+#if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
 #include <unistd.h>
 #endif
 
@@ -61,7 +61,7 @@ bool been_warned_about_old_loader = false;
 static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
-#if VKC_PLATFORM_MACOS
+#if VKC_PLATFORM == VKC_PLATFORM_MACOS
 static const int LAUNCH_ROW_HEIGHT = 26;
 #else
 static const int LAUNCH_ROW_HEIGHT = 28;
@@ -289,7 +289,7 @@ void MainWindow::LoadConfigurationList() {
         ConfigurationListItem *item = new ConfigurationListItem(configuration.name);
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-        if (VKC_PLATFORM_MACOS)  // Mac OS does not leave enough space without this
+        if (VKC_PLATFORM == PLATFORM_MACOS)  // Mac OS does not leave enough space without this
             item->radio_button->setText(" ");
 
         item->radio_button->setToolTip(configuration._description);
