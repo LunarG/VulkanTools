@@ -18,9 +18,9 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include <gtest/gtest.h>
-
 #include "../layer.h"
+
+#include <gtest/gtest.h>
 
 bool operator==(const Layer& a, const Layer& b) {
     if (a._file_format_version != b._file_format_version)

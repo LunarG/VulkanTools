@@ -201,8 +201,6 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     }
     {
         const QJsonValue value = json_object_layer.value("default_preset_index");
-        assert((_file_format_version < version_1_3_0 && value == QJsonValue::Undefined) ||
-               (_file_format_version >= version_1_3_0 && value != QJsonValue::Undefined));
         if (value != QJsonValue::Undefined) _default_preset_index = value.toInt();
     }
     {

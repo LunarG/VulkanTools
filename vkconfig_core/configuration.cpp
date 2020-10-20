@@ -37,16 +37,50 @@
 
 Configuration::Configuration() : name("New Configuration") {}
 
-static Version GetConfigurationVersion(const QJsonValue& value) {
-    if (SUPPORT_VKCONFIG_2_0_1) {
-        return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
+static Version GetConfigurationVersion(const QJsonObject& json_top_object) {
+    const QJsonValue& configuration_value = json_top_object.value("configuration");
+    if (configuration_value == QJsonValue::Undefined)  // This is not a configuration file or a Vulkan Configurator 2.0.X file
+    {
+        const QJsonValue& value = json_top_object.value("file_format_version");
+
+        if (SUPPORT_VKCONFIG_2_0_1) {
+            return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toUtf8().constData());
+        } else {
+            assert(value != QJsonValue::Undefined);
+            return Version(value.toString().toUtf8().constData());
+        }
     } else {
-        assert(value != QJsonValue::Undefined);
-        return Version(value.toString().toUtf8().constData());
+        const QJsonObject& configuration_object = configuration_value.toObject();
+        const QJsonValue& file_format_value = configuration_object.value("file_format_version");
+
+        assert(file_format_value != QJsonValue::Undefined);
+        return Version(file_format_value.toString().toUtf8().constData());
     }
 }
 
 bool Configuration::Load(const QString& full_path) {
+    assert(!full_path.isEmpty());
+
+    QFile file(full_path);
+    const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
+    assert(result);
+    QString json_text = file.readAll();
+    file.close();
+
+    QJsonParseError parse_error;
+    QJsonDocument json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
+    if (parse_error.error != QJsonParseError::NoError) return false;
+
+    const QJsonObject& json_top_object = json_doc.object();
+    const Version version(GetConfigurationVersion(json_top_object));
+
+    if (version < Version(2, 1, 0))
+        return Load_2_0(full_path);
+    else
+        return Load_2_1(full_path);
+}
+
+bool Configuration::Load_2_0(const QString& full_path) {
     assert(!full_path.isEmpty());
 
     QFile file(full_path);
@@ -67,8 +101,7 @@ bool Configuration::Load(const QString& full_path) {
     const QJsonObject& json_top_object = json_doc.object();
     const QStringList& key = json_top_object.keys();
 
-    const QJsonValue& json_file_format_version = json_top_object.value("file_format_version");
-    const Version version(GetConfigurationVersion(json_file_format_version));
+    const Version version(GetConfigurationVersion(json_top_object));
 
     const QJsonValue& configuration_entry_value = json_top_object.value(key[0]);
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
@@ -144,22 +177,125 @@ bool Configuration::Load(const QString& full_path) {
         const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
         const QJsonObject& layer_object = layer_value.toObject();
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
-        const QJsonValue& preset_index = layer_object.value("preset_index");
 
         auto parameter = FindParameter(parameters, layers[layer_index]);
         if (parameter != parameters.end()) {
             parameter->overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
-            parameter->preset_index = preset_index == QJsonValue::Undefined ? PRESET_INDEX_USER_DEFINED : preset_index.toInt();
             LoadConfigurationSettings(layer_object, *parameter);
         } else {
             Parameter parameter;
             parameter.name = layers[layer_index];
             parameter.state = LAYER_STATE_OVERRIDDEN;
             parameter.overridden_rank = Parameter::UNRANKED;
-            parameter.preset_index = PRESET_INDEX_USER_DEFINED;
             LoadConfigurationSettings(layer_object, parameter);
             parameters.push_back(parameter);
         }
+    }
+
+    return true;
+}
+
+bool Configuration::Load_2_1(const QString& full_path) {
+    assert(!full_path.isEmpty());
+
+    QFile file(full_path);
+    const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
+    assert(result);
+    QString json_text = file.readAll();
+    file.close();
+
+    // Tease it apart, get the name of the profile
+    QJsonParseError parse_error;
+    QJsonDocument json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
+
+    if (parse_error.error != QJsonParseError::NoError) return false;
+
+    const QJsonObject& json_top_object = json_doc.object();
+
+    const Version version(GetConfigurationVersion(json_top_object));
+    if (version > Version::VKCONFIG) {
+        QMessageBox alert;
+        alert.setWindowTitle("Vulkan Configurator version is too old...");
+        alert.setText(format("The \"%s\" configuration was created with a newer version of %s. Use %s from the "
+                             "latest Vulkan SDK to resolve the issue. ",
+                             name.toUtf8().constData(), VKCONFIG_NAME, VKCONFIG_NAME)
+                          .c_str());
+        alert.setInformativeText("Do you want to continue?");
+        alert.setIcon(QMessageBox::Warning);
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::Yes);
+        if (alert.exec() == QMessageBox::No) exit(-1);
+    }
+
+    const QJsonValue& configuration_entry_value = json_top_object.value("configuration");
+    assert(configuration_entry_value != QJsonValue::Undefined);
+
+    const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
+
+    const QJsonValue& json_name_value = configuration_entry_object.value("name");
+    assert(json_name_value != QJsonValue::Undefined);
+    this->name = json_name_value.toString();
+
+    const QJsonValue& description = configuration_entry_object.value("description");
+    assert(description != QJsonValue::Undefined);
+    _description = description.toString();
+
+    const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
+    _setting_tree_state = editor_state.toVariant().toByteArray();
+
+    const QJsonValue& excluded_value = configuration_entry_object.value("excluded_layers");
+    assert(excluded_value != QJsonValue::Undefined && excluded_value.isArray());
+
+    const QJsonArray& excluded_array = excluded_value.toArray();
+    for (int i = 0, n = excluded_array.size(); i < n; ++i) {
+        Parameter parameter;
+        parameter.name = excluded_array[i].toString();
+        parameter.state = LAYER_STATE_EXCLUDED;
+        parameters.push_back(parameter);
+    }
+
+    const QJsonValue& overridden_value = configuration_entry_object.value("overridden_layers");
+    assert(overridden_value != QJsonValue::Undefined && overridden_value.isArray());
+
+    const QJsonArray& overridden_array = overridden_value.toArray();
+    for (int i = 0, n = overridden_array.size(); i < n; ++i) {
+        Parameter parameter;
+        parameter.state = LAYER_STATE_OVERRIDDEN;
+
+        const QJsonObject& layer_object = overridden_array[i].toObject();
+
+        const QJsonValue& layer_name = layer_object.value("name");
+        assert(layer_name != QJsonValue::Undefined);
+        // We should not have duplicated layers in a configuration
+        assert(FindParameter(parameters, layer_name.toString()) == parameters.end());
+        parameter.name = layer_name.toString();
+
+        const QJsonValue& layer_rank = layer_object.value("rank");
+        parameter.overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
+
+        const QJsonValue& settings_value = layer_object.value("settings");
+        assert(settings_value != QJsonValue::Undefined && settings_value.isArray());
+
+        const QJsonArray& settings_array = settings_value.toArray();
+        for (int i = 0, n = settings_array.size(); i < n; ++i) {
+            const QJsonObject& setting_object = settings_array[i].toObject();
+
+            const QJsonValue& setting_key = setting_object.value("key");
+            assert(setting_key != QJsonValue::Undefined);
+            const QString& key = setting_key.toString();
+
+            const QJsonValue& setting_value = setting_object.value("value");
+            assert(setting_value != QJsonValue::Undefined);
+            if (setting_value.isArray()) {
+                const QJsonArray& setting_array = setting_value.toArray();
+            } else {
+                // const QJsonObject& setting_value = setting_value.toObject();
+            }
+
+            // parameter.settings.push_back({, });
+        }
+
+        parameters.push_back(parameter);
     }
 
     return true;
@@ -169,7 +305,6 @@ bool Configuration::Save(const QString& full_path) const {
     assert(!full_path.isEmpty());
 
     QJsonObject root;
-    root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     // Build the json document
     QJsonArray excluded_list;
@@ -180,7 +315,7 @@ bool Configuration::Save(const QString& full_path) const {
         excluded_list.append(parameters[i].name);
     }
 
-    QJsonObject overridden_list;  // This list of layers
+    QJsonArray overridden_list;  // This list of layers
 
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
         const Parameter& parameter = parameters[i];
@@ -188,23 +323,25 @@ bool Configuration::Save(const QString& full_path) const {
             continue;
         }
 
-        QJsonObject json_settings;
-        // Rank goes in here with settings
-        json_settings.insert("layer_rank", parameter.overridden_rank);
-        json_settings.insert("preset_index", parameter.preset_index);
-
-        const bool result = SaveConfigurationSettings(parameter, json_settings);
+        QJsonArray json_settings;
+        const bool result = SaveLayerSettings(parameter.settings, json_settings);
         assert(result);
 
-        overridden_list.insert(parameter.name, json_settings);
+        QJsonObject json_layer;
+        json_layer.insert("name", parameter.name);
+        json_layer.insert("rank", parameter.overridden_rank);
+        json_layer.insert("settings", json_settings);
+
+        overridden_list.append(json_layer);
     }
 
     QJsonObject json_configuration;
+    json_configuration.insert("file_format_version", Version::VKCONFIG.str().c_str());
     json_configuration.insert("name", name);
-    json_configuration.insert("blacklisted_layers", excluded_list);
     json_configuration.insert("description", _description);
     json_configuration.insert("editor_state", _setting_tree_state.data());
-    json_configuration.insert("layer_options", overridden_list);
+    json_configuration.insert("excluded_layers", excluded_list);
+    json_configuration.insert("overridden_layers", overridden_list);
     root.insert("configuration", json_configuration);
 
     QJsonDocument doc(root);

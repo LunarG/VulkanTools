@@ -151,7 +151,8 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, P
         _preset_indexes.push_back(preset.index);
     }
 
-    _presets_combo_box->setCurrentIndex(GetComboBoxPresetIndex(parameter.preset_index));
+    // TODO check the settings values to compute the preset_index
+    //_presets_combo_box->setCurrentIndex(GetComboBoxPresetIndex(preset_index));
 
     connect(_presets_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     _validation_tree_item->addChild(_validation_preset_item);
@@ -392,7 +393,6 @@ void SettingsTreeManager::khronosPresetChanged(int combo_box_preset_index) {
     auto configuration = configurator.GetActiveConfiguration();
     auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
     assert(parameter != configuration->parameters.end());
-    parameter->preset_index = preset_index;
 
     auto layer = Find(configurator.layers.available_layers, "VK_LAYER_KHRONOS_validation");
     assert(layer != configurator.layers.available_layers.end());

@@ -115,11 +115,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_2->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER2));
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
-    // We need to resetup the new profile for consistency sake.
-    auto active_configuration = Find(configurator.available_configurations, environment.Get(ACTIVE_CONFIGURATION));
-    if (environment.UseOverride()) {
-        configurator.SetActiveConfiguration(active_configuration);
-    }
+    configurator.RefreshConfiguration();
 
     LoadConfigurationList();
 
@@ -132,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->append(GenerateVulkanStatus());
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    if (active_configuration != configurator.available_configurations.end()) {
+    if (configurator.HasActiveConfiguration()) {
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
@@ -323,28 +319,27 @@ ConfigurationListItem *MainWindow::GetCheckedItem() {
     return nullptr;
 }
 
-/// Use the active profile as the override
 void MainWindow::on_radio_override_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
+    configurator.RefreshConfiguration();
+    /*
+        // This just doesn't work. Make a function to look for the radio button checked.
+        ConfigurationListItem *item = GetCheckedItem();
+        auto configuration = item == nullptr ? configurator.available_configurations.end()
+                                             : Find(configurator.available_configurations, item->configuration_name);
 
-    // This just doesn't work. Make a function to look for the radio button checked.
-    ConfigurationListItem *item = GetCheckedItem();
-    auto configuration = item == nullptr ? configurator.available_configurations.end()
-                                         : Find(configurator.available_configurations, item->configuration_name);
-
-    configurator.SetActiveConfiguration(configuration);
-
+        configurator.SetActiveConfiguration(configuration);
+    */
     UpdateUI();
 }
 
-// No override at all, fully controlled by the application
 void MainWindow::on_radio_fully_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
-    configurator.SetActiveConfiguration(configurator.available_configurations.end());
+    configurator.RefreshConfiguration();
 
     UpdateUI();
 }
@@ -401,16 +396,11 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     Configurator &configurator = Configurator::Get();
     configurator.ResetDefaultsConfigurations();
-
-    // Find the "Validation - Standard" configuration and make it current if we are active
-    auto active_configuration = Find(configurator.available_configurations, configurator.environment.Get(ACTIVE_CONFIGURATION));
-    if (configurator.environment.UseOverride()) {
-        configurator.SetActiveConfiguration(active_configuration);
-    }
+    configurator.RefreshConfiguration();
 
     LoadConfigurationList();
 
-    if (active_configuration != configurator.available_configurations.end()) {
+    if (configurator.HasActiveConfiguration()) {
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
@@ -435,7 +425,8 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     ui->configuration_tree->setCurrentItem(item);
 
     Configurator &configurator = Configurator::Get();
-    configurator.SetActiveConfiguration(Find(configurator.available_configurations, item->configuration_name));
+    configurator.environment.Set(ACTIVE_CONFIGURATION, item->configuration_name);
+    configurator.RefreshConfiguration();
 }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
@@ -504,8 +495,7 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
     if (configuration_item == nullptr) return;
 
     configuration_item->radio_button->setChecked(true);
-    auto configuration = Find(Configurator::Get().available_configurations, configuration_item->configuration_name);
-    Configurator::Get().SetActiveConfiguration(configuration);
+    Configurator::Get().SetActiveConfiguration(configuration_item->configuration_name);
 
     _settings_tree_manager.CreateGUI(ui->settings_tree);
 
@@ -571,13 +561,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 
     _settings_tree_manager.CleanupGUI();
-    if (!configurator.environment.UsePersistentOverrideMode()) {
-        auto active_configuration = configurator.GetActiveConfiguration();
-        const QString active_configuration_name =
-            active_configuration == configurator.available_configurations.end() ? "" : active_configuration->name;
-        configurator.SetActiveConfiguration(configurator.available_configurations.end());
-        configurator.environment.Set(ACTIVE_CONFIGURATION, active_configuration_name);
-    }
 
     configurator.environment.Set(LAYOUT_MAIN_GEOMETRY, saveGeometry());
     configurator.environment.Set(LAYOUT_MAIN_WINDOW_STATE, saveState());
@@ -763,17 +746,8 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
 
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
-    // What if this is the active profile? We will go boom boom soon...
-    Configurator &configurator = Configurator::Get();
-    if (configurator.GetActiveConfiguration()->name == &item->configuration_name) {
-        configurator.SetActiveConfiguration(configurator.available_configurations.end());
-    }
 
-    // Delete the configuration file
-    const QString full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
-    remove(full_path.toUtf8().constData());
-
-    configurator.LoadAllConfigurations();
+    Configurator::Get().RemoveConfiguration(item->configuration_name);
     LoadConfigurationList();
     RestoreLastItem();
 }
@@ -874,14 +848,13 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
 
     Configurator &configurator = Configurator::Get();
-
     configurator.environment.Notify(NOTIFICATION_RESTART);
 
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
-    auto configuration = item == nullptr ? configurator.available_configurations.end()
-                                         : Find(configurator.available_configurations, configuration_item->configuration_name);
+    if (configuration_item != nullptr) {
+        configurator.SetActiveConfiguration(configuration_item->configuration_name);
+    }
 
-    configurator.SetActiveConfiguration(configuration);
     SaveLastItem();
 
     UpdateUI();

@@ -51,6 +51,7 @@ const char* GetSettingTypeToken(SettingType type) {
 
     static const char* table[] = {
         "string",        // SETTING_STRING
+        "int",           // SETTING_INT
         "save_file",     // SETTING_SAVE_FILE
         "load_file",     // SETTING_LOAD_FILE
         "save_folder",   // SETTING_SAVE_FOLDER
@@ -109,10 +110,10 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
         if (json_default.isArray()) {
             const QJsonArray& json_array = json_default.toArray();
             for (int i = 0, n = json_array.size(); i < n; ++i) {
-                setting.values.push_back(json_array[i].toString());
+                setting.defaults.push_back(json_array[i].toString());
             }
         } else
-            setting.values.push_back(json_default.toString());
+            setting.defaults.push_back(json_default.toString());
 
         switch (setting.type) {
             case SETTING_EXCLUSIVE_LIST:
@@ -130,8 +131,8 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
                 }
             } break;
             case SETTING_SAVE_FILE: {
-                setting.values[0] = ValidatePath(setting.values[0].toStdString()).c_str();
-                setting.values[0] = ReplacePathBuiltInVariables(setting.values[0].toStdString()).c_str();
+                setting.defaults[0] = ValidatePath(setting.defaults[0].toStdString()).c_str();
+                setting.defaults[0] = ReplacePathBuiltInVariables(setting.defaults[0].toStdString()).c_str();
             } break;
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER:
@@ -139,6 +140,7 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
             case SETTING_BOOL_NUMERIC:
             case SETTING_VUID_FILTER:
             case SETTING_STRING:
+            case SETTING_INT:
                 break;
             default:
                 assert(0);
@@ -157,7 +159,7 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
     return true;
 }
 
-bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& json_settings) {
+bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonArray& json_settings) {
     assert(&json_settings);
 
     // Loop through the actual settings
@@ -165,6 +167,7 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& j
         QJsonObject json_setting;
         const LayerSetting& setting = settings[setting_index];
 
+        json_setting.insert("key", setting.key);
         json_setting.insert("name", setting.label);
         json_setting.insert("description", setting.description);
 
@@ -177,12 +180,12 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& j
             case SETTING_BOOL_NUMERIC:
             case SETTING_VUID_FILTER:
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.values[0]);
+                json_setting.insert("default", setting.defaults[0]);
                 break;
 
             case SETTING_EXCLUSIVE_LIST: {
                 json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.values[0]);
+                json_setting.insert("default", setting.defaults[0]);
 
                 QJsonObject options;
                 for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) {
@@ -216,7 +219,7 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& j
                 break;
         }
 
-        json_settings.insert(setting.key, json_setting);
+        json_settings.append(json_setting);
     }
 
     return true;

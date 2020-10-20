@@ -67,8 +67,9 @@ class Configurator {
     std::vector<Configuration>::iterator GetActiveConfiguration() const { return _active_configuration; }
     void SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration);
     void SetActiveConfiguration(const QString& configuration_name);
-    void RefreshConfiguration();
     bool HasActiveConfiguration() const;
+    void RemoveConfiguration(const QString& configuration_name);
+    void RefreshConfiguration();
 
    private:
     Configurator();

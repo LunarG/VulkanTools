@@ -213,6 +213,20 @@
                 "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
             },
             {
+                "key": "log_filename",
+                "label": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            },
+            {
+                "key": "duplicate_message_limit",
+                "label": "Duplicated messages limit",
+                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
+                "type": "int",
+                "default": 10
+            },
+            {
                 "key": "report_flags",
                 "label": "Message Severity",
                 "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
@@ -229,20 +243,6 @@
                     "warn",
                     "perf"
                 ]
-            },
-            {
-                "key": "log_filename",
-                "label": "Log Filename",
-                "description": "Specifies the output filename",
-                "type": "save_file",
-                "default": "stdout"
-            },
-            {
-                "key": "duplicate_message_limit",
-                "label": "Duplicated messages limit",
-                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
-                "type": "string",
-                "default": "10"
             },
             {
                 "key": "message_id_filter",

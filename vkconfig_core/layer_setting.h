@@ -30,6 +30,7 @@
 
 enum SettingType {  // Enum value can't be changed
     SETTING_STRING = 0,
+    SETTING_INT,
     SETTING_SAVE_FILE,
     SETTING_LOAD_FILE,
     SETTING_SAVE_FOLDER,
@@ -61,7 +62,7 @@ struct LayerSetting {
 };
 
 bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerSetting>& settings);
-bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonObject& json_settings);
+bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonArray& json_settings);
 
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);
 

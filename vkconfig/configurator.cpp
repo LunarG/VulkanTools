@@ -111,11 +111,7 @@ bool Configurator::Init() {
         }
     }
 
-    // This will reset or clear the current profile if the files have been
-    // manually manipulated
-    SetActiveConfiguration(_active_configuration);
-
-    if (_active_configuration != available_configurations.end()) {
+    if (HasActiveConfiguration()) {
         if (HasMissingParameter(_active_configuration->parameters, layers.available_layers)) {
             QSettings settings;
             if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
@@ -148,8 +144,9 @@ Configurator::~Configurator() {
         available_configurations[i].Save(path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].name));
     }
 
-    layers.Clear();
-    available_configurations.clear();
+    if (!environment.UsePersistentOverrideMode()) {
+        SurrenderLayers(environment);
+    }
 }
 
 bool Configurator::HasLayers() const { return !layers.Empty(); }
@@ -276,16 +273,24 @@ void Configurator::LoadAllConfigurations() {
         }
     }
 
-    // Cache the active configuration
-    const QString &active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
-    if (!active_configuration_name.isEmpty()) {
-        _active_configuration = Find(available_configurations, active_configuration_name);
-        if (_active_configuration == available_configurations.end()) {
-            environment.Set(ACTIVE_CONFIGURATION, "");  // The configuration no longer exist
-        }
-    } else {
-        _active_configuration = available_configurations.end();
+    RefreshConfiguration();
+}
+
+void Configurator::RemoveConfiguration(const QString &configuration_name) {
+    assert(!configuration_name.isEmpty());
+
+    // Not the active configuration
+    if (GetActiveConfiguration()->name == configuration_name) {
+        SetActiveConfiguration(available_configurations.end());
     }
+
+    // Delete the configuration file
+    const QString full_path(path.GetFullPath(PATH_CONFIGURATION, configuration_name));
+    const bool result = std::remove(full_path.toUtf8().constData()) == 0;
+    assert(result);
+
+    // Reload to remove the configuration in the UI
+    LoadAllConfigurations();
 }
 
 void Configurator::SetActiveConfiguration(const QString &configuration_name) {
@@ -297,9 +302,6 @@ void Configurator::SetActiveConfiguration(const QString &configuration_name) {
     SetActiveConfiguration(configuration);
 }
 
-// Set this as the current override profile. The profile definition passed in
-// is used to construct the override and settings files.
-// Passing in nullptr IS valid, and will clear the current profile
 void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration) {
     _active_configuration = active_configuration;
 
@@ -321,7 +323,17 @@ void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator a
 }
 
 void Configurator::RefreshConfiguration() {
-    if (_active_configuration != available_configurations.end()) SetActiveConfiguration(_active_configuration);
+    const QString active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
+
+    if (!active_configuration_name.isEmpty()) {
+        auto active_configuration = Find(available_configurations, active_configuration_name);
+        if (active_configuration == available_configurations.end()) {
+            environment.Set(ACTIVE_CONFIGURATION, "");
+        }
+        SetActiveConfiguration(active_configuration);
+    } else {
+        SetActiveConfiguration(available_configurations.end());
+    }
 }
 
 bool Configurator::HasActiveConfiguration() const {
@@ -410,10 +422,4 @@ void Configurator::ResetDefaultsConfigurations() {
 
     // Now we need to kind of restart everything
     LoadAllConfigurations();
-
-    // Find the "Validation - Standard" configuration and make it current if we are active
-    auto active_configuration = Find(available_configurations, environment.Get(ACTIVE_CONFIGURATION));
-    if (environment.UseOverride()) {
-        SetActiveConfiguration(active_configuration);
-    }
 }

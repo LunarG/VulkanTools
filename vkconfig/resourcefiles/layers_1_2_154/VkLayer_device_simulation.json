@@ -1,5 +1,5 @@
 {
-    "file_format_version": "1.1.0",
+    "file_format_version": "1.3.0",
     "layer": {
         "name": "VK_LAYER_LUNARG_device_simulation",
         "type": "GLOBAL",
@@ -15,36 +15,36 @@
                     "vkGetPhysicalDeviceToolPropertiesEXT"
                 ]
             }
+        ],
+        "settings": [
+            {
+                "key": "filename",
+                "label": "Devsim JSON configuration file",
+                "description": "Name of one or more configuration file(s) to load.",
+                "type": "load_file",
+                "default": ""
+            },
+            {
+                "key": "debug_enable",
+                "label": "Debug Enable",
+                "description": "Enables debug message output.",
+                "type": "bool_numeric",
+                "default": "0"
+            },
+            {
+                "key": "emulate_portability",
+                "label": "Emulate VK_KHR_portability_subset",
+                "description": "Emulate that VK_KHR_portability_subset extension is supported by the device.",
+                "type": "bool_numeric",
+                "default": "0"
+            },
+            {
+                "key": "exit_on_error",
+                "label": "Exit On Error",
+                "description": "Enables exit-on-error.",
+                "type": "bool_numeric",
+                "default": "0"
+            }
         ]
-    },
-    "settings": [
-        {
-            "key": "filename",
-            "name": "Devsim JSON configuration file",
-            "description": "Name of one or more configuration file(s) to load.",
-            "type": "load_file",
-            "default": ""
-        },
-        {
-            "key": "debug_enable",
-            "name": "Debug Enable",
-            "description": "Enables debug message output.",
-            "type": "bool_numeric",
-            "default": "0"
-        },
-        {
-            "key": "emulate_portability",
-            "name": "Emulate VK_KHR_portability_subset",
-            "description": "Emulate that VK_KHR_portability_subset extension is supported by the device.",
-            "type": "bool_numeric",
-            "default": "0"
-        },
-        {
-            "key": "exit_on_error",
-            "name": "Exit On Error",
-            "description": "Enables exit-on-error.",
-            "type": "bool_numeric",
-            "default": "0"
-        }
-    ]
+    }
 }

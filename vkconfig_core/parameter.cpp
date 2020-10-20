@@ -133,7 +133,8 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
 
         // The easy stuff...
         const QJsonValue& json_value_description = json_object.value("description");
-        if (json_value_description != QJsonValue::Undefined) setting.description = json_value_description.toString();
+        assert(json_value_description != QJsonValue::Undefined);
+        setting.description = json_value_description.toString();
 
         const QJsonValue& json_value_name = json_object.value("name");
         assert(json_value_name != QJsonValue::Undefined);
@@ -225,64 +226,6 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
     };
 
     std::sort(parameter.settings.begin(), parameter.settings.end(), ParameterCompare());
-
-    return true;
-}
-
-bool SaveConfigurationSettings(const Parameter& parameter, QJsonObject& json_settings) {
-    assert(&json_settings);
-
-    // Loop through the actual settings
-    for (std::size_t setting_index = 0, setting_count = parameter.settings.size(); setting_index < setting_count; ++setting_index) {
-        QJsonObject json_setting;
-        const LayerSetting& setting = parameter.settings[setting_index];
-
-        json_setting.insert("name", setting.label);
-        json_setting.insert("description", setting.description);
-
-        switch (setting.type) {
-            case SETTING_STRING:
-            case SETTING_SAVE_FILE:
-            case SETTING_LOAD_FILE:
-            case SETTING_SAVE_FOLDER:
-            case SETTING_BOOL:
-            case SETTING_BOOL_NUMERIC:
-            case SETTING_VUID_FILTER:
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.defaults[0]);
-                break;
-
-            case SETTING_EXCLUSIVE_LIST: {
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
-                json_setting.insert("default", setting.defaults[0]);
-
-                QJsonObject options;
-                for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) options.insert(setting.values[i], setting.labels[i]);
-                json_setting.insert("options", options);
-            } break;
-
-            case SETTING_INCLUSIVE_LIST: {
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
-
-                QJsonObject options;
-                for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) options.insert(setting.values[i], setting.labels[i]);
-                json_setting.insert("options", options);
-
-                QJsonArray defaults;
-                for (std::size_t i = 0, n = setting.defaults.size(); i < n; ++i) defaults.append(setting.defaults[i]);
-                json_setting.insert("default", defaults);
-            } break;
-
-            // There is a string field that is actually a complicted series of number or
-            // ranges of numbers. We should at some point add this to allow more error free editing of it.
-            case SETTING_RANGE_INT:
-            default:
-                assert(0);
-                break;
-        }
-
-        json_settings.insert(setting.key, json_setting);
-    }
 
     return true;
 }

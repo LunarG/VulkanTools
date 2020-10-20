@@ -17,3 +17,5 @@
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#include <gtest/gtest.h>

@@ -1,6 +1,6 @@
 {
-    "file_format_version" : "1.0.0",
-    "layer" : {
+    "file_format_version": "1.0.0",
+    "layer": {
         "name": "VK_LAYER_LUNARG_monitor",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_monitor.dll",
@@ -9,10 +9,11 @@
         "description": "Execution Monitoring Layer",
         "device_extensions": [
             {
-                 "name": "VK_EXT_tooling_info",
-                 "spec_version": "1",
-                 "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"
-                        ]
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
             }
         ]
     }

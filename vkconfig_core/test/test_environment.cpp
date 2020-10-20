@@ -15,14 +15,13 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include <gtest/gtest.h>
-
 #include "../path_manager.h"
 #include "../environment.h"
+
+#include <gtest/gtest.h>
 
 TEST(test_environment, custom_path_no_duplicate) {
     PathManager paths;

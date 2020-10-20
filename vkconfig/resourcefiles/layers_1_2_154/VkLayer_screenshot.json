@@ -1,5 +1,5 @@
 {
-    "file_format_version": "1.0.0",
+    "file_format_version": "1.3.0",
     "layer": {
         "name": "VK_LAYER_LUNARG_screenshot",
         "type": "GLOBAL",
@@ -15,40 +15,40 @@
                     "vkGetPhysicalDeviceToolPropertiesEXT"
                 ]
             }
-        ]
-    },
-    "settings": [
-        {
-            "key": "frames",
-            "name": "Frames",
-            "description": "Comma separated list of frames to output as screen shots or a range of frames with a start, count, and optional interval separated by a dash. Setting the variable to \"all\" will output every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
-            "type": "string",
-            "default": ""
-        },
-        {
-            "key": "dir",
-            "name": "Directory",
-            "description": "This can be set to specify the directory in which to create the screenshot files.",
-            "type": "save_folder",
-            "default": ""
-        },
-        {
-            "key": "format",
-            "name": "Format",
-            "description": "This can be set to a color space for the output.",
-            "type": "enum",
-            "options": {
-                "UNORM": "UNORM",
-                "SNORM": "SNORM",
-                "USCALED": "USCALED",
-                "SSCALED": "SSCALED",
-                "UINT": "UINT",
-                "SINT": "SINT",
-                "SRGB": "SRGB",
-                "USE_SWAPCHAIN_COLORSPACE": "USE_SWAPCHAIN_COLORSPACE"
+        ],
+        "settings": [
+            {
+                "key": "frames",
+                "label": "Frames",
+                "description": "Comma separated list of frames to output as screen shots or a range of frames with a start, count, and optional interval separated by a dash. Setting the variable to \"all\" will output every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "string",
+                "default": ""
             },
-            "default": "USE_SWAPCHAIN_COLORSPACE"
-        }
-    ]
+            {
+                "key": "dir",
+                "label": "Directory",
+                "description": "This can be set to specify the directory in which to create the screenshot files.",
+                "type": "save_folder",
+                "default": ""
+            },
+            {
+                "key": "format",
+                "label": "Format",
+                "description": "This can be set to a color space for the output.",
+                "type": "enum",
+                "options": {
+                    "UNORM": "UNORM",
+                    "SNORM": "SNORM",
+                    "USCALED": "USCALED",
+                    "SSCALED": "SSCALED",
+                    "UINT": "UINT",
+                    "SINT": "SINT",
+                    "SRGB": "SRGB",
+                    "USE_SWAPCHAIN_COLORSPACE": "USE_SWAPCHAIN_COLORSPACE"
+                },
+                "default": "USE_SWAPCHAIN_COLORSPACE"
+            }
+        ]
+    }
 }
 

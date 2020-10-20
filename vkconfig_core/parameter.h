@@ -51,14 +51,12 @@ enum ParameterRank {
 struct Parameter {
     static const int UNRANKED = -1;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), preset_index(PRESET_INDEX_USER_DEFINED), overridden_rank(UNRANKED) {}
-    Parameter(const QString& name, const LayerState state)
-        : name(name), state(state), preset_index(PRESET_INDEX_USER_DEFINED), overridden_rank(UNRANKED) {}
+    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
+    Parameter(const QString& name, const LayerState state) : name(name), state(state), overridden_rank(UNRANKED) {}
 
     QString name;
     LayerState state;
     std::vector<LayerSetting> settings;
-    int preset_index;
     int overridden_rank;
 };
 
@@ -70,4 +68,3 @@ std::vector<Parameter>::iterator FindParameter(std::vector<Parameter>& parameter
 bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 
 bool LoadConfigurationSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);
-bool SaveConfigurationSettings(const Parameter& parameter, QJsonObject& layer_settings_descriptors);

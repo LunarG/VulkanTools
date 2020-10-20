@@ -15,6 +15,9 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#include "../layer_manager.h"
+
+#include <gtest/gtest.h>

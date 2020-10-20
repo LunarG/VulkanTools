@@ -15,8 +15,7 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "../util.h"

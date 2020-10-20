@@ -15,8 +15,7 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
- * - Christophe Riccio
+ * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "../version.h"
@@ -32,6 +31,8 @@ TEST(test_version, string) {
     EXPECT_EQ(version_a, Version(version_a.c_str()).str());
     EXPECT_EQ(version_b, Version(version_b.c_str()).str());
 }
+
+TEST(test_version, string_ctr) { EXPECT_EQ(Version(1, 1, 130), Version("1.1.130")); }
 
 TEST(test_version, compare) {
     const std::string version_a("1.1.130");

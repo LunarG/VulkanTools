@@ -15,16 +15,15 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #include "../command_line.h"
 #include "../util.h"
 
-#include <array>
-
 #include <gtest/gtest.h>
+
+#include <array>
 
 TEST(test_command_line, execute_mode) {
     static char* argv[] = {"vkconfig"};

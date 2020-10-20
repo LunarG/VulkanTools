@@ -42,6 +42,10 @@ class Configuration {
     std::vector<Parameter> parameters;
 
     bool IsEmpty() const;
+
+   private:
+    bool Load_2_0(const QString& full_path);
+    bool Load_2_1(const QString& full_path);
 };
 
 QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name);
