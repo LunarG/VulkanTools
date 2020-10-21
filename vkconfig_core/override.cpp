@@ -40,8 +40,8 @@ static bool WriteLayerOverride(const PathManager& path, const std::vector<Applic
     bool has_missing_layers = false;
 
     QStringList layer_override_paths;
-    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        const Parameter& parameter = configuration.parameters[i];
+    for (std::size_t i = 0, n = configuration.layers.size(); i < n; ++i) {
+        const ConfigurationLayer& parameter = configuration.layers[i];
 
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
@@ -69,8 +69,8 @@ static bool WriteLayerOverride(const PathManager& path, const std::vector<Applic
 
     QJsonArray json_overridden_layers;
     QJsonArray json_excluded_layers;
-    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        const Parameter& parameter = configuration.parameters[i];
+    for (std::size_t i = 0, n = configuration.layers.size(); i < n; ++i) {
+        const ConfigurationLayer& parameter = configuration.layers[i];
         if (parameter.state == LAYER_STATE_OVERRIDDEN)
             json_overridden_layers.append(parameter.name);
         else if (parameter.state == LAYER_STATE_EXCLUDED)
@@ -130,16 +130,16 @@ static bool WriteLayerSettings(const PathManager& path, const std::vector<Layer>
     bool has_missing_layers = false;
 
     // Loop through all the layers
-    for (std::size_t j = 0, n = configuration.parameters.size(); j < n; ++j) {
-        const Parameter& parameter = configuration.parameters[j];
+    for (std::size_t j = 0, n = configuration.layers.size(); j < n; ++j) {
+        const ConfigurationLayer& configuration_layer = configuration.layers[j];
 
-        const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+        const std::vector<Layer>::const_iterator layer = Find(available_layers, configuration_layer.name);
         if (layer == available_layers.end()) {
             has_missing_layers = true;
             continue;
         }
 
-        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
+        if (configuration_layer.state != LAYER_STATE_OVERRIDDEN) continue;
 
         stream << "\n";
         stream << "# " << layer->name << "\n";
@@ -148,14 +148,17 @@ static bool WriteLayerSettings(const PathManager& path, const std::vector<Layer>
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
-        for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
-            const LayerSetting& setting = parameter.settings[i];
+        for (std::size_t i = 0, m = configuration_layer.settings.size(); i < m; ++i) {
+            const ConfigurationSetting& setting = *configuration_layer.settings[i];
 
-            stream << lc_layer_name << "." << setting.key << " = ";
+            stream << lc_layer_name << "." << setting.key.c_str() << " = ";
+            // TODO
+            /*
             for (std::size_t i = 0, n = setting.defaults.size(); i < n; ++i) {
                 stream << setting.defaults[i];
                 if (i < n - 1) stream << ",";
             }
+            */
             stream << "\n";
         }
     }

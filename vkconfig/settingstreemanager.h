@@ -62,8 +62,8 @@ class SettingsTreeManager : QObject {
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
-    void BuildKhronosTree(const std::vector<Preset> &presets, Parameter &parameter);
-    void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
+    void BuildKhronosTree(const std::vector<Preset> &presets, ConfigurationLayer &parameter);
+    void BuildGenericTree(QTreeWidgetItem *parent, ConfigurationLayer &parameter);
 
     int GetComboBoxPresetIndex(const int preset_index) const;
 

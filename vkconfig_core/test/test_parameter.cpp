@@ -37,206 +37,206 @@ static std::vector<Layer> GenerateTestLayers() {
     return layers;
 }
 
-static std::vector<Parameter> GenerateTestParametersExist() {
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
-    return parameters;
+static std::vector<ConfigurationLayer> GenerateTestParametersExist() {
+    std::vector<ConfigurationLayer> layers;
+    layers.push_back(ConfigurationLayer("Layer E0", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer E1", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
+    return layers;
 }
 
-static std::vector<Parameter> GenerateTestParametersMissing() {
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E3", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
-    return parameters;
+static std::vector<ConfigurationLayer> GenerateTestParametersMissing() {
+    std::vector<ConfigurationLayer> layers;
+    layers.push_back(ConfigurationLayer("Layer E0", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer E3", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
+    return layers;
 }
 
-static std::vector<Parameter> GenerateTestParametersAll() {
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer E2", LAYER_STATE_APPLICATION_CONTROLLED));
-    parameters.push_back(Parameter("Layer E3", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E4", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer E5", LAYER_STATE_APPLICATION_CONTROLLED));
+static std::vector<ConfigurationLayer> GenerateTestParametersAll() {
+    std::vector<ConfigurationLayer> layers;
+    layers.push_back(ConfigurationLayer("Layer E0", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer E1", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer E2", LAYER_STATE_APPLICATION_CONTROLLED));
+    layers.push_back(ConfigurationLayer("Layer E3", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer E4", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer E5", LAYER_STATE_APPLICATION_CONTROLLED));
 
-    parameters.push_back(Parameter("Layer I0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer I1", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer I2", LAYER_STATE_APPLICATION_CONTROLLED));
-    parameters.push_back(Parameter("Layer I3", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer I4", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer I5", LAYER_STATE_APPLICATION_CONTROLLED));
+    layers.push_back(ConfigurationLayer("Layer I0", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer I1", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer I2", LAYER_STATE_APPLICATION_CONTROLLED));
+    layers.push_back(ConfigurationLayer("Layer I3", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer I4", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer I5", LAYER_STATE_APPLICATION_CONTROLLED));
 
-    parameters.push_back(Parameter("Layer C0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer C1", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer C2", LAYER_STATE_APPLICATION_CONTROLLED));
-    parameters.push_back(Parameter("Layer C3", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer C4", LAYER_STATE_EXCLUDED));
-    parameters.push_back(Parameter("Layer C5", LAYER_STATE_APPLICATION_CONTROLLED));
-    return parameters;
+    layers.push_back(ConfigurationLayer("Layer C0", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer C1", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer C2", LAYER_STATE_APPLICATION_CONTROLLED));
+    layers.push_back(ConfigurationLayer("Layer C3", LAYER_STATE_OVERRIDDEN));
+    layers.push_back(ConfigurationLayer("Layer C4", LAYER_STATE_EXCLUDED));
+    layers.push_back(ConfigurationLayer("Layer C5", LAYER_STATE_APPLICATION_CONTROLLED));
+    return layers;
 }
 
 TEST(test_parameter, ordering_no_layers) {
     std::vector<Layer> layers;
 
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer", LAYER_STATE_APPLICATION_CONTROLLED)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer", LAYER_STATE_OVERRIDDEN)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer", LAYER_STATE_EXCLUDED)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer", LAYER_STATE_APPLICATION_CONTROLLED)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer", LAYER_STATE_OVERRIDDEN)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer", LAYER_STATE_EXCLUDED)));
 }
 
 TEST(test_parameter, ordering_found_custom_layers) {
     const std::vector<Layer>& layers = GenerateTestLayers();
 
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_AVAILABLE,
-              GetParameterOrdering(layers, Parameter("Layer C0", LAYER_STATE_APPLICATION_CONTROLLED)));
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_OVERRIDDEN, GetParameterOrdering(layers, Parameter("Layer C1", LAYER_STATE_OVERRIDDEN)));
-    EXPECT_EQ(PARAMETER_RANK_EXCLUDED, GetParameterOrdering(layers, Parameter("Layer C1", LAYER_STATE_EXCLUDED)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer C3", LAYER_STATE_OVERRIDDEN)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer C4", LAYER_STATE_EXCLUDED)));
+    EXPECT_EQ(LAYER_RANK_EXPLICIT_AVAILABLE,
+              GetLayerRank(layers, ConfigurationLayer("Layer C0", LAYER_STATE_APPLICATION_CONTROLLED)));
+    EXPECT_EQ(LAYER_RANK_EXPLICIT_OVERRIDDEN, GetLayerRank(layers, ConfigurationLayer("Layer C1", LAYER_STATE_OVERRIDDEN)));
+    EXPECT_EQ(LAYER_RANK_EXCLUDED, GetLayerRank(layers, ConfigurationLayer("Layer C1", LAYER_STATE_EXCLUDED)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer C3", LAYER_STATE_OVERRIDDEN)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer C4", LAYER_STATE_EXCLUDED)));
 }
 
 TEST(test_parameter, ordering_found_explicit_layers) {
     const std::vector<Layer>& layers = GenerateTestLayers();
 
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_AVAILABLE,
-              GetParameterOrdering(layers, Parameter("Layer E0", LAYER_STATE_APPLICATION_CONTROLLED)));
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_OVERRIDDEN, GetParameterOrdering(layers, Parameter("Layer E1", LAYER_STATE_OVERRIDDEN)));
-    EXPECT_EQ(PARAMETER_RANK_EXCLUDED, GetParameterOrdering(layers, Parameter("Layer E1", LAYER_STATE_EXCLUDED)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer E3", LAYER_STATE_OVERRIDDEN)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer E4", LAYER_STATE_EXCLUDED)));
+    EXPECT_EQ(LAYER_RANK_EXPLICIT_AVAILABLE,
+              GetLayerRank(layers, ConfigurationLayer("Layer E0", LAYER_STATE_APPLICATION_CONTROLLED)));
+    EXPECT_EQ(LAYER_RANK_EXPLICIT_OVERRIDDEN, GetLayerRank(layers, ConfigurationLayer("Layer E1", LAYER_STATE_OVERRIDDEN)));
+    EXPECT_EQ(LAYER_RANK_EXCLUDED, GetLayerRank(layers, ConfigurationLayer("Layer E1", LAYER_STATE_EXCLUDED)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer E3", LAYER_STATE_OVERRIDDEN)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer E4", LAYER_STATE_EXCLUDED)));
 }
 
 TEST(test_parameter, ordering_found_implicit_layers) {
     const std::vector<Layer>& layers = GenerateTestLayers();
 
-    EXPECT_EQ(PARAMETER_RANK_IMPLICIT_AVAILABLE,
-              GetParameterOrdering(layers, Parameter("Layer I0", LAYER_STATE_APPLICATION_CONTROLLED)));
-    EXPECT_EQ(PARAMETER_RANK_IMPLICIT_OVERRIDDEN, GetParameterOrdering(layers, Parameter("Layer I1", LAYER_STATE_OVERRIDDEN)));
-    EXPECT_EQ(PARAMETER_RANK_EXCLUDED, GetParameterOrdering(layers, Parameter("Layer I1", LAYER_STATE_EXCLUDED)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer I3", LAYER_STATE_OVERRIDDEN)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer I4", LAYER_STATE_EXCLUDED)));
+    EXPECT_EQ(LAYER_RANK_IMPLICIT_AVAILABLE,
+              GetLayerRank(layers, ConfigurationLayer("Layer I0", LAYER_STATE_APPLICATION_CONTROLLED)));
+    EXPECT_EQ(LAYER_RANK_IMPLICIT_OVERRIDDEN, GetLayerRank(layers, ConfigurationLayer("Layer I1", LAYER_STATE_OVERRIDDEN)));
+    EXPECT_EQ(LAYER_RANK_EXCLUDED, GetLayerRank(layers, ConfigurationLayer("Layer I1", LAYER_STATE_EXCLUDED)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer I3", LAYER_STATE_OVERRIDDEN)));
+    EXPECT_EQ(LAYER_RANK_MISSING, GetLayerRank(layers, ConfigurationLayer("Layer I4", LAYER_STATE_EXCLUDED)));
 }
 
 TEST(test_parameter, missing_layers) {
     std::vector<Layer> layers_empty;
     std::vector<Layer> layers = GenerateTestLayers();
 
-    std::vector<Parameter> parameters_exist = GenerateTestParametersExist();
+    std::vector<ConfigurationLayer> parameters_exist = GenerateTestParametersExist();
     ;
-    EXPECT_EQ(true, HasMissingParameter(parameters_exist, layers_empty));
-    EXPECT_EQ(false, HasMissingParameter(parameters_exist, layers));
+    EXPECT_EQ(true, HasMissingLayer(parameters_exist, layers_empty));
+    EXPECT_EQ(false, HasMissingLayer(parameters_exist, layers));
 
-    std::vector<Parameter> parameters_missing = GenerateTestParametersMissing();
-    EXPECT_EQ(true, HasMissingParameter(parameters_missing, layers_empty));
-    EXPECT_EQ(true, HasMissingParameter(parameters_missing, layers));
+    std::vector<ConfigurationLayer> parameters_missing = GenerateTestParametersMissing();
+    EXPECT_EQ(true, HasMissingLayer(parameters_missing, layers_empty));
+    EXPECT_EQ(true, HasMissingLayer(parameters_missing, layers));
 }
 
 TEST(test_parameter, filter) {
-    std::vector<Parameter> parameters_app_controlled = GenerateTestParametersExist();
-    FilterParameters(parameters_app_controlled, LAYER_STATE_APPLICATION_CONTROLLED);
+    std::vector<ConfigurationLayer> parameters_app_controlled = GenerateTestParametersExist();
+    FilterConfiguratorLayers(parameters_app_controlled, LAYER_STATE_APPLICATION_CONTROLLED);
     EXPECT_EQ(2, parameters_app_controlled.size());
 
-    std::vector<Parameter> parameters_overridden = GenerateTestParametersExist();
-    FilterParameters(parameters_overridden, LAYER_STATE_OVERRIDDEN);
+    std::vector<ConfigurationLayer> parameters_overridden = GenerateTestParametersExist();
+    FilterConfiguratorLayers(parameters_overridden, LAYER_STATE_OVERRIDDEN);
     EXPECT_EQ(2, parameters_overridden.size());
 
-    std::vector<Parameter> parameters_excluded = GenerateTestParametersExist();
-    FilterParameters(parameters_excluded, LAYER_STATE_EXCLUDED);
+    std::vector<ConfigurationLayer> parameters_excluded = GenerateTestParametersExist();
+    FilterConfiguratorLayers(parameters_excluded, LAYER_STATE_EXCLUDED);
     EXPECT_EQ(2, parameters_excluded.size());
 }
 
 TEST(test_parameter, find) {
-    std::vector<Parameter> parameters = GenerateTestParametersExist();
+    std::vector<ConfigurationLayer> layers = GenerateTestParametersExist();
 
     {
-        auto parameter = FindParameter(parameters, "Layer E1");
+        auto parameter = FindConfigurationLayer(layers, "Layer E1");
         EXPECT_STREQ("Layer E1", parameter->name.toUtf8().constData());
     }
 
     {
-        auto parameter = FindParameter(parameters, "Layer E4");
-        EXPECT_EQ(parameters.end(), parameter);
+        auto parameter = FindConfigurationLayer(layers, "Layer E4");
+        EXPECT_EQ(layers.end(), parameter);
     }
 }
 
 TEST(test_parameter, order_automatic) {
     std::vector<Layer> layers = GenerateTestLayers();
-    std::vector<Parameter> parameters = GenerateTestParametersAll();
+    std::vector<ConfigurationLayer> layers = GenerateTestParametersAll();
 
-    OrderParameter(parameters, layers);
+    SortConfigurationLayers(layers, layers);
 
     // Missing
-    EXPECT_STREQ("Layer C3", parameters[0].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C4", parameters[1].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C5", parameters[2].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E3", parameters[3].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E4", parameters[4].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E5", parameters[5].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I3", parameters[6].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I4", parameters[7].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I5", parameters[8].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C3", layers[0].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C4", layers[1].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C5", layers[2].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E3", layers[3].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E4", layers[4].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E5", layers[5].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I3", layers[6].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I4", layers[7].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I5", layers[8].name.toUtf8().constData());
 
     // Exclude
-    EXPECT_STREQ("Layer C1", parameters[9].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E1", parameters[10].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I1", parameters[11].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C1", layers[9].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E1", layers[10].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I1", layers[11].name.toUtf8().constData());
 
     // Implicit application controlled
-    EXPECT_STREQ("Layer I2", parameters[12].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I2", layers[12].name.toUtf8().constData());
 
     // Implicit overriden
-    EXPECT_STREQ("Layer I0", parameters[13].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I0", layers[13].name.toUtf8().constData());
 
     // Explicit overriden
-    EXPECT_STREQ("Layer C0", parameters[14].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E0", parameters[15].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C0", layers[14].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E0", layers[15].name.toUtf8().constData());
 
     // Explicit application controlled
-    EXPECT_STREQ("Layer C2", parameters[16].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E2", parameters[17].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C2", layers[16].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E2", layers[17].name.toUtf8().constData());
 }
 
 TEST(test_parameter, order_manual) {
     std::vector<Layer> layers = GenerateTestLayers();
-    std::vector<Parameter> parameters = GenerateTestParametersAll();
+    std::vector<ConfigurationLayer> layers = GenerateTestParametersAll();
 
-    auto layer_e0 = FindParameter(parameters, "Layer E0");
+    auto layer_e0 = FindConfigurationLayer(layers, "Layer E0");
     layer_e0->overridden_rank = 14;
 
-    auto layer_c0 = FindParameter(parameters, "Layer C0");
+    auto layer_c0 = FindConfigurationLayer(layers, "Layer C0");
     layer_c0->overridden_rank = 15;
 
-    OrderParameter(parameters, layers);
+    SortConfigurationLayers(layers, layers);
 
     // Missing
-    EXPECT_STREQ("Layer C3", parameters[0].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C4", parameters[1].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C5", parameters[2].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E3", parameters[3].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E4", parameters[4].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E5", parameters[5].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I3", parameters[6].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I4", parameters[7].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I5", parameters[8].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C3", layers[0].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C4", layers[1].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C5", layers[2].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E3", layers[3].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E4", layers[4].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E5", layers[5].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I3", layers[6].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I4", layers[7].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I5", layers[8].name.toUtf8().constData());
 
     // Exclude
-    EXPECT_STREQ("Layer C1", parameters[9].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E1", parameters[10].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I1", parameters[11].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C1", layers[9].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E1", layers[10].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I1", layers[11].name.toUtf8().constData());
 
     // Implicit application controlled
-    EXPECT_STREQ("Layer I2", parameters[12].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I2", layers[12].name.toUtf8().constData());
 
     // Implicit overriden
-    EXPECT_STREQ("Layer I0", parameters[13].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I0", layers[13].name.toUtf8().constData());
 
     // Explicit overriden with manual override!
-    EXPECT_STREQ("Layer E0", parameters[14].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C0", parameters[15].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E0", layers[14].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C0", layers[15].name.toUtf8().constData());
 
     // Explicit application controlled
-    EXPECT_STREQ("Layer C2", parameters[16].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E2", parameters[17].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C2", layers[16].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E2", layers[17].name.toUtf8().constData());
 }

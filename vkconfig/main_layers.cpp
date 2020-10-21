@@ -48,8 +48,8 @@ static int RunLayersOverride(const CommandLine& command_line) {
     if (override_result) {
         printf("\nLayers configuration \"%s\" applied to all Vulkan Applications, including Vulkan layers:\n",
                command_line.layers_configuration_path.c_str());
-        for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-            const Parameter& parameter = configuration.parameters[i];
+        for (std::size_t i = 0, n = configuration.layers.size(); i < n; ++i) {
+            const ConfigurationLayer& parameter = configuration.layers[i];
             if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED) continue;
 
             printf("\t%s (%s)\n", parameter.name.toStdString().c_str(),

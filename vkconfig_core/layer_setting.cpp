@@ -36,37 +36,6 @@ bool IsStringFound(const std::vector<QString>& data, const QString& token) {
     return false;
 }
 
-SettingType GetSettingType(const char* token) {
-    for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
-        const SettingType type = static_cast<SettingType>(i);
-        if (strcmp(token, GetSettingTypeToken(type)) == 0) return type;
-    }
-
-    assert(0);  // Unknown token
-    return static_cast<SettingType>(-1);
-}
-
-const char* GetSettingTypeToken(SettingType type) {
-    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
-
-    static const char* table[] = {
-        "string",        // SETTING_STRING
-        "int",           // SETTING_INT
-        "save_file",     // SETTING_SAVE_FILE
-        "load_file",     // SETTING_LOAD_FILE
-        "save_folder",   // SETTING_SAVE_FOLDER
-        "bool",          // SETTING_BOOL
-        "bool_numeric",  // SETTING_BOOL_NUMERIC
-        "enum",          // SETTING_EXCLUSIVE_LIST
-        "multi_enum",    // SETTING_INCLUSIVE_LIST
-        "range",         // SETTING_RANGE_INT
-        "vuid_exclude"   // SETTING_VUID_FILTER
-    };
-    static_assert(countof(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return table[type];
-}
-
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) {
     for (std::size_t i = 0, n = settings.size(); i < n; i++) {
         if (settings[i].key == key) {
@@ -179,12 +148,12 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonArray& js
             case SETTING_BOOL:
             case SETTING_BOOL_NUMERIC:
             case SETTING_VUID_FILTER:
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
+                json_setting.insert("type", GetSettingToken(setting.type));
                 json_setting.insert("default", setting.defaults[0]);
                 break;
 
             case SETTING_EXCLUSIVE_LIST: {
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
+                json_setting.insert("type", GetSettingToken(setting.type));
                 json_setting.insert("default", setting.defaults[0]);
 
                 QJsonObject options;
@@ -196,7 +165,7 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonArray& js
             } break;
 
             case SETTING_INCLUSIVE_LIST: {
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
+                json_setting.insert("type", GetSettingToken(setting.type));
 
                 QJsonObject options;
                 for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) {

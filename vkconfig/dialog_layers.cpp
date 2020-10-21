@@ -201,7 +201,7 @@ void LayersDialog::OnLayerTreeSortedClicked(QTreeWidgetItem *item, int column) {
     UpdateUI();
 }
 
-void LayersDialog::AddLayerItem(const Parameter &parameter) {
+void LayersDialog::AddLayerItem(const ConfigurationLayer &parameter) {
     assert(!parameter.name.isEmpty());
 
     Configurator &configurator = Configurator::Get();
@@ -254,8 +254,8 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 void LayersDialog::LoadAvailableLayersUI() {
     ui->layerTree->clear();
 
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        AddLayerItem(parameters[i]);
+    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
+        AddLayerItem(layers[i]);
     }
 
     resizeEvent(nullptr);
@@ -266,11 +266,11 @@ void LayersDialog::LoadAvailableLayersUI() {
 void LayersDialog::LoadSortedLayersUI() {
     ui->layerTreeSorted->clear();
 
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].state != LAYER_STATE_OVERRIDDEN) continue;
+    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
+        if (layers[i].state != LAYER_STATE_OVERRIDDEN) continue;
 
-        TreeWidgetItemParameter *sorted_layer_item = new TreeWidgetItemParameter(parameters[i].name);
-        sorted_layer_item->setText(0, parameters[i].name);
+        TreeWidgetItemParameter *sorted_layer_item = new TreeWidgetItemParameter(layers[i].name);
+        sorted_layer_item->setText(0, layers[i].name);
         sorted_layer_item->setFlags(sorted_layer_item->flags() | Qt::ItemIsSelectable);
 
         ui->layerTreeSorted->addTopLevelItem(sorted_layer_item);
@@ -303,9 +303,9 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
 
-    for (auto it = parameters.begin(); it != parameters.end(); ++it) {
+    for (auto it = layers.begin(); it != layers.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
-        it->overridden_rank = Parameter::UNRANKED;
+        it->overridden_rank = ConfigurationLayer::UNRANKED;
 
         auto layer = Find(Configurator::Get().layers.available_layers, it->name);
         if (layer != Configurator::Get().layers.available_layers.end()) {
@@ -313,7 +313,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
         }
     }
 
-    OrderParameter(parameters, Configurator::Get().layers.available_layers);
+    SortConfigurationLayers(layers, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();
     UpdateUI();
 }
@@ -330,15 +330,15 @@ void LayersDialog::on_pushButtonCustomLayers_clicked() {
 
 void LayersDialog::OverrideOrder(const QString layer_name, const TreeWidgetItemParameter *below,
                                  const TreeWidgetItemParameter *above) {
-    auto below_parameter = FindParameter(parameters, below->layer_name);
-    assert(below_parameter != parameters.end());
-    auto above_parameter = FindParameter(parameters, above->layer_name);
-    assert(above_parameter != parameters.end());
+    auto below_parameter = FindConfigurationLayer(layers, below->layer_name);
+    assert(below_parameter != layers.end());
+    auto above_parameter = FindConfigurationLayer(layers, above->layer_name);
+    assert(above_parameter != layers.end());
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
     std::swap(*below_parameter, *above_parameter);
 
-    OrderParameter(parameters, Configurator::Get().layers.available_layers);
+    SortConfigurationLayers(layers, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
 
@@ -411,7 +411,7 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
 }
 
 void LayersDialog::OverrideAllExplicitLayers() {
-    for (auto it = parameters.begin(); it != parameters.end(); ++it) {
+    for (auto it = layers.begin(); it != layers.end(); ++it) {
         if (it->state != LAYER_STATE_APPLICATION_CONTROLLED) continue;
 
         Configurator &configurator = Configurator::Get();
@@ -438,8 +438,8 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
     TreeWidgetItemParameter *tree_layer_item = dynamic_cast<TreeWidgetItemParameter *>(item);
     assert(tree_layer_item != nullptr);
-    auto current_parameter = FindParameter(parameters, tree_layer_item->layer_name);
-    assert(current_parameter != parameters.end());
+    auto current_parameter = FindConfigurationLayer(layers, tree_layer_item->layer_name);
+    assert(current_parameter != layers.end());
 
     LayerState layer_state = static_cast<LayerState>(selection);
 
@@ -478,9 +478,9 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     }
 
     current_parameter->state = layer_state;
-    current_parameter->overridden_rank = Parameter::UNRANKED;
+    current_parameter->overridden_rank = ConfigurationLayer::UNRANKED;
 
-    OrderParameter(parameters, Configurator::Get().layers.available_layers);
+    SortConfigurationLayers(layers, Configurator::Get().layers.available_layers);
 
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
@@ -500,11 +500,11 @@ void LayersDialog::accept() {
         return;
     }
 
-    FilterParameters(parameters, LAYER_STATE_APPLICATION_CONTROLLED);
+    FilterConfiguratorLayers(layers, LAYER_STATE_APPLICATION_CONTROLLED);
 
     configuration.name = ui->lineEditName->text();
     configuration._description = ui->lineEditDescription->text();
-    configuration.parameters = parameters;
+    configuration.layers = layers;
 
     const QString save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
     const bool result = configuration.Save(save_path);
@@ -517,7 +517,7 @@ void LayersDialog::BuildParameters() {
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
-    parameters.clear();
+    layers.clear();
 
     for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
         const Layer &layer = available_layers[i];
@@ -525,21 +525,21 @@ void LayersDialog::BuildParameters() {
         if (layer._layer_type != LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is overridden
-        if (FindParameter(configuration.parameters, layer.name) != configuration.parameters.end()) continue;
+        if (FindConfigurationLayer(configuration.layers, layer.name) != configuration.layers.end()) continue;
 
-        Parameter parameter;
+        ConfigurationLayer parameter;
         parameter.name = layer.name;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
 
-        parameters.push_back(parameter);
+        layers.push_back(parameter);
     }
 
     // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        const Parameter &parameter = configuration.parameters[i];
+    for (std::size_t i = 0, n = configuration.layers.size(); i < n; ++i) {
+        const ConfigurationLayer &parameter = configuration.layers[i];
         assert(!parameter.name.isEmpty());
 
-        parameters.push_back(parameter);
+        layers.push_back(parameter);
     }
 
     for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
@@ -548,15 +548,15 @@ void LayersDialog::BuildParameters() {
         if (layer._layer_type == LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is already in the layer tree
-        if (FindParameter(configuration.parameters, layer.name) != configuration.parameters.end()) continue;
+        if (FindConfigurationLayer(configuration.layers, layer.name) != configuration.layers.end()) continue;
 
-        Parameter parameter;
+        ConfigurationLayer parameter;
         parameter.name = layer.name;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
         parameter.settings = layer.settings;
 
-        parameters.push_back(parameter);
+        layers.push_back(parameter);
     }
 
-    OrderParameter(parameters, available_layers);
+    SortConfigurationLayers(layers, available_layers);
 }

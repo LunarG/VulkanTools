@@ -112,7 +112,7 @@ bool Configurator::Init() {
     }
 
     if (HasActiveConfiguration()) {
-        if (HasMissingParameter(_active_configuration->parameters, layers.available_layers)) {
+        if (HasMissingLayer(_active_configuration->layers, layers.available_layers)) {
             QSettings settings;
             if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
                 QMessageBox alert;
@@ -338,7 +338,7 @@ void Configurator::RefreshConfiguration() {
 
 bool Configurator::HasActiveConfiguration() const {
     return _active_configuration != available_configurations.end()
-               ? !HasMissingParameter(_active_configuration->parameters, layers.available_layers)
+               ? !HasMissingLayer(_active_configuration->layers, layers.available_layers)
                : false;
 }
 

@@ -30,6 +30,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QVariant>
 
 #include <cassert>
 #include <cstdio>
@@ -139,11 +140,11 @@ bool Configuration::Load_2_0(const QString& full_path) {
 
     QJsonArray excluded_array = excluded_value.toArray();
     for (int i = 0; i < excluded_array.size(); i++) {
-        Parameter parameter;
+        ConfigurationLayer parameter;
         parameter.name = excluded_array[i].toString();
         parameter.state = LAYER_STATE_EXCLUDED;
 
-        parameters.push_back(parameter);
+        layers.push_back(parameter);
     }
 
     const QJsonValue& editor_state = configuration_entry_object.value("editor_state");
@@ -157,7 +158,7 @@ bool Configuration::Load_2_0(const QString& full_path) {
     assert(options_value != QJsonValue::Undefined);
 
     QJsonObject layer_objects = options_value.toObject();
-    const QStringList& layers = layer_objects.keys();
+    const QStringList& layers_keys = layer_objects.keys();
 
     if (options_value != QJsonValue::Undefined && version > Version::VKCONFIG) {
         QMessageBox alert;
@@ -173,22 +174,22 @@ bool Configuration::Load_2_0(const QString& full_path) {
         if (alert.exec() == QMessageBox::No) exit(-1);
     }
 
-    for (int layer_index = 0; layer_index < layers.length(); ++layer_index) {
-        const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
+    for (int layer_index = 0; layer_index < layers_keys.size(); ++layer_index) {
+        const QJsonValue& layer_value = layer_objects.value(layers_keys[layer_index]);
         const QJsonObject& layer_object = layer_value.toObject();
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
 
-        auto parameter = FindParameter(parameters, layers[layer_index]);
-        if (parameter != parameters.end()) {
-            parameter->overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
+        auto parameter = FindConfigurationLayer(layers, layers_keys[layer_index]);
+        if (parameter != layers.end()) {
+            parameter->overridden_rank = layer_rank == QJsonValue::Undefined ? ConfigurationLayer::UNRANKED : layer_rank.toInt();
             LoadConfigurationSettings(layer_object, *parameter);
         } else {
-            Parameter parameter;
-            parameter.name = layers[layer_index];
+            ConfigurationLayer parameter;
+            parameter.name = layers_keys[layer_index];
             parameter.state = LAYER_STATE_OVERRIDDEN;
-            parameter.overridden_rank = Parameter::UNRANKED;
+            parameter.overridden_rank = ConfigurationLayer::UNRANKED;
             LoadConfigurationSettings(layer_object, parameter);
-            parameters.push_back(parameter);
+            layers.push_back(parameter);
         }
     }
 
@@ -248,10 +249,10 @@ bool Configuration::Load_2_1(const QString& full_path) {
 
     const QJsonArray& excluded_array = excluded_value.toArray();
     for (int i = 0, n = excluded_array.size(); i < n; ++i) {
-        Parameter parameter;
+        ConfigurationLayer parameter;
         parameter.name = excluded_array[i].toString();
         parameter.state = LAYER_STATE_EXCLUDED;
-        parameters.push_back(parameter);
+        layers.push_back(parameter);
     }
 
     const QJsonValue& overridden_value = configuration_entry_object.value("overridden_layers");
@@ -259,7 +260,7 @@ bool Configuration::Load_2_1(const QString& full_path) {
 
     const QJsonArray& overridden_array = overridden_value.toArray();
     for (int i = 0, n = overridden_array.size(); i < n; ++i) {
-        Parameter parameter;
+        ConfigurationLayer parameter;
         parameter.state = LAYER_STATE_OVERRIDDEN;
 
         const QJsonObject& layer_object = overridden_array[i].toObject();
@@ -267,11 +268,11 @@ bool Configuration::Load_2_1(const QString& full_path) {
         const QJsonValue& layer_name = layer_object.value("name");
         assert(layer_name != QJsonValue::Undefined);
         // We should not have duplicated layers in a configuration
-        assert(FindParameter(parameters, layer_name.toString()) == parameters.end());
+        assert(FindConfigurationLayer(layers, layer_name.toString()) == layers.end());
         parameter.name = layer_name.toString();
 
         const QJsonValue& layer_rank = layer_object.value("rank");
-        parameter.overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
+        parameter.overridden_rank = layer_rank == QJsonValue::Undefined ? ConfigurationLayer::UNRANKED : layer_rank.toInt();
 
         const QJsonValue& settings_value = layer_object.value("settings");
         assert(settings_value != QJsonValue::Undefined && settings_value.isArray());
@@ -295,7 +296,7 @@ bool Configuration::Load_2_1(const QString& full_path) {
             // parameter.settings.push_back({, });
         }
 
-        parameters.push_back(parameter);
+        layers.push_back(parameter);
     }
 
     return true;
@@ -308,28 +309,33 @@ bool Configuration::Save(const QString& full_path) const {
 
     // Build the json document
     QJsonArray excluded_list;
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].state != LAYER_STATE_EXCLUDED) {
+    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
+        if (layers[i].state != LAYER_STATE_EXCLUDED) {
             continue;
         }
-        excluded_list.append(parameters[i].name);
+        excluded_list.append(layers[i].name);
     }
 
     QJsonArray overridden_list;  // This list of layers
 
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
-        if (parameters[i].state == LAYER_STATE_APPLICATION_CONTROLLED) {
+    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
+        const ConfigurationLayer& configuration_layer = layers[i];
+        if (layers[i].state == LAYER_STATE_APPLICATION_CONTROLLED) {
             continue;
         }
 
         QJsonArray json_settings;
-        const bool result = SaveLayerSettings(parameter.settings, json_settings);
-        assert(result);
+        for (auto it = configuration_layer.settings.begin(), end = configuration_layer.settings.end(); it != end; ++it) {
+            QJsonObject json_settings;
+            (*it)->Save(json_settings);
+        }
+        // TODO
+        // const bool result = SaveConfigurationLayerSettings(configuration_layer.settings, json_settings);
+        // assert(result);
 
         QJsonObject json_layer;
-        json_layer.insert("name", parameter.name);
-        json_layer.insert("rank", parameter.overridden_rank);
+        json_layer.insert("name", configuration_layer.name);
+        json_layer.insert("rank", configuration_layer.overridden_rank);
         json_layer.insert("settings", json_settings);
 
         overridden_list.append(json_layer);
@@ -364,7 +370,7 @@ bool Configuration::Save(const QString& full_path) const {
     }
 }
 
-bool Configuration::IsEmpty() const { return parameters.empty(); }
+bool Configuration::IsEmpty() const { return layers.empty(); }
 
 static const size_t NOT_FOUND = static_cast<size_t>(-1);
 

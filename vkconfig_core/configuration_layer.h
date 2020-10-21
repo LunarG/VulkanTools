@@ -20,10 +20,11 @@
 
 #pragma once
 
+#include "configuration_setting.h"
 #include "layer.h"
-#include "layer_setting.h"
 
 #include <QString>
+#include <QJsonObject>
 
 #include <vector>
 
@@ -39,32 +40,25 @@ enum LayerState {
 
 enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
 
-enum ParameterRank {
-    PARAMETER_RANK_MISSING = 0,
-    PARAMETER_RANK_EXCLUDED,
-    PARAMETER_RANK_IMPLICIT_AVAILABLE,
-    PARAMETER_RANK_IMPLICIT_OVERRIDDEN,
-    PARAMETER_RANK_EXPLICIT_OVERRIDDEN,
-    PARAMETER_RANK_EXPLICIT_AVAILABLE
-};
-
-struct Parameter {
+struct ConfigurationLayer {
     static const int UNRANKED = -1;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
-    Parameter(const QString& name, const LayerState state) : name(name), state(state), overridden_rank(UNRANKED) {}
+    typedef std::vector<std::unique_ptr<ConfigurationSetting>> ConfigurationSettings;
+
+    ConfigurationLayer() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
+    ConfigurationLayer(const QString& name, const LayerState state) : name(name), state(state), overridden_rank(UNRANKED) {}
 
     QString name;
     LayerState state;
-    std::vector<LayerSetting> settings;
+    ConfigurationSettings settings;
     int overridden_rank;
 };
 
-ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
-void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
-std::vector<Parameter>::iterator FindParameter(std::vector<Parameter>& parameters, const QString& layer_name);
+bool LoadConfigurationSettings(const QJsonObject& layer_settings_descriptors, ConfigurationLayer& configuration_layer);
 
-bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+void FilterConfiguratorLayers(std::vector<ConfigurationLayer>& layers, const LayerState state);
 
-bool LoadConfigurationSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);
+std::vector<ConfigurationLayer>::iterator FindConfigurationLayer(std::vector<ConfigurationLayer>& layers,
+                                                                 const QString& layer_name);
+
+bool HasMissingLayer(const std::vector<ConfigurationLayer>& configuration_layers, const std::vector<Layer>& layers);

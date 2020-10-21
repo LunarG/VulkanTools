@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "parameter.h"
+#include "configuration_layer.h"
 
 #include <QString>
 #include <QStringList>
@@ -39,7 +39,7 @@ class Configuration {
     QString _description;            // A friendly description of what this profile does
     QByteArray _setting_tree_state;  // Recall editor tree state
 
-    std::vector<Parameter> parameters;
+    std::vector<ConfigurationLayer> layers;
 
     bool IsEmpty() const;
 

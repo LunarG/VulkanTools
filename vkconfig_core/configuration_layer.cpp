@@ -18,106 +18,13 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "parameter.h"
-#include "platform.h"
-#include "version.h"
 #include "util.h"
+#include "configuration_layer.h"
 
+#include <QStringList>
 #include <QJsonArray>
-
-#include <cassert>
-#include <algorithm>
-
-ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter) {
-    assert(!parameter.name.isEmpty());
-
-    const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
-    if (layer == available_layers.end()) {
-        return PARAMETER_RANK_MISSING;
-    } else if (parameter.state == LAYER_STATE_EXCLUDED) {
-        return PARAMETER_RANK_EXCLUDED;
-    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_IMPLICIT_AVAILABLE;
-    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_IMPLICIT_OVERRIDDEN;
-    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
-    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_EXPLICIT_AVAILABLE;
-    } else {
-        assert(0);  // Unknown ordering
-        return PARAMETER_RANK_MISSING;
-    }
-}
-
-void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
-    struct ParameterCompare {
-        ParameterCompare(const std::vector<Layer>& layers) : layers(layers) {}
-
-        bool operator()(const Parameter& a, const Parameter& b) const {
-            const ParameterRank rankA = GetParameterOrdering(layers, a);
-            const ParameterRank rankB = GetParameterOrdering(layers, b);
-            if (rankA == rankB && a.state == LAYER_STATE_OVERRIDDEN) {
-                if (a.overridden_rank != Parameter::UNRANKED && b.overridden_rank != Parameter::UNRANKED)
-                    return a.overridden_rank < b.overridden_rank;
-                else if (a.name == "VK_LAYER_LUNARG_device_simulation")
-                    return false;
-                else if (b.name == "VK_LAYER_LUNARG_device_simulation")
-                    return true;
-                else if (a.name == "VK_LAYER_KHRONOS_validation" && b.name == "VK_LAYER_LUNARG_device_simulation")
-                    return true;
-                else if (a.name == "VK_LAYER_KHRONOS_validation")
-                    return false;
-                else
-                    return a.name < b.name;
-            } else if (rankA == rankB && a.state != LAYER_STATE_OVERRIDDEN)
-                return a.name < b.name;
-            else
-                return rankA < rankB;
-        }
-
-        const std::vector<Layer>& layers;
-    };
-
-    std::sort(parameters.begin(), parameters.end(), ParameterCompare(layers));
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        parameters[i].overridden_rank = static_cast<int>(i);
-    }
-}
-
-void FilterParameters(std::vector<Parameter>& parameters, const LayerState state) {
-    std::vector<Parameter> filtered_parameters;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].state == state) continue;
-
-        filtered_parameters.push_back(parameters[i]);
-    }
-
-    parameters = filtered_parameters;
-}
-
-std::vector<Parameter>::iterator FindParameter(std::vector<Parameter>& parameters, const QString& layer_name) {
-    assert(!layer_name.isEmpty());
-
-    for (auto it = parameters.begin(); it != parameters.end(); ++it) {
-        if (it->name == layer_name) {
-            return it;
-        }
-    }
-
-    return parameters.end();
-}
-
-bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
-    for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
-        if (!IsFound(layers, it->name)) return true;
-    }
-    return false;
-}
-
-bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter& parameter) {
+/*
+bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, ConfigurationLayer& configuration_layer) {
     const QStringList& settings_names = json_layer_settings.keys();
 
     for (int setting_index = 0, setting_count = settings_names.size(); setting_index < setting_count; ++setting_index) {
@@ -125,20 +32,15 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
         // user setting.
         if (settings_names[setting_index] == "layer_rank") continue;
 
-        LayerSetting setting;
+        ConfigurationSetting setting;
         setting.key = settings_names[setting_index];
 
         const QJsonValue& json_value = json_layer_settings.value(settings_names[setting_index]);
         const QJsonObject& json_object = json_value.toObject();
 
-        // The easy stuff...
-        const QJsonValue& json_value_description = json_object.value("description");
-        assert(json_value_description != QJsonValue::Undefined);
-        setting.description = json_value_description.toString();
-
-        const QJsonValue& json_value_name = json_object.value("name");
+        const QJsonValue& json_value_name = json_object.value("key");
         assert(json_value_name != QJsonValue::Undefined);
-        setting.label = json_value_name.toString();
+        setting.key = json_value_name.toString();
 
         // This is either a single value, or a comma delimted set of strings
         // selected from a nonexclusive list
@@ -203,12 +105,12 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
                 break;
         }
 
-        parameter.settings.push_back(setting);
+        configuration_layer.settings.push_back(setting);
     }
 
     // Hack to fix in the future
-    if (parameter.name == "VK_LAYER_KHRONOS_validation" && parameter.state == LAYER_STATE_OVERRIDDEN) {
-        LayerSetting* searched_setting = FindSetting(parameter.settings, "duplicate_message_limit");
+    if (configuration_layer.name == "VK_LAYER_KHRONOS_validation" && configuration_layer.state == LAYER_STATE_OVERRIDDEN) {
+        LayerSetting* searched_setting = FindSetting(configuration_layer.settings, "duplicate_message_limit");
         if (!searched_setting) {
             LayerSetting setting;
             setting.key = "duplicate_message_limit";
@@ -217,15 +119,47 @@ bool LoadConfigurationSettings(const QJsonObject& json_layer_settings, Parameter
             setting.type = SETTING_STRING;
             setting.defaults.push_back("10");
 
-            parameter.settings.push_back(setting);
+            configuration_layer.settings.push_back(setting);
         }
     }
 
-    struct ParameterCompare {
-        bool operator()(const LayerSetting& a, const LayerSetting& b) const { return a.key < b.key; }
+    struct ConfigurationSettingCompare {
+        bool operator()(const ConfigurationSetting& a, const ConfigurationSetting& b) const { return a.key < b.key; }
     };
 
-    std::sort(parameter.settings.begin(), parameter.settings.end(), ParameterCompare());
+    std::sort(configuration_layer.settings.begin(), configuration_layer.settings.end(), ConfigurationSettingCompare());
 
     return true;
+}
+*/
+void FilterConfiguratorLayers(std::vector<ConfigurationLayer>& layers, const LayerState state) {
+    std::vector<ConfigurationLayer> filtered_configuration_layers;
+
+    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
+        if (layers[i].state == state) continue;
+
+        filtered_configuration_layers.push_back(layers[i]);
+    }
+
+    layers = filtered_configuration_layers;
+}
+
+std::vector<ConfigurationLayer>::iterator FindConfigurationLayer(std::vector<ConfigurationLayer>& layers,
+                                                                 const QString& layer_name) {
+    assert(!layer_name.isEmpty());
+
+    for (auto it = layers.begin(); it != layers.end(); ++it) {
+        if (it->name == layer_name) {
+            return it;
+        }
+    }
+
+    return layers.end();
+}
+
+bool HasMissingLayer(const std::vector<ConfigurationLayer>& configuration_layers, const std::vector<Layer>& layers) {
+    for (auto it = layers.begin(), end = layers.end(); it != end; ++it) {
+        if (!IsFound(configuration_layers, it->name)) return true;
+    }
+    return false;
 }

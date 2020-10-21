@@ -56,14 +56,14 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     build_tree->blockSignals(true);
     build_tree->clear();
 
-    if (configuration->parameters.empty()) {
+    if (configuration->layers.empty()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, "No overridden or excluded layer");
         build_tree->addTopLevelItem(item);
     } else {
         // There will be one top level item for each layer
-        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-            Parameter &parameter = configuration->parameters[i];
+        for (std::size_t i = 0, n = configuration->layers.size(); i < n; ++i) {
+            ConfigurationLayer &parameter = configuration->layers[i];
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
             const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
@@ -99,8 +99,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         excluded_layers->setText(0, "Excluded Layers:");
         build_tree->addTopLevelItem(excluded_layers);
 
-        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-            Parameter &parameter = configuration->parameters[i];
+        for (std::size_t i = 0, n = configuration->layers.size(); i < n; ++i) {
+            ConfigurationLayer &parameter = configuration->layers[i];
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
             const std::vector<Layer>::const_iterator layer = Find(Configurator::Get().layers.available_layers, parameter.name);
@@ -124,7 +124,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     build_tree->blockSignals(false);
 }
 
-void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, Parameter &parameter) {
+void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, ConfigurationLayer &configuration_layer) {
     _validation_preset_item = new QTreeWidgetItem();
     _validation_preset_item->setText(0, "Preset");
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
@@ -164,11 +164,12 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, P
     _validation_preset_item->addChild(_validation_settingsitem);
 
     // This just finds the enables and disables
-    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, parameter.settings);
+    _validation_settings =
+        new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, configuration_layer.settings);
 
     // Get the Debug Action and log file settings (and they must exist)
-    LayerSetting &debug_action = *FindSetting(parameter.settings, "debug_action");
-    LayerSetting &log_file = *FindSetting(parameter.settings, "log_filename");
+    LayerSetting &debug_action = *FindSetting(configuration_layer.settings, "debug_action");
+    LayerSetting &log_file = *FindSetting(configuration_layer.settings, "log_filename");
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
@@ -208,9 +209,9 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, P
     }
 
     // This is looking for the report flags
-    for (std::size_t setting_index = 0, settings_count = parameter.settings.size(); setting_index < settings_count;
+    for (std::size_t setting_index = 0, settings_count = configuration_layer.settings.size(); setting_index < settings_count;
          ++setting_index) {
-        LayerSetting &layer_setting = parameter.settings[setting_index];
+        LayerSetting &layer_setting = configuration_layer.settings[setting_index];
 
         // Multi-enum - report flags only
         if (layer_setting.key == "report_flags") {
@@ -244,9 +245,9 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, P
     }
 
     // VUID message filtering
-    for (std::size_t setting_index = 0, settings_count = parameter.settings.size(); setting_index < settings_count;
+    for (std::size_t setting_index = 0, settings_count = configuration_layer.settings.size(); setting_index < settings_count;
          ++setting_index) {
-        LayerSetting &layer_setting = parameter.settings[setting_index];
+        LayerSetting &layer_setting = configuration_layer.settings[setting_index];
 
         if (layer_setting.type != SETTING_VUID_FILTER) {
             continue;
@@ -295,7 +296,7 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
     OnSettingEdited();
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
+void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, ConfigurationLayer &parameter) {
     std::vector<LayerSetting> &settings = parameter.settings;
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
@@ -391,8 +392,8 @@ void SettingsTreeManager::khronosPresetChanged(int combo_box_preset_index) {
     if (preset_index == PRESET_INDEX_USER_DEFINED) return;
 
     auto configuration = configurator.GetActiveConfiguration();
-    auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
-    assert(parameter != configuration->parameters.end());
+    auto parameter = FindConfigurationLayer(configuration->layers, "VK_LAYER_KHRONOS_validation");
+    assert(parameter != configuration->layers.end());
 
     auto layer = Find(configurator.layers.available_layers, "VK_LAYER_KHRONOS_validation");
     assert(layer != configurator.layers.available_layers.end());
@@ -435,7 +436,7 @@ void SettingsTreeManager::OnPresetEdited() {
     _presets_combo_box->blockSignals(true);
     _presets_combo_box->setCurrentIndex(GetComboBoxPresetIndex(PRESET_INDEX_USER_DEFINED));
     auto configuration = Configurator::Get().GetActiveConfiguration();
-    auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
+    auto parameter = FindConfigurationLayer(configuration->layers, "VK_LAYER_KHRONOS_validation");
     std::vector<QString> &defaults = FindSetting(parameter->settings, "preset-index")->defaults;
     if (defaults.empty()) defaults.resize(1);
     defaults[0] = PRESET_INDEX_USER_DEFINED;
@@ -486,9 +487,8 @@ void SettingsTreeManager::CleanupGUI() {
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
-    auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
-    if (parameter != configuration->parameters.end())
-        _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
+    auto parameter = FindConfigurationLayer(configuration->layers, "VK_LAYER_KHRONOS_validation");
+    if (parameter != configuration->layers.end()) _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
 
     _validation_file_item = nullptr;
 
