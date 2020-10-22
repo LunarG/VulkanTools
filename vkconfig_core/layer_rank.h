@@ -35,10 +35,3 @@ enum LayerRank {
 LayerRank GetLayerRank(const std::vector<Layer>& available_layers, const ConfigurationLayer& configuration_layer);
 
 void SortConfigurationLayers(std::vector<ConfigurationLayer>& configuration_layers, const std::vector<Layer>& layers);
-
-void FilterConfiguratorLayers(std::vector<ConfigurationLayer>& configuration_layers, const LayerState state);
-
-std::vector<ConfigurationLayer>::iterator FindConfigurationLayer(std::vector<ConfigurationLayer>& configuration_layers,
-                                                                 const QString& layer_name);
-
-bool HasMissingLayer(const std::vector<ConfigurationLayer>& configuration_layers, const std::vector<Layer>& layers);

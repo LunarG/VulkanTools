@@ -327,7 +327,8 @@ bool Configuration::Save(const QString& full_path) const {
         QJsonArray json_settings;
         for (auto it = configuration_layer.settings.begin(), end = configuration_layer.settings.end(); it != end; ++it) {
             QJsonObject json_settings;
-            (*it)->Save(json_settings);
+            // TODO
+            // it->Save(json_settings);
         }
         // TODO
         // const bool result = SaveConfigurationLayerSettings(configuration_layer.settings, json_settings);

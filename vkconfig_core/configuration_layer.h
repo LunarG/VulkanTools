@@ -43,7 +43,7 @@ enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
 struct ConfigurationLayer {
     static const int UNRANKED = -1;
 
-    typedef std::vector<std::unique_ptr<ConfigurationSetting>> ConfigurationSettings;
+    typedef std::vector<ConfigurationSetting> ConfigurationSettings;
 
     ConfigurationLayer() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
     ConfigurationLayer(const QString& name, const LayerState state) : name(name), state(state), overridden_rank(UNRANKED) {}

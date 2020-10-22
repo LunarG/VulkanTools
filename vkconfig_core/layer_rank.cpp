@@ -81,15 +81,3 @@ void SortConfigurationLayers(std::vector<ConfigurationLayer>& configuration_laye
         configuration_layers[i].overridden_rank = static_cast<int>(i);
     }
 }
-
-void FilterConfiguratorLayers(std::vector<ConfigurationLayer>& layers, const LayerState state) {
-    std::vector<ConfigurationLayer> filtered_parameters;
-
-    for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
-        if (layers[i].state == state) continue;
-
-        filtered_parameters.push_back(layers[i]);
-    }
-
-    layers = filtered_parameters;
-}

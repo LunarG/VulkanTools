@@ -124,7 +124,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     build_tree->blockSignals(false);
 }
 
-void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, ConfigurationLayer &configuration_layer) {
+void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, const Layer &layer,
+                                           ConfigurationLayer &configuration_layer) {
     _validation_preset_item = new QTreeWidgetItem();
     _validation_preset_item->setText(0, "Preset");
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
@@ -296,7 +297,7 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
     OnSettingEdited();
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, ConfigurationLayer &parameter) {
+void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, const Layer &layer, ConfigurationLayer &parameter) {
     std::vector<LayerSetting> &settings = parameter.settings;
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
@@ -436,8 +437,8 @@ void SettingsTreeManager::OnPresetEdited() {
     _presets_combo_box->blockSignals(true);
     _presets_combo_box->setCurrentIndex(GetComboBoxPresetIndex(PRESET_INDEX_USER_DEFINED));
     auto configuration = Configurator::Get().GetActiveConfiguration();
-    auto parameter = FindConfigurationLayer(configuration->layers, "VK_LAYER_KHRONOS_validation");
-    std::vector<QString> &defaults = FindSetting(parameter->settings, "preset-index")->defaults;
+    auto configuration_layer = FindConfigurationLayer(configuration->layers, "VK_LAYER_KHRONOS_validation");
+    std::vector<QVariant> &defaults = FindSetting(configuration_layer->settings, "preset-index")->default_value;
     if (defaults.empty()) defaults.resize(1);
     defaults[0] = PRESET_INDEX_USER_DEFINED;
 

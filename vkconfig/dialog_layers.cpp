@@ -27,6 +27,7 @@
 
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/layer_rank.h"
 
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
 #include <windows.h>
@@ -309,7 +310,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
 
         auto layer = Find(Configurator::Get().layers.available_layers, it->name);
         if (layer != Configurator::Get().layers.available_layers.end()) {
-            it->settings = layer->settings;
+            for (std::size_t i = 0, n = layer->settings.size(); i < n; ++i) it->settings.push_back(layer->settings[i]);
         }
     }
 
@@ -550,12 +551,12 @@ void LayersDialog::BuildParameters() {
         // The layer is already in the layer tree
         if (FindConfigurationLayer(configuration.layers, layer.name) != configuration.layers.end()) continue;
 
-        ConfigurationLayer parameter;
-        parameter.name = layer.name;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        parameter.settings = layer.settings;
+        ConfigurationLayer configuration_layer;
+        configuration_layer.name = layer.name;
+        configuration_layer.state = LAYER_STATE_APPLICATION_CONTROLLED;
+        configuration_layer.settings = layer.settings;
 
-        layers.push_back(parameter);
+        layers.push_back(configuration_layer);
     }
 
     SortConfigurationLayers(layers, available_layers);

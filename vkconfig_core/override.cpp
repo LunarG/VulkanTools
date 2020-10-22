@@ -149,9 +149,9 @@ static bool WriteLayerSettings(const PathManager& path, const std::vector<Layer>
         QString lc_layer_name = short_layer_name.toLower();
 
         for (std::size_t i = 0, m = configuration_layer.settings.size(); i < m; ++i) {
-            const ConfigurationSetting& setting = *configuration_layer.settings[i];
+            const ConfigurationSetting& setting = configuration_layer.settings[i];
 
-            stream << lc_layer_name << "." << setting.key.c_str() << " = ";
+            stream << lc_layer_name << "." << setting.key << " = ";
             // TODO
             /*
             for (std::size_t i = 0, n = setting.defaults.size(); i < n; ++i) {

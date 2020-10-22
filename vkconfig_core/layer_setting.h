@@ -30,17 +30,15 @@
 #include <QJsonObject>
 
 struct LayerSetting {
-    QString key;                    // Name of the setting the layer looks for (programatic variable name)
-    QString label;                  // Short name to prompt end user
-    StatusType status;              // Is the setting qualified as "stable", "beta" or "alpha"
-    int platform_flags;             // Platforms on which the setting is supported
-    QString description;            // Human version, describes the setting
-    SettingType type;               // The data type
-    QVariant max_value;             // For range based
-    QVariant min_value;             // For range based
-    std::vector<QString> labels;    // List of labels
-    std::vector<QString> values;    // List of values
-    std::vector<QString> defaults;  // List of default values
+    QString key;                          // Name of the setting the layer looks for (programatic variable name)
+    QString label;                        // Short name to prompt end user
+    StatusType status;                    // Is the setting qualified as "stable", "beta" or "alpha"
+    int platform_flags;                   // Platforms on which the setting is supported
+    QString description;                  // Human version, describes the setting
+    SettingType type;                     // The data type
+    std::vector<QString> labels;          // List of enum labels
+    std::vector<QString> values;          // List of enum values
+    std::vector<QVariant> default_value;  // List of default values
 };
 
 bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerSetting>& settings);

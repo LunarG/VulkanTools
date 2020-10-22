@@ -79,10 +79,10 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
         if (json_default.isArray()) {
             const QJsonArray& json_array = json_default.toArray();
             for (int i = 0, n = json_array.size(); i < n; ++i) {
-                setting.defaults.push_back(json_array[i].toString());
+                setting.default_value.push_back(json_array[i].toString());
             }
         } else
-            setting.defaults.push_back(json_default.toString());
+            setting.default_value.push_back(json_default.toString());
 
         switch (setting.type) {
             case SETTING_EXCLUSIVE_LIST:
@@ -100,8 +100,8 @@ bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerS
                 }
             } break;
             case SETTING_SAVE_FILE: {
-                setting.defaults[0] = ValidatePath(setting.defaults[0].toStdString()).c_str();
-                setting.defaults[0] = ReplacePathBuiltInVariables(setting.defaults[0].toStdString()).c_str();
+                setting.default_value[0] = ValidatePath(setting.default_value[0].toString().toStdString()).c_str();
+                setting.default_value[0] = ReplacePathBuiltInVariables(setting.default_value[0].toString().toStdString()).c_str();
             } break;
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER:
@@ -149,12 +149,12 @@ bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonArray& js
             case SETTING_BOOL_NUMERIC:
             case SETTING_VUID_FILTER:
                 json_setting.insert("type", GetSettingToken(setting.type));
-                json_setting.insert("default", setting.defaults[0]);
+                json_setting.insert("default", setting.default_value[0].toString());
                 break;
 
             case SETTING_EXCLUSIVE_LIST: {
                 json_setting.insert("type", GetSettingToken(setting.type));
-                json_setting.insert("default", setting.defaults[0]);
+                json_setting.insert("default", setting.default_value[0].toString());
 
                 QJsonObject options;
                 for (std::size_t i = 0, n = setting.labels.size(); i < n; ++i) {

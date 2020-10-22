@@ -36,7 +36,7 @@ FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, LayerSet
     item->setToolTip(0, layer_setting.description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(_layer_setting.defaults[0]);
+    _line_edit->setText(_layer_setting.default_value[0].toString());
     _line_edit->show();
 
     _push_button = new QPushButton(this);
