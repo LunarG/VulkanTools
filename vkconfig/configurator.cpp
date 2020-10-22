@@ -168,11 +168,11 @@ bool Configurator::Init() {
         alert.setWindowTitle("Vulkan Configurator couldn't find any layers configuration.");
         alert.setText(
             "A layers configuration is required to override Vulkan layers but none could be found during the initialization...");
-        alert.setInformativeText("Do you want to restore the default layers configurations?");
-        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        alert.setDefaultButton(QMessageBox::Yes);
+        alert.setInformativeText("Restoring the default layers configurations.");
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
         alert.setIcon(QMessageBox::Warning);
-        if (alert.exec() == QMessageBox::Yes) {
+        if (alert.exec() == QMessageBox::Ok) {
             ResetDefaultsConfigurations();
         }
     }
