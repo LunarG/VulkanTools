@@ -128,11 +128,3 @@ void Sort(std::vector<LayerSetting>& settings) {
 
     std::sort(settings.begin(), settings.end(), LayerCompare());
 }
-
-bool IsStringFound(const std::vector<QString>& data, const QString& token) {
-    for (std::size_t i = 0, n = data.size(); i < n; ++i) {
-        if (data[i] == token) return true;
-    }
-
-    return false;
-}

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer_setting.h"
+#include "../vkconfig_core/configuration_setting.h"
 
 #include <QWidget>
 #include <QListWidget>
@@ -33,7 +33,7 @@ class MuteMessageWidget : public QWidget {
     Q_OBJECT
 
    public:
-    explicit MuteMessageWidget(LayerSetting &layer_setting);
+    explicit MuteMessageWidget(ConfigurationSetting &configuration_setting);
 
    public Q_SLOTS:
     void addItem(const QString &item);  // Added from combo box
@@ -49,7 +49,7 @@ class MuteMessageWidget : public QWidget {
 
     void resizeEvent(QResizeEvent *event) override;
 
-    LayerSetting &_layer_setting;
+    ConfigurationSetting &_configuration_setting;
     QListWidget *_list_widget;
     QPushButton *_remove_button;
 };

@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "../vkconfig_core/configuration_setting.h"
 #include "../vkconfig_core/layer_setting.h"
 
 #include <QObject>
@@ -32,7 +33,8 @@ class EnumSettingWidget : public QComboBox {
     Q_OBJECT
 
    public:
-    explicit EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting);
+    explicit EnumSettingWidget(QTreeWidgetItem* item, const LayerSetting& layer_setting,
+                               ConfigurationSetting& configuration_setting);
 
    public Q_SLOTS:
     void indexChanged(int index);
@@ -44,5 +46,6 @@ class EnumSettingWidget : public QComboBox {
     EnumSettingWidget(const EnumSettingWidget&) = delete;
     EnumSettingWidget& operator=(const EnumSettingWidget&) = delete;
 
-    LayerSetting& _layer_setting;
+    const LayerSetting& _layer_setting;
+    ConfigurationSetting& _configuration_setting;
 };

@@ -30,21 +30,21 @@ BoolSettingWidget::BoolSettingWidget(LayerSetting& layer_setting, SettingType se
 
     setText(layer_setting.label);
     setToolTip(layer_setting.description);
-    setChecked(layer_setting.defaults[0] == GetToken(true, setting_type));
+    setChecked(layer_setting.default_value == GetToken(true, setting_type));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
 void BoolSettingWidget::itemToggled() {
-    if (_layer_setting.defaults.empty()) {
-        _layer_setting.defaults.push_back(isChecked() ? _true_token : _false_token);
+    if (_layer_setting.default_value.empty()) {
+        _layer_setting.default_value.push_back(isChecked() ? _true_token : _false_token);
     } else {
-        _layer_setting.defaults[0] = isChecked() ? _true_token : _false_token;
+        _layer_setting.default_value = isChecked() ? _true_token : _false_token;
     }
 
     emit itemChanged();
 }
 
-QString BoolSettingWidget::GetToken(bool state, SettingType setting_type) const {
+SettingValue BoolSettingWidget::GetToken(bool state, SettingType setting_type) const {
     assert(setting_type >= SETTING_FIRST && setting_type <= SETTING_LAST);
 
     switch (setting_type) {

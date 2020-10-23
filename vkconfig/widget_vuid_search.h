@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "../vkconfig_core/setting_value.h"
+
 #include <QWidget>
 #include <QResizeEvent>
 #include <QStringList>
@@ -32,7 +34,7 @@ class VUIDSearchWidget : public QWidget {
     Q_OBJECT
 
    public:
-    explicit VUIDSearchWidget(const QString &valuesAlreadyPresent);
+    explicit VUIDSearchWidget(const SettingValue &current_value);
 
    public Q_SLOTS:
     void addButtonPressed();

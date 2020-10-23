@@ -23,6 +23,7 @@
 #include "platform.h"
 
 #include <QString>
+#include <QVariant>
 #include <QJsonValue>
 
 #include <vector>
@@ -32,7 +33,7 @@ enum { PRESET_INDEX_USER_DEFINED = -1 };
 
 struct PresetSetting {
     QString key;
-    std::vector<QString> values;
+    std::vector<QVariant> value;
 };
 
 struct Preset {

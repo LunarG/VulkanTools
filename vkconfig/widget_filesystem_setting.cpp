@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  * Authors:
- * - Lenny Komow  <lenny@lunarg.com>
  * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
@@ -24,8 +23,6 @@
 
 #include <cassert>
 
-////////////////////////////////////////////////////////////////////////////
-// This can be used to specify a 'load' file or a 'save' file. Save is true by default
 FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting, SettingType setting_type)
     : QWidget(nullptr), _layer_setting(layer_setting), _mode(GetMode(setting_type)) {
     assert(item);

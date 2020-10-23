@@ -100,11 +100,11 @@ bool LoadLayerPresets(const QJsonValue& json_layer_presets, std::vector<Preset>&
                     preset_setting.key = json_value.toString();
                 }
                 {
-                    const QJsonValue& json_value = json_setting.value("values");
+                    const QJsonValue& json_value = json_setting.value("value");
                     assert(json_value != QJsonValue::Undefined && json_value.isArray());
                     const QJsonArray& json_array = json_value.toArray();
                     for (int j = 0, m = json_array.size(); j < m; ++j) {
-                        preset_setting.values.push_back(json_array[j].toString());
+                        preset_setting.value.push_back(json_array[j].toString());
                     }
                 }
 

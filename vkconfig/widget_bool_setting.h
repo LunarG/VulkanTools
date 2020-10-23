@@ -46,9 +46,9 @@ class BoolSettingWidget : public QCheckBox {
 
     enum Mode { BOOL_NUMERIC, BOOL_STRING };
 
-    QString GetToken(bool state, SettingType type) const;
-    const QString _true_token;
-    const QString _false_token;
+    SettingValue GetToken(bool state, SettingType type) const;
+    const SettingValue _true_token;
+    const SettingValue _false_token;
 
     LayerSetting& _layer_setting;
 };

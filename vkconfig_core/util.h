@@ -21,11 +21,11 @@
 
 #pragma once
 
-#include <QString>
-
 #if defined(_WIN32) && defined(_DEBUG)
 #include <windows.h>  // For OutputDebugString
 #endif
+
+#include <QString>
 
 #include <cstddef>
 #include <cstdio>
@@ -63,6 +63,17 @@ std::string ReplacePathBuiltInVariables(const std::string& path);
 
 // Exact the filename and change the path to "$HOME" directory if necessary
 std::string ValidatePath(const std::string& path);
+
+template <typename T>
+const T& Get(const std::vector<T>& container, const QString& key) {
+    assert(key != nullptr);
+
+    for (auto it = container.begin(), end = container.end(); it != end; ++it)
+        if (it->key == key) return *it;
+
+    assert(0);
+    return container[0];
+}
 
 template <typename T>
 typename std::vector<T>::iterator Find(std::vector<T>& container, const QString& name) {

@@ -62,6 +62,14 @@ class SettingValue {
         return result;
     }
 
+    template <typename T>
+    bool has(const T& value) {
+        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+            if (this->data[i] == value) return true;
+        }
+        return false;
+    }
+
     QVariant& operator[](std::size_t i) { return this->data[i]; }
     const QVariant& operator[](std::size_t i) const { return this->data[i]; }
 

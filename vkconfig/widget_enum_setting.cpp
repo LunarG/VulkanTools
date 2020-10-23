@@ -23,17 +23,20 @@
 
 #include <cassert>
 
-EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, const LayerSetting& layer_setting,
+                                     ConfigurationSetting& configuration_setting)
+    : _layer_setting(layer_setting), _configuration_setting(configuration_setting) {
     assert(item);
     assert(&layer_setting);
+    assert(&configuration_setting);
 
     item->setText(0, layer_setting.label);
     item->setToolTip(0, layer_setting.description);
 
     int selection = 0;
-    for (int i = 0; i < layer_setting.labels.size(); i++) {
-        this->addItem(layer_setting.labels[i]);
-        if (layer_setting.values[i] == layer_setting.defaults[0]) selection = i;
+    for (int i = 0, n = layer_setting.enums.size(); i < n; ++i) {
+        this->addItem(layer_setting.enums[i].label);
+        if (configuration_setting.value[0] == layer_setting.enums[i].key) selection = i;
     }
 
     setCurrentIndex(selection);
@@ -42,6 +45,6 @@ EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_
 }
 
 void EnumSettingWidget::indexChanged(int index) {
-    _layer_setting.defaults[0] = _layer_setting.values[index];
+    _configuration_setting.value[0] = _layer_setting.enums[index].key;
     emit itemChanged();
 }
