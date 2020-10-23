@@ -20,6 +20,11 @@
 
 #pragma once
 
+#include <QJsonObject>
+#include <QVariant>
+
+#include <vector>
+
 enum SettingType {  // Enum value can't be changed
     SETTING_STRING = 0,
     SETTING_INT,
@@ -41,3 +46,9 @@ enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
 
 SettingType GetSettingType(const char* token);
 const char* GetSettingToken(SettingType type);
+
+inline bool IsEnum(SettingType type) {
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+    return type == SETTING_EXCLUSIVE_LIST || type == SETTING_INCLUSIVE_LIST;
+}

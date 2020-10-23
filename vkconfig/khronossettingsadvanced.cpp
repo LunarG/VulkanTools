@@ -157,12 +157,13 @@ QString GetSettingDetails(QString qsSetting, QString &url) {
 }
 
 KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent,
-                                                 std::vector<LayerSetting> &settings)
+                                                 const std::vector<LayerSetting> &layer_settings,
+                                                 std::vector<ConfigurationSetting> &configuration_settings)
     : _main_tree_widget(main_tree),
       _main_parent(parent),
       _core_checks_parent(nullptr),
-      _enables(*FindSetting(settings, "enables")),
-      _disables(*FindSetting(settings, "disables")),
+      _enables(*Find(settings, "enables")),
+      _disables(*Find(settings, "disables")),
       _synchronization_box(nullptr),
       _shader_based_box(nullptr),
       _gpu_assisted_box(nullptr),

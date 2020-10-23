@@ -17,3 +17,51 @@
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#include "../layer_setting.h"
+
+#include <gtest/gtest.h>
+
+TEST(test_layer_setting, equal) {
+    LayerSetting setting_a;
+    LayerSetting setting_b;
+
+    EXPECT_EQ(setting_a, setting_b);
+}
+
+TEST(test_layer_setting, nequal) {
+    LayerSetting setting_a;
+    LayerSetting setting_b;
+    setting_b.status = STATUS_BETA;
+
+    EXPECT_EQ(setting_a, setting_b);
+}
+
+TEST(test_layer_setting, load_string) {
+    LayerSetting setting_ref;
+    setting_ref.key = "key";
+    setting_ref.default_value.push_back("string");
+
+    QJsonObject json_object;
+    json_object.insert("key", "key");
+    json_object.insert("value", "string");
+
+    LayerSetting setting_str;
+    setting_str.Load(json_object);
+
+    EXPECT_EQ(setting_ref, setting_str);
+}
+
+TEST(test_layer_setting, save_string) {
+    LayerSetting setting_ref;
+    setting_ref.key = "key";
+    setting_ref.default_value.push_back("string");
+
+    QJsonObject json_object;
+    setting_ref.Save(json_object);
+
+    LayerSetting setting_str;
+    setting_str.Load(json_object);
+
+    EXPECT_EQ(setting_ref, setting_str);
+}

@@ -23,27 +23,37 @@
 
 #include "layer_type.h"
 #include "setting_type.h"
+#include "setting_value.h"
 #include "platform.h"
 
 #include <QString>
-#include <QVariant>
 #include <QJsonObject>
 
-struct LayerSetting {
-    QString key;                          // Name of the setting the layer looks for (programatic variable name)
-    QString label;                        // Short name to prompt end user
-    StatusType status;                    // Is the setting qualified as "stable", "beta" or "alpha"
-    int platform_flags;                   // Platforms on which the setting is supported
-    QString description;                  // Human version, describes the setting
-    SettingType type;                     // The data type
-    std::vector<QString> labels;          // List of enum labels
-    std::vector<QString> values;          // List of enum values
-    std::vector<QVariant> default_value;  // List of default values
+struct EnumValue {
+    QString key;
+    QString label;
 };
 
-bool LoadLayerSettings(const QJsonValue& json_layer_settings, std::vector<LayerSetting>& settings);
-bool SaveLayerSettings(const std::vector<LayerSetting>& settings, QJsonArray& json_settings);
+struct LayerSetting {
+    LayerSetting() : status(STATUS_STABLE), platform_flags(0), type(SETTING_STRING) {}
 
-LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);
+    QString key;                   // Name of the setting the layer looks for (programatic variable name)
+    QString label;                 // Short name to prompt end user
+    StatusType status;             // Is the setting qualified as "stable", "beta" or "alpha"
+    int platform_flags;            // Platforms on which the setting is supported
+    QString description;           // Human version, describes the setting
+    SettingType type;              // The data type
+    std::vector<EnumValue> enums;  // List of enum values
+    SettingValue default_value;    // List of default values
+
+    bool Load(const QJsonObject& json_setting);
+    bool Save(QJsonObject& json_setting) const;
+};
+
+bool operator==(const LayerSetting& l, const LayerSetting& r);
+bool operator!=(const LayerSetting& l, const LayerSetting& r);
+
+LayerSetting* Find(std::vector<LayerSetting>& settings, const char* key);
+void Sort(std::vector<LayerSetting>& settings);
 
 bool IsStringFound(const std::vector<QString>& data, const QString& token);

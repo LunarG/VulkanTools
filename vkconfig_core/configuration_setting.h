@@ -21,6 +21,7 @@
 #pragma once
 
 #include "setting_type.h"
+#include "setting_value.h"
 
 #include <QJsonObject>
 #include <QString>
@@ -35,11 +36,13 @@ struct ConfigurationSetting {
     ConfigurationSetting(const LayerSetting& layer_setting);
 
     QString key;
-    std::vector<QVariant> value;
+    SettingValue value;
 
     bool Load(const SettingType type, const QJsonObject& json_setting);
     bool Save(const SettingType type, QJsonObject& json_setting) const;
 };
+
+ConfigurationSetting* Find(std::vector<ConfigurationSetting>& settings, const char* key);
 
 bool operator==(const ConfigurationSetting& l, const ConfigurationSetting& r);
 bool operator!=(const ConfigurationSetting& l, const ConfigurationSetting& r);

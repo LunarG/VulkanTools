@@ -554,7 +554,9 @@ void LayersDialog::BuildParameters() {
         ConfigurationLayer configuration_layer;
         configuration_layer.name = layer.name;
         configuration_layer.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        configuration_layer.settings = layer.settings;
+        for (std::size_t i = 0, n = layer.settings.size(); i < n; ++i) {
+            configuration_layer.settings.push_back(ConfigurationSetting(layer.settings[i]));
+        }
 
         layers.push_back(configuration_layer);
     }

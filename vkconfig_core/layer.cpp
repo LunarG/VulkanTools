@@ -193,7 +193,14 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
         assert((_file_format_version < version_1_3_0 && value == QJsonValue::Undefined) ||
                (_file_format_version >= version_1_3_0 && value != QJsonValue::Undefined));
         if (value != QJsonValue::Undefined) {
-            LoadLayerSettings(value, settings);
+            assert(value.isArray());
+            const QJsonArray& json_array = value.toArray();
+            for (int i = 0, n = json_array.size(); i < n; ++i) {
+                LayerSetting setting;
+                const bool result = setting.Load(json_array[i].toObject());
+                assert(result);
+                settings.push_back(setting);
+            }
         } else if (!full_path_to_file.startsWith(":/resourcefiles/")) {
             // When the path start with :/resourcefiles/ we already called LoadLayerSettingsDefault
             LoadLayerSettingsDefault(name, _api_version, settings);

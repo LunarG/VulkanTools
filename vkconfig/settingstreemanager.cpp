@@ -169,8 +169,8 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, c
         new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, configuration_layer.settings);
 
     // Get the Debug Action and log file settings (and they must exist)
-    LayerSetting &debug_action = *FindSetting(configuration_layer.settings, "debug_action");
-    LayerSetting &log_file = *FindSetting(configuration_layer.settings, "log_filename");
+    LayerSetting &debug_action = *Find(configuration_layer.settings, "debug_action");
+    LayerSetting &log_file = *Find(configuration_layer.settings, "log_filename");
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
@@ -212,7 +212,7 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, c
     // This is looking for the report flags
     for (std::size_t setting_index = 0, settings_count = configuration_layer.settings.size(); setting_index < settings_count;
          ++setting_index) {
-        LayerSetting &layer_setting = configuration_layer.settings[setting_index];
+        ConfigurationSetting &layer_setting = configuration_layer.settings[setting_index];
 
         // Multi-enum - report flags only
         if (layer_setting.key == "report_flags") {
@@ -248,7 +248,7 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, c
     // VUID message filtering
     for (std::size_t setting_index = 0, settings_count = configuration_layer.settings.size(); setting_index < settings_count;
          ++setting_index) {
-        LayerSetting &layer_setting = configuration_layer.settings[setting_index];
+        ConfigurationSetting &layer_setting = configuration_layer.settings[setting_index];
 
         if (layer_setting.type != SETTING_VUID_FILTER) {
             continue;
@@ -259,7 +259,7 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, c
         mute_message_item->setText(0, "Mute Message VUIDs");
         _validation_tree_item->addChild(mute_message_item);
 
-        _vuid_search_widget = new VUIDSearchWidget(layer_setting.defaults[0]);
+        _vuid_search_widget = new VUIDSearchWidget(layer_setting.default[ 0 ]);
         next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, 28));
         mute_message_item->addChild(next_line);
@@ -438,7 +438,7 @@ void SettingsTreeManager::OnPresetEdited() {
     _presets_combo_box->setCurrentIndex(GetComboBoxPresetIndex(PRESET_INDEX_USER_DEFINED));
     auto configuration = Configurator::Get().GetActiveConfiguration();
     auto configuration_layer = FindConfigurationLayer(configuration->layers, "VK_LAYER_KHRONOS_validation");
-    std::vector<QVariant> &defaults = FindSetting(configuration_layer->settings, "preset-index")->default_value;
+    std::vector<QVariant> &defaults = Find(configuration_layer->settings, "preset-index")->default_value;
     if (defaults.empty()) defaults.resize(1);
     defaults[0] = PRESET_INDEX_USER_DEFINED;
 

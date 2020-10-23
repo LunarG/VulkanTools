@@ -21,7 +21,8 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/layer_setting.h"
+#include "../vkconfig_core/configuration_setting.h"
 
 #include "widget_mute_message.h"
 
@@ -35,7 +36,9 @@ class KhronosSettingsAdvanced : public QObject {
     Q_OBJECT
 
    public:
-    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, std::vector<LayerSetting> &settings);
+    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent,
+                                     const std::vector<LayerSetting> &layer_settings,
+                                     std::vector<ConfigurationSetting> &configuration_settings);
 
     bool CollectSettings();
 
