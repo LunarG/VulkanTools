@@ -1692,10 +1692,11 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
     if (result == VK_SUCCESS && !pLayerName && emulatePortability.num > 0 &&
         !PhysicalDeviceData::HasSimulatedOrRealExtension(physicalDevice, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)) {
-        *pCount += 1;
         if (pProperties) {
             strncpy(pProperties[(*pCount) - 1].extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_MAX_EXTENSION_NAME_SIZE);
             pProperties[(*pCount) - 1].specVersion = VK_KHR_PORTABILITY_SUBSET_SPEC_VERSION;
+        } else {
+            *pCount += 1;
         }
     }
 
