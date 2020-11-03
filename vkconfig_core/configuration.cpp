@@ -148,15 +148,17 @@ bool Configuration::Load(const QString& full_path) {
         const QJsonObject& layer_object = layer_value.toObject();
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
 
+        const int overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
+
         auto parameter = FindParameter(parameters, layers[layer_index]);
         if (parameter != parameters.end()) {
-            parameter->overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::UNRANKED : layer_rank.toInt();
+            parameter->overridden_rank = overridden_rank;
             LoadSettings(layer_object, *parameter);
         } else {
             Parameter parameter;
             parameter.name = layers[layer_index];
             parameter.state = LAYER_STATE_OVERRIDDEN;
-            parameter.overridden_rank = Parameter::UNRANKED;
+            parameter.overridden_rank = overridden_rank;
             LoadSettings(layer_object, parameter);
             parameters.push_back(parameter);
         }

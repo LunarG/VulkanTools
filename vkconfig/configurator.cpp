@@ -315,6 +315,7 @@ void Configurator::LoadAllConfigurations() {
 
             Configuration configuration;
             const bool result = configuration.Load(file);
+            OrderParameter(configuration.parameters, layers.available_layers);
             if (result) {
                 const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration.name));
                 assert(result);
@@ -338,6 +339,7 @@ void Configurator::LoadAllConfigurations() {
 
         Configuration configuration;
         const bool result = configuration.Load(info.absoluteFilePath());
+        OrderParameter(configuration.parameters, layers.available_layers);
         if (result) {
             available_configurations.push_back(configuration);
         }

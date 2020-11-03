@@ -82,7 +82,10 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
     std::sort(parameters.begin(), parameters.end(), ParameterCompare(layers));
 
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        parameters[i].overridden_rank = static_cast<int>(i);
+        if (parameters[i].state == LAYER_STATE_OVERRIDDEN)
+            parameters[i].overridden_rank = static_cast<int>(i);
+        else
+            parameters[i].overridden_rank = Parameter::UNRANKED;
     }
 }
 
