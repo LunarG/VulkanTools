@@ -339,7 +339,6 @@ void LayersDialog::OverrideOrder(const QString layer_name, const TreeWidgetItemP
     assert(above_parameter != parameters.end());
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
-    std::swap(*below_parameter, *above_parameter);
 
     OrderParameter(parameters, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();

@@ -17,6 +17,7 @@
 - Add command line arguments to manage layers override #1213
 
 ### Fixes:
+- Fix manual layers ordering #1214
 - Fix layers override update when changing layers management options #1225
 
 ## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-05
