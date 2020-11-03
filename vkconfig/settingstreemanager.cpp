@@ -478,6 +478,7 @@ void SettingsTreeManager::CleanupGUI() {
     Configurator &configurator = Configurator::Get();
 
     std::vector<Configuration>::iterator configuration = configurator.GetActiveConfiguration();
+    if (configuration == configurator.available_configurations.end()) return;
 
     // Get the state of the last tree, and save it!
     configuration->_setting_tree_state.clear();
