@@ -438,7 +438,6 @@ void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator a
     }
 
     if (surrender) {
-        assert(_active_configuration == available_configurations.end());
         SurrenderLayers(environment);
     } else {
         assert(_active_configuration != available_configurations.end());
@@ -461,9 +460,11 @@ void Configurator::RefreshConfiguration() {
 }
 
 bool Configurator::HasActiveConfiguration() const {
-    return _active_configuration != available_configurations.end()
-               ? !HasMissingParameter(_active_configuration->parameters, layers.available_layers)
-               : false;
+    if (_active_configuration != available_configurations.end())
+        return !HasMissingParameter(_active_configuration->parameters, layers.available_layers) &&
+               !_active_configuration->IsEmpty();
+    else
+        return false;
 }
 
 void Configurator::ImportConfiguration(const QString &full_import_path) {
