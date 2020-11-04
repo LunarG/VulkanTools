@@ -179,6 +179,7 @@ void LayersDialog::UpdateUI() {
     }
 
     ui->layerTreeSorted->setEnabled(ui->layerTreeSorted->topLevelItemCount() > 1);
+    ui->pushButtonResetLayers->setEnabled(ui->layerTreeSorted->topLevelItemCount() > 0);
 
     QTreeWidgetItem *current_sorted_layers = ui->layerTreeSorted->currentItem();
     const bool has_selected_sorted_item = current_sorted_layers != nullptr;
@@ -303,6 +304,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
     configuration._preset = ValidationPresetNone;
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
+    ui->layerTreeSorted->clear();
 
     for (auto it = parameters.begin(); it != parameters.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
