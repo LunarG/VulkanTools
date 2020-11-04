@@ -423,6 +423,8 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.environment.Set(ACTIVE_CONFIGURATION, item->configuration_name);
     configurator.RefreshConfiguration();
+
+    UpdateUI();
 }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
@@ -477,6 +479,8 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
+
+    UpdateUI();
 }
 
 /// This gets called with keyboard selections and clicks that do not necessarily
@@ -1119,11 +1123,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
-
-            // Pointer compares made me throw up in my mouth at least a little
-            // less than doing a full string compare. Setting up signal/slot for
-            // all of these just seemed ridiculous. Every problem is not a nail,
-            // put the hammer away....
 
             if (action == edit_action) {
                 EditClicked(item);
