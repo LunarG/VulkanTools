@@ -156,6 +156,7 @@ class MainWindow : public QMainWindow {
     void ResetLaunchApplication();
 
     std::unique_ptr<Ui::MainWindow> ui;
+    bool been_warned_about_old_loader;
 };
 
 int run_gui(int argc, char *argv[]);
