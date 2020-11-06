@@ -20,6 +20,7 @@
 - Fix manual layers ordering #1214
 - Fix layers override update when changing layers management options #1225
 - Fix reset button in layers window #1227
+- Fix warning about old loader when trying to use application list #1230
 
 ## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-05
 

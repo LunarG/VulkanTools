@@ -213,7 +213,7 @@ Configurator::~Configurator() {
 
 bool Configurator::HasLayers() const { return !layers.Empty(); }
 
-bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_version) const {
+bool Configurator::SupportApplicationList(Version *return_loader_version) const {
     // Check loader version
     const Version version = GetVulkanLoaderVersion();
     assert(version != Version::VERSION_NULL);
@@ -222,24 +222,7 @@ bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_ver
         *return_loader_version = version;
     }
 
-    // This is the minimum version that supports the application list
-    if (version < Version("1.2.141") && !quiet) {
-        const QString message = QString().asprintf(
-            "The detected Vulkan Loader version is %s but version 1.2.141 or newer is required in order to apply layers "
-            "override to only a selected list of Vulkan applications.\n\n<br><br>"
-            "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature.",
-            version.str().c_str());
-
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
-        alert.setText(message);
-        alert.setTextFormat(Qt::RichText);
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
-        return false;
-    }
-
-    return true;
+    return version >= Version("1.2.141");
 }
 
 // Populate a tree widget with the custom layer paths and the layers that

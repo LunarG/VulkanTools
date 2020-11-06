@@ -55,9 +55,6 @@
 
 #include <cassert>
 
-// This is what happens when programmers can touch type....
-bool been_warned_about_old_loader = false;
-
 static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
@@ -70,6 +67,7 @@ static const int LAUNCH_ROW_HEIGHT = 28;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+      been_warned_about_old_loader(false),
       _launch_application(nullptr),
       _log_file(nullptr),
       _launcher_apps_combo(nullptr),
@@ -188,23 +186,9 @@ void MainWindow::UpdateUI() {
                                                                          : active_contiguration_name + " Settings");
 
     // Handle application lists states
-    if (been_warned_about_old_loader) {
-        Version loader_version;
-        const bool support_application_list = configurator.SupportApplicationList(false, &loader_version);
-
-        ui->check_box_apply_list->setEnabled(support_application_list && environment.UseOverride());
-        ui->check_box_apply_list->setChecked(support_application_list && environment.UseApplicationListOverrideMode());
-        if (!support_application_list) {
-            const std::string version = GetVulkanLoaderVersion().str();
-            const std::string message =
-                format("The detected Vulkan loader version is %s but version 1.2.141 or newer is required", version.c_str());
-            ui->check_box_apply_list->setToolTip(message.c_str());
-        }
-    } else {
-        ui->check_box_apply_list->setEnabled(environment.UseOverride());
-        ui->check_box_apply_list->setChecked(environment.UseApplicationListOverrideMode());
-    }
-    ui->push_button_applications->setEnabled(ui->check_box_apply_list->isChecked());
+    ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && environment.UseOverride());
+    ui->check_box_apply_list->setChecked(!been_warned_about_old_loader && environment.UseApplicationListOverrideMode());
+    ui->push_button_applications->setEnabled(!been_warned_about_old_loader && ui->check_box_apply_list->isChecked());
 
     _launcher_apps_combo->blockSignals(true);
     _launcher_apps_combo->clear();
@@ -344,9 +328,28 @@ void MainWindow::on_check_box_apply_list_clicked() {
     Configurator &configurator = Configurator::Get();
 
     // Handle old loader case
-    if (!configurator.SupportApplicationList()) {
-        ::been_warned_about_old_loader = true;
-        UpdateUI();
+    if (!configurator.SupportApplicationList(false)) {
+        const std::string version = GetVulkanLoaderVersion().str();
+        const std::string message =
+            format("The detected Vulkan loader version is %s but version 1.2.141 or newer is required", version.c_str());
+        ui->check_box_apply_list->setToolTip(message.c_str());
+
+        QMessageBox alert(nullptr);
+        alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
+        alert.setTextFormat(Qt::RichText);
+        alert.setText(message.c_str());
+        alert.setInformativeText(
+            "In order to apply layers override to only a selected list of Vulkan applications, get the latest Vulkan Runtime from "
+            "<a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature or update your Vulkan drivers");
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+
+        ui->check_box_apply_list->setEnabled(false);
+        ui->check_box_apply_list->setChecked(false);
+        ui->push_button_applications->setEnabled(false);
+        configurator.environment.SetMode(OVERRIDE_MODE_LIST, false);
+        been_warned_about_old_loader = true;
+
         return;
     }
 

@@ -65,7 +65,7 @@ class Configurator {
    public:
     // If return_loader_version is not null, the function will return the loader version
     // If quiet is false, message box will be generate
-    bool SupportApplicationList(bool quiet = true, Version* return_loader_version = nullptr) const;
+    bool SupportApplicationList(Version* return_loader_version = nullptr) const;
 
     bool HasActiveOverrideOnApplicationListOnly() const {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
