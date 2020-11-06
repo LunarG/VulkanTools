@@ -105,6 +105,25 @@ In addition, Windows system create registry entries in the following locations:
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
 
+## Tests
+
+### Unit Tests
+
+On Windows, from the build directory:
+```
+ctest -j 16 --output-on-failure -C Debug
+ctest -j 16 --output-on-failure -C Release
+```
+
+On Linux and macOS, from the build directory:
+```
+ctest -j 16 --output-on-failure
+```
+
+### Manual Tests
+
+With each release of the Vulkan SDK some [manual tests](https://docs.google.com/document/d/1z0WqfMp2IBko1fvDICkjDE_3JKnf8SrU5APQTqKRR-U/edit) based on use cases are done.
+
 --------------
 ## FAQ
 
