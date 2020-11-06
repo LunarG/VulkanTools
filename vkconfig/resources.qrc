@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>vkconfig.md</file>
+        <file>README.md</file>
         <file>images/NewLunarGLogoBlack.png</file>
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
