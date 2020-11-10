@@ -808,6 +808,12 @@ class ApiDumpInstance {
 
     std::unordered_map<uint64_t, std::string> object_name_map;
 
+    void set_vk_instance(VkPhysicalDevice phys_dev, VkInstance instance) { vk_instance_map.insert({phys_dev, instance}); }
+    VkInstance get_vk_instance(VkPhysicalDevice phys_dev) const {
+        if (vk_instance_map.count(phys_dev) == 0) return VK_NULL_HANDLE;
+        return vk_instance_map.at(phys_dev);
+    }
+
    private:
     static ApiDumpInstance current_instance;
 
@@ -831,6 +837,10 @@ class ApiDumpInstance {
     bool first_func_call_on_frame = false;
 
     std::chrono::system_clock::time_point program_start;
+
+    // Store the VkInstance handle so we don't use null in the call to
+    // vkGetInstanceProcAddr(instance_handle, "vkCreateDevice");
+    std::unordered_map<VkPhysicalDevice, VkInstance> vk_instance_map;
 };
 
 // Utility to output an address.

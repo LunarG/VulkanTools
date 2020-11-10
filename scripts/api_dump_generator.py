@@ -307,7 +307,8 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     assert(chain_info->u.pLayerInfo != 0);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
-    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice) fpGetInstanceProcAddr(NULL, "vkCreateDevice");
+    VkInstance vk_instance = ApiDumpInstance::current().get_vk_instance(physicalDevice);
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice) fpGetInstanceProcAddr(vk_instance, "vkCreateDevice");
     if(fpCreateDevice == NULL) {{
         return VK_ERROR_INITIALIZATION_FAILED;
     }}
@@ -403,6 +404,13 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
     {funcReturn} result = instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
+    @if('{funcName}' == 'vkEnumeratePhysicalDevices')
+    if (pPhysicalDeviceCount != nullptr && pPhysicalDevices != nullptr) {{
+        for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {{
+            ApiDumpInstance::current().set_vk_instance(pPhysicalDevices[i], instance);
+        }}
+    }}
+    @end if
     dump_body_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
