@@ -96,11 +96,11 @@ class Environment {
     bool Save() const;
     bool SaveApplications() const;
 
-    void SelectActiveApplication(int application_index);
+    void SelectActiveApplication(std::size_t application_index);
     int GetActiveApplicationIndex() const;
     bool HasOverriddenApplications() const;
     bool AppendApplication(const Application& application);
-    bool RemoveApplication(int application_index);
+    bool RemoveApplication(std::size_t application_index);
 
     const std::vector<Application>& GetApplications() const { return applications; }
     const Application& GetActiveApplication() const;

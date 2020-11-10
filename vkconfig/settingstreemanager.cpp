@@ -381,7 +381,7 @@ int SettingsTreeManager::GetValidationPresentIndex(const ValidationPreset preset
 
 /// The user has selected a preset for this layer
 void SettingsTreeManager::khronosPresetChanged(int preset_index) {
-    assert(preset_index >= 0 && preset_index < _validation_presets.size());
+    assert(preset_index >= 0 && static_cast<std::size_t>(preset_index) < _validation_presets.size());
     const ValidationPreset preset = _validation_presets[preset_index];
 
     Configurator &configurator = Configurator::Get();
