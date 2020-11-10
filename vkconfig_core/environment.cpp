@@ -498,10 +498,8 @@ bool Environment::SaveApplications() const {
     return true;
 }
 
-void Environment::SelectActiveApplication(int application_index) {
-    if (application_index < 0) return;
-
-    assert(application_index >= 0 && application_index < applications.size());
+void Environment::SelectActiveApplication(std::size_t application_index) {
+    assert(application_index < applications.size());
 
     Set(ACTIVE_APPLICATION, applications[application_index].executable_path);
 }
@@ -529,11 +527,11 @@ bool Environment::AppendApplication(const Application& application) {
     return true;
 }
 
-bool Environment::RemoveApplication(int application_index) {
+bool Environment::RemoveApplication(std::size_t application_index) {
     assert(!applications.empty());
-    assert(application_index >= 0 && application_index < applications.size());
+    assert(application_index < applications.size());
 
-    if (applications.size() == 1) {
+    if (applications.size() == 1u) {
         applications.clear();
         return true;
     }
