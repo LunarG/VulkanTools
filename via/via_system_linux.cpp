@@ -1174,7 +1174,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
     std::string upper_os_name = _os_name;
     std::transform(upper_os_name.begin(), upper_os_name.end(), upper_os_name.begin(), ::toupper);
     if (upper_os_name.find("UBUNTU") != std::string::npos || upper_os_name.find("DEBIAN") != std::string::npos) {
-        FILE *dpkg_output = popen("dpkg-query --show --showformat='${Package} ${Version}\n' vulkan-sdk", "r");
+        FILE *dpkg_output = popen("dpkg-query --show --showformat='${Package} ${Version}' vulkan-sdk", "r");
         if (dpkg_output != nullptr) {
             char cur_line[1035];
             std::string install_name;
