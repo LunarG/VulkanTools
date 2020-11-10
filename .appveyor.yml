@@ -11,78 +11,140 @@ version: "{build}"
 # Free accounts have a max of 1, but ask anyway.
 max_jobs: 4
 
-os:
-  - Visual Studio 2017
+platform:
+  - Win32
+  - x64
 
-environment:
-  PYTHON_PATH: "C:/Python35"
-  PYTHON_PACKAGE_PATH: "C:/Python35/Scripts"
-  CMAKE_URL: "http://cmake.org/files/v3.10/cmake-3.10.2-win64-x64.zip"
+configuration:
+  - Debug
+  - Release
+
+image:
+  - Visual Studio 2015
+  - Visual Studio 2017
+  - Visual Studio 2019
+
+for:
+  -
+    matrix:
+      only:
+        - configuration: Debug
+          platform: Win32
+          image: Visual Studio 2015
+
+    environment:
+      PYTHON: C:\Python35
+      QTDIR: C:\Qt\5.9.9\msvc2015
+      PLATFORM_ARGUMENT: --32
+      CONFIGURATION_ARGUMENT: --debug
+    init:
+      # For building vkconfig with qmake
+      - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
+
+  -
+    matrix:
+      only:
+        - configuration: Release
+          platform: x64
+          image: Visual Studio 2017
+    environment:
+      PYTHON: C:\Python35
+      QTDIR: C:\Qt\5.9.9\msvc2017_64
+      PLATFORM_ARGUMENT: --64
+      CONFIGURATION_ARGUMENT: --release
+    init:
+      # For building vkconfig with qmake
+      - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+  -
+    matrix:
+      only:
+        - configuration: Debug
+          platform: x64
+          image: Visual Studio 2019
+    environment:
+      PYTHON: C:\Python35
+      QTDIR: C:\Qt\5.15.1\msvc2019_64
+      PLATFORM_ARGUMENT: --64
+      CONFIGURATION_ARGUMENT: --debug
+    init:
+      # For building vkconfig with qmake
+      - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+matrix:
+  exclude:
+    - configuration: Release
+      platform: Win32
+      image: Visual Studio 2015
+    - configuration: Release
+      platform: x64
+      image: Visual Studio 2015
+    - configuration: Debug
+      platform: x64
+      image: Visual Studio 2015
+    - configuration: Release
+      platform: Win32
+      image: Visual Studio 2017
+    - configuration: Debug
+      platform: Win32
+      image: Visual Studio 2017
+    - configuration: Debug
+      platform: x64
+      image: Visual Studio 2017
+    - configuration: Release
+      platform: Win32
+      image: Visual Studio 2019
+    - configuration: Debug
+      platform: Win32
+      image: Visual Studio 2019
+    - configuration: Release
+      platform: x64
+      image: Visual Studio 2019
 
 branches:
   only:
     - master
 
 install:
-  - appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
-  - 7z x cmake.zip -oC:\cmake > nul
-  - set path=C:\cmake\bin;%path%
-  - cmake --version
-  - if %PLATFORM% == x64 (set QTDIR=C:\Qt\5.9.9\msvc2017_64)
-  - if %PLATFORM% == Win32 (set QTDIR=C:\Qt\5.9.9\msvc2017)
-  - set PATH=%PATH%;%QTDIR%\bin
-  - choco install windows-sdk-10-version-1809-all
+  # Python
+  - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+
+  # Qt
+  - echo Qt path %QTDIR%\bin
+  - set PATH=%QTDIR%\bin;%PATH%
 
 before_build:
-  - "SET PATH=C:\\Python35;C:\\Python35\\Scripts;%PATH%"
-  - echo.
-  - echo Starting build for %APPVEYOR_REPO_NAME%
-  - echo Update external sources
-  - if %PLATFORM% == Win32 (if %CONFIGURATION% == Debug (update_external_sources.bat --32 --debug))
-  - if %PLATFORM% == Win32 (if %CONFIGURATION% == Release (update_external_sources.bat --32 --release))
-  - if %PLATFORM% == x64 (if %CONFIGURATION% == Debug (update_external_sources.bat --64 --debug))
-  - if %PLATFORM% == x64 (if %CONFIGURATION% == Release (update_external_sources.bat --64 --release))
-  # Determine the appropriate CMake generator for the current version of Visual Studio
-  - echo Determining VS version
-  - python .\scripts\determine_vs_version.py > vsversion.tmp
-  - set /p VS_VERSION=< vsversion.tmp
-  - echo Detected Visual Studio Version as %VS_VERSION%
-  - del /Q /F vsversion.tmp
-  - if %PLATFORM% == Win32 (set GENERATOR="Visual Studio %VS_VERSION%")
-  - if %PLATFORM% == x64 (set GENERATOR="Visual Studio %VS_VERSION% Win64")
-  ## Build VulkanTools deps
-  - python scripts/update_deps.py --config=%CONFIGURATION% --arch=%PLATFORM%
-  # Generate build files using CMake for the build step.
-  - echo Generating CMake files for %GENERATOR%
-  - cd %APPVEYOR_BUILD_FOLDER%
+  - echo %IMAGE%
+  - cmake --version
+  - python --version
+  - qmake --version
+  - git --version
+
+  # Update external
+  - echo Update external sources %PLATFORM_ARGUMENT% %CONFIGURATION_ARGUMENT%
+  - update_external_sources.bat %PLATFORM_ARGUMENT% %CONFIGURATION_ARGUMENT%
+
+  - echo Build VulkanTools deps %CONFIGURATION% %PLATFORM%
+  - python scripts/update_deps.py --config %CONFIGURATION% --arch %PLATFORM%
   - mkdir build
   - cd build
-  - cmake -G %GENERATOR% -C../helper.cmake ..
-  - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
-
-platform:
-  - Win32
-  - x64
-
-configuration:
-  - Release
-  - Debug
-
-# Build only x64 Release and Win32(x86) Debug to reduce build time.
-# This should still provide adequate 32-bit vs 64-bit and
-# Release vs Debug coverage.
-matrix:
-  exclude:
-    - configuration: Release
-      platform: Win32
-    - configuration: Debug
-      platform: x64
+  - cmake -A %PLATFORM% -C ../helper.cmake ..
 
 build:
-  parallel: true                  # enable MSBuild parallel builds
-  project: build/VULKAN_TOOLS.sln # path to Visual Studio solution or project
-  verbosity: quiet                # quiet|minimal|normal|detailed
+  parallel: true
+  verbosity: quiet
+
+build_script:
+  - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
+
+  - echo Build Vulkan Configurator with Qt build system
+  - cd ../vkconfig
+  - qmake vkconfig.pro
+  - nmake /NOLOGO /S
+
+  - echo Build Vulkan Configurator, layers and VIA with cmake
+  - cd ../build
+  - cmake --build . --config %CONFIGURATION% -- /m /v:minimal
 
 test_script:
   ctest -j 16 --output-on-failure -C %CONFIGURATION%
-
