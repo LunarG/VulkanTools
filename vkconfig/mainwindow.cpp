@@ -328,8 +328,9 @@ void MainWindow::on_check_box_apply_list_clicked() {
     Configurator &configurator = Configurator::Get();
 
     // Handle old loader case
-    if (!configurator.SupportApplicationList(false)) {
-        const std::string version = GetVulkanLoaderVersion().str();
+    Version loader_version;
+    if (!configurator.SupportApplicationList(&loader_version)) {
+        const std::string version = loader_version.str();
         const std::string message =
             format("The detected Vulkan loader version is %s but version 1.2.141 or newer is required", version.c_str());
         ui->check_box_apply_list->setToolTip(message.c_str());
@@ -1075,7 +1076,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QTreeWidgetItem *configuration_item = ui->configuration_tree->itemAt(right_click->pos());
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
-            Configurator &configurator = Configurator::Get();
             const Environment &environment = Configurator::Get().environment;
             const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 

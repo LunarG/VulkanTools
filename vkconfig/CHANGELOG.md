@@ -16,6 +16,11 @@
 ### Features:
 - Add command line arguments to manage layers override #1213
 
+### Improvements:
+- Test with VS2015, VS2017 and VS2019
+- Test with Qt 5.9 and Qt 5.15 including QMake build
+- Test manually using a [use cases based template](https://docs.google.com/document/d/1z0WqfMp2IBko1fvDICkjDE_3JKnf8SrU5APQTqKRR-U/edit)
+
 ### Fixes:
 - Fix manual layers ordering #1214
 - Fix layers override update when changing layers management options #1225
