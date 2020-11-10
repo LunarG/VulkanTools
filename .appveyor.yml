@@ -29,27 +29,61 @@ branches:
     - master
 
 before_build:
-  - "SET PATH=C:\\Python35;C:\\Python35\\Scripts;%PATH%"
-  - if %PLATFORM% == x64 (set QTDIR=C:\Qt\5.9.9\msvc2017_64)
-  - if %PLATFORM% == Win32 (set QTDIR=C:\Qt\5.9.9\msvc2017)
-  - set PATH=%PATH%;%QTDIR%\bin
-  - echo Update external sources
-  - if %PLATFORM% == Win32 (if %CONFIGURATION% == Debug (update_external_sources.bat --32 --debug))
-  - if %PLATFORM% == Win32 (if %CONFIGURATION% == Release (update_external_sources.bat --32 --release))
-  - if %PLATFORM% == x64 (if %CONFIGURATION% == Debug (update_external_sources.bat --64 --debug))
-  - if %PLATFORM% == x64 (if %CONFIGURATION% == Release (update_external_sources.bat --64 --release))
-  # Build VulkanTools deps
-  - echo Build VulkanTools deps
-  - python scripts/update_deps.py --config=%CONFIGURATION% --arch=%PLATFORM%
-  - mkdir build
-  - cd build
-  - if ("$env:APPVEYOR_JOB_NAME" -match "Image: Visual Studio 2015") {$env:generator="Visual Studio 14 2015"} 
-  - if ("$env:APPVEYOR_JOB_NAME" -match "Image: Visual Studio 2017") {$env:generator="Visual Studio 15 2017"}
-  - if ("$env:APPVEYOR_JOB_NAME" -match "Image: Visual Studio 2019") {$env:generator="Visual Studio 16 2019"}
-  - if %PLATFORM% == x64 {$env:generator="$env:generator Win64"}
-  - echo generator="$env:generator"
-  - cmake -G "$env:generator" -C../helper.cmake ..
-  - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
+  - ps: |
+      "SET PATH=C:\\Python35;C:\\Python35\\Scripts;%PATH%"
+
+      if ("$env:APPVEYOR_JOB_NAME" -match "Image: Visual Studio 2013") {
+          $env:generator="Visual Studio 12 2013"
+      } 
+      if ("$env:APPVEYOR_JOB_NAME" -match "Image: Visual Studio 2015") {
+          $env:generator="Visual Studio 14 2015"
+      } 
+      if ("$env:APPVEYOR_JOB_NAME" -match "Image: Visual Studio 2017") {
+          $env:generator="Visual Studio 15 2017"
+      }
+      if ("$env:APPVEYOR_JOB_NAME" -match "Image: Visual Studio 2019") {
+          $env:generator="Visual Studio 16 2019"
+      }
+
+      echo Update external sources
+      if ($env:PLATFORM -eq "x64") {
+        set QTDIR=C:\Qt\5.9.9\msvc2017_64
+        set PATH=%PATH%;%QTDIR%\bin
+        $env:generator="$env:generator Win64"
+        if (%CONFIGURATION% == Debug) {
+          update_external_sources.bat --64 --debug
+        }
+        if (%CONFIGURATION% == Release) {
+          update_external_sources.bat --64 --release
+        }
+      }
+      if ($env:PLATFORM -eq "Win32") {
+        set QTDIR=C:\Qt\5.9.9\msvc2017
+        set PATH=%PATH%;%QTDIR%\bin
+        if (%CONFIGURATION% == Debug) {
+          update_external_sources.bat --32 --debug
+        }
+        if (%CONFIGURATION% == Release) {
+          update_external_sources.bat --32 --release
+        }
+      }
+      echo generator="$env:generator"
+
+      echo Build VulkanTools deps
+      python scripts/update_deps.py --config=%CONFIGURATION% --arch=%PLATFORM%
+      mkdir build
+      cd build
+      cmake -G "$env:generator" -C../helper.cmake ..
+      echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
+
+      echo Build vkconfig with Qt framework
+      cd ../vkconfig
+      qmake vkconfig.pro
+      nmake
+
+build:
+  parallel: true
+  verbosity: quiet
 
 build_script:
   - cmake --build . --config %CONFIGURATION% -- /m /v:minimal
