@@ -69,7 +69,6 @@ ApplicationsDialog::ApplicationsDialog(QWidget *parent)
     ui->treeWidget->setCurrentItem(pItem);
 }
 
-//////////////////////////////////////////////////////////////////////////////
 bool ApplicationsDialog::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method
@@ -85,7 +84,6 @@ bool ApplicationsDialog::eventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Make sure any changes are saved
 void ApplicationsDialog::closeEvent(QCloseEvent *event) {
     Environment &environment = Configurator::Get().environment;
@@ -107,7 +105,6 @@ void ApplicationsDialog::closeEvent(QCloseEvent *event) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Browse for and select an executable file to add to the list.
 void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test application
 {
@@ -154,7 +151,6 @@ QTreeWidgetItem *ApplicationsDialog::CreateApplicationItem(const Application &ap
     return item;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Easy enough, just remove the selected program from the list
 void ApplicationsDialog::on_pushButtonRemove_clicked() {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
@@ -178,7 +174,6 @@ void ApplicationsDialog::on_pushButtonRemove_clicked() {
     ui->treeWidget->update();
 }
 
-//////////////////////////////////////////////////////////////////////////////
 // Dismiss the dialog, and preserve app information so it can be set to
 // the launcher.
 void ApplicationsDialog::on_pushButtonSelect_clicked() {
@@ -191,7 +186,6 @@ void ApplicationsDialog::on_pushButtonSelect_clicked() {
     close();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// The remove button is disabled until/unless something is selected that can
 /// be removed. Also the working folder and command line arguments are updated
 void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTreeWidgetItem *previous_item) {
@@ -216,7 +210,6 @@ void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTre
     ui->lineEditLogFile->setText(application.log_file);
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void ApplicationsDialog::itemChanged(QTreeWidgetItem *item, int column) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(item);
     QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, column));
@@ -225,7 +218,6 @@ void ApplicationsDialog::itemChanged(QTreeWidgetItem *item, int column) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Something was clicked. We don't know what, and short of setting up a new
 /// signal/slot for each button, this seemed a reasonable approach. Just poll
 /// all of them. There aren't that many, so KISS (keep it simple stupid)
@@ -247,7 +239,6 @@ void ApplicationsDialog::itemClicked(bool clicked) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
 void ApplicationsDialog::editCommandLine(const QString &cmdLine) {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
@@ -256,7 +247,6 @@ void ApplicationsDialog::editCommandLine(const QString &cmdLine) {
     Configurator::Get().environment.GetApplication(_last_selected_application_index).arguments = cmdLine;
 }
 
-//////////////////////////////////////////////////////////////////////////////
 void ApplicationsDialog::editWorkingFolder(const QString &workingFolder) {
     QTreeWidgetItem *current = ui->treeWidget->currentItem();
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
@@ -273,7 +263,6 @@ void ApplicationsDialog::editLogFile(const QString &logFile) {
     Configurator::Get().environment.GetApplication(_last_selected_application_index).log_file = logFile;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// This is only used on macOS to extract the executable from the bundle.
 /// You have to look at the plist.info file, you can't just assume whatever
 /// you find in the /MacOS folder is the executable.

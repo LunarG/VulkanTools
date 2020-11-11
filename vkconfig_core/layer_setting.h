@@ -22,28 +22,11 @@
 #pragma once
 
 #include "layer_type.h"
+#include "setting_type.h"
 
 #include <QString>
 #include <QVariant>
 #include <QJsonObject>
-
-enum SettingType {  // Enum value can't be changed
-    SETTING_STRING = 0,
-    SETTING_SAVE_FILE,
-    SETTING_LOAD_FILE,
-    SETTING_SAVE_FOLDER,
-    SETTING_BOOL,
-    SETTING_BOOL_NUMERIC,
-    SETTING_EXCLUSIVE_LIST,
-    SETTING_INCLUSIVE_LIST,
-    SETTING_RANGE_INT,
-    SETTING_VUID_FILTER,
-
-    SETTING_FIRST = SETTING_STRING,
-    SETTING_LAST = SETTING_VUID_FILTER
-};
-
-enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
 
 struct LayerSetting {
     QString key;                   // Name of the setting the layer looks for (programatic variable name)
@@ -60,6 +43,3 @@ struct LayerSetting {
 };
 
 LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);
-
-SettingType GetSettingType(const char* token);
-const char* GetSettingTypeToken(SettingType type);
