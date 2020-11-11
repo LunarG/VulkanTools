@@ -39,30 +39,27 @@ class Version {
     static const Version VKHEADER;
     static const Version VERSION_NULL;
 
-    Version() : _data(0) {}
-    explicit Version(uint32_t version_complete) : _data(version_complete) {}
+    explicit Version() : _major(0), _minor(0), _patch(0) {}
+    explicit Version(uint32_t version_complete);
     explicit Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch);
     explicit Version(const char *version);
     explicit Version(const QString &version);
 
     std::string str() const;
 
-    bool operator!=(const Version &other_version) const { return !(*this == other_version); }
+    bool operator!=(const Version &other_version) const;
+    bool operator==(const Version &other_version) const;
+    bool operator<(const Version &other_version) const;
+    bool operator>=(const Version &other_version) const;
+    bool operator>(const Version &other_version) const;
+    bool operator<=(const Version &other_version) const;
 
-    bool operator==(const Version &other_version) const { return _data == other_version._data; }
-
-    bool operator<(const Version &other_version) const { return _data < other_version._data; }
-
-    bool operator>=(const Version &other_version) const { return !(*this < other_version); }
-
-    bool operator>(const Version &other_version) const { return _data > other_version._data; }
-
-    bool operator<=(const Version &other_version) const { return !(*this > other_version); }
-
-    uint32_t GetMajor() const;
-    uint32_t GetMinor() const;
-    uint32_t GetPatch() const;
+    uint32_t GetMajor() const { return _major; };
+    uint32_t GetMinor() const { return _minor; };
+    uint32_t GetPatch() const { return _patch; };
 
    private:
-    uint32_t _data;
+    uint32_t _major;
+    uint32_t _minor;
+    uint32_t _patch;
 };

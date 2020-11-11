@@ -32,6 +32,8 @@ TEST(test_version, string) {
     EXPECT_EQ(version_b, Version(version_b.c_str()).str());
 }
 
+TEST(test_version, string_ctr) { EXPECT_EQ(Version(1, 1, 130), Version("1.1.130")); }
+
 TEST(test_version, compare) {
     const std::string version_a("1.1.130");
     const std::string version_b("1.2.135");
