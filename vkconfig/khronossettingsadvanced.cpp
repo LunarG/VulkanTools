@@ -135,7 +135,6 @@ static TreeSettings bestPractices[] = {
 static TreeSettings syncChecks[] = {
     {"Synchronization Checks", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", nullptr}};
 
-/////////////////////////////////////////////////////////////////////////////////
 /// There aren't many... but consider moving this to a QHash type lookup
 QString GetSettingDetails(QString qsSetting, QString &url) {
     QString retString = "";
@@ -156,7 +155,6 @@ QString GetSettingDetails(QString qsSetting, QString &url) {
     return retString;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent,
                                                  std::vector<LayerSetting> &settings)
     : _main_tree_widget(main_tree),
@@ -172,7 +170,6 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
       _debug_printf_box(nullptr),
       _debug_printf_radio(nullptr),
       _mute_message_widget(nullptr) {
-    ///////////////////////////////////////////////////////////////
     /// If this is off, everyone below is disabled
     bool core_validation_disabled = _disables.value.contains("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
     _core_checks_parent = new QTreeWidgetItem();
@@ -195,7 +192,6 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
         coreChecks[i].item = core_child_item;
     }
 
-    ///////////////////////////////////////////////////////////////
     // Miscellaneous disables
     QTreeWidgetItem *item;
     for (std::size_t i = 0, n = countof(miscDisables); i < n; i++) {
@@ -210,7 +206,6 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
         miscDisables[i].item = item;
     }
 
-    ///////////////////////////////////////////////////////////////
     // Now for the GPU specific stuff
     const bool shader_based = _enables.value.contains("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
                               _enables.value.contains("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
@@ -260,9 +255,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
         }
     }  // HAS_SHADER_BASED
 
-    ///////////////////////////////////////////////////////////////
     // Synchronization
-
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
     const std::vector<Layer>::const_iterator layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
@@ -282,9 +275,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
 
     syncChecks[0].item = _synchronization_box;
 
-    //////////////////////////////////////////////////////////////////////
-    // Best Practices - one parent/child, but we want to be able
-    // to go back to these
+    // Best Practices - one parent/child, but we want to be able to go back to these
     core_child_item = new QTreeWidgetItem();
     core_child_item->setText(0, bestPractices[1].prompt);
     if (_enables.value.contains(bestPractices[1].token))
@@ -372,7 +363,6 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *item, int column) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Something was checked or unchecked
 void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     if (column != 0) return;
@@ -482,7 +472,6 @@ void KhronosSettingsAdvanced::printfToggled(bool toggle) {
     emit settingChanged();
 }
 
-///////////////////////////////////////////////////////////////////////////
 /// Collect all the settings
 bool KhronosSettingsAdvanced::CollectSettings() {
     QString enables;
@@ -511,7 +500,6 @@ bool KhronosSettingsAdvanced::CollectSettings() {
         if (syncChecks[0].item->checkState(0) == Qt::Checked) AppendString(enables, syncChecks[i].token);
     }
 
-    ///////////////////////////////////////////////////////
     // Everything else is a disable. Remember, these are backwards
     // because they are exposed to the end user as an enable.
     // If they are NOT checked, we add them to disables

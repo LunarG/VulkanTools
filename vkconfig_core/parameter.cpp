@@ -261,12 +261,12 @@ bool SaveSettings(const Parameter& parameter, QJsonObject& json_settings) {
             case SETTING_BOOL:
             case SETTING_BOOL_NUMERIC:
             case SETTING_VUID_FILTER:
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
+                json_setting.insert("type", GetSettingToken(setting.type));
                 json_setting.insert("default", setting.value);
                 break;
 
             case SETTING_EXCLUSIVE_LIST: {
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
+                json_setting.insert("type", GetSettingToken(setting.type));
                 json_setting.insert("default", setting.value);
 
                 QJsonObject options;
@@ -276,7 +276,7 @@ bool SaveSettings(const Parameter& parameter, QJsonObject& json_settings) {
             } break;
 
             case SETTING_INCLUSIVE_LIST: {
-                json_setting.insert("type", GetSettingTypeToken(setting.type));
+                json_setting.insert("type", GetSettingToken(setting.type));
 
                 QJsonObject options;
                 for (int i = 0; i < setting.inclusive_labels.size(); i++)

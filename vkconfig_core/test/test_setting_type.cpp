@@ -15,22 +15,19 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "layer_setting.h"
+#include "../setting_type.h"
 
-#include "util.h"
+#include <gtest/gtest.h>
 
-#include <cassert>
+TEST(test_setting_type, is_enum_true1) { EXPECT_EQ(true, IsEnum(SETTING_EXCLUSIVE_LIST)); }
 
-LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) {
-    for (std::size_t i = 0, n = settings.size(); i < n; i++) {
-        if (settings[i].key == key) {
-            return &settings[i];
-        }
-    }
+TEST(test_setting_type, is_enum_true2) { EXPECT_EQ(true, IsEnum(SETTING_INCLUSIVE_LIST)); }
 
-    return nullptr;
-}
+TEST(test_setting_type, is_enum_false) { EXPECT_EQ(false, IsEnum(SETTING_STRING)); }
+
+TEST(test_setting_type, get_setting_token) { EXPECT_STREQ("string", GetSettingToken(SETTING_STRING)); }
+
+TEST(test_setting_type, get_setting_type) { EXPECT_EQ(SETTING_STRING, GetSettingType("string")); }
