@@ -2,9 +2,6 @@
 # http://www.appveyor.com/docs/appveyor-yml
 #
 
-# This version starts a separte job for each platform config
-# in order to get around the AppVeyor limit of 60 mins per job.
-
 # build version format
 version: "{build}"
 
@@ -146,11 +143,11 @@ build_script:
   - echo Build Vulkan Configurator with Qt build system
   - cd ../vkconfig
   - qmake vkconfig.pro
-  - nmake /NOLOGO /S
+  - nmake /NOLOGO /S # silent messages
 
   - echo Build Vulkan Configurator, layers and VIA with cmake
   - cd ../build
-  - cmake --build . --config %CONFIGURATION% -- /m /v:minimal
+  - cmake --build . --parallel --config %CONFIGURATION% -- /m /v:minimal
 
 test_script:
   ctest -j 16 --output-on-failure -C %CONFIGURATION%
