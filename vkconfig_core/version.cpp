@@ -28,33 +28,60 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(2, 0, 3);
+const Version Version::VKCONFIG(2, 1, 0);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 const Version Version::VERSION_NULL(0u);
 
-static uint32_t GetVersionData(const char* version) {
+static Version GetVersionData(const char *version) {
     uint32_t version_major = 0;
     uint32_t version_minor = 0;
     uint32_t version_patch = 0;
 
     sscanf(version, "%d.%d.%d", &version_major, &version_minor, &version_patch);
 
-    return VK_MAKE_VERSION(version_major, version_minor, version_patch);
+    return Version(version_major, version_minor, version_patch);
 }
 
+Version::Version(uint32_t version_complete)
+    : _major(VK_VERSION_MAJOR(version_complete)),
+      _minor(VK_VERSION_MINOR(version_complete)),
+      _patch(VK_VERSION_PATCH(version_complete)) {}
+
 Version::Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch)
-    : _data(VK_MAKE_VERSION(version_major, version_minor, version_patch)) {}
+    : _major(version_major), _minor(version_minor), _patch(version_patch) {}
 
-Version::Version(const char* version) : _data(GetVersionData(version)) {}
+Version::Version(const char *version) : Version(GetVersionData(version)) {}
 
-Version::Version(const QString& version) : Version(version.toUtf8().constData()) {}
+Version::Version(const QString &version) : Version(version.toUtf8().constData()) {}
 
-uint32_t Version::GetMajor() const { return VK_VERSION_MAJOR(_data); }
+std::string Version::str() const { return format("%d.%d.%d", _major, _minor, _patch); }
 
-uint32_t Version::GetMinor() const { return VK_VERSION_MINOR(_data); }
+bool Version::operator!=(const Version &other_version) const {
+    return VK_MAKE_VERSION(_major, _minor, _patch) !=
+           VK_MAKE_VERSION(other_version._major, other_version._minor, other_version._patch);
+}
 
-uint32_t Version::GetPatch() const { return VK_VERSION_PATCH(_data); }
+bool Version::operator==(const Version &other_version) const {
+    return VK_MAKE_VERSION(_major, _minor, _patch) ==
+           VK_MAKE_VERSION(other_version._major, other_version._minor, other_version._patch);
+}
 
-std::string Version::str() const {
-    return format("%d.%d.%d", VK_VERSION_MAJOR(_data), VK_VERSION_MINOR(_data), VK_VERSION_PATCH(_data));
+bool Version::operator<(const Version &other_version) const {
+    return VK_MAKE_VERSION(_major, _minor, _patch) <
+           VK_MAKE_VERSION(other_version._major, other_version._minor, other_version._patch);
+}
+
+bool Version::operator>=(const Version &other_version) const {
+    return VK_MAKE_VERSION(_major, _minor, _patch) >=
+           VK_MAKE_VERSION(other_version._major, other_version._minor, other_version._patch);
+}
+
+bool Version::operator>(const Version &other_version) const {
+    return VK_MAKE_VERSION(_major, _minor, _patch) >
+           VK_MAKE_VERSION(other_version._major, other_version._minor, other_version._patch);
+}
+
+bool Version::operator<=(const Version &other_version) const {
+    return VK_MAKE_VERSION(_major, _minor, _patch) <=
+           VK_MAKE_VERSION(other_version._major, other_version._minor, other_version._patch);
 }
