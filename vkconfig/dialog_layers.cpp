@@ -28,7 +28,7 @@
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
 #include <windows.h>
 #endif
 
@@ -39,7 +39,7 @@
 
 #include <cassert>
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
 // From Stack Overflow.
 #define MKPTR(p1, p2) ((DWORD_PTR)(p1) + (DWORD_PTR)(p2))
 
@@ -82,7 +82,7 @@ PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 
 /// Utility function to see if the file is 32-bit
 bool IsDLL32Bit(QString full_path) {
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
     if (full_path.isEmpty()) return false;
 
     QFile file(full_path);

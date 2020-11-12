@@ -37,6 +37,7 @@ SOURCES += \
     ../vkconfig_core/override.cpp \
     ../vkconfig_core/parameter.cpp \
     ../vkconfig_core/path_manager.cpp \
+    ../vkconfig_core/platform.cpp \
     ../vkconfig_core/setting_value.cpp \
     ../vkconfig_core/setting_type.cpp \
     ../vkconfig_core/registry.cpp \

@@ -58,7 +58,7 @@ void VulkanAnalysisDialog::Run() {
     ui->physicalDevicesTable->clear();
 
     QProcess *via = new QProcess(this);
-#if PLATFORM_MACOS
+#if VKC_PLATFORM == VKC_PLATFORM_MACOS
     via->setProgram("/usr/local/bin/vkvia");
 #else
     via->setProgram("vkvia");
