@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr.
+ * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 

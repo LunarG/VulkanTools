@@ -64,6 +64,8 @@ static int RunLayersOverride(const CommandLine& command_line) {
 }
 
 static int RunLayersSurrender(const CommandLine& command_line) {
+    (void)command_line;
+
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
@@ -88,6 +90,8 @@ static int RunLayersSurrender(const CommandLine& command_line) {
 }
 
 static int RunLayersList(const CommandLine& command_line) {
+    (void)command_line;
+
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
@@ -106,6 +110,8 @@ static int RunLayersList(const CommandLine& command_line) {
 }
 
 static int RunLayersVerbose(const CommandLine& command_line) {
+    (void)command_line;
+
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);

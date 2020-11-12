@@ -102,11 +102,11 @@ bool Configurator::Init() {
         alert.setWindowTitle("Vulkan Configurator couldn't find any layers configuration.");
         alert.setText(
             "A layers configuration is required to override Vulkan layers but none could be found during the initialization...");
-        alert.setInformativeText("Do you want to restore the default layers configurations?");
-        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        alert.setDefaultButton(QMessageBox::Yes);
+        alert.setInformativeText("Restoring the default layers configurations.");
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
         alert.setIcon(QMessageBox::Warning);
-        if (alert.exec() == QMessageBox::Yes) {
+        if (alert.exec() == QMessageBox::Ok) {
             ResetDefaultsConfigurations();
         }
     }
@@ -151,7 +151,7 @@ Configurator::~Configurator() {
 
 bool Configurator::HasLayers() const { return !layers.Empty(); }
 
-bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_version) const {
+bool Configurator::SupportApplicationList(Version *return_loader_version) const {
     // Check loader version
     const Version version = GetVulkanLoaderVersion();
     assert(version != Version::VERSION_NULL);
@@ -160,24 +160,7 @@ bool Configurator::SupportApplicationList(bool quiet, Version *return_loader_ver
         *return_loader_version = version;
     }
 
-    // This is the minimum version that supports the application list
-    if (version < Version("1.2.141") && !quiet) {
-        const QString message = QString().asprintf(
-            "The detected Vulkan Loader version is %s but version 1.2.141 or newer is required in order to apply layers "
-            "override to only a selected list of Vulkan applications.\n\n<br><br>"
-            "Get the latest Vulkan Runtime from <a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature.",
-            version.str().c_str());
-
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
-        alert.setText(message);
-        alert.setTextFormat(Qt::RichText);
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
-        return false;
-    }
-
-    return true;
+    return version >= Version("1.2.141");
 }
 
 // Populate a tree widget with the custom layer paths and the layers that
@@ -245,6 +228,7 @@ void Configurator::LoadAllConfigurations() {
 
             Configuration configuration;
             const bool result = configuration.Load(file);
+            OrderParameter(configuration.parameters, layers.available_layers);
             if (result) {
                 const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration.name));
                 assert(result);
@@ -268,12 +252,30 @@ void Configurator::LoadAllConfigurations() {
 
         Configuration configuration;
         const bool result = configuration.Load(info.absoluteFilePath());
+        OrderParameter(configuration.parameters, layers.available_layers);
         if (result) {
             available_configurations.push_back(configuration);
         }
     }
 
     RefreshConfiguration();
+}
+
+void Configurator::RemoveConfiguration(const QString &configuration_name) {
+    assert(!configuration_name.isEmpty());
+
+    // Not the active configuration
+    if (GetActiveConfiguration()->name == configuration_name) {
+        SetActiveConfiguration(available_configurations.end());
+    }
+
+    // Delete the configuration file
+    const QString full_path(path.GetFullPath(PATH_CONFIGURATION, configuration_name));
+    const bool result = std::remove(full_path.toUtf8().constData()) == 0;
+    assert(result);
+
+    // Reload to remove the configuration in the UI
+    LoadAllConfigurations();
 }
 
 void Configurator::RemoveConfiguration(const QString &configuration_name) {
@@ -311,13 +313,14 @@ void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator a
         environment.Set(ACTIVE_CONFIGURATION, _active_configuration->name);
         surrender = _active_configuration->IsEmpty();
     } else {
-        environment.Set(ACTIVE_CONFIGURATION, "");
+        _active_configuration = available_configurations.end();
         surrender = true;
     }
 
     if (surrender) {
         SurrenderLayers(environment);
     } else {
+        assert(_active_configuration != available_configurations.end());
         OverrideLayers(environment, layers.available_layers, *active_configuration);
     }
 }
@@ -325,7 +328,7 @@ void Configurator::SetActiveConfiguration(std::vector<Configuration>::iterator a
 void Configurator::RefreshConfiguration() {
     const QString active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-    if (!active_configuration_name.isEmpty()) {
+    if (!active_configuration_name.isEmpty() && environment.UseOverride()) {
         auto active_configuration = Find(available_configurations, active_configuration_name);
         if (active_configuration == available_configurations.end()) {
             environment.Set(ACTIVE_CONFIGURATION, "");
@@ -337,9 +340,11 @@ void Configurator::RefreshConfiguration() {
 }
 
 bool Configurator::HasActiveConfiguration() const {
-    return _active_configuration != available_configurations.end()
-               ? !HasMissingLayer(_active_configuration->layers, layers.available_layers)
-               : false;
+    if (_active_configuration != available_configurations.end())
+        return !HasMissingParameter(_active_configuration->parameters, layers.available_layers) &&
+               !_active_configuration->IsEmpty();
+    else
+        return false;
 }
 
 void Configurator::ImportConfiguration(const QString &full_import_path) {

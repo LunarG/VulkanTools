@@ -180,6 +180,7 @@ void LayersDialog::UpdateUI() {
     }
 
     ui->layerTreeSorted->setEnabled(ui->layerTreeSorted->topLevelItemCount() > 1);
+    ui->pushButtonResetLayers->setEnabled(ui->layerTreeSorted->topLevelItemCount() > 0);
 
     QTreeWidgetItem *current_sorted_layers = ui->layerTreeSorted->currentItem();
     const bool has_selected_sorted_item = current_sorted_layers != nullptr;
@@ -303,6 +304,7 @@ void LayersDialog::resizeEvent(QResizeEvent *event) {
 void LayersDialog::on_pushButtonResetLayers_clicked() {
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
+    ui->layerTreeSorted->clear();
 
     for (auto it = layers.begin(); it != layers.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
@@ -337,7 +339,6 @@ void LayersDialog::OverrideOrder(const QString layer_name, const TreeWidgetItemP
     assert(above_parameter != layers.end());
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
-    std::swap(*below_parameter, *above_parameter);
 
     SortConfigurationLayers(layers, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();

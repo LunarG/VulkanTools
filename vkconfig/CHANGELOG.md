@@ -16,6 +16,17 @@
 ### Features:
 - Add command line arguments to manage layers override #1213
 
+### Improvements:
+- Test with VS2015, VS2017 and VS2019
+- Test with Qt 5.9 and Qt 5.15 including QMake build
+- Test manually using a [use cases based template](https://docs.google.com/document/d/1z0WqfMp2IBko1fvDICkjDE_3JKnf8SrU5APQTqKRR-U/edit)
+
+### Fixes:
+- Fix manual layers ordering #1214
+- Fix layers override update when changing layers management options #1225
+- Fix reset button in layers window #1227
+- Fix warning about old loader when trying to use application list #1230
+
 ## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-05
 
 ### Features:

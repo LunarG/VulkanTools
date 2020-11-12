@@ -33,7 +33,7 @@ Optional software packages:
 
 ### Ubuntu System Requirements
 
-Ubuntu 16.04 LTS and 18.04 have been tested with this repo.
+Ubuntu 18.04 LTS and 20.04 have been tested with this repo.
 
 [CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-Linux-x86_64.tar.gz) is recommended.
 
@@ -75,7 +75,7 @@ sudo dnf install git @development-tools glm-devel \
 
 Optional software packages:
 
-You may build [Vulkan Configurator](./vkconfig/vkconfig.md) only if you also install several additional Qt dependencies:
+You may build [Vulkan Configurator](./vkconfig/README.md) only if you also install several additional Qt dependencies:
 ```
 sudo dnf install qt
 ```
@@ -202,7 +202,6 @@ To use, simply push it to the device and run it.  The resulting json file will b
 /sdcard/Android/<output>.json
 ```
 A working example can be found in [devsim_layer_test_anroid.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/devsim_layer_test_android.sh)
-
 
 ## The VulkanTools repository
 

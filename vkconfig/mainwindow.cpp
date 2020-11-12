@@ -55,9 +55,6 @@
 
 #include <cassert>
 
-// This is what happens when programmers can touch type....
-bool been_warned_about_old_loader = false;
-
 static const int LAUNCH_COLUMN0_SIZE = 220;
 static const int LAUNCH_COLUMN2_SIZE = 32;
 static const int LAUNCH_SPACING_SIZE = 2;
@@ -70,6 +67,7 @@ static const int LAUNCH_ROW_HEIGHT = 28;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+      been_warned_about_old_loader(false),
       _launch_application(nullptr),
       _log_file(nullptr),
       _launcher_apps_combo(nullptr),
@@ -188,23 +186,9 @@ void MainWindow::UpdateUI() {
                                                                          : active_contiguration_name + " Settings");
 
     // Handle application lists states
-    if (been_warned_about_old_loader) {
-        Version loader_version;
-        const bool support_application_list = configurator.SupportApplicationList(false, &loader_version);
-
-        ui->check_box_apply_list->setEnabled(support_application_list && environment.UseOverride());
-        ui->check_box_apply_list->setChecked(support_application_list && environment.UseApplicationListOverrideMode());
-        if (!support_application_list) {
-            const std::string version = GetVulkanLoaderVersion().str();
-            const std::string message =
-                format("The detected Vulkan loader version is %s but version 1.2.141 or newer is required", version.c_str());
-            ui->check_box_apply_list->setToolTip(message.c_str());
-        }
-    } else {
-        ui->check_box_apply_list->setEnabled(environment.UseOverride());
-        ui->check_box_apply_list->setChecked(environment.UseApplicationListOverrideMode());
-    }
-    ui->push_button_applications->setEnabled(ui->check_box_apply_list->isChecked());
+    ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && environment.UseOverride());
+    ui->check_box_apply_list->setChecked(!been_warned_about_old_loader && environment.UseApplicationListOverrideMode());
+    ui->push_button_applications->setEnabled(!been_warned_about_old_loader && ui->check_box_apply_list->isChecked());
 
     _launcher_apps_combo->blockSignals(true);
     _launcher_apps_combo->clear();
@@ -324,14 +308,7 @@ void MainWindow::on_radio_override_clicked() {
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
     configurator.RefreshConfiguration();
-    /*
-        // This just doesn't work. Make a function to look for the radio button checked.
-        ConfigurationListItem *item = GetCheckedItem();
-        auto configuration = item == nullptr ? configurator.available_configurations.end()
-                                             : Find(configurator.available_configurations, item->configuration_name);
 
-        configurator.SetActiveConfiguration(configuration);
-    */
     UpdateUI();
 }
 
@@ -349,9 +326,29 @@ void MainWindow::on_check_box_apply_list_clicked() {
     Configurator &configurator = Configurator::Get();
 
     // Handle old loader case
-    if (!configurator.SupportApplicationList()) {
-        ::been_warned_about_old_loader = true;
-        UpdateUI();
+    Version loader_version;
+    if (!configurator.SupportApplicationList(&loader_version)) {
+        const std::string version = loader_version.str();
+        const std::string message =
+            format("The detected Vulkan loader version is %s but version 1.2.141 or newer is required", version.c_str());
+        ui->check_box_apply_list->setToolTip(message.c_str());
+
+        QMessageBox alert(nullptr);
+        alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
+        alert.setTextFormat(Qt::RichText);
+        alert.setText(message.c_str());
+        alert.setInformativeText(
+            "In order to apply layers override to only a selected list of Vulkan applications, get the latest Vulkan Runtime from "
+            "<a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature or update your Vulkan drivers");
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+
+        ui->check_box_apply_list->setEnabled(false);
+        ui->check_box_apply_list->setChecked(false);
+        ui->push_button_applications->setEnabled(false);
+        configurator.environment.SetMode(OVERRIDE_MODE_LIST, false);
+        been_warned_about_old_loader = true;
+
         return;
     }
 
@@ -396,6 +393,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     Configurator &configurator = Configurator::Get();
     configurator.ResetDefaultsConfigurations();
+
     configurator.RefreshConfiguration();
 
     LoadConfigurationList();
@@ -481,6 +479,8 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
+
+    UpdateUI();
 }
 
 /// This gets called with keyboard selections and clicks that do not necessarily
@@ -854,8 +854,11 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     if (configuration_item != nullptr) {
         configurator.SetActiveConfiguration(configuration_item->configuration_name);
     }
+<<<<<<< HEAD
 
-    SaveLastItem();
+    == == == =
+>>>>>>> master
+                 SaveLastItem();
 
     UpdateUI();
 }
@@ -1072,7 +1075,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QTreeWidgetItem *configuration_item = ui->configuration_tree->itemAt(right_click->pos());
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
-            Configurator &configurator = Configurator::Get();
             const Environment &environment = Configurator::Get().environment;
             const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
@@ -1123,11 +1125,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
-
-            // Pointer compares made me throw up in my mouth at least a little
-            // less than doing a full string compare. Setting up signal/slot for
-            // all of these just seemed ridiculous. Every problem is not a nail,
-            // put the hammer away....
 
             if (action == edit_action) {
                 EditClicked(item);

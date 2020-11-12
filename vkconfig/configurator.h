@@ -49,7 +49,7 @@ class Configurator {
    public:
     // If return_loader_version is not null, the function will return the loader version
     // If quiet is false, message box will be generate
-    bool SupportApplicationList(bool quiet = true, Version* return_loader_version = nullptr) const;
+    bool SupportApplicationList(Version* return_loader_version = nullptr) const;
 
     bool HasActiveOverrideOnApplicationListOnly() const {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
@@ -67,9 +67,10 @@ class Configurator {
     std::vector<Configuration>::iterator GetActiveConfiguration() const { return _active_configuration; }
     void SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration);
     void SetActiveConfiguration(const QString& configuration_name);
-    bool HasActiveConfiguration() const;
-    void RemoveConfiguration(const QString& configuration_name);
+
     void RefreshConfiguration();
+    void RemoveConfiguration(const QString& configuration_name);
+    bool HasActiveConfiguration() const;
 
    private:
     Configurator();
