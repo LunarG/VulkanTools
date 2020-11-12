@@ -22,6 +22,7 @@
 
 #include "setting_type.h"
 
+#include <QJsonObject>
 #include <QVariant>
 
 #include <vector>

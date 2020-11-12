@@ -53,5 +53,5 @@ struct LayerSetting {
 bool operator==(const LayerSetting& l, const LayerSetting& r);
 bool operator!=(const LayerSetting& l, const LayerSetting& r);
 
-LayerSetting* Find(std::vector<LayerSetting>& settings, const char* key);
 void Sort(std::vector<LayerSetting>& settings);
+LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key);

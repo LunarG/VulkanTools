@@ -135,7 +135,6 @@ static TreeSettings bestPractices[] = {
 static TreeSettings syncChecks[] = {
     {"Synchronization Checks", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", nullptr}};
 
-/////////////////////////////////////////////////////////////////////////////////
 /// There aren't many... but consider moving this to a QHash type lookup
 QString GetSettingDetails(QString qsSetting, QString &url) {
     QString retString = "";
@@ -172,11 +171,14 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
       _debug_printf_box(nullptr),
       _debug_printf_radio(nullptr),
       _mute_message_widget(nullptr) {
+<<<<<<< HEAD
     assert(main_tree);
     assert(parent);
 
-    /// If this is off, everyone below is disabled
-    const bool core_validation_disabled = _disables.default_value.has("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+    == == == =
+>>>>>>> vkconfig-platform
+                 /// If this is off, everyone below is disabled
+        const bool core_validation_disabled = _disables.default_value.has("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
     _core_checks_parent = new QTreeWidgetItem();
     _core_checks_parent->setText(0, "Core Validation Checks");
     _core_checks_parent->setCheckState(0, (core_validation_disabled) ? Qt::Unchecked : Qt::Checked);
@@ -211,321 +213,358 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
         miscDisables[i].item = item;
     }
 
-    ///////////////////////////////////////////////////////////////
     // Now for the GPU specific stuff
     const bool shader_based = _enables.default_value.has("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
                               _enables.default_value.has("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
 
+<<<<<<< HEAD
     if (VKC_PLATFORM == PLATFORM_MACOS) {
-        _shader_based_box = new QTreeWidgetItem();
-        _shader_based_box->setText(0, "Shader-Based Validation");
-        _shader_based_box->setCheckState(0, shader_based ? Qt::Checked : Qt::Unchecked);
+        == == == = if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
+>>>>>>> vkconfig-platform
+            _shader_based_box = new QTreeWidgetItem();
+            _shader_based_box->setText(0, "Shader-Based Validation");
+            _shader_based_box->setCheckState(0, shader_based ? Qt::Checked : Qt::Unchecked);
 
-        parent->addChild(_shader_based_box);
+            parent->addChild(_shader_based_box);
 
-        _gpu_assisted_box = new QTreeWidgetItem();
-        _gpu_assisted_box->setText(0, "     GPU-Assisted");
-        _shader_based_box->addChild(_gpu_assisted_box);
+            _gpu_assisted_box = new QTreeWidgetItem();
+            _gpu_assisted_box->setText(0, "     GPU-Assisted");
+            _shader_based_box->addChild(_gpu_assisted_box);
 
-        _gpu_assisted_radio = new QRadioButton();
-        _main_tree_widget->setItemWidget(_gpu_assisted_box, 0, _gpu_assisted_radio);
+            _gpu_assisted_radio = new QRadioButton();
+            _main_tree_widget->setItemWidget(_gpu_assisted_box, 0, _gpu_assisted_radio);
 
-        _reserve_box = new QTreeWidgetItem();
-        _reserve_box->setText(0, "Reserve Descriptor Set Binding");
+            _reserve_box = new QTreeWidgetItem();
+            _reserve_box->setText(0, "Reserve Descriptor Set Binding");
 
-        const bool reserve_binding_slot =
-            _enables.default_value.has("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
+            const bool reserve_binding_slot =
+                _enables.default_value.has("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
 
-        _reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
+            _reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
 
-        _gpu_assisted_box->addChild(_reserve_box);
+            _gpu_assisted_box->addChild(_reserve_box);
 
-        _debug_printf_box = new QTreeWidgetItem();
-        _debug_printf_box->setText(0, "     Debug printf");
-        _shader_based_box->addChild(_debug_printf_box);
+            _debug_printf_box = new QTreeWidgetItem();
+            _debug_printf_box->setText(0, "     Debug printf");
+            _shader_based_box->addChild(_debug_printf_box);
 
-        _debug_printf_radio = new QRadioButton();
-        _main_tree_widget->setItemWidget(_debug_printf_box, 0, _debug_printf_radio);
-        if (_enables.default_value.has("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
-            _debug_printf_radio->setChecked(true);
-            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
-        } else
-            _gpu_assisted_radio->setChecked(true);
+            _debug_printf_radio = new QRadioButton();
+            _main_tree_widget->setItemWidget(_debug_printf_box, 0, _debug_printf_radio);
+            if (_enables.default_value.has("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
+                _debug_printf_radio->setChecked(true);
+                _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+            } else
+                _gpu_assisted_radio->setChecked(true);
 
-        if (!shader_based) {
-            _debug_printf_radio->setEnabled(false);
-            _gpu_assisted_radio->setEnabled(false);
-            _debug_printf_box->setFlags(_debug_printf_box->flags() & ~Qt::ItemIsEnabled);
-            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
-            _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() & ~Qt::ItemIsEnabled);
+            if (!shader_based) {
+                _debug_printf_radio->setEnabled(false);
+                _gpu_assisted_radio->setEnabled(false);
+                _debug_printf_box->setFlags(_debug_printf_box->flags() & ~Qt::ItemIsEnabled);
+                _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+                _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() & ~Qt::ItemIsEnabled);
+            }
         }
-    }
 
-    // Synchronization
-    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+        // Synchronization
+        std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
-    const std::vector<Layer>::const_iterator layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
-    if (layer != available_layers.end()) {
-        // To handle this change: https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/2146
-        if (layer->_api_version <= Version("1.2.148")) {
-            syncChecks[0].token = "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION";
+        const std::vector<Layer>::const_iterator layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
+        if (layer != available_layers.end()) {
+            // To handle this change: https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/2146
+            if (layer->_api_version <= Version("1.2.148")) {
+                syncChecks[0].token = "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION";
+            }
         }
-    }
 
-    const bool synchronization = _enables.default_value.has(syncChecks[0].token);
-    _synchronization_box = new QTreeWidgetItem();
-    _synchronization_box->setText(0, syncChecks[0].prompt);
-    _synchronization_box->setCheckState(0, synchronization ? Qt::Checked : Qt::Unchecked);
+        const bool synchronization = _enables.default_value.has(syncChecks[0].token);
+        _synchronization_box = new QTreeWidgetItem();
+        _synchronization_box->setText(0, syncChecks[0].prompt);
+        _synchronization_box->setCheckState(0, synchronization ? Qt::Checked : Qt::Unchecked);
 
-    parent->addChild(_synchronization_box);
+        parent->addChild(_synchronization_box);
 
-    syncChecks[0].item = _synchronization_box;
+        syncChecks[0].item = _synchronization_box;
 
-    // Best Practices - one parent/child, but we want to be able
-    // to go back to these
-    core_child_item = new QTreeWidgetItem();
-    core_child_item->setText(0, bestPractices[1].prompt);
-    if (_enables.default_value.has(bestPractices[1].token))
-        core_child_item->setCheckState(0, Qt::Checked);
-    else
-        core_child_item->setCheckState(0, Qt::Unchecked);
+<<<<<<< HEAD
+        // Best Practices - one parent/child, but we want to be able
+        // to go back to these
+        == == == =
+                     // Best Practices - one parent/child, but we want to be able to go back to these
+>>>>>>> vkconfig-platform
+            core_child_item = new QTreeWidgetItem();
+        core_child_item->setText(0, bestPractices[1].prompt);
+        if (_enables.default_value.has(bestPractices[1].token))
+            core_child_item->setCheckState(0, Qt::Checked);
+        else
+            core_child_item->setCheckState(0, Qt::Unchecked);
 
-    item = new QTreeWidgetItem();
-    item->setText(0, bestPractices[0].prompt);
-    if (_enables.default_value.has(bestPractices[0].token))
-        item->setCheckState(0, Qt::Checked);
-    else {
-        item->setCheckState(0, Qt::Unchecked);
-        core_child_item->setFlags(core_child_item->flags() & ~Qt::ItemIsEnabled);
-    }
+        item = new QTreeWidgetItem();
+        item->setText(0, bestPractices[0].prompt);
+        if (_enables.default_value.has(bestPractices[0].token))
+            item->setCheckState(0, Qt::Checked);
+        else {
+            item->setCheckState(0, Qt::Unchecked);
+            core_child_item->setFlags(core_child_item->flags() & ~Qt::ItemIsEnabled);
+        }
 
-    bestPractices[0].item = item;
-    parent->addChild(item);
+        bestPractices[0].item = item;
+        parent->addChild(item);
 
-    item->addChild(core_child_item);
-    bestPractices[1].item = core_child_item;
+        item->addChild(core_child_item);
+        bestPractices[1].item = core_child_item;
 
-    connect(_main_tree_widget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
-    connect(_main_tree_widget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(itemClicked(QTreeWidgetItem *, int)));
+        connect(_main_tree_widget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
+        connect(_main_tree_widget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(itemClicked(QTreeWidgetItem *, int)));
 
-    if (VKC_PLATFORM == PLATFORM_MACOS) {
-        connect(_gpu_assisted_radio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
-        connect(_debug_printf_radio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
-    }
-}
+<<<<<<< HEAD
+        if (VKC_PLATFORM == PLATFORM_MACOS) {
+            == == == = if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
+>>>>>>> vkconfig-platform
+                connect(_gpu_assisted_radio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
+                connect(_debug_printf_radio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
+            }
+        }
 
-/// A tree item was selected, display the help information to the side
-/// This is embarrasingly brute force... temporary sketch in...
-void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *item, int column) {
-    (void)column;
-    QString description;
-    QString url;
+        /// A tree item was selected, display the help information to the side
+        /// This is embarrasingly brute force... temporary sketch in...
+        void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem * item, int column) {
+            (void)column;
+            QString description;
+            QString url;
 
-    emit settingChanged();
+            emit settingChanged();
 
-    // Check for core validation checks
-    if (item == _core_checks_parent) {
-        description = GetSettingDetails("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT", url);
-        return;
-    }
-
-    for (std::size_t i = 0, n = countof(coreChecks); i < n; i++) {
-        if (item == coreChecks[i].item) {
-            description = GetSettingDetails(coreChecks[i].token, url);
-            if (!description.isEmpty()) {
+            // Check for core validation checks
+            if (item == _core_checks_parent) {
+                description = GetSettingDetails("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT", url);
                 return;
             }
-        }
-    }
 
-    // Check for miscellaneous disables
-    for (std::size_t i = 0, n = countof(miscDisables); i < n; i++) {
-        if (item == miscDisables[i].item) {
-            description = GetSettingDetails(miscDisables[i].token, url);
-            if (!description.isEmpty()) {
-                return;
+            for (std::size_t i = 0, n = countof(coreChecks); i < n; i++) {
+                if (item == coreChecks[i].item) {
+                    description = GetSettingDetails(coreChecks[i].token, url);
+                    if (!description.isEmpty()) {
+                        return;
+                    }
+                }
             }
-        }
-    }
 
-    // Best practices
-    for (std::size_t i = 0, n = countof(bestPractices); i < n; i++) {
-        if (item == bestPractices[i].item) {
-            description = GetSettingDetails(bestPractices[i].token, url);
-            if (!description.isEmpty()) {
-                return;
+            // Check for miscellaneous disables
+            for (std::size_t i = 0, n = countof(miscDisables); i < n; i++) {
+                if (item == miscDisables[i].item) {
+                    description = GetSettingDetails(miscDisables[i].token, url);
+                    if (!description.isEmpty()) {
+                        return;
+                    }
+                }
             }
-        }
-    }
 
-    // GPU Stuff
-    if (VKC_PLATFORM == PLATFORM_MACOS) {
-        if (item == _gpu_assisted_box) {
-            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT", url);
-        } else if (item == _reserve_box) {
-            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT", url);
-        } else if (item == _debug_printf_box) {
-            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT", url);
-        } else if (item == _synchronization_box) {
-            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION", url);
-        }
-    }
-}
-
-/// Something was checked or unchecked
-void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
-    if (column != 0) return;
-
-    emit settingChanged();
-
-    // Anything toggled needs to be selected in order to work well with the
-    // information display.
-    _main_tree_widget->setCurrentItem(item);
-
-    // Best Practices
-    _main_tree_widget->blockSignals(true);
-    if (item == bestPractices[0].item) {
-        // If we turned it on, we need to enable AMD
-        if (item->checkState(0) == Qt::Checked) {
-            bestPractices[1].item->setFlags(bestPractices[1].item->flags() | Qt::ItemIsEnabled);
-        } else {
-            bestPractices[1].item->setFlags(bestPractices[1].item->flags() & ~Qt::ItemIsEnabled);
-            bestPractices[1].item->setCheckState(0, Qt::Unchecked);
-        }
-    }
-
-    // Core Validation.
-    if (item == _core_checks_parent) {
-        // If checked, enable all below it.
-        if (item->checkState(0) == Qt::Checked) {
-            for (int i = 0; i < 7; i++) {
-                coreChecks[i].item->setFlags(coreChecks[i].item->flags() | Qt::ItemIsEnabled);
-                coreChecks[i].item->setCheckState(0, Qt::Checked);
+            // Best practices
+            for (std::size_t i = 0, n = countof(bestPractices); i < n; i++) {
+                if (item == bestPractices[i].item) {
+                    description = GetSettingDetails(bestPractices[i].token, url);
+                    if (!description.isEmpty()) {
+                        return;
+                    }
+                }
             }
-        } else {  // If unchecked both clear, and disable all below it
-            for (int i = 0; i < 7; i++) {
-                coreChecks[i].item->setFlags(coreChecks[i].item->flags() & ~Qt::ItemIsEnabled);
-                coreChecks[i].item->setCheckState(0, Qt::Unchecked);
+
+            // GPU Stuff
+<<<<<<< HEAD
+            if (VKC_PLATFORM == PLATFORM_MACOS) {
+                == == == = if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+>>>>>>> vkconfig-platform
+                    if (item == _gpu_assisted_box) {
+                        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT", url);
+                    } else if (item == _reserve_box) {
+                        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT", url);
+                    } else if (item == _debug_printf_box) {
+                        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT", url);
+                    } else if (item == _synchronization_box) {
+                        description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION", url);
+                    }
+                }
             }
-        }
-    }
 
-    // Shader based stuff
-    if (VKC_PLATFORM == PLATFORM_MACOS && item == _shader_based_box) {  // Just enable/disable the items below it
-        if (_shader_based_box->checkState(0) == Qt::Checked) {
-            _debug_printf_radio->setEnabled(true);
-            _gpu_assisted_radio->setEnabled(true);
-            _debug_printf_box->setFlags(_debug_printf_box->flags() | Qt::ItemIsEnabled);
-            _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
-            _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() | Qt::ItemIsEnabled);
-        } else {
-            _debug_printf_radio->setEnabled(false);
-            _gpu_assisted_radio->setEnabled(false);
-            _debug_printf_box->setFlags(_debug_printf_box->flags() & ~Qt::ItemIsEnabled);
-            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
-            _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() & ~Qt::ItemIsEnabled);
-        }
-    }
+            /// Something was checked or unchecked
+            void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem * item, int column) {
+                if (column != 0) return;
 
-    // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
-    if (VKC_PLATFORM == PLATFORM_MACOS && item == _debug_printf_box && _debug_printf_radio->isChecked())
-        _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+                emit settingChanged();
 
-    _main_tree_widget->blockSignals(false);
+                // Anything toggled needs to be selected in order to work well with the
+                // information display.
+                _main_tree_widget->setCurrentItem(item);
 
-    // Check for performance issues. There are three different variations, and I think
-    // we should alert the user to all three exactly/explicitly to what they are
+                // Best Practices
+                _main_tree_widget->blockSignals(true);
+                if (item == bestPractices[0].item) {
+                    // If we turned it on, we need to enable AMD
+                    if (item->checkState(0) == Qt::Checked) {
+                        bestPractices[1].item->setFlags(bestPractices[1].item->flags() | Qt::ItemIsEnabled);
+                    } else {
+                        bestPractices[1].item->setFlags(bestPractices[1].item->flags() & ~Qt::ItemIsEnabled);
+                        bestPractices[1].item->setCheckState(0, Qt::Unchecked);
+                    }
+                }
 
-    const bool features_to_run_alone[] = {_core_checks_parent->checkState(0) == Qt::Checked,
-                                          _synchronization_box->checkState(0) == Qt::Checked,
-                                          bestPractices[0].item->checkState(0) == Qt::Checked,
-                                          VKC_PLATFORM == PLATFORM_MACOS ? _shader_based_box->checkState(0) == Qt::Checked : false};
+                // Core Validation.
+                if (item == _core_checks_parent) {
+                    // If checked, enable all below it.
+                    if (item->checkState(0) == Qt::Checked) {
+                        for (int i = 0; i < 7; i++) {
+                            coreChecks[i].item->setFlags(coreChecks[i].item->flags() | Qt::ItemIsEnabled);
+                            coreChecks[i].item->setCheckState(0, Qt::Checked);
+                        }
+                    } else {  // If unchecked both clear, and disable all below it
+                        for (int i = 0; i < 7; i++) {
+                            coreChecks[i].item->setFlags(coreChecks[i].item->flags() & ~Qt::ItemIsEnabled);
+                            coreChecks[i].item->setCheckState(0, Qt::Unchecked);
+                        }
+                    }
+                }
 
-    int count_enabled_features = 0;
-    for (std::size_t i = 0, n = countof(features_to_run_alone); i < n; ++i)
-        count_enabled_features += features_to_run_alone[i] ? 1 : 0;
+                // Shader based stuff
+<<<<<<< HEAD
+                if (VKC_PLATFORM == PLATFORM_MACOS && item == _shader_based_box) {  // Just enable/disable the items below it
+                    == == == = if (VKC_PLATFORM != VKC_PLATFORM_MACOS &&
+                                   item == _shader_based_box) {  // Just enable/disable the items below it
+>>>>>>> vkconfig-platform
+                        if (_shader_based_box->checkState(0) == Qt::Checked) {
+                            _debug_printf_radio->setEnabled(true);
+                            _gpu_assisted_radio->setEnabled(true);
+                            _debug_printf_box->setFlags(_debug_printf_box->flags() | Qt::ItemIsEnabled);
+                            _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
+                            _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() | Qt::ItemIsEnabled);
+                        } else {
+                            _debug_printf_radio->setEnabled(false);
+                            _gpu_assisted_radio->setEnabled(false);
+                            _debug_printf_box->setFlags(_debug_printf_box->flags() & ~Qt::ItemIsEnabled);
+                            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+                            _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() & ~Qt::ItemIsEnabled);
+                        }
+                    }
 
-    QSettings settings;
-    if (count_enabled_features > 1) {
-        if (settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
-            QMessageBox alert(_main_tree_widget);
-            alert.setWindowTitle(tr("High Validation Layer Overhead"));
-            alert.setText(
-                "<i>Core Validation</i>, <i>Shader Based Validation</i>, <i>Synchronization Validation</i> and <i>Best Practices "
-                "Warnings</i> require a state tracking object each.");
-            alert.setInformativeText("Combining two of these options will result in high performance degradation.");
-            alert.setIcon(QMessageBox::Warning);
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-            alert.exec();
-            if (alert.checkBox()->isChecked()) settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
-        }
-    }
+                    // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
+<<<<<<< HEAD
+                    if (VKC_PLATFORM == PLATFORM_MACOS && item == _debug_printf_box && _debug_printf_radio->isChecked())
+                        == == == = if (VKC_PLATFORM != VKC_PLATFORM_MACOS && item == _debug_printf_box &&
+                                       _debug_printf_radio->isChecked())
+>>>>>>> vkconfig-platform
+                                       _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
 
-    CollectSettings();
-}
+                    _main_tree_widget->blockSignals(false);
 
-void KhronosSettingsAdvanced::gpuToggled(bool toggle) {
-    if (VKC_PLATFORM == PLATFORM_MACOS && toggle) _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
+                    // Check for performance issues. There are three different variations, and I think
+                    // we should alert the user to all three exactly/explicitly to what they are
 
-    CollectSettings();
-    emit settingChanged();
-}
+<<<<<<< HEAD
+                    const bool features_to_run_alone[] = {
+                        _core_checks_parent->checkState(0) == Qt::Checked, _synchronization_box->checkState(0) == Qt::Checked,
+                        bestPractices[0].item->checkState(0) == Qt::Checked,
+                        VKC_PLATFORM == PLATFORM_MACOS ? _shader_based_box->checkState(0) == Qt::Checked : false};
+                    == == == = const bool features_to_run_alone[] = {
+                                 _core_checks_parent->checkState(0) == Qt::Checked,
+                                 _synchronization_box->checkState(0) == Qt::Checked,
+                                 bestPractices[0].item->checkState(0) == Qt::Checked,
+                                 VKC_PLATFORM != VKC_PLATFORM_MACOS ? _shader_based_box->checkState(0) == Qt::Checked : false};
+>>>>>>> vkconfig-platform
 
-void KhronosSettingsAdvanced::printfToggled(bool toggle) {
-    if (VKC_PLATFORM == PLATFORM_MACOS && toggle) {
-        _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
-        _reserve_box->setCheckState(0, Qt::Unchecked);
-    }
+                    int count_enabled_features = 0;
+                    for (std::size_t i = 0, n = countof(features_to_run_alone); i < n; ++i)
+                        count_enabled_features += features_to_run_alone[i] ? 1 : 0;
 
-    CollectSettings();
-    emit settingChanged();
-}
+                    QSettings settings;
+                    if (count_enabled_features > 1) {
+                        if (settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
+                            QMessageBox alert(_main_tree_widget);
+                            alert.setWindowTitle("High Validation Layer Overhead");
+                            alert.setText(
+                                "<i>Core Validation</i>, <i>Shader Based Validation</i>, <i>Synchronization Validation</i> and "
+                                "<i>Best Practices "
+                                "Warnings</i> require a state tracking object each.");
+                            alert.setInformativeText("Combining two of these options will result in high performance degradation.");
+                            alert.setIcon(QMessageBox::Warning);
+                            alert.setCheckBox(new QCheckBox("Do not show again."));
+                            alert.exec();
+                            if (alert.checkBox()->isChecked()) settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
+                        }
+                    }
 
-/// Collect all the settings
-bool KhronosSettingsAdvanced::CollectSettings() {
-    std::vector<QString> enables;
-    std::vector<QString> disables;
+                    CollectSettings();
+                }
 
-    // GPU stuff
-    if (VKC_PLATFORM == PLATFORM_MACOS && _shader_based_box->checkState(0) == Qt::Checked) {
-        if (_gpu_assisted_radio->isChecked()) {
-            enables.push_back("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
+                void KhronosSettingsAdvanced::gpuToggled(bool toggle) {
+<<<<<<< HEAD
+                    if (VKC_PLATFORM == PLATFORM_MACOS && toggle) _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
+                    == == == = if (VKC_PLATFORM != VKC_PLATFORM_MACOS && toggle)
+                                   _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
+>>>>>>> vkconfig-platform
 
-            if (_reserve_box->checkState(0) == Qt::Checked)
-                enables.push_back("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
-        } else  // Debug printf must be checked
-            enables.push_back("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
-    }
+                    CollectSettings();
+                    emit settingChanged();
+                }
 
-    // The rest is cake... just reap the controls
+                void KhronosSettingsAdvanced::printfToggled(bool toggle) {
+<<<<<<< HEAD
+                    if (VKC_PLATFORM == PLATFORM_MACOS && toggle) {
+                        == == == = if (VKC_PLATFORM != VKC_PLATFORM_MACOS && toggle) {
+>>>>>>> vkconfig-platform
+                            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+                            _reserve_box->setCheckState(0, Qt::Unchecked);
+                        }
 
-    // Best practice enables
-    for (std::size_t i = 0, n = countof(bestPractices); i < n; i++) {
-        if (bestPractices[i].item->checkState(0) == Qt::Checked) enables.push_back(bestPractices[i].token);
-    }
+                        CollectSettings();
+                        emit settingChanged();
+                    }
 
-    // Sync Validation
-    for (std::size_t i = 0, n = countof(syncChecks); i < n; i++) {
-        if (syncChecks[0].item->checkState(0) == Qt::Checked) enables.push_back(syncChecks[i].token);
-    }
+                    /// Collect all the settings
+                    bool KhronosSettingsAdvanced::CollectSettings() {
+                        std::vector<QString> enables;
+                        std::vector<QString> disables;
 
-    ///////////////////////////////////////////////////////
-    // Everything else is a disable. Remember, these are backwards
-    // because they are exposed to the end user as an enable.
-    // If they are NOT checked, we add them to disables
-    for (std::size_t i = 0, n = countof(miscDisables); i < n; i++) {
-        if (miscDisables[i].item->checkState(0) != Qt::Checked) disables.push_back(miscDisables[i].token);
-    }
+                        // GPU stuff
+<<<<<<< HEAD
+                        if (VKC_PLATFORM == PLATFORM_MACOS && _shader_based_box->checkState(0) == Qt::Checked) {
+                            == == == = if (VKC_PLATFORM != VKC_PLATFORM_MACOS && _shader_based_box->checkState(0) == Qt::Checked) {
+>>>>>>> vkconfig-platform
+                                if (_gpu_assisted_radio->isChecked()) {
+                                    enables.push_back("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
 
-    // Core checks. If unchecked, then individual ones might still be checked
-    if (_core_checks_parent->checkState(0) == Qt::Checked) {
-        for (std::size_t i = 0, n = countof(coreChecks); i < n; i++)
-            if (coreChecks[i].item->checkState(0) == Qt::Unchecked) disables.push_back(coreChecks[i].token);
-    } else  // Not checked, turn them all off
-        disables.push_back("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+                                    if (_reserve_box->checkState(0) == Qt::Checked)
+                                        enables.push_back("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
+                                } else  // Debug printf must be checked
+                                    enables.push_back("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
+                            }
 
-    _disables.default_value = disables;
-    _enables.default_value = enables;
+                            // The rest is cake... just reap the controls
 
-    return true;
-}
+                            // Best practice enables
+                            for (std::size_t i = 0, n = countof(bestPractices); i < n; i++) {
+                                if (bestPractices[i].item->checkState(0) == Qt::Checked) enables.push_back(bestPractices[i].token);
+                            }
+
+                            // Sync Validation
+                            for (std::size_t i = 0, n = countof(syncChecks); i < n; i++) {
+                                if (syncChecks[0].item->checkState(0) == Qt::Checked) enables.push_back(syncChecks[i].token);
+                            }
+
+                            // Everything else is a disable. Remember, these are backwards
+                            // because they are exposed to the end user as an enable.
+                            // If they are NOT checked, we add them to disables
+                            for (std::size_t i = 0, n = countof(miscDisables); i < n; i++) {
+                                if (miscDisables[i].item->checkState(0) != Qt::Checked) disables.push_back(miscDisables[i].token);
+                            }
+
+                            // Core checks. If unchecked, then individual ones might still be checked
+                            if (_core_checks_parent->checkState(0) == Qt::Checked) {
+                                for (std::size_t i = 0, n = countof(coreChecks); i < n; i++)
+                                    if (coreChecks[i].item->checkState(0) == Qt::Unchecked) disables.push_back(coreChecks[i].token);
+                            } else  // Not checked, turn them all off
+                                disables.push_back("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+
+                            _disables.default_value = disables;
+                            _enables.default_value = enables;
+
+                            return true;
+                        }

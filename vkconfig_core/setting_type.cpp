@@ -21,9 +21,7 @@
 #include "setting_type.h"
 #include "util.h"
 
-#include <QJsonArray>
-
-#include <cassert>
+#include <cstring>
 
 SettingType GetSettingType(const char* token) {
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {

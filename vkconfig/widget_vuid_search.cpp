@@ -59,7 +59,6 @@ void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
     _add_button->setGeometry(parentSize.width() - button_size, 0, button_size, parentSize.height());
 }
 
-/////////////////////////////////////////////////////////////////////
 /// Reload the completer with a revised list of VUID's.
 /// I'm quite impressed with how fast this brute force implementation
 /// runs in release mode.
@@ -77,7 +76,6 @@ void VUIDSearchWidget::ResetCompleter() {
     connect(_search_vuid, SIGNAL(activated(const QString &)), this, SLOT(addCompleted(const QString &)), Qt::QueuedConnection);
 }
 
-///////////////////////////////////////////////////////////////////////
 // Add the text in the edit control to the list, and clear the control
 // This is not really used much, only if they want to add something
 // that is not in the completer list.
@@ -93,7 +91,6 @@ void VUIDSearchWidget::addButtonPressed() {
     if (_vuid_list.removeOne(entry)) ResetCompleter();
 }
 
-//////////////////////////////////////////////////////////////////////
 // Clear the edit control after the completer is finished.
 void VUIDSearchWidget::addCompleted(const QString &addedItem) {
     (void)addedItem;
@@ -104,7 +101,6 @@ void VUIDSearchWidget::addCompleted(const QString &addedItem) {
     addButtonPressed();
 }
 
-//////////////////////////////////////////////////////////////////////
 // Item was removed from master list, so add it back to the search
 // list.
 void VUIDSearchWidget::addToSearchList(const QString &newItem) {

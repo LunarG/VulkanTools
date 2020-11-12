@@ -111,7 +111,7 @@ bool operator==(const LayerSetting& l, const LayerSetting& r) {
 
 bool operator!=(const LayerSetting& l, const LayerSetting& r) { return !(l == r); }
 
-LayerSetting* Find(std::vector<LayerSetting>& settings, const char* key) {
+LayerSetting* FindSetting(std::vector<LayerSetting>& settings, const char* key) {
     for (std::size_t i = 0, n = settings.size(); i < n; i++) {
         if (settings[i].key == key) {
             return &settings[i];

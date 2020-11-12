@@ -20,10 +20,7 @@
 
 #pragma once
 
-#include <QJsonObject>
-#include <QVariant>
-
-#include <vector>
+#include <cassert>
 
 enum SettingType {  // Enum value can't be changed
     SETTING_STRING = 0,

@@ -23,8 +23,13 @@
 
 #include <cassert>
 
-FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting, SettingType setting_type)
-    : QWidget(nullptr), _layer_setting(layer_setting), _mode(GetMode(setting_type)) {
+<<<<<<< HEAD
+== == == =
+             // This can be used to specify a 'load' file or a 'save' file. Save is true by default
+>>>>>>> vkconfig-platform
+    FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem * item, LayerSetting& layer_setting, SettingType setting_type)
+    : QWidget(nullptr),
+      _layer_setting(layer_setting), _mode(GetMode(setting_type)) {
     assert(item);
     assert(&_layer_setting);
     assert(setting_type >= SETTING_FIRST && setting_type <= SETTING_LAST);

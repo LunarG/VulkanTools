@@ -138,9 +138,15 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, c
     _presets_combo_box->blockSignals(true);
     _preset_indexes.clear();
 
+<<<<<<< HEAD
     // First add user defined preset
     _presets_combo_box->addItem("User Defined");
     _preset_indexes.push_back(PRESET_INDEX_USER_DEFINED);
+    == == == = if (VKC_PLATFORM == VKC_PLATFORM_MACOS &&
+                   (validation_preset == ValidationPresetGPUAssisted || validation_preset == ValidationPresetDebugPrintf)) {
+        continue;
+    }
+>>>>>>> vkconfig-platform
 
     for (std::size_t i = 0, n = validation_layer->presets.size(); i < n; ++i) {
         const Preset &preset = presets[i];
@@ -180,7 +186,11 @@ void SettingsTreeManager::BuildKhronosTree(const std::vector<Preset> &presets, c
     // Each debug action has it's own checkbox
     for (std::size_t i = 0, n = debug_action.value.size(); i < n; ++i) {
         // Debug output is only for Windows
+<<<<<<< HEAD
         if (VKC_PLATFORM != PLATFORM_WINDOWS && debug_action.value[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
+        == == == = if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS &&
+                       debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
+>>>>>>> vkconfig-platform
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
         MultiEnumSettingWidget *this_control = new MultiEnumSettingWidget(debug_action, debug_action.value[i]);

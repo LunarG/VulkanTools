@@ -20,8 +20,6 @@
 
 #pragma once
 
-#define APP_SHORT_NAME "vkconfig"
-
 #define VKC_PLATFORM_WINDOWS 0
 #define VKC_PLATFORM_LINUX 1
 #define VKC_PLATFORM_MACOS 2

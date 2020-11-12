@@ -22,7 +22,7 @@
 #include "platform.h"
 #include "util.h"
 
-#if VKC_PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
 #include <shlobj.h>
 #endif
 
@@ -105,7 +105,7 @@ static const char* GetLayoutStateToken(LayoutState state) {
 Environment::Environment(PathManager& paths)
     : paths_manager(paths),
 // Hack for GitHub C.I.
-#if VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       running_as_administrator(IsUserAnAdmin()),
 #else
       running_as_administrator(false),
@@ -317,9 +317,9 @@ bool Environment::LoadApplications() {
 }
 
 static QString GetDefaultExecutablePath(const QString& executable_name) {
-    static const char* DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
+    static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
 
-    if (VKC_PLATFORM == PLATFORM_MACOS) {
+    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
         // Using the standard install loation on macOS
         {
             const QString search_path = "/Applications/" + executable_name;

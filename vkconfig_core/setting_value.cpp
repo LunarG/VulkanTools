@@ -22,6 +22,7 @@
 #include "util.h"
 
 #include <QJsonArray>
+#include <QString>
 
 #include <cassert>
 

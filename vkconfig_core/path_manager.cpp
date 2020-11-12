@@ -52,7 +52,7 @@ static const DirectoryDesc& GetDesc(Path directory) {
         {"configuration export", ".json", "lastExportPath", nullptr, true, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
         {"executable", GetPlatformString(PLATFORM_STRING_EXE_SUFFIX), "lastExecutablePath", nullptr, true,
          PATH_WORKING_DIR},                                                                            // PATH_EXECUTABLE
-        {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},          // PATH_EXECUTABLE
+        {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},          // PATH_WORKING_DIR
         {"home path", nullptr, nullptr, nullptr, false, PATH_HOME},                                    // PATH_HOME
         {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},              // PATH_LAUNCHER_LOG_FILE
         {"custom layer path", ".json", "lastCustomLayerPath", nullptr, true, PATH_CUSTOM_LAYER_PATH},  // PATH_CUSTOM_LAYER_PATH
@@ -183,7 +183,7 @@ QString PathManager::GetFullPath(Path path, const char* filename) const {
 
     const QString path_suffix =
         !file_info.completeSuffix().isEmpty() ? QString(".") + file_info.completeSuffix() : GetDesc(path).default_extension;
-    assert(!path_suffix.isEmpty() || VKC_PLATFORM != PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
+    assert(!path_suffix.isEmpty() || VKC_PLATFORM != VKC_PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
 
     const QString full_path = QDir::toNativeSeparators(path_base + "/" + path_filename + path_suffix);
     return full_path;

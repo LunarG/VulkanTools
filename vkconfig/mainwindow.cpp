@@ -269,7 +269,7 @@ void MainWindow::LoadConfigurationList() {
         ConfigurationListItem *item = new ConfigurationListItem(configuration.name);
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-        if (VKC_PLATFORM == PLATFORM_MACOS)  // Mac OS does not leave enough space without this
+        if (VKC_PLATFORM == VKC_PLATFORM_MACOS)  // Mac OS does not leave enough space without this
             item->radio_button->setText(" ");
 
         item->radio_button->setToolTip(configuration._description);
@@ -854,11 +854,8 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     if (configuration_item != nullptr) {
         configurator.SetActiveConfiguration(configuration_item->configuration_name);
     }
-<<<<<<< HEAD
 
-    == == == =
->>>>>>> master
-                 SaveLastItem();
+    SaveLastItem();
 
     UpdateUI();
 }

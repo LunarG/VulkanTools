@@ -2,9 +2,6 @@
 # http://www.appveyor.com/docs/appveyor-yml
 #
 
-# This version starts a separte job for each platform config
-# in order to get around the AppVeyor limit of 60 mins per job.
-
 # build version format
 version: "{build}"
 
@@ -40,6 +37,15 @@ for:
     init:
       # For building vkconfig with qmake
       - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
+      # Multithreaded NMake
+      - set CL=/MP
+    build_script:
+      - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
+
+      - echo Build Vulkan Configurator with Qt build system
+      - cd ../vkconfig
+      - qmake vkconfig.pro
+      - nmake /NOLOGO /S # silent messages
 
   -
     matrix:
@@ -55,6 +61,8 @@ for:
     init:
       # For building vkconfig with qmake
       - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+      # Multithreaded NMake
+      - set CL=/MP
 
   -
     matrix:
@@ -70,6 +78,8 @@ for:
     init:
       # For building vkconfig with qmake
       - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+      # Multithreaded NMake
+      - set CL=/MP
 
 matrix:
   exclude:
@@ -137,14 +147,9 @@ build:
 build_script:
   - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
 
-  - echo Build Vulkan Configurator with Qt build system
-  - cd ../vkconfig
-  - qmake vkconfig.pro
-  - nmake /NOLOGO /S
-
   - echo Build Vulkan Configurator, layers and VIA with cmake
   - cd ../build
-  - cmake --build . --config %CONFIGURATION% -- /m /v:minimal
+  - cmake --build . --parallel --config %CONFIGURATION% -- /m /v:minimal
 
 test_script:
   ctest -j 16 --output-on-failure -C %CONFIGURATION%
