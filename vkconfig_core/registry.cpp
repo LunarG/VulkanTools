@@ -20,7 +20,7 @@
 
 #include "registry.h"
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
 #include <windows.h>
 #include <winreg.h>
 #include <Cfgmgr32.h>
@@ -193,4 +193,4 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
     }
 }
 
-#endif  // PLATFORM_WINDOWS
+#endif  // VKC_PLATFORM == VKC_PLATFORM_WINDOWS

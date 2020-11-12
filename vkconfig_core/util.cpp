@@ -59,8 +59,8 @@ bool IsNumber(const std::string& s) {
     return true;
 }
 
-void CheckHomePathsExist(const QString& path) {
-    QDir dir = QDir::home();
+void CheckPathsExist(const QString& path) {
+    QDir dir;  // = QDir::home();
     if (!dir.exists(path)) {
         dir.mkpath(path);
         assert(dir.exists(path));
@@ -87,7 +87,7 @@ std::string ValidatePath(const std::string& path) {
 
     FILE* file = fopen(path.c_str(), "w+");
     if (file == nullptr) {
-        CheckHomePathsExist("vulkan-sdk");
+        CheckPathsExist(QDir::homePath() + "/vulkan-sdk");
         const QFileInfo file_info(path.c_str());
         return QDir::toNativeSeparators(QDir().homePath() + "/vulkan-sdk/" + file_info.fileName()).toStdString();
     } else {

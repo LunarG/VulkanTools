@@ -73,7 +73,7 @@ bool Configuration::Load(const QString& full_path) {
     const QJsonValue& configuration_entry_value = json_top_object.value(key[0]);
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
-    if (SUPPORT_VKCONFIG_2_0_1 && !HAS_SHADER_BASED) {
+    if (SUPPORT_VKCONFIG_2_0_1 && VKC_PLATFORM == VKC_PLATFORM_MACOS) {
         if (full_path.contains("Validation - Shader Printf.json") || full_path.contains("Validation - Debug Printf.json") ||
             full_path.contains("Validation - GPU-Assisted.json")) {
             return false;

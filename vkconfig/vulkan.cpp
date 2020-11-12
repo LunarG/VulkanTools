@@ -33,16 +33,6 @@
 
 #include <cassert>
 
-#if PLATFORM_WINDOWS
-static const char *VULKAN_LIBRARY = "vulkan-1.dll";
-#elif PLATFORM_MACOS
-static const char *VULKAN_LIBRARY = "/usr/local/lib/libvulkan";
-#elif PLATFORM_LINUX
-static const char *VULKAN_LIBRARY = "libvulkan";
-#else
-#error "Unknown platform"
-#endif
-
 static const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
     const char *translation[] = {"Other", "Integrated GPU", "Discrete GPU", "Virtual GPU", "CPU"};
     return translation[type];
@@ -50,7 +40,7 @@ static const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
 
 Version GetVulkanLoaderVersion() {
     // Check loader version
-    QLibrary library(VULKAN_LIBRARY);
+    QLibrary library(GetPlatformString(PLATFORM_STRING_VULKAN_LIBRARY));
 
     if (!library.load()) return Version::VERSION_NULL;
 
@@ -105,7 +95,7 @@ QString GenerateVulkanStatus() {
     } else
         log += "- Custom Layers Paths: None\n";
 
-    QLibrary library(VULKAN_LIBRARY);
+    QLibrary library(GetPlatformString(PLATFORM_STRING_VULKAN_LIBRARY));
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
         (PFN_vkEnumerateInstanceLayerProperties)library.resolve("vkEnumerateInstanceLayerProperties");
     assert(vkEnumerateInstanceLayerProperties);

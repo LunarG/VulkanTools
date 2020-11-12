@@ -27,19 +27,6 @@
 
 #include <cassert>
 
-static const char* GetOS() {
-    if (PLATFORM_WINDOWS)
-        return "windows";
-    else if (PLATFORM_MACOS)
-        return "mac";
-    else if (PLATFORM_LINUX)
-        return "linux";
-    else {
-        assert(0);  //"Unknown platform"
-        return "";
-    }
-}
-
 void ShowDoc(DocType doc_type) {
     switch (doc_type) {
         default: {
@@ -55,12 +42,14 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_VULKAN_SPEC: {
-            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html", GetOS());
+            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html",
+                                           GetPlatformString(PLATFORM_STRING_OS));
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
         case DOC_VULKAN_LAYERS: {
-            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/layer_configuration.html", GetOS());
+            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/layer_configuration.html",
+                                           GetPlatformString(PLATFORM_STRING_OS));
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }

@@ -22,7 +22,7 @@
 #include "platform.h"
 #include "util.h"
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
 #include <shlobj.h>
 #endif
 
@@ -105,7 +105,7 @@ static const char* GetLayoutStateToken(LayoutState state) {
 Environment::Environment(PathManager& paths)
     : paths_manager(paths),
 // Hack for GitHub C.I.
-#if PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       running_as_administrator(IsUserAnAdmin()),
 #else
       running_as_administrator(false),
@@ -279,7 +279,7 @@ bool Environment::LoadApplications() {
     QString data;
     const QString& application_list_json = paths.GetFullPath(FILENAME_APPLIST);
     QFile file(application_list_json);
-    if (file.open(QFile::ReadOnly)) {  // if applist.json exist, load saved applications
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {  // if applist.json exist, load saved applications
         data = file.readAll();
         file.close();
 
@@ -317,9 +317,9 @@ bool Environment::LoadApplications() {
 }
 
 static QString GetDefaultExecutablePath(const QString& executable_name) {
-    static const char* DEFAULT_PATH = PLATFORM_MACOS ? "/../.." : "";
+    static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
 
-    if (PLATFORM_MACOS) {
+    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
         // Using the standard install loation on macOS
         {
             const QString search_path = "/Applications/" + executable_name;
@@ -365,7 +365,6 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
     return "";
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // Search for vkcube and add it to the app list.
 void Environment::UpdateDefaultApplications(const bool add_default_applications) {
     std::vector<Application> new_applications;
@@ -382,15 +381,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
     if (!add_default_applications) return;
 
-#if PLATFORM_WINDOWS
-    static const char* SUFFIX = ".exe";
-#elif PLATFORM_MACOS
-    static const char* SUFFIX = ".app";
-#elif PLATFORM_LINUX
-    static const char* SUFFIX = "";
-#else
-#error "Unknown platform"
-#endif
+    const char* suffix = GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
 
     struct Default {
         QString name;
@@ -406,7 +397,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
         for (std::size_t i = 0; i < new_applications.size(); ++i) {
             const Application& application = new_applications[i];
 
-            if (!application.executable_path.endsWith(defaults[name_index].name + SUFFIX)) continue;
+            if (!application.executable_path.endsWith(defaults[name_index].name + suffix)) continue;
 
             found;
             break;
@@ -414,7 +405,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
         if (found) continue;
 
-        const QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + SUFFIX);
+        const QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + suffix);
         if (executable_path.isEmpty()) continue;  // application could not be found..
 
         Application application(executable_path, "--suppress_popups");
@@ -489,8 +480,11 @@ bool Environment::SaveApplications() const {
     }
 
     const QString& app_list_json = paths.GetFullPath(FILENAME_APPLIST);
+    assert(QFileInfo(app_list_json).absoluteDir().exists());
+
     QFile file(app_list_json);
-    file.open(QFile::WriteOnly);
+    const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result);
     QJsonDocument doc(root);
     file.write(doc.toJson());
     file.close();
