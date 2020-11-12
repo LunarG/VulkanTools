@@ -39,6 +39,13 @@ for:
       - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
       # Multithreaded NMake
       - set CL=/MP
+    build_script:
+      - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
+
+      - echo Build Vulkan Configurator with Qt build system
+      - cd ../vkconfig
+      - qmake vkconfig.pro
+      - nmake /NOLOGO /S # silent messages
 
   -
     matrix:
@@ -139,11 +146,6 @@ build:
 
 build_script:
   - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
-
-  - echo Build Vulkan Configurator with Qt build system
-  - cd ../vkconfig
-  - qmake vkconfig.pro
-  - nmake /NOLOGO /S # silent messages
 
   - echo Build Vulkan Configurator, layers and VIA with cmake
   - cd ../build
