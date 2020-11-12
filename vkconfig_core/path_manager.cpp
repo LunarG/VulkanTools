@@ -50,7 +50,7 @@ static const DirectoryDesc& GetDesc(Path directory) {
         {"override layers", ".json", nullptr, "VkLayer_override", false, PATH_OVERRIDE_LAYERS},         // PATH_OVERRIDE_LAYERS
         {"configuration import", ".json", "lastImportPath", nullptr, true, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
         {"configuration export", ".json", "lastExportPath", nullptr, true, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
         {"executable", ".exe", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #else
         {"executable", "", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
@@ -85,18 +85,6 @@ PathManager::~PathManager() {
     assert(result);
 }
 
-void PathManager::CheckDefaultDirectories() const {
-    if (PLATFORM_WINDOWS) {
-        CheckHomePathsExist("AppData/Local/LunarG/vkconfig/override");
-    } else if (PLATFORM_LINUX || PLATFORM_MACOS) {
-        CheckHomePathsExist(".local/share/vulkan/implicit_layer.d");
-        CheckHomePathsExist(".local/share/vulkan/settings.d");
-        CheckHomePathsExist(".local/share/vulkan/lunarg-vkconfig");
-    } else {
-        assert(0);  // Platform unknown
-    }
-}
-
 bool PathManager::Load() {
     paths[PATH_HOME] = QDir::toNativeSeparators(QDir::homePath()).toStdString();
 
@@ -107,19 +95,13 @@ bool PathManager::Load() {
         paths[type] = settings.value(GetDesc(type).setting).toString().toUtf8().constData();
     }
 
-    CheckDefaultDirectories();
-
-    if (PLATFORM_WINDOWS) {
-        SetPath(PATH_CONFIGURATION, QDir::home().path() + "/AppData/Local/LunarG/vkconfig");
-        SetPath(PATH_OVERRIDE_LAYERS, QDir::home().path() + "/AppData/Local/LunarG/vkconfig/override");
-        SetPath(PATH_OVERRIDE_SETTINGS, QDir::home().path() + "/AppData/Local/LunarG/vkconfig/override");
-    } else if (PLATFORM_LINUX || PLATFORM_MACOS) {
-        SetPath(PATH_CONFIGURATION, QDir::home().path() + "/.local/share/vulkan/lunarg-vkconfig/");
-        SetPath(PATH_OVERRIDE_LAYERS, QDir::home().path() + "/.local/share/vulkan/implicit_layer.d");
-        SetPath(PATH_OVERRIDE_SETTINGS, QDir::home().path() + "/.local/share/vulkan/settings.d");
-    } else {
-        assert(0);  // Platform unknown
-    }
+    const QString base_path = QDir::home().path();
+    CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
+    CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
+    CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
+    SetPath(PATH_CONFIGURATION, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
+    SetPath(PATH_OVERRIDE_LAYERS, base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
+    SetPath(PATH_OVERRIDE_SETTINGS, base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
 
     return true;
 }
@@ -157,8 +139,6 @@ void PathManager::Reset() {
 const char* PathManager::GetPath(Path path) const {
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
-    CheckDefaultDirectories();
-
     if (!paths[path].empty()) {
         return paths[path].c_str();
     }
@@ -176,8 +156,6 @@ const char* PathManager::GetPath(Path path) const {
 void PathManager::SetPath(Path path, const char* path_value) {
     assert(path >= PATH_FIRST && path <= PATH_LAST);
     assert(path_value);
-
-    CheckDefaultDirectories();
 
     const QDir directory(path_value);
     const QString native_path = QDir::toNativeSeparators(directory.absolutePath());
@@ -200,7 +178,7 @@ QString PathManager::GetFullPath(Path path, const char* filename) const {
 
     const QString path_suffix =
         !file_info.completeSuffix().isEmpty() ? QString(".") + file_info.completeSuffix() : GetDesc(path).default_extension;
-    assert(!path_suffix.isEmpty() || !PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
+    assert(!path_suffix.isEmpty() || VKC_PLATFORM != VKC_PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
 
     const QString full_path = QDir::toNativeSeparators(path_base + "/" + path_filename + path_suffix);
     return full_path;
@@ -256,16 +234,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             return GetFullPath(path, QFileInfo(selected_path).baseName());
         } break;
         case PATH_EXECUTABLE: {
-#if PLATFORM_MACOS
-            const QString filter("Applications (*.app, *)");
-#elif PLATFORM_WINDOWS
-            const QString filter("Applications (*.exe)");
-#elif PLATFORM_LINUX
-            const QString filter("Applications (*)");
-#else
-#error "Unknown platform"
-#endif
-
+            const QString filter = GetPlatformString(PLATFORM_STRING_FILTER);
             const QString selected_path =
                 QFileDialog::getOpenFileName(parent, "Select a Vulkan Executable...", suggested_path, filter);
             if (selected_path.isEmpty())  // The user cancelled

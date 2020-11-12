@@ -18,19 +18,19 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "../platform.h"
 
-#include "platform.h"
-#include "layer.h"
+#include <gtest/gtest.h>
 
-#include <QString>
+#include <cstring>
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+TEST(test_platform, status_type) {
+    EXPECT_STREQ("STABLE", GetToken(STATUS_STABLE));
+    EXPECT_EQ(STATUS_STABLE, GetStatusType("STABLE"));
+}
 
-void AppendRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
-
-void RemoveRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
-
-void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type);
-
-#endif  // VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+TEST(test_platform, platform_string) {
+    EXPECT_TRUE(std::strcmp("vulkaninfoSDK", GetPlatformString(PLATFORM_STRING_VULKAN_INFO)) == 0 ||
+                std::strcmp("vulkaninfo", GetPlatformString(PLATFORM_STRING_VULKAN_INFO)) == 0 ||
+                std::strcmp("/usr/local/bin/vulkaninfo", GetPlatformString(PLATFORM_STRING_VULKAN_INFO)) == 0);
+}

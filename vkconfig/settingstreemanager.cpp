@@ -140,7 +140,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     for (int i = ValidationPresetFirst; i <= ValidationPresetLast; ++i) {
         const ValidationPreset validation_preset = static_cast<ValidationPreset>(i);
 
-        if (!HAS_SHADER_BASED &&
+        if (VKC_PLATFORM == VKC_PLATFORM_MACOS &&
             (validation_preset == ValidationPresetGPUAssisted || validation_preset == ValidationPresetDebugPrintf)) {
             continue;
         }
@@ -181,7 +181,8 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     // Each debug action has it's own checkbox
     for (int i = 0, n = debug_action.inclusive_values.size(); i < n; ++i) {
         // Debug output is only for Windows
-        if (!PLATFORM_WINDOWS && debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT") continue;
+        if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS && debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT")
+            continue;
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
         MultiEnumSettingWidget *this_control = new MultiEnumSettingWidget(debug_action, debug_action.inclusive_values[i]);

@@ -28,7 +28,7 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(2, 1, 0);
+const Version Version::VKCONFIG(2, 0, 3);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 const Version Version::VERSION_NULL(0u);
 

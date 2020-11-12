@@ -55,8 +55,8 @@ std::string format(const char* message, ...);
 
 bool IsNumber(const std::string& s);
 
-// Create a directory from the home directory if it doesn't exist
-void CheckHomePathsExist(const QString& path);
+// Create a directory if it doesn't exist
+void CheckPathsExist(const QString& path);
 
 // Replace "$HOME" built-in variable by the actual system home directory
 std::string ReplacePathBuiltInVariables(const std::string& path);

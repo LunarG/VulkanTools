@@ -50,15 +50,7 @@ void VulkanInfoDialog::Run() {
     ui->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
-
-    if (PLATFORM_WINDOWS)
-        vulkan_info->setProgram("vulkaninfoSDK");
-    else if (PLATFORM_LINUX)
-        vulkan_info->setProgram("vulkaninfo");
-    else if (PLATFORM_MACOS)
-        vulkan_info->setProgram("/usr/local/bin/vulkaninfo");
-    else
-        assert(0);  // Unknown platform
+    vulkan_info->setProgram(GetPlatformString(PLATFORM_STRING_VULKAN_INFO));
 
     QString filePath = QDir::temp().path();
 

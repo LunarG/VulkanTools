@@ -108,7 +108,10 @@ static bool WriteLayerOverride(const PathManager& path, const std::vector<Applic
     root.insert("layer", layer);
     QJsonDocument doc(root);
 
-    QFile json_file(path.GetFullPath(PATH_OVERRIDE_LAYERS));
+    const QString override_layers_path = path.GetFullPath(PATH_OVERRIDE_LAYERS);
+    assert(QFileInfo(override_layers_path).absoluteDir().exists());
+
+    QFile json_file(override_layers_path);
     const bool result_layers_file = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
     assert(result_layers_file);
     json_file.write(doc.toJson());
@@ -121,6 +124,7 @@ static bool WriteLayerOverride(const PathManager& path, const std::vector<Applic
 static bool WriteLayerSettings(const PathManager& path, const std::vector<Layer>& available_layers,
                                const Configuration& configuration) {
     const QString override_settings_path = path.GetFullPath(PATH_OVERRIDE_SETTINGS);
+    assert(QFileInfo(override_settings_path).absoluteDir().exists());
 
     QFile file(override_settings_path);
     const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -171,7 +175,7 @@ bool SurrenderLayers(const Environment& environment) {
     const bool result_override_settings = std::remove(override_settings_path.toUtf8().constData()) == 0;
     const bool result_override_layers = std::remove(override_layers_path.toUtf8().constData()) == 0;
 
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
     RemoveRegistryEntriesForLayers(environment.running_as_administrator, override_layers_path, override_settings_path);
 #endif
 
@@ -180,6 +184,9 @@ bool SurrenderLayers(const Environment& environment) {
 
 bool OverrideLayers(const Environment& environment, const std::vector<Layer>& available_layers,
                     const Configuration& configuration) {
+    // Clean up
+    SurrenderLayers(environment);
+
     // vk_layer_settings.txt
     const bool result_settings = WriteLayerSettings(environment.paths, available_layers, configuration);
 
@@ -188,7 +195,7 @@ bool OverrideLayers(const Environment& environment, const std::vector<Layer>& av
         WriteLayerOverride(environment.paths, environment.GetApplications(), available_layers, configuration);
 
     // On Windows only, we need to write these values to the registry
-#if PLATFORM_WINDOWS
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
     AppendRegistryEntriesForLayers(environment.running_as_administrator, environment.paths.GetFullPath(PATH_OVERRIDE_LAYERS),
                                    environment.paths.GetFullPath(PATH_OVERRIDE_SETTINGS));
 #endif

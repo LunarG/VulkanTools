@@ -60,8 +60,6 @@ class PathManager {
     bool Load();
     bool Save();
 
-    void CheckDefaultDirectories() const;
-
     const char* GetPath(Path path) const;
 
     // The path value should not have the filename
