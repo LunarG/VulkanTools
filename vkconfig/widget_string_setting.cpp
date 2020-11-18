@@ -23,17 +23,20 @@
 
 #include <cassert>
 
-StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, const LayerSettingMeta& layer_setting_meta,
+                                         LayerSettingData& layer_setting_data)
+    : layer_setting_meta(layer_setting_meta), layer_setting_data(layer_setting_data) {
     assert(item);
-    assert(&layer_setting);
+    assert(&layer_setting_meta);
+    assert(&layer_setting_data);
 
-    item->setText(0, layer_setting.label);
-    item->setToolTip(0, layer_setting.description);
-    this->setText(layer_setting.value);
+    item->setText(0, layer_setting_meta.label);
+    item->setToolTip(0, layer_setting_meta.description);
+    this->setText(layer_setting_data.value.c_str());
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
 void StringSettingWidget::itemEdited(const QString& new_string) {
-    _layer_setting.value = new_string;
+    layer_setting_data.value = new_string.toStdString();
     emit itemChanged();
 }

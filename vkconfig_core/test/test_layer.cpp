@@ -23,9 +23,9 @@
 #include "../layer.h"
 
 bool operator==(const Layer& a, const Layer& b) {
-    if (a._file_format_version != b._file_format_version)
+    if (a.file_format_version != b.file_format_version)
         return false;
-    else if (a.name != b.name)
+    else if (a.key != b.key)
         return false;
     else if (a._type != b._type)
         return false;
@@ -35,7 +35,7 @@ bool operator==(const Layer& a, const Layer& b) {
         return false;
     else if (a._implementation_version != b._implementation_version)
         return false;
-    else if (a._description != b._description)
+    else if (a.description != b.description)
         return false;
     else if (a._layer_path != b._layer_path)
         return false;

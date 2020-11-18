@@ -19,8 +19,11 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../vkconfig_core/layer.h"
-#include "../vkconfig_core/platform.h"
+#include "layer.h"
+#include "platform.h"
+#include "util.h"
+#include "path.h"
+#include "json.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -28,45 +31,24 @@
 
 #include <cassert>
 
-////////// A couple of utility functions for building/modifying enable/disable lists
-
-///////////////////////////////////////////////////////////////////////////////
-// delimted string is a comma delimited string. If value is found remove it
-void RemoveString(QString& delimitedString, QString value) {
-    // Well, it's not there now is it...
-    if (!delimitedString.contains(value)) return;
-
-    QStringList list = delimitedString.split(",");
-    for (int i = 0; i < list.size(); i++)
-        if (list[i] == value) {
-            list.removeAt(i);
-            break;
-        }
-
-    delimitedString = list.join(",");
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-// Pretty simple, add to list if it's not already in it
-void AppendString(QString& delimitedString, QString value) {
-    // Do I have anything to do?
-    if (delimitedString.contains(value))  // Nope
-        return;
-
-    if (!delimitedString.isEmpty()) delimitedString += ",";
-
-    delimitedString += value;
+// TODO: add latest, add all layer versions
+QString GetBuiltinFolder(const Version& version) {
+    if (version <= Version(1, 2, 154))
+        return ":/resourcefiles/layers_1_2_154";
+    else
+        return ":/resourcefiles/layers_1_2_154";
+    //    return ":/resourcefiles/layers_latest/";
 }
 
 Layer::Layer() {}
 
-Layer::Layer(const QString& name, const LayerType layer_type) : name(name), _layer_type(layer_type) {}
+Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), _layer_type(layer_type) {}
 
-Layer::Layer(const QString& name, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
+Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const QString& implementation_version, const QString& library_path, const QString& type)
-    : name(name),
+    : key(key),
       _layer_type(layer_type),
-      _file_format_version(file_format_version),
+      file_format_version(file_format_version),
       _api_version(api_version),
       _implementation_version(implementation_version),
       _library_path(library_path),
@@ -74,26 +56,18 @@ Layer::Layer(const QString& name, const LayerType layer_type, const Version& fil
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return _file_format_version != Version::VERSION_NULL && !name.isEmpty() && !_type.isEmpty() && !_library_path.isEmpty() &&
+    return file_format_version != Version::VERSION_NULL && !key.empty() && !_type.isEmpty() && !_library_path.isEmpty() &&
            _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 /// Reports errors via a message box. This might be a bad idea?
-/// //////////////////////////////////////////////////////////////////////////
-bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
+bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
     _layer_type = layer_type;  // Set layer type, no way to know this from the json file
 
-    // Open the file, should be text. Read it into a
-    // temporary string.
     if (full_path_to_file.isEmpty()) return false;
 
     QFile file(full_path_to_file);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-        QMessageBox message_box;
-        message_box.setText("Could not open layer file");
-        message_box.exec();
         return false;
     }
 
@@ -102,20 +76,19 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
 
     _layer_path = full_path_to_file;
 
-    //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
-    QJsonParseError parseError;
-    const QJsonDocument& jsonDoc = QJsonDocument::fromJson(json_text.toUtf8(), &parseError);
-    if (parseError.error != QJsonParseError::NoError) {
+    QJsonParseError json_parse_error;
+    const QJsonDocument& json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
+    if (json_parse_error.error != QJsonParseError::NoError) {
         QMessageBox message_box;
-        message_box.setText(parseError.errorString());
+        message_box.setText(json_parse_error.errorString());
         message_box.exec();
         return false;
     }
 
     // Make sure it's not empty
-    if (jsonDoc.isNull() || jsonDoc.isEmpty()) {
+    if (json_document.isNull() || json_document.isEmpty()) {
         QMessageBox message_box;
         message_box.setText("Json document is empty!");
         message_box.exec();
@@ -123,31 +96,129 @@ bool Layer::Load(QString full_path_to_file, LayerType layer_type) {
     }
 
     // Populate key items about the layer
-    QJsonObject json_object = jsonDoc.object();
-    QJsonValue json_value = json_object.value("file_format_version");
-    _file_format_version = Version(json_value.toString());
+    const QJsonObject& json_root_object = json_document.object();
+    file_format_version = ReadVersionValue(json_root_object, "file_format_version");
 
-    QJsonValue layer_value = json_object.value("layer");
-    QJsonObject layer_object = layer_value.toObject();
+    const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
-    json_value = layer_object.value("name");
-    name = json_value.toString();
+    key = ReadStringValue(json_layer_object, "name").c_str();
+    _type = ReadStringValue(json_layer_object, "type").c_str();
 
-    json_value = layer_object.value("type");
-    _type = json_value.toString();
+    const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
+    assert((json_library_path_value != QJsonValue::Undefined && key != "VK_LAYER_LUNARG_override") ||
+           json_library_path_value == QJsonValue::Undefined && key == "VK_LAYER_LUNARG_override");
+    _library_path = json_library_path_value.toString();
 
-    json_value = layer_object.value("library_path");
-    _library_path = json_value.toString();
+    _api_version = ReadVersionValue(json_layer_object, "api_version");
+    _implementation_version = ReadStringValue(json_layer_object, "implementation_version").c_str();
+    description = ReadStringValue(json_layer_object, "description").c_str();
 
-    json_value = layer_object.value("api_version");
-    _api_version = Version(json_value.toString());
+    // Load default layer json file if necessary
+    const bool is_missing_layer_data =
+        json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
+    const bool is_builtin_layer_file = full_path_to_file.startsWith(":/resourcefiles/");
 
-    json_value = layer_object.value("implementation_version");
-    _implementation_version = json_value.toString();
+    Layer default_layer;
+    if (is_missing_layer_data && !is_builtin_layer_file) {
+        const QString path = GetBuiltinFolder(_api_version) + "/" + key.c_str() + ".json";
+        default_layer.Load(path, _layer_type);
+    }
 
-    json_value = layer_object.value("description");
-    _description = json_value.toString();
+    // Load layer settings
+    const QJsonValue& json_settings_value = json_layer_object.value("settings");
+    if (json_settings_value != QJsonValue::Undefined) {
+        assert(json_settings_value.isArray());
+        const QJsonArray& json_array = json_settings_value.toArray();
+        for (int i = 0, n = json_array.size(); i < n; ++i) {
+            const QJsonObject& json_setting = json_array[i].toObject();
 
-    // The layer file is loaded
+            LayerSettingMeta setting;
+
+            setting.key = ReadStringValue(json_setting, "key").c_str();
+            setting.label = ReadStringValue(json_setting, "label").c_str();
+            setting.description = ReadStringValue(json_setting, "description").c_str();
+            setting.type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
+            setting.default_value = ReadString(json_setting, "default").c_str();
+
+            switch (setting.type) {
+                case SETTING_EXCLUSIVE_LIST:
+                case SETTING_INCLUSIVE_LIST: {
+                    // Now we have a list of options, both the enum for the settings file, and the prompts
+                    const QJsonValue& json_value_options = json_setting.value("options");
+                    assert(json_value_options != QJsonValue::Undefined);
+
+                    const QJsonObject& object = json_value_options.toObject();
+                    const QStringList& keys = object.keys();
+                    for (int v = 0; v < keys.size(); v++) {
+                        QString key = keys[v];
+                        const QString default_value = object.value(key).toString();
+
+                        setting.enum_values << key;
+                        setting.enum_labels << default_value;
+                    }
+                } break;
+                case SETTING_SAVE_FILE: {
+                    setting.default_value = ValidatePath(setting.default_value.toStdString()).c_str();
+                    setting.default_value = ReplacePathBuiltInVariables(setting.default_value.toStdString()).c_str();
+                } break;
+                case SETTING_VUID_FILTER: {
+                    const QJsonValue& json_value_options = json_setting.value("options");
+                    assert(json_value_options != QJsonValue::Undefined);
+                    assert(json_value_options.isArray());
+                    const QJsonArray& json_value_array = json_value_options.toArray();
+                    for (int i = 0, n = json_value_array.size(); i < n; ++i) {
+                        setting.enum_values.append(json_value_array[i].toString());
+                    }
+                } break;
+                case SETTING_LOAD_FILE:
+                case SETTING_SAVE_FOLDER:
+                case SETTING_BOOL:
+                case SETTING_BOOL_NUMERIC:
+                case SETTING_STRING:
+                    break;
+                default:
+                    assert(0);
+                    break;
+            }
+
+            settings.push_back(setting);
+        }
+    } else {
+        settings = default_layer.settings;
+    }
+
+    // Load layer presets
+    const QJsonValue& json_presets_value = json_layer_object.value("presets");
+    if (json_presets_value != QJsonValue::Undefined) {
+        assert(json_presets_value.isArray());
+        const QJsonArray& json_preset_array = json_presets_value.toArray();
+        for (int preset_index = 0, preset_count = json_preset_array.size(); preset_index < preset_count; ++preset_index) {
+            const QJsonObject& json_preset_object = json_preset_array[preset_index].toObject();
+
+            LayerPreset preset;
+
+            preset.preset_index = ReadIntValue(json_preset_object, "preset-index");
+            preset.label = ReadStringValue(json_preset_object, "label");
+            preset.description = ReadStringValue(json_preset_object, "description");
+            preset.platform_flags = GetPlatformFlags(ReadStringArray(json_preset_object, "platforms"));
+            preset.status_type = GetStatusType(ReadStringValue(json_preset_object, "status").c_str());
+
+            const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
+            for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {
+                const QJsonObject& json_setting_object = json_setting_array[setting_index].toObject();
+
+                LayerSettingData setting_value;
+                setting_value.key = ReadStringValue(json_setting_object, "key");
+                setting_value.value = ReadString(json_setting_object, "value");
+
+                preset.settings.push_back(setting_value);
+            }
+
+            presets.push_back(preset);
+        }
+    } else {
+        presets = default_layer.presets;
+    }
+
     return IsValid();  // Not all JSON file are layer JSON valid
 }

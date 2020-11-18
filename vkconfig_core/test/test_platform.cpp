@@ -24,6 +24,42 @@
 
 #include <cstring>
 
+TEST(test_platform, platform_flags_one) {
+    std::vector<std::string> platform_strings;
+    platform_strings.push_back(GetToken(PLATFORM_LINUX));
+
+    EXPECT_EQ(PLATFORM_LINUX_BIT, GetPlatformFlags(platform_strings));
+}
+
+TEST(test_platform, platform_flags_some) {
+    std::vector<std::string> platform_strings;
+    platform_strings.push_back(GetToken(PLATFORM_LINUX));
+    platform_strings.push_back(GetToken(PLATFORM_MACOS));
+
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, GetPlatformFlags(platform_strings));
+}
+
+TEST(test_platform, platform_flags_all) {
+    std::vector<std::string> platform_strings;
+    for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
+        const PlatformType platform_type = static_cast<PlatformType>(i);
+        platform_strings.push_back(GetToken(platform_type));
+    }
+
+    EXPECT_EQ(PLATFORM_ALL_BIT, GetPlatformFlags(platform_strings));
+}
+
+TEST(test_platform, platform_to_tokens) {
+    EXPECT_EQ(0, GetPlatformFlags(GetPlatformTokens(0)));
+    EXPECT_EQ(PLATFORM_LINUX_BIT, GetPlatformFlags(GetPlatformTokens(PLATFORM_LINUX_BIT)));
+    EXPECT_EQ(PLATFORM_ALL_BIT, GetPlatformFlags(GetPlatformTokens(PLATFORM_ALL_BIT)));
+}
+
+TEST(test_platform, platform_type) {
+    EXPECT_STREQ("LINUX", GetToken(PLATFORM_LINUX));
+    EXPECT_EQ(PLATFORM_LINUX, GetPlatformType("LINUX"));
+}
+
 TEST(test_platform, status_type) {
     EXPECT_STREQ("STABLE", GetToken(STATUS_STABLE));
     EXPECT_EQ(STATUS_STABLE, GetStatusType("STABLE"));

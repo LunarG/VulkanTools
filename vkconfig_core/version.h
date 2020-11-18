@@ -32,6 +32,7 @@ static const char *VKCONFIG_SHORT_NAME = "vkconfig";
 static const bool SUPPORT_VKCONFIG_2_0_0 = true;
 static const bool SUPPORT_VKCONFIG_2_0_1 = true;
 static const bool SUPPORT_VKCONFIG_2_0_2 = true;
+static const bool SUPPORT_VKCONFIG_2_0_3 = true;
 
 class Version {
    public:
@@ -63,3 +64,6 @@ class Version {
     uint32_t _minor;
     uint32_t _patch;
 };
+
+#define VKC_ASSERT_VERSION(expression, required_version, current_version) \
+    (assert(((expression) && (current_version >= required_version)) || (current_version < required_version)))

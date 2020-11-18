@@ -35,7 +35,7 @@ class KhronosSettingsAdvanced : public QObject {
     Q_OBJECT
 
    public:
-    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, std::vector<LayerSetting> &settings);
+    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, std::vector<LayerSettingData> &settings);
 
     bool CollectSettings();
 
@@ -44,8 +44,8 @@ class KhronosSettingsAdvanced : public QObject {
     QTreeWidgetItem *_main_parent;
     QTreeWidgetItem *_core_checks_parent;
 
-    LayerSetting &_disables;
-    LayerSetting &_enables;
+    LayerSettingData &_disables;
+    LayerSettingData &_enables;
 
     QTreeWidgetItem *_synchronization_box;
     QTreeWidgetItem *_shader_based_box;

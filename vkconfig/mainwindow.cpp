@@ -161,12 +161,12 @@ void MainWindow::UpdateUI() {
         assert(item);
         assert(!item->configuration_name.isEmpty());
 
-        auto configuration = Find(configurator.available_configurations, item->configuration_name);
+        auto configuration = FindItByKey(configurator.available_configurations, item->configuration_name.toStdString().c_str());
         if (configuration == configurator.available_configurations.end()) continue;
 
         if (!HasMissingParameter(configuration->parameters, configurator.layers.available_layers)) {
             item->setText(1, item->configuration_name);
-            item->radio_button->setToolTip(configuration->_description);
+            item->radio_button->setToolTip(configuration->description);
         } else {
             item->setText(1, item->configuration_name + " (Invalid)");
             item->radio_button->setToolTip(
@@ -266,13 +266,13 @@ void MainWindow::LoadConfigurationList() {
     for (std::size_t i = 0, n = configurator.available_configurations.size(); i < n; i++) {
         const Configuration &configuration = configurator.available_configurations[i];
 
-        ConfigurationListItem *item = new ConfigurationListItem(configuration.name);
+        ConfigurationListItem *item = new ConfigurationListItem(configuration.key);
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
         if (VKC_PLATFORM == VKC_PLATFORM_MACOS)  // Mac OS does not leave enough space without this
             item->radio_button->setText(" ");
 
-        item->radio_button->setToolTip(configuration._description);
+        item->radio_button->setToolTip(configuration.description);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->configuration_tree->setItemWidget(item, 0, item->radio_button);
@@ -454,14 +454,16 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
         }
 
         auto end = configurator.available_configurations.end();
-        auto duplicate_configuration =
-            new_configuration_name.isEmpty() ? end : Find(configurator.available_configurations, new_configuration_name);
+        auto duplicate_configuration = new_configuration_name.isEmpty() ? end
+                                                                        : FindItByKey(configurator.available_configurations,
+                                                                                      new_configuration_name.toStdString().c_str());
         if (duplicate_configuration != end) {
             Alert::ConfigurationRenamingFailed();
         }
 
         // Find existing configuration using it's old name
-        auto configuration = Find(configurator.available_configurations, configuration_item->configuration_name);
+        auto configuration =
+            FindItByKey(configurator.available_configurations, configuration_item->configuration_name.toStdString().c_str());
 
         if (new_configuration_name.isEmpty() || duplicate_configuration != end) {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
@@ -472,7 +474,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
         } else {
             // Rename configuration ; Remove old configuration file ; Create new configuration file
 
-            configuration->name = configuration_item->configuration_name = new_configuration_name;
+            configuration->key = configuration_item->configuration_name = new_configuration_name;
 
             remove(full_path.toUtf8().constData());
             const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name));
@@ -704,7 +706,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    LayersDialog dlg(this, *Find(configurator.available_configurations, item->configuration_name));
+    LayersDialog dlg(this, *FindItByKey(configurator.available_configurations, item->configuration_name.toStdString().c_str()));
     dlg.exec();
 
     configurator.LoadAllConfigurations();
@@ -721,7 +723,7 @@ void MainWindow::NewClicked() {
     Configurator &configurator = Configurator::Get();
 
     Configuration configuration;
-    configuration.name = MakeConfigurationName(configurator.available_configurations, "New Configuration");
+    configuration.key = MakeConfigurationName(configurator.available_configurations, "New Configuration");
 
     LayersDialog dlg(this, configuration);
     if (QDialog::Accepted == dlg.exec()) {
@@ -770,13 +772,13 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     assert(!item->configuration_name.isEmpty());
 
-    auto configuration = Find(configurator.available_configurations, item->configuration_name);
+    auto configuration = FindItByKey(configurator.available_configurations, item->configuration_name.toStdString().c_str());
     assert(configuration != configurator.available_configurations.end());
 
     const QString &new_name = MakeConfigurationName(configurator.available_configurations, item->configuration_name);
     assert(new_name != item->configuration_name);
 
-    configuration->name = item->configuration_name = new_name;
+    configuration->key = item->configuration_name = new_name;
     const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
     assert(result);
 
@@ -1185,14 +1187,14 @@ void MainWindow::on_push_button_launcher_clicked() {
         launch_log += "- Layers fully controlled by the application.\n";
     } else if (HasMissingParameter(configuration->parameters, configurator.layers.available_layers)) {
         launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
-                                         configuration->name.toUtf8().constData());
+                                         configuration->key.toUtf8().constData());
     } else if (configurator.environment.UseOverride()) {
         if (configurator.environment.UseApplicationListOverrideMode() && configurator.environment.HasOverriddenApplications() &&
             !active_application.override_layers) {
             launch_log += "- Layers fully controlled by the application. Application excluded from layers override.\n";
         } else {
             launch_log +=
-                QString().asprintf("- Layers overridden by \"%s\" configuration.\n", configuration->name.toUtf8().constData());
+                QString().asprintf("- Layers overridden by \"%s\" configuration.\n", configuration->key.toUtf8().constData());
         }
     }
 

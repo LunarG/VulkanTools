@@ -1,9 +1,10 @@
 {
-    "Validation - Reduced-Overhead": {
+    "Validation": {
         "blacklisted_layers": [
         ],
-        "description": "This configuration disables some of the checks of Standard Validation in the interest of performance.",
-        "editor_state": "01110111111111111111111001111111111110",
+        "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
+        "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+        "editor_state": "01110111111111111111111001011111111110",
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {
                 "debug_action": {
@@ -21,14 +22,7 @@
                 },
                 "disables": {
                     "default": [
-                        "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
-                        "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
-                        "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
-                        "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
-                        "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
-                        "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
-                        "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
-                        "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE"
+                        "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
                     ],
                     "description": "Setting an option here will disable areas of validation",
                     "name": "Disables",
@@ -94,7 +88,6 @@
                     "type": "multi_enum"
                 }
             }
-        },
-        "preset": 4
+        }
     }
 }

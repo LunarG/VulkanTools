@@ -30,17 +30,21 @@ SOURCES += \
     ../vkconfig_core/configuration.cpp \
     ../vkconfig_core/environment.cpp \
     ../vkconfig_core/help.cpp \
+    ../vkconfig_core/json.cpp \
     ../vkconfig_core/layer.cpp \
     ../vkconfig_core/layer_manager.cpp \
-    ../vkconfig_core/layer_setting.cpp \
+    ../vkconfig_core/layer_preset.cpp \
+    ../vkconfig_core/layer_setting_data.cpp \
+    ../vkconfig_core/layer_setting_meta.cpp \
+    ../vkconfig_core/layer_setting_type.cpp \
+    ../vkconfig_core/layer_setting_value.cpp \
+    ../vkconfig_core/layer_state.cpp \
     ../vkconfig_core/layer_type.cpp \
     ../vkconfig_core/override.cpp \
     ../vkconfig_core/parameter.cpp \
     ../vkconfig_core/path.cpp \
     ../vkconfig_core/path_manager.cpp \
     ../vkconfig_core/platform.cpp \
-    ../vkconfig_core/setting_value.cpp \
-    ../vkconfig_core/setting_type.cpp \
     ../vkconfig_core/registry.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
@@ -75,14 +79,21 @@ HEADERS += \
     ../vkconfig_core/configuration.h \
     ../vkconfig_core/environment.h \
     ../vkconfig_core/help.h \
+    ../vkconfig_core/json.h \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
-    ../vkconfig_core/layer_setting.h \
+	../vkconfig_core/layer_preset.h \
+    ../vkconfig_core/layer_setting_data.h \
+    ../vkconfig_core/layer_setting_meta.h \
+    ../vkconfig_core/layer_setting_type.h \
+    ../vkconfig_core/layer_setting_value.h \
+    ../vkconfig_core/layer_state.h \
     ../vkconfig_core/layer_type.h \
     ../vkconfig_core/override.h \
     ../vkconfig_core/parameter.h \
     ../vkconfig_core/path.h \
     ../vkconfig_core/path_manager.h \
+    ../vkconfig_core/platform.h \
     ../vkconfig_core/registry.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \

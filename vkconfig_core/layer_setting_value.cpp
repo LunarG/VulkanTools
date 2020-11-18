@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_value.h"
+#include "layer_setting_value.h"
 #include "util.h"
 #include "path.h"
 
@@ -27,12 +27,24 @@
 
 #include <cassert>
 
+SettingValue::SettingValue(const char* key, const QVariant& value) : setting_key(key) { setting_value.push_back(value); }
+
+SettingValue::SettingValue(const char* key, const std::vector<QVariant>& value) : setting_key(key), setting_value(value) {}
+
+const char* SettingValue::Key() const { return setting_key.c_str(); }
+
+bool SettingValue::Empty() const { return this->setting_value.empty(); }
+
+std::size_t SettingValue::Size() const { return this->setting_value.size(); }
+
 bool SettingValue::Load(const char* key, const SettingType type, const QJsonObject& json_object) {
     assert(key != nullptr);
     assert(!json_object.isEmpty());
 
+    setting_key = key;
+
     const QJsonValue& json_value = json_object.value(key);
-    assert(json_value == QJsonValue::Undefined);
+    assert(json_value != QJsonValue::Undefined);
 
     switch (type) {
         case SETTING_VUID_FILTER:
@@ -40,7 +52,7 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
             assert(json_value.isArray());
             const QJsonArray& json_array = json_value.toArray();
             for (int i = 0, n = json_array.size(); i < n; ++i) {
-                data.push_back(QVariant(json_array[i].toString()));
+                setting_value.push_back(QVariant(json_array[i].toString()));
             }
             break;
         }
@@ -49,20 +61,20 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
         case SETTING_LOAD_FILE:
         case SETTING_SAVE_FOLDER: {
             assert(json_value.isString());
-            data.push_back(QVariant(json_value.toString()));
+            setting_value.push_back(QVariant(json_value.toString()));
             break;
         }
         case SETTING_SAVE_FILE: {
             assert(json_value.isString());
             const QString& value = json_value.toString();
             const QString path(ReplacePathBuiltInVariables(ValidatePath(value.toStdString())).c_str());
-            data.push_back(path);
+            setting_value.push_back(path);
             break;
         }
         case SETTING_BOOL_NUMERIC:
         case SETTING_INT: {
             assert(!json_value.isArray());
-            data.push_back(QVariant(json_value.toInt()));
+            setting_value.push_back(QVariant(json_value.toInt()));
             break;
         }
         case SETTING_RANGE_INT: {
@@ -70,13 +82,13 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
             const QJsonArray& json_array = json_value.toArray();
             assert(json_array.size() == 2);
             for (int i = 0, n = 2; i < n; ++i) {
-                data.push_back(QVariant(json_array[i].toInt()));
+                setting_value.push_back(QVariant(json_array[i].toInt()));
             }
             break;
         }
         case SETTING_BOOL: {
             assert(json_value.isBool());
-            data.push_back(QVariant(json_value.toBool()));
+            setting_value.push_back(QVariant(json_value.toBool()));
             break;
         }
         default: {
@@ -95,8 +107,8 @@ bool SettingValue::Save(const char* key, const SettingType type, QJsonObject& js
         case SETTING_VUID_FILTER:
         case SETTING_INCLUSIVE_LIST: {
             QJsonArray json_array;
-            for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-                json_array.append(this->data[i].toString());
+            for (std::size_t i = 0, n = this->setting_value.size(); i < n; ++i) {
+                json_array.append(this->setting_value[i].toString());
             }
             json_object.insert(key, json_array);
             break;
@@ -106,28 +118,28 @@ bool SettingValue::Save(const char* key, const SettingType type, QJsonObject& js
         case SETTING_LOAD_FILE:
         case SETTING_SAVE_FILE:
         case SETTING_SAVE_FOLDER: {
-            assert(this->data.size() == 1);
-            json_object.insert(key, this->data[0].toString());
+            assert(this->setting_value.size() == 1);
+            json_object.insert(key, this->setting_value[0].toString());
             break;
         }
         case SETTING_BOOL_NUMERIC:
         case SETTING_INT: {
-            assert(this->data.size() == 1);
-            json_object.insert(key, this->data[0].toInt());
+            assert(this->setting_value.size() == 1);
+            json_object.insert(key, this->setting_value[0].toInt());
             break;
         }
         case SETTING_RANGE_INT: {
-            assert(this->data.size() == 2);
+            assert(this->setting_value.size() == 2);
             QJsonArray json_array;
-            for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-                json_array.append(this->data[i].toInt());
+            for (std::size_t i = 0, n = this->setting_value.size(); i < n; ++i) {
+                json_array.append(this->setting_value[i].toInt());
             }
             json_object.insert(key, json_array);
             break;
         }
         case SETTING_BOOL: {
-            assert(this->data.size() == 1);
-            json_object.insert(key, this->data[0].toBool());
+            assert(this->setting_value.size() == 1);
+            json_object.insert(key, this->setting_value[0].toBool());
             break;
         }
         default: {
@@ -140,9 +152,9 @@ bool SettingValue::Save(const char* key, const SettingType type, QJsonObject& js
 }
 
 bool operator==(const SettingValue& l, const SettingValue& r) {
-    if (l.size() != r.size()) return false;
+    if (l.Size() != r.Size()) return false;
 
-    for (std::size_t i = 0, n = l.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = l.Size(); i < n; ++i) {
         if (l[i] != r[i]) return false;
     }
 

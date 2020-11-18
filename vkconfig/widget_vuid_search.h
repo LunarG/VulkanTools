@@ -32,7 +32,7 @@ class VUIDSearchWidget : public QWidget {
     Q_OBJECT
 
    public:
-    explicit VUIDSearchWidget(const QString &valuesAlreadyPresent);
+    explicit VUIDSearchWidget(const QStringList &layer_vuids, const QString &valuesAlreadyPresent);
 
    public Q_SLOTS:
     void addButtonPressed();

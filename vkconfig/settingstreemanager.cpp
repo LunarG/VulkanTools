@@ -36,7 +36,7 @@
 
 SettingsTreeManager::SettingsTreeManager()
     : _configuration_settings_tree(nullptr),
-      _validation_presets_combo_box(nullptr),
+      _presets_combobox(nullptr),
       _validation_tree_item(nullptr),
       _validation_file_item(nullptr),
       _validation_log_file_item(nullptr),
@@ -67,10 +67,10 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
             const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-            const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+            const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
 
             QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, parameter.name + (layer != available_layers.end() ? "" : " (Missing)"));
+            item->setText(0, (parameter.key + (layer != available_layers.end() ? "" : " (Missing)")).c_str());
             _configuration_settings_tree->addTopLevelItem(item);
             _layer_items.push_back(item);
 
@@ -84,9 +84,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 continue;
             }
 
-            if (parameter.name == "VK_LAYER_KHRONOS_validation") {
+            if (parameter.key == "VK_LAYER_KHRONOS_validation") {
                 _validation_tree_item = item;
-                BuildKhronosTree(parameter.settings);
+                BuildKhronosTree(parameter);
                 continue;
             }
 
@@ -94,7 +94,6 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             BuildGenericTree(item, parameter);
         }
 
-        ///////////////////////////////////////////////////////////////////
         // The last item is just the excluded layers
         QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
         excluded_layers->setText(0, "Excluded Layers:");
@@ -104,10 +103,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             Parameter &parameter = configuration->parameters[i];
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
-            const std::vector<Layer>::const_iterator layer = Find(Configurator::Get().layers.available_layers, parameter.name);
+            const std::vector<Layer>::const_iterator layer =
+                FindItByKey(Configurator::Get().layers.available_layers, parameter.key.c_str());
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, parameter.name + (layer != Configurator::Get().layers.available_layers.end() ? "" : " (Missing)"));
+            child->setText(
+                0, (parameter.key + (layer != Configurator::Get().layers.available_layers.end() ? "" : " (Missing)")).c_str());
             excluded_layers->addChild(child);
         }
 
@@ -121,57 +122,60 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     // Everyone is expanded.
     build_tree->resizeColumnToContents(0);
-    SetTreeState(configuration->_setting_tree_state, 0, _configuration_settings_tree->invisibleRootItem());
+    SetTreeState(configuration->setting_tree_state, 0, _configuration_settings_tree->invisibleRootItem());
     build_tree->blockSignals(false);
 }
 
-void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) {
+void SettingsTreeManager::BuildKhronosTree(Parameter &parameter) {
     _validation_preset_item = new QTreeWidgetItem();
     _validation_preset_item->setText(0, "Validation Preset");
     QTreeWidgetItem *next_line = new QTreeWidgetItem();
 
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
-    const std::vector<Layer>::const_iterator validation_layer = Find(available_layers, "VK_LAYER_KHRONOS_validation");
+    std::vector<Layer>::iterator validation_layer = FindItByKey(available_layers, "VK_LAYER_KHRONOS_validation");
 
-    _validation_presets_combo_box = new QComboBox();
-    _validation_presets_combo_box->blockSignals(true);
-    _validation_presets.clear();
-    for (int i = ValidationPresetFirst; i <= ValidationPresetLast; ++i) {
-        const ValidationPreset validation_preset = static_cast<ValidationPreset>(i);
+    _presets_combobox = new QComboBox();
+    _presets_combobox->blockSignals(true);
+    _presets_combobox->addItem("User Defined");
+    _preset_indexes.clear();
+    _preset_indexes.push_back(Parameter::NO_PRESET);
+    for (std::size_t i = 0, n = validation_layer->presets.size(); i < n; ++i) {
+        const LayerPreset &layer_preset = validation_layer->presets[i];
 
-        if (VKC_PLATFORM == VKC_PLATFORM_MACOS &&
-            (validation_preset == ValidationPresetGPUAssisted || validation_preset == ValidationPresetDebugPrintf)) {
+        if (!(layer_preset.platform_flags & (1 << VKC_PLATFORM))) {
             continue;
         }
 
-        QString preset_name = configurator.GetValidationPresetLabel(validation_preset);
-
-        // There is no preset for a user defined group of settings, so watch for blank.
-        if (preset_name.isEmpty()) preset_name = "User Defined";
-
-        _validation_presets_combo_box->addItem(preset_name);
-        _validation_presets.push_back(validation_preset);
+        _presets_combobox->addItem(layer_preset.label.c_str());
+        _preset_indexes.push_back(layer_preset.preset_index);
     }
 
     auto configuration = configurator.GetActiveConfiguration();
-    _validation_presets_combo_box->setCurrentIndex(GetValidationPresentIndex(configuration->_preset));
+    _presets_combobox->setCurrentIndex(GetPresetIndex(parameter.preset_index));
 
-    connect(_validation_presets_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
+    connect(_presets_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     _validation_tree_item->addChild(_validation_preset_item);
     _validation_preset_item->addChild(next_line);
-    _configuration_settings_tree->setItemWidget(next_line, 0, _validation_presets_combo_box);
+    _configuration_settings_tree->setItemWidget(next_line, 0, _presets_combobox);
 
     QTreeWidgetItem *_validation_settingsitem = new QTreeWidgetItem();
     _validation_settingsitem->setText(0, "Individual Settings");
     _validation_preset_item->addChild(_validation_settingsitem);
 
     // This just finds the enables and disables
-    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, settings);
+    _validation_settings = new KhronosSettingsAdvanced(_configuration_settings_tree, _validation_settingsitem, parameter.settings);
 
     // Get the Debug Action and log file settings (and they must exist)
-    LayerSetting &debug_action = *FindSetting(settings, "debug_action");
-    LayerSetting &log_file = *FindSetting(settings, "log_filename");
+    LayerSettingMeta *debug_action_meta = FindByKey(validation_layer->settings, "debug_action");
+    assert(debug_action_meta);
+    LayerSettingData *debug_action_data = FindByKey(parameter.settings, "debug_action");
+    assert(debug_action_data);
+
+    LayerSettingMeta *log_file_meta = FindByKey(validation_layer->settings, "log_filename");
+    assert(log_file_meta);
+    LayerSettingData *log_file_data = FindByKey(parameter.settings, "log_filename");
+    assert(log_file_data);
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
@@ -179,14 +183,15 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     _validation_tree_item->addChild(debug_action_branch);
 
     // Each debug action has it's own checkbox
-    for (int i = 0, n = debug_action.inclusive_values.size(); i < n; ++i) {
+    for (int i = 0, n = debug_action_meta->enum_values.size(); i < n; ++i) {
         // Debug output is only for Windows
-        if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS && debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT")
+        if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS && debug_action_meta->enum_values[i] == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT")
             continue;
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
-        MultiEnumSettingWidget *this_control = new MultiEnumSettingWidget(debug_action, debug_action.inclusive_values[i]);
-        this_control->setText(debug_action.inclusive_labels[i]);
+        MultiEnumSettingWidget *this_control =
+            new MultiEnumSettingWidget(*debug_action_data, debug_action_meta->enum_values[i].toStdString().c_str());
+        this_control->setText(debug_action_meta->enum_labels[i]);
         debug_action_branch->addChild(child);
         _configuration_settings_tree->setItemWidget(child, 0, this_control);
         this_control->setFont(_configuration_settings_tree->font());
@@ -194,11 +199,11 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
 
         // The log message action also has a child; the log file selection setting/widget
         // Note, this is usually last, but I'll check for it any way in case other new items are added
-        if (debug_action.inclusive_values[i] == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
+        if (debug_action_meta->enum_values[i] == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
             _validation_debug_action = this_control;
             _validation_log_file_item = new QTreeWidgetItem();
             child->addChild(_validation_log_file_item);
-            _validation_log_file_widget = new FileSystemSettingWidget(_validation_log_file_item, log_file, SETTING_SAVE_FILE);
+            _validation_log_file_widget = new FileSystemSettingWidget(_validation_log_file_item, *log_file_meta, *log_file_data);
             _configuration_settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
             _validation_log_file_item->setSizeHint(0, QSize(0, 28));
             _compound_widgets.push_back(child);
@@ -212,32 +217,43 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     }
 
     // This is looking for the report flags
-    for (std::size_t setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
-        LayerSetting &layer_setting = settings[setting_index];
+    for (std::size_t setting_index = 0, settings_count = validation_layer->settings.size(); setting_index < settings_count;
+         setting_index++) {
+        const LayerSettingMeta &layer_setting_meta = validation_layer->settings[setting_index];
+        LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
+        if (layer_setting_data == nullptr) {
+            LayerSettingData new_layer_setting_data;
+            new_layer_setting_data.key = layer_setting_meta.key;
+            new_layer_setting_data.value = layer_setting_meta.default_value.toStdString();
+            parameter.settings.push_back(new_layer_setting_data);
+
+            layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
+        }
 
         // Multi-enum - report flags only
-        if (layer_setting.key == "report_flags") {
+        if (layer_setting_meta.key == "report_flags") {
             QTreeWidgetItem *sub_category = new QTreeWidgetItem;
-            sub_category->setText(0, layer_setting.label);
-            sub_category->setToolTip(0, layer_setting.description);
+            sub_category->setText(0, layer_setting_meta.label);
+            sub_category->setToolTip(0, layer_setting_meta.description);
             _validation_tree_item->addChild(sub_category);
 
-            for (int i = 0, n = layer_setting.inclusive_values.size(); i < n; ++i) {
+            for (int i = 0, n = layer_setting_meta.enum_values.size(); i < n; ++i) {
                 QTreeWidgetItem *child = new QTreeWidgetItem();
-                MultiEnumSettingWidget *control = new MultiEnumSettingWidget(layer_setting, layer_setting.inclusive_values[i]);
-                control->setText(layer_setting.inclusive_labels[i]);
+                MultiEnumSettingWidget *control =
+                    new MultiEnumSettingWidget(*layer_setting_data, layer_setting_meta.enum_values[i].toStdString().c_str());
+                control->setText(layer_setting_meta.enum_labels[i]);
                 sub_category->addChild(child);
                 _configuration_settings_tree->setItemWidget(child, 0, control);
                 control->setFont(_configuration_settings_tree->font());
                 connect(control, SIGNAL(itemChanged()), this, SLOT(OnSettingEdited()));
             }
-        } else if (layer_setting.key == "duplicate_message_limit") {
+        } else if (layer_setting_meta.key == "duplicate_message_limit") {
             if (validation_layer != available_layers.end()) {  // duplicate_message_limit is new with 1.2.148
                 if (validation_layer->_api_version < Version("1.2.148")) continue;
             }
 
             QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-            StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting);
+            StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);
             _validation_tree_item->addChild(setting_item);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             setting_item->addChild(place_holder);
@@ -247,10 +263,11 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
     }
 
     // VUID message filtering
-    for (std::size_t setting_index = 0, settings_count = settings.size(); setting_index < settings_count; setting_index++) {
-        LayerSetting &layer_setting = settings[setting_index];
+    for (std::size_t setting_index = 0, settings_count = validation_layer->settings.size(); setting_index < settings_count;
+         setting_index++) {
+        const LayerSettingMeta &layer_setting_meta = validation_layer->settings[setting_index];
 
-        if (layer_setting.type != SETTING_VUID_FILTER) {
+        if (layer_setting_meta.type != SETTING_VUID_FILTER) {
             continue;
         }
 
@@ -259,19 +276,25 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
         mute_message_item->setText(0, "Mute Message VUIDs");
         _validation_tree_item->addChild(mute_message_item);
 
-        _vuid_search_widget = new VUIDSearchWidget(layer_setting.value);
+        const LayerSettingMeta *layer_setting_vuid = FindByKey(validation_layer->settings, "message_id_filter");
+        assert(layer_setting_vuid);
+
+        LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
+        assert(layer_setting_data);
+
+        _vuid_search_widget = new VUIDSearchWidget(layer_setting_vuid->enum_values, layer_setting_data->value.c_str());
         next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, 28));
         mute_message_item->addChild(next_line);
         _configuration_settings_tree->setItemWidget(next_line, 0, _vuid_search_widget);
         _compound_widgets.push_back(next_line);
 
-        QTreeWidgetItem *pListItem = new QTreeWidgetItem();
-        mute_message_item->addChild(pListItem);
-        pListItem->setSizeHint(0, QSize(0, 200));
-        _mute_message_widget = new MuteMessageWidget(layer_setting);
-        _compound_widgets.push_back(pListItem);
-        _configuration_settings_tree->setItemWidget(pListItem, 0, _mute_message_widget);
+        QTreeWidgetItem *list_item = new QTreeWidgetItem();
+        mute_message_item->addChild(list_item);
+        list_item->setSizeHint(0, QSize(0, 200));
+        _mute_message_widget = new MuteMessageWidget(*layer_setting_data);
+        _compound_widgets.push_back(list_item);
+        _configuration_settings_tree->setItemWidget(list_item, 0, _mute_message_widget);
 
         connect(_vuid_search_widget, SIGNAL(itemSelected(const QString &)), _mute_message_widget, SLOT(addItem(const QString &)));
         connect(_vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingEdited()));
@@ -282,7 +305,7 @@ void SettingsTreeManager::BuildKhronosTree(std::vector<LayerSetting> &settings) 
 
     // This really does go way down here.
     connect(_validation_settings, SIGNAL(settingChanged()), this, SLOT(OnPresetEdited()));
-    _validation_presets_combo_box->blockSignals(false);
+    _presets_combobox->blockSignals(false);
 
     _validation_tree_item->addChild(_validation_preset_item);
 }
@@ -298,27 +321,30 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
 }
 
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
-    std::vector<LayerSetting> &settings = parameter.settings;
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
-    for (std::size_t setting_index = 0, n = settings.size(); setting_index < n; setting_index++) {
-        LayerSetting &setting = settings[setting_index];
+    const std::vector<LayerSettingMeta> &layer_setting_metas = FindItByKey(available_layers, parameter.key.c_str())->settings;
+
+    for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; setting_index++) {
+        const LayerSettingMeta &layer_setting_meta = layer_setting_metas[setting_index];
+        LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
+        assert(layer_setting_data);
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
 
-        switch (setting.type) {
+        switch (layer_setting_meta.type) {
             case SETTING_BOOL:          // True false?
             case SETTING_BOOL_NUMERIC:  // True false? (with numeric output instead of text)
             {
                 // Don't display "emulate_portability" setting if the layer doesn't support it
-                if (setting.key == "emulate_portability" && parameter.name == "VK_LAYER_LUNARG_device_simulation") {
-                    std::vector<Layer>::iterator layer = Find(available_layers, "VK_LAYER_LUNARG_device_simulation");
+                if (layer_setting_meta.key == "emulate_portability" && parameter.key == "VK_LAYER_LUNARG_device_simulation") {
+                    std::vector<Layer>::iterator layer = FindItByKey(available_layers, "VK_LAYER_LUNARG_device_simulation");
                     if (layer != available_layers.end()) {
                         if (Version(layer->_implementation_version) <= Version("1.3.0")) break;
                     }
                 }
 
-                BoolSettingWidget *widget = new BoolSettingWidget(setting, setting.type);
+                BoolSettingWidget *widget = new BoolSettingWidget(layer_setting_meta, *layer_setting_data);
                 parent->addChild(setting_item);
                 _configuration_settings_tree->setItemWidget(setting_item, 0, widget);
                 widget->setFont(_configuration_settings_tree->font());
@@ -329,7 +355,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             case SETTING_LOAD_FILE:    // Load a file?
             case SETTING_SAVE_FOLDER:  // Save to folder?
             {
-                FileSystemSettingWidget *widget = new FileSystemSettingWidget(setting_item, setting, setting.type);
+                FileSystemSettingWidget *widget =
+                    new FileSystemSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);
                 parent->addChild(setting_item);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                 place_holder->setSizeHint(0, QSize(0, 28));
@@ -342,18 +369,18 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             case SETTING_EXCLUSIVE_LIST:  // Combobox - enum - just one thing
             {
                 parent->addChild(setting_item);
-                setting_item->setText(0, setting.label);
+                setting_item->setText(0, layer_setting_meta.label);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                 setting_item->addChild(place_holder);
 
-                EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, setting);
+                EnumSettingWidget *enum_widget = new EnumSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);
                 _configuration_settings_tree->setItemWidget(place_holder, 0, enum_widget);
                 connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingEdited()));
             } break;
 
             case SETTING_STRING:  // Raw text field?
             {
-                StringSettingWidget *widget = new StringSettingWidget(setting_item, setting);
+                StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);
                 parent->addChild(setting_item);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                 setting_item->addChild(place_holder);
@@ -362,8 +389,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             } break;
 
             default: {
-                setting_item->setText(0, setting.label);
-                setting_item->setToolTip(0, setting.description);
+                setting_item->setText(0, layer_setting_meta.label);
+                setting_item->setToolTip(0, layer_setting_meta.description);
                 parent->addChild(setting_item);
                 assert(0);  // Unknown setting
             } break;
@@ -371,9 +398,9 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
     }
 }
 
-int SettingsTreeManager::GetValidationPresentIndex(const ValidationPreset preset) const {
-    for (std::size_t i = 0, n = _validation_presets.size(); i < n; ++i) {
-        if (_validation_presets[i] == preset) return static_cast<int>(i);
+int SettingsTreeManager::GetPresetIndex(const int preset_index) const {
+    for (std::size_t i = 0, n = _preset_indexes.size(); i < n; ++i) {
+        if (_preset_indexes[i] == preset_index) return static_cast<int>(i);
     }
 
     assert(0);
@@ -381,37 +408,30 @@ int SettingsTreeManager::GetValidationPresentIndex(const ValidationPreset preset
 }
 
 /// The user has selected a preset for this layer
-void SettingsTreeManager::khronosPresetChanged(int preset_index) {
-    assert(preset_index >= 0 && static_cast<std::size_t>(preset_index) < _validation_presets.size());
-    const ValidationPreset preset = _validation_presets[preset_index];
+void SettingsTreeManager::khronosPresetChanged(int combox_preset_index) {
+    assert(combox_preset_index >= 0 && static_cast<std::size_t>(combox_preset_index) < _preset_indexes.size());
+    const int preset_index = _preset_indexes[combox_preset_index];
 
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.Notify(NOTIFICATION_RESTART);
 
-    // We really just don't care
-    if (preset == ValidationPresetUserDefined) return;
+    // User-defined or no preset
+    if (preset_index == 0) return;
 
-    // The easiest way to do this is to create a new profile, and copy the layer over
-    const QString preset_file(QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json");
+    std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
-    Configuration preset_configuration;
-    const bool result = preset_configuration.Load(preset_file);
-    assert(result);
+    const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, "VK_LAYER_KHRONOS_validation");
+
+    const LayerPreset *preset = GetPreset(layer->presets, preset_index);
 
     auto configuration = configurator.GetActiveConfiguration();
-    auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
+    auto parameter = FindItByKey(configuration->parameters, "VK_LAYER_KHRONOS_validation");
     assert(parameter != configuration->parameters.end());
 
     // Reset just specific layer settings
-    for (std::size_t i = 0, n = parameter->settings.size(); i < n; ++i) {
-        LayerSetting &setting = parameter->settings[i];
-
-        if (setting.key == "disables" || setting.key == "enables")
-            setting.value = preset_configuration.parameters[0].settings[i].value;
-    }
-
-    configuration->_preset = preset;
+    ApplySettings(*parameter, *preset);
+    parameter->preset_index = preset_index;
 
     // Now we need to reload the Khronos tree item.
     _configuration_settings_tree->blockSignals(true);
@@ -426,7 +446,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
         _validation_tree_item->takeChild(0);
     }
 
-    BuildKhronosTree(parameter->settings);
+    BuildKhronosTree(*parameter);
     SetTreeState(saved_state, 0, validation_preset_parent);
     _configuration_settings_tree->blockSignals(false);
     OnSettingEdited();
@@ -435,11 +455,15 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
 // Any edit to these settings means we are not user defined
 // (and that we need to save the settings)
 void SettingsTreeManager::OnPresetEdited() {
-    _validation_presets_combo_box->blockSignals(true);
-    _validation_presets_combo_box->setCurrentIndex(GetValidationPresentIndex(ValidationPresetUserDefined));
     auto configuration = Configurator::Get().GetActiveConfiguration();
-    configuration->_preset = ValidationPresetUserDefined;
-    _validation_presets_combo_box->blockSignals(false);
+    auto parameter = FindItByKey(configuration->parameters, "VK_LAYER_KHRONOS_validation");
+    assert(parameter != configuration->parameters.end());
+    parameter->preset_index = Parameter::NO_PRESET;
+
+    _presets_combobox->blockSignals(true);
+    _presets_combobox->setCurrentIndex(0);
+    _presets_combobox->blockSignals(false);
+
     OnSettingEdited();
 }
 
@@ -482,14 +506,14 @@ void SettingsTreeManager::CleanupGUI() {
     if (configuration == configurator.available_configurations.end()) return;
 
     // Get the state of the last tree, and save it!
-    configuration->_setting_tree_state.clear();
-    GetTreeState(configuration->_setting_tree_state, _configuration_settings_tree->invisibleRootItem());
-    const bool result = configuration->Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, configuration->name));
+    configuration->setting_tree_state.clear();
+    GetTreeState(configuration->setting_tree_state, _configuration_settings_tree->invisibleRootItem());
+    const bool result = configuration->Save(Configurator::Get().path.GetFullPath(PATH_CONFIGURATION, configuration->key));
     assert(result);
 
     // If a Khronos layer is present, it needs cleanup up from custom controls before
     // it's cleared or deleted.
-    auto parameter = FindParameter(configuration->parameters, "VK_LAYER_KHRONOS_validation");
+    auto parameter = FindItByKey(configuration->parameters, "VK_LAYER_KHRONOS_validation");
     if (parameter != configuration->parameters.end())
         _configuration_settings_tree->setItemWidget(_validation_file_item, 1, nullptr);
 
@@ -504,7 +528,7 @@ void SettingsTreeManager::CleanupGUI() {
 
     _configuration_settings_tree->clear();
     _configuration_settings_tree = nullptr;
-    _validation_presets_combo_box = nullptr;
+    _presets_combobox = nullptr;
     _validation_tree_item = nullptr;
     _validation_debug_action = nullptr;
     _validation_preset_item = nullptr;
@@ -519,7 +543,7 @@ void SettingsTreeManager::OnSettingEdited() {
 
     std::vector<Configuration>::iterator configuration = configurator.GetActiveConfiguration();
 
-    const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, configuration->name));
+    const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, configuration->key));
     assert(result);
 
     configurator.environment.Notify(NOTIFICATION_RESTART);

@@ -21,18 +21,20 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/layer_setting_meta.h"
+#include "../vkconfig_core/layer_setting_data.h"
 
 #include <QObject>
 #include <QWidget>
 #include <QCheckBox>
-#include <QString>
+
+#include <string>
 
 class BoolSettingWidget : public QCheckBox {
     Q_OBJECT
 
    public:
-    explicit BoolSettingWidget(LayerSetting& layer_setting, SettingType setting_type);
+    explicit BoolSettingWidget(const LayerSettingMeta& layer_setting_meta, LayerSettingData& layer_setting_data);
 
    public Q_SLOTS:
     void itemToggled();
@@ -46,9 +48,10 @@ class BoolSettingWidget : public QCheckBox {
 
     enum Mode { BOOL_NUMERIC, BOOL_STRING };
 
-    QString GetToken(bool state, SettingType type) const;
-    const QString _true_token;
-    const QString _false_token;
+    std::string GetToken(bool state, SettingType type) const;
+    const std::string true_token;
+    const std::string false_token;
 
-    LayerSetting& _layer_setting;
+    const LayerSettingMeta& layer_setting_meta;
+    LayerSettingData& layer_setting_data;
 };

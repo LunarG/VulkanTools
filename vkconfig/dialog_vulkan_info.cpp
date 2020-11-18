@@ -110,7 +110,7 @@ void VulkanInfoDialog::Run() {
     ////////////////////////////////////////////////////////////
     // Setp through each major section and parse.
     // All of these are the top layer nodes on the tree.
-    QJsonValue rootObject = jsonTopObject.value(QString("Instance Extensions"));
+    QJsonValue rootObject = jsonTopObject.value("Instance Extensions");
     QTreeWidgetItem *parent_node = new QTreeWidgetItem();
     parent_node->setText(0, "Instance Extensions");
     ui->treeWidget->addTopLevelItem(parent_node);
@@ -128,7 +128,7 @@ void VulkanInfoDialog::Run() {
     parent_node = new QTreeWidgetItem();
     BuildGroups(rootObject, parent_node);
 
-    rootObject = jsonTopObject.value(tr("Device Properties and Extensions"));
+    rootObject = jsonTopObject.value("Device Properties and Extensions");
     parent_node = new QTreeWidgetItem();
     parent_node->setText(0, "Device Properties and Extensions");
     BuildDevices(rootObject, parent_node);
@@ -195,8 +195,8 @@ void VulkanInfoDialog::BuildExtensions(QJsonValue &jsonValue, QTreeWidgetItem *p
     QStringList keys = extensionObject.keys();
 
     for (int i = 0; i < nObjectSize; i++) {
-        QJsonValue value = extensionObject.value(keys[i]);
-        QJsonObject object = value.toObject();
+        QJsonValue default_value = extensionObject.value(keys[i]);
+        QJsonObject object = default_value.toObject();
         QJsonValue specValue = object.value("specVersion");
         output = keys[i];
         output += " : extension revision ";
@@ -324,12 +324,12 @@ void VulkanInfoDialog::BuildDevices(QJsonValue &jsonValue, QTreeWidgetItem *root
             QTreeWidgetItem *parent = new QTreeWidgetItem();
             parent->setText(0, propertyParents[j]);
             pGPU->addChild(parent);
-            QJsonValue value = propertiesObject.value(propertyParents[j]);
+            QJsonValue default_value = propertiesObject.value(propertyParents[j]);
 
             if (propertyParents[j] == "Device Extensions")
-                BuildExtensions(value, parent);
+                BuildExtensions(default_value, parent);
             else
-                TraverseGenericProperties(value, parent);
+                TraverseGenericProperties(default_value, parent);
         }
     }
 }

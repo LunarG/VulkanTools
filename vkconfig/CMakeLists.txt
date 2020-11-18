@@ -13,9 +13,12 @@ if(NOT Qt5_FOUND)
 elseif(Qt5_VERSION VERSION_LESS 5.5)
     message("WARNING: vkconfig will be excluded because the found Qt version is too old. vkconfig requires version 5.5.")
 else()
-    file(GLOB FILES_RESSOURCE ./resourcefiles/*.json)
+    file(GLOB FILES_RESSOURCE_CONFIGURATIONS ./resourcefiles/configurations/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_1_2_154 ./resourcefiles/layers_1_2_154/*.json)
+    set(FILES_RESSOURCE ${FILES_RESSOURCE_CONFIGURATIONS} ${FILES_RESSOURCE_LAYERS_1_2_154})
 
-    source_group("Resources Files" FILES ${FILES_RESSOURCE})
+    source_group("Resources Configuration Files" FILES ${FILES_RESSOURCE_CONFIGURATIONS})
+    source_group("Resources Layers 1.2.154 Files" FILES ${FILES_RESSOURCE_LAYERS_1_2_154})
 
     file(GLOB FILES_UI ./*.ui)
 

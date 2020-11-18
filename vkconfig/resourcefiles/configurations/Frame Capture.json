@@ -1,8 +1,9 @@
 {
-    "Frame Capture - Range (F5 to start and to stop)": {
+    "Frame Capture": {
         "blacklisted_layers": [
         ],
         "description": "Capture a range of frames",
+        "platforms": [ "WINDOWS", "LINUX" ],
         "editor_state": "011111111111111111111111111",
         "layer_options": {
             "VK_LAYER_LUNARG_gfxreconstruct": {
@@ -151,7 +152,6 @@
                     "type": "bool"
                 }
             }
-        },
-        "preset": 0
+        }
     }
 }

@@ -23,24 +23,27 @@
 
 #include <cassert>
 
-BoolSettingWidget::BoolSettingWidget(LayerSetting& layer_setting, SettingType setting_type)
-    : _true_token(GetToken(true, setting_type)), _false_token(GetToken(false, setting_type)), _layer_setting(layer_setting) {
-    assert(&layer_setting);
-    assert(setting_type >= SETTING_FIRST && setting_type <= SETTING_LAST);
+BoolSettingWidget::BoolSettingWidget(const LayerSettingMeta& layer_setting_meta, LayerSettingData& layer_setting_data)
+    : true_token(GetToken(true, layer_setting_meta.type)),
+      false_token(GetToken(false, layer_setting_meta.type)),
+      layer_setting_meta(layer_setting_meta),
+      layer_setting_data(layer_setting_data) {
+    assert(&layer_setting_meta);
+    assert(&layer_setting_data);
 
-    setText(layer_setting.label);
-    setToolTip(layer_setting.description);
-    setChecked(layer_setting.value == GetToken(true, setting_type));
+    setText(layer_setting_meta.label);
+    setToolTip(layer_setting_meta.description);
+    setChecked(layer_setting_data.value == GetToken(true, layer_setting_meta.type));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
 void BoolSettingWidget::itemToggled() {
-    _layer_setting.value = isChecked() ? _true_token : _false_token;
+    layer_setting_data.value = isChecked() ? true_token : false_token;
 
     emit itemChanged();
 }
 
-QString BoolSettingWidget::GetToken(bool state, SettingType setting_type) const {
+std::string BoolSettingWidget::GetToken(bool state, SettingType setting_type) const {
     assert(setting_type >= SETTING_FIRST && setting_type <= SETTING_LAST);
 
     switch (setting_type) {

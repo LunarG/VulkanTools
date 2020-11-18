@@ -18,16 +18,4 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../setting_type.h"
-
-#include <gtest/gtest.h>
-
-TEST(test_setting_type, is_enum_true1) { EXPECT_EQ(true, IsEnum(SETTING_EXCLUSIVE_LIST)); }
-
-TEST(test_setting_type, is_enum_true2) { EXPECT_EQ(true, IsEnum(SETTING_INCLUSIVE_LIST)); }
-
-TEST(test_setting_type, is_enum_false) { EXPECT_EQ(false, IsEnum(SETTING_STRING)); }
-
-TEST(test_setting_type, get_setting_token) { EXPECT_STREQ("string", GetSettingToken(SETTING_STRING)); }
-
-TEST(test_setting_type, get_setting_type) { EXPECT_EQ(SETTING_STRING, GetSettingType("string")); }
+#include "layer_setting_data.h"

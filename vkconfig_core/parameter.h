@@ -21,23 +21,12 @@
 #pragma once
 
 #include "layer.h"
-#include "layer_setting.h"
+#include "layer_state.h"
+#include "layer_setting_data.h"
 
 #include <QString>
 
 #include <vector>
-
-// The value of this enum can't be changed
-enum LayerState {
-    LAYER_STATE_APPLICATION_CONTROLLED = 0,  // The Vulkan application configured this layer at will
-    LAYER_STATE_OVERRIDDEN = 1,              // Force on/override this layer and configure it regarless of the Vulkan application
-    LAYER_STATE_EXCLUDED = 2,                // Force off/exclude this layer regarless of the Vulkan application
-
-    LAYER_STATE_FIRST = LAYER_STATE_APPLICATION_CONTROLLED,
-    LAYER_STATE_LAST = LAYER_STATE_EXCLUDED
-};
-
-enum { LAYER_STATE_COUNT = LAYER_STATE_LAST - LAYER_STATE_FIRST + 1 };
 
 enum ParameterRank {
     PARAMETER_RANK_MISSING = 0,
@@ -49,23 +38,26 @@ enum ParameterRank {
 };
 
 struct Parameter {
-    static const int UNRANKED = -1;
+    static const int NO_RANK = -1;
+    static const int NO_PRESET = 0;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(UNRANKED) {}
-    Parameter(const QString& name, const LayerState state) : name(name), state(state), overridden_rank(UNRANKED) {}
+    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(NO_RANK), preset_index(NO_PRESET) {}
+    Parameter(const std::string& key, const LayerState state)
+        : key(key), state(state), overridden_rank(NO_RANK), preset_index(NO_PRESET) {}
 
-    QString name;
+    std::string key;
     LayerState state;
-    std::vector<LayerSetting> settings;
+    std::vector<LayerSettingData> settings;
     int overridden_rank;
+    int preset_index;  // Settings preset, 0 = none or user defined
 };
 
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
 void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
-std::vector<Parameter>::iterator FindParameter(std::vector<Parameter>& parameters, const QString& layer_name);
 
 bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 
-bool LoadSettings(const QJsonObject& layer_settings_descriptors, Parameter& parameter);
-bool SaveSettings(const Parameter& parameter, QJsonObject& layer_settings_descriptors);
+std::vector<LayerSettingData> BuildSettings(const std::vector<LayerSettingMeta>& layer_settings);
+
+bool ApplySettings(Parameter& parameter, const LayerPreset& preset);

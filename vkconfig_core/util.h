@@ -22,6 +22,7 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
 
 #if defined(_WIN32) && defined(_DEBUG)
 #include <windows.h>  // For OutputDebugString
@@ -56,32 +57,55 @@ std::string format(const char* message, ...);
 bool IsNumber(const std::string& s);
 
 template <typename T>
-typename std::vector<T>::iterator Find(std::vector<T>& container, const QString& name) {
-    assert(!name.isEmpty());
-
-    for (auto it = container.begin(), end = container.end(); it != end; ++it)
-        if (it->name == name) return it;
-    return container.end();
-}
-
-template <typename T>
-typename std::vector<T>::const_iterator Find(const std::vector<T>& container, const QString& name) {
-    assert(!name.isEmpty());
+typename std::vector<T>::iterator FindItByKey(std::vector<T>& container, const char* key) {
+    assert(key != nullptr && key != "");
 
     for (auto it = container.begin(), end = container.end(); it != end; ++it) {
-        if (it->name == name) return it;
+        if (it->key == key) return it;
     }
 
     return container.end();
 }
 
 template <typename T>
-bool IsFound(const std::vector<T>& container, const QString& name) {
-    assert(!name.isEmpty());
+typename std::vector<T>::const_iterator FindItByKey(const std::vector<T>& container, const char* key) {
+    assert(key != nullptr && key != "");
 
     for (auto it = container.begin(), end = container.end(); it != end; ++it) {
-        if (name == it->name) return true;
+        if (it->key == key) return it;
     }
 
-    return false;
+    return container.end();
 }
+
+template <typename T>
+T* FindByKey(std::vector<T>& container, const char* key) {
+    assert(key != nullptr && key != "");
+
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (container[i].key == key) return &container[i];
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+const T* FindByKey(const std::vector<T>& container, const char* key) {
+    assert(key != nullptr && key != "");
+
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (container[i].key == key) return &container[i];
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+bool IsFound(const std::vector<T>& container, const char* key) {
+    return FindByKey(container, key) != nullptr;
+}
+
+bool IsFound(const QStringList& string_list, const QString& string_searched);
+
+void RemoveString(std::string& delimited_string, const std::string& value);
+void AppendString(std::string& delimited_string, const std::string& value);

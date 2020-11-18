@@ -22,17 +22,15 @@
 #include "../vkconfig_core/util.h"
 
 #include "widget_vuid_search.h"
-#include "vk_vuids.h"
 
-VUIDSearchWidget::VUIDSearchWidget(const QString &values_already_present) : QWidget(nullptr) {
-    for (std::size_t i = 0, n = countof(vuids); i < n; i++) _vuid_list << vuids[i];
-
+VUIDSearchWidget::VUIDSearchWidget(const QStringList &layer_vuids, const QString &values_already_present)
+    : QWidget(nullptr), _vuid_list(layer_vuids) {
     // We always want the list presented sorted. Note: This is not
     // strictly necessary.
     _vuid_list.sort();
 
     QStringList removeList = values_already_present.split(",");
-    for (int i = 0; i < removeList.length(); i++) {
+    for (int i = 0; i < removeList.length(); ++i) {
         _vuid_list.removeOne(removeList[i]);
     }
 

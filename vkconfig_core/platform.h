@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+
 #define VKC_PLATFORM_WINDOWS 0
 #define VKC_PLATFORM_LINUX 1
 #define VKC_PLATFORM_MACOS 2
@@ -38,8 +41,15 @@ enum { PLATFORM_COUNT = PLATFORM_LAST - PLATFORM_FIRST + 1 };
 enum PlatformFlags {
     PLATFORM_WINDOWS_BIT = (1 << PLATFORM_WINDOWS),
     PLATFORM_LINUX_BIT = (1 << PLATFORM_LINUX),
-    PLATFORM_MACOS_BIT = (1 << PLATFORM_MACOS)
+    PLATFORM_MACOS_BIT = (1 << PLATFORM_MACOS),
+    PLATFORM_ALL_BIT = PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT
 };
+
+int GetPlatformFlags(const std::vector<std::string>& platform_strings);
+std::vector<std::string> GetPlatformTokens(int platform_flags);
+
+PlatformType GetPlatformType(const char* token);
+const char* GetToken(PlatformType type);
 
 enum StatusType {
     STATUS_STABLE = 0,
@@ -79,6 +89,7 @@ enum PlatformString {
     PLATFORM_STRING_VULKAN_INFO,
     PLATFORM_STRING_VULKAN_LIBRARY,
     PLATFORM_STRING_EXPLICIT_LAYERS,
+    PLATFORM_STRING_PATH_VKC_USER_DIR,
     PLATFORM_STRING_PATH_CONFIGURATION,
     PLATFORM_STRING_PATH_OVERRIDE_LAYERS,
     PLATFORM_STRING_PATH_OVERRIDE_SETTINGS,

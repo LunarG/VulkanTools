@@ -70,7 +70,7 @@ struct FilenameDesc {
 };
 
 static const FilenameDesc& GetDesc(Filename filename) {
-    static const FilenameDesc table[] = {"applist.json"};
+    static const FilenameDesc table[] = {"../applist.json"};
 
     return table[filename];
 }

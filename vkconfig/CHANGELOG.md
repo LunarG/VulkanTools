@@ -11,6 +11,12 @@
 
 # Release notes
 
+## [Vulkan Configurator 2.1.0 for Vulkan SDK 1.2.X.X](https://github.com/LunarG/VulkanTools/tree/master) - January 2020
+
+### Features:
+- Refactor built-in configurations #1247
+- Add layer settings presets #1247
+
 ## [Vulkan Configurator 2.0.3 for Vulkan SDK 1.2.162.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162) - December 2020
 
 ### Features:

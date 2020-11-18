@@ -45,7 +45,7 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
 
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-        const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
         if (layer == available_layers.end()) {
             has_missing_layers = true;
             continue;
@@ -72,9 +72,9 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter& parameter = configuration.parameters[i];
         if (parameter.state == LAYER_STATE_OVERRIDDEN)
-            json_overridden_layers.append(parameter.name);
+            json_overridden_layers.append(parameter.key.c_str());
         else if (parameter.state == LAYER_STATE_EXCLUDED)
-            json_excluded_layers.append(parameter.name);
+            json_excluded_layers.append(parameter.key.c_str());
     }
 
     QJsonObject disable;
@@ -110,7 +110,7 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
     }
 
     QJsonObject root;
-    root.insert("file_format_version", QJsonValue("1.1.2"));
+    root.insert("file_format_version", "1.1.2");
     root.insert("layer", layer);
     QJsonDocument doc(root);
 
@@ -143,7 +143,7 @@ static bool WriteLayerSettings(const Environment& environment, const std::vector
     for (std::size_t j = 0, n = configuration.parameters.size(); j < n; ++j) {
         const Parameter& parameter = configuration.parameters[j];
 
-        const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
         if (layer == available_layers.end()) {
             has_missing_layers = true;
             continue;
@@ -152,21 +152,16 @@ static bool WriteLayerSettings(const Environment& environment, const std::vector
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
         stream << "\n";
-        stream << "# " << layer->name << "\n";
+        stream << "# " << layer->key.c_str() << "\n";
 
-        QString short_layer_name = layer->name;
+        QString short_layer_name(layer->key.c_str());
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
         for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
-            const LayerSetting& setting = parameter.settings[i];
+            const LayerSettingData& setting = parameter.settings[i];
 
-            if (layer->name == "lunarg_gfxreconstruct" && layer->_api_version < Version("1.2.148")) {
-                stream << "lunarg_gfxrecon"
-                       << "." << setting.key << " = " << setting.value << "\n";
-            } else {
-                stream << lc_layer_name << "." << setting.key << " = " << setting.value << "\n";
-            }
+            stream << lc_layer_name << "." << setting.key.c_str() << " = " << setting.value.c_str() << "\n";
         }
     }
     file.close();
