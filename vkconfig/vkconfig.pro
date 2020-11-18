@@ -6,6 +6,7 @@ CONFIG += c++11
 CONFIG += sdk_no_version_check
 
 INCLUDEPATH += $$(VULKAN_SDK)/include
+INCLUDEPATH += ../Build/Vulkan-Headers/include
 INCLUDEPATH += ../Vulkan-Headers/include
 
 # The following define makes your compiler emit warnings if you use
