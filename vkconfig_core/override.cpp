@@ -35,8 +35,8 @@
 #include <cstdio>
 
 // Create and write VkLayer_override.json file
-static bool WriteLayerOverride(const PathManager& path, const std::vector<Application>& applications,
-                               const std::vector<Layer>& available_layers, const Configuration& configuration) {
+static bool WriteLayerOverride(const Environment& environment, const std::vector<Layer>& available_layers,
+                               const Configuration& configuration) {
     bool has_missing_layers = false;
 
     QStringList layer_override_paths;
@@ -92,12 +92,17 @@ static bool WriteLayerOverride(const PathManager& path, const std::vector<Applic
     layer.insert("disable_environment", disable);
 
     // This has to contain something, or it will apply globally!
-    if (!applications.empty()) {
+    if (environment.UseApplicationListOverrideMode() && environment.HasOverriddenApplications()) {
+        const std::vector<Application>& applications = environment.GetApplications();
+
         QJsonArray json_applist;
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
             if (!applications[i].override_layers) continue;
 
-            json_applist.append(QDir::toNativeSeparators(applications[i].executable_path));
+            const QString& executable_path =
+                QDir::toNativeSeparators(QFileInfo(applications[i].executable_path).absoluteFilePath());
+            assert(QFileInfo(executable_path).exists());
+            json_applist.append(executable_path);
         }
 
         layer.insert("app_keys", json_applist);
@@ -108,7 +113,7 @@ static bool WriteLayerOverride(const PathManager& path, const std::vector<Applic
     root.insert("layer", layer);
     QJsonDocument doc(root);
 
-    const QString override_layers_path = path.GetFullPath(PATH_OVERRIDE_LAYERS);
+    const QString override_layers_path = environment.paths.GetFullPath(PATH_OVERRIDE_LAYERS);
     assert(QFileInfo(override_layers_path).absoluteDir().exists());
 
     QFile json_file(override_layers_path);
@@ -121,9 +126,9 @@ static bool WriteLayerOverride(const PathManager& path, const std::vector<Applic
 }
 
 // Create and write vk_layer_settings.txt file
-static bool WriteLayerSettings(const PathManager& path, const std::vector<Layer>& available_layers,
+static bool WriteLayerSettings(const Environment& environment, const std::vector<Layer>& available_layers,
                                const Configuration& configuration) {
-    const QString override_settings_path = path.GetFullPath(PATH_OVERRIDE_SETTINGS);
+    const QString override_settings_path = environment.paths.GetFullPath(PATH_OVERRIDE_SETTINGS);
     assert(QFileInfo(override_settings_path).absoluteDir().exists());
 
     QFile file(override_settings_path);
@@ -188,11 +193,10 @@ bool OverrideLayers(const Environment& environment, const std::vector<Layer>& av
     SurrenderLayers(environment);
 
     // vk_layer_settings.txt
-    const bool result_settings = WriteLayerSettings(environment.paths, available_layers, configuration);
+    const bool result_settings = WriteLayerSettings(environment, available_layers, configuration);
 
     // VkLayer_override.json
-    const bool result_override =
-        WriteLayerOverride(environment.paths, environment.GetApplications(), available_layers, configuration);
+    const bool result_override = WriteLayerOverride(environment, available_layers, configuration);
 
     // On Windows only, we need to write these values to the registry
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS

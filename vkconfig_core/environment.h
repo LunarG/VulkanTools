@@ -147,3 +147,5 @@ class Environment {
    public:
     const PathManager& paths;
 };
+
+bool ExactExecutableFromAppBundle(QString& path);

@@ -33,7 +33,6 @@ class ApplicationsDialog : public QDialog {
    public:
     explicit ApplicationsDialog(QWidget *parent = nullptr);
 
-    static void GetExecutableFromAppBundle(QString &path);
     int GetSelectedLaunchApplicationIndex() const { return _last_selected_application_index; }
 
    private:

@@ -35,6 +35,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QTextStream>
 
 #include <cassert>
 
@@ -322,7 +323,7 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
     if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
         // Using the standard install loation on macOS
         {
-            const QString search_path = "/Applications/" + executable_name;
+            const QString search_path = "/Applications" + executable_name;
             QFileInfo file_info(search_path);
             if (file_info.exists())  // Couldn't find vkcube
                 return file_info.filePath();
@@ -379,7 +380,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
         new_applications.push_back(application);
     }
 
-    if (!add_default_applications) return;
+    if (!add_default_applications && !new_applications.empty()) return;
 
     const char* suffix = GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
 
@@ -399,14 +400,17 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
             if (!application.executable_path.endsWith(defaults[name_index].name + suffix)) continue;
 
-            found;
+            found = true;
             break;
         }
 
         if (found) continue;
 
-        const QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + suffix);
+        QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + suffix);
         if (executable_path.isEmpty()) continue;  // application could not be found..
+
+        // If on macOS, extract the root executable from the app bundle.
+        if (VKC_PLATFORM == VKC_PLATFORM_MACOS) ExactExecutableFromAppBundle(executable_path);
 
         Application application(executable_path, "--suppress_popups");
 
@@ -635,4 +639,58 @@ bool Environment::RemoveCustomLayerPath(const QString& path) {
         }
     }
     return false;
+}
+
+///////////////////////////////////////////////////////////////////////////
+/// This is only used on macOS to extract the executable from the bundle.
+/// You have to look at the plist.info file, you can't just assume whatever
+/// you find in the /MacOS folder is the executable.
+/// The initial path is the folder where info.plist resides, and the
+/// path is completed to the executable upon completion.
+/// Note, not ALL macOS executables are in a bundle, so if a non-bundled
+/// executable is fed in here, it will silently just return without
+/// modifying the path (which will be the correct behavior)
+bool ExactExecutableFromAppBundle(QString& app_path) {
+    QString path = app_path;
+    path += "/Contents/";
+    QString list_file = path + "Info.plist";
+    QFile file(list_file);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+
+    QTextStream stream(&file);
+
+    // Read a line at a time looking for the executable tag
+    QString line_buffer;
+    while (!stream.atEnd()) {
+        line_buffer = stream.readLine();
+        if (line_buffer.contains("<key>CFBundleExecutable</key>")) {  // Exe follows this
+            line_buffer = stream.readLine();                          // <string>Qt Creator</string>
+            char* cExeName = new char[line_buffer.length()];          // Prevent buffer overrun
+
+            const char* pStart = strstr(line_buffer.toUtf8().constData(), "<string>");
+            if (pStart == nullptr) return false;
+
+            // We found it, now extract it out
+            pStart += 8;
+            int iIndex = 0;
+            while (*pStart != '<') {
+                cExeName[iIndex++] = *pStart++;
+            }
+            cExeName[iIndex] = '\0';
+
+            // Complete the partial path
+            path += QString("MacOS/");
+            path += QString(cExeName);
+
+            // Return original if not found, but root if found
+            app_path = path;
+
+            delete[] cExeName;
+            break;
+        }
+    }
+
+    file.close();
+
+    return true;
 }
