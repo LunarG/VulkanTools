@@ -22,6 +22,7 @@
 #include "dialog_applications.h"
 
 #include "configurator.h"
+#include "../vkconfig_core/environment.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -119,7 +120,7 @@ void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test applicatio
         // If the later, we need to drill down to the actuall applicaiton
         if (executable_full_path.right(4) == QString(".app")) {
             // Start by drilling down
-            GetExecutableFromAppBundle(executable_full_path);
+            ExactExecutableFromAppBundle(executable_full_path);
         }
 
         Application new_application(executable_full_path, "");
@@ -261,52 +262,4 @@ void ApplicationsDialog::editLogFile(const QString &logFile) {
     if (_last_selected_application_index < 0) return;
 
     Configurator::Get().environment.GetApplication(_last_selected_application_index).log_file = logFile;
-}
-
-/// This is only used on macOS to extract the executable from the bundle.
-/// You have to look at the plist.info file, you can't just assume whatever
-/// you find in the /MacOS folder is the executable.
-/// The initial path is the folder where info.plist resides, and the
-/// path is completed to the executable upon completion.
-void ApplicationsDialog::GetExecutableFromAppBundle(QString &app_path) {
-    QString path = app_path;
-    path += "/Contents/";
-    QString list_file = path + "Info.plist";
-    QFile file(list_file);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
-
-    QTextStream stream(&file);
-
-    // Read a line at a time looking for the executable tag
-    QString line_buffer;
-    while (!stream.atEnd()) {
-        line_buffer = stream.readLine();
-        if (line_buffer.contains("<key>CFBundleExecutable</key>")) {  // Exe follows this
-            line_buffer = stream.readLine();                          // <string>Qt Creator</string>
-            char *cExeName = new char[line_buffer.length()];          // Prevent buffer overrun
-
-            const char *pStart = strstr(line_buffer.toUtf8().constData(), "<string>");
-            if (pStart == nullptr) return;
-
-            // We found it, now extract it out
-            pStart += 8;
-            int iIndex = 0;
-            while (*pStart != '<') {
-                cExeName[iIndex++] = *pStart++;
-            }
-            cExeName[iIndex] = '\0';
-
-            // Complete the partial path
-            path += QString("MacOS/");
-            path += QString(cExeName);
-
-            // Return original if not found, but root if found
-            app_path = path;
-
-            delete[] cExeName;
-            break;
-        }
-    }
-
-    file.close();
 }
