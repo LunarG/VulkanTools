@@ -22,11 +22,13 @@
 #include "widget_mute_message.h"
 
 #include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/util.h"
 
 #include <cassert>
 
-MuteMessageWidget::MuteMessageWidget(LayerSetting &layer_setting) : QWidget(nullptr), _layer_setting(layer_setting) {
-    assert(&layer_setting);
+MuteMessageWidget::MuteMessageWidget(LayerSettingData &layer_setting_data)
+    : QWidget(nullptr), layer_setting_data(layer_setting_data) {
+    assert(&layer_setting_data);
 
     _list_widget = new QListWidget(this);
     _list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -37,8 +39,8 @@ MuteMessageWidget::MuteMessageWidget(LayerSetting &layer_setting) : QWidget(null
     _remove_button->show();
 
     // Load with existing settings
-    if (!_layer_setting.value.isEmpty()) {
-        QStringList list = _layer_setting.value.split(",");
+    if (!layer_setting_data.value.empty()) {
+        const QStringList list = QString(layer_setting_data.value.c_str()).split(",");
         _list_widget->addItems(list);
         _list_widget->setCurrentRow(_list_widget->count() - 1);
     } else
@@ -50,7 +52,7 @@ MuteMessageWidget::MuteMessageWidget(LayerSetting &layer_setting) : QWidget(null
 void MuteMessageWidget::resizeEvent(QResizeEvent *event) {
     assert(event);
 
-    int button_height = 26;
+    const int button_height = 26;
     QSize parent_size = event->size();
     _list_widget->setGeometry(0, 0, parent_size.width(), parent_size.height() - button_height);
     _remove_button->setGeometry(0, parent_size.height() - button_height, parent_size.width(), button_height);
@@ -61,20 +63,20 @@ void MuteMessageWidget::addItem(const QString &item) {
     _list_widget->setCurrentRow(_list_widget->count() - 1);
 
     // Update Setting
-    AppendString(_layer_setting.value, item);
+    AppendString(layer_setting_data.value, item.toStdString());
     _remove_button->setEnabled(true);
     emit itemChanged();
 }
 
 void MuteMessageWidget::removePushed() {
-    int row = _list_widget->currentRow();
+    const int row = _list_widget->currentRow();
     if (row < 0) return;
 
-    QString item_name = _list_widget->currentItem()->text();
+    const QString &item_name = _list_widget->currentItem()->text();
     _list_widget->takeItem(row);
 
     // Update Setting
-    RemoveString(_layer_setting.value, item_name);
+    RemoveString(layer_setting_data.value, item_name.toStdString());
     emit itemChanged();
     emit itemRemoved(item_name);
 }

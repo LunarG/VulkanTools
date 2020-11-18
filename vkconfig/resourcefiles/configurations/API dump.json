@@ -3,6 +3,7 @@
         "blacklisted_layers": [
         ],
         "description": "A Simple API dump configuration",
+        "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
         "layer_options": {
             "VK_LAYER_LUNARG_api_dump": {
                 "detailed": {

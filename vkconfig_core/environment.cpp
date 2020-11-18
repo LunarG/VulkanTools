@@ -104,13 +104,14 @@ static const char* GetLayoutStateToken(LayoutState state) {
 }
 
 Environment::Environment(PathManager& paths)
-    : paths_manager(paths),
+    :
 // Hack for GitHub C.I.
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       running_as_administrator(IsUserAnAdmin()),
 #else
       running_as_administrator(false),
 #endif
+      paths_manager(paths),
       paths(paths_manager) {
 
     const bool result = Load();
@@ -191,7 +192,7 @@ void Environment::Reset(ResetMode mode) {
 
             applications = CreateDefaultApplications(paths);
 
-            Set(ACTIVE_CONFIGURATION, "Validation - Standard");
+            Set(ACTIVE_CONFIGURATION, "Validation");
             break;
         }
         case SYSTEM: {
@@ -449,14 +450,14 @@ const Application& Environment::GetActiveApplication() const {
     return applications[0];  // Not found, but the list is present, so return the first item.
 }
 
-const Application& Environment::GetApplication(int application_index) const {
-    assert(application_index >= 0 && application_index < applications.size());
+const Application& Environment::GetApplication(std::size_t application_index) const {
+    assert(application_index < applications.size());
 
     return applications[application_index];
 }
 
-Application& Environment::GetApplication(int application_index) {
-    assert(application_index >= 0 && application_index < applications.size());
+Application& Environment::GetApplication(std::size_t application_index) {
+    assert(application_index < applications.size());
 
     return applications[application_index];
 }
@@ -505,7 +506,7 @@ const QByteArray& Environment::Get(LayoutState state) const {
 
 const QString& Environment::Get(Active active) const { return actives[active]; }
 
-void Environment::Set(Active active, const QString& name) { actives[active] = name; }
+void Environment::Set(Active active, const QString& key) { actives[active] = key; }
 
 bool Environment::AppendCustomLayerPath(const QString& path) {
     assert(!path.isEmpty());
@@ -633,7 +634,7 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
 }
 
 struct DefaultApplication {
-    std::string name;
+    std::string key;
     std::string arguments;
 };
 
@@ -642,7 +643,7 @@ static const DefaultApplication defaults_applications[] = {{ConvertNativeSeparat
 
 static Application CreateDefaultApplication(const PathManager& paths, const DefaultApplication& default_application) {
     const QString executable_path =
-        GetDefaultExecutablePath((default_application.name + GetPlatformString(PLATFORM_STRING_APP_SUFFIX)).c_str());
+        GetDefaultExecutablePath((default_application.key + GetPlatformString(PLATFORM_STRING_APP_SUFFIX)).c_str());
     if (executable_path.isEmpty()) Application();  // application could not be found..
 
     Application application(executable_path, "--suppress_popups");
@@ -652,7 +653,7 @@ static Application CreateDefaultApplication(const PathManager& paths, const Defa
     // initially will be set to the users home folder across all OS's. This is highly visible
     // in the application launcher and should not present a usability issue. The developer can
     // easily change this later to anywhere they like.
-    application.log_file = paths.GetPath(PATH_HOME) + default_application.name + ".txt";
+    application.log_file = paths.GetPath(PATH_HOME) + default_application.key + ".txt";
 
     return application;
 }
@@ -693,7 +694,7 @@ std::vector<Application> UpdateDefaultApplications(const PathManager& paths, con
 
     for (std::size_t default_index = 0, default_count = countof(defaults_applications); default_index < default_count;
          ++default_index) {
-        std::string const defaults_name = defaults_applications[default_index].name + GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
+        std::string const defaults_name = defaults_applications[default_index].key + GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
 
         std::swap(updated_applications, search_applications);
         updated_applications.clear();

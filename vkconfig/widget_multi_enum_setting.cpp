@@ -22,24 +22,25 @@
 #include "widget_multi_enum_setting.h"
 
 #include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/util.h"
 
 #include <cassert>
 
-MultiEnumSettingWidget::MultiEnumSettingWidget(LayerSetting& layer_setting, QString setting_name)
-    : _layer_setting(layer_setting), _setting_name(setting_name) {
-    assert(&layer_setting);
-    assert(!setting_name.isEmpty());
+MultiEnumSettingWidget::MultiEnumSettingWidget(LayerSettingData& setting, const char* setting_value)
+    : setting(setting), setting_value(setting_value) {
+    assert(&setting);
+    assert(setting_value != nullptr);
 
-    if (_layer_setting.value.contains(setting_name)) this->setChecked(true);
+    if (setting.value.find(setting_value) != std::string::npos) this->setChecked(true);
 
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
 void MultiEnumSettingWidget::itemChecked(bool checked) {
     if (checked)
-        AppendString(_layer_setting.value, _setting_name);
+        AppendString(setting.value, setting_value);
     else
-        RemoveString(_layer_setting.value, _setting_name);
+        RemoveString(setting.value, setting_value);
 
     emit itemChanged();
 }

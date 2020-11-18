@@ -32,9 +32,9 @@
 
 class TreeWidgetItemParameter : public QTreeWidgetItem {
    public:
-    TreeWidgetItemParameter(const QString &layer_name) : layer_name(layer_name) { assert(!layer_name.isEmpty()); }
+    TreeWidgetItemParameter(const char *layer_name) : layer_name(layer_name) { assert(layer_name != nullptr); }
 
-    QString layer_name;
+    std::string layer_name;
 };
 
 class LayersDialog : public QDialog {
@@ -75,12 +75,12 @@ class LayersDialog : public QDialog {
     void AddLayerItem(const Parameter &parameter);
     void BuildParameters();
     void OverrideAllExplicitLayers();
-    void OverrideOrder(const QString layer_name, const TreeWidgetItemParameter *below, const TreeWidgetItemParameter *above);
+    void OverrideOrder(const std::string &layer_name, const TreeWidgetItemParameter *below, const TreeWidgetItemParameter *above);
 
     Configuration configuration;
     std::vector<Parameter> parameters;  // List of available layers and configuration layers
-    QString selected_available_layer_name;
-    QString selected_sorted_layer_name;
+    std::string selected_available_layer_name;
+    std::string selected_sorted_layer_name;
 
     std::unique_ptr<Ui::dialog_layers> ui;
 };

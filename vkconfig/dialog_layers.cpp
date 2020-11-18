@@ -117,8 +117,8 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    ui->lineEditName->setText(configuration.name);
-    ui->lineEditDescription->setText(configuration._description);
+    ui->lineEditName->setText(configuration.key);
+    ui->lineEditDescription->setText(configuration.description);
 
     Environment &environment = Configurator::Get().environment;
     restoreGeometry(environment.Get(LAYOUT_LAYER_GEOMETRY));
@@ -156,7 +156,7 @@ LayersDialog::~LayersDialog() {
 }
 
 void LayersDialog::UpdateUI() {
-    if (!selected_available_layer_name.isEmpty()) {
+    if (!selected_available_layer_name.empty()) {
         for (int i = 0, n = ui->layerTree->topLevelItemCount(); i < n; ++i) {
             TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTree->topLevelItem(i));
             if (layer_item->layer_name != selected_available_layer_name) continue;
@@ -167,7 +167,7 @@ void LayersDialog::UpdateUI() {
         ui->layerTree->setCurrentItem(ui->layerTree->topLevelItem(0));
     }
 
-    if (!selected_sorted_layer_name.isEmpty() && ui->layerTreeSorted->topLevelItemCount() > 1) {
+    if (!selected_sorted_layer_name.empty() && ui->layerTreeSorted->topLevelItemCount() > 1) {
         for (int i = 0, n = ui->layerTreeSorted->topLevelItemCount(); i < n; ++i) {
             TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(ui->layerTreeSorted->topLevelItem(i));
             if (layer_item->layer_name != selected_sorted_layer_name) continue;
@@ -203,14 +203,14 @@ void LayersDialog::OnLayerTreeSortedClicked(QTreeWidgetItem *item, int column) {
 }
 
 void LayersDialog::AddLayerItem(const Parameter &parameter) {
-    assert(!parameter.name.isEmpty());
+    assert(!parameter.key.empty());
 
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
-    const std::vector<Layer>::const_iterator layer = Find(available_layers, parameter.name);
+    const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
 
-    QString decorated_name = parameter.name;
+    QString decorated_name(parameter.key.c_str());
 
     bool is_implicit_layer = false;
     if (layer != available_layers.end()) {
@@ -224,7 +224,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
         decorated_name += " (Missing)";
     }
 
-    TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter.name);
+    TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter.key.c_str());
 
     item->setText(0, decorated_name);
     item->setFlags(item->flags() | Qt::ItemIsSelectable);
@@ -270,8 +270,8 @@ void LayersDialog::LoadSortedLayersUI() {
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
         if (parameters[i].state != LAYER_STATE_OVERRIDDEN) continue;
 
-        TreeWidgetItemParameter *sorted_layer_item = new TreeWidgetItemParameter(parameters[i].name);
-        sorted_layer_item->setText(0, parameters[i].name);
+        TreeWidgetItemParameter *sorted_layer_item = new TreeWidgetItemParameter(parameters[i].key.c_str());
+        sorted_layer_item->setText(0, parameters[i].key.c_str());
         sorted_layer_item->setFlags(sorted_layer_item->flags() | Qt::ItemIsSelectable);
 
         ui->layerTreeSorted->addTopLevelItem(sorted_layer_item);
@@ -301,24 +301,20 @@ void LayersDialog::resizeEvent(QResizeEvent *event) {
 }
 
 void LayersDialog::on_pushButtonResetLayers_clicked() {
-    configuration._preset = ValidationPresetNone;
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
     ui->layerTreeSorted->clear();
 
+    Configurator &configurator = Configurator::Get();
+
     for (auto it = parameters.begin(); it != parameters.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
-        it->overridden_rank = Parameter::UNRANKED;
-
-        const LayerSettingsDefaults *defaults = Configurator::Get().FindLayerSettings(it->name);
-        if (defaults) {
-            it->settings = defaults->settings;
-
-            if (it->name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
-        }
+        it->overridden_rank = Parameter::NO_RANK;
+        it->preset_index = Parameter::NO_PRESET;
+        it->settings = BuildSettings(FindItByKey(configurator.layers.available_layers, it->key.c_str())->settings);
     }
 
-    OrderParameter(parameters, Configurator::Get().layers.available_layers);
+    OrderParameter(parameters, configurator.layers.available_layers);
     LoadAvailableLayersUI();
     UpdateUI();
 }
@@ -333,11 +329,11 @@ void LayersDialog::on_pushButtonCustomLayers_clicked() {
     UpdateUI();
 }
 
-void LayersDialog::OverrideOrder(const QString layer_name, const TreeWidgetItemParameter *below,
+void LayersDialog::OverrideOrder(const std::string &layer_name, const TreeWidgetItemParameter *below,
                                  const TreeWidgetItemParameter *above) {
-    auto below_parameter = FindParameter(parameters, below->layer_name);
+    auto below_parameter = FindItByKey(parameters, below->layer_name.c_str());
     assert(below_parameter != parameters.end());
-    auto above_parameter = FindParameter(parameters, above->layer_name);
+    auto above_parameter = FindItByKey(parameters, above->layer_name.c_str());
     assert(above_parameter != parameters.end());
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
@@ -381,13 +377,13 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
     // Populate the side label
-    assert(!layer_item->layer_name.isEmpty());
+    assert(!layer_item->layer_name.empty());
 
-    selected_available_layer_name = layer_item->layer_name;
+    selected_available_layer_name = layer_item->layer_name.c_str();
 
-    const std::vector<Layer>::const_iterator layer = Find(available_layers, layer_item->layer_name);
+    const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, layer_item->layer_name.c_str());
     if (layer != available_layers.end()) {
-        QString detailsText = layer->_description;
+        QString detailsText = layer->description;
         detailsText += "\n";
         detailsText += QString("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
 
@@ -406,7 +402,7 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
         detailsText += "\n";
 
         detailsText += "File format: ";
-        detailsText += layer->_file_format_version.str().c_str();
+        detailsText += layer->file_format_version.str().c_str();
 
         ui->labelLayerDetails->setText(detailsText);
     } else {
@@ -421,12 +417,12 @@ void LayersDialog::OverrideAllExplicitLayers() {
         Configurator &configurator = Configurator::Get();
         std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
-        const std::vector<Layer>::const_iterator layer = Find(available_layers, it->name);
+        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, it->key.c_str());
         if (layer == available_layers.end()) continue;
 
         if (layer->_layer_type == LAYER_TYPE_IMPLICIT) continue;
 
-        if (it->name == "VK_LAYER_KHRONOS_validation")
+        if (it->key == "VK_LAYER_KHRONOS_validation")
             it->state = LAYER_STATE_OVERRIDDEN;
         else
             it->state = LAYER_STATE_EXCLUDED;
@@ -442,12 +438,12 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
     TreeWidgetItemParameter *tree_layer_item = dynamic_cast<TreeWidgetItemParameter *>(item);
     assert(tree_layer_item != nullptr);
-    auto current_parameter = FindParameter(parameters, tree_layer_item->layer_name);
+    auto current_parameter = FindItByKey(parameters, tree_layer_item->layer_name.c_str());
     assert(current_parameter != parameters.end());
 
     LayerState layer_state = static_cast<LayerState>(selection);
 
-    if (layer_state == LAYER_STATE_OVERRIDDEN && current_parameter->name == "VK_LAYER_LUNARG_device_simulation") {
+    if (layer_state == LAYER_STATE_OVERRIDDEN && current_parameter->key == "VK_LAYER_LUNARG_device_simulation") {
         QMessageBox alert;
         alert.setWindowTitle("Overridding or excluding ALL explicit layers is recommanded");
         alert.setText(
@@ -461,7 +457,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
         }
     } else if (layer_state == LAYER_STATE_EXCLUDED) {
         const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-        const std::vector<Layer>::const_iterator layer = Find(available_layers, tree_layer_item->layer_name);
+        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, tree_layer_item->layer_name.c_str());
 
         if (layer != available_layers.end()) {
             if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
@@ -469,7 +465,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
                 alert.setWindowTitle("Implicit layer excluded...");
                 alert.setText(
                     format("%s was excluded but it is an implicit layer. This may cause undefined behavior, including crashes. ",
-                           tree_layer_item->layer_name.toUtf8().constData())
+                           tree_layer_item->layer_name.c_str())
                         .c_str());
                 alert.setInformativeText("Do you want to continue?");
                 alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -482,7 +478,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     }
 
     current_parameter->state = layer_state;
-    current_parameter->overridden_rank = Parameter::UNRANKED;
+    current_parameter->overridden_rank = Parameter::NO_RANK;
 
     OrderParameter(parameters, Configurator::Get().layers.available_layers);
 
@@ -498,16 +494,17 @@ void LayersDialog::accept() {
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configuration.name != ui->lineEditName->text() &&
-        Find(configurator.available_configurations, ui->lineEditName->text()) != configurator.available_configurations.end()) {
+    if (configuration.key != ui->lineEditName->text() &&
+        FindItByKey(configurator.available_configurations, ui->lineEditName->text().toStdString().c_str()) !=
+            configurator.available_configurations.end()) {
         Alert::ConfigurationRenamingFailed();
         return;
     }
 
     FilterParameters(parameters, LAYER_STATE_APPLICATION_CONTROLLED);
 
-    configuration.name = ui->lineEditName->text();
-    configuration._description = ui->lineEditDescription->text();
+    configuration.key = ui->lineEditName->text();
+    configuration.description = ui->lineEditDescription->text();
     configuration.parameters = parameters;
 
     const QString save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
@@ -529,10 +526,10 @@ void LayersDialog::BuildParameters() {
         if (layer._layer_type != LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is overridden
-        if (FindParameter(configuration.parameters, layer.name) != configuration.parameters.end()) continue;
+        if (FindItByKey(configuration.parameters, layer.key.c_str()) != configuration.parameters.end()) continue;
 
         Parameter parameter;
-        parameter.name = layer.name;
+        parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
 
         parameters.push_back(parameter);
@@ -541,7 +538,7 @@ void LayersDialog::BuildParameters() {
     // Loop through the layers. They are expected to be in order
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter &parameter = configuration.parameters[i];
-        assert(!parameter.name.isEmpty());
+        assert(!parameter.key.empty());
 
         parameters.push_back(parameter);
     }
@@ -552,18 +549,13 @@ void LayersDialog::BuildParameters() {
         if (layer._layer_type == LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is already in the layer tree
-        if (FindParameter(configuration.parameters, layer.name) != configuration.parameters.end()) continue;
+        if (FindItByKey(configuration.parameters, layer.key.c_str()) != configuration.parameters.end()) continue;
 
         Parameter parameter;
-        parameter.name = layer.name;
+        parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-
-        const LayerSettingsDefaults *defaults = configurator.FindLayerSettings(layer.name);
-        if (defaults) {
-            parameter.settings = defaults->settings;
-
-            if (layer.name == "VK_LAYER_KHRONOS_validation") configuration._preset = ValidationPresetStandard;
-        }
+        parameter.preset_index = Parameter::NO_PRESET;
+        parameter.settings = BuildSettings(FindItByKey(configurator.layers.available_layers, layer.key.c_str())->settings);
 
         parameters.push_back(parameter);
     }

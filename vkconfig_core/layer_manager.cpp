@@ -172,10 +172,10 @@ void LayerManager::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
     for (int i = 0; i < file_list.FileCount(); ++i) {
         Layer layer;
         if (layer.Load(file_list.GetFileName(i), type)) {
-            if (layer.name == "VK_LAYER_LUNARG_override") continue;
+            if (layer.key == "VK_LAYER_LUNARG_override") continue;
 
             // Make sure this layer name has not already been added
-            if (Find(available_layers, layer.name) != available_layers.end()) continue;
+            if (FindItByKey(available_layers, layer.key.c_str()) != available_layers.end()) continue;
 
             // Good to go, add the layer
             layers.push_back(layer);

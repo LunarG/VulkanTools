@@ -1,0 +1,106 @@
+{
+    "configuration": {
+        "description": "Check the Vulkan application is portable to macOS",
+        "editor_state": "01110111111111111111111001011110111110001111111111110",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_api_dump",
+                "preset_index": 0,
+                "rank": -1,
+                "settings": [
+                 ],
+                "state": "EXCLUDED"
+            },
+            {
+                "name": "VK_LAYER_LUNARG_gfxreconstruct",
+                "preset_index": 0,
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED"
+            },
+            {
+                "name": "VK_LAYER_LUNARG_monitor",
+                "preset_index": 0,
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED"
+            },
+            {
+                "name": "VK_LAYER_LUNARG_screenshot",
+                "preset_index": 0,
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED"
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "preset_index": 1,
+                "rank": 4,
+                "settings": [
+                    {
+                        "key": "debug_action",
+                        "value": "VK_DBG_LAYER_ACTION_LOG_MSG"
+                    },
+                    {
+                        "key": "disables",
+                        "value": "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
+                    },
+                    {
+                        "key": "duplicate_message_limit",
+                        "value": "10"
+                    },
+                    {
+                        "key": "enables",
+                        "value": ""
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "stdout"
+                    },
+                    {
+                        "key": "message_id_filter",
+                        "value": ""
+                    },
+                    {
+                        "key": "report_flags",
+                        "value": "error,perf,info,warn"
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            },
+            {
+                "name": "VK_LAYER_LUNARG_device_simulation",
+                "preset_index": 0,
+                "rank": 5,
+                "settings": [
+                    {
+                        "key": "debug_enable",
+                        "value": "0"
+                    },
+                    {
+                        "key": "emulate_portability",
+                        "value": "1"
+                    },
+                    {
+                        "key": "exit_on_error",
+                        "value": "0"
+                    },
+                    {
+                        "key": "filename",
+                        "value": ""
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            }
+        ],
+        "name": "Portability",
+        "platforms": [
+            "WINDOWS",
+            "LINUX"
+        ]
+    },
+    "file_format_version": "2.1.0"
+}

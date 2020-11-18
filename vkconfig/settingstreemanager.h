@@ -61,17 +61,17 @@ class SettingsTreeManager : QObject {
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
-    void BuildKhronosTree(std::vector<LayerSetting> &settings);
+    void BuildKhronosTree(Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
 
-    int GetValidationPresentIndex(const ValidationPreset preset) const;
+    int GetPresetIndex(const int preset_index) const;
 
     QTreeWidget *_configuration_settings_tree;
     std::vector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
     std::vector<QTreeWidgetItem *> _layer_items;       // These parallel the configuration layers
 
-    QComboBox *_validation_presets_combo_box;
-    std::vector<ValidationPreset> _validation_presets;  // The preset in the combobox
+    QComboBox *_presets_combobox;
+    std::vector<int> _preset_indexes;  // The preset in the combobox
 
     QTreeWidgetItem *_validation_tree_item;
     QTreeWidgetItem *_validation_file_item;

@@ -23,17 +23,20 @@
 
 #include <cassert>
 
-EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_setting) : _layer_setting(layer_setting) {
+EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, const LayerSettingMeta& setting_meta, LayerSettingData& setting_data)
+    : setting_meta(setting_meta), setting_data(setting_data) {
     assert(item);
-    assert(&layer_setting);
+    assert(&setting_data);
 
-    item->setText(0, layer_setting.label);
-    item->setToolTip(0, layer_setting.description);
+    item->setText(0, setting_meta.label);
+    item->setToolTip(0, setting_meta.description);
 
     int selection = 0;
-    for (int i = 0; i < layer_setting.exclusive_labels.size(); i++) {
-        this->addItem(layer_setting.exclusive_labels[i]);
-        if (layer_setting.exclusive_values[i] == layer_setting.value) selection = i;
+    for (int i = 0; i < setting_meta.enum_labels.size(); i++) {
+        this->addItem(setting_meta.enum_labels[i]);
+        if (setting_meta.enum_values[i] == setting_data.value.c_str()) {
+            selection = i;
+        }
     }
 
     setCurrentIndex(selection);
@@ -42,6 +45,6 @@ EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, LayerSetting& layer_
 }
 
 void EnumSettingWidget::indexChanged(int index) {
-    _layer_setting.value = _layer_setting.exclusive_values[index];
+    setting_data.value = setting_meta.enum_values[index].toStdString();
     emit itemChanged();
 }

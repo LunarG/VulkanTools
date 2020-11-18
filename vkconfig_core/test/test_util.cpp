@@ -81,3 +81,61 @@ TEST(test_util, countof_vector_3) {
 }
 
 TEST(test_util_format, int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }
+
+TEST(test_util_format, delimited_string) {
+    std::string delimited_string;
+
+    AppendString(delimited_string, "A");
+    EXPECT_STREQ("A", delimited_string.c_str());
+
+    AppendString(delimited_string, "A");  // A was already added to the delimited string and can only exist once
+    EXPECT_STREQ("A", delimited_string.c_str());
+
+    RemoveString(delimited_string, "B");  // B doesn't exist in delimited_string
+    EXPECT_STREQ("A", delimited_string.c_str());
+
+    AppendString(delimited_string, "B");
+    EXPECT_STREQ("A,B", delimited_string.c_str());
+
+    AppendString(delimited_string, "C");
+    EXPECT_STREQ("A,B,C", delimited_string.c_str());
+
+    RemoveString(delimited_string, "B");
+    EXPECT_STREQ("A,C", delimited_string.c_str());
+
+    RemoveString(delimited_string, "C");
+    EXPECT_STREQ("A", delimited_string.c_str());
+
+    RemoveString(delimited_string, "A");
+    EXPECT_STREQ("", delimited_string.c_str());
+}
+
+TEST(test_util_format, find) {
+    struct Element {
+        std::string key;
+    };
+
+    std::vector<Element> container;
+    EXPECT_EQ(nullptr, FindByKey(container, "D"));
+
+    Element elementA;
+    elementA.key = "A";
+    Element elementB;
+    elementB.key = "B";
+    Element elementC;
+    elementC.key = "C";
+
+    container.push_back(elementA);
+    container.push_back(elementB);
+    container.push_back(elementC);
+
+    EXPECT_STREQ("A", FindByKey(container, "A")->key.c_str());
+    EXPECT_STREQ("B", FindByKey(container, "B")->key.c_str());
+    EXPECT_STREQ("C", FindByKey(container, "C")->key.c_str());
+    EXPECT_EQ(nullptr, FindByKey(container, "D"));
+
+    EXPECT_STREQ("A", FindItByKey(container, "A")->key.c_str());
+    EXPECT_STREQ("B", FindItByKey(container, "B")->key.c_str());
+    EXPECT_STREQ("C", FindItByKey(container, "C")->key.c_str());
+    EXPECT_EQ(container.end(), FindItByKey(container, "D"));
+}

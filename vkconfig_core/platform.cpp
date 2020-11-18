@@ -21,6 +21,49 @@
 #include "platform.h"
 #include "util.h"
 
+int GetPlatformFlags(const std::vector<std::string>& platform_strings) {
+    int result = 0;
+
+    for (std::size_t i = 0, n = platform_strings.size(); i < n; ++i) {
+        result |= 1 << GetPlatformType(platform_strings[i].c_str());
+    }
+
+    return result;
+}
+
+std::vector<std::string> GetPlatformTokens(int platform_flags) {
+    std::vector<std::string> result;
+
+    for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
+        if (platform_flags & (1 << i)) {
+            result.push_back(GetToken(static_cast<PlatformType>(i)));
+        }
+    }
+
+    return result;
+}
+
+const char* GetToken(PlatformType type) {
+    static const char* table[] = {
+        "WINDOWS",  // PLATFORM_WINDOWS
+        "LINUX",    // PLATFORM_LINUX
+        "MACOS"     // PLATFORM_MACOS
+    };
+    static_assert(countof(table) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return table[type];
+}
+
+PlatformType GetPlatformType(const char* token) {
+    for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
+        const PlatformType platform_type = static_cast<PlatformType>(i);
+        if (strcmp(GetToken(platform_type), token) == 0) return platform_type;
+    }
+
+    assert(0);
+    return static_cast<PlatformType>(-1);
+}
+
 const char* GetToken(StatusType type) {
     static const char* table[] = {
         "STABLE",  // STATUS_STABLE
@@ -46,9 +89,9 @@ const char* GetPlatformString(PlatformString platform_string) {
     static const char* table[][PLATFORM_COUNT] = {
         {
             // PLATFORM_STRING_OS
-            "windows",  // PLATFORM_WINDOWS
-            "linux",    // PLATFORM_LINUX
-            "mac"       // PLATFORM_MACOS
+            GetToken(PLATFORM_WINDOWS),  // PLATFORM_WINDOWS
+            GetToken(PLATFORM_LINUX),    // PLATFORM_LINUX
+            GetToken(PLATFORM_MACOS)     // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_APP_SUFFIX
@@ -99,10 +142,16 @@ const char* GetPlatformString(PlatformString platform_string) {
             "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
         },
         {
-            // PLATFORM_STRING_PATH_CONFIGURATION
-            "/AppData/Local/LunarG/vkconfig",         // PLATFORM_WINDOWS
+            // PLATFORM_STRING_PATH_VKC_USER_DIR
+            "/AppData/Local/LunarG/vkconfig/",        // PLATFORM_WINDOWS
             "/.local/share/vulkan/lunarg-vkconfig/",  // PLATFORM_LINUX
             "/.local/share/vulkan/lunarg-vkconfig/"   // PLATFORM_MACOS
+        },
+        {
+            // PLATFORM_STRING_PATH_CONFIGURATION
+            "/AppData/Local/LunarG/vkconfig/configurations/",        // PLATFORM_WINDOWS
+            "/.local/share/vulkan/lunarg-vkconfig/configurations/",  // PLATFORM_LINUX
+            "/.local/share/vulkan/lunarg-vkconfig/configurations/"   // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_PATH_OVERRIDE_LAYERS

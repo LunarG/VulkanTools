@@ -34,7 +34,8 @@ class FileSystemSettingWidget : public QWidget {
     Q_OBJECT
 
    public:
-    explicit FileSystemSettingWidget(QTreeWidgetItem *item, LayerSetting &layer_setting, SettingType setting_type);
+    explicit FileSystemSettingWidget(QTreeWidgetItem *item, const LayerSettingMeta &layer_setting_meta,
+                                     LayerSettingData &layer_setting_data);
 
    public Q_SLOTS:
     void browseButtonClicked();
@@ -53,7 +54,8 @@ class FileSystemSettingWidget : public QWidget {
     const Mode _mode;
     Mode GetMode(SettingType type) const;
 
-    LayerSetting &_layer_setting;
+    const LayerSettingMeta &layer_setting_meta;
+    LayerSettingData &layer_setting_data;
     QLineEdit *_line_edit;
     QPushButton *_push_button;
 };

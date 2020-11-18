@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_type.h"
+#include "layer_setting_type.h"
 #include "util.h"
 
 #include <cstring>

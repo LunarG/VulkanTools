@@ -28,38 +28,26 @@
 
 #include <vector>
 
-// json file preset_index must match the preset enum values
-enum ValidationPreset {
-    ValidationPresetNone = 0,
-    ValidationPresetUserDefined = ValidationPresetNone,
-    ValidationPresetStandard = 1,
-    ValidationPresetGPUAssisted = 2,
-    ValidationPresetDebugPrintf = 3,
-    ValidationPresetReducedOverhead = 4,
-    ValidationPresetBestPractices = 5,
-    ValidationPresetSynchronization = 6,
-
-    ValidationPresetFirst = ValidationPresetUserDefined,
-    ValidationPresetLast = ValidationPresetSynchronization
-};
-
-enum { ValidationPresetCount = ValidationPresetLast - ValidationPresetFirst + 1 };
-
 class Configuration {
    public:
     Configuration();
 
     bool Load(const QString& full_path);
     bool Save(const QString& full_path) const;
+    bool IsAvailableOnThisPlatform() const;
 
-    QString name;                    // User readable display of the profile name (may contain spaces)
-    QString _description;            // A friendly description of what this profile does
-    QByteArray _setting_tree_state;  // Recall editor tree state
-    ValidationPreset _preset;        // Khronos layer presets. 0 = none or user defined
+    QString key;  // User readable display of the profile name (may contain spaces)
+    int platform_flags;
+    QString description;            // A friendly description of what this profile does
+    QByteArray setting_tree_state;  // Recall editor tree state
 
     std::vector<Parameter> parameters;
 
     bool IsEmpty() const;
+
+   private:
+    bool Load2_0(const QJsonObject& json_root_object, const QString& full_path);
+    bool Load2_1(const QJsonObject& json_root_object);
 };
 
 QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name);

@@ -64,10 +64,10 @@ void VulkanAnalysisDialog::Run() {
     via->setProgram("vkvia");
 #endif
 
-    QString filePath = QDir::temp().path() + "/vkvia.json";
+    const QString &file_Path = QDir::temp().path() + "/vkvia.json";
 
     // Remove the old one
-    remove(filePath.toUtf8().constData());
+    remove(file_Path.toUtf8().constData());
 
     QStringList args;
     args << "--output_path" << QDir::temp().path();
@@ -77,7 +77,7 @@ void VulkanAnalysisDialog::Run() {
     via->start();
     via->waitForFinished();
 
-    QFile file(filePath);
+    QFile file(file_Path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox msgBox;
         msgBox.setText(tr("Error running vkvia. Is your SDK up to date and installed properly?"));
@@ -85,84 +85,83 @@ void VulkanAnalysisDialog::Run() {
         return;
     }
 
-    QString jsonText = file.readAll();
+    QString json_text = file.readAll();
     file.close();
 
     //////////////////////////////////////////////////////
     // Convert the text to a JSON document & validate it
-    QJsonDocument jsonDoc;
-    QJsonParseError parseError;
-    jsonDoc = QJsonDocument::fromJson(jsonText.toUtf8(), &parseError);
+    QJsonParseError parse_error;
+    QJsonDocument json_document = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
 
-    if (parseError.error != QJsonParseError::NoError) {
+    if (parse_error.error != QJsonParseError::NoError) {
         QMessageBox msgBox;
         msgBox.setWindowTitle("Cannot parse vkvia output.");
-        msgBox.setText(parseError.errorString());
+        msgBox.setText(parse_error.errorString());
         msgBox.exec();
         return;
     }
 
-    if (jsonDoc.isEmpty() || jsonDoc.isNull()) return;
+    if (json_document.isEmpty() || json_document.isNull()) return;
 
     /////////////////////////////////////////////////////////
     // Get the instance version and set that to the header
     QString output;
-    QJsonObject jsonObject = jsonDoc.object();
+    const QJsonObject &json_object = json_document.object();
 
     ///////////////////////////////////// System Info
     // Get the extensions object and process it's members
-    QJsonValue environmentValue = jsonObject.value(QString(tr("Environment")));
+    QJsonValue environmentValue = json_object.value(QString(tr("Environment")));
     QJsonObject environmentObject = environmentValue.toObject();
     LoadTable(environmentObject, ui->envTable);
 
-    QJsonValue hardwareValue = jsonObject.value(QString(tr("Hardware")));
+    QJsonValue hardwareValue = json_object.value(QString(tr("Hardware")));
     QJsonObject hardwareObject = hardwareValue.toObject();
     LoadTable(hardwareObject, ui->hardwareTable);
 
-    QJsonValue executableValue = jsonObject.value(QString(tr("Executable Info")));
+    QJsonValue executableValue = json_object.value(QString(tr("Executable Info")));
     QJsonObject executableObject = executableValue.toObject();
     LoadTable(executableObject, ui->executableTable);
 
-    QJsonValue vkDriverInfo = jsonObject.value(QString(tr("Vulkan Driver Info")));
+    QJsonValue vkDriverInfo = json_object.value(QString(tr("Vulkan Driver Info")));
     QJsonObject vkDriverObject = vkDriverInfo.toObject();
     LoadTable(vkDriverObject, ui->vkDriverInfoTable);
 
-    QJsonValue vkRunTimeValue = jsonObject.value(QString(tr("Vulkan Runtimes")));
+    QJsonValue vkRunTimeValue = json_object.value(QString(tr("Vulkan Runtimes")));
     QJsonObject vkRunTimeObject = vkRunTimeValue.toObject();
     LoadTable(vkRunTimeObject, ui->vkRuntimesTable);
 
-    QJsonValue lunarGSDKValue = jsonObject.value(QString(tr("LunarG Vulkan SDKs")));
+    QJsonValue lunarGSDKValue = json_object.value(QString(tr("LunarG Vulkan SDKs")));
     QJsonObject lunarGSDKObject = lunarGSDKValue.toObject();
     LoadTable(lunarGSDKObject, ui->lunarGSDKTable);
 
-    QJsonValue vkImplicitValue = jsonObject.value(QString(tr("Vulkan Implicit Layers")));
+    QJsonValue vkImplicitValue = json_object.value(QString(tr("Vulkan Implicit Layers")));
     QJsonObject vkImplicitObject = vkImplicitValue.toObject();
     LoadTable(vkImplicitObject, ui->implicitLayersTable);
 
-    QJsonValue vkExplicitValue = jsonObject.value(QString(tr("Vulkan Explicit Layers")));
+    QJsonValue vkExplicitValue = json_object.value(QString(tr("Vulkan Explicit Layers")));
     QJsonObject vkExplicitObject = vkExplicitValue.toObject();
     LoadTable(vkExplicitObject, ui->explicitLayersTable);
 
-    QJsonValue vkLayerSettingsValue = jsonObject.value(QString(tr("Vulkan Layer Settings File")));
+    QJsonValue vkLayerSettingsValue = json_object.value(QString(tr("Vulkan Layer Settings File")));
     QJsonObject vkLayerSettingsObject = vkLayerSettingsValue.toObject();
     LoadTable(vkLayerSettingsObject, ui->layerSettingsTable);
 
     /////////////////////////// Vulkan API Calls
-    QJsonValue instanceValue = jsonObject.value(QString(tr("Instance")));
+    QJsonValue instanceValue = json_object.value(QString(tr("Instance")));
     QJsonObject instanceObject = instanceValue.toObject();
     LoadTable(instanceObject, ui->instanceTable);
 
-    QJsonObject devicesObject = jsonObject.value(QString(tr("Physical Devices"))).toObject();
+    QJsonObject devicesObject = json_object.value(QString(tr("Physical Devices"))).toObject();
     LoadTable(devicesObject, ui->physicalDevicesTable);
 
-    QJsonObject logicalObject = jsonObject.value(QString(tr("Logical Devices"))).toObject();
+    QJsonObject logicalObject = json_object.value(QString(tr("Logical Devices"))).toObject();
     LoadTable(logicalObject, ui->logicalDevicesTable);
 
-    QJsonObject cleanupObject = jsonObject.value(QString(tr("Cleanup"))).toObject();
+    QJsonObject cleanupObject = json_object.value(QString(tr("Cleanup"))).toObject();
     LoadTable(cleanupObject, ui->cleanupTable);
 
     /////////////////////////////////// External Tests
-    QJsonValue cubeValue = jsonObject.value(QString(tr("Cube"))).toObject();
+    QJsonValue cubeValue = json_object.value(QString(tr("Cube"))).toObject();
     QJsonObject cubeObject = cubeValue.toObject();
     if (!cubeObject.isEmpty())
         LoadTable(cubeObject, ui->externalTestsTable);
@@ -179,31 +178,31 @@ void VulkanAnalysisDialog::Run() {
     show();
 }
 
-void VulkanAnalysisDialog::LoadTable(QJsonObject &jsonParent, QTableWidget *pTable) {
+void VulkanAnalysisDialog::LoadTable(QJsonObject &json_parent, QTableWidget *table) {
     // How many items does this object contain?
-    int nHowManyRows = jsonParent.size();
-    pTable->setRowCount(nHowManyRows);
+    int nHowManyRows = json_parent.size();
+    table->setRowCount(nHowManyRows);
 
     // Get the first item in the table, and see how many items it has. This
     // will be the number of columns
-    QJsonValue rowValue = jsonParent.value("0");
+    QJsonValue rowValue = json_parent.value("0");
     QJsonObject rowObject = rowValue.toObject();
     int nHowManyCols = rowObject.size();
-    pTable->setColumnCount(nHowManyCols);
+    table->setColumnCount(nHowManyCols);
 
-    pTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     // Now just iterate and fill in the cells
     for (int row = 0; row < nHowManyRows; row++) {
-        rowValue = jsonParent.value(QString().asprintf("%d", row));
+        rowValue = json_parent.value(QString().asprintf("%d", row));
         rowObject = rowValue.toObject();
 
         for (int col = 0; col < nHowManyCols; col++) {
             QJsonValue colValue = rowObject.value(QString().asprintf("%d", col));
             QString text = colValue.toString();
-            QTableWidgetItem *pItem = new QTableWidgetItem;
-            pItem->setText(text);
-            pTable->setItem(row, col, pItem);
+            QTableWidgetItem *item = new QTableWidgetItem;
+            item->setText(text);
+            table->setItem(row, col, item);
         }
     }
 }

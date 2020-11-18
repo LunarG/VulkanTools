@@ -151,12 +151,12 @@ TEST(test_parameter, find) {
     std::vector<Parameter> parameters = GenerateTestParametersExist();
 
     {
-        auto parameter = FindParameter(parameters, "Layer E1");
-        EXPECT_STREQ("Layer E1", parameter->name.toUtf8().constData());
+        auto parameter = FindItByKey(parameters, "Layer E1");
+        EXPECT_STREQ("Layer E1", parameter->key.c_str());
     }
 
     {
-        auto parameter = FindParameter(parameters, "Layer E4");
+        auto parameter = FindItByKey(parameters, "Layer E4");
         EXPECT_EQ(parameters.end(), parameter);
     }
 }
@@ -168,75 +168,121 @@ TEST(test_parameter, order_automatic) {
     OrderParameter(parameters, layers);
 
     // Missing
-    EXPECT_STREQ("Layer C3", parameters[0].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C4", parameters[1].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C5", parameters[2].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E3", parameters[3].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E4", parameters[4].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E5", parameters[5].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I3", parameters[6].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I4", parameters[7].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I5", parameters[8].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C3", parameters[0].key.c_str());
+    EXPECT_STREQ("Layer C4", parameters[1].key.c_str());
+    EXPECT_STREQ("Layer C5", parameters[2].key.c_str());
+    EXPECT_STREQ("Layer E3", parameters[3].key.c_str());
+    EXPECT_STREQ("Layer E4", parameters[4].key.c_str());
+    EXPECT_STREQ("Layer E5", parameters[5].key.c_str());
+    EXPECT_STREQ("Layer I3", parameters[6].key.c_str());
+    EXPECT_STREQ("Layer I4", parameters[7].key.c_str());
+    EXPECT_STREQ("Layer I5", parameters[8].key.c_str());
 
     // Exclude
-    EXPECT_STREQ("Layer C1", parameters[9].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E1", parameters[10].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I1", parameters[11].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C1", parameters[9].key.c_str());
+    EXPECT_STREQ("Layer E1", parameters[10].key.c_str());
+    EXPECT_STREQ("Layer I1", parameters[11].key.c_str());
 
     // Implicit application controlled
-    EXPECT_STREQ("Layer I2", parameters[12].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I2", parameters[12].key.c_str());
 
     // Implicit overriden
-    EXPECT_STREQ("Layer I0", parameters[13].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I0", parameters[13].key.c_str());
 
     // Explicit overriden
-    EXPECT_STREQ("Layer C0", parameters[14].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E0", parameters[15].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C0", parameters[14].key.c_str());
+    EXPECT_STREQ("Layer E0", parameters[15].key.c_str());
 
     // Explicit application controlled
-    EXPECT_STREQ("Layer C2", parameters[16].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E2", parameters[17].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
+    EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
 }
 
 TEST(test_parameter, order_manual) {
     std::vector<Layer> layers = GenerateTestLayers();
     std::vector<Parameter> parameters = GenerateTestParametersAll();
 
-    auto layer_e0 = FindParameter(parameters, "Layer E0");
+    auto layer_e0 = FindItByKey(parameters, "Layer E0");
     layer_e0->overridden_rank = 14;
 
-    auto layer_c0 = FindParameter(parameters, "Layer C0");
+    auto layer_c0 = FindItByKey(parameters, "Layer C0");
     layer_c0->overridden_rank = 15;
 
     OrderParameter(parameters, layers);
 
     // Missing
-    EXPECT_STREQ("Layer C3", parameters[0].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C4", parameters[1].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C5", parameters[2].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E3", parameters[3].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E4", parameters[4].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E5", parameters[5].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I3", parameters[6].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I4", parameters[7].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I5", parameters[8].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C3", parameters[0].key.c_str());
+    EXPECT_STREQ("Layer C4", parameters[1].key.c_str());
+    EXPECT_STREQ("Layer C5", parameters[2].key.c_str());
+    EXPECT_STREQ("Layer E3", parameters[3].key.c_str());
+    EXPECT_STREQ("Layer E4", parameters[4].key.c_str());
+    EXPECT_STREQ("Layer E5", parameters[5].key.c_str());
+    EXPECT_STREQ("Layer I3", parameters[6].key.c_str());
+    EXPECT_STREQ("Layer I4", parameters[7].key.c_str());
+    EXPECT_STREQ("Layer I5", parameters[8].key.c_str());
 
     // Exclude
-    EXPECT_STREQ("Layer C1", parameters[9].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E1", parameters[10].name.toUtf8().constData());
-    EXPECT_STREQ("Layer I1", parameters[11].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C1", parameters[9].key.c_str());
+    EXPECT_STREQ("Layer E1", parameters[10].key.c_str());
+    EXPECT_STREQ("Layer I1", parameters[11].key.c_str());
 
     // Implicit application controlled
-    EXPECT_STREQ("Layer I2", parameters[12].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I2", parameters[12].key.c_str());
 
     // Implicit overriden
-    EXPECT_STREQ("Layer I0", parameters[13].name.toUtf8().constData());
+    EXPECT_STREQ("Layer I0", parameters[13].key.c_str());
 
     // Explicit overriden with manual override!
-    EXPECT_STREQ("Layer E0", parameters[14].name.toUtf8().constData());
-    EXPECT_STREQ("Layer C0", parameters[15].name.toUtf8().constData());
+    EXPECT_STREQ("Layer E0", parameters[14].key.c_str());
+    EXPECT_STREQ("Layer C0", parameters[15].key.c_str());
 
     // Explicit application controlled
-    EXPECT_STREQ("Layer C2", parameters[16].name.toUtf8().constData());
-    EXPECT_STREQ("Layer E2", parameters[17].name.toUtf8().constData());
+    EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
+    EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
+}
+
+TEST(test_parameter, find_setting) {
+    LayerSettingData layer_setting_a;
+    layer_setting_a.key = "A";
+    layer_setting_a.value = "setting value a";
+
+    LayerSettingData layer_setting_b;
+    layer_setting_b.key = "B";
+    layer_setting_b.value = "setting value b";
+
+    LayerSettingData layer_setting_c;
+    layer_setting_c.key = "C";
+    layer_setting_c.value = "setting value c";
+
+    Parameter parameter;
+    parameter.settings.push_back(layer_setting_a);
+    parameter.settings.push_back(layer_setting_b);
+    parameter.settings.push_back(layer_setting_c);
+
+    EXPECT_STREQ("setting value b", FindByKey(parameter.settings, "B")->value.c_str());
+}
+
+TEST(test_parameter, apply_settings) {
+    LayerSettingData preset_setting;
+    preset_setting.key = "A";
+    preset_setting.value = "preset value";
+
+    LayerPreset preset;
+    preset.settings.push_back(preset_setting);
+
+    LayerSettingData layer_setting_a;
+    layer_setting_a.key = "A";
+    layer_setting_a.value = "setting value";
+
+    LayerSettingData layer_setting_b;
+    layer_setting_b.key = "B";
+    layer_setting_b.value = "setting value";
+
+    Parameter parameter;
+    parameter.settings.push_back(layer_setting_a);
+    parameter.settings.push_back(layer_setting_b);
+
+    ApplySettings(parameter, preset);
+
+    EXPECT_STREQ("preset value", FindByKey(parameter.settings, "A")->value.c_str());
 }

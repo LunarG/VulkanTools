@@ -31,7 +31,7 @@ TEST(test_override, override_and_surrender) {
 
     std::vector<Layer> available_layers;
     Layer layer;
-    layer.name = "VK_LAYER_KHRONOS_validation";
+    layer.key = "VK_LAYER_KHRONOS_validation";
     available_layers.push_back(layer);
 
     Configuration configuration;
