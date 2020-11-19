@@ -50,7 +50,7 @@ sudo apt-get install libc6-dev-i386 g++-multilib
 
 Optional software packages:
 
-On Ubuntu 18.04 LTS or newer, you may build [Vulkan Configurator](./vkconfig/vkconfig.md) only if you also install several
+On Ubuntu 18.04 LTS or newer, you may build [Vulkan Configurator](./vkconfig/README.md) only if you also install several
 additional Qt dependencies:
 
 ```
@@ -159,7 +159,7 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
     mkdir build
     ./update_external_sources.sh
     cd build
-    ../scripts/update_deps.py
+    python3 ../scripts/update_deps.py
     cmake -C helper.cmake ..
     cmake --build .
 ```
