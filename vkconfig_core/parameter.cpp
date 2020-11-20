@@ -22,6 +22,7 @@
 #include "platform.h"
 #include "version.h"
 #include "util.h"
+#include "path.h"
 
 #include <QJsonArray>
 

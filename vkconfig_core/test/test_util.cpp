@@ -19,6 +19,7 @@
  */
 
 #include "../util.h"
+#include "../platform.h"
 
 #include <array>
 
@@ -80,17 +81,3 @@ TEST(test_util, countof_vector_3) {
 }
 
 TEST(test_util_format, int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }
-
-TEST(test_util, validate_path) {
-    const std::string validated_path = ValidatePath("/waotsra/aflkshjaksl/test.txt");
-
-    const QString ref_path = QDir::toNativeSeparators(QDir().homePath() + "/vulkan-sdk/test.txt");
-
-    EXPECT_STREQ(ref_path.toStdString().c_str(), validated_path.c_str());
-}
-
-TEST(test_util, replace_path) {
-    const std::string replaced_path = ReplacePathBuiltInVariables("$HOME/test.txt");
-
-    EXPECT_TRUE(replaced_path.find_first_of("$HOME") > replaced_path.size());
-}

@@ -55,15 +55,6 @@ std::string format(const char* message, ...);
 
 bool IsNumber(const std::string& s);
 
-// Create a directory if it doesn't exist
-void CheckPathsExist(const QString& path);
-
-// Replace "$HOME" built-in variable by the actual system home directory
-std::string ReplacePathBuiltInVariables(const std::string& path);
-
-// Exact the filename and change the path to "$HOME" directory if necessary
-std::string ValidatePath(const std::string& path);
-
 template <typename T>
 typename std::vector<T>::iterator Find(std::vector<T>& container, const QString& name) {
     assert(!name.isEmpty());

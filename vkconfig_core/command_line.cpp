@@ -200,6 +200,10 @@ CommandLine::CommandLine(int argc, char* argv[])
             _error_args.push_back(argv[arg_offset + 0]);
             break;
         }
+        case COMMAND_GUI:
+        case COMMAND_VERSION: {
+            break;
+        }
     }
 
     if (_error != ERROR_NONE) {

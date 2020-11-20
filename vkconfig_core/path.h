@@ -20,17 +20,31 @@
 
 #pragma once
 
-#include "path.h"
+#include <string>
 
-#include <QString>
+class Path {
+   public:
+    Path();
+    explicit Path(const char* path);
 
-struct Application {
-    Application() {}
-    Application(const QString& executable_full_path, const QString& arguments);
+    Path& operator=(const std::string& path);
 
-    Path executable_path;
-    Path working_folder;
-    QString arguments;
-    Path log_file;
-    bool override_layers;
+    const char* c_str() const;
+    bool empty() const { return data.empty(); }
+
+   private:
+    std::string data;
 };
+
+std::string ConvertNativeSeparators(const std::string& path);
+
+const char* GetNativeSeparator();
+
+// Create a directory if it doesn't exist
+void CheckPathsExist(const std::string& path);
+
+// Replace "$HOME" built-in variable by the actual system home directory
+std::string ReplacePathBuiltInVariables(const std::string& path);
+
+// Exact the filename and change the path to "$HOME" directory if necessary
+std::string ValidatePath(const std::string& path);

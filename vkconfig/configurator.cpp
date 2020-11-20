@@ -27,6 +27,7 @@
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/path.h"
 #include "../vkconfig_core/override.h"
 
 #include <Qt>
@@ -234,7 +235,7 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
 
     for (int custom_path_index = 0, n = custom_layer_paths.size(); custom_path_index < n; ++custom_path_index) {
         // Custom path is the parent tree item
-        const QString &custom_path = QDir::toNativeSeparators(custom_layer_paths[custom_path_index]);
+        const QString custom_path(ConvertNativeSeparators(custom_layer_paths[custom_path_index].toStdString()).c_str());
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, custom_path);
@@ -244,8 +245,8 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
         for (std::size_t i = 0, n = layers.available_layers.size(); i < n; i++) {
             const Layer &layer = layers.available_layers[i];
 
-            QFileInfo fileInfo = layer._layer_path;
-            QString path = QDir::toNativeSeparators(fileInfo.path());
+            const QFileInfo file_info(layer._layer_path);
+            const QString path(ConvertNativeSeparators(file_info.path().toStdString()).c_str());
             if (path != custom_path) continue;
 
             QTreeWidgetItem *child = new QTreeWidgetItem();

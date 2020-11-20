@@ -22,6 +22,8 @@
 
 #include "widget_filesystem_setting.h"
 
+#include "../vkconfig_core/path.h"
+
 #include <cassert>
 
 // This can be used to specify a 'load' file or a 'save' file. Save is true by default
@@ -78,7 +80,7 @@ void FileSystemSettingWidget::browseButtonClicked() {
     }
 
     if (!file.isEmpty()) {
-        file = QDir::toNativeSeparators(file);
+        file = ConvertNativeSeparators(file.toStdString()).c_str();
         _layer_setting.value = file;
         _line_edit->setText(file);
         emit itemChanged();

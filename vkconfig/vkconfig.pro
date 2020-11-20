@@ -36,6 +36,7 @@ SOURCES += \
     ../vkconfig_core/layer_type.cpp \
     ../vkconfig_core/override.cpp \
     ../vkconfig_core/parameter.cpp \
+    ../vkconfig_core/path.cpp \
     ../vkconfig_core/path_manager.cpp \
     ../vkconfig_core/platform.cpp \
     ../vkconfig_core/setting_value.cpp \
@@ -80,6 +81,7 @@ HEADERS += \
     ../vkconfig_core/layer_type.h \
     ../vkconfig_core/override.h \
     ../vkconfig_core/parameter.h \
+    ../vkconfig_core/path.h \
     ../vkconfig_core/path_manager.h \
     ../vkconfig_core/registry.h \
     ../vkconfig_core/util.h \

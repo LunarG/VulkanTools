@@ -152,4 +152,4 @@ build_script:
   - cmake --build . --parallel --config %CONFIGURATION% -- /m /v:minimal
 
 test_script:
-  ctest -j 8 --output-on-failure -C %CONFIGURATION%
+  ctest --parallel 8 --output-on-failure -C %CONFIGURATION%

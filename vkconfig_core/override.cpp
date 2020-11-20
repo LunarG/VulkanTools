@@ -53,7 +53,7 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
 
         // Extract just the path
         const QFileInfo file(layer->_layer_path);
-        const QString absolute_path = QDir().toNativeSeparators(file.absolutePath());
+        const QString absolute_path(ConvertNativeSeparators(file.absolutePath().toStdString()).c_str());
 
         // Make sure the path is not already in the list
         if (layer_override_paths.contains(absolute_path)) continue;
@@ -64,7 +64,7 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
 
     QJsonArray json_paths;
     for (int i = 0, n = layer_override_paths.count(); i < n; ++i) {
-        json_paths.append(QDir::toNativeSeparators(layer_override_paths[i]));
+        json_paths.append(ConvertNativeSeparators(layer_override_paths[i].toStdString()).c_str());
     }
 
     QJsonArray json_overridden_layers;
@@ -99,8 +99,9 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
             if (!applications[i].override_layers) continue;
 
-            const QString& executable_path =
-                QDir::toNativeSeparators(QFileInfo(applications[i].executable_path).absoluteFilePath());
+            const QString& executable_path(
+                ConvertNativeSeparators(QFileInfo(applications[i].executable_path.c_str()).absoluteFilePath().toStdString())
+                    .c_str());
             assert(QFileInfo(executable_path).exists());
             json_applist.append(executable_path);
         }

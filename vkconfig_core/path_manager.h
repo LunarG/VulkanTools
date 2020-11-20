@@ -20,13 +20,15 @@
 
 #pragma once
 
+#include "path.h"
+
 #include <QString>
 #include <QWidget>
 
 #include <array>
 #include <string>
 
-enum Path {
+enum PathType {
     PATH_CONFIGURATION = 0,     // Where config working files live
     PATH_OVERRIDE_SETTINGS,     // Where settings go when profile is active
     PATH_OVERRIDE_LAYERS,       // Where json goes when profile is active
@@ -60,23 +62,23 @@ class PathManager {
     bool Load();
     bool Save();
 
-    const char* GetPath(Path path) const;
+    const char* GetPath(PathType path) const;
 
     // The path value should not have the filename
-    void SetPath(Path path, const char* path_value);
+    void SetPath(PathType path, const char* path_value);
 
     // The path value should not have the filename
-    void SetPath(Path path, const QString& path_value);
+    void SetPath(PathType path, const std::string& path_value);
 
     // When filename is set to nullptr, the function will try to use the default filename if there is one for the DirectoryType
-    QString GetFullPath(Path path, const char* filename = nullptr) const;
-    QString GetFullPath(Path path, const QString& filename) const;
+    QString GetFullPath(PathType path, const char* filename = nullptr) const;
+    QString GetFullPath(PathType path, const QString& filename) const;
     QString GetFullPath(Filename filename) const;
 
     QString GetFilename(const char* full_path) const;
 
-    QString SelectPath(QWidget* parent, Path path);
-    QString SelectPath(QWidget* parent, Path path, const QString& suggested_path);
+    QString SelectPath(QWidget* parent, PathType path);
+    QString SelectPath(QWidget* parent, PathType path, const QString& suggested_path);
 
     void Clear();
     void Reset();
@@ -85,7 +87,7 @@ class PathManager {
     PathManager(const PathManager&) = delete;
     PathManager& operator=(const PathManager&) = delete;
 
-    QString SelectPathImpl(QWidget* parent, Path path, const QString& suggested_path);
+    QString SelectPathImpl(QWidget* parent, PathType path, const QString& suggested_path);
 
     std::array<std::string, PATH_COUNT> paths;
 };

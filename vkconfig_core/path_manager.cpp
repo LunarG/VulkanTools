@@ -38,10 +38,10 @@ struct DirectoryDesc {
     const char* setting;            // system token to store the path, if empty the directory is not saved
     const char* default_filename;   // a default filename, if empty there is no default filename
     const bool resettable;
-    Path alternative;
+    PathType alternative;
 };
 
-static const DirectoryDesc& GetDesc(Path directory) {
+static const DirectoryDesc& GetDesc(PathType directory) {
     assert(directory >= PATH_FIRST && directory <= PATH_LAST);
 
     static const DirectoryDesc table[] = {
@@ -86,16 +86,16 @@ PathManager::~PathManager() {
 }
 
 bool PathManager::Load() {
-    paths[PATH_HOME] = QDir::toNativeSeparators(QDir::homePath()).toStdString();
+    paths[PATH_HOME] = ConvertNativeSeparators(QDir::homePath().toStdString());
 
     QSettings settings;
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
-        const Path type = static_cast<Path>(i);
+        const PathType type = static_cast<PathType>(i);
         if (GetDesc(type).setting == nullptr) continue;
         paths[type] = settings.value(GetDesc(type).setting).toString().toUtf8().constData();
     }
 
-    const QString base_path = QDir::home().path();
+    const std::string base_path = ConvertNativeSeparators(QDir::home().path().toStdString());
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
@@ -109,7 +109,7 @@ bool PathManager::Load() {
 bool PathManager::Save() {
     QSettings settings;
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
-        const Path type = static_cast<Path>(i);
+        const PathType type = static_cast<PathType>(i);
         if (GetDesc(type).setting == nullptr) continue;
         settings.setValue(GetDesc(type).setting, paths[type].c_str());
     }
@@ -119,16 +119,16 @@ bool PathManager::Save() {
 
 void PathManager::Clear() {
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
-        const Path type = static_cast<Path>(i);
+        const PathType type = static_cast<PathType>(i);
         paths[type].clear();
     }
 
-    paths[PATH_HOME] = QDir::toNativeSeparators(QDir::homePath()).toStdString();
+    paths[PATH_HOME] = ConvertNativeSeparators(QDir::homePath().toStdString());
 }
 
 void PathManager::Reset() {
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
-        const Path type = static_cast<Path>(i);
+        const PathType type = static_cast<PathType>(i);
 
         if (GetDesc(type).resettable) {
             paths[type].clear();
@@ -136,14 +136,14 @@ void PathManager::Reset() {
     }
 }
 
-const char* PathManager::GetPath(Path path) const {
+const char* PathManager::GetPath(PathType path) const {
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
     if (!paths[path].empty()) {
         return paths[path].c_str();
     }
 
-    const Path alternative_path = GetDesc(path).alternative;
+    const PathType alternative_path = GetDesc(path).alternative;
     if (!paths[alternative_path].empty()) {
         return paths[alternative_path].c_str();
     }
@@ -153,22 +153,22 @@ const char* PathManager::GetPath(Path path) const {
     return paths[PATH_HOME].c_str();
 }
 
-void PathManager::SetPath(Path path, const char* path_value) {
+void PathManager::SetPath(PathType path, const char* path_value) {
     assert(path >= PATH_FIRST && path <= PATH_LAST);
     assert(path_value);
 
     const QDir directory(path_value);
-    const QString native_path = QDir::toNativeSeparators(directory.absolutePath());
+    const QString native_path(ConvertNativeSeparators(directory.absolutePath().toStdString()).c_str());
     paths[path] = native_path.toUtf8().constData();
 }
 
-void PathManager::SetPath(Path directory, const QString& path_value) {
-    assert(!path_value.isEmpty());
+void PathManager::SetPath(PathType directory, const std::string& path_value) {
+    assert(!path_value.empty());
 
-    SetPath(directory, path_value.toStdString().c_str());
+    SetPath(directory, path_value.c_str());
 }
 
-QString PathManager::GetFullPath(Path path, const char* filename) const {
+QString PathManager::GetFullPath(PathType path, const char* filename) const {
     const QFileInfo file_info(filename);
 
     const QString path_base = GetPath(path);
@@ -180,18 +180,20 @@ QString PathManager::GetFullPath(Path path, const char* filename) const {
         !file_info.completeSuffix().isEmpty() ? QString(".") + file_info.completeSuffix() : GetDesc(path).default_extension;
     assert(!path_suffix.isEmpty() || VKC_PLATFORM != VKC_PLATFORM_WINDOWS);  // Only Windows has a suffix for executable
 
-    const QString full_path = QDir::toNativeSeparators(path_base + "/" + path_filename + path_suffix);
+    const QString full_path(
+        ConvertNativeSeparators((path_base + GetNativeSeparator() + path_filename + path_suffix).toStdString()).c_str());
     return full_path;
 }
 
-QString PathManager::GetFullPath(Path path, const QString& filename) const {
+QString PathManager::GetFullPath(PathType path, const QString& filename) const {
     return GetFullPath(path, filename.toStdString().c_str());
 }
 
 QString PathManager::GetFullPath(Filename filename) const {
     const QString path = GetPath(PATH_CONFIGURATION);
 
-    const QString full_path = QDir::toNativeSeparators(path + "/" + GetDesc(filename).filename);
+    const QString full_path(
+        ConvertNativeSeparators(path.toStdString() + GetNativeSeparator() + GetDesc(filename).filename).c_str());
     return full_path;
 }
 
@@ -201,14 +203,14 @@ QString PathManager::GetFilename(const char* full_path) const {
     return QFileInfo(full_path).fileName();
 }
 
-QString PathManager::SelectPath(QWidget* parent, Path path) {
+QString PathManager::SelectPath(QWidget* parent, PathType path) {
     assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
     return SelectPathImpl(parent, path, GetPath(path));
 }
 
-QString PathManager::SelectPath(QWidget* parent, Path path, const QString& suggested_path) {
+QString PathManager::SelectPath(QWidget* parent, PathType path, const QString& suggested_path) {
     assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
@@ -218,7 +220,7 @@ QString PathManager::SelectPath(QWidget* parent, Path path, const QString& sugge
         return SelectPathImpl(parent, path, suggested_path);
 }
 
-QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& suggested_path) {
+QString PathManager::SelectPathImpl(QWidget* parent, PathType path, const QString& suggested_path) {
     assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
     assert(!suggested_path.isEmpty());
@@ -230,7 +232,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             if (selected_path.isEmpty())  // The user cancelled
                 return "";
 
-            SetPath(path, QFileInfo(selected_path).absolutePath());
+            SetPath(path, QFileInfo(selected_path).absolutePath().toStdString());
             return GetFullPath(path, QFileInfo(selected_path).baseName());
         } break;
         case PATH_EXECUTABLE: {
@@ -240,7 +242,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             if (selected_path.isEmpty())  // The user cancelled
                 return "";
 
-            SetPath(path, QFileInfo(selected_path).absolutePath());
+            SetPath(path, QFileInfo(selected_path).absolutePath().toStdString());
             return GetFullPath(path, QFileInfo(selected_path).fileName());
         }
         case PATH_WORKING_DIR: {
@@ -248,7 +250,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             if (selected_path.isEmpty())  // The user cancelled
                 return "";
 
-            SetPath(path, selected_path);
+            SetPath(path, selected_path.toStdString());
             return GetPath(path);
         }
         case PATH_CUSTOM_LAYER_PATH: {
@@ -257,7 +259,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             if (selected_path.isEmpty())  // The user cancelled
                 return "";
 
-            SetPath(path, selected_path);
+            SetPath(path, selected_path.toStdString());
             return GetPath(path);
         }
         case PATH_IMPORT_CONFIGURATION: {
@@ -266,7 +268,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             if (selected_path.isEmpty())  // The user cancelled
                 return "";
 
-            SetPath(path, QFileInfo(selected_path).absolutePath());
+            SetPath(path, QFileInfo(selected_path).absolutePath().toStdString());
             return GetFullPath(path, QFileInfo(selected_path).baseName());
         }
         case PATH_EXPORT_CONFIGURATION: {
@@ -275,7 +277,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, Path path, const QString& s
             if (selected_path.isEmpty())  // The user cancelled
                 return "";
 
-            SetPath(path, QFileInfo(selected_path).absolutePath());
+            SetPath(path, QFileInfo(selected_path).absolutePath().toStdString());
             return GetFullPath(path, QFileInfo(selected_path).baseName());
         }
         default:

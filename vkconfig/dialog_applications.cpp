@@ -141,12 +141,12 @@ QTreeWidgetItem *ApplicationsDialog::CreateApplicationItem(const Application &ap
     ui->treeWidget->addTopLevelItem(item);
 
     if (configurator.environment.UseApplicationListOverrideMode()) {
-        QCheckBox *check_box = new QCheckBox(application.executable_path);
+        QCheckBox *check_box = new QCheckBox(application.executable_path.c_str());
         check_box->setChecked(application.override_layers);
         ui->treeWidget->setItemWidget(item, 0, check_box);
         connect(check_box, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
     } else {
-        item->setText(0, application.executable_path);
+        item->setText(0, application.executable_path.c_str());
     }
 
     return item;
@@ -206,9 +206,9 @@ void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTre
 
     const Application &application = Configurator::Get().environment.GetApplication(application_index);
 
-    ui->lineEditWorkingFolder->setText(application.working_folder);
+    ui->lineEditWorkingFolder->setText(application.working_folder.c_str());
     ui->lineEditCmdArgs->setText(application.arguments);
-    ui->lineEditLogFile->setText(application.log_file);
+    ui->lineEditLogFile->setText(application.log_file.c_str());
 }
 
 void ApplicationsDialog::itemChanged(QTreeWidgetItem *item, int column) {
@@ -253,7 +253,7 @@ void ApplicationsDialog::editWorkingFolder(const QString &workingFolder) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get().environment.GetApplication(_last_selected_application_index).working_folder = workingFolder;
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).working_folder = workingFolder.toStdString();
 }
 
 void ApplicationsDialog::editLogFile(const QString &logFile) {
@@ -261,5 +261,5 @@ void ApplicationsDialog::editLogFile(const QString &logFile) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get().environment.GetApplication(_last_selected_application_index).log_file = logFile;
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).log_file = logFile.toStdString();
 }
