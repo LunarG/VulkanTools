@@ -111,13 +111,13 @@ In addition, Windows system create registry entries in the following locations:
 
 On Windows, from the build directory:
 ```
-ctest -j 16 --output-on-failure -C Debug
-ctest -j 16 --output-on-failure -C Release
+ctest -C Debug --output-on-failure --parallel 16
+ctest -C Release  --output-on-failure --parallel 16
 ```
 
 On Linux and macOS, from the build directory:
 ```
-ctest -j 16 --output-on-failure
+ctest --output-on-failure --parallel 16
 ```
 
 ### Manual Tests

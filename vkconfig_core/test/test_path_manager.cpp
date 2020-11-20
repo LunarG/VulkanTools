@@ -20,6 +20,7 @@
 
 #include "../path_manager.h"
 #include "../util.h"
+#include "../platform.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -28,14 +29,14 @@
 
 static void Init(PathManager& paths, const QString& path_value) {
     for (int i = 0, n = PATH_COUNT; i < n; ++i) {
-        const Path path = static_cast<Path>(i);
-        paths.SetPath(path, path_value);
+        const PathType path = static_cast<PathType>(i);
+        paths.SetPath(path, path_value.toStdString());
     }
 }
 
 static QString InitPath(const char* tail) {
     const QDir dir(QString("vkconfig/test_path_manager/") + tail);
-    const QString native_path = QDir::toNativeSeparators(dir.absolutePath());
+    const QString native_path(ConvertNativeSeparators(dir.absolutePath().toStdString()).c_str());
     return native_path;
 }
 
@@ -60,7 +61,7 @@ TEST(test_path_manager, init_all) {
     paths.Clear();
 
     for (int i = PATH_FIRST, n = PATH_LAST; i <= n; ++i) {
-        const Path path = static_cast<Path>(i);
+        const PathType path = static_cast<PathType>(i);
 
         QString init_path = InitPath("init_all_%d");
         std::string path_string = format(init_path.toUtf8().constData(), i);
@@ -80,16 +81,16 @@ TEST(test_path_manager, path_format) {
     for (std::size_t i = 0, n = countof(table); i < n; ++i) {
         PathManager paths;
         paths.Clear();
-        paths.SetPath(PATH_CONFIGURATION, QDir::homePath() + table[i]);
+        paths.SetPath(PATH_CONFIGURATION, QDir::homePath().toStdString() + table[i]);
 
         const QString path = paths.GetPath(PATH_CONFIGURATION);
         const QString home_path(paths.GetPath(PATH_HOME));
 
-        const bool is_windows_path = path == (home_path + "\\vkconfig\\test\\path\\format");
-        const bool is_unix_path = path == (home_path + "/vkconfig/test/path/format");
-
-        EXPECT_NE(is_windows_path, is_unix_path);
-        EXPECT_TRUE(is_windows_path || is_unix_path);
+        if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
+            EXPECT_STREQ((home_path + "\\vkconfig\\test\\path\\format").toStdString().c_str(), path.toStdString().c_str());
+        } else {
+            EXPECT_STREQ((home_path + "/vkconfig/test/path/format").toStdString().c_str(), path.toStdString().c_str());
+        }
     }
 }
 
@@ -106,7 +107,7 @@ TEST(test_path_manager, empty_home) {
 TEST(test_path_manager, empty_import) {
     PathManager paths;
     paths.Clear();
-    paths.SetPath(PATH_EXPORT_CONFIGURATION, InitPath("empty_import"));
+    paths.SetPath(PATH_EXPORT_CONFIGURATION, InitPath("empty_import").toStdString());
 
     EXPECT_STRNE(paths.GetPath(PATH_IMPORT_CONFIGURATION), paths.GetPath(PATH_HOME));
     EXPECT_STREQ(paths.GetPath(PATH_EXPORT_CONFIGURATION), paths.GetPath(PATH_IMPORT_CONFIGURATION));
@@ -116,7 +117,7 @@ TEST(test_path_manager, empty_import) {
 TEST(test_path_manager, empty_export) {
     PathManager paths;
     paths.Clear();
-    paths.SetPath(PATH_IMPORT_CONFIGURATION, InitPath("empty_export"));
+    paths.SetPath(PATH_IMPORT_CONFIGURATION, InitPath("empty_export").toStdString());
 
     EXPECT_STRNE(paths.GetPath(PATH_EXPORT_CONFIGURATION), paths.GetPath(PATH_HOME));
     EXPECT_STREQ(paths.GetPath(PATH_IMPORT_CONFIGURATION), paths.GetPath(PATH_EXPORT_CONFIGURATION));
@@ -127,7 +128,7 @@ TEST(test_path_manager, empty_export) {
 TEST(test_path_manager, check_missing_dir) {
     PathManager paths;
     paths.Clear();
-    paths.SetPath(PATH_CONFIGURATION, InitPath("check_missing_dir"));
+    paths.SetPath(PATH_CONFIGURATION, InitPath("check_missing_dir").toStdString());
 
     EXPECT_TRUE(strstr(paths.GetPath(PATH_CONFIGURATION), "check_missing_dir") != nullptr);
 

@@ -19,9 +19,8 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
 #include "util.h"
+#include "platform.h"
 
 #include <cstddef>
 #include <cstring>
@@ -57,41 +56,4 @@ bool IsNumber(const std::string& s) {
     }
 
     return true;
-}
-
-void CheckPathsExist(const QString& path) {
-    QDir dir;  // = QDir::home();
-    if (!dir.exists(path)) {
-        dir.mkpath(path);
-        assert(dir.exists(path));
-    }
-}
-
-std::string ReplacePathBuiltInVariables(const std::string& path) {
-    static const std::string HOME("$HOME");
-
-    const std::size_t found = path.find_first_of(HOME);
-    if (found < path.size()) {
-        assert(found == 0);  // The home variable must be first in the path
-        const std::size_t offset = found + HOME.size();
-        return QDir::toNativeSeparators(QDir().homePath() + path.substr(found + offset, path.size() - offset).c_str())
-            .toStdString();
-    }
-
-    // No built-in variable found, return unchanged
-    return path;
-}
-
-std::string ValidatePath(const std::string& path) {
-    if (path.empty()) return path;
-
-    FILE* file = fopen(path.c_str(), "w+");
-    if (file == nullptr) {
-        CheckPathsExist(QDir::homePath() + "/vulkan-sdk");
-        const QFileInfo file_info(path.c_str());
-        return QDir::toNativeSeparators(QDir().homePath() + "/vulkan-sdk/" + file_info.fileName()).toStdString();
-    } else {
-        fclose(file);
-        return path;
-    }
 }

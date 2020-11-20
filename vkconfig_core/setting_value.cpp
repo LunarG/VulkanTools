@@ -20,6 +20,7 @@
 
 #include "setting_value.h"
 #include "util.h"
+#include "path.h"
 
 #include <QJsonArray>
 #include <QString>

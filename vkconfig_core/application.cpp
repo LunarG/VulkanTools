@@ -24,9 +24,9 @@
 #include <QFileInfo>
 
 Application::Application(const QString& executable_full_path, const QString& arguments)
-    : executable_path(QDir::toNativeSeparators(executable_full_path)),
-      working_folder(QDir::toNativeSeparators(QFileInfo(executable_full_path).path())),
+    : executable_path(executable_full_path.toStdString().c_str()),
+      working_folder(QFileInfo(executable_full_path).path().toStdString().c_str()),
       arguments(arguments),
       log_file(
-          QDir::toNativeSeparators(QDir::homePath() + QDir::separator() + QFileInfo(executable_full_path).baseName() + ".txt")),
+          (QDir::homePath() + GetNativeSeparator() + QFileInfo(executable_full_path).baseName() + ".txt").toStdString().c_str()),
       override_layers(true) {}

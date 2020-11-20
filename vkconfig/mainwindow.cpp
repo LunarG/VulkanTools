@@ -200,14 +200,14 @@ void MainWindow::UpdateUI() {
         _launcher_log_file_edit->setText("");
     } else {
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-            _launcher_apps_combo->addItem(applications[i].executable_path);
+            _launcher_apps_combo->addItem(applications[i].executable_path.c_str());
         }
         _launcher_apps_combo->setCurrentIndex(environment.GetActiveApplicationIndex());
 
         const Application &application = environment.GetActiveApplication();
         _launcher_arguments->setText(application.arguments);
-        _launcher_working->setText(application.working_folder);
-        _launcher_log_file_edit->setText(application.log_file);
+        _launcher_working->setText(application.working_folder.c_str());
+        _launcher_log_file_edit->setText(application.log_file.c_str());
     }
 
     _launcher_apps_combo->blockSignals(false);
@@ -985,12 +985,12 @@ void MainWindow::launchSetLogFile() {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    const QString path = Configurator::Get().path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file);
+    const QString path = Configurator::Get().path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file.c_str());
 
     // The user has cancel the operation
     if (path.isEmpty()) return;
 
-    application.log_file = path;
+    application.log_file = path.toStdString();
     _launcher_log_file_edit->setText(path);
 }
 
@@ -999,12 +999,12 @@ void MainWindow::launchSetWorkingFolder() {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    const QString path = Configurator::Get().path.SelectPath(this, PATH_WORKING_DIR, application.working_folder);
+    const QString path = Configurator::Get().path.SelectPath(this, PATH_WORKING_DIR, application.working_folder.c_str());
 
     // The user has cancel the operation
     if (path.isEmpty()) return;
 
-    application.working_folder = path;
+    application.working_folder = path.toStdString();
     _launcher_working->setText(path);
 }
 
@@ -1014,7 +1014,7 @@ void MainWindow::launchChangeLogFile(const QString &log_file) {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    application.log_file = log_file;
+    application.log_file = log_file.toStdString();
 }
 
 void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
@@ -1022,7 +1022,7 @@ void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    application.working_folder = working_folder;
+    application.working_folder = working_folder.toStdString();
 }
 
 // Launch app change
@@ -1035,8 +1035,8 @@ void MainWindow::launchItemChanged(int application_index) {
 
     Application &application = environment.GetApplication(application_index);
     _launcher_arguments->setText(application.arguments);
-    _launcher_working->setText(application.working_folder);
-    _launcher_log_file_edit->setText(application.log_file);
+    _launcher_working->setText(application.working_folder.c_str());
+    _launcher_log_file_edit->setText(application.log_file.c_str());
 }
 
 /// New command line arguments. Update them.
@@ -1196,21 +1196,21 @@ void MainWindow::on_push_button_launcher_clicked() {
         }
     }
 
-    assert(!active_application.executable_path.isEmpty());
-    launch_log += QString().asprintf("- Executable Path: %s\n", active_application.executable_path.toUtf8().constData());
-    assert(!active_application.working_folder.isEmpty());
-    launch_log += QString().asprintf("- Working Directory: %s\n", active_application.working_folder.toUtf8().constData());
+    assert(!active_application.executable_path.empty());
+    launch_log += QString().asprintf("- Executable Path: %s\n", active_application.executable_path.c_str());
+    assert(!active_application.working_folder.empty());
+    launch_log += QString().asprintf("- Working Directory: %s\n", active_application.working_folder.c_str());
     if (!active_application.arguments.isEmpty())
         launch_log += QString().asprintf("- Command-line Arguments: %s\n", active_application.arguments.toUtf8().constData());
-    if (!active_application.log_file.isEmpty())
-        launch_log += QString().asprintf("- Log file: %s\n", active_application.log_file.toUtf8().constData());
+    if (!active_application.log_file.empty())
+        launch_log += QString().asprintf("- Log file: %s\n", active_application.log_file.c_str());
 
-    if (!active_application.log_file.isEmpty()) {
+    if (!active_application.log_file.empty()) {
         // Start logging
         // Make sure the log file is not already opened. This can occur if the
         // launched application is closed from the applicaiton.
         if (!_log_file.isOpen()) {
-            _log_file.setFileName(active_application.log_file);
+            _log_file.setFileName(active_application.log_file.c_str());
 
             // Open and append, or open and truncate?
             QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
@@ -1235,8 +1235,8 @@ void MainWindow::on_push_button_launcher_clicked() {
     connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    _launch_application->setProgram(active_application.executable_path);
-    _launch_application->setWorkingDirectory(active_application.working_folder);
+    _launch_application->setProgram(active_application.executable_path.c_str());
+    _launch_application->setWorkingDirectory(active_application.working_folder.c_str());
 
     if (!active_application.arguments.isEmpty()) {
         const QStringList args = active_application.arguments.split(" ");
@@ -1252,7 +1252,7 @@ void MainWindow::on_push_button_launcher_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        const QString failed_log = QString("Failed to launch ") + active_application.executable_path + "!\n";
+        const QString failed_log = QString("Failed to launch ") + active_application.executable_path.c_str() + "!\n";
         Log(failed_log);
         UpdateUI();
         return;

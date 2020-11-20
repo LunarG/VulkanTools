@@ -298,10 +298,10 @@ bool Environment::LoadApplications() {
                 const QJsonObject& app_object = app_value.toObject();
 
                 Application application;
-                application.executable_path = app_object.value("app_path").toString();
-                application.working_folder = app_object.value("app_folder").toString();
+                application.executable_path = app_object.value("app_path").toString().toStdString();
+                application.working_folder = app_object.value("app_folder").toString().toStdString();
                 application.override_layers = !app_object.value("exclude_override").toBool();
-                application.log_file = app_object.value("log_file").toString();
+                application.log_file = app_object.value("log_file").toString().toStdString();
 
                 // Arguments are in an array to make room for adding more in a future version
                 const QJsonArray& args = app_object.value("command_lines").toArray();
@@ -374,7 +374,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         const Application& application = applications[i];
 
-        const QFileInfo file_info(application.executable_path);
+        const QFileInfo file_info(application.executable_path.c_str());
         if (!file_info.exists()) continue;
 
         new_applications.push_back(application);
@@ -382,15 +382,15 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
     if (!add_default_applications && !new_applications.empty()) return;
 
-    const char* suffix = GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
+    const char* suffix = GetPlatformString(PLATFORM_STRING_EXE_SUFFIX);
 
     struct Default {
-        QString name;
-        QString arguments;
+        std::string name;
+        std::string arguments;
     };
 
-    static const Default defaults[] = {{QDir::toNativeSeparators("/vkcube"), "--suppress_popups"},
-                                       {QDir::toNativeSeparators("/vkcubepp"), "--suppress_popups"}};
+    static const Default defaults[] = {{ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
+                                       {ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
 
     for (std::size_t name_index = 0, name_count = countof(defaults); name_index < name_count; ++name_index) {
         bool found = false;
@@ -398,7 +398,9 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
         for (std::size_t i = 0; i < new_applications.size(); ++i) {
             const Application& application = new_applications[i];
 
-            if (!application.executable_path.endsWith(defaults[name_index].name + suffix)) continue;
+            if (strstr(application.executable_path.c_str(), (defaults[name_index].name + suffix).c_str()) == NULL) {
+                continue;
+            }
 
             found = true;
             break;
@@ -406,7 +408,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
         if (found) continue;
 
-        QString executable_path = GetDefaultExecutablePath(defaults[name_index].name + suffix);
+        QString executable_path = GetDefaultExecutablePath((defaults[name_index].name + suffix).c_str());
         if (executable_path.isEmpty()) continue;  // application could not be found..
 
         // If on macOS, extract the root executable from the app bundle.
@@ -470,17 +472,17 @@ bool Environment::SaveApplications() const {
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         // Build an array of appnames with associated data
         QJsonObject application_object;
-        application_object.insert("app_path", applications[i].executable_path);
-        application_object.insert("app_folder", applications[i].working_folder);
+        application_object.insert("app_path", applications[i].executable_path.c_str());
+        application_object.insert("app_folder", applications[i].working_folder.c_str());
         application_object.insert("exclude_override", !applications[i].override_layers);
-        application_object.insert("log_file", applications[i].log_file);
+        application_object.insert("log_file", applications[i].log_file.c_str());
 
         // Ground work for mulitiple sets of command line arguments
         QJsonArray argsArray;
         argsArray.append(QJsonValue(applications[i].arguments));  // [J] PROBABLY
 
         application_object.insert("command_lines", argsArray);
-        root.insert(QFileInfo(applications[i].executable_path).fileName(), application_object);
+        root.insert(QFileInfo(applications[i].executable_path.c_str()).fileName(), application_object);
     }
 
     const QString& app_list_json = paths.GetFullPath(FILENAME_APPLIST);
@@ -499,12 +501,12 @@ bool Environment::SaveApplications() const {
 void Environment::SelectActiveApplication(std::size_t application_index) {
     assert(application_index < applications.size());
 
-    Set(ACTIVE_APPLICATION, applications[application_index].executable_path);
+    Set(ACTIVE_APPLICATION, applications[application_index].executable_path.c_str());
 }
 
 int Environment::GetActiveApplicationIndex() const {
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        if (applications[i].executable_path == Get(ACTIVE_APPLICATION)) {
+        if (QString(applications[i].executable_path.c_str()) == Get(ACTIVE_APPLICATION)) {
             return static_cast<int>(i);
         }
     }
@@ -550,7 +552,7 @@ const Application& Environment::GetActiveApplication() const {
     assert(!applications.empty());
 
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        if (applications[i].executable_path == Get(ACTIVE_APPLICATION)) {
+        if (QString(applications[i].executable_path.c_str()) == Get(ACTIVE_APPLICATION)) {
             return applications[i];
         }
     }
@@ -620,12 +622,12 @@ bool Environment::AppendCustomLayerPath(const QString& path) {
     assert(!path.isEmpty());
 
     for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
-        if (QDir::toNativeSeparators(custom_layer_paths[i]) == QDir::toNativeSeparators(path)) {
+        if (ConvertNativeSeparators(custom_layer_paths[i].toStdString()) == ConvertNativeSeparators(path.toStdString())) {
             return false;
         }
     }
 
-    custom_layer_paths.append(QDir::toNativeSeparators(path));
+    custom_layer_paths.append(ConvertNativeSeparators(path.toStdString()).c_str());
     return true;
 }
 
@@ -633,7 +635,7 @@ bool Environment::RemoveCustomLayerPath(const QString& path) {
     assert(!path.isEmpty());
 
     for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
-        if (custom_layer_paths[i] == QDir::toNativeSeparators(path)) {
+        if (custom_layer_paths[i].toStdString() == ConvertNativeSeparators(path.toStdString())) {
             custom_layer_paths.removeAt(i);
             return true;
         }

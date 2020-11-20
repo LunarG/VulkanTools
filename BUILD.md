@@ -137,7 +137,7 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
     cd build
     ..\scripts\update_deps.py --arch x64
     cmake -A x64 -C helper.cmake ..
-    cmake --build .
+    cmake --build . --parallel
 ```
 
 ### 32-bit Windows Build 
@@ -149,7 +149,14 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
     cd build
     ..\scripts\update_deps.py --arch Win32
     cmake -A Win32 -C helper.cmake ..
-    cmake --build . 
+    cmake --build . --parallel
+```
+
+### Windows Unit Tests
+
+```
+ctest -C Debug --output-on-failure --parallel 16
+ctest -C Release  --output-on-failure --parallel 16
 ```
 
 ### Linux and macOS Build
@@ -159,9 +166,15 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
     mkdir build
     ./update_external_sources.sh
     cd build
-    python3 ../scripts/update_deps.py
+    ../scripts/update_deps.py
     cmake -C helper.cmake ..
-    cmake --build .
+    cmake --build . --parallel
+```
+
+### Linux and macOS Unit Tests
+
+```
+ctest --parallel 8 --output-on-failure
 ```
 
 ### Android Build
