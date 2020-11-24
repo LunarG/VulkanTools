@@ -721,6 +721,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             'VkBool32': ' { return VK_TRUE; };',
             'VkDeviceAddress': '{ return 0; };',
             'VkResult': ' { return VK_SUCCESS; };',
+            'VkDeviceSize': ' { return 0; };',
             'void': ' {};',
             }
         return_type = result.split(" ")[1]
