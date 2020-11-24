@@ -131,8 +131,6 @@ class Environment {
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
-    void UpdateDefaultApplications(const bool add_default_applications);
-
     Version version;
     OverrideState override_state;
 
@@ -149,3 +147,12 @@ class Environment {
 };
 
 bool ExactExecutableFromAppBundle(QString& path);
+
+// Search for all the applications in the list, an remove the application which executable can't be found
+std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications);
+
+// Create a list of default applications, eg vkcube
+std::vector<Application> CreateDefaultApplications(const PathManager& paths);
+
+// Update default applications path to use relative path (really useful only on Windows)
+std::vector<Application> UpdateDefaultApplications(const PathManager& paths, const std::vector<Application>& applications);

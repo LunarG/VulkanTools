@@ -189,8 +189,7 @@ void Environment::Reset(ResetMode mode) {
                 actives[i] = GetActiveDefault(static_cast<Active>(i));
             }
 
-            applications.clear();
-            UpdateDefaultApplications(true);
+            applications = CreateDefaultApplications(paths);
 
             Set(ACTIVE_CONFIGURATION, "Validation - Standard");
             break;
@@ -311,124 +310,12 @@ bool Environment::LoadApplications() {
             }
         }
 
-        UpdateDefaultApplications(first_run || applications.empty());
+        applications = RemoveMissingApplications(applications);
+        if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) applications = UpdateDefaultApplications(paths, applications);
+        if (applications.empty()) applications = CreateDefaultApplications(paths);
     }
 
     return true;
-}
-
-static QString GetDefaultExecutablePath(const QString& executable_name) {
-    static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
-
-    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
-        // Using the standard install loation on macOS
-        {
-            const QString search_path = "/Applications" + executable_name;
-            QFileInfo file_info(search_path);
-            if (file_info.exists())  // Couldn't find vkcube
-                return file_info.filePath();
-        }
-
-        // Using relative path to vkconfig in case SDK is not "installed"
-        {
-            const QString search_path = QString("..") + DEFAULT_PATH + executable_name;
-            QFileInfo file_info(search_path);
-            if (file_info.exists())                   // Couldn't find vkcube
-                return file_info.absoluteFilePath();  // This cannot be file path like the others
-        }
-        // Allow fall through to below. Really, only the VULKAN_SDK is likely to catch anything
-    } else {
-        // Using relative path to vkconfig
-        {
-            const QString search_path =
-                QString(VKC_PLATFORM == VKC_PLATFORM_WINDOWS ? "../bin" : ".") + DEFAULT_PATH + executable_name;
-            QFileInfo file_info(search_path);
-            if (file_info.exists())  // Couldn't find vkcube
-                return file_info.filePath();
-        }
-
-        // Using VULKAN_SDK environement variable
-        const QString env(qgetenv("VULKAN_SDK"));
-        if (!env.isEmpty()) {
-            const QString search_path = QString(env) + "/bin" + DEFAULT_PATH + executable_name;
-            QFileInfo file_info(search_path);
-            if (file_info.exists())  // Couldn't find vkcube
-                return file_info.absoluteFilePath();
-        }
-
-        // Such the default applications from package installation (Linux)
-        {
-            const QString search_path = QString("/usr/bin") + DEFAULT_PATH + executable_name;
-            QFileInfo file_info(search_path);
-            if (file_info.exists())  // Couldn't find vkcube
-                return file_info.absoluteFilePath();
-        }
-    }
-
-    return "";
-}
-
-// Search for vkcube and add it to the app list.
-void Environment::UpdateDefaultApplications(const bool add_default_applications) {
-    std::vector<Application> new_applications;
-
-    // Remove application that can't be found
-    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        const Application& application = applications[i];
-
-        const QFileInfo file_info(application.executable_path.c_str());
-        if (!file_info.exists()) continue;
-
-        new_applications.push_back(application);
-    }
-
-    if (!add_default_applications && !new_applications.empty()) return;
-
-    const char* suffix = GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
-
-    struct Default {
-        std::string name;
-        std::string arguments;
-    };
-
-    static const Default defaults[] = {{ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
-                                       {ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
-
-    for (std::size_t name_index = 0, name_count = countof(defaults); name_index < name_count; ++name_index) {
-        bool found = false;
-
-        for (std::size_t i = 0; i < new_applications.size(); ++i) {
-            const Application& application = new_applications[i];
-
-            if (strstr(application.executable_path.c_str(), (defaults[name_index].name + suffix).c_str()) == NULL) {
-                continue;
-            }
-
-            found = true;
-            break;
-        }
-
-        if (found) continue;
-
-        QString executable_path = GetDefaultExecutablePath((defaults[name_index].name + suffix).c_str());
-        if (executable_path.isEmpty()) continue;  // application could not be found..
-
-        // If on macOS, extract the root executable from the app bundle.
-        if (VKC_PLATFORM == VKC_PLATFORM_MACOS) ExactExecutableFromAppBundle(executable_path);
-
-        Application application(executable_path, "--suppress_popups");
-
-        // On all operating systems, but Windows we keep running into problems with this ending up
-        // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
-        // initially will be set to the users home folder across all OS's. This is highly visible
-        // in the application launcher and should not present a usability issue. The developer can
-        // easily change this later to anywhere they like.
-        application.log_file = paths.GetPath(PATH_HOME) + defaults[name_index].name + ".txt";
-
-        new_applications.push_back(application);
-    }
-
-    std::swap(applications, new_applications);
 }
 
 bool Environment::Save() const {
@@ -697,4 +584,131 @@ bool ExactExecutableFromAppBundle(QString& app_path) {
     file.close();
 
     return true;
+}
+
+static QString GetDefaultExecutablePath(const QString& executable_name) {
+    static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
+
+    // Using VULKAN_SDK environement variable
+    const QString env(qgetenv("VULKAN_SDK"));
+    if (!env.isEmpty()) {
+        const QString search_path = QString(env) + "/bin" + DEFAULT_PATH + executable_name;
+        const QFileInfo file_info(search_path);
+        if (file_info.exists()) {
+            return file_info.absoluteFilePath();
+        }
+    }
+
+    // Such the default applications from package installation (Linux)
+    if (VKC_PLATFORM == VKC_PLATFORM_LINUX) {
+        const QString search_path = QString("/usr/bin") + DEFAULT_PATH + executable_name;
+        const QFileInfo file_info(search_path);
+        if (file_info.exists()) {
+            return file_info.absoluteFilePath();
+        }
+    } else if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+        QString search_path = "/Applications" + executable_name;
+        const QFileInfo file_info(search_path);
+        if (file_info.exists() && ExactExecutableFromAppBundle(search_path)) {
+            return search_path;
+        }
+    }
+
+    // Using relative path to vkconfig in case SDK is not "installed"
+    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+        QString search_path = QString("..") + DEFAULT_PATH + executable_name;
+        const QFileInfo file_info(search_path);
+        if (file_info.exists() && ExactExecutableFromAppBundle(search_path)) {
+            return search_path;
+        }
+    } else {
+        const QString search_path = QString(".") + DEFAULT_PATH + executable_name;
+        const QFileInfo file_info(search_path);
+        if (file_info.exists()) {
+            return file_info.absoluteFilePath();
+        }
+    }
+
+    return "";
+}
+
+struct DefaultApplication {
+    std::string name;
+    std::string arguments;
+};
+
+static const DefaultApplication defaults_applications[] = {{ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
+                                                           {ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
+
+static Application CreateDefaultApplication(const PathManager& paths, const DefaultApplication& default_application) {
+    const QString executable_path =
+        GetDefaultExecutablePath((default_application.name + GetPlatformString(PLATFORM_STRING_APP_SUFFIX)).c_str());
+    if (executable_path.isEmpty()) Application();  // application could not be found..
+
+    Application application(executable_path, "--suppress_popups");
+
+    // On all operating systems, but Windows we keep running into problems with this ending up
+    // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
+    // initially will be set to the users home folder across all OS's. This is highly visible
+    // in the application launcher and should not present a usability issue. The developer can
+    // easily change this later to anywhere they like.
+    application.log_file = paths.GetPath(PATH_HOME) + default_application.name + ".txt";
+
+    return application;
+}
+
+std::vector<Application> CreateDefaultApplications(const PathManager& paths) {
+    std::vector<Application> new_applications;
+
+    for (std::size_t name_index = 0, name_count = countof(defaults_applications); name_index < name_count; ++name_index) {
+        const Application& application = CreateDefaultApplication(paths, defaults_applications[name_index]);
+
+        if (application.executable_path.empty()) continue;
+
+        new_applications.push_back(application);
+    }
+
+    return new_applications;
+}
+
+std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications) {
+    std::vector<Application> valid_applications;
+
+    // Remove applications that can't be found
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        const Application& application = applications[i];
+
+        const QFileInfo file_info(application.executable_path.c_str());
+        if (!file_info.exists()) continue;
+
+        valid_applications.push_back(application);
+    }
+
+    return valid_applications;
+}
+
+std::vector<Application> UpdateDefaultApplications(const PathManager& paths, const std::vector<Application>& applications) {
+    const std::vector<Application>& default_applications = CreateDefaultApplications(paths);
+    std::vector<Application> search_applications;
+    std::vector<Application> updated_applications = applications;
+
+    for (std::size_t default_index = 0, default_count = countof(defaults_applications); default_index < default_count;
+         ++default_index) {
+        std::string const defaults_name = defaults_applications[default_index].name + GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
+
+        std::swap(updated_applications, search_applications);
+        updated_applications.clear();
+
+        for (std::size_t application_index = 0, application_count = search_applications.size();
+             application_index < application_count; ++application_index) {
+            const Application& application = search_applications[application_index];
+            if (QString(application.executable_path.c_str()).endsWith(defaults_name.c_str())) {
+                updated_applications.push_back(CreateDefaultApplication(paths, defaults_applications[default_index]));
+            } else {
+                updated_applications.push_back(application);
+            }
+        }
+    }
+
+    return updated_applications;
 }
