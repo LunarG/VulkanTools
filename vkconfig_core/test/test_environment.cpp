@@ -19,10 +19,12 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include <gtest/gtest.h>
-
 #include "../path_manager.h"
 #include "../environment.h"
+
+#include <QFile>
+
+#include <gtest/gtest.h>
 
 TEST(test_environment, custom_path_no_duplicate) {
     PathManager paths;
@@ -52,4 +54,16 @@ TEST(test_environment, custom_path_not_found) {
     EXPECT_EQ(0, environment.GetCustomLayerPaths().size());
 
     environment.Reset(Environment::SYSTEM);  // Don't change the system settings
+}
+
+TEST(test_environment, remove_missing_applications) {
+    QFile file("my_exciting_executable");
+    const bool result = file.open(QIODevice::WriteOnly);
+    ASSERT_TRUE(result);
+
+    std::vector<Application> applications;
+    applications.push_back(Application("my_missing_executable", ""));
+    applications.push_back(Application("my_exciting_executable", ""));
+
+    EXPECT_EQ(1, RemoveMissingApplications(applications).size());
 }
