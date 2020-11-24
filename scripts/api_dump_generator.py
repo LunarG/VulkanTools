@@ -548,16 +548,6 @@ inline std::ostream& dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccele
 {{
     return dump_text_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
-std::ostream& dump_text_VkAccelerationStructureMemoryRequirementsTypeKHR(VkAccelerationStructureMemoryRequirementsTypeKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_text_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
-{{
-    return dump_text_VkAccelerationStructureMemoryRequirementsTypeKHR(object, settings, indents);
-}}
-std::ostream& dump_text_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_text_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
-{{
-    return dump_text_VkAccelerationStructureKHR(object, settings, indents);
-}}
 #endif // VK_ENABLE_BETA_EXTENSIONS
 
 
@@ -1005,16 +995,6 @@ inline std::ostream& dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccele
 {{
     return dump_html_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
-std::ostream& dump_html_VkAccelerationStructureMemoryRequirementsTypeKHR(VkAccelerationStructureMemoryRequirementsTypeKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_html_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
-{{
-    return dump_html_VkAccelerationStructureMemoryRequirementsTypeKHR(object, settings, indents);
-}}
-std::ostream& dump_html_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_html_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
-{{
-    return dump_html_VkAccelerationStructureKHR(object, settings, indents);
-}}
 #endif // VK_ENABLE_BETA_EXTENSIONS
 
 
@@ -1432,16 +1412,6 @@ std::ostream& dump_json_VkBuildAccelerationStructureFlagsKHR(VkBuildAcceleration
 inline std::ostream& dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
 {{
     return dump_json_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
-}}
-std::ostream& dump_json_VkAccelerationStructureMemoryRequirementsTypeKHR(VkAccelerationStructureMemoryRequirementsTypeKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_json_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
-{{
-    return dump_json_VkAccelerationStructureMemoryRequirementsTypeKHR(object, settings, indents);
-}}
-std::ostream& dump_json_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_json_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
-{{
-    return dump_json_VkAccelerationStructureKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
 
@@ -2385,11 +2355,13 @@ class VulkanVariable:
 
         self.lengthMember = False
         lengthString = rootNode.get('len')
+        if lengthString is not None:
+            if "ename:" in lengthString:
+                lengthString = rootNode.get('altlen')
         lengths = []
         if lengthString is not None:
             lengths = re.split(',', lengthString)
             lengths = list(filter(('null-terminated').__ne__, lengths))
-        assert(len(lengths) <= 1)
         if self.arrayLength is None and len(lengths) > 0:
             self.childType = '*'.join(self.type.split('*')[0:-1])
             self.arrayLength = lengths[0]
