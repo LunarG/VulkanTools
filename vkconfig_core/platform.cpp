@@ -87,6 +87,12 @@ const char* GetPlatformString(PlatformString platform_string) {
             "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
         },
         {
+            // PLATFORM_STRING_EXPLICIT_LAYERS
+            "/Bin",                          // PLATFORM_WINDOWS
+            "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
+            "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
+        },
+        {
             // PLATFORM_STRING_PATH_CONFIGURATION
             "/AppData/Local/LunarG/vkconfig",         // PLATFORM_WINDOWS
             "/.local/share/vulkan/lunarg-vkconfig/",  // PLATFORM_LINUX

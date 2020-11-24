@@ -337,30 +337,32 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
                 return file_info.absoluteFilePath();  // This cannot be file path like the others
         }
         // Allow fall through to below. Really, only the VULKAN_SDK is likely to catch anything
-    }
+    } else {
+        // Using relative path to vkconfig
+        {
+            const QString search_path =
+                QString(VKC_PLATFORM == VKC_PLATFORM_WINDOWS ? "../bin" : ".") + DEFAULT_PATH + executable_name;
+            QFileInfo file_info(search_path);
+            if (file_info.exists())  // Couldn't find vkcube
+                return file_info.filePath();
+        }
 
-    // Using relative path to vkconfig
-    {
-        const QString search_path = QString("../bin") + DEFAULT_PATH + executable_name;
-        QFileInfo file_info(search_path);
-        if (file_info.exists())  // Couldn't find vkcube
-            return file_info.filePath();
-    }
+        // Using VULKAN_SDK environement variable
+        const QString env(qgetenv("VULKAN_SDK"));
+        if (!env.isEmpty()) {
+            const QString search_path = QString(env) + "/bin" + DEFAULT_PATH + executable_name;
+            QFileInfo file_info(search_path);
+            if (file_info.exists())  // Couldn't find vkcube
+                return file_info.absoluteFilePath();
+        }
 
-    // Using VULKAN_SDK environement variable
-    {
-        const QString search_path = QString(qgetenv("VULKAN_SDK")) + "/bin" + DEFAULT_PATH + executable_name;
-        QFileInfo file_info(search_path);
-        if (file_info.exists())  // Couldn't find vkcube
-            return file_info.absoluteFilePath();
-    }
-
-    // Such the default applications from package installation (Linux)
-    {
-        const QString search_path = QString("/usr/bin") + DEFAULT_PATH + executable_name;
-        QFileInfo file_info(search_path);
-        if (file_info.exists())  // Couldn't find vkcube
-            return file_info.absoluteFilePath();
+        // Such the default applications from package installation (Linux)
+        {
+            const QString search_path = QString("/usr/bin") + DEFAULT_PATH + executable_name;
+            QFileInfo file_info(search_path);
+            if (file_info.exists())  // Couldn't find vkcube
+                return file_info.absoluteFilePath();
+        }
     }
 
     return "";
@@ -382,7 +384,7 @@ void Environment::UpdateDefaultApplications(const bool add_default_applications)
 
     if (!add_default_applications && !new_applications.empty()) return;
 
-    const char* suffix = GetPlatformString(PLATFORM_STRING_EXE_SUFFIX);
+    const char* suffix = GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
 
     struct Default {
         std::string name;
