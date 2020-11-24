@@ -122,10 +122,9 @@ void LayerManager::LoadAllInstalledLayers() {
     }
 
     // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
-    QString vulkanSDK = qgetenv("VULKAN_SDK");
+    const QString vulkanSDK(qgetenv("VULKAN_SDK"));
     if (!vulkanSDK.isEmpty()) {
-        vulkanSDK += "/etc/vulkan/explicit_layer.d";
-        LoadLayersFromPath(vulkanSDK, available_layers);
+        LoadLayersFromPath(vulkanSDK + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS), available_layers);
     }
 }
 
