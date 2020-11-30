@@ -75,6 +75,7 @@ static struct {
 } xcb = {NULL};
 #endif
 
+static std::unordered_map<VkPhysicalDevice, VkInstance> layer_instances;
 static std::unordered_map<void *, layer_data *> layer_data_map;
 
 template layer_data *GetLayerDataPtr<layer_data>(void *data_key, std::unordered_map<void *, layer_data *> &data_map);
@@ -86,7 +87,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice g
     assert(chain_info->u.pLayerInfo);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
-    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(NULL, "vkCreateDevice");
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(layer_instances.at(gpu), "vkCreateDevice");
     if (fpCreateDevice == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -123,6 +124,44 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice g
     // Get our WSI hooks in
     VkLayerDispatchTable *pTable = my_device_data->device_dispatch_table;
     my_device_data->pfnQueuePresentKHR = (PFN_vkQueuePresentKHR)pTable->GetDeviceProcAddr(*pDevice, "vkQueuePresentKHR");
+
+    return result;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) {
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+
+    VkResult result = pTable->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
+
+    if (pPhysicalDevices != nullptr) {
+        for (int i = 0; i < *pPhysicalDeviceCount; ++i) {
+            if (layer_instances.count(pPhysicalDevices[i]) == 0) {
+                layer_instances.insert({pPhysicalDevices[i], instance});
+            }
+        }
+    }
+
+    return result;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(VkInstance instance, uint32_t *pPhysicalDeviceGroupCount, VkPhysicalDeviceGroupProperties *pPhysicalDeviceGroupProperties) {
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+
+    VkResult result = pTable->EnumeratePhysicalDeviceGroups(instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
+
+    if (pPhysicalDeviceGroupProperties != nullptr) {
+        for (int i = 0; i < *pPhysicalDeviceGroupCount; ++i) {
+            for (int j = 0; j < pPhysicalDeviceGroupProperties[i].physicalDeviceCount; ++j) {
+                if (layer_instances.count(pPhysicalDeviceGroupProperties[i].physicalDevices[j]) == 0) {
+                    layer_instances.insert({pPhysicalDeviceGroupProperties[i].physicalDevices[j], instance});
+                }
+            }
+        }
+    }
 
     return result;
 }
@@ -334,6 +373,8 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if (!strncmp(#fn, funcName, sizeof(#fn))) return (PFN_vkVoidFunction)fn
 
     ADD_HOOK(vkCreateInstance);
+    ADD_HOOK(vkEnumeratePhysicalDevices);
+    ADD_HOOK(vkEnumeratePhysicalDeviceGroups);
     ADD_HOOK(vkCreateDevice);
     ADD_HOOK(vkDestroyInstance);
     ADD_HOOK(vkGetInstanceProcAddr);
