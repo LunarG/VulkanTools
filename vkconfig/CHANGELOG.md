@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.0.3](https://github.com/LunarG/VulkanTools/tree/master) - 2020-12-XX
+## [Vulkan Configurator 2.0.3 for Vulkan SDK 1.2.162.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.162.0) - December 2020
 
 ### Features:
 - Add command line arguments to manage layers override #1213
@@ -28,7 +28,7 @@
 - Fix warning about old loader when trying to use application list #1230
 - Fix initialization of added applications on macOS #1249 
 
-## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - 2020-10-05
+## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.154.0) - October 2020
 
 ### Features:
 - Add multiple debug actions simulaneously #1119
@@ -64,7 +64,7 @@
 - On *macOS*, *vkcube* and *vkcubepp* need to be run at least once to get past the security checks before they can be used from *Vulkan Configurator*.
 - The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
 
-## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.1) - 2020-08-08
+## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.1) - August 2020 (revision 1)
 
 ### Fixes:
 - Fix Shader Printf built-in configuration that was setup for GPU-Assisted validation isntead
@@ -85,7 +85,7 @@
 - On macOS, vkcube and vkcubepp need to be run at least once to get past the security checks before they can be used from vkconfig.
 - The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
 
-## [Vulkan Configurator 2.0.0 for Vulkan SDK 1.2.148.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.0) - 2020-08-03
+## [Vulkan Configurator 2.0.0 for Vulkan SDK 1.2.148.0](https://github.com/LunarG/VulkanTools/releases/tag/sdk-1.2.148.0) - August 2020
 
 ### Features:
 - Design GUI
