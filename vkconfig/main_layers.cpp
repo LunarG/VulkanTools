@@ -41,7 +41,13 @@ static int RunLayersOverride(const CommandLine& command_line) {
     LayerManager layers(environment);
     layers.LoadAllInstalledLayers();
 
+    // With command line, don't store the application list, it's always global, save and restore the setting
+    const bool use_application_list = environment.UseApplicationListOverrideMode();
+    environment.SetMode(OVERRIDE_MODE_LIST, false);
+
     const bool override_result = OverrideLayers(environment, layers.available_layers, configuration);
+
+    environment.SetMode(OVERRIDE_MODE_LIST, use_application_list);
 
     environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 
