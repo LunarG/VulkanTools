@@ -63,6 +63,12 @@ const char* GetPlatformString(PlatformString platform_string) {
             ""       // PLATFORM_MACOS
         },
         {
+            // PLATFORM_STRING_SDK_BIN_DIR
+            "/Bin",  // PLATFORM_WINDOWS
+            "/bin",  // PLATFORM_LINUX
+            "/bin"   // PLATFORM_MACOS
+        },
+        {
             // PLATFORM_STRING_SEPARATOR
             ";",  // PLATFORM_WINDOWS
             ":",  // PLATFORM_LINUX

@@ -592,7 +592,7 @@ static QString GetDefaultExecutablePath(const QString& executable_name) {
     // Using VULKAN_SDK environement variable
     const QString env(qgetenv("VULKAN_SDK"));
     if (!env.isEmpty()) {
-        const QString search_path = QString(env) + "/bin" + DEFAULT_PATH + executable_name;
+        const QString search_path = QString(env) + GetPlatformString(PLATFORM_STRING_SDK_BIN_DIR) + DEFAULT_PATH + executable_name;
         const QFileInfo file_info(search_path);
         if (file_info.exists()) {
             return file_info.absoluteFilePath();
@@ -688,7 +688,6 @@ std::vector<Application> RemoveMissingApplications(const std::vector<Application
 }
 
 std::vector<Application> UpdateDefaultApplications(const PathManager& paths, const std::vector<Application>& applications) {
-    const std::vector<Application>& default_applications = CreateDefaultApplications(paths);
     std::vector<Application> search_applications;
     std::vector<Application> updated_applications = applications;
 
@@ -702,6 +701,7 @@ std::vector<Application> UpdateDefaultApplications(const PathManager& paths, con
         for (std::size_t application_index = 0, application_count = search_applications.size();
              application_index < application_count; ++application_index) {
             const Application& application = search_applications[application_index];
+
             if (QString(application.executable_path.c_str()).endsWith(defaults_name.c_str())) {
                 updated_applications.push_back(CreateDefaultApplication(paths, defaults_applications[default_index]));
             } else {
