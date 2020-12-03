@@ -796,7 +796,9 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions}); // BQB
     @end if
     @end if
-
+    @if(len({memMultiDimArray}) == 2)
+    dump_text_multi_dimensional_array_2<const {memBaseType}, {memMultiDimArray[0]}, {memMultiDimArray[1]}>(object.{memName}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+    @end if
     @if('{sctName}' == 'VkShaderModuleCreateInfo')
     @if('{memName}' == 'pCode')
     if(settings.showShader())
@@ -1228,6 +1230,9 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions}); // ZRT
     @end if
     @end if
+    @if(len({memMultiDimArray}) == 2)
+    dump_html_multi_dimensional_array_2<const {memBaseType}, {memMultiDimArray[0]}, {memMultiDimArray[1]}>(object.{memName}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+    @end if
     @if('{sctName}' == 'VkShaderModuleCreateInfo')
     @if('{memName}' == 'pCode')
     if(settings.showShader())
@@ -1638,6 +1643,9 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
     @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
     dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}{memInheritedConditions}); // JQA
     @end if
+    @end if
+    @if(len({memMultiDimArray}) == 2)
+    dump_json_multi_dimensional_array_2<const {memBaseType}, {memMultiDimArray[0]}, {memMultiDimArray[1]}>(object.{memName}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if('{sctName}' == 'VkShaderModuleCreateInfo')
     @if('{memName}' == 'pCode')
@@ -2331,6 +2339,7 @@ class VulkanVariable:
         self.baseType = self.typeID                 # Type, dereferenced to the non-pointer type
         self.childType = None                       # Type, dereferenced to the non-pointer type (None if it isn't a pointer)
         self.arrayLength = None                     # Length of the array, or None if it isn't an array
+        self.multiDimArray = []                     # Dimensions of the array, or an empty list if its 1 dim or not an array
 
         # Get the text of the variable type and name, but not the comment
         self.text = ''
@@ -2343,15 +2352,22 @@ class VulkanVariable:
         typeMatch = re.search('.+?(?=' + self.name + ')', self.text)
         self.type = typeMatch.string[typeMatch.start():typeMatch.end()]
         self.type = ' '.join(self.type.split())
-        bracketMatch = re.search('(?<=\\[)[a-zA-Z0-9_]+(?=\\])', self.text)
-        if bracketMatch is not None:
+        bracketMatches = re.finditer('(?<=\\[)[a-zA-Z0-9_]+(?=\\])', self.text)
+        for bracketMatch in bracketMatches:
             matchText = bracketMatch.string[bracketMatch.start():bracketMatch.end()]
-            self.childType = self.type
             self.type += '[' + matchText + ']'
             if matchText in constants:
                 self.arrayLength = constants[matchText]
             else:
                 self.arrayLength = matchText
+            self.multiDimArray.append(self.arrayLength)
+
+        # child type is the type sans the brackets
+        if self.type.find('[') > -1:
+            self.childType = self.type[0:self.type.find('[')]
+        # don't let single dimension arrays be considered multi-dim
+        if len(self.multiDimArray) == 1:
+            self.multiDimArray = []
 
         self.lengthMember = False
         lengthString = rootNode.get('len')
@@ -2730,6 +2746,7 @@ class VulkanStruct:
                 'memPtrLevel': self.pointerLevels,
                 'memLength': self.arrayLength,
                 'memLengthIsMember': self.lengthMember,
+                'memMultiDimArray': self.multiDimArray,
                 'memCondition': self.condition,
                 'memInheritedConditions': self.inheritedConditions,
             }

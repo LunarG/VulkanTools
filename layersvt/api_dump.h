@@ -958,6 +958,24 @@ inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDump
     }
 }
 
+template <typename T, size_t len1, size_t len2, typename... Args>
+inline void dump_text_multi_dimensional_array_2(const T (&array)[len1][len2], const ApiDumpSettings &settings,
+                                                const char *type_string, const char *child_type, const char *name, int indents,
+                                                std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
+                                                Args... args) {
+    settings.formatNameType(settings.stream(), indents, name, type_string);
+    OutputAddress(settings, array, false);
+    settings.stream() << "\n";
+    for (size_t i = 0; i < len1 && array != NULL; ++i) {
+        for (size_t j = 0; j < len2; ++j) {
+            std::stringstream stream;
+            stream << name << '[' << i << "][" << j << ']';
+            std::string indexName = stream.str();
+            dump_text_value(array[i][j], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
+        }
+    }
+}
+
 template <typename T, typename... Args>
 inline void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
@@ -1097,6 +1115,28 @@ inline void dump_html_array(const T *array, size_t len, const ApiDumpSettings &s
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
         dump_html_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
+    }
+    settings.stream() << "</details>";
+}
+
+template <typename T, size_t len1, size_t len2, typename... Args>
+inline void dump_html_multi_dimensional_array_2(const T (&array)[len1][len2], const ApiDumpSettings &settings,
+                                                const char *type_string, const char *child_type, const char *name, int indents,
+                                                std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
+                                                Args... args) {
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
+    settings.stream() << "<div class='val'>";
+    OutputAddress(settings, array, false);
+    settings.stream() << "\n";
+    settings.stream() << "</div></summary>";
+    for (size_t i = 0; i < len1 && array != NULL; ++i) {
+        for (size_t j = 0; j < len2; ++j) {
+            std::stringstream stream;
+            stream << name << '[' << i << "][" << j << ']';
+            std::string indexName = stream.str();
+            dump_html_value(array[i][j], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
+        }
     }
     settings.stream() << "</details>";
 }
@@ -1270,6 +1310,32 @@ inline void dump_json_array(const T *array, size_t len, const ApiDumpSettings &s
     settings.stream() << "\n" << settings.indentation(indents) << "}";
 }
 
+template <typename T, size_t len1, size_t len2, typename... Args>
+inline void dump_json_multi_dimensional_array_2(const T (&array)[len1][len2], const ApiDumpSettings &settings,
+                                                const char *type_string, const char *child_type, const char *name, int indents,
+                                                std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
+                                                Args... args) {
+    settings.stream() << settings.indentation(indents) << "{\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
+    OutputAddress(settings, array, true);
+    settings.stream() << ",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"elements\" :\n";
+    settings.stream() << settings.indentation(indents + 1) << "[\n";
+    for (size_t i = 0; i < len1 && array != NULL; ++i) {
+        for (size_t j = 0; j < len2; ++j) {
+            std::stringstream stream;
+            stream << "[" << i << "][" << j << "]";
+            std::string indexName = stream.str();
+            dump_json_value(array[i][j], &array[i][j], settings, child_type, indexName.c_str(), indents + 2, dump, args...);
+            if (i < len1 - 1 && j < len2 - 1) settings.stream() << ',';
+            settings.stream() << "\n";
+        }
+    }
+    settings.stream() << settings.indentation(indents + 1) << "]";
+    settings.stream() << "\n" << settings.indentation(indents) << "}";
+}
 template <typename T, typename... Args>
 inline void dump_json_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
