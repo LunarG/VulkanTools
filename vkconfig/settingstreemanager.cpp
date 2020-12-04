@@ -393,7 +393,7 @@ void SettingsTreeManager::khronosPresetChanged(int preset_index) {
     if (preset == ValidationPresetUserDefined) return;
 
     // The easiest way to do this is to create a new profile, and copy the layer over
-    const QString preset_file = QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json";
+    const QString preset_file(QString(":/resourcefiles/") + configurator.GetValidationPresetName(preset) + ".json");
 
     Configuration preset_configuration;
     const bool result = preset_configuration.Load(preset_file);
