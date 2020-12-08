@@ -71,16 +71,19 @@ Vulkan Configurator may be used with command line arguments to averride layers. 
 
 ***Vulkan Layer settings***: Per-layer settings loaded by each layer library and stored in the `vk_layer_settings.txt` file. This file is located either next to the Vulkan application executable or set globally and applied to all Vulkan applications thanks to *Vulkan Configurator*. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/master/layersvt/vk_layer_settings.txt).
 
+--------------
 ## Vulkan Layers execution order overview
 
 [ ![Vulkan Loader](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_layers_order_small.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_layers_order.png)
 
+--------------
 ## Vulkan Loader and Layers implementation overview
 
 [ ![Vulkan Loader](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_loader_640px.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vulkan_loader.png)
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
+--------------
 ## OS user-specific modifications
 
 The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
@@ -107,6 +110,7 @@ In addition, Windows system create registry entries in the following locations:
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
 
+--------------
 ## Tests
 
 ### Unit Tests
