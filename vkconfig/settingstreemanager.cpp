@@ -139,7 +139,7 @@ void SettingsTreeManager::BuildKhronosTree(Parameter &parameter) {
     _presets_combobox->blockSignals(true);
     _presets_combobox->addItem("User Defined");
     _preset_indexes.clear();
-    _preset_indexes.push_back(Parameter::NO_PRESET);
+    _preset_indexes.push_back(Layer::NO_PRESET);
     for (std::size_t i = 0, n = validation_layer->presets.size(); i < n; ++i) {
         const LayerPreset &layer_preset = validation_layer->presets[i];
 
@@ -152,7 +152,7 @@ void SettingsTreeManager::BuildKhronosTree(Parameter &parameter) {
     }
 
     auto configuration = configurator.GetActiveConfiguration();
-    _presets_combobox->setCurrentIndex(GetPresetIndex(parameter.preset_index));
+    _presets_combobox->setCurrentIndex(GetPresetIndex(validation_layer->FindPresetIndex(parameter.settings)));
 
     connect(_presets_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(khronosPresetChanged(int)));
     _validation_tree_item->addChild(_validation_preset_item);
@@ -430,8 +430,7 @@ void SettingsTreeManager::khronosPresetChanged(int combox_preset_index) {
     assert(parameter != configuration->parameters.end());
 
     // Reset just specific layer settings
-    ApplySettings(*parameter, *preset);
-    parameter->preset_index = preset_index;
+    parameter->ApplyPresetSettings(*preset);
 
     // Now we need to reload the Khronos tree item.
     _configuration_settings_tree->blockSignals(true);
@@ -458,10 +457,12 @@ void SettingsTreeManager::OnPresetEdited() {
     auto configuration = Configurator::Get().GetActiveConfiguration();
     auto parameter = FindItByKey(configuration->parameters, "VK_LAYER_KHRONOS_validation");
     assert(parameter != configuration->parameters.end());
-    parameter->preset_index = Parameter::NO_PRESET;
+
+    const Layer *layer = FindByKey(Configurator::Get().layers.available_layers, "VK_LAYER_KHRONOS_validation");
+    assert(layer);
 
     _presets_combobox->blockSignals(true);
-    _presets_combobox->setCurrentIndex(0);
+    _presets_combobox->setCurrentIndex(GetPresetIndex(layer->FindPresetIndex(parameter->settings)));
     _presets_combobox->blockSignals(false);
 
     OnSettingEdited();

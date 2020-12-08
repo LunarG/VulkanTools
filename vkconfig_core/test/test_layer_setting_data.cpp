@@ -18,11 +18,27 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "../layer_setting_data.h"
 
-#include <string>
+#include <gtest/gtest.h>
 
-struct SettingStorage {
-    std::string key;
-    std::string value;
-};
+#include <vector>
+
+TEST(test_layer_setting_data, has_preset) {
+    std::vector<LayerSettingData> preset_settings;
+    std::vector<LayerSettingData> layer_settings;
+
+    EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
+
+    preset_settings.push_back(LayerSettingData("KeyA", "ValueA"));
+    EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
+
+    layer_settings.push_back(LayerSettingData("KeyA", "ValueA"));
+    EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
+
+    layer_settings.push_back(LayerSettingData("KeyB", "ValueB"));
+    EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
+
+    preset_settings.push_back(LayerSettingData("KeyC", "ValueC"));
+    EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
+}

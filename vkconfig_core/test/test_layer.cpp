@@ -18,31 +18,23 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "../layer.h"
+#include "../util.h"
+
 #include <gtest/gtest.h>
 
-#include "../layer.h"
+TEST(test_layer, collect_settings) {
+    std::vector<LayerSettingMeta> meta;
 
-bool operator==(const Layer& a, const Layer& b) {
-    if (a.file_format_version != b.file_format_version)
-        return false;
-    else if (a.key != b.key)
-        return false;
-    else if (a._type != b._type)
-        return false;
-    else if (a._library_path != b._library_path)
-        return false;
-    else if (a._api_version != b._api_version)
-        return false;
-    else if (a._implementation_version != b._implementation_version)
-        return false;
-    else if (a.description != b.description)
-        return false;
-    else if (a._layer_path != b._layer_path)
-        return false;
-    else if (a._layer_type != b._layer_type)
-        return false;
+    EXPECT_TRUE(CollectDefaultSettingData(std::vector<LayerSettingMeta>()).empty());
 
-    return true;
+    LayerSettingMeta meta0;
+    meta0.key = "key0";
+    meta0.default_value = "value0";
+    meta.push_back(meta0);
+
+    std::vector<LayerSettingData> data = CollectDefaultSettingData(meta);
+
+    LayerSettingData* data0 = FindByKey(data, "key0");
+    EXPECT_STREQ("value0", data0->value.c_str());
 }
-
-bool operator!=(const Layer& a, const Layer& b) { return !(a == b); }

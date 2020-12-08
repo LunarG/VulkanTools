@@ -137,23 +137,23 @@ static TreeSettings sync_checks[] = {
     {"Synchronization Checks", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", nullptr}};
 
 /// There aren't many... but consider moving this to a QHash type lookup
-QString GetSettingDetails(QString qsSetting, QString &url) {
-    QString retString = "";
+static QString GetSettingDetails(const QString &setting, QString &url) {
+    QString ret_string = "";
 
     for (std::size_t i = 0, n = countof(lookup_table); i < n; i++) {
-        if (qsSetting == lookup_table[i].setting) {
+        if (setting == lookup_table[i].setting) {
             url = lookup_table[i].url;
-            retString = lookup_table[i].description;
+            ret_string = lookup_table[i].description;
             if (strcmp(lookup_table[i].url, "") == 0) {
-                retString += "\n<a href =\"";
-                retString += lookup_table[i].url;
-                retString += "\">Click for online documentation</a>";
+                ret_string += "\n<a href =\"";
+                ret_string += lookup_table[i].url;
+                ret_string += "\">Click for online documentation</a>";
             }
-            return retString;
+            return ret_string;
         }
     }
 
-    return retString;
+    return ret_string;
 }
 
 KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent,

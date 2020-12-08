@@ -22,18 +22,3 @@
 #include "../util.h"
 
 #include <gtest/gtest.h>
-
-TEST(test_layer_setting, find) {
-    LayerSettingMeta layer_setting_a;
-    layer_setting_a.key = "A";
-
-    LayerSettingMeta layer_setting_b;
-    layer_setting_b.key = "B";
-
-    std::vector<LayerSettingMeta> settings;
-    settings.push_back(layer_setting_a);
-    settings.push_back(layer_setting_b);
-
-    EXPECT_STREQ("A", FindByKey(settings, "A")->key.c_str());
-    EXPECT_EQ(nullptr, FindByKey(settings, "NULL"));
-}

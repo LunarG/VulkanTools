@@ -19,3 +19,25 @@
  */
 
 #include "layer_setting_data.h"
+#include "util.h"
+
+#include <cassert>
+#include <algorithm>
+
+LayerSettingData::LayerSettingData(const char* key, const char* value) : key(key), value(value) {
+    assert(key != nullptr);
+    assert(value != nullptr);
+}
+
+bool HasPreset(const std::vector<LayerSettingData>& layer_settings, const std::vector<LayerSettingData>& preset_settings) {
+    if (preset_settings.empty()) return false;
+
+    for (std::size_t preset_index = 0, preset_count = preset_settings.size(); preset_index < preset_count; ++preset_index) {
+        const LayerSettingData* layer_setting = FindByKey(layer_settings, preset_settings[preset_index].key.c_str());
+        if (layer_setting == nullptr) return false;
+
+        if (preset_settings[preset_index].value != layer_setting->value) return false;
+    }
+
+    return true;
+}

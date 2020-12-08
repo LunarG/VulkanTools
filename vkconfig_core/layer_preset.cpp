@@ -20,6 +20,8 @@
 
 #include "layer_preset.h"
 
+#include "util.h"
+
 const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, int preset_index) {
     for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
         if (presets[i].preset_index == preset_index) {

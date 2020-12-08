@@ -47,13 +47,6 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
     }
 }
 
-static int GetPresetIndex(const QJsonValue& preset_index) {
-    if (preset_index != QJsonValue::Undefined)
-        return preset_index.toInt();
-    else
-        return Parameter::NO_PRESET;
-}
-
 bool Configuration::Load2_0(const QJsonObject& json_root_object, const QString& full_path) {
     const QString& filename = QFileInfo(full_path).fileName();
 
@@ -93,22 +86,18 @@ bool Configuration::Load2_0(const QJsonObject& json_root_object, const QString& 
         const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
         const QJsonObject& layer_object = layer_value.toObject();
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
-        const QJsonValue& json_preset = layer_object.value("preset_index");
 
         const int overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::NO_RANK : layer_rank.toInt();
-        const int preset_index = GetPresetIndex(json_preset);
 
         Parameter parameter;
         parameter.key = layers[layer_index].toStdString();
         parameter.overridden_rank = overridden_rank;
-        parameter.preset_index = preset_index;
         parameter.state = LAYER_STATE_OVERRIDDEN;
 
         const QStringList& layer_settings = layer_object.keys();
 
         for (int setting_index = 0, setting_count = layer_settings.size(); setting_index < setting_count; ++setting_index) {
             if (layer_settings[setting_index] == "layer_rank") continue;
-            if (layer_settings[setting_index] == "preset_index") continue;
 
             const QJsonObject& setting_object = ReadObject(layer_object, layer_settings[setting_index].toStdString().c_str());
 
@@ -166,7 +155,6 @@ bool Configuration::Load2_1(const QJsonObject& json_root_object) {
         Parameter parameter;
         parameter.key = ReadStringValue(json_layer_object, "name").c_str();
         parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
-        parameter.preset_index = ReadIntValue(json_layer_object, "preset_index");
         parameter.state = GetLayerState(ReadStringValue(json_layer_object, "state").c_str());
 
         const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");
@@ -237,7 +225,6 @@ bool Configuration::Save(const QString& full_path) const {
         json_layer.insert("name", parameter.key.c_str());
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("state", GetToken(parameter.state));
-        json_layer.insert("preset_index", parameter.preset_index);
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {
