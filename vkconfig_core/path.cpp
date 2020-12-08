@@ -66,6 +66,11 @@ std::string ReplacePathBuiltInVariables(const std::string& path) {
 }
 
 std::string ValidatePath(const std::string& path) {
+    if (path.find("stdout") != std::string::npos)
+        return "stdout";
+    else if (path.find("stderr") != std::string::npos)
+        return "stderr";
+
     if (path.empty()) return path;
 
     FILE* file = fopen(path.c_str(), "w+");
