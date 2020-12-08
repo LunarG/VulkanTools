@@ -27,6 +27,7 @@
 
 #include "../vkconfig_core/layer_setting_meta.h"
 #include "../vkconfig_core/layer_preset.h"
+#include "../vkconfig_core/layer_type.h"
 #include "../vkconfig_core/version.h"
 
 #include <QObject>
@@ -39,12 +40,16 @@
 
 class Layer {
    public:
+    static const int NO_PRESET = 0;
+
     Layer();
     Layer(const std::string& key, const LayerType layer_type);
     Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
           const QString& implementation_version, const QString& library_path, const QString& type);
 
     bool IsValid() const;
+
+    int FindPresetIndex(const std::vector<LayerSettingData>& setting_data) const;
 
    public:
     // Standard pieces of a layer
@@ -66,4 +71,4 @@ class Layer {
     bool Load(const QString& full_path_to_file, LayerType layer_type);
 };
 
-std::vector<LayerSettingData> BuildSettings(const std::vector<LayerSettingMeta>& layer_settings);
+std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerSettingMeta>& layer_settings);

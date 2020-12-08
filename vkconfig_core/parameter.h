@@ -39,17 +39,16 @@ enum ParameterRank {
 
 struct Parameter {
     static const int NO_RANK = -1;
-    static const int NO_PRESET = 0;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(NO_RANK), preset_index(NO_PRESET) {}
-    Parameter(const std::string& key, const LayerState state)
-        : key(key), state(state), overridden_rank(NO_RANK), preset_index(NO_PRESET) {}
+    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), overridden_rank(NO_RANK) {}
+    Parameter(const std::string& key, const LayerState state) : key(key), state(state), overridden_rank(NO_RANK) {}
+
+    bool ApplyPresetSettings(const LayerPreset& preset);
 
     std::string key;
     LayerState state;
     std::vector<LayerSettingData> settings;
     int overridden_rank;
-    int preset_index;  // Settings preset, 0 = none or user defined
 };
 
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
@@ -57,7 +56,3 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
 void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
 
 bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-
-std::vector<LayerSettingData> BuildSettings(const std::vector<LayerSettingMeta>& layer_settings);
-
-bool ApplySettings(Parameter& parameter, const LayerPreset& preset);

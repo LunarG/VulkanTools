@@ -60,6 +60,14 @@ bool Layer::IsValid() const {
            _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
 }
 
+int Layer::FindPresetIndex(const std::vector<LayerSettingData>& layer_settings) const {
+    for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
+        if (HasPreset(layer_settings, presets[i].settings)) return presets[i].preset_index;
+    }
+
+    return NO_PRESET;
+}
+
 /// Reports errors via a message box. This might be a bad idea?
 bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
     _layer_type = layer_type;  // Set layer type, no way to know this from the json file
@@ -198,6 +206,7 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
             LayerPreset preset;
 
             preset.preset_index = ReadIntValue(json_preset_object, "preset-index");
+            assert(preset.preset_index > 0);
             preset.label = ReadStringValue(json_preset_object, "label");
             preset.description = ReadStringValue(json_preset_object, "description");
             preset.platform_flags = GetPlatformFlags(ReadStringArray(json_preset_object, "platforms"));
@@ -221,4 +230,14 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
     }
 
     return IsValid();  // Not all JSON file are layer JSON valid
+}
+
+std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerSettingMeta>& meta) {
+    std::vector<LayerSettingData> result;
+
+    for (std::size_t i = 0, n = meta.size(); i < n; ++i) {
+        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].default_value.toStdString().c_str()));
+    }
+
+    return result;
 }

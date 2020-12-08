@@ -147,20 +147,6 @@ TEST(test_parameter, filter) {
     EXPECT_EQ(2, parameters_excluded.size());
 }
 
-TEST(test_parameter, find) {
-    std::vector<Parameter> parameters = GenerateTestParametersExist();
-
-    {
-        auto parameter = FindItByKey(parameters, "Layer E1");
-        EXPECT_STREQ("Layer E1", parameter->key.c_str());
-    }
-
-    {
-        auto parameter = FindItByKey(parameters, "Layer E4");
-        EXPECT_EQ(parameters.end(), parameter);
-    }
-}
-
 TEST(test_parameter, order_automatic) {
     std::vector<Layer> layers = GenerateTestLayers();
     std::vector<Parameter> parameters = GenerateTestParametersAll();
@@ -241,27 +227,6 @@ TEST(test_parameter, order_manual) {
     EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
 }
 
-TEST(test_parameter, find_setting) {
-    LayerSettingData layer_setting_a;
-    layer_setting_a.key = "A";
-    layer_setting_a.value = "setting value a";
-
-    LayerSettingData layer_setting_b;
-    layer_setting_b.key = "B";
-    layer_setting_b.value = "setting value b";
-
-    LayerSettingData layer_setting_c;
-    layer_setting_c.key = "C";
-    layer_setting_c.value = "setting value c";
-
-    Parameter parameter;
-    parameter.settings.push_back(layer_setting_a);
-    parameter.settings.push_back(layer_setting_b);
-    parameter.settings.push_back(layer_setting_c);
-
-    EXPECT_STREQ("setting value b", FindByKey(parameter.settings, "B")->value.c_str());
-}
-
 TEST(test_parameter, apply_settings) {
     LayerSettingData preset_setting;
     preset_setting.key = "A";
@@ -282,7 +247,7 @@ TEST(test_parameter, apply_settings) {
     parameter.settings.push_back(layer_setting_a);
     parameter.settings.push_back(layer_setting_b);
 
-    ApplySettings(parameter, preset);
+    parameter.ApplyPresetSettings(preset);
 
     EXPECT_STREQ("preset value", FindByKey(parameter.settings, "A")->value.c_str());
 }

@@ -29,16 +29,16 @@
 #include <cassert>
 #include <algorithm>
 
-bool ApplySettings(Parameter& parameter, const LayerPreset& preset) {
+bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
     for (std::size_t preset_index = 0, preset_count = preset.settings.size(); preset_index < preset_count; ++preset_index) {
         const LayerSettingData& preset_setting = preset.settings[preset_index];
 
-        LayerSettingData* layer_setting = FindByKey(parameter.settings, preset_setting.key.c_str());
+        LayerSettingData* layer_setting = FindByKey(this->settings, preset_setting.key.c_str());
 
         if (layer_setting)
             layer_setting->value = preset_setting.value;
         else
-            parameter.settings.push_back(preset_setting);
+            this->settings.push_back(preset_setting);
     }
 
     return true;
@@ -122,17 +122,4 @@ bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::ve
         if (!IsFound(layers, it->key.c_str())) return true;
     }
     return false;
-}
-
-std::vector<LayerSettingData> BuildSettings(const std::vector<LayerSettingMeta>& layer_settings) {
-    std::vector<LayerSettingData> result;
-
-    for (std::size_t i = 0, n = layer_settings.size(); i < n; ++i) {
-        LayerSettingData setting_storage;
-        setting_storage.key = layer_settings[i].key;
-        setting_storage.value = layer_settings[i].default_value.toStdString();
-        result.push_back(setting_storage);
-    }
-
-    return result;
 }

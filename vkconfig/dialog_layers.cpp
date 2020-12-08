@@ -310,8 +310,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
     for (auto it = parameters.begin(); it != parameters.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
         it->overridden_rank = Parameter::NO_RANK;
-        it->preset_index = Parameter::NO_PRESET;
-        it->settings = BuildSettings(FindItByKey(configurator.layers.available_layers, it->key.c_str())->settings);
+        it->settings = CollectDefaultSettingData(FindItByKey(configurator.layers.available_layers, it->key.c_str())->settings);
     }
 
     OrderParameter(parameters, configurator.layers.available_layers);
@@ -554,8 +553,8 @@ void LayersDialog::BuildParameters() {
         Parameter parameter;
         parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        parameter.preset_index = Parameter::NO_PRESET;
-        parameter.settings = BuildSettings(FindItByKey(configurator.layers.available_layers, layer.key.c_str())->settings);
+        parameter.settings =
+            CollectDefaultSettingData(FindItByKey(configurator.layers.available_layers, layer.key.c_str())->settings);
 
         parameters.push_back(parameter);
     }

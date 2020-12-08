@@ -37,20 +37,3 @@ TEST(test_layer_preset, get_preset) {
     EXPECT_EQ(1, GetPreset(presets, 1)->preset_index);
     EXPECT_EQ(nullptr, GetPreset(presets, 3));
 }
-
-TEST(test_layer_preset, find_setting) {
-    LayerSettingData value_a;
-    value_a.key = "A";
-    LayerSettingData value_b;
-    value_b.key = "B";
-    LayerSettingData value_c;
-    value_c.key = "C";
-
-    LayerPreset layer_preset;
-    layer_preset.settings.push_back(value_a);
-    layer_preset.settings.push_back(value_b);
-    layer_preset.settings.push_back(value_c);
-
-    EXPECT_STREQ("B", FindByKey(layer_preset.settings, "B")->key.c_str());
-    EXPECT_EQ(nullptr, FindByKey(layer_preset.settings, "D"));
-}

@@ -24,6 +24,7 @@
 #include "layer_setting_data.h"
 
 #include <vector>
+#include <string>
 
 struct LayerPreset {
     int preset_index;

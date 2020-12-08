@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include "layer_type.h"
 #include "layer_setting_type.h"
 
 #include <QString>
+#include <QStringList>
 #include <QVariant>
 #include <QJsonObject>
 

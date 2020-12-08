@@ -28,6 +28,8 @@
 #include <cstdarg>
 #include <cctype>
 
+#include <QString>
+#include <QStringList>
 #include <QDir>
 
 std::string format(const char* message, ...) {
@@ -56,14 +58,6 @@ bool IsNumber(const std::string& s) {
     }
 
     return true;
-}
-
-bool IsFound(const QStringList& string_list, const QString& string_searched) {
-    for (int i = 0, n = string_list.size(); i < n; ++i) {
-        if (string_list[i] == string_searched) return true;
-    }
-
-    return false;
 }
 
 // delimted string is a comma delimited string. If value is found remove it

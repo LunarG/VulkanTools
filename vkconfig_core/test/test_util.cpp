@@ -138,4 +138,9 @@ TEST(test_util_format, find) {
     EXPECT_STREQ("B", FindItByKey(container, "B")->key.c_str());
     EXPECT_STREQ("C", FindItByKey(container, "C")->key.c_str());
     EXPECT_EQ(container.end(), FindItByKey(container, "D"));
+
+    EXPECT_EQ(true, IsFound(container, "A"));
+    EXPECT_EQ(true, IsFound(container, "B"));
+    EXPECT_EQ(true, IsFound(container, "C"));
+    EXPECT_EQ(false, IsFound(container, "D"));
 }

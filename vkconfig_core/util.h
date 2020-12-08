@@ -21,9 +21,6 @@
 
 #pragma once
 
-#include <QString>
-#include <QStringList>
-
 #if defined(_WIN32) && defined(_DEBUG)
 #include <windows.h>  // For OutputDebugString
 #endif
@@ -104,8 +101,6 @@ template <typename T>
 bool IsFound(const std::vector<T>& container, const char* key) {
     return FindByKey(container, key) != nullptr;
 }
-
-bool IsFound(const QStringList& string_list, const QString& string_searched);
 
 void RemoveString(std::string& delimited_string, const std::string& value);
 void AppendString(std::string& delimited_string, const std::string& value);
