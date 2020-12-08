@@ -43,13 +43,15 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 --------------
 ## Using the Vulkan Configurator
 
-The Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig`.
+Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig`.
 
 The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
 - Linux tarball: The vkconfig executable comes pre-built. Run vkconfig on the command line. 
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
 - macOS: The tool is provided as an application bundle. Run it by double-clicking the bundle from a Finder window.
+
+Vulkan Configurator may be used with command line arguments to averride layers. Use `vkconfig --help` in the console for more information.
 
 --------------
 ## Terminology
