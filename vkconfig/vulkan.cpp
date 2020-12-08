@@ -62,7 +62,7 @@ QString GenerateVulkanStatus() {
 
     // Check Vulkan SDK path
     const QString search_path(qgetenv("VULKAN_SDK"));
-    if (search_path.isEmpty())
+    if (!search_path.isEmpty())
         log += QString().asprintf("- SDK path: %s\n", search_path.toUtf8().constData());
     else
         log += "- VULKAN_SDK environment variable not set\n";
