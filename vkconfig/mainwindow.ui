@@ -574,7 +574,7 @@
               </font>
              </property>
              <property name="text">
-              <string>This tool allows overriding the Vulkan Layers configuration of Vulkan applications.</string>
+              <string>This tool allows overriding the Vulkan Layers of Vulkan applications.</string>
              </property>
              <property name="scaledContents">
               <bool>true</bool>
@@ -596,7 +596,7 @@
               </font>
              </property>
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Development of this tool is &amp;quot;work in progress&amp;quot;. Please report your issues on the &lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Please report issues on the &lt;a href=&quot;http://github.com/LunarG/VulkanTools&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="textFormat">
               <enum>Qt::RichText</enum>

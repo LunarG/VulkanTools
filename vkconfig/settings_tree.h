@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "khronossettingsadvanced.h"
+#include "settings_validation_areas.h"
 #include "widget_filesystem_setting.h"
 #include "widget_bool_setting.h"
 #include "widget_enum_setting.h"
@@ -29,6 +29,7 @@
 #include "widget_multi_enum_setting.h"
 #include "widget_vuid_search.h"
 #include "widget_mute_message.h"
+#include "widget_preset.h"
 
 #include "../vkconfig_core/configuration.h"
 
@@ -51,35 +52,28 @@ class SettingsTreeManager : QObject {
 
    public Q_SLOTS:
     void khronosDebugChanged(int index);
-    void khronosPresetChanged(int index);  // Okay, is this a custom guy HERE, or do we move it out
-                                           // It really forces a reload of the entire branch of this tree
-                                           // Reset layer defaults for the profile, and then call BuildKhronosTree again
-    void OnPresetEdited();                 // The user has changed something from a preset, and we are now a custom setting
-    void OnSettingEdited();                // The profile has been edited and should be saved
+    void OnPresetChanged(int index);  // Okay, is this a custom guy HERE, or do we move it out
+                                      // It really forces a reload of the entire branch of this tree
+                                      // Reset layer defaults for the profile, and then call BuildKhronosTree again
+    void OnSettingChanged();          // The profile has been edited and should be saved
 
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
-    void BuildKhronosTree(Parameter &parameter);
+    void BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
 
-    int GetPresetIndex(const int preset_index) const;
-
-    QTreeWidget *_configuration_settings_tree;
+    QTreeWidget *_settings_tree;
     std::vector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
-    std::vector<QTreeWidgetItem *> _layer_items;       // These parallel the configuration layers
 
-    QComboBox *_presets_combobox;
-    std::vector<int> _preset_indexes;  // The preset in the combobox
+    std::vector<PresetWidget *> _presets_comboboxes;
 
     QTreeWidgetItem *_validation_tree_item;
-    QTreeWidgetItem *_validation_file_item;
-    QTreeWidgetItem *_validation_preset_item;
     QTreeWidgetItem *_validation_log_file_item;
     FileSystemSettingWidget *_validation_log_file_widget;
     MultiEnumSettingWidget *_validation_debug_action;
-    KhronosSettingsAdvanced *_validation_settings;
+    SettingsValidationAreas *_validation_areas;
     MuteMessageWidget *_mute_message_widget;
     VUIDSearchWidget *_vuid_search_widget;
 };
