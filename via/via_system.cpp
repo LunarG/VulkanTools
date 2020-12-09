@@ -1565,13 +1565,13 @@ void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
     std::ifstream* settings_stream = new std::ifstream(settings_file, std::ifstream::in);
     if (nullptr == settings_stream || settings_stream->fail()) {
         // No file was found.  This is NOT an error.
-        PrintTableElement(settings_file);
+        PrintTableElement(ConvertPathFormat(settings_file));
         PrintTableElement("Failed to open settings file");
         PrintTableElement("");
         PrintEndTableRow();
     } else {
         // We found a file, so parse it.
-        PrintTableElement(settings_file);
+        PrintTableElement(ConvertPathFormat(settings_file));
         PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
