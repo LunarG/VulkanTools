@@ -1,30 +1,4 @@
 {
-  "ArrayOfVkFormatProperties": [
-    {
-      "bufferFeatures": 0,
-      "formatID": 1,
-      "linearTilingFeatures": 900005001,
-      "optimalTilingFeatures": 0
-    },
-    {
-      "bufferFeatures": 0,
-      "formatID": 2,
-      "linearTilingFeatures": 0,
-      "optimalTilingFeatures": 900005002
-    },
-    {
-      "bufferFeatures": 900005003,
-      "formatID": 3,
-      "linearTilingFeatures": 0,
-      "optimalTilingFeatures": 0
-    },
-    {
-      "bufferFeatures": 900005006,
-      "formatID": 100,
-      "linearTilingFeatures": 900005004,
-      "optimalTilingFeatures": 900005005
-    }
-  ],
   "ArrayOfVkQueueFamilyProperties": [
     {
       "minImageTransferGranularity": {
@@ -58,61 +32,61 @@
     }
   ],
   "VkPhysicalDeviceFeatures": {
-    "alphaToOne": 118,
-    "depthBiasClamp": 113,
-    "depthBounds": 115,
-    "depthClamp": 112,
-    "drawIndirectFirstInstance": 111,
-    "dualSrcBlend": 108,
-    "fillModeNonSolid": 114,
-    "fragmentStoresAndAtomics": 127,
-    "fullDrawIndexUint32": 102,
-    "geometryShader": 105,
-    "imageCubeArray": 103,
-    "independentBlend": 104,
-    "inheritedQueries": 155,
-    "largePoints": 117,
-    "logicOp": 109,
-    "multiDrawIndirect": 110,
-    "multiViewport": 119,
-    "occlusionQueryPrecise": 124,
-    "pipelineStatisticsQuery": 125,
-    "robustBufferAccess": 101,
-    "sampleRateShading": 107,
-    "samplerAnisotropy": 120,
-    "shaderClipDistance": 138,
-    "shaderCullDistance": 139,
-    "shaderFloat64": 140,
-    "shaderImageGatherExtended": 129,
-    "shaderInt16": 142,
-    "shaderInt64": 141,
-    "shaderResourceMinLod": 144,
-    "shaderResourceResidency": 143,
-    "shaderSampledImageArrayDynamicIndexing": 135,
-    "shaderStorageBufferArrayDynamicIndexing": 136,
-    "shaderStorageImageArrayDynamicIndexing": 137,
-    "shaderStorageImageExtendedFormats": 130,
-    "shaderStorageImageMultisample": 131,
-    "shaderStorageImageReadWithoutFormat": 132,
-    "shaderStorageImageWriteWithoutFormat": 133,
-    "shaderTessellationAndGeometryPointSize": 128,
-    "shaderUniformBufferArrayDynamicIndexing": 134,
-    "sparseBinding": 145,
-    "sparseResidency16Samples": 152,
-    "sparseResidency2Samples": 149,
-    "sparseResidency4Samples": 150,
-    "sparseResidency8Samples": 151,
-    "sparseResidencyAliased": 153,
-    "sparseResidencyBuffer": 146,
-    "sparseResidencyImage2D": 147,
-    "sparseResidencyImage3D": 148,
-    "tessellationShader": 106,
-    "textureCompressionASTC_LDR": 122,
-    "textureCompressionBC": 123,
-    "textureCompressionETC2": 121,
-    "variableMultisampleRate": 154,
-    "vertexPipelineStoresAndAtomics": 126,
-    "wideLines": 116
+    "alphaToOne": 1,
+    "depthBiasClamp": 1,
+    "depthBounds": 1,
+    "depthClamp": 1,
+    "drawIndirectFirstInstance": 1,
+    "dualSrcBlend": 1,
+    "fillModeNonSolid": 1,
+    "fragmentStoresAndAtomics": 1,
+    "fullDrawIndexUint32": 1,
+    "geometryShader": 1,
+    "imageCubeArray": 1,
+    "independentBlend": 1,
+    "inheritedQueries": 1,
+    "largePoints": 1,
+    "logicOp": 1,
+    "multiDrawIndirect": 1,
+    "multiViewport": 1,
+    "occlusionQueryPrecise": 1,
+    "pipelineStatisticsQuery": 1,
+    "robustBufferAccess": 1,
+    "sampleRateShading": 1,
+    "samplerAnisotropy": 1,
+    "shaderClipDistance": 1,
+    "shaderCullDistance": 1,
+    "shaderFloat64": 1,
+    "shaderImageGatherExtended": 1,
+    "shaderInt16": 1,
+    "shaderInt64": 1,
+    "shaderResourceMinLod": 1,
+    "shaderResourceResidency": 1,
+    "shaderSampledImageArrayDynamicIndexing": 1,
+    "shaderStorageBufferArrayDynamicIndexing": 1,
+    "shaderStorageImageArrayDynamicIndexing": 1,
+    "shaderStorageImageExtendedFormats": 1,
+    "shaderStorageImageMultisample": 1,
+    "shaderStorageImageReadWithoutFormat": 1,
+    "shaderStorageImageWriteWithoutFormat": 1,
+    "shaderTessellationAndGeometryPointSize": 1,
+    "shaderUniformBufferArrayDynamicIndexing": 1,
+    "sparseBinding": 1,
+    "sparseResidency16Samples": 1,
+    "sparseResidency2Samples": 1,
+    "sparseResidency4Samples": 1,
+    "sparseResidency8Samples": 1,
+    "sparseResidencyAliased": 1,
+    "sparseResidencyBuffer": 1,
+    "sparseResidencyImage2D": 1,
+    "sparseResidencyImage3D": 1,
+    "tessellationShader": 1,
+    "textureCompressionASTC_LDR": 1,
+    "textureCompressionBC": 1,
+    "textureCompressionETC2": 1,
+    "variableMultisampleRate": 1,
+    "vertexPipelineStoresAndAtomics": 1,
+    "wideLines": 1
   },
   "VkPhysicalDeviceMemoryProperties": {
     "memoryHeaps": [
@@ -153,7 +127,7 @@
     ]
   },
   "VkPhysicalDeviceProperties": {
-    "apiVersion": 1,
+    "apiVersion": 4194304,
     "deviceID": 0,
     "deviceName": "devsim test2",
     "deviceType": 0,
@@ -272,13 +246,13 @@
       "sampledImageIntegerSampleCounts": 900001090,
       "sampledImageStencilSampleCounts": 900001092,
       "sparseAddressSpaceSize": 80000001012,
-      "standardSampleLocations": 900001102,
+      "standardSampleLocations": 1,
       "storageImageSampleCounts": 900001093,
-      "strictLines": 900001101,
+      "strictLines": 1,
       "subPixelInterpolationOffsetBits": 900001080,
       "subPixelPrecisionBits": 900001059,
       "subTexelPrecisionBits": 900001060,
-      "timestampComputeAndGraphics": 900001095,
+      "timestampComputeAndGraphics": 1,
       "timestampPeriod": -214.5,
       "viewportBoundsRange": [
         -212.5,
@@ -305,12 +279,38 @@
       16
     ],
     "sparseProperties": {
-      "residencyAlignedMipSize": 900001109,
-      "residencyNonResidentStrict": 900001110,
-      "residencyStandard2DBlockShape": 900001106,
-      "residencyStandard2DMultisampleBlockShape": 900001107,
-      "residencyStandard3DBlockShape": 900001108
+      "residencyAlignedMipSize": 1,
+      "residencyNonResidentStrict": 1,
+      "residencyStandard2DBlockShape": 1,
+      "residencyStandard2DMultisampleBlockShape": 1,
+      "residencyStandard3DBlockShape": 1
     },
     "vendorID": 0
-  }
+  },
+  "ArrayOfVkFormatProperties": [
+    {
+      "formatID": 1,
+      "linearTilingFeatures": 900005001,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 0
+    },
+    {
+      "formatID": 2,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 900005002,
+      "bufferFeatures": 0
+    },
+    {
+      "formatID": 3,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 900005003
+    },
+    {
+      "formatID": 100,
+      "linearTilingFeatures": 900005004,
+      "optimalTilingFeatures": 900005005,
+      "bufferFeatures": 900005006
+    }
+  ]
 }

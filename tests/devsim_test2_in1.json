@@ -5,7 +5,7 @@
     "desc": "A configuration file fragment for the Device Simulation layer test."
   },
   "VkPhysicalDeviceProperties": {
-    "apiVersion": 1,
+    "apiVersion": 4194304,
     "driverVersion": 2,
     "vendorID": 0,
     "deviceID": 0,
@@ -104,7 +104,7 @@
       "sampledImageStencilSampleCounts": 900001092,
       "storageImageSampleCounts": 900001093,
       "maxSampleMaskWords": 900001094,
-      "timestampComputeAndGraphics": 900001095,
+      "timestampComputeAndGraphics": 1,
       "timestampPeriod": -214.5,
       "maxClipDistances": 900001097,
       "maxCullDistances": 900001098,
@@ -114,18 +114,18 @@
       "lineWidthRange": [ -205.5, -206.5 ],
       "pointSizeGranularity": -207.5,
       "lineWidthGranularity": -208.5,
-      "strictLines": 900001101,
-      "standardSampleLocations": 900001102,
+      "strictLines": 1,
+      "standardSampleLocations": 1,
       "optimalBufferCopyOffsetAlignment": 8000001103,
       "optimalBufferCopyRowPitchAlignment": 80000001104,
       "nonCoherentAtomSize": 80000001105
     },
     "sparseProperties": {
-      "residencyStandard2DBlockShape": 900001106,
-      "residencyStandard2DMultisampleBlockShape": 900001107,
-      "residencyStandard3DBlockShape": 900001108,
-      "residencyAlignedMipSize": 900001109,
-      "residencyNonResidentStrict": 900001110
+      "residencyStandard2DBlockShape": 1,
+      "residencyStandard2DMultisampleBlockShape": 1,
+      "residencyStandard3DBlockShape": 1,
+      "residencyAlignedMipSize": 1,
+      "residencyNonResidentStrict": 1
     }
   }
 }
