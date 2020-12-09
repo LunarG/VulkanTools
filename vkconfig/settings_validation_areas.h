@@ -31,11 +31,11 @@
 
 #include <vector>
 
-class KhronosSettingsAdvanced : public QObject {
+class SettingsValidationAreas : public QObject {
     Q_OBJECT
 
    public:
-    explicit KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent, std::vector<LayerSettingData> &settings);
+    explicit SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent, std::vector<LayerSettingData> &settings);
 
     bool CollectSettings();
 
@@ -66,6 +66,6 @@ class KhronosSettingsAdvanced : public QObject {
     void settingChanged();
 
    private:
-    KhronosSettingsAdvanced(const KhronosSettingsAdvanced &) = delete;
-    KhronosSettingsAdvanced &operator=(const KhronosSettingsAdvanced &) = delete;
+    SettingsValidationAreas(const SettingsValidationAreas &) = delete;
+    SettingsValidationAreas &operator=(const SettingsValidationAreas &) = delete;
 };

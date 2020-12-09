@@ -19,7 +19,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "khronossettingsadvanced.h"
+#include "settings_validation_areas.h"
 #include "configurator.h"
 
 #include "../vkconfig_core/version.h"
@@ -156,7 +156,7 @@ static QString GetSettingDetails(const QString &setting, QString &url) {
     return ret_string;
 }
 
-KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWidgetItem *parent,
+SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent,
                                                  std::vector<LayerSettingData> &settings)
     : _main_tree_widget(main_tree),
       _main_parent(parent),
@@ -312,7 +312,7 @@ KhronosSettingsAdvanced::KhronosSettingsAdvanced(QTreeWidget *main_tree, QTreeWi
 
 /// A tree item was selected, display the help information to the side
 /// This is embarrasingly brute force... temporary sketch in...
-void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *item, int column) {
+void SettingsValidationAreas::itemClicked(QTreeWidgetItem *item, int column) {
     (void)column;
     QString description;
     QString url;
@@ -369,7 +369,7 @@ void KhronosSettingsAdvanced::itemClicked(QTreeWidgetItem *item, int column) {
 }
 
 /// Something was checked or unchecked
-void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
+void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
     if (column != 0) return;
 
     emit settingChanged();
@@ -381,7 +381,6 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     // Best Practices
     _main_tree_widget->blockSignals(true);
     if (item == best_practices[0].item) {
-        // If we turned it on, we need to enable AMD
         if (item->checkState(0) == Qt::Checked) {
             best_practices[1].item->setFlags(best_practices[1].item->flags() | Qt::ItemIsEnabled);
         } else {
@@ -460,14 +459,14 @@ void KhronosSettingsAdvanced::itemChanged(QTreeWidgetItem *item, int column) {
     CollectSettings();
 }
 
-void KhronosSettingsAdvanced::gpuToggled(bool toggle) {
+void SettingsValidationAreas::gpuToggled(bool toggle) {
     if (VKC_PLATFORM != VKC_PLATFORM_MACOS && toggle) _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
 
     CollectSettings();
     emit settingChanged();
 }
 
-void KhronosSettingsAdvanced::printfToggled(bool toggle) {
+void SettingsValidationAreas::printfToggled(bool toggle) {
     if (VKC_PLATFORM != VKC_PLATFORM_MACOS && toggle) {
         _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
         _reserve_box->setCheckState(0, Qt::Unchecked);
@@ -478,7 +477,7 @@ void KhronosSettingsAdvanced::printfToggled(bool toggle) {
 }
 
 /// Collect all the settings
-bool KhronosSettingsAdvanced::CollectSettings() {
+bool SettingsValidationAreas::CollectSettings() {
     std::string enables;
     std::string disables;
 

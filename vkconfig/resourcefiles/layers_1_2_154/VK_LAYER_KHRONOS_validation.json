@@ -53,7 +53,7 @@
             {
                 "preset-index": 1,
                 "label": "Standard",
-                "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
+                "description": "Good default validation setup that balance validation coverage and performance.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
@@ -70,7 +70,7 @@
             {
                 "preset-index": 2,
                 "label": "Reduced-Overhead",
-                "description": "This configuration disables some of the checks of Standard Validation in the interest of performance.",
+                "description": "Disables some checks in the interest of better performance.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "editor_state": "01110111111111111111111001111111111110",
@@ -98,7 +98,7 @@
             {
                 "preset-index": 3,
                 "label": "Best Practices",
-                "description": "This configuration provides access to the Vulkan Best Practices check. Provides warnings about potential API misuse.",
+                "description": "Provides warnings about potential API misuse but valid usages of the API.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
@@ -123,7 +123,7 @@
             {
                 "preset-index": 4,
                 "label": "Synchronization",
-                "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
+                "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "ALPHA",
                 "settings": [
@@ -147,7 +147,7 @@
             {
                 "preset-index": 5,
                 "label": "GPU-Assisted",
-                "description": "Provides easy access to gpu-assisted validation tools.",
+                "description": "Check for API usage errors at shader execution time.",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "status": "STABLE",
                 "settings": [
@@ -173,7 +173,7 @@
             {
                 "preset-index": 6,
                 "label": "Shader Printf",
-                "description": "Provides easy access to gpu-assisted validation tools.",
+                "description": "Debug shader code by \"printing\" any values of interest to the debug callback or stdout.",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "status": "STABLE",
                 "settings": [
@@ -203,7 +203,6 @@
                 "description": "This indicates what action is to be taken when a layer wants to report information",
                 "type": "enum",
                 "options": {
-                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
                     "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
                     "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
                     "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": "Debug Output",
@@ -238,14 +237,14 @@
             },
             {
                 "key": "duplicate_message_limit",
-                "label": "Duplicated messages limit",
+                "label": "Duplicated Messages Limit",
                 "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
                 "type": "string",
                 "default": "10"
             },
             {
                 "key": "message_id_filter",
-                "label": "Message Filter",
+                "label": "Mute Message VUIDs",
                 "description": "VUID's to ignore",
                 "type": "vuid_exclude",
                 "options": [
@@ -6717,15 +6716,15 @@
                 "description": "Setting an option here will disable areas of validation",
                 "type": "multi_enum",
                 "options": {
-                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety checks",
-                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter checks",
-                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Object lifetime validation",
-                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core validation checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety",
+                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter",
+                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Object lifetime",
+                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core",
                     "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping",
                     "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT": "Disable Shaders",
                     "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE": "Command Buffer State",
-                    "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION": "Image Layout Validation",
-                    "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION": "Query Validation",
+                    "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION": "Image Layout",
+                    "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION": "Query",
                     "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE": "Push Constant Range",
                     "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE": "Object in Use",
                     "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET": "Idle Descritor Set"
@@ -6741,8 +6740,8 @@
                     "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT": "Debug printf",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
-                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices warning checks",
-                    "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM-specific validation"
+                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices",
+                    "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM-specific"
                 },
                 "default": []
             }            

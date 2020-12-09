@@ -50,6 +50,7 @@ SOURCES += \
     ../vkconfig_core/version.cpp \
     vulkan.cpp \
     alert.cpp \
+    widget_preset.cpp \
     widget_bool_setting.cpp \
     widget_enum_setting.cpp \
     widget_multi_enum_setting.cpp \
@@ -68,8 +69,8 @@ SOURCES += \
     main_gui.cpp \
     main_layers.cpp \
     mainwindow.cpp \
-    settingstreemanager.cpp \
-    khronossettingsadvanced.cpp \
+    settings_tree.cpp \
+    settings_validation_areas.cpp \
     configurator.cpp
 
 HEADERS += \
@@ -99,6 +100,7 @@ HEADERS += \
     ../vkconfig_core/version.h \
     vulkan.h \
     alert.h \
+    widget_preset.h \
     widget_bool_setting.h \
     widget_enum_setting.h \
     widget_multi_enum_setting.h \
@@ -113,11 +115,11 @@ HEADERS += \
     dialog_layers.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
-    khronossettingsadvanced.h \
     main_gui.h \
     main_layers.h \
     mainwindow.h \
-    settingstreemanager.h \
+    settings_validation_areas.h \
+    settings_tree.h \
     configurator.h
 
 FORMS += \

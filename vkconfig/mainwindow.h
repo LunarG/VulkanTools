@@ -22,7 +22,7 @@
 #pragma once
 
 #include "configurator.h"
-#include "settingstreemanager.h"
+#include "settings_tree.h"
 
 #include "ui_mainwindow.h"
 
