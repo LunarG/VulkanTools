@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#",
+	"comments": {
+		"desc": "JSON configuration file describing GPU 0's portability features and properties. Generated using the vulkaninfo program.",
+		"vulkanApiVersion": "1.2.141"
+	},
+	"VkPhysicalDevicePortabilitySubsetPropertiesKHR": {
+		"minVertexInputBindingStrideAlignment": 8
+	},
+	"VkPhysicalDevicePortabilitySubsetFeaturesKHR": {
+		"constantAlphaColorBlendFactors": 1,
+		"events": 1,
+		"imageViewFormatReinterpretation": 0,
+		"imageViewFormatSwizzle": 1,
+		"imageView2DOn3DImage": 1,
+		"multisampleArrayImage": 1,
+		"mutableComparisonSamplers": 1,
+		"pointPolygons": 0,
+		"samplerMipLodBias": 0,
+		"separateStencilMaskRef": 1,
+		"shaderSampleRateInterpolationFunctions": 1,
+		"tessellationIsolines": 1,
+		"tessellationPointMode": 1,
+		"triangleFans": 1,
+		"vertexAttributeAccessBeyondStride": 1
+	}
+}
