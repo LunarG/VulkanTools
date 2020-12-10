@@ -21,6 +21,15 @@
 
 #include "../command_line.h"
 #include "../util.h"
+#include "../platform.h"
+
+#if VKC_PLATFORM == VKC_PLATFORM_LINUX
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+#elif VKC_PLATFORM == VKC_PLATFORM_MACOS
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wwrite-strings"
+#endif
 
 #include <array>
 
@@ -193,3 +202,9 @@ TEST(test_command_line, usage_mode_layers_override_invalid_args) {
     EXPECT_EQ(COMMAND_LAYERS_OVERRIDE, command_line.command_layers_arg);
     EXPECT_TRUE(command_line.layers_configuration_path.empty());
 }
+
+#if VKC_PLATFORM == VKC_PLATFORM_LINUX
+#pragma GCC diagnostic pop
+#elif VKC_PLATFORM == VKC_PLATFORM_MACOS
+#pragma clang diagnostic pop
+#endif
