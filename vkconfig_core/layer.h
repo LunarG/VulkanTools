@@ -40,7 +40,9 @@
 
 class Layer {
    public:
-    static const int NO_PRESET = 0;
+    enum {
+        NO_PRESET = 0
+    };
 
     Layer();
     Layer(const std::string& key, const LayerType layer_type);
