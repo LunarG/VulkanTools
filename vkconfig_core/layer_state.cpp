@@ -22,6 +22,9 @@
 
 #include "util.h"
 
+#include <cstring>
+#include <cassert>
+
 const char* GetToken(LayerState state) {
     static const char* table[] = {
         "APPLICATION_CONTROLLED",  // LAYER_STATE_APPLICATION_CONTROLLED
@@ -36,7 +39,7 @@ const char* GetToken(LayerState state) {
 LayerState GetLayerState(const char* token) {
     for (std::size_t i = 0, n = LAYER_STATE_COUNT; i < n; ++i) {
         const LayerState layer_state = static_cast<LayerState>(i);
-        if (strcmp(GetToken(layer_state), token) == 0) return layer_state;
+        if (std::strcmp(GetToken(layer_state), token) == 0) return layer_state;
     }
 
     assert(0);

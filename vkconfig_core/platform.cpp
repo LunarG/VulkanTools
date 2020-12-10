@@ -21,11 +21,16 @@
 #include "platform.h"
 #include "util.h"
 
+#include <cstring>
+#include <cassert>
+#include <vector>
+#include <string>
+
 int GetPlatformFlags(const std::vector<std::string>& platform_strings) {
     int result = 0;
 
     for (std::size_t i = 0, n = platform_strings.size(); i < n; ++i) {
-        result |= 1 << GetPlatformType(platform_strings[i].c_str());
+        result |= (1 << GetPlatformType(platform_strings[i].c_str()));
     }
 
     return result;
@@ -57,7 +62,7 @@ const char* GetToken(PlatformType type) {
 PlatformType GetPlatformType(const char* token) {
     for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
         const PlatformType platform_type = static_cast<PlatformType>(i);
-        if (strcmp(GetToken(platform_type), token) == 0) return platform_type;
+        if (std::strcmp(GetToken(platform_type), token) == 0) return platform_type;
     }
 
     assert(0);
@@ -78,7 +83,7 @@ const char* GetToken(StatusType type) {
 StatusType GetStatusType(const char* token) {
     for (std::size_t i = 0, n = STATUS_COUNT; i < n; ++i) {
         const StatusType status_type = static_cast<StatusType>(i);
-        if (strcmp(GetToken(status_type), token) == 0) return status_type;
+        if (std::strcmp(GetToken(status_type), token) == 0) return status_type;
     }
 
     assert(0);
