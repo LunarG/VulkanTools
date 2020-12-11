@@ -49,3 +49,9 @@ inline bool IsEnum(SettingType type) {
 
     return type == SETTING_EXCLUSIVE_LIST || type == SETTING_INCLUSIVE_LIST;
 }
+
+inline bool IsPath(SettingType type) {
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+    return type == SETTING_SAVE_FILE || type == SETTING_LOAD_FILE || type == SETTING_SAVE_FOLDER;
+}

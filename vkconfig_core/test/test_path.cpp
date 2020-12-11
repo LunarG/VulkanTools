@@ -28,18 +28,25 @@
 
 #include <gtest/gtest.h>
 
-TEST(test_util, validate_path) {
-    const std::string validated_path = ValidatePath("/waotsra/aflkshjaksl/test.txt");
+// Test that GetPath return the home directory when the stored path is empty
+TEST(test_util, get_path) { EXPECT_STRNE(GetPath(BUILTIN_PATH_HOME).c_str(), ""); }
 
-    const QString ref_path(ConvertNativeSeparators(QDir().homePath().toStdString() + "/vulkan-sdk/test.txt").c_str());
+TEST(test_util, replace_path_home) {
+    const std::string replaced_path = ReplaceBuiltInVariable("${HOME}/test.txt");
 
-    EXPECT_STREQ(ref_path.toStdString().c_str(), validated_path.c_str());
+    EXPECT_TRUE(replaced_path.find("${HOME}") > replaced_path.size());
 }
 
-TEST(test_util, replace_path) {
-    const std::string replaced_path = ReplacePathBuiltInVariables("$HOME/test.txt");
+TEST(test_util, replace_path_vulkan_sdk) {
+    const std::string replaced_path = ReplaceBuiltInVariable("${VULKAN_SDK}/test.txt");
 
-    EXPECT_TRUE(replaced_path.find_first_of("$HOME") > replaced_path.size());
+    EXPECT_TRUE(replaced_path.find("${VULKAN_SDK}") > replaced_path.size());
+}
+
+TEST(test_util, replace_path_unknown) {
+    const std::string replaced_path = ReplaceBuiltInVariable("${UNKNOWN}/test.txt");
+
+    EXPECT_STREQ("${UNKNOWN}/test.txt", replaced_path.c_str());
 }
 
 TEST(test_util, native_path) {

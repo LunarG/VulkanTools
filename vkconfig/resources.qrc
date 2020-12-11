@@ -9,6 +9,10 @@
         <file>resourcefiles/configurations/Validation.json</file>
         <file>resourcefiles/configurations/Portability.json</file>
         <file>resourcefiles/configurations/Frame Capture.json</file>
+        
+        <file>resourcefiles/devsim/macOS_gpu_family_1_portability.json</file>
+        <file>resourcefiles/devsim/iOS_gpu_family_3_portability.json</file>
+        <file>resourcefiles/devsim/iOS_gpu_family_5_portability.json</file>
       
         <file>resourcefiles/layers_1_2_154/VK_LAYER_KHRONOS_validation.json</file>
         <file>resourcefiles/layers_1_2_154/VK_LAYER_LUNARG_api_dump.json</file>

@@ -1,19 +1,17 @@
 {
     "configuration": {
-        "description": "Check the Vulkan application is portable to macOS",
-        "editor_state": "01110111111111111111111001011110111110001111111111110",
+        "description": "Check the Vulkan application is portable to Apple platforms",
+        "editor_state": "0110011111111111111111100101111011111000111111111111",
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_api_dump",
-                "preset_index": 0,
                 "rank": -1,
                 "settings": [
-                 ],
+                ],
                 "state": "EXCLUDED"
             },
             {
                 "name": "VK_LAYER_LUNARG_gfxreconstruct",
-                "preset_index": 0,
                 "rank": -1,
                 "settings": [
                 ],
@@ -21,7 +19,6 @@
             },
             {
                 "name": "VK_LAYER_LUNARG_monitor",
-                "preset_index": 0,
                 "rank": -1,
                 "settings": [
                 ],
@@ -29,7 +26,6 @@
             },
             {
                 "name": "VK_LAYER_LUNARG_screenshot",
-                "preset_index": 0,
                 "rank": -1,
                 "settings": [
                 ],
@@ -37,7 +33,6 @@
             },
             {
                 "name": "VK_LAYER_KHRONOS_validation",
-                "preset_index": 1,
                 "rank": 4,
                 "settings": [
                     {
@@ -73,12 +68,11 @@
             },
             {
                 "name": "VK_LAYER_LUNARG_device_simulation",
-                "preset_index": 0,
                 "rank": 5,
                 "settings": [
                     {
                         "key": "debug_enable",
-                        "value": "0"
+                        "value": "1"
                     },
                     {
                         "key": "emulate_portability",
@@ -90,7 +84,7 @@
                     },
                     {
                         "key": "filename",
-                        "value": ""
+                        "value": "${VULKAN_SDK}/Content/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
                     }
                 ],
                 "state": "OVERRIDDEN"

@@ -95,7 +95,7 @@
                 "label": "Capture File Name",
                 "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
                 "type": "save_file",
-                "default": "gfxrecon_capture.gfxr"
+                "default": "${HOME}/VulkanSDK/gfxrecon_capture.gfxr"
             },
             {
                 "key": "capture_file_timestamp",

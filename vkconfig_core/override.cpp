@@ -52,6 +52,7 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
         }
 
         // Extract just the path
+        assert(!layer->_layer_path.isEmpty());
         const QFileInfo file(layer->_layer_path);
         const QString absolute_path(ConvertNativeSeparators(file.absolutePath().toStdString()).c_str());
 
@@ -161,7 +162,7 @@ static bool WriteLayerSettings(const Environment& environment, const std::vector
         for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
             const LayerSettingData& setting = parameter.settings[i];
 
-            stream << lc_layer_name << "." << setting.key.c_str() << " = " << setting.value.c_str() << "\n";
+            stream << lc_layer_name << "." << setting.key.c_str() << " = " << ReplaceBuiltInVariable(setting.value).c_str() << "\n";
         }
     }
     file.close();

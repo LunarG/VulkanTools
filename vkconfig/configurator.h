@@ -80,6 +80,8 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
+    void CopyResourceFiles();
+
     std::vector<Configuration>::iterator _active_configuration;
 
    public:

@@ -647,6 +647,7 @@
     <addaction name="actionHelp"/>
     <addaction name="actionVulkan_specification"/>
     <addaction name="actionVulkan_Layer_Specification"/>
+    <addaction name="actionGPU_Info_Reports"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -728,6 +729,11 @@
     <string>Vulkan Layer Specification</string>
    </property>
   </action>
+  <action name="actionGPU_Info_Reports">
+   <property name="text">
+    <string>Vulkan GPU Info Reports</string>
+   </property>
+  </action>     
  </widget>
  <resources>
   <include location="resources.qrc"/>

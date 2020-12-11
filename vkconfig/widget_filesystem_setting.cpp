@@ -41,7 +41,7 @@ FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, const La
     item->setToolTip(0, layer_setting_meta.description);
 
     _line_edit = new QLineEdit(this);
-    _line_edit->setText(layer_setting_data.value.c_str());
+    _line_edit->setText(ReplaceBuiltInVariable(layer_setting_data.value).c_str());
     _line_edit->show();
 
     _push_button = new QPushButton(this);
@@ -70,13 +70,13 @@ void FileSystemSettingWidget::browseButtonClicked() {
 
     switch (_mode) {
         case MODE_OPEN_FILE:
-            file = QFileDialog::getOpenFileName(_push_button, "Select file", ".");
+            file = QFileDialog::getOpenFileName(_push_button, "Select file", _line_edit->text());
             break;
         case MODE_SAVE_FILE:
-            file = QFileDialog::getSaveFileName(_push_button, "Select File", ".");
+            file = QFileDialog::getSaveFileName(_push_button, "Select File", _line_edit->text());
             break;
         case MODE_SAVE_FOLDER:
-            file = QFileDialog::getExistingDirectory(_push_button, "Select Folder", ".");
+            file = QFileDialog::getExistingDirectory(_push_button, "Select Folder", _line_edit->text());
             break;
         default:
             assert(0);

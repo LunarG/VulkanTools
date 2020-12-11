@@ -21,6 +21,7 @@
 
 #include "configuration.h"
 #include "util.h"
+#include "path.h"
 #include "json.h"
 #include "platform.h"
 #include "version.h"

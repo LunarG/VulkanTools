@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionHelp, SIGNAL(triggered(bool)), this, SLOT(helpShowHelp(bool)));
     connect(ui->actionVulkan_specification, SIGNAL(triggered(bool)), this, SLOT(helpShowVulkanSpec(bool)));
     connect(ui->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(helpShowLayerSpec(bool)));
+    connect(ui->actionGPU_Info_Reports, SIGNAL(triggered(bool)), this, SLOT(helpShowGPUInfo(bool)));
 
     connect(ui->actionCustom_Layer_Paths, SIGNAL(triggered(bool)), this, SLOT(toolsSetCustomPaths(bool)));
 
@@ -269,9 +270,8 @@ void MainWindow::LoadConfigurationList() {
         ConfigurationListItem *item = new ConfigurationListItem(configuration.key);
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
-        if (VKC_PLATFORM == VKC_PLATFORM_MACOS)  // Mac OS does not leave enough space without this
-            item->radio_button->setText(" ");
-
+        item->radio_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        item->radio_button->setFixedSize(QSize(24, 24));
         item->radio_button->setToolTip(configuration.description);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -546,6 +546,12 @@ void MainWindow::helpShowLayerSpec(bool checked) {
     (void)checked;
 
     ShowDoc(DOC_VULKAN_LAYERS);
+}
+
+void MainWindow::helpShowGPUInfo(bool checked) {
+    (void)checked;
+
+    ShowDoc(DOC_GPU_INFO);
 }
 
 /// The only thing we need to do here is clear the configuration if
