@@ -22,6 +22,8 @@
 
 #include <string>
 
+enum BuiltinPath { BUILTIN_PATH_HOME, BUILTIN_PATH_VULKAN_SDK };
+
 class Path {
    public:
     Path();
@@ -43,8 +45,7 @@ const char* GetNativeSeparator();
 // Create a directory if it doesn't exist
 void CheckPathsExist(const std::string& path);
 
-// Replace "$HOME" built-in variable by the actual system home directory
-std::string ReplacePathBuiltInVariables(const std::string& path);
+std::string GetPath(BuiltinPath path);
 
-// Exact the filename and change the path to "$HOME" directory if necessary
-std::string ValidatePath(const std::string& path);
+// Replace built-in variable by the actual path
+std::string ReplaceBuiltInVariable(const std::string& path);

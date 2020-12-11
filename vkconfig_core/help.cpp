@@ -41,6 +41,10 @@ void ShowDoc(DocType doc_type) {
             QDesktopServices::openUrl(QUrl("https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CHANGELOG.md"));
             break;
         }
+        case DOC_GPU_INFO: {
+            QDesktopServices::openUrl(QUrl("https://vulkan.gpuinfo.org/listreports.php"));
+            break;
+        }
         case DOC_VULKAN_SPEC: {
             const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html",
                                            GetPlatformString(PLATFORM_STRING_OS));

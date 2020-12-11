@@ -57,18 +57,16 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
             break;
         }
         case SETTING_EXCLUSIVE_LIST:
-        case SETTING_STRING:
-        case SETTING_LOAD_FILE:
-        case SETTING_SAVE_FOLDER: {
+        case SETTING_STRING: {
             assert(json_value.isString());
             setting_value.push_back(QVariant(json_value.toString()));
             break;
         }
-        case SETTING_SAVE_FILE: {
+        case SETTING_SAVE_FILE:
+        case SETTING_LOAD_FILE:
+        case SETTING_SAVE_FOLDER: {
             assert(json_value.isString());
-            const QString& value = json_value.toString();
-            const QString path(ReplacePathBuiltInVariables(ValidatePath(value.toStdString())).c_str());
-            setting_value.push_back(path);
+            setting_value.push_back(json_value.toString());
             break;
         }
         case SETTING_BOOL_NUMERIC:

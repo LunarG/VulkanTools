@@ -56,7 +56,6 @@ static const DirectoryDesc& GetDesc(PathType directory) {
         {"executable", "", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #endif
         {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},          // PATH_EXECUTABLE
-        {"home path", nullptr, nullptr, nullptr, false, PATH_HOME},                                    // PATH_HOME
         {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},              // PATH_LAUNCHER_LOG_FILE
         {"custom layer path", ".json", "lastCustomLayerPath", nullptr, true, PATH_CUSTOM_LAYER_PATH},  // PATH_CUSTOM_LAYER_PATH
     };
@@ -86,14 +85,14 @@ PathManager::~PathManager() {
 }
 
 bool PathManager::Load() {
-    paths[PATH_HOME] = ConvertNativeSeparators(QDir::homePath().toStdString());
-
     QSettings settings;
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
         const PathType type = static_cast<PathType>(i);
         if (GetDesc(type).setting == nullptr) continue;
         paths[type] = settings.value(GetDesc(type).setting).toString().toUtf8().constData();
     }
+
+    CheckPathsExist(::GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK");
 
     const std::string base_path = ConvertNativeSeparators(QDir::home().path().toStdString());
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
@@ -122,8 +121,6 @@ void PathManager::Clear() {
         const PathType type = static_cast<PathType>(i);
         paths[type].clear();
     }
-
-    paths[PATH_HOME] = ConvertNativeSeparators(QDir::homePath().toStdString());
 }
 
 void PathManager::Reset() {
@@ -136,7 +133,7 @@ void PathManager::Reset() {
     }
 }
 
-const char* PathManager::GetPath(PathType path) const {
+const std::string PathManager::GetPath(PathType path) const {
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
     if (!paths[path].empty()) {
@@ -148,9 +145,7 @@ const char* PathManager::GetPath(PathType path) const {
         return paths[alternative_path].c_str();
     }
 
-    // No path found, return home directory
-    assert(!paths[PATH_HOME].empty());
-    return paths[PATH_HOME].c_str();
+    return ::GetPath(BUILTIN_PATH_HOME);
 }
 
 void PathManager::SetPath(PathType path, const char* path_value) {
@@ -171,7 +166,7 @@ void PathManager::SetPath(PathType directory, const std::string& path_value) {
 QString PathManager::GetFullPath(PathType path, const char* filename) const {
     const QFileInfo file_info(filename);
 
-    const QString path_base = GetPath(path);
+    const QString path_base(GetPath(path).c_str());
 
     const QString path_filename = filename != nullptr ? QFileInfo(filename).baseName() : GetDesc(path).default_filename;
     assert(!path_filename.isEmpty());  // Did you really mean to use GetFullPath? GetPath seem to be the right function here
@@ -190,7 +185,7 @@ QString PathManager::GetFullPath(PathType path, const QString& filename) const {
 }
 
 QString PathManager::GetFullPath(Filename filename) const {
-    const QString path = GetPath(PATH_CONFIGURATION);
+    const QString path(GetPath(PATH_CONFIGURATION).c_str());
 
     const QString full_path(
         ConvertNativeSeparators(path.toStdString() + GetNativeSeparator() + GetDesc(filename).filename).c_str());
@@ -207,7 +202,7 @@ QString PathManager::SelectPath(QWidget* parent, PathType path) {
     assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
-    return SelectPathImpl(parent, path, GetPath(path));
+    return SelectPathImpl(parent, path, GetPath(path).c_str());
 }
 
 QString PathManager::SelectPath(QWidget* parent, PathType path, const QString& suggested_path) {
@@ -215,7 +210,7 @@ QString PathManager::SelectPath(QWidget* parent, PathType path, const QString& s
     assert(path >= PATH_FIRST && path <= PATH_LAST);
 
     if (suggested_path.isEmpty())
-        return SelectPathImpl(parent, path, GetPath(path));
+        return SelectPathImpl(parent, path, GetPath(path).c_str());
     else
         return SelectPathImpl(parent, path, suggested_path);
 }
@@ -251,7 +246,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, PathType path, const QStrin
                 return "";
 
             SetPath(path, selected_path.toStdString());
-            return GetPath(path);
+            return GetPath(path).c_str();
         }
         case PATH_CUSTOM_LAYER_PATH: {
             const QString selected_path = QFileDialog::getExistingDirectory(parent, "Add Custom Layer Folder...", suggested_path,
@@ -260,7 +255,7 @@ QString PathManager::SelectPathImpl(QWidget* parent, PathType path, const QStrin
                 return "";
 
             SetPath(path, selected_path.toStdString());
-            return GetPath(path);
+            return GetPath(path).c_str();
         }
         case PATH_IMPORT_CONFIGURATION: {
             const QString selected_path = QFileDialog::getOpenFileName(parent, "Import Layers Configuration File", suggested_path,

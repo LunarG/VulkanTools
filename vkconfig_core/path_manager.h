@@ -36,7 +36,6 @@ enum PathType {
     PATH_EXPORT_CONFIGURATION,  // The last path used by the user to export a configuration
     PATH_EXECUTABLE,            // The last path used by the user when adding an executable to the application list
     PATH_WORKING_DIR,           // The last path used as a working directory
-    PATH_HOME,                  // The user home directory
     PATH_LAUNCHER_LOG_FILE,     // The last path used by the user to set the launcher log file
     PATH_CUSTOM_LAYER_PATH,     // The last custom layer path
 
@@ -62,7 +61,7 @@ class PathManager {
     bool Load();
     bool Save();
 
-    const char* GetPath(PathType path) const;
+    const std::string GetPath(PathType path) const;
 
     // The path value should not have the filename
     void SetPath(PathType path, const char* path_value);

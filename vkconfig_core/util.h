@@ -56,6 +56,7 @@ bool IsNumber(const std::string& s);
 template <typename T>
 typename std::vector<T>::iterator FindItByKey(std::vector<T>& container, const char* key) {
     assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
 
     for (auto it = container.begin(), end = container.end(); it != end; ++it) {
         if (it->key == key) return it;
@@ -67,6 +68,7 @@ typename std::vector<T>::iterator FindItByKey(std::vector<T>& container, const c
 template <typename T>
 typename std::vector<T>::const_iterator FindItByKey(const std::vector<T>& container, const char* key) {
     assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
 
     for (auto it = container.begin(), end = container.end(); it != end; ++it) {
         if (it->key == key) return it;
@@ -78,6 +80,7 @@ typename std::vector<T>::const_iterator FindItByKey(const std::vector<T>& contai
 template <typename T>
 T* FindByKey(std::vector<T>& container, const char* key) {
     assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
 
     for (std::size_t i = 0, n = container.size(); i < n; ++i) {
         if (container[i].key == key) return &container[i];
@@ -89,6 +92,7 @@ T* FindByKey(std::vector<T>& container, const char* key) {
 template <typename T>
 const T* FindByKey(const std::vector<T>& container, const char* key) {
     assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
 
     for (std::size_t i = 0, n = container.size(); i < n; ++i) {
         if (container[i].key == key) return &container[i];

@@ -18,7 +18,9 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "util.h"
 #include "path.h"
+#include "path_manager.h"
 #include "platform.h"
 
 #include <QDir>
@@ -51,40 +53,49 @@ void CheckPathsExist(const std::string& path) {
     }
 }
 
-std::string ReplacePathBuiltInVariables(const std::string& path) {
-    static const std::string HOME("$HOME");
+std::string GetPath(BuiltinPath path) {
+    switch (path) {
+        case BUILTIN_PATH_HOME:
+            return ConvertNativeSeparators(QDir().homePath().toStdString());
+        case BUILTIN_PATH_VULKAN_SDK: {
+            const QString path(qgetenv("VULKAN_SDK"));
+            if (path.isEmpty())
+                return GetPath(BUILTIN_PATH_HOME);
+            else
+                return ConvertNativeSeparators(path.toStdString());
+        }
+        default: {
+            assert(0);
+            return "";
+        }
+    }
+}
 
-    const std::size_t found = path.find_first_of(HOME);
-    if (found < path.size()) {
-        assert(found == 0);  // The home variable must be first in the path
-        const std::size_t offset = found + HOME.size();
-        return ConvertNativeSeparators(QDir().homePath().toStdString() + path.substr(found + offset, path.size() - offset).c_str());
+struct BuiltinDesc {
+    BuiltinPath type;
+    const char* name;
+};
+
+std::string ReplaceBuiltInVariable(const std::string& path) {
+    static const BuiltinDesc VARIABLES[] = {{BUILTIN_PATH_HOME, "${HOME}"}, {BUILTIN_PATH_VULKAN_SDK, "${VULKAN_SDK}"}};
+
+    for (std::size_t i = 0, n = countof(VARIABLES); i < n; ++i) {
+        const std::size_t found = path.find(VARIABLES[i].name);
+        if (found < path.size()) {
+            assert(found == 0);  // The home variable must be first in the path
+            const std::size_t offset = found + std::strlen(VARIABLES[i].name);
+            const std::string replaced_path = GetPath(VARIABLES[i].type) + path.substr(found + offset, path.size() - offset);
+            return ConvertNativeSeparators(replaced_path);
+        }
     }
 
     // No built-in variable found, return unchanged
     return path;
 }
 
-std::string ValidatePath(const std::string& path) {
-    if (path.find("stdout") != std::string::npos)
-        return "stdout";
-    else if (path.find("stderr") != std::string::npos)
-        return "stderr";
-
-    if (path.empty()) return path;
-
-    FILE* file = fopen(path.c_str(), "w+");
-    if (file == nullptr) {
-        CheckPathsExist(QDir::homePath().toStdString() + GetNativeSeparator() + "vulkan-sdk");
-        const QFileInfo file_info(path.c_str());
-        return ConvertNativeSeparators(QDir().homePath().toStdString() + "/vulkan-sdk/" + file_info.fileName().toStdString());
-    } else {
-        fclose(file);
-        return path;
-    }
-}
-
 std::string ConvertNativeSeparators(const std::string& path) {
+    assert(!path.empty());
+
     const char* native_separator = GetNativeSeparator();
     const std::size_t native_separator_size = std::strlen(native_separator);
     const char* alien_separator = VKC_PLATFORM != VKC_PLATFORM_WINDOWS ? "\\" : "/";

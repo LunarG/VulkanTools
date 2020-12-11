@@ -4,7 +4,7 @@
         ],
         "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
         "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-        "editor_state": "01110111111111111111111001011111111110",
+        "editor_state": "011001111111111111111111010111111111100111",
         "layer_options": {
             "VK_LAYER_KHRONOS_validation": {
                 "debug_action": {

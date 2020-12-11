@@ -111,7 +111,7 @@ void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test applicatio
 {
     Configurator &configurator = Configurator::Get();
 
-    const QString suggested_path = configurator.path.GetPath(PATH_EXECUTABLE);
+    const QString suggested_path(configurator.path.GetPath(PATH_EXECUTABLE).c_str());
     QString executable_full_path = configurator.path.SelectPath(this, PATH_EXECUTABLE, suggested_path);
 
     // If they have selected something!

@@ -165,9 +165,9 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
                         setting.enum_labels << default_value;
                     }
                 } break;
+                case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE: {
-                    setting.default_value = ValidatePath(setting.default_value.toStdString()).c_str();
-                    setting.default_value = ReplacePathBuiltInVariables(setting.default_value.toStdString()).c_str();
+                    setting.default_value = setting.default_value.toStdString().c_str();
                 } break;
                 case SETTING_VUID_FILTER: {
                     const QJsonValue& json_value_options = json_setting.value("options");
@@ -178,7 +178,6 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
                         setting.enum_values.append(json_value_array[i].toString());
                     }
                 } break;
-                case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FOLDER:
                 case SETTING_BOOL:
                 case SETTING_BOOL_NUMERIC:
@@ -219,7 +218,6 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
                 LayerSettingData setting_value;
                 setting_value.key = ReadStringValue(json_setting_object, "key");
                 setting_value.value = ReadString(json_setting_object, "value");
-
                 preset.settings.push_back(setting_value);
             }
 

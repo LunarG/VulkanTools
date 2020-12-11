@@ -46,7 +46,45 @@ Configurator &Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator() : environment(path), layers(environment) {}
+Configurator::Configurator() : environment(path), layers(environment) { CopyResourceFiles(); }
+
+Configurator::~Configurator() {
+    for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
+        available_configurations[i].Save(path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].key));
+    }
+
+    if (!environment.UsePersistentOverrideMode()) {
+        SurrenderLayers(environment);
+    }
+}
+
+void Configurator::CopyResourceFiles() {
+    const QString dir_save(QString(GetPath(BUILTIN_PATH_VULKAN_SDK).c_str()) + "/Content/VK_LAYER_LUNARG_device_simulation");
+    if (QDir().exists(dir_save)) return;
+
+    CheckPathsExist(dir_save.toStdString());
+
+    QDir dir(":/resourcefiles/devsim/");
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.json");
+    const QFileInfoList &devsim_files = dir.entryInfoList();
+
+    for (int i = 0, n = devsim_files.size(); i < n; ++i) {
+        const QString filename_load(devsim_files[i].absoluteFilePath());
+        QFile file_load(filename_load);
+        const bool opened_load = file_load.open(QIODevice::ReadOnly | QIODevice::Text);
+        assert(opened_load);
+        QString json_text = file_load.readAll();
+        file_load.close();
+
+        const QString filename_save(dir_save + "/" + devsim_files[i].fileName());
+        QFile file_save(filename_save);
+        const bool opened_save = file_save.open(QIODevice::WriteOnly | QIODevice::Text);
+        assert(opened_save);
+        file_save.write(json_text.toStdString().c_str(), json_text.size());
+        file_save.close();
+    }
+}
 
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
@@ -125,16 +163,6 @@ bool Configurator::Init() {
     }
 
     return true;
-}
-
-Configurator::~Configurator() {
-    for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
-        available_configurations[i].Save(path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].key));
-    }
-
-    if (!environment.UsePersistentOverrideMode()) {
-        SurrenderLayers(environment);
-    }
 }
 
 bool Configurator::HasLayers() const { return !layers.Empty(); }
@@ -222,7 +250,7 @@ void Configurator::LoadAllConfigurations() {
 
     // Get a list of all files that end in .json in the folder where
     // we store them. TBD... don't hard code this here.
-    QDir dir(path.GetPath(PATH_CONFIGURATION));
+    QDir dir(path.GetPath(PATH_CONFIGURATION).c_str());
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList configuration_files = dir.entryInfoList();
@@ -244,7 +272,7 @@ void Configurator::LoadAllConfigurations() {
 
 void Configurator::RemoveConfigurationFiles() {
     // Delete all the *.json files in the storage folder
-    QDir dir(path.GetPath(PATH_CONFIGURATION));
+    QDir dir(path.GetPath(PATH_CONFIGURATION).c_str());
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList configuration_files = dir.entryInfoList();
