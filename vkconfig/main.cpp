@@ -20,12 +20,15 @@
 
 #include "main_gui.h"
 #include "main_layers.h"
+#include "main_signal.h"
 
 #include "../vkconfig_core/command_line.h"
 
 #include <cassert>
 
 int main(int argc, char* argv[]) {
+    InitSignals();
+
     const CommandLine command_line(argc, argv);
 
     if (command_line.error != ERROR_NONE) {
