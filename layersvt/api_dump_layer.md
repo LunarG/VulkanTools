@@ -20,6 +20,10 @@ or by using the `vk_layer_settings.txt` file.
 
 ## Enabling the Layer
 
+### Vkconfig
+
+The API dump layer can be enabled using vkconfig. See the [vkconfig](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/README.md) documentation for more information.
+
 ### Desktop (Linux/Windows/MacOS)
 
 You must add the location of the generated `VK_LAYER_LUNARG_api.json` file and corresponding
