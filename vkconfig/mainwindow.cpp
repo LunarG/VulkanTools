@@ -835,7 +835,7 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
     const QString full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
     if (full_export_path.isEmpty()) return;
 
-    configurator.ExportConfiguration(item->configuration_name + ".json", full_export_path);
+    configurator.ExportConfiguration(full_export_path, item->configuration_name);
 }
 
 void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {

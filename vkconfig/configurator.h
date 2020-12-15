@@ -59,7 +59,7 @@ class Configurator {
     std::vector<Configuration> available_configurations;
     void LoadAllConfigurations();  // Load all the .profile files found
     void ImportConfiguration(const QString& full_import_path);
-    void ExportConfiguration(const QString& source_file, const QString& full_export_path);
+    void ExportConfiguration(const QString& full_export_path, const QString& ConfigurationName);
     void ResetDefaultsConfigurations();
 
     bool HasLayers() const;
