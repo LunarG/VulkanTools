@@ -430,6 +430,26 @@ TEST(test_configuration, find_layer_parameter) {
     EXPECT_STREQ(parameter->key.c_str(), "VK_LAYER_KHRONOS_validation");
 }
 
+TEST(test_configuration, load_and_save_v2_0_3_best_practices) {
+    Configuration configuration_loaded;
+    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.3 - Best Practices.json");
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!configuration_loaded.IsEmpty());
+    EXPECT_EQ(1, configuration_loaded.parameters.size());
+    EXPECT_TRUE(!configuration_loaded.description.isEmpty());
+
+    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+
+    EXPECT_STREQ("Validation - Best Practices", configuration_loaded.key.toStdString().c_str());
+    configuration_loaded.Save("test_v2_0_3_best_practices.json");
+
+    Configuration configuration_saved;
+    configuration_saved.Load("test_v2_0_3_best_practices.json");
+
+    EXPECT_EQ(configuration_loaded, configuration_saved);
+}
+
 static std::vector<Configuration> GenerateConfigurations() {
     std::vector<Configuration> configurations;
 
