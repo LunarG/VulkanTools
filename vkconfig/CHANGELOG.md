@@ -16,6 +16,7 @@
 ### Features:
 - Refactor built-in configurations #1247
 - Add layer settings presets #1271
+- Add portability default configuration #1279
 
 ### Improvements:
 - In case of crash or user interruption, remove the layers override #1278
