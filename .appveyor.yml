@@ -72,7 +72,7 @@ for:
           image: Visual Studio 2019
     environment:
       PYTHON: C:\Python35
-      QTDIR: C:\Qt\5.15.1\msvc2019_64
+      QTDIR: C:\Qt\5.13\msvc2017_64
       PLATFORM_ARGUMENT: --64
       CONFIGURATION_ARGUMENT: --debug
     init:
