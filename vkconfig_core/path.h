@@ -49,3 +49,5 @@ std::string GetPath(BuiltinPath path);
 
 // Replace built-in variable by the actual path
 std::string ReplaceBuiltInVariable(const std::string& path);
+
+bool IsPortableFilename(const std::string& path);

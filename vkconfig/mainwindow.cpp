@@ -451,12 +451,15 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         if (new_configuration_name.isEmpty()) {
             Alert::ConfigurationNameEmpty();
+        } else if (!IsPortableFilename(new_configuration_name.toStdString())) {
+            Alert::ConfigurationNameInvalid();
         }
 
         auto end = configurator.available_configurations.end();
-        auto duplicate_configuration = new_configuration_name.isEmpty() ? end
-                                                                        : FindItByKey(configurator.available_configurations,
-                                                                                      new_configuration_name.toStdString().c_str());
+        const bool failed = new_configuration_name.isEmpty() || !IsPortableFilename(new_configuration_name.toStdString());
+        auto duplicate_configuration =
+            failed ? end : FindItByKey(configurator.available_configurations, new_configuration_name.toStdString().c_str());
+
         if (duplicate_configuration != end) {
             Alert::ConfigurationRenamingFailed();
         }
@@ -465,7 +468,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
         auto configuration =
             FindItByKey(configurator.available_configurations, configuration_item->configuration_name.toStdString().c_str());
 
-        if (new_configuration_name.isEmpty() || duplicate_configuration != end) {
+        if (failed || duplicate_configuration != end) {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
 
             ui->configuration_tree->blockSignals(true);

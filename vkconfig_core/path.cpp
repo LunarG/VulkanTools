@@ -125,3 +125,26 @@ const char* GetNativeSeparator() {
     static const char* native_separator = VKC_PLATFORM == VKC_PLATFORM_WINDOWS ? "\\" : "/";
     return native_separator;
 }
+
+static bool IsPortableChar(char c) {
+    if (c >= '0' && c <= '9') return true;
+    if (c >= 'a' && c <= 'z') return true;
+    if (c >= 'A' && c <= 'Z') return true;
+    if (c == '_' || c == '-' || c == '.') return true;
+
+    return false;
+}
+
+bool IsPortableFilename(const std::string& path) {
+    if (path.empty()) return false;
+
+    if (path == ".") return false;
+
+    if (path.find("..") != std::string::npos) return false;
+
+    for (std::size_t i = 0, n = path.size(); i < n; ++i) {
+        if (!IsPortableChar(path[i])) return false;
+    }
+
+    return true;
+}
