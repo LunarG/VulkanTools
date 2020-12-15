@@ -79,3 +79,16 @@ TEST(test_util, native_path_with_file) {
         }
     }
 }
+
+TEST(test_util, is_portable_filename_valid) {
+    EXPECT_TRUE(IsPortableFilename("VUlkanConfigurator2"));
+    EXPECT_TRUE(IsPortableFilename("VUlkanConfigurator2.json"));
+    EXPECT_TRUE(IsPortableFilename(".VUlkanConfigurator2.json"));
+}
+
+TEST(test_util, is_portable_filename_invalid) {
+    EXPECT_TRUE(!IsPortableFilename("."));
+    EXPECT_TRUE(!IsPortableFilename(".."));
+    EXPECT_TRUE(!IsPortableFilename("../gni"));
+    EXPECT_TRUE(!IsPortableFilename("..gni.json"));
+}

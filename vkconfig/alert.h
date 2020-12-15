@@ -23,4 +23,5 @@
 struct Alert {
     static void ConfigurationRenamingFailed();
     static void ConfigurationNameEmpty();
+    static void ConfigurationNameInvalid();
 };

@@ -492,6 +492,11 @@ void LayersDialog::accept() {
         return;
     }
 
+    if (!IsPortableFilename(ui->lineEditName->text().toStdString())) {
+        Alert::ConfigurationNameInvalid();
+        return;
+    }
+
     Configurator &configurator = Configurator::Get();
     if (configuration.key != ui->lineEditName->text() &&
         FindItByKey(configurator.available_configurations, ui->lineEditName->text().toStdString().c_str()) !=

@@ -43,3 +43,14 @@ void Alert::ConfigurationNameEmpty() {
     alert.setIcon(QMessageBox::Warning);
     alert.exec();
 }
+
+void Alert::ConfigurationNameInvalid() {
+    QMessageBox alert;
+    alert.setWindowTitle("Invalid name for a configuration...");
+    alert.setText("The configuration name is used to build a filename.");
+    alert.setInformativeText("The allowed characters are 0-9, a-z, A-Z, '.', '_', and '-'.");
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+}
