@@ -49,6 +49,12 @@ TEST(test_util, replace_path_unknown) {
     EXPECT_STREQ("${UNKNOWN}/test.txt", replaced_path.c_str());
 }
 
+TEST(test_util, convert_native_separator_empty) {
+    const std::string replaced_path = ReplaceBuiltInVariable("");
+
+    EXPECT_STREQ("", replaced_path.c_str());
+}
+
 TEST(test_util, native_path) {
     static const char* table[] = {
         "/vkconfig/test\\path/format/",  "/vkconfig/test\\path/format\\", "/vkconfig\\test/path/format/",

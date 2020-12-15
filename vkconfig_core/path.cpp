@@ -103,8 +103,6 @@ std::string ReplaceBuiltInVariable(const std::string& path) {
 }
 
 std::string ConvertNativeSeparators(const std::string& path) {
-    assert(!path.empty());
-
     const char* native_separator = GetNativeSeparator();
     const std::size_t native_separator_size = std::strlen(native_separator);
     const char* alien_separator = VKC_PLATFORM != VKC_PLATFORM_WINDOWS ? "\\" : "/";
