@@ -271,13 +271,11 @@ void Configurator::LoadAllConfigurations() {
 }
 
 void Configurator::RemoveConfigurationFiles() {
-    // Delete all the *.json files in the storage folder
     QDir dir(path.GetPath(PATH_CONFIGURATION).c_str());
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
     dir.setNameFilters(QStringList() << "*.json");
     QFileInfoList configuration_files = dir.entryInfoList();
 
-    // Loop through all the configurations found and remove them
     for (int i = 0, n = configuration_files.size(); i < n; i++) {
         QFileInfo info = configuration_files.at(i);
 
@@ -384,32 +382,20 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
     LoadAllConfigurations();
 }
 
-void Configurator::ExportConfiguration(const QString &source_file, const QString &full_export_path) {
-    assert(!source_file.isEmpty());
+void Configurator::ExportConfiguration(const QString &full_export_path, const QString &ConfigurationName) {
+    assert(!ConfigurationName.isEmpty());
     assert(!full_export_path.isEmpty());
 
-    Configuration configuration;
+    Configuration *configuration = FindByKey(available_configurations, ConfigurationName.toStdString().c_str());
+    assert(configuration);
 
-    const QString source_path = path.GetFullPath(PATH_CONFIGURATION, source_file);
-
-    if (!configuration.Load(source_path)) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Export of Layers Configuration error");
-        msg.setText("Cannot access the source configuration file.");
-        msg.setInformativeText(source_path);
-        msg.exec();
-        return;
-    }
-
-    if (!configuration.Save(full_export_path)) {
+    if (!configuration->Save(full_export_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
         msg.setText("Cannot create the destination configuration file.");
         msg.setInformativeText(full_export_path);
         msg.exec();
-        return;
     }
 }
 
