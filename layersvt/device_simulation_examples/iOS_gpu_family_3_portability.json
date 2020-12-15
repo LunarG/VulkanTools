@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#",
+	"comments": {
+		"desc": "JSON configuration file describing iOS GPU family 3 portability features and properties. Generated using the vulkaninfo program.",
+		"vulkanApiVersion": "1.1.154"
+	},
+	"VkPhysicalDevicePortabilitySubsetPropertiesKHR": {
+		"minVertexInputBindingStrideAlignment": 4
+	},
+	"VkPhysicalDevicePortabilitySubsetFeaturesKHR": {
+		"constantAlphaColorBlendFactors": 1,
+		"events": 1,
+		"imageViewFormatReinterpretation": 1,
+		"imageViewFormatSwizzle": 0,
+		"imageView2DOn3DImage": 0,
+		"multisampleArrayImage": 0,
+		"mutableComparisonSamplers": 1,
+		"pointPolygons": 0,
+		"samplerMipLodBias": 0,
+		"separateStencilMaskRef": 1,
+		"shaderSampleRateInterpolationFunctions": 0,
+		"tessellationIsolines": 0,
+		"tessellationPointMode": 0,
+		"triangleFans": 0,
+		"vertexAttributeAccessBeyondStride": 1
+	}
+}
