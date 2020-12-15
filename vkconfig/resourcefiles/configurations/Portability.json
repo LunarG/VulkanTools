@@ -84,7 +84,7 @@
                     },
                     {
                         "key": "filename",
-                        "value": "${VULKAN_SDK}/Content/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
+                        "value": "${VULKAN_CONTENT}/Content/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
                     }
                 ],
                 "state": "OVERRIDDEN"

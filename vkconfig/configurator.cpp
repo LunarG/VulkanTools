@@ -59,7 +59,7 @@ Configurator::~Configurator() {
 }
 
 void Configurator::CopyResourceFiles() {
-    const QString dir_save(QString(GetPath(BUILTIN_PATH_VULKAN_SDK).c_str()) + "/Content/VK_LAYER_LUNARG_device_simulation");
+    const QString dir_save(QString(GetPath(BUILTIN_PATH_VULKAN_CONTENT).c_str()) + "/VK_LAYER_LUNARG_device_simulation");
     if (QDir().exists(dir_save)) return;
 
     CheckPathsExist(dir_save.toStdString());
