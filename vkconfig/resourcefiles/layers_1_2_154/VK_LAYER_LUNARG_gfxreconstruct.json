@@ -16,7 +16,6 @@
         ],
         "presets": [
             {
-                "preset-index": 1,
                 "label": "Initialization",
                 "description": "Capture the applications first two frames.",
                 "platforms": [ "WINDOWS", "LINUX" ],
@@ -37,7 +36,6 @@
                 ]
             },
             {
-                "preset-index": 2,
                 "label": "Range",
                 "description": "Capture a range of frames",
                 "platforms": [ "WINDOWS", "LINUX" ],
