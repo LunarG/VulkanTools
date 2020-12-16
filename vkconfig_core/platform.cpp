@@ -142,9 +142,9 @@ const char* GetPlatformString(PlatformString platform_string) {
         },
         {
             // PLATFORM_STRING_VULKAN_CONTENT
-            "/Content",               // PLATFORM_WINDOWS
-            "/share/vulkan/content",  // PLATFORM_LINUX
-            "/share/vulkan/content",  // PLATFORM_MACOS
+            "/Config",               // PLATFORM_WINDOWS
+            "/share/vulkan/config",  // PLATFORM_LINUX
+            "/share/vulkan/config",  // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_EXPLICIT_LAYERS
