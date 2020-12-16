@@ -134,12 +134,11 @@ const char* GetNativeSeparator() {
 }
 
 static bool IsPortableChar(char c) {
-    if (c >= '0' && c <= '9') return true;
-    if (c >= 'a' && c <= 'z') return true;
-    if (c >= 'A' && c <= 'Z') return true;
-    if (c == '_' || c == '-' || c == '.') return true;
+    if (c == '\\' || c == '/') return false;
+    if (c == '|' || c == '<' || c == '>') return false;
+    if (c == ':' || c == '*' || c == '?') return false;
 
-    return false;
+    return true;
 }
 
 bool IsPortableFilename(const std::string& path) {
