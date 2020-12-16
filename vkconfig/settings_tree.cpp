@@ -391,6 +391,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 }
 
 void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
+    (void)combox_preset_index;
+
     CreateGUI(_settings_tree);
 
     Configurator &configurator = Configurator::Get();

@@ -30,9 +30,11 @@
 FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, const LayerSettingMeta& layer_setting_meta,
                                                  LayerSettingData& layer_setting_data)
     : QWidget(nullptr),
+      _mode(GetMode(layer_setting_meta.type)),
       layer_setting_meta(layer_setting_meta),
       layer_setting_data(layer_setting_data),
-      _mode(GetMode(layer_setting_meta.type)) {
+      _line_edit(nullptr),
+      _push_button(nullptr) {
     assert(item);
     assert(&layer_setting_meta);
     assert(&layer_setting_data);
