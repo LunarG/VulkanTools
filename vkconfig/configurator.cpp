@@ -64,10 +64,7 @@ void Configurator::CopyResourceFiles() {
 
     CheckPathsExist(dir_save.toStdString());
 
-    QDir dir(":/resourcefiles/devsim/");
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.json");
-    const QFileInfoList &devsim_files = dir.entryInfoList();
+    const QFileInfoList &devsim_files = GetJSONFiles(":/resourcefiles/devsim/");
 
     for (int i = 0, n = devsim_files.size(); i < n; ++i) {
         const QString filename_load(devsim_files[i].absoluteFilePath());
@@ -227,10 +224,7 @@ void Configurator::LoadAllConfigurations() {
     if (environment.first_run) {
         RemoveConfigurationFiles();
 
-        QDir dir(":/resourcefiles/configurations/");
-        dir.setFilter(QDir::Files | QDir::NoSymLinks);
-        dir.setNameFilters(QStringList() << "*.json");
-        const QFileInfoList &configuration_files = dir.entryInfoList();
+        const QFileInfoList &configuration_files = GetJSONFiles(":/resourcefiles/configurations/");
 
         for (int i = 0, n = configuration_files.size(); i < n; ++i) {
             Configuration configuration;
@@ -248,16 +242,11 @@ void Configurator::LoadAllConfigurations() {
         environment.first_run = false;
     }
 
-    // Get a list of all files that end in .json in the folder where
-    // we store them. TBD... don't hard code this here.
-    QDir dir(path.GetPath(PATH_CONFIGURATION).c_str());
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.json");
-    QFileInfoList configuration_files = dir.entryInfoList();
+    const QFileInfoList &configuration_files = GetJSONFiles(path.GetPath(PATH_CONFIGURATION).c_str());
 
     // Loop through all the configurations found and load them
     for (int i = 0, n = configuration_files.size(); i < n; i++) {
-        QFileInfo info = configuration_files.at(i);
+        const QFileInfo &info = configuration_files.at(i);
 
         Configuration configuration;
         const bool result = configuration.Load(info.absoluteFilePath());
@@ -271,15 +260,10 @@ void Configurator::LoadAllConfigurations() {
 }
 
 void Configurator::RemoveConfigurationFiles() {
-    QDir dir(path.GetPath(PATH_CONFIGURATION).c_str());
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.json");
-    QFileInfoList configuration_files = dir.entryInfoList();
+    const QFileInfoList &configuration_files = GetJSONFiles(path.GetPath(PATH_CONFIGURATION).c_str());
 
     for (int i = 0, n = configuration_files.size(); i < n; i++) {
-        QFileInfo info = configuration_files.at(i);
-
-        remove(info.filePath().toUtf8().constData());
+        remove(configuration_files[i].filePath().toStdString().c_str());
     }
 }
 

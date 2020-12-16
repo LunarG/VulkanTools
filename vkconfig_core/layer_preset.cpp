@@ -22,7 +22,12 @@
 
 #include "util.h"
 
+#include <cstring>
+
 const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char* preset_label) {
+    assert(preset_label);
+    assert(std::strcmp(preset_label, "") != 0);
+
     for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
         if (presets[i].label == preset_label) {
             return &presets[i];

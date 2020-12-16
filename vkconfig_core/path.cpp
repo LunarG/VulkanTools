@@ -154,3 +154,10 @@ bool IsPortableFilename(const std::string& path) {
 
     return true;
 }
+
+QFileInfoList GetJSONFiles(const char* directory) {
+    QDir dir(directory);
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.json");
+    return dir.entryInfoList();
+}

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <QFileInfoList>
+
 #include <string>
 
 enum BuiltinPath {
@@ -60,3 +62,5 @@ std::string GetPath(BuiltinPath path);
 std::string ReplaceBuiltInVariable(const std::string& path);
 
 bool IsPortableFilename(const std::string& path);
+
+QFileInfoList GetJSONFiles(const char* directory);
