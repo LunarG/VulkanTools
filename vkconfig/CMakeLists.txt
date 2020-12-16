@@ -15,10 +15,12 @@ elseif(Qt5_VERSION VERSION_LESS 5.5)
 else()
     file(GLOB FILES_RESSOURCE_CONFIGURATIONS ./resourcefiles/configurations/*.json)
     file(GLOB FILES_RESSOURCE_LAYERS_1_2_154 ./resourcefiles/layers_1_2_154/*.json)
-    set(FILES_RESSOURCE ${FILES_RESSOURCE_CONFIGURATIONS} ${FILES_RESSOURCE_LAYERS_1_2_154})
+    file(GLOB FILES_RESSOURCE_LAYERS_1_2_162 ./resourcefiles/layers_1_2_162/*.json)
+    set(FILES_RESSOURCE ${FILES_RESSOURCE_CONFIGURATIONS} ${FILES_RESSOURCE_LAYERS_1_2_154} ${FILES_RESSOURCE_LAYERS_1_2_162})
 
     source_group("Resources Configuration Files" FILES ${FILES_RESSOURCE_CONFIGURATIONS})
     source_group("Resources Layers 1.2.154 Files" FILES ${FILES_RESSOURCE_LAYERS_1_2_154})
+    source_group("Resources Layers 1.2.162 Files" FILES ${FILES_RESSOURCE_LAYERS_1_2_162})
 
     file(GLOB FILES_UI ./*.ui)
 

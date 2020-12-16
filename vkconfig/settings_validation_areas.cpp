@@ -166,7 +166,8 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
       _shader_based_box(nullptr),
       _gpu_assisted_box(nullptr),
       _gpu_assisted_radio(nullptr),
-      _reserve_box(nullptr),
+      _gpu_assisted_reserve_box(nullptr),
+      _gpu_assisted_oob_box(nullptr),
       _debug_printf_box(nullptr),
       _debug_printf_radio(nullptr),
       settings_meta(settings_meta),
@@ -181,6 +182,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     for (std::size_t i = 0, n = countof(core_checks); i < n; i++) {
         QTreeWidgetItem *core_child_item = new QTreeWidgetItem();
         core_child_item->setText(0, core_checks[i].prompt);
+
         if (HasDisable(core_checks[i].token) || core_validation_disabled)
             core_child_item->setCheckState(0, Qt::Unchecked);
         else
@@ -196,6 +198,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     for (std::size_t i = 0, n = countof(misc_disables); i < n; i++) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, misc_disables[i].prompt);
+
         if (HasDisable(misc_disables[i].token))
             item->setCheckState(0, Qt::Unchecked);
         else
@@ -214,7 +217,6 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         _shader_based_box = new QTreeWidgetItem();
         _shader_based_box->setText(0, "Shader-Based Validation");
         _shader_based_box->setCheckState(0, shader_based ? Qt::Checked : Qt::Unchecked);
-
         parent->addChild(_shader_based_box);
 
         _gpu_assisted_box = new QTreeWidgetItem();
@@ -224,13 +226,21 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         _gpu_assisted_radio = new QRadioButton();
         _main_tree_widget->setItemWidget(_gpu_assisted_box, 0, _gpu_assisted_radio);
 
-        _reserve_box = new QTreeWidgetItem();
-        _reserve_box->setText(0, "Reserve Descriptor Set Binding Slot");
-
         const bool reserve_binding_slot = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
-        _reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
+        _gpu_assisted_reserve_box = new QTreeWidgetItem();
+        _gpu_assisted_reserve_box->setText(0, "Reserve Descriptor Set Binding Slot");
+        _gpu_assisted_reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
+        _gpu_assisted_box->addChild(_gpu_assisted_reserve_box);
 
-        _gpu_assisted_box->addChild(_reserve_box);
+        LayerSettingData *setting_gpuav_buffer_oob_data = FindByKey(settings_data, "gpuav_buffer_oob");
+        const LayerSettingMeta *setting_gpuav_buffer_oob_meta = FindByKey(settings_meta, "gpuav_buffer_oob");
+        if (setting_gpuav_buffer_oob_data && setting_gpuav_buffer_oob_meta) {
+            QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+            _gpu_assisted_box->addChild(setting_item);
+            BoolSettingWidget *widget = new BoolSettingWidget(*setting_gpuav_buffer_oob_meta, *setting_gpuav_buffer_oob_data);
+            main_tree->setItemWidget(setting_item, 0, widget);
+            widget->setFont(main_tree->font());
+        }
 
         _debug_printf_box = new QTreeWidgetItem();
         _debug_printf_box->setText(0, "     Debug printf");
@@ -238,9 +248,10 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
         _debug_printf_radio = new QRadioButton();
         _main_tree_widget->setItemWidget(_debug_printf_box, 0, _debug_printf_radio);
+
         if (HasEnable("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
             _debug_printf_radio->setChecked(true);
-            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+            _gpu_assisted_reserve_box->setFlags(_gpu_assisted_reserve_box->flags() & ~Qt::ItemIsEnabled);
         } else
             _gpu_assisted_radio->setChecked(true);
 
@@ -248,7 +259,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
             _debug_printf_radio->setEnabled(false);
             _gpu_assisted_radio->setEnabled(false);
             _debug_printf_box->setFlags(_debug_printf_box->flags() & ~Qt::ItemIsEnabled);
-            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+            _gpu_assisted_reserve_box->setFlags(_gpu_assisted_reserve_box->flags() & ~Qt::ItemIsEnabled);
             _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() & ~Qt::ItemIsEnabled);
         }
     }
@@ -273,9 +284,9 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText(0, best_practices[0].prompt);
-    if (HasEnable(best_practices[0].token))
+    if (HasEnable(best_practices[0].token)) {
         item->setCheckState(0, Qt::Checked);
-    else {
+    } else {
         item->setCheckState(0, Qt::Unchecked);
         core_child_item->setFlags(core_child_item->flags() & ~Qt::ItemIsEnabled);
     }
@@ -343,7 +354,7 @@ void SettingsValidationAreas::itemClicked(QTreeWidgetItem *item, int column) {
     if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
         if (item == _gpu_assisted_box) {
             description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT", url);
-        } else if (item == _reserve_box) {
+        } else if (item == _gpu_assisted_reserve_box) {
             description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT", url);
         } else if (item == _debug_printf_box) {
             description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT", url);
@@ -396,20 +407,20 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
             _debug_printf_radio->setEnabled(true);
             _gpu_assisted_radio->setEnabled(true);
             _debug_printf_box->setFlags(_debug_printf_box->flags() | Qt::ItemIsEnabled);
-            _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
+            _gpu_assisted_reserve_box->setFlags(_gpu_assisted_reserve_box->flags() | Qt::ItemIsEnabled);
             _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() | Qt::ItemIsEnabled);
         } else {
             _debug_printf_radio->setEnabled(false);
             _gpu_assisted_radio->setEnabled(false);
             _debug_printf_box->setFlags(_debug_printf_box->flags() & ~Qt::ItemIsEnabled);
-            _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+            _gpu_assisted_reserve_box->setFlags(_gpu_assisted_reserve_box->flags() & ~Qt::ItemIsEnabled);
             _gpu_assisted_box->setFlags(_gpu_assisted_box->flags() & ~Qt::ItemIsEnabled);
         }
     }
 
     // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
     if (VKC_PLATFORM != VKC_PLATFORM_MACOS && item == _debug_printf_box && _debug_printf_radio->isChecked())
-        _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
+        _gpu_assisted_reserve_box->setFlags(_gpu_assisted_reserve_box->flags() & ~Qt::ItemIsEnabled);
 
     _main_tree_widget->blockSignals(false);
 
@@ -445,7 +456,8 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
 }
 
 void SettingsValidationAreas::gpuToggled(bool toggle) {
-    if (VKC_PLATFORM != VKC_PLATFORM_MACOS && toggle) _reserve_box->setFlags(_reserve_box->flags() | Qt::ItemIsEnabled);
+    if (VKC_PLATFORM != VKC_PLATFORM_MACOS && toggle)
+        _gpu_assisted_reserve_box->setFlags(_gpu_assisted_reserve_box->flags() | Qt::ItemIsEnabled);
 
     CollectSettings();
     emit settingChanged();
@@ -453,8 +465,8 @@ void SettingsValidationAreas::gpuToggled(bool toggle) {
 
 void SettingsValidationAreas::printfToggled(bool toggle) {
     if (VKC_PLATFORM != VKC_PLATFORM_MACOS && toggle) {
-        _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
-        _reserve_box->setCheckState(0, Qt::Unchecked);
+        _gpu_assisted_reserve_box->setFlags(_gpu_assisted_reserve_box->flags() & ~Qt::ItemIsEnabled);
+        _gpu_assisted_reserve_box->setCheckState(0, Qt::Unchecked);
     }
 
     CollectSettings();
@@ -471,7 +483,7 @@ bool SettingsValidationAreas::CollectSettings() {
         if (_gpu_assisted_radio->isChecked()) {
             enables = "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT";
 
-            if (_reserve_box->checkState(0) == Qt::Checked)
+            if (_gpu_assisted_reserve_box->checkState(0) == Qt::Checked)
                 enables += ",VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT";
         } else  // Debug printf must be checked
             enables = "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT";

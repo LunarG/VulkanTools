@@ -112,7 +112,7 @@ TEST(test_configuration, load_and_save_v2_0_1_api_dump) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     configuration_loaded.key = "Api Dump";
-    configuration_loaded.Save("test_v2_0_1_api_dump.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_api_dump.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_api_dump.json");
@@ -132,7 +132,7 @@ TEST(test_configuration, load_and_save_v2_0_1_frame_capture) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     configuration_loaded.key = "Frame Capture";
-    configuration_loaded.Save("test_v2_0_1_frame_capture.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_frame_capture.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_frame_capture.json");
@@ -152,7 +152,7 @@ TEST(test_configuration, load_and_save_v2_0_2_frame_capture) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     EXPECT_STREQ("Frame Capture - Range (F5 to start and to stop)", configuration_loaded.key.toStdString().c_str());
-    configuration_loaded.Save("test_v2_0_2_frame_capture.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_frame_capture.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_frame_capture.json");
@@ -172,7 +172,7 @@ TEST(test_configuration, load_and_save_v2_0_1_gpu_assisted) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     configuration_loaded.key = "GPU-Assisted";
-    configuration_loaded.Save("test_v2_0_1_gpu_assisted.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_gpu_assisted.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_gpu_assisted.json");
@@ -192,7 +192,7 @@ TEST(test_configuration, load_and_save_v2_0_2_gpu_assisted) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     EXPECT_STREQ("Validation - GPU-Assisted", configuration_loaded.key.toStdString().c_str());
-    configuration_loaded.Save("test_v2_0_2_gpu_assisted.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_gpu_assisted.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_gpu_assisted.json");
@@ -212,7 +212,7 @@ TEST(test_configuration, load_and_save_v2_0_1_shader_printf) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     configuration_loaded.key = "shader-printf";
-    configuration_loaded.Save("test_v2_0_1_shader_printf.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_shader_printf.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_shader_printf.json");
@@ -232,7 +232,7 @@ TEST(test_configuration, load_and_save_v2_0_2_debug_printf) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     EXPECT_STREQ("Validation - Debug Printf", configuration_loaded.key.toStdString().c_str());
-    configuration_loaded.Save("test_v2_0_2_shader_printf.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_shader_printf.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_shader_printf.json");
@@ -252,7 +252,7 @@ TEST(test_configuration, load_and_save_v2_0_1_best_practices) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     configuration_loaded.key = "best-practices";
-    configuration_loaded.Save("test_v2_0_1_best_practices.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_best_practices.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_best_practices.json");
@@ -272,7 +272,7 @@ TEST(test_configuration, load_and_save_v2_0_2_best_practices) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     EXPECT_STREQ("Validation - Best Practices", configuration_loaded.key.toStdString().c_str());
-    configuration_loaded.Save("test_v2_0_2_best_practices.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_best_practices.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_best_practices.json");
@@ -312,7 +312,7 @@ TEST(test_configuration, load_and_save_v2_0_2_override_all_layers) {
     ASSERT_TRUE(parameter_screenshot != configuration_loaded.parameters.end());
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_screenshot->state);
 
-    configuration_loaded.Save("test_v2_0_2_override_all_layers.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_override_all_layers.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_override_all_layers.json");
@@ -352,7 +352,7 @@ TEST(test_configuration, load_and_save_v2_0_2_exclude_all_layers) {
     ASSERT_TRUE(parameter_screenshot != configuration_loaded.parameters.end());
     EXPECT_EQ(LAYER_STATE_EXCLUDED, parameter_screenshot->state);
 
-    configuration_loaded.Save("test_v2_0_2_exclude_all_layers.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_exclude_all_layers.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_exclude_all_layers.json");
@@ -443,7 +443,7 @@ TEST(test_configuration, load_and_save_v2_0_3_best_practices) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     EXPECT_STREQ("Validation - Best Practices", configuration_loaded.key.toStdString().c_str());
-    configuration_loaded.Save("test_v2_0_3_best_practices.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_3_best_practices.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_0_3_best_practices.json");
@@ -463,7 +463,7 @@ TEST(test_configuration, load_and_save_v2_1_0_Frame_Capture) {
     ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
 
     EXPECT_STREQ("Frame Capture", configuration_loaded.key.toStdString().c_str());
-    configuration_loaded.Save("test_v2_1_0_frame_capture.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_1_0_frame_capture.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_1_0_frame_capture.json");
@@ -492,7 +492,7 @@ TEST(test_configuration, load_and_save_v2_1_0_Portability) {
     ASSERT_TRUE(parameter_monitor != configuration_loaded.parameters.end());
 
     EXPECT_STREQ("Portability", configuration_loaded.key.toStdString().c_str());
-    configuration_loaded.Save("test_v2_1_0_portability.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_1_0_portability.json");
 
     Configuration configuration_saved;
     configuration_saved.Load(std::vector<Layer>(), "test_v2_1_0_portability.json");

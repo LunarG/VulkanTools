@@ -165,13 +165,13 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
     std::vector<Layer>::iterator validation_layer = FindItByKey(available_layers, "VK_LAYER_KHRONOS_validation");
 
-    QTreeWidgetItem *_validation_areas_item = new QTreeWidgetItem();
-    _validation_areas_item->setText(0, "Validation Checks");
-    parent->addChild(_validation_areas_item);
+    QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
+    validation_areas_item->setText(0, "Validation Checks");
+    parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
     _validation_areas =
-        new SettingsValidationAreas(_settings_tree, _validation_areas_item, validation_layer->settings, parameter.settings);
+        new SettingsValidationAreas(_settings_tree, validation_areas_item, validation_layer->settings, parameter.settings);
 
     // Get the Debug Action and log file settings (and they must exist)
     LayerSettingMeta *debug_action_meta = FindByKey(validation_layer->settings, "debug_action");

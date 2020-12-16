@@ -50,7 +50,8 @@ Configurator::Configurator() : environment(path), layers(environment) { CopyReso
 
 Configurator::~Configurator() {
     for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
-        available_configurations[i].Save(path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].key));
+        available_configurations[i].Save(layers.available_layers,
+                                         path.GetFullPath(PATH_CONFIGURATION, available_configurations[i].key));
     }
 
     if (!environment.UsePersistentOverrideMode()) {
@@ -234,7 +235,8 @@ void Configurator::LoadAllConfigurations() {
 
             OrderParameter(configuration.parameters, layers.available_layers);
             if (result) {
-                const bool result = configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration.key));
+                const bool result =
+                    configuration.Save(layers.available_layers, path.GetFullPath(PATH_CONFIGURATION, configuration.key));
                 assert(result);
             }
         }
@@ -353,7 +355,7 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
 
     configuration.key += " (Imported)";
 
-    if (!configuration.Save(path.GetFullPath(PATH_CONFIGURATION, configuration.key))) {
+    if (!configuration.Save(layers.available_layers, path.GetFullPath(PATH_CONFIGURATION, configuration.key))) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -373,7 +375,7 @@ void Configurator::ExportConfiguration(const QString &full_export_path, const QS
     Configuration *configuration = FindByKey(available_configurations, ConfigurationName.toStdString().c_str());
     assert(configuration);
 
-    if (!configuration->Save(full_export_path)) {
+    if (!configuration->Save(layers.available_layers, full_export_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");

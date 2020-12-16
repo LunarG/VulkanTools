@@ -24,6 +24,7 @@
 #include "../vkconfig_core/layer.h"
 
 #include "widget_mute_message.h"
+#include "widget_bool_setting.h"
 
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -50,7 +51,8 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_shader_based_box;
     QTreeWidgetItem *_gpu_assisted_box;
     QRadioButton *_gpu_assisted_radio;
-    QTreeWidgetItem *_reserve_box;
+    QTreeWidgetItem *_gpu_assisted_reserve_box;
+    BoolSettingWidget *_gpu_assisted_oob_box;
     QTreeWidgetItem *_debug_printf_box;
     QRadioButton *_debug_printf_radio;
 
