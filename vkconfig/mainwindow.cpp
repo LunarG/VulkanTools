@@ -66,12 +66,17 @@ static const int LAUNCH_ROW_HEIGHT = 28;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      ui(new Ui::MainWindow),
-      been_warned_about_old_loader(false),
       _launch_application(nullptr),
       _log_file(nullptr),
       _launcher_apps_combo(nullptr),
-      _launcher_arguments(nullptr) {
+      _launcher_arguments(nullptr),
+      _launcher_working(nullptr),
+      _launcher_log_file_edit(nullptr),
+      _launcher_apps_browse_button(nullptr),
+      _launcher_working_browse_button(nullptr),
+      _launcher_log_file_browse_button(nullptr),
+      ui(new Ui::MainWindow),
+      been_warned_about_old_loader(false) {
     ui->setupUi(this);
     ui->launcher_tree->installEventFilter(this);
     ui->configuration_tree->installEventFilter(this);

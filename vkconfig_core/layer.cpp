@@ -49,12 +49,12 @@ Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), _la
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const QString& implementation_version, const QString& library_path, const QString& type)
     : key(key),
-      _layer_type(layer_type),
       file_format_version(file_format_version),
+      _type(type),
+      _library_path(library_path),
       _api_version(api_version),
       _implementation_version(implementation_version),
-      _library_path(library_path),
-      _type(type) {}
+      _layer_type(layer_type) {}
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {

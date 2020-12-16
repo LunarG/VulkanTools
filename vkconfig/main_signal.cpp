@@ -26,6 +26,8 @@
 #include <csignal>
 
 void SurrenderLayers(int signal) {
+    (void)signal;
+
     PathManager paths;
     Environment environment(paths);
 

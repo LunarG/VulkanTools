@@ -52,9 +52,8 @@ class Layer {
     std::string FindPresetLabel(const std::vector<LayerSettingData>& setting_data) const;
 
    public:
-    // Standard pieces of a layer
-    Version file_format_version;
     std::string key;
+    Version file_format_version;
     QString _type;
     QString _library_path;  // This is a relative path, straight out of the json
     Version _api_version;

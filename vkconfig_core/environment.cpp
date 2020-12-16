@@ -190,7 +190,7 @@ void Environment::Reset(ResetMode mode) {
                 actives[i] = GetActiveDefault(static_cast<Active>(i));
             }
 
-            applications = CreateDefaultApplications(paths);
+            applications = CreateDefaultApplications();
 
             Set(ACTIVE_CONFIGURATION, "Validation");
             break;
@@ -312,8 +312,8 @@ bool Environment::LoadApplications() {
         }
 
         applications = RemoveMissingApplications(applications);
-        if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) applications = UpdateDefaultApplications(paths, applications);
-        if (applications.empty()) applications = CreateDefaultApplications(paths);
+        if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) applications = UpdateDefaultApplications(applications);
+        if (applications.empty()) applications = CreateDefaultApplications();
     }
 
     return true;
@@ -641,7 +641,7 @@ struct DefaultApplication {
 static const DefaultApplication defaults_applications[] = {{ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
                                                            {ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
 
-static Application CreateDefaultApplication(const PathManager& paths, const DefaultApplication& default_application) {
+static Application CreateDefaultApplication(const DefaultApplication& default_application) {
     const QString executable_path =
         GetDefaultExecutablePath((default_application.key + GetPlatformString(PLATFORM_STRING_APP_SUFFIX)).c_str());
     if (executable_path.isEmpty()) Application();  // application could not be found..
@@ -658,11 +658,11 @@ static Application CreateDefaultApplication(const PathManager& paths, const Defa
     return application;
 }
 
-std::vector<Application> CreateDefaultApplications(const PathManager& paths) {
+std::vector<Application> CreateDefaultApplications() {
     std::vector<Application> new_applications;
 
     for (std::size_t name_index = 0, name_count = countof(defaults_applications); name_index < name_count; ++name_index) {
-        const Application& application = CreateDefaultApplication(paths, defaults_applications[name_index]);
+        const Application& application = CreateDefaultApplication(defaults_applications[name_index]);
 
         if (application.executable_path.empty()) continue;
 
@@ -688,7 +688,7 @@ std::vector<Application> RemoveMissingApplications(const std::vector<Application
     return valid_applications;
 }
 
-std::vector<Application> UpdateDefaultApplications(const PathManager& paths, const std::vector<Application>& applications) {
+std::vector<Application> UpdateDefaultApplications(const std::vector<Application>& applications) {
     std::vector<Application> search_applications;
     std::vector<Application> updated_applications = applications;
 
@@ -704,7 +704,7 @@ std::vector<Application> UpdateDefaultApplications(const PathManager& paths, con
             const Application& application = search_applications[application_index];
 
             if (QString(application.executable_path.c_str()).endsWith(defaults_name.c_str())) {
-                updated_applications.push_back(CreateDefaultApplication(paths, defaults_applications[default_index]));
+                updated_applications.push_back(CreateDefaultApplication(defaults_applications[default_index]));
             } else {
                 updated_applications.push_back(application);
             }
