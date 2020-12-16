@@ -40,9 +40,7 @@
 
 class Layer {
    public:
-    enum {
-        NO_PRESET = 0
-    };
+    static const char* NO_PRESET;
 
     Layer();
     Layer(const std::string& key, const LayerType layer_type);
@@ -51,7 +49,7 @@ class Layer {
 
     bool IsValid() const;
 
-    int FindPresetIndex(const std::vector<LayerSettingData>& setting_data) const;
+    std::string FindPresetLabel(const std::vector<LayerSettingData>& setting_data) const;
 
    public:
     // Standard pieces of a layer

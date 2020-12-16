@@ -27,7 +27,6 @@
 #include <string>
 
 struct LayerPreset {
-    int preset_index;
     std::string label;
     std::string description;
     int platform_flags;
@@ -35,4 +34,4 @@ struct LayerPreset {
     std::vector<LayerSettingData> settings;
 };
 
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, int preset_index);
+const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char* preset_label);

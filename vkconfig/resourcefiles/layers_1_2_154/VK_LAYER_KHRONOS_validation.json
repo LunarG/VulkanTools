@@ -51,7 +51,6 @@
         ],
         "presets": [
             {
-                "preset-index": 1,
                 "label": "Standard",
                 "description": "Good default validation setup that balance validation coverage and performance.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
@@ -68,7 +67,6 @@
                 ]
             },
             {
-                "preset-index": 2,
                 "label": "Reduced-Overhead",
                 "description": "Disables some checks in the interest of better performance.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
@@ -96,7 +94,6 @@
                 ]
             },
             {
-                "preset-index": 3,
                 "label": "Best Practices",
                 "description": "Provides warnings about potential API misuse but valid usages of the API.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
@@ -121,7 +118,6 @@
                 ]
             },
             {
-                "preset-index": 4,
                 "label": "Synchronization",
                 "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
@@ -145,7 +141,6 @@
                 ]
             },
             {
-                "preset-index": 5,
                 "label": "GPU-Assisted",
                 "description": "Check for API usage errors at shader execution time.",
                 "platforms": [ "WINDOWS", "LINUX" ],
@@ -171,7 +166,6 @@
                 ]
             },
             {
-                "preset-index": 6,
                 "label": "Shader Printf",
                 "description": "Debug shader code by \"printing\" any values of interest to the debug callback or stdout.",
                 "platforms": [ "WINDOWS", "LINUX" ],

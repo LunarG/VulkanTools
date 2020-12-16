@@ -25,15 +25,15 @@
 
 TEST(test_layer_preset, get_preset) {
     LayerPreset layer_preset_a;
-    layer_preset_a.preset_index = 1;
+    layer_preset_a.label = "1";
 
     LayerPreset layer_preset_b;
-    layer_preset_b.preset_index = 2;
+    layer_preset_b.label = "2";
 
     std::vector<LayerPreset> presets;
     presets.push_back(layer_preset_a);
     presets.push_back(layer_preset_b);
 
-    EXPECT_EQ(1, GetPreset(presets, 1)->preset_index);
-    EXPECT_EQ(nullptr, GetPreset(presets, 3));
+    EXPECT_STREQ("1", GetPreset(presets, "1")->label.c_str());
+    EXPECT_EQ(nullptr, GetPreset(presets, "3"));
 }

@@ -40,6 +40,8 @@ QString GetBuiltinFolder(const Version& version) {
     //    return ":/resourcefiles/layers_latest/";
 }
 
+const char* Layer::NO_PRESET = "User Defined Settings";
+
 Layer::Layer() {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), _layer_type(layer_type) {}
@@ -60,9 +62,9 @@ bool Layer::IsValid() const {
            _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
 }
 
-int Layer::FindPresetIndex(const std::vector<LayerSettingData>& layer_settings) const {
+std::string Layer::FindPresetLabel(const std::vector<LayerSettingData>& layer_settings) const {
     for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
-        if (HasPreset(layer_settings, presets[i].settings)) return presets[i].preset_index;
+        if (HasPreset(layer_settings, presets[i].settings)) return presets[i].label;
     }
 
     return NO_PRESET;
@@ -113,9 +115,9 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
     _type = ReadStringValue(json_layer_object, "type").c_str();
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
-    assert((json_library_path_value != QJsonValue::Undefined && key != "VK_LAYER_LUNARG_override") ||
-           json_library_path_value == QJsonValue::Undefined && key == "VK_LAYER_LUNARG_override");
-    _library_path = json_library_path_value.toString();
+    if (json_library_path_value != QJsonValue::Undefined) {
+        _library_path = json_library_path_value.toString();
+    }
 
     _api_version = ReadVersionValue(json_layer_object, "api_version");
     _implementation_version = ReadStringValue(json_layer_object, "implementation_version").c_str();
@@ -203,9 +205,6 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
             const QJsonObject& json_preset_object = json_preset_array[preset_index].toObject();
 
             LayerPreset preset;
-
-            preset.preset_index = ReadIntValue(json_preset_object, "preset-index");
-            assert(preset.preset_index > 0);
             preset.label = ReadStringValue(json_preset_object, "label");
             preset.description = ReadStringValue(json_preset_object, "description");
             preset.platform_flags = GetPlatformFlags(ReadStringArray(json_preset_object, "platforms"));

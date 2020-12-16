@@ -18,7 +18,6 @@
         ],
         "presets": [
             {
-                "preset-index": 1,
                 "label": "macOS portability",
                 "description": "Check the application for Vulkan portability subset.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
@@ -35,7 +34,6 @@
                 ]
             },
             {
-                "preset-index": 2,
                 "label": "iOS GPU family 3 portability",
                 "description": "Check the application for Vulkan portability subset.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
@@ -52,7 +50,6 @@
                 ]
             },
             {
-                "preset-index": 3,
                 "label": "iOS GPU family 5 portability",
                 "description": "Check the application for Vulkan portability subset.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],

@@ -28,9 +28,9 @@ PresetWidget::PresetWidget(QTreeWidgetItem* item, const Layer& layer, Parameter&
     assert(&parameter);
 
     this->blockSignals(true);
-    this->addItem("User Defined Settings");
+    this->addItem(Layer::NO_PRESET);
 
-    preset_indexes.push_back(Layer::NO_PRESET);
+    preset_labels.push_back(Layer::NO_PRESET);
 
     for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
         const LayerPreset& layer_preset = layer.presets[i];
@@ -40,7 +40,7 @@ PresetWidget::PresetWidget(QTreeWidgetItem* item, const Layer& layer, Parameter&
         }
 
         this->addItem((layer_preset.label + " Preset").c_str());
-        preset_indexes.push_back(layer_preset.preset_index);
+        preset_labels.push_back(layer_preset.label);
     }
 
     this->blockSignals(false);
@@ -51,22 +51,22 @@ PresetWidget::PresetWidget(QTreeWidgetItem* item, const Layer& layer, Parameter&
 }
 
 void PresetWidget::UpdateCurrentIndex() {
-    int preset_index = layer.FindPresetIndex(parameter.settings);
+    const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
     this->blockSignals(true);
-    this->setCurrentIndex(GetComboBoxIndex(preset_index));
+    this->setCurrentIndex(GetComboBoxIndex(preset_label.c_str()));
     this->blockSignals(false);
 
-    if (preset_index == Layer::NO_PRESET) return;
+    if (preset_label == Layer::NO_PRESET) return;
 
-    const LayerPreset* preset = GetPreset(layer.presets, preset_index);
+    const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
     assert(preset != nullptr);
     this->setToolTip(preset->description.c_str());
 }
 
-int PresetWidget::GetComboBoxIndex(const int preset_index) const {
-    for (std::size_t i = 0, n = preset_indexes.size(); i < n; ++i) {
-        if (preset_indexes[i] == preset_index) return static_cast<int>(i);
+int PresetWidget::GetComboBoxIndex(const char* preset_label) const {
+    for (std::size_t i = 0, n = preset_labels.size(); i < n; ++i) {
+        if (preset_labels[i] == preset_label) return static_cast<int>(i);
     }
 
     assert(0);
@@ -74,12 +74,12 @@ int PresetWidget::GetComboBoxIndex(const int preset_index) const {
 }
 
 void PresetWidget::OnPresetChanged(int combox_preset_index) {
-    assert(combox_preset_index >= 0 && static_cast<std::size_t>(combox_preset_index) < preset_indexes.size());
-    const int preset_index = preset_indexes[combox_preset_index];
+    assert(combox_preset_index >= 0 && static_cast<std::size_t>(combox_preset_index) < preset_labels.size());
+    const std::string& preset_label = preset_labels[combox_preset_index];
 
-    if (preset_index == Layer::NO_PRESET) return;
+    if (preset_label == Layer::NO_PRESET) return;
 
-    const LayerPreset* preset = GetPreset(layer.presets, preset_index);
+    const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
     assert(preset != nullptr);
     parameter.ApplyPresetSettings(*preset);
 }

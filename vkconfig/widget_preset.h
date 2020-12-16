@@ -48,9 +48,9 @@ class PresetWidget : public QComboBox {
     PresetWidget(const PresetWidget&) = delete;
     PresetWidget& operator=(const PresetWidget&) = delete;
 
-    int GetComboBoxIndex(const int preset_index) const;
+    int GetComboBoxIndex(const char* preset_label) const;
 
-    std::vector<int> preset_indexes;  // The preset in the combobox
+    std::vector<std::string> preset_labels;  // The preset in the combobox
     const Layer& layer;
     Parameter& parameter;
 };

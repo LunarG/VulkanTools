@@ -22,9 +22,9 @@
 
 #include "util.h"
 
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, int preset_index) {
+const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char* preset_label) {
     for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
-        if (presets[i].preset_index == preset_index) {
+        if (presets[i].label == preset_label) {
             return &presets[i];
         }
     }
