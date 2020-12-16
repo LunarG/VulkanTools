@@ -97,4 +97,7 @@ TEST(test_util, is_portable_filename_invalid) {
     EXPECT_TRUE(!IsPortableFilename(".."));
     EXPECT_TRUE(!IsPortableFilename("../gni"));
     EXPECT_TRUE(!IsPortableFilename("..gni.json"));
+    EXPECT_TRUE(!IsPortableFilename("VulkanConfigurator2\\.json"));
+    EXPECT_TRUE(!IsPortableFilename("VulkanConfigurator*"));
+    EXPECT_TRUE(!IsPortableFilename("Vulkan:Configurator"));
 }
