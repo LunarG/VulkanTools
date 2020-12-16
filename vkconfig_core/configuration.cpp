@@ -224,7 +224,7 @@ bool Configuration::Load(const std::vector<Layer>& available_layers, const QStri
     }
 }
 
-bool Configuration::Save(const QString& full_path) const {
+bool Configuration::Save(const std::vector<Layer>& available_layers, const QString& full_path) const {
     assert(!full_path.isEmpty());
 
     QJsonObject root;

@@ -33,7 +33,7 @@ class Configuration {
     Configuration();
 
     bool Load(const std::vector<Layer>& available_layers, const QString& full_path);
-    bool Save(const QString& full_path) const;
+    bool Save(const std::vector<Layer>& available_layers, const QString& full_path) const;
     bool IsAvailableOnThisPlatform() const;
 
     QString key;  // User readable display of the profile name (may contain spaces)

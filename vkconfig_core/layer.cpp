@@ -31,13 +31,11 @@
 
 #include <cassert>
 
-// TODO: add latest, add all layer versions
 QString GetBuiltinFolder(const Version& version) {
     if (version <= Version(1, 2, 154))
         return ":/resourcefiles/layers_1_2_154";
     else
-        return ":/resourcefiles/layers_1_2_154";
-    //    return ":/resourcefiles/layers_latest/";
+        return ":/resourcefiles/layers_1_2_162";
 }
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
@@ -184,6 +182,7 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
                 case SETTING_BOOL:
                 case SETTING_BOOL_NUMERIC:
                 case SETTING_STRING:
+                case SETTING_INT:
                     break;
                 default:
                     assert(0);

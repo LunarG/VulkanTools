@@ -512,7 +512,7 @@ void LayersDialog::accept() {
     configuration.parameters = parameters;
 
     const QString save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
-    const bool result = configuration.Save(save_path);
+    const bool result = configuration.Save(configurator.layers.available_layers, save_path);
     assert(result);
 
     QDialog::accept();

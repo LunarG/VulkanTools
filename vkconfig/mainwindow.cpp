@@ -485,7 +485,8 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             configuration->key = configuration_item->configuration_name = new_configuration_name;
 
             remove(full_path.toUtf8().constData());
-            const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name));
+            const bool result = configuration->Save(configurator.layers.available_layers,
+                                                    configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name));
             assert(result);
         }
 
@@ -793,7 +794,8 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(new_name != item->configuration_name);
 
     configuration->key = item->configuration_name = new_name;
-    const bool result = configuration->Save(configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
+    const bool result = configuration->Save(configurator.layers.available_layers,
+                                            configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
     assert(result);
 
     _settings_tree_manager.CleanupGUI();
