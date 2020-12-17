@@ -52,7 +52,7 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_gpu_assisted_box;
     QRadioButton *_gpu_assisted_radio;
     QTreeWidgetItem *_gpu_assisted_reserve_box;
-    BoolSettingWidget *_gpu_assisted_oob_box;
+    QTreeWidgetItem *_gpu_assisted_oob_box;
     QTreeWidgetItem *_debug_printf_box;
     QRadioButton *_debug_printf_radio;
 
