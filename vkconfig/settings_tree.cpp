@@ -36,7 +36,6 @@
 
 SettingsTreeManager::SettingsTreeManager()
     : _settings_tree(nullptr),
-      _validation_tree_item(nullptr),
       _validation_log_file_item(nullptr),
       _validation_log_file_widget(nullptr),
       _validation_areas(nullptr) {}
@@ -156,25 +155,23 @@ void SettingsTreeManager::CleanupGUI() {
 
     _settings_tree->clear();
     _settings_tree = nullptr;
-    _validation_tree_item = nullptr;
     _validation_debug_action = nullptr;
     _validation_log_file_widget = nullptr;
     _validation_log_file_item = nullptr;
 }
 
 void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter) {
-    _validation_tree_item = parent;
-
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
     std::vector<Layer>::iterator validation_layer = FindItByKey(available_layers, "VK_LAYER_KHRONOS_validation");
 
     QTreeWidgetItem *_validation_areas_item = new QTreeWidgetItem();
     _validation_areas_item->setText(0, "Validation Checks");
-    _validation_tree_item->addChild(_validation_areas_item);
+    parent->addChild(_validation_areas_item);
 
     // This just finds the enables and disables
-    _validation_areas = new SettingsValidationAreas(_settings_tree, _validation_areas_item, parameter.settings);
+    _validation_areas =
+        new SettingsValidationAreas(_settings_tree, _validation_areas_item, validation_layer->settings, parameter.settings);
 
     // Get the Debug Action and log file settings (and they must exist)
     LayerSettingMeta *debug_action_meta = FindByKey(validation_layer->settings, "debug_action");
@@ -190,7 +187,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
     debug_action_branch->setText(0, debug_action_meta->label);
-    _validation_tree_item->addChild(debug_action_branch);
+    parent->addChild(debug_action_branch);
 
     // Each debug action has it's own checkbox
     for (int i = 0, n = debug_action_meta->enum_values.size(); i < n; ++i) {
@@ -245,7 +242,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             QTreeWidgetItem *sub_category = new QTreeWidgetItem;
             sub_category->setText(0, layer_setting_meta.label);
             sub_category->setToolTip(0, layer_setting_meta.description);
-            _validation_tree_item->addChild(sub_category);
+            parent->addChild(sub_category);
 
             for (int i = 0, n = layer_setting_meta.enum_values.size(); i < n; ++i) {
                 QTreeWidgetItem *child = new QTreeWidgetItem();
@@ -260,7 +257,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         } else if (layer_setting_meta.key == "duplicate_message_limit") {
             QTreeWidgetItem *setting_item = new QTreeWidgetItem();
             StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);
-            _validation_tree_item->addChild(setting_item);
+            parent->addChild(setting_item);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             setting_item->addChild(place_holder);
             _settings_tree->setItemWidget(place_holder, 0, widget);
@@ -280,7 +277,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
 
         mute_message_item->setText(0, layer_setting_meta.label);
-        _validation_tree_item->addChild(mute_message_item);
+        parent->addChild(mute_message_item);
 
         const LayerSettingMeta *layer_setting_vuid = FindByKey(validation_layer->settings, "message_id_filter");
         assert(layer_setting_vuid);
@@ -288,26 +285,27 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
         assert(layer_setting_data);
 
-        _vuid_search_widget = new VUIDSearchWidget(layer_setting_vuid->enum_values, layer_setting_data->value.c_str());
+        VUIDSearchWidget *vuid_search_widget =
+            new VUIDSearchWidget(layer_setting_vuid->enum_values, layer_setting_data->value.c_str());
 
         QTreeWidgetItem *next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, 28));
         mute_message_item->addChild(next_line);
-        _settings_tree->setItemWidget(next_line, 0, _vuid_search_widget);
+        _settings_tree->setItemWidget(next_line, 0, vuid_search_widget);
         _compound_widgets.push_back(next_line);
 
         QTreeWidgetItem *list_item = new QTreeWidgetItem();
         mute_message_item->addChild(list_item);
         list_item->setSizeHint(0, QSize(0, 200));
-        _mute_message_widget = new MuteMessageWidget(*layer_setting_data);
+        MuteMessageWidget *mute_message_widget = new MuteMessageWidget(*layer_setting_data);
         _compound_widgets.push_back(list_item);
-        _settings_tree->setItemWidget(list_item, 0, _mute_message_widget);
+        _settings_tree->setItemWidget(list_item, 0, mute_message_widget);
 
-        connect(_vuid_search_widget, SIGNAL(itemSelected(const QString &)), _mute_message_widget, SLOT(addItem(const QString &)));
-        connect(_vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-        connect(_mute_message_widget, SIGNAL(itemRemoved(const QString &)), _vuid_search_widget,
+        connect(vuid_search_widget, SIGNAL(itemSelected(const QString &)), mute_message_widget, SLOT(addItem(const QString &)));
+        connect(vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+        connect(mute_message_widget, SIGNAL(itemRemoved(const QString &)), vuid_search_widget,
                 SLOT(addToSearchList(const QString &)));
-        connect(_mute_message_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
+        connect(mute_message_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
     }
 
     // This really does go way down here.

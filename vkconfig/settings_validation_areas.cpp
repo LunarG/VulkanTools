@@ -157,12 +157,11 @@ static QString GetSettingDetails(const QString &setting, QString &url) {
 }
 
 SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent,
-                                                 std::vector<LayerSettingData> &settings)
+                                                 const std::vector<LayerSettingMeta> &settings_meta,
+                                                 std::vector<LayerSettingData> &settings_data)
     : _main_tree_widget(main_tree),
       _main_parent(parent),
       _core_checks_parent(nullptr),
-      _disables(*FindByKey(settings, "disables")),
-      _enables(*FindByKey(settings, "enables")),
       _synchronization_box(nullptr),
       _shader_based_box(nullptr),
       _gpu_assisted_box(nullptr),
@@ -170,20 +169,19 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
       _reserve_box(nullptr),
       _debug_printf_box(nullptr),
       _debug_printf_radio(nullptr),
-      _mute_message_widget(nullptr) {
-    /// If this is off, everyone below is disabled
-    const bool core_validation_disabled =
-        _disables.value.find("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT") != std::string::npos;
+      settings_meta(settings_meta),
+      settings_data(settings_data) {
+    const bool core_validation_disabled = HasDisable("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+
     _core_checks_parent = new QTreeWidgetItem();
     _core_checks_parent->setText(0, "Core Validation Checks");
     _core_checks_parent->setCheckState(0, (core_validation_disabled) ? Qt::Unchecked : Qt::Checked);
     parent->addChild(_core_checks_parent);
 
-    QTreeWidgetItem *core_child_item;
     for (std::size_t i = 0, n = countof(core_checks); i < n; i++) {
-        core_child_item = new QTreeWidgetItem();
+        QTreeWidgetItem *core_child_item = new QTreeWidgetItem();
         core_child_item->setText(0, core_checks[i].prompt);
-        if ((_disables.value.find(core_checks[i].token) != std::string::npos) || core_validation_disabled)
+        if (HasDisable(core_checks[i].token) || core_validation_disabled)
             core_child_item->setCheckState(0, Qt::Unchecked);
         else
             core_child_item->setCheckState(0, Qt::Checked);
@@ -195,11 +193,10 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     }
 
     // Miscellaneous disables
-    QTreeWidgetItem *item;
     for (std::size_t i = 0, n = countof(misc_disables); i < n; i++) {
-        item = new QTreeWidgetItem();
+        QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, misc_disables[i].prompt);
-        if (_disables.value.find(misc_disables[i].token) != std::string::npos)
+        if (HasDisable(misc_disables[i].token))
             item->setCheckState(0, Qt::Unchecked);
         else
             item->setCheckState(0, Qt::Checked);
@@ -209,8 +206,8 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     }
 
     // Now for the GPU specific stuff
-    const bool has_debug_printf = _enables.value.find("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") != std::string::npos;
-    const bool has_gpu_assisted = _enables.value.find("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT") != std::string::npos;
+    const bool has_debug_printf = HasEnable("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
+    const bool has_gpu_assisted = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
     const bool shader_based = has_debug_printf || has_gpu_assisted;
 
     if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
@@ -228,11 +225,9 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         _main_tree_widget->setItemWidget(_gpu_assisted_box, 0, _gpu_assisted_radio);
 
         _reserve_box = new QTreeWidgetItem();
-        _reserve_box->setText(0, "Reserve Descriptor Set Binding");
+        _reserve_box->setText(0, "Reserve Descriptor Set Binding Slot");
 
-        const bool reserve_binding_slot =
-            _enables.value.find("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT") != std::string::npos;
-
+        const bool reserve_binding_slot = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
         _reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
 
         _gpu_assisted_box->addChild(_reserve_box);
@@ -243,7 +238,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
         _debug_printf_radio = new QRadioButton();
         _main_tree_widget->setItemWidget(_debug_printf_box, 0, _debug_printf_radio);
-        if (_enables.value.find("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") != std::string::npos) {
+        if (HasEnable("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
             _debug_printf_radio->setChecked(true);
             _reserve_box->setFlags(_reserve_box->flags() & ~Qt::ItemIsEnabled);
         } else
@@ -259,17 +254,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     }
 
     // Synchronization
-    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-
-    const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, "VK_LAYER_KHRONOS_validation");
-    if (layer != available_layers.end()) {
-        // To handle this change: https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/2146
-        if (layer->_api_version <= Version("1.2.148")) {
-            sync_checks[0].token = "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION";
-        }
-    }
-
-    const bool synchronization = _enables.value.find(sync_checks[0].token) != std::string::npos;
+    const bool synchronization = HasEnable(sync_checks[0].token);
     _synchronization_box = new QTreeWidgetItem();
     _synchronization_box->setText(0, sync_checks[0].prompt);
     _synchronization_box->setCheckState(0, synchronization ? Qt::Checked : Qt::Unchecked);
@@ -279,16 +264,16 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     sync_checks[0].item = _synchronization_box;
 
     // Best Practices - one parent/child, but we want to be able to go back to these
-    core_child_item = new QTreeWidgetItem();
+    QTreeWidgetItem *core_child_item = new QTreeWidgetItem();
     core_child_item->setText(0, best_practices[1].prompt);
-    if (_enables.value.find(best_practices[1].token) != std::string::npos)
+    if (HasEnable(best_practices[1].token))
         core_child_item->setCheckState(0, Qt::Checked);
     else
         core_child_item->setCheckState(0, Qt::Unchecked);
 
-    item = new QTreeWidgetItem();
+    QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText(0, best_practices[0].prompt);
-    if (_enables.value.find(best_practices[0].token) != std::string::npos)
+    if (HasEnable(best_practices[0].token))
         item->setCheckState(0, Qt::Checked);
     else {
         item->setCheckState(0, Qt::Unchecked);
@@ -355,7 +340,7 @@ void SettingsValidationAreas::itemClicked(QTreeWidgetItem *item, int column) {
     }
 
     // GPU Stuff
-    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+    if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
         if (item == _gpu_assisted_box) {
             description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT", url);
         } else if (item == _reserve_box) {
@@ -363,7 +348,7 @@ void SettingsValidationAreas::itemClicked(QTreeWidgetItem *item, int column) {
         } else if (item == _debug_printf_box) {
             description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT", url);
         } else if (item == _synchronization_box) {
-            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION", url);
+            description = GetSettingDetails("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", url);
         }
     }
 }
@@ -440,8 +425,8 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
     for (std::size_t i = 0, n = countof(features_to_run_alone); i < n; ++i)
         count_enabled_features += features_to_run_alone[i] ? 1 : 0;
 
-    QSettings settings;
     if (count_enabled_features > 1) {
+        QSettings settings;
         if (settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
             QMessageBox alert(_main_tree_widget);
             alert.setWindowTitle("High Validation Layer Overhead");
@@ -518,8 +503,20 @@ bool SettingsValidationAreas::CollectSettings() {
     } else  // Not checked, turn them all off
         AppendString(disables, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
 
-    _disables.value = disables;
-    _enables.value = enables;
+    FindByKey(settings_data, "disables")->value = disables;
+    FindByKey(settings_data, "enables")->value = enables;
 
     return true;
+}
+
+bool SettingsValidationAreas::HasEnable(const char *token) const {
+    const LayerSettingData *setting = FindByKey(settings_data, "enables");
+    assert(setting);
+    return setting->value.find(token) != std::string::npos;
+}
+
+bool SettingsValidationAreas::HasDisable(const char *token) const {
+    const LayerSettingData *setting = FindByKey(settings_data, "disables");
+    assert(setting);
+    return setting->value.find(token) != std::string::npos;
 }

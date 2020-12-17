@@ -69,11 +69,8 @@ class SettingsTreeManager : QObject {
 
     std::vector<PresetWidget *> _presets_comboboxes;
 
-    QTreeWidgetItem *_validation_tree_item;
     QTreeWidgetItem *_validation_log_file_item;
     FileSystemSettingWidget *_validation_log_file_widget;
     MultiEnumSettingWidget *_validation_debug_action;
     SettingsValidationAreas *_validation_areas;
-    MuteMessageWidget *_mute_message_widget;
-    VUIDSearchWidget *_vuid_search_widget;
 };
