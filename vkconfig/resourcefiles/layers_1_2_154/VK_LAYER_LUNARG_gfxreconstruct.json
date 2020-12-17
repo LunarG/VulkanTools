@@ -100,14 +100,14 @@
                 "label": "Capture File Name with Timestamp",
                 "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
                 "type": "bool",
-                "default": true
+                "default": "TRUE"
             },
             {
                 "key": "capture_file_flush",
                 "label": "Capture File Flush After Write",
                 "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
                 "type": "bool",
-                "default": true
+                "default": "TRUE"
             },
             {
                 "key": "capture_compression_type",
@@ -127,21 +127,21 @@
                 "label": "Log Output to Console / stdout",
                 "description": "Log messages will be written to stdout.",
                 "type": "bool",
-                "default": true
+                "default": "TRUE"
             },
             {
                 "key": "log_break_on_error",
                 "label": "Trigger Debug Break on Error",
                 "description": "Trigger a debug break when logging an error.",
                 "type": "bool",
-                "default": false
+                "default": "FALSE"
             },
             {
                 "key": "log_output_to_os_debug_string",
                 "label": "Log Output to Debug Console",
                 "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
                 "type": "bool",
-                "default": false
+                "default": "FALSE"
             },
             {
                 "key": "log_file",
@@ -155,21 +155,21 @@
                 "label": "Log File Flush After Write",
                 "description": "Flush the log file to disk after each write when true.",
                 "type": "bool",
-                "default": false
+                "default": "FALSE"
             },
             {
                 "key": "log_file_keep_open",
                 "label": "Log File Keep Open",
                 "description": "Keep the log file open between log messages when true, or close and reopen the log file for each message when false.",
                 "type": "bool",
-                "default": true
+                "default": "TRUE"
             },
             {
                 "key": "log_file_create_new",
                 "label": "Log File Overwrite",
                 "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
                 "type": "bool",
-                "default": true
+                "default": "TRUE"
             },
             {
                 "key": "log_level",
@@ -202,21 +202,21 @@
                 "label": "Page Guard Copy on Map",
                 "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
                 "type": "bool",
-                "default": true
+                "default": "TRUE"
             },
             {
                 "key": "page_guard_separate_read",
                 "label": "Page Guard Separate Read Tracking",
                 "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
                 "type": "bool",
-                "default": true
+                "default": "TRUE"
             },
             {
                 "key": "page_guard_external_memory",
                 "label": "Page Guard External Memory",
                 "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
                 "type": "bool",
-                "default": false
+                "default": "FALSE"
             }
         ]
     }

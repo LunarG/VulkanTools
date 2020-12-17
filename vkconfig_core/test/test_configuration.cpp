@@ -450,6 +450,55 @@ TEST(test_configuration, load_and_save_v2_0_3_best_practices) {
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
+TEST(test_configuration, load_and_save_v2_1_0_Frame_Capture) {
+    Configuration configuration_loaded;
+    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.1.0 - Frame Capture.json");
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!configuration_loaded.IsEmpty());
+    EXPECT_EQ(1, configuration_loaded.parameters.size());
+    EXPECT_TRUE(!configuration_loaded.description.isEmpty());
+
+    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+
+    EXPECT_STREQ("Frame Capture", configuration_loaded.key.toStdString().c_str());
+    configuration_loaded.Save("test_v2_1_0_frame_capture.json");
+
+    Configuration configuration_saved;
+    configuration_saved.Load("test_v2_1_0_frame_capture.json");
+
+    EXPECT_EQ(configuration_loaded, configuration_saved);
+}
+
+TEST(test_configuration, load_and_save_v2_1_0_Portability) {
+    Configuration configuration_loaded;
+    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.1.0 - Portability.json");
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!configuration_loaded.IsEmpty());
+    EXPECT_EQ(6, configuration_loaded.parameters.size());
+    EXPECT_TRUE(!configuration_loaded.description.isEmpty());
+
+    auto parameter_validation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter_validation != configuration_loaded.parameters.end());
+
+    auto parameter_simulation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
+    ASSERT_TRUE(parameter_simulation != configuration_loaded.parameters.end());
+
+    auto parameter_api_dump = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    ASSERT_TRUE(parameter_api_dump != configuration_loaded.parameters.end());
+
+    auto parameter_monitor = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
+    ASSERT_TRUE(parameter_monitor != configuration_loaded.parameters.end());
+
+    EXPECT_STREQ("Portability", configuration_loaded.key.toStdString().c_str());
+    configuration_loaded.Save("test_v2_1_0_portability.json");
+
+    Configuration configuration_saved;
+    configuration_saved.Load("test_v2_1_0_portability.json");
+
+    EXPECT_EQ(configuration_loaded, configuration_saved);
+}
+
 static std::vector<Configuration> GenerateConfigurations() {
     std::vector<Configuration> configurations;
 
