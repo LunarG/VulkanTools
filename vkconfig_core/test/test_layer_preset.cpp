@@ -37,3 +37,22 @@ TEST(test_layer_preset, get_preset) {
     EXPECT_STREQ("1", GetPreset(presets, "1")->label.c_str());
     EXPECT_EQ(nullptr, GetPreset(presets, "3"));
 }
+
+TEST(test_layer_preset, has_preset) {
+    std::vector<LayerSettingData> preset_settings;
+    std::vector<LayerSettingData> layer_settings;
+
+    EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
+
+    preset_settings.push_back(LayerSettingData("KeyA", "ValueA"));
+    EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
+
+    layer_settings.push_back(LayerSettingData("KeyA", "ValueA"));
+    EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
+
+    layer_settings.push_back(LayerSettingData("KeyB", "ValueB"));
+    EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
+
+    preset_settings.push_back(LayerSettingData("KeyC", "ValueC"));
+    EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
+}
