@@ -21,7 +21,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 // TODO: replace with SettingValue
 struct LayerSettingData {
@@ -31,7 +30,3 @@ struct LayerSettingData {
     std::string key;
     std::string value;
 };
-
-// Check whether "layer_settings" has all the settings set in "preset_settings"
-// "layer_settings" may have more settings then "preset_settings" and return true
-bool HasPreset(const std::vector<LayerSettingData>& layer_settings, const std::vector<LayerSettingData>& preset_settings);
