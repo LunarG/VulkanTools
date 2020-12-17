@@ -48,7 +48,8 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
     }
 }
 
-bool Configuration::Load2_0(const QJsonObject& json_root_object, const QString& full_path) {
+bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object,
+                            const QString& full_path) {
     const QString& filename = QFileInfo(full_path).fileName();
 
     const QJsonValue& json_file_format_version = json_root_object.value("file_format_version");
@@ -88,26 +89,36 @@ bool Configuration::Load2_0(const QJsonObject& json_root_object, const QString& 
         const QJsonObject& layer_object = layer_value.toObject();
         const QJsonValue& layer_rank = layer_object.value("layer_rank");
 
-        const int overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::NO_RANK : layer_rank.toInt();
-
         Parameter parameter;
         parameter.key = layers[layer_index].toStdString();
-        parameter.overridden_rank = overridden_rank;
+        parameter.overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::NO_RANK : layer_rank.toInt();
         parameter.state = LAYER_STATE_OVERRIDDEN;
 
-        const QStringList& layer_settings = layer_object.keys();
+        std::vector<LayerSettingData> settings;
+        const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+        if (layer) {
+            settings = CollectDefaultSettingData(layer->settings);
+        }
 
+        const QStringList& layer_settings = layer_object.keys();
         for (int setting_index = 0, setting_count = layer_settings.size(); setting_index < setting_count; ++setting_index) {
             if (layer_settings[setting_index] == "layer_rank") continue;
 
             const QJsonObject& setting_object = ReadObject(layer_object, layer_settings[setting_index].toStdString().c_str());
 
-            LayerSettingData layer_setting_data;
-            layer_setting_data.key = layer_settings[setting_index].toStdString();
-            layer_setting_data.value = ReadString(setting_object, "default");
-            parameter.settings.push_back(layer_setting_data);
+            LayerSettingData json_setting_data;
+            json_setting_data.key = layer_settings[setting_index].toStdString();
+            json_setting_data.value = ReadString(setting_object, "default");
+
+            LayerSettingData* layer_setting_data = FindByKey(settings, json_setting_data.key.c_str());
+            if (layer_setting_data) {
+                layer_setting_data->value = json_setting_data.value;
+            } else {
+                settings.push_back(json_setting_data);
+            }
         }
 
+        parameter.settings = settings;
         parameters.push_back(parameter);
     }
 
@@ -131,7 +142,7 @@ bool Configuration::Load2_0(const QJsonObject& json_root_object, const QString& 
     return true;
 }
 
-bool Configuration::Load2_1(const QJsonObject& json_root_object) {
+bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object) {
     const QJsonValue& json_configuration_value = json_root_object.value("configuration");
     if (json_configuration_value == QJsonValue::Undefined) return false;  // Not a configuration file
 
@@ -158,22 +169,36 @@ bool Configuration::Load2_1(const QJsonObject& json_root_object) {
         parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
         parameter.state = GetLayerState(ReadStringValue(json_layer_object, "state").c_str());
 
+        std::vector<LayerSettingData> settings;
+        const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+        if (layer) {
+            settings = CollectDefaultSettingData(layer->settings);
+        }
+
         const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");
         for (int i = 0, n = json_settings.size(); i < n; ++i) {
             const QJsonObject& json_setting_object = json_settings[i].toObject();
-            LayerSettingData layer_setting_data;
-            layer_setting_data.key = ReadStringValue(json_setting_object, "key");
-            layer_setting_data.value = ReadString(json_setting_object, "value");
-            parameter.settings.push_back(layer_setting_data);
+
+            LayerSettingData json_setting_data;
+            json_setting_data.key = ReadStringValue(json_setting_object, "key");
+            json_setting_data.value = ReadString(json_setting_object, "value");
+
+            LayerSettingData* layer_setting_data = FindByKey(settings, json_setting_data.key.c_str());
+            if (layer_setting_data) {
+                layer_setting_data->value = json_setting_data.value;
+            } else {
+                settings.push_back(json_setting_data);
+            }
         }
 
+        parameter.settings = settings;
         parameters.push_back(parameter);
     }
 
     return true;
 }
 
-bool Configuration::Load(const QString& full_path) {
+bool Configuration::Load(const std::vector<Layer>& available_layers, const QString& full_path) {
     assert(!full_path.isEmpty());
 
     QFile file(full_path);
@@ -193,9 +218,9 @@ bool Configuration::Load(const QString& full_path) {
 
     const Version version(GetConfigurationVersion(json_root_object.value("file_format_version")));
     if (SUPPORT_VKCONFIG_2_0_3 && version < Version(2, 1, 0)) {
-        return Load2_0(json_root_object, full_path);
+        return Load2_0(available_layers, json_root_object, full_path);
     } else {
-        return Load2_1(json_root_object);
+        return Load2_1(available_layers, json_root_object);
     }
 }
 

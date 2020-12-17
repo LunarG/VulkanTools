@@ -228,7 +228,7 @@ void Configurator::LoadAllConfigurations() {
 
         for (int i = 0, n = configuration_files.size(); i < n; ++i) {
             Configuration configuration;
-            const bool result = configuration.Load(configuration_files[i].absoluteFilePath());
+            const bool result = configuration.Load(layers.available_layers, configuration_files[i].absoluteFilePath());
 
             if (!configuration.IsAvailableOnThisPlatform()) continue;
 
@@ -249,7 +249,7 @@ void Configurator::LoadAllConfigurations() {
         const QFileInfo &info = configuration_files.at(i);
 
         Configuration configuration;
-        const bool result = configuration.Load(info.absoluteFilePath());
+        const bool result = configuration.Load(layers.available_layers, info.absoluteFilePath());
         OrderParameter(configuration.parameters, layers.available_layers);
         if (result) {
             available_configurations.push_back(configuration);
@@ -341,7 +341,7 @@ void Configurator::ImportConfiguration(const QString &full_import_path) {
 
     Configuration configuration;
 
-    if (!configuration.Load(full_import_path)) {
+    if (!configuration.Load(layers.available_layers, full_import_path)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");

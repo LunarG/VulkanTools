@@ -36,7 +36,7 @@ TEST(test_override, override_and_surrender) {
     available_layers.push_back(layer);
 
     Configuration configuration;
-    const bool load = configuration.Load(":/Configuration 2.0.2 - Standard.json");
+    const bool load = configuration.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load);
     ASSERT_TRUE(!configuration.IsEmpty());
 
@@ -52,7 +52,7 @@ TEST(test_override, missing_layers) {
     environment.Reset(Environment::DEFAULT);
 
     Configuration configuration;
-    const bool load = configuration.Load(":/Configuration 2.0.2 - Standard.json");
+    const bool load = configuration.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load);
     ASSERT_TRUE(!configuration.IsEmpty());
 
