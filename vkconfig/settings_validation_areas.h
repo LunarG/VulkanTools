@@ -55,6 +55,9 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_gpu_assisted_oob_box;
     QTreeWidgetItem *_debug_printf_box;
     QRadioButton *_debug_printf_radio;
+    QTreeWidgetItem *_debug_printf_to_stdout;
+    QTreeWidgetItem *_debug_printf_verbose;
+    QTreeWidgetItem *_debug_printf_buffer_size;
 
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *item, int column);
