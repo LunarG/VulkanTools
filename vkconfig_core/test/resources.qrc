@@ -17,5 +17,8 @@
         <file>Configuration 2.0.2 - Override all layers.json</file>
 
         <file>Configuration 2.0.3 - Best Practices.json</file>
+        
+        <file>Configuration 2.1.0 - Frame Capture.json</file>
+        <file>Configuration 2.1.0 - Portability.json</file>
     </qresource>
 </RCC>
