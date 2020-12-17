@@ -35,7 +35,9 @@ class SettingsValidationAreas : public QObject {
     Q_OBJECT
 
    public:
-    explicit SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent, std::vector<LayerSettingData> &settings);
+    explicit SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent,
+                                     const std::vector<LayerSettingMeta> &settings_meta,
+                                     std::vector<LayerSettingData> &settings_data);
 
     bool CollectSettings();
 
@@ -44,9 +46,6 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_main_parent;
     QTreeWidgetItem *_core_checks_parent;
 
-    LayerSettingData &_disables;
-    LayerSettingData &_enables;
-
     QTreeWidgetItem *_synchronization_box;
     QTreeWidgetItem *_shader_based_box;
     QTreeWidgetItem *_gpu_assisted_box;
@@ -54,7 +53,6 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_reserve_box;
     QTreeWidgetItem *_debug_printf_box;
     QRadioButton *_debug_printf_radio;
-    MuteMessageWidget *_mute_message_widget;
 
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *item, int column);
@@ -68,4 +66,10 @@ class SettingsValidationAreas : public QObject {
    private:
     SettingsValidationAreas(const SettingsValidationAreas &) = delete;
     SettingsValidationAreas &operator=(const SettingsValidationAreas &) = delete;
+
+    bool HasEnable(const char *token) const;
+    bool HasDisable(const char *token) const;
+
+    const std::vector<LayerSettingMeta> &settings_meta;
+    std::vector<LayerSettingData> &settings_data;
 };

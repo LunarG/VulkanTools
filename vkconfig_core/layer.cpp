@@ -40,7 +40,7 @@ QString GetBuiltinFolder(const Version& version) {
     //    return ":/resourcefiles/layers_latest/";
 }
 
-const char* Layer::NO_PRESET = "User Defined Settings";
+const char* Layer::NO_PRESET = "User-Defined Settings";
 
 Layer::Layer() {}
 
