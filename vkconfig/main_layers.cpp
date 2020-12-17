@@ -27,19 +27,19 @@
 #include <cassert>
 
 static int RunLayersOverride(const CommandLine& command_line) {
-    Configuration configuration;
-    const bool load_result = configuration.Load(command_line.layers_configuration_path.c_str());
-    if (!load_result) {
-        printf("\nFailed to load the layers configuration file...\n");
-        return -1;
-    }
-
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
     LayerManager layers(environment);
     layers.LoadAllInstalledLayers();
+
+    Configuration configuration;
+    const bool load_result = configuration.Load(layers.available_layers, command_line.layers_configuration_path.c_str());
+    if (!load_result) {
+        printf("\nFailed to load the layers configuration file...\n");
+        return -1;
+    }
 
     // With command line, don't store the application list, it's always global, save and restore the setting
     const bool use_application_list = environment.UseApplicationListOverrideMode();

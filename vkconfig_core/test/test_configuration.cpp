@@ -91,7 +91,7 @@ static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parame
 
 TEST(test_configuration, ctor) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.1 - API dump.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - API dump.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
 
@@ -102,7 +102,7 @@ TEST(test_configuration, ctor) {
 
 TEST(test_configuration, load_and_save_v2_0_1_api_dump) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.1 - API dump.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - API dump.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -115,14 +115,14 @@ TEST(test_configuration, load_and_save_v2_0_1_api_dump) {
     configuration_loaded.Save("test_v2_0_1_api_dump.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_1_api_dump.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_api_dump.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_1_frame_capture) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.1 - Frame Capture.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - Frame Capture.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -135,14 +135,14 @@ TEST(test_configuration, load_and_save_v2_0_1_frame_capture) {
     configuration_loaded.Save("test_v2_0_1_frame_capture.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_1_frame_capture.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_frame_capture.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_2_frame_capture) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.2 - Frame Capture.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Frame Capture.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -155,14 +155,14 @@ TEST(test_configuration, load_and_save_v2_0_2_frame_capture) {
     configuration_loaded.Save("test_v2_0_2_frame_capture.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_2_frame_capture.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_frame_capture.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_1_gpu_assisted) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.1 - GPU-Assisted.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - GPU-Assisted.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -175,14 +175,14 @@ TEST(test_configuration, load_and_save_v2_0_1_gpu_assisted) {
     configuration_loaded.Save("test_v2_0_1_gpu_assisted.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_1_gpu_assisted.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_gpu_assisted.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_2_gpu_assisted) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.2 - GPU-Assisted.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - GPU-Assisted.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -195,14 +195,14 @@ TEST(test_configuration, load_and_save_v2_0_2_gpu_assisted) {
     configuration_loaded.Save("test_v2_0_2_gpu_assisted.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_2_gpu_assisted.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_gpu_assisted.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_1_shader_printf) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.1 - Shader Printf.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - Shader Printf.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -215,14 +215,14 @@ TEST(test_configuration, load_and_save_v2_0_1_shader_printf) {
     configuration_loaded.Save("test_v2_0_1_shader_printf.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_1_shader_printf.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_shader_printf.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_2_debug_printf) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.2 - Debug Printf.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Debug Printf.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -235,14 +235,14 @@ TEST(test_configuration, load_and_save_v2_0_2_debug_printf) {
     configuration_loaded.Save("test_v2_0_2_shader_printf.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_2_shader_printf.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_shader_printf.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_1_best_practices) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.1 - Best Practices.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - Best Practices.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -255,14 +255,14 @@ TEST(test_configuration, load_and_save_v2_0_1_best_practices) {
     configuration_loaded.Save("test_v2_0_1_best_practices.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_1_best_practices.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_1_best_practices.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_2_best_practices) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.2 - Best Practices.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Best Practices.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -275,14 +275,14 @@ TEST(test_configuration, load_and_save_v2_0_2_best_practices) {
     configuration_loaded.Save("test_v2_0_2_best_practices.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_2_best_practices.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_best_practices.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_2_override_all_layers) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.2 - Override all layers.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Override all layers.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(6, configuration_loaded.parameters.size());
@@ -315,14 +315,14 @@ TEST(test_configuration, load_and_save_v2_0_2_override_all_layers) {
     configuration_loaded.Save("test_v2_0_2_override_all_layers.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_2_override_all_layers.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_override_all_layers.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_0_2_exclude_all_layers) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.2 - Exclude all layers.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Exclude all layers.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(6, configuration_loaded.parameters.size());
@@ -355,14 +355,14 @@ TEST(test_configuration, load_and_save_v2_0_2_exclude_all_layers) {
     configuration_loaded.Save("test_v2_0_2_exclude_all_layers.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_2_exclude_all_layers.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_2_exclude_all_layers.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_standard) {
     Configuration configuration;
-    const bool load = configuration.Load(":/Configuration 2.0.2 - Standard.json");
+    const bool load = configuration.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load);
     ASSERT_TRUE(!configuration.IsEmpty());
 
@@ -373,13 +373,13 @@ TEST(test_configuration, load_standard) {
 
 TEST(test_configuration, compare_version_standard) {
     Configuration configuration_2_0_1;
-    const bool load_2_0_1 = configuration_2_0_1.Load(":/Configuration 2.0.1 - Standard.json");
+    const bool load_2_0_1 = configuration_2_0_1.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - Standard.json");
     ASSERT_TRUE(load_2_0_1);
     ASSERT_TRUE(!configuration_2_0_1.IsEmpty());
     EXPECT_STREQ("Configuration 2.0.1 - Standard", configuration_2_0_1.key.toStdString().c_str());
 
     Configuration configuration_2_0_2;
-    const bool load_2_0_2 = configuration_2_0_2.Load(":/Configuration 2.0.2 - Standard.json");
+    const bool load_2_0_2 = configuration_2_0_2.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load_2_0_2);
     ASSERT_TRUE(!configuration_2_0_2.IsEmpty());
     EXPECT_STREQ("Validation - Standard", configuration_2_0_2.key.toStdString().c_str());
@@ -389,13 +389,13 @@ TEST(test_configuration, compare_version_standard) {
 
 TEST(test_configuration, compare_version_debug_printf) {
     Configuration configuration_2_0_1;
-    const bool load_2_0_1 = configuration_2_0_1.Load(":/Configuration 2.0.1 - Shader Printf.json");
+    const bool load_2_0_1 = configuration_2_0_1.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - Shader Printf.json");
     ASSERT_TRUE(load_2_0_1);
     ASSERT_TRUE(!configuration_2_0_1.IsEmpty());
     EXPECT_STREQ("Configuration 2.0.1 - Shader Printf", configuration_2_0_1.key.toStdString().c_str());
 
     Configuration configuration_2_0_2;
-    const bool load_2_0_2 = configuration_2_0_2.Load(":/Configuration 2.0.2 - Debug Printf.json");
+    const bool load_2_0_2 = configuration_2_0_2.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Debug Printf.json");
     ASSERT_TRUE(load_2_0_2);
     ASSERT_TRUE(!configuration_2_0_2.IsEmpty());
     EXPECT_STREQ("Validation - Debug Printf", configuration_2_0_2.key.toStdString().c_str());
@@ -405,13 +405,14 @@ TEST(test_configuration, compare_version_debug_printf) {
 
 TEST(test_configuration, compare_settings) {
     Configuration configuration_standard;
-    const bool load_standard = configuration_standard.Load(":/Configuration 2.0.2 - Standard.json");
+    const bool load_standard = configuration_standard.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load_standard);
     ASSERT_TRUE(!configuration_standard.IsEmpty());
     EXPECT_STREQ("Validation - Standard", configuration_standard.key.toStdString().c_str());
 
     Configuration configuration_best_practices;
-    const bool load_best_practices = configuration_best_practices.Load(":/Configuration 2.0.2 - Best Practices.json");
+    const bool load_best_practices =
+        configuration_best_practices.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Best Practices.json");
     ASSERT_TRUE(load_best_practices);
     ASSERT_TRUE(!configuration_best_practices.IsEmpty());
     EXPECT_STREQ("Validation - Best Practices", configuration_best_practices.key.toStdString().c_str());
@@ -421,7 +422,7 @@ TEST(test_configuration, compare_settings) {
 
 TEST(test_configuration, find_layer_parameter) {
     Configuration configuration_2_0_1;
-    const bool load_2_0_1 = configuration_2_0_1.Load(":/Configuration 2.0.1 - Standard.json");
+    const bool load_2_0_1 = configuration_2_0_1.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - Standard.json");
     ASSERT_TRUE(load_2_0_1);
 
     auto parameter = FindItByKey(configuration_2_0_1.parameters, "VK_LAYER_KHRONOS_validation");
@@ -432,7 +433,7 @@ TEST(test_configuration, find_layer_parameter) {
 
 TEST(test_configuration, load_and_save_v2_0_3_best_practices) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.0.3 - Best Practices.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.0.3 - Best Practices.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -445,14 +446,14 @@ TEST(test_configuration, load_and_save_v2_0_3_best_practices) {
     configuration_loaded.Save("test_v2_0_3_best_practices.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_0_3_best_practices.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_0_3_best_practices.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_1_0_Frame_Capture) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.1.0 - Frame Capture.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.1.0 - Frame Capture.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(1, configuration_loaded.parameters.size());
@@ -465,14 +466,14 @@ TEST(test_configuration, load_and_save_v2_1_0_Frame_Capture) {
     configuration_loaded.Save("test_v2_1_0_frame_capture.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_1_0_frame_capture.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_1_0_frame_capture.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
 TEST(test_configuration, load_and_save_v2_1_0_Portability) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/Configuration 2.1.0 - Portability.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.1.0 - Portability.json");
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!configuration_loaded.IsEmpty());
     EXPECT_EQ(6, configuration_loaded.parameters.size());
@@ -494,7 +495,7 @@ TEST(test_configuration, load_and_save_v2_1_0_Portability) {
     configuration_loaded.Save("test_v2_1_0_portability.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_v2_1_0_portability.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_1_0_portability.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }

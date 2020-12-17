@@ -32,7 +32,7 @@ class Configuration {
    public:
     Configuration();
 
-    bool Load(const QString& full_path);
+    bool Load(const std::vector<Layer>& available_layers, const QString& full_path);
     bool Save(const QString& full_path) const;
     bool IsAvailableOnThisPlatform() const;
 
@@ -46,8 +46,8 @@ class Configuration {
     bool IsEmpty() const;
 
    private:
-    bool Load2_0(const QJsonObject& json_root_object, const QString& full_path);
-    bool Load2_1(const QJsonObject& json_root_object);
+    bool Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object, const QString& full_path);
+    bool Load2_1(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
 };
 
 QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name);
