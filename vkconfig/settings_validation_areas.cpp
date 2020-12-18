@@ -34,6 +34,7 @@
 struct TreeSettings {
     const char *prompt;
     const char *token;
+    const char *description;
     QTreeWidgetItem *item;
 };
 
@@ -120,21 +121,24 @@ static TreeSettings core_checks[] = {{"Image Layout Validation", "VALIDATION_CHE
                                      {"Object in Use", "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE", nullptr},
                                      {"Query Validation", "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION", nullptr},
                                      {"Idle Descriptor Set", "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET", nullptr},
-                                     {"Shader Validation Checks", "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT", nullptr},
+                                     {"Shader Validation", "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT", nullptr},
                                      {"Push Constant Range", "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE", nullptr}};
 
-static TreeSettings misc_disables[] = {
-    {"Thread Safety Checks", "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT", nullptr},
-    {"Handle Wrapping", "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT", nullptr},
-    {"Object Lifetime Validation", "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT", nullptr},
-    {"Stateless Parameter Checks", "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT", nullptr}};
+static TreeSettings misc_disables[] = {{"Thread Safety", "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                                        "Help with performance to run with thread-checking disabled most of the time, enabling it "
+                                        "occasionally for a quick sanity check, or when debugging difficult application behaviors.",
+                                        nullptr},
+                                       {"Handle Wrapping", "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                                        "Disable this feature if you are running into crashes when authoring new extensions or "
+                                        "developing new Vulkan objects/structures",
+                                        nullptr},
+                                       {"Object Lifetimes", "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT", "", nullptr},
+                                       {"Stateless Parameter", "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT", "", nullptr}};
 
-static TreeSettings best_practices[] = {
-    {"Best Practices Warning Checks", "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT", nullptr},
-    {"ARM-Specific Validation", "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM", nullptr}};
+static TreeSettings best_practices[] = {{"Best Practices", "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT", nullptr},
+                                        {"ARM-Specific Recommandations", "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM", nullptr}};
 
-static TreeSettings sync_checks[] = {
-    {"Synchronization Checks", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", nullptr}};
+static TreeSettings sync_checks[] = {{"Synchronization", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", nullptr}};
 
 /// There aren't many... but consider moving this to a QHash type lookup
 static QString GetSettingDetails(const QString &setting, QString &url) {
@@ -180,7 +184,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     const bool core_validation_disabled = HasDisable("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
 
     _core_checks_parent = new QTreeWidgetItem();
-    _core_checks_parent->setText(0, "Core Validation Checks");
+    _core_checks_parent->setText(0, "Core");
     _core_checks_parent->setCheckState(0, core_validation_disabled ? Qt::Unchecked : Qt::Checked);
     parent->addChild(_core_checks_parent);
 
@@ -203,6 +207,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     for (std::size_t i = 0, n = countof(misc_disables); i < n; ++i) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, misc_disables[i].prompt);
+        item->setToolTip(0, misc_disables[i].description);
         item->setCheckState(0, HasDisable(misc_disables[i].token) ? Qt::Unchecked : Qt::Checked);
         parent->addChild(item);
         misc_disables[i].item = item;
@@ -218,7 +223,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
         if (HasValue(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
             _shader_based_box = new QTreeWidgetItem();
-            _shader_based_box->setText(0, "Shader-Based Validation");
+            _shader_based_box->setText(0, "Shader-Based");
             _shader_based_box->setCheckState(0, shader_based ? Qt::Checked : Qt::Unchecked);
             parent->addChild(_shader_based_box);
 
@@ -295,6 +300,10 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         const bool synchronization = HasEnable(sync_checks[0].token);
         _synchronization_box = new QTreeWidgetItem();
         _synchronization_box->setText(0, sync_checks[0].prompt);
+        _synchronization_box->setToolTip(
+            0,
+            "Identify resource access conflicts due to missing or incorrect synchronization operations between actions (Draw, "
+            "Copy, Dispatch, Blit) reading or writing the same regions of memory");
         _synchronization_box->setCheckState(0, synchronization ? Qt::Checked : Qt::Unchecked);
         parent->addChild(_synchronization_box);
         sync_checks[0].item = _synchronization_box;
@@ -303,6 +312,9 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     // Best Practices - one parent/child, but we want to be able to go back to these
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText(0, best_practices[0].prompt);
+    item->setToolTip(0,
+                     "Highlight potential performance issues, questionable usage patterns, items not specifically prohibited by "
+                     "the specification but that may lead to application problems.");
     item->setCheckState(0, HasEnable(best_practices[0].token) ? Qt::Checked : Qt::Unchecked);
     parent->addChild(item);
     best_practices[0].item = item;

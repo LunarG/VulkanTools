@@ -118,7 +118,7 @@
                 ]
             },
             {
-                "label": "Synchronization",
+                "label": "Synchronization (ALPHA)",
                 "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "ALPHA",
@@ -239,7 +239,7 @@
             {
                 "key": "message_id_filter",
                 "label": "Mute Message VUIDs",
-                "description": "VUID's to ignore",
+                "description": "List of VUIDs and VUID identifers which are to be IGNORED by the validation layer",
                 "type": "vuid_exclude",
                 "options": [
                     "VUID-VkAabbPositionsKHR-minX-03546",
@@ -6731,7 +6731,7 @@
                 "description": "Setting an option here will enable specialized areas of validation",
                 "type": "multi_enum",
                 "options": {
-                    "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT": "Synchronization",
+                    "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT": "Synchronization (ALPHA)",
                     "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT": "Debug printf",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",

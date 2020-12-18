@@ -169,7 +169,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     std::vector<Layer>::iterator validation_layer = FindItByKey(available_layers, "VK_LAYER_KHRONOS_validation");
 
     QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
-    validation_areas_item->setText(0, "Validation Checks");
+    validation_areas_item->setText(0, "Validation Areas");
     parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
@@ -260,6 +260,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         } else if (layer_setting_meta.key == "duplicate_message_limit") {
             QTreeWidgetItem *setting_item = new QTreeWidgetItem();
             StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);
+            widget->setToolTip("The limit for the number of times any validation message can be output by the layers.");
             parent->addChild(setting_item);
             QTreeWidgetItem *place_holder = new QTreeWidgetItem();
             setting_item->addChild(place_holder);
@@ -278,6 +279,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
         mute_message_item->setText(0, layer_setting_meta.label);
+        mute_message_item->setToolTip(0, layer_setting_meta.description);
         parent->addChild(mute_message_item);
 
         LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
