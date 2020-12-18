@@ -116,13 +116,13 @@ static const TableEntry lookup_table[] = {
      "https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/docs/synchronization.md"},
 };
 
-static TreeSettings core_checks[] = {{"Image Layout Validation", "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", nullptr},
-                                     {"Command Buffer State", "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE", nullptr},
-                                     {"Object in Use", "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE", nullptr},
-                                     {"Query Validation", "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION", nullptr},
-                                     {"Idle Descriptor Set", "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET", nullptr},
-                                     {"Shader Validation", "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT", nullptr},
-                                     {"Push Constant Range", "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE", nullptr}};
+static TreeSettings core_checks[] = {{"Image Layout Validation", "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", "", nullptr},
+                                     {"Command Buffer State", "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE", "", nullptr},
+                                     {"Object in Use", "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE", "", nullptr},
+                                     {"Query Validation", "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION", "", nullptr},
+                                     {"Idle Descriptor Set", "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET", "", nullptr},
+                                     {"Shader Validation", "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT", "", nullptr},
+                                     {"Push Constant Range", "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE", "", nullptr}};
 
 static TreeSettings misc_disables[] = {{"Thread Safety", "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
                                         "Help with performance to run with thread-checking disabled most of the time, enabling it "
@@ -135,10 +135,12 @@ static TreeSettings misc_disables[] = {{"Thread Safety", "VK_VALIDATION_FEATURE_
                                        {"Object Lifetimes", "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT", "", nullptr},
                                        {"Stateless Parameter", "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT", "", nullptr}};
 
-static TreeSettings best_practices[] = {{"Best Practices", "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT", nullptr},
-                                        {"ARM-Specific Recommandations", "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM", nullptr}};
+static TreeSettings best_practices[] = {
+    {"Best Practices", "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT", "", nullptr},
+    {"ARM-Specific Recommandations", "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM", "", nullptr}};
 
-static TreeSettings sync_checks[] = {{"Synchronization", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", nullptr}};
+static TreeSettings sync_checks[] = {
+    {"Synchronization", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", "", nullptr}};
 
 /// There aren't many... but consider moving this to a QHash type lookup
 static QString GetSettingDetails(const QString &setting, QString &url) {
