@@ -269,15 +269,17 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
                 EnableSettingWidget(_gpu_assisted_box, false);
                 EnableSettingWidget(_gpu_assisted_reserve_box, false);
                 EnableSettingWidget(_gpu_assisted_oob_box, false);
-            } else if (HasEnable("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
-                _debug_printf_radio->setChecked(true);
-                EnableSettingWidget(_gpu_assisted_reserve_box, false);
-                EnableSettingWidget(_gpu_assisted_oob_box, false);
             } else {
-                _gpu_assisted_radio->setChecked(true);
-                EnableSettingWidget(_debug_printf_to_stdout, false);
-                EnableSettingWidget(_debug_printf_verbose, false);
-                EnableSettingWidget(_debug_printf_buffer_size, false);
+                const bool enable_debug_printf = HasEnable("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
+                _debug_printf_radio->setChecked(enable_debug_printf);
+                EnableSettingWidget(_debug_printf_to_stdout, enable_debug_printf);
+                EnableSettingWidget(_debug_printf_verbose, enable_debug_printf);
+                EnableSettingWidget(_debug_printf_buffer_size, enable_debug_printf);
+
+                const bool enable_gpu_assisted = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
+                _gpu_assisted_radio->setChecked(enable_gpu_assisted);
+                EnableSettingWidget(_gpu_assisted_reserve_box, enable_gpu_assisted);
+                EnableSettingWidget(_gpu_assisted_oob_box, enable_gpu_assisted);
             }
         } else {
             _gpu_assisted_box = new QTreeWidgetItem();
@@ -458,8 +460,11 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
             EnableSettingWidget(_gpu_assisted_reserve_box, false);
             EnableSettingWidget(_gpu_assisted_oob_box, false);
         }
-    } else {
-        if (_gpu_assisted_box) EnableSettingWidget(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
+    }
+
+    if (item == _gpu_assisted_box && _gpu_assisted_radio == nullptr) {
+        EnableSettingWidget(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
+        EnableSettingWidget(_gpu_assisted_oob_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
     }
 
     // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
