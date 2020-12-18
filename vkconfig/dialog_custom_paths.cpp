@@ -34,9 +34,10 @@ CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new 
 
     RepopulateTree();
     ui->buttonBox->setEnabled(Configurator::Get().HasLayers());
+    Configurator::Get().request_vulkan_status = true;
 }
 
-CustomPathsDialog::~CustomPathsDialog() { Configurator::Get().request_vulkan_status = true; }
+CustomPathsDialog::~CustomPathsDialog() {}
 
 // Load the tree widget with the current list
 void CustomPathsDialog::RepopulateTree() {
