@@ -47,8 +47,10 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     // it's state gets saved.
     CleanupGUI();
 
+    Configurator &configurator = Configurator::Get();
+
     _settings_tree = build_tree;
-    auto configuration = Configurator::Get().GetActiveConfiguration();
+    auto configuration = configurator.GetActiveConfiguration();
 
     build_tree->blockSignals(true);
     build_tree->clear();
@@ -63,12 +65,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             Parameter &parameter = configuration->parameters[i];
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-            const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+            const std::vector<Layer> &available_layers = configurator.layers.available_layers;
             const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
 
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             layer_item->setText(0, (parameter.key + (layer != available_layers.end() ? "" : " (Missing)")).c_str());
-            layer_item->setToolTip(0, layer->description);
+            if (layer != available_layers.end()) layer_item->setToolTip(0, layer->description);
             _settings_tree->addTopLevelItem(layer_item);
 
             if (layer == available_layers.end()) continue;
@@ -107,12 +109,13 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
             const std::vector<Layer>::const_iterator layer =
-                FindItByKey(Configurator::Get().layers.available_layers, parameter.key.c_str());
+                FindItByKey(configurator.layers.available_layers, parameter.key.c_str());
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(
-                0, (parameter.key + (layer != Configurator::Get().layers.available_layers.end() ? "" : " (Missing)")).c_str());
-            child->setToolTip(0, layer->description);
+            child->setText(0, (parameter.key + (layer != configurator.layers.available_layers.end() ? "" : " (Missing)")).c_str());
+            if (layer != configurator.layers.available_layers.end()) {
+                child->setToolTip(0, layer->description);
+            }
             excluded_layers->addChild(child);
         }
 

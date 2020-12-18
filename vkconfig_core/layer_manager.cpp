@@ -58,30 +58,28 @@ class PathFinder {
         }
     }
 
-    int FileCount() { return files.size(); }
-    QString GetFileName(int i) { return files[i]; }
+    int FileCount() const { return files.size(); }
+    QString GetFileName(int i) const { return files[i]; }
 };
 
-// I am purposly not flagging these as explicit or implicit as this can be parsed from the location
-// and future updates to layer locations will only require a smaller change.
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-static const QString szSearchPaths[] = {"HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
-                                        "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
-                                        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
-                                        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers",
-                                        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
-                                        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers"};
+static const QString SEARCH_PATHS[] = {"HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
+                                       "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
+                                       "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
+                                       "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers",
+                                       "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers",
+                                       "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers"};
 #else
-static const QString szSearchPaths[] = {"/usr/local/etc/vulkan/explicit_layer.d",  // Not used on macOS, okay to just ignore
-                                        "/usr/local/etc/vulkan/implicit_layer.d",  // Not used on macOS, okay to just ignore
-                                        "/usr/local/share/vulkan/explicit_layer.d",
-                                        "/usr/local/share/vulkan/implicit_layer.d",
-                                        "/etc/vulkan/explicit_layer.d",
-                                        "/etc/vulkan/implicit_layer.d",
-                                        "/usr/share/vulkan/explicit_layer.d",
-                                        "/usr/share/vulkan/implicit_layer.d",
-                                        ".local/share/vulkan/explicit_layer.d",
-                                        ".local/share/vulkan/implicit_layer.d"};
+static const QString SEARCH_PATHS[] = {"/usr/local/etc/vulkan/explicit_layer.d",  // Not used on macOS, okay to just ignore
+                                       "/usr/local/etc/vulkan/implicit_layer.d",  // Not used on macOS, okay to just ignore
+                                       "/usr/local/share/vulkan/explicit_layer.d",
+                                       "/usr/local/share/vulkan/implicit_layer.d",
+                                       "/etc/vulkan/explicit_layer.d",
+                                       "/etc/vulkan/implicit_layer.d",
+                                       "/usr/share/vulkan/explicit_layer.d",
+                                       "/usr/share/vulkan/implicit_layer.d",
+                                       ".local/share/vulkan/explicit_layer.d",
+                                       ".local/share/vulkan/implicit_layer.d"};
 #endif
 
 LayerManager::LayerManager(const Environment &environment) : environment(environment) {
@@ -101,30 +99,28 @@ bool LayerManager::Empty() const { return available_layers.empty(); }
 
 // Find all installed layers on the system.
 void LayerManager::LoadAllInstalledLayers() {
-    // This is called initially, but also when custom search paths are set, so
-    // we need to clear out the old data and just do a clean refresh
     available_layers.clear();
 
     // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
-    int lp = VK_LAYER_PATH.count();
-    if (lp != 0)
-        for (int i = 0; i < lp; i++) LoadLayersFromPath(VK_LAYER_PATH[i], available_layers);
+    for (int i = 0, n = VK_LAYER_PATH.count(); i < n; ++i) {
+        LoadLayersFromPath(VK_LAYER_PATH[i], available_layers);
+    }
 
     // SECOND: Any custom paths? Search for those too
     const QStringList &custom_layers_paths = environment.GetCustomLayerPaths();
-    for (int i = 0; i < custom_layers_paths.size(); i++) {
+    for (int i = 0, n = custom_layers_paths.size(); i < n; ++i) {
         LoadLayersFromPath(custom_layers_paths[i], available_layers);
     }
 
     // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
-    for (std::size_t i = 0, n = countof(szSearchPaths); i < n; i++) {
-        LoadLayersFromPath(szSearchPaths[i], available_layers);
+    for (std::size_t i = 0, n = countof(SEARCH_PATHS); i < n; i++) {
+        LoadLayersFromPath(SEARCH_PATHS[i], available_layers);
     }
 
     // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
-    const QString vulkanSDK(qgetenv("VULKAN_SDK"));
-    if (!vulkanSDK.isEmpty()) {
-        LoadLayersFromPath(vulkanSDK + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS), available_layers);
+    const QString vulkan_sdk(qgetenv("VULKAN_SDK"));
+    if (!vulkan_sdk.isEmpty()) {
+        LoadLayersFromPath(vulkan_sdk + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS), available_layers);
     }
 }
 
@@ -137,7 +133,6 @@ void LayerManager::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
     // searched this way
     LayerType type = LAYER_TYPE_CUSTOM;
     if (path.contains("explicit", Qt::CaseInsensitive)) type = LAYER_TYPE_EXPLICIT;
-
     if (path.contains("implicit", Qt::CaseInsensitive)) type = LAYER_TYPE_IMPLICIT;
 
     PathFinder file_list;
@@ -155,9 +150,7 @@ void LayerManager::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
         // On Linux/Mac, we also need the home folder
         QString search_path = path;
         if (path[0] == '.') {
-            search_path = QDir().homePath();
-            search_path += "/";
-            search_path += path;
+            search_path = QDir().homePath() + "/" + path;
         }
 
         file_list = PathFinder(search_path, true);
@@ -165,17 +158,13 @@ void LayerManager::LoadLayersFromPath(const QString &path, std::vector<Layer> &l
         assert(0);  // Platform
     }
 
-    if (file_list.FileCount() == 0) return;
-
-    // We have a list of layer files. Add to the list as long as the layer name has
-    // not already been added.
-    for (int i = 0; i < file_list.FileCount(); ++i) {
+    for (int i = 0, n = file_list.FileCount(); i < n; ++i) {
         Layer layer;
         if (layer.Load(file_list.GetFileName(i), type)) {
             if (layer.key == "VK_LAYER_LUNARG_override") continue;
 
             // Make sure this layer name has not already been added
-            if (FindItByKey(available_layers, layer.key.c_str()) != available_layers.end()) continue;
+            if (FindByKey(available_layers, layer.key.c_str()) != nullptr) continue;
 
             // Good to go, add the layer
             layers.push_back(layer);
