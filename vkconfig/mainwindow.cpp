@@ -244,6 +244,14 @@ void MainWindow::UpdateUI() {
         _launcher_log_file_edit->setEnabled(has_application_list);
     }
 
+    if (configurator.request_vulkan_status) {
+        ui->log_browser->clear();
+        ui->log_browser->append("Vulkan Development Status:");
+        ui->log_browser->append(GenerateVulkanStatus());
+        ui->push_button_clear_log->setEnabled(true);
+        configurator.request_vulkan_status = false;
+    }
+
     // Update title bar
     if (has_active_configuration && configurator.environment.UseOverride()) {
         setWindowTitle(GetMainWindowTitle(true).c_str());
@@ -252,13 +260,6 @@ void MainWindow::UpdateUI() {
     }
 
     ui->configuration_tree->blockSignals(false);
-
-    if (configurator.request_vulkan_status) {
-        ui->log_browser->clear();
-        ui->log_browser->append("Vulkan Development Status:");
-        ui->log_browser->append(GenerateVulkanStatus());
-        configurator.request_vulkan_status = false;
-    }
 }
 
 void MainWindow::UpdateConfiguration() {}
@@ -414,9 +415,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
-    ui->log_browser->clear();
-    ui->log_browser->append("Vulkan Development Status:");
-    ui->log_browser->append(GenerateVulkanStatus());
+    configurator.request_vulkan_status = true;
 
     UpdateUI();
 }
