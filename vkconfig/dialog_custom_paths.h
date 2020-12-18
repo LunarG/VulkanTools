@@ -30,6 +30,7 @@ class CustomPathsDialog : public QDialog {
 
    public:
     explicit CustomPathsDialog(QWidget *parent = nullptr);
+    ~CustomPathsDialog();
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();

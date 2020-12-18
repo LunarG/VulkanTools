@@ -75,6 +75,12 @@ class SettingsValidationAreas : public QObject {
     bool HasEnable(const char *token) const;
     bool HasDisable(const char *token) const;
 
+    QTreeWidgetItem *CreateSettingWidget(QTreeWidgetItem *parent, const char *key) const;
+
+    void StoreBoolSetting(QTreeWidgetItem *setting, const char *key);
+
+    void EnableSettingWidget(QTreeWidgetItem *setting, bool enable);
+
     const std::vector<LayerSettingMeta> &settings_meta;
     std::vector<LayerSettingData> &settings_data;
 };
