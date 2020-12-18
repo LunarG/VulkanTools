@@ -43,8 +43,7 @@ SettingsTreeManager::SettingsTreeManager()
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     assert(build_tree);
 
-    // Do this first to make absolutely sure if thee is an old configuration still active
-    // it's state gets saved.
+    // Do this first to make absolutely sure if these is an old configuration still active it's state gets saved.
     CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
@@ -142,7 +141,6 @@ void SettingsTreeManager::CleanupGUI() {
     std::vector<Configuration>::iterator configuration = configurator.GetActiveConfiguration();
     if (configuration == configurator.available_configurations.end()) return;
 
-    // Get the state of the last tree, and save it!
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, _settings_tree->invisibleRootItem());
 
