@@ -121,12 +121,12 @@
                 "label": "Synchronization",
                 "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-                "status": "ALPHA",
+                "status": "BETA",
                 "settings": [
                     {
                         "key": "enables",
                         "value": [
-                            "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION"
+                            "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT"
                         ]
                     },
                     {

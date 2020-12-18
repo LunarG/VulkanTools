@@ -88,4 +88,5 @@ class Configurator {
     PathManager path;
     Environment environment;
     LayerManager layers;
+    bool request_vulkan_status;
 };

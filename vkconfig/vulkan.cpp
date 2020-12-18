@@ -111,7 +111,8 @@ QString GenerateVulkanStatus() {
 
     log += "- Available Layers:\n";
     for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
-        log += QString().asprintf("    - %s\n", layers_properties[i].layerName);
+        log += QString().asprintf("    - %s (%s)\n", layers_properties[i].layerName,
+                                  Version(layers_properties[i].specVersion).str().c_str());
     }
 
     // Check Vulkan Devices

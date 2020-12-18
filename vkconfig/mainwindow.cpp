@@ -128,8 +128,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
     ui->log_browser->document()->setMaximumBlockCount(2048);
-    ui->log_browser->append("Vulkan Development Status:");
-    ui->log_browser->append(GenerateVulkanStatus());
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
     if (configurator.HasActiveConfiguration()) {
@@ -254,6 +252,13 @@ void MainWindow::UpdateUI() {
     }
 
     ui->configuration_tree->blockSignals(false);
+
+    if (configurator.request_vulkan_status) {
+        ui->log_browser->clear();
+        ui->log_browser->append("Vulkan Development Status:");
+        ui->log_browser->append(GenerateVulkanStatus());
+        configurator.request_vulkan_status = false;
+    }
 }
 
 void MainWindow::UpdateConfiguration() {}

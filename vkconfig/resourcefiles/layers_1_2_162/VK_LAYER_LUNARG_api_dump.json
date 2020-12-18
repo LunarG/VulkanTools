@@ -1,5 +1,5 @@
 {
-    "file_format_version" : "1.3.0",
+    "file_format_version" : "1.4.0",
     "layer" : {
         "name": "VK_LAYER_LUNARG_api_dump",
         "type": "GLOBAL",
@@ -23,7 +23,7 @@
                 "type": "enum",
                 "options": {
                     "Text": "Text",
-                    "Html": "Html",
+                    "Html": "HTML",
                     "Json": "Json"
                 },
                 "default": "Text"
