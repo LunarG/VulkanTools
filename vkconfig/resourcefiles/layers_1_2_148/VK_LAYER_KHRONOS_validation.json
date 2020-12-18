@@ -118,29 +118,6 @@
                 ]
             },
             {
-                "label": "Synchronization",
-                "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
-                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-                "status": "ALPHA",
-                "settings": [
-                    {
-                        "key": "enables",
-                        "value": [
-                            "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT"
-                        ]
-                    },
-                    {
-                        "key": "disables",
-                        "value": [
-                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
-                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
-                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
-                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
-                        ]
-                    }
-                ]
-            },
-            {
                 "label": "GPU-Assisted",
                 "description": "Check for API usage errors at shader execution time.",
                 "platforms": [ "WINDOWS", "LINUX" ],
@@ -228,6 +205,13 @@
                 "description": "Specifies the output filename",
                 "type": "save_file",
                 "default": "stdout"
+            },
+            {
+                "key": "duplicate_message_limit",
+                "label": "Duplicated Messages Limit",
+                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
+                "type": "string",
+                "default": "10"
             },
             {
                 "key": "message_id_filter",

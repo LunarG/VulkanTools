@@ -32,9 +32,15 @@
 #include <cassert>
 
 QString GetBuiltinFolder(const Version& version) {
-    if (version <= Version(1, 2, 148))
+    if (version <= Version(1, 1, 130))
+        return ":/resourcefiles/layers_1_1_130";
+    else if (version <= Version(1, 2, 135))
+        return ":/resourcefiles/layers_1_2_135";
+    else if (version <= Version(1, 2, 141))
+        return ":/resourcefiles/layers_1_2_141";
+    else if (version <= Version(1, 2, 148))
         return ":/resourcefiles/layers_1_2_148";
-    else if (version == Version(1, 2, 154))
+    else if (version <= Version(1, 2, 154))
         return ":/resourcefiles/layers_1_2_154";
     else
         return ":/resourcefiles/layers_1_2_162";

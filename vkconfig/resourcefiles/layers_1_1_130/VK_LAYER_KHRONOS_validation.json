@@ -1,0 +1,220 @@
+{
+    "file_format_version" : "1.4.0",
+    "layer" : {
+        "name": "VK_LAYER_KHRONOS_validation",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_khronos_validation.dll",
+        "api_version": "1.1.130",
+        "implementation_version": "1",
+        "description": "Khronos Validation Layer",
+        "instance_extensions": [
+            {
+             "name": "VK_EXT_debug_report",
+             "spec_version": "9"
+            },
+            {
+             "name": "VK_EXT_debug_utils",
+             "spec_version": "1"
+            },
+            {
+             "name": "VK_EXT_validation_features",
+             "spec_version": "2"
+            }
+        ],
+        "device_extensions": [
+            {
+                "name": "VK_EXT_debug_marker",
+                "spec_version": "4",
+                "entrypoints": [
+                    "vkDebugMarkerSetObjectTagEXT",
+                    "vkDebugMarkerSetObjectNameEXT",
+                    "vkCmdDebugMarkerBeginEXT",
+                    "vkCmdDebugMarkerEndEXT",
+                    "vkCmdDebugMarkerInsertEXT"
+                ]
+            },
+            {
+                "name": "VK_EXT_validation_cache",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkCreateValidationCacheEXT",
+                    "vkDestroyValidationCacheEXT",
+                    "vkGetValidationCacheDataEXT",
+                    "vkMergeValidationCachesEXT"
+                ]
+            },
+            {
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [ "vkGetPhysicalDeviceToolPropertiesEXT" ]
+            }
+        ],
+        "presets": [
+            {
+                "label": "Standard",
+                "description": "Good default validation setup that balance validation coverage and performance.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "value": []
+                    },
+                    {
+                        "key": "disables",
+                        "value": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
+                    }
+                ]
+            },
+            {
+                "label": "Reduced-Overhead",
+                "description": "Disables some checks in the interest of better performance.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "editor_state": "01110111111111111111111001111111111110",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "value": [
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "value": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
+                            "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
+                            "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
+                            "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
+                            "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
+                            "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE"
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "Best Practices",
+                "description": "Provides warnings about potential API misuse but valid usages of the API.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "value": [
+                            "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT"
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "value": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "GPU-Assisted",
+                "description": "Check for API usage errors at shader execution time.",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "status": "BETA",
+                "settings": [
+                    {
+                        "key": "enables",
+                        "value": [
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
+                            "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT"
+                        ]
+                    },
+                    {
+                        "key": "disables",
+                        "value": [
+                            "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "settings" : [
+            {
+                "key": "debug_action",
+                "label": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            {
+                "key": "report_flags",
+                "label": "Message Severity",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
+            },
+            {
+                "key": "log_filename",
+                "label": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            },
+            {
+                "key": "disables",
+                "label": "Disables",
+                "description": "Setting an option here will disable areas of validation",
+                "type": "multi_enum",
+                "options": {
+                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety",
+                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter",
+                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Object lifetime",
+                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core",
+                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping",
+                    "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT": "Disable Shaders",
+                    "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE": "Command Buffer State",
+                    "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION": "Image Layout",
+                    "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION": "Query",
+                    "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE": "Push Constant Range",
+                    "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE": "Object in Use",
+                    "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET": "Idle Descritor Set"
+                },
+                "default": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
+            },
+            {
+                "key": "enables",
+                "label": "Enables",
+                "description": "Setting an option here will enable specialized areas of validation",
+                "type": "multi_enum",
+                "options": {
+                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
+                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
+                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices"
+                },
+                "default": []
+            }            
+        ]
+    }
+}

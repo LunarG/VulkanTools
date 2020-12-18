@@ -1,10 +1,10 @@
 {
-    "file_format_version" : "1.3.0",
+    "file_format_version" : "1.4.0",
     "layer" : {
         "name": "VK_LAYER_KHRONOS_validation",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_khronos_validation.dll",
-        "api_version": "1.2.154",
+        "api_version": "1.2.148",
         "implementation_version": "1",
         "description": "Khronos Validation Layer",
         "instance_extensions": [
@@ -118,29 +118,6 @@
                 ]
             },
             {
-                "label": "Synchronization",
-                "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
-                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-                "status": "ALPHA",
-                "settings": [
-                    {
-                        "key": "enables",
-                        "value": [
-                            "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT"
-                        ]
-                    },
-                    {
-                        "key": "disables",
-                        "value": [
-                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
-                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
-                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
-                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
-                        ]
-                    }
-                ]
-            },
-            {
                 "label": "GPU-Assisted",
                 "description": "Check for API usage errors at shader execution time.",
                 "platforms": [ "WINDOWS", "LINUX" ],
@@ -228,13 +205,6 @@
                 "description": "Specifies the output filename",
                 "type": "save_file",
                 "default": "stdout"
-            },
-            {
-                "key": "duplicate_message_limit",
-                "label": "Duplicated Messages Limit",
-                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
-                "type": "string",
-                "default": "10"
             },
             {
                 "key": "message_id_filter",
@@ -6731,12 +6701,10 @@
                 "description": "Setting an option here will enable specialized areas of validation",
                 "type": "multi_enum",
                 "options": {
-                    "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT": "Synchronization",
                     "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT": "Debug printf",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
-                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices",
-                    "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM": "ARM-specific"
+                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices"
                 },
                 "default": []
             }            

@@ -151,6 +151,13 @@
                 "default": ""
             },
             {
+                "key": "log_detailed",
+                "label": "Log Detailed",
+                "description": "Include name and line number from the file responsible.",
+                "type": "bool",
+                "default": "FALSE"
+            },
+            {
                 "key": "log_file_flush_after_write",
                 "label": "Log File Flush After Write",
                 "description": "Flush the log file to disk after each write when true.",
