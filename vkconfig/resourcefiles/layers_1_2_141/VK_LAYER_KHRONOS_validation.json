@@ -209,7 +209,7 @@
             {
                 "key": "message_id_filter",
                 "label": "Mute Message VUIDs",
-                "description": "VUID's to ignore",
+                "description": "List of VUIDs and VUID identifers which are to be IGNORED by the validation layer",
                 "type": "vuid_exclude",
                 "options": [
                     "VUID-VkAabbPositionsKHR-minX-03546",

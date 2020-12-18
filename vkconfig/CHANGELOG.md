@@ -10,6 +10,7 @@
 <p align="center"><img src="./images/vulkan_configurator.png" width="400" /></p>
 
 # Known issues:
+
 - *Using Vulkan Configurator is exclusive from using layer environment variables. Choose one or the other method.*
 - Layers will use the override layer settings and ignore the local file with no warning to the user.
 - Layers settings fields are not checked for syntax errors.
