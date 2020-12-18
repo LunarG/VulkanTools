@@ -459,7 +459,7 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
             EnableSettingWidget(_gpu_assisted_oob_box, false);
         }
     } else {
-        EnableSettingWidget(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
+        if (_gpu_assisted_box) EnableSettingWidget(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
     }
 
     // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
@@ -541,7 +541,6 @@ void SettingsValidationAreas::printfToggled(bool toggle) {
     emit settingChanged();
 }
 
-/// Collect all the settings
 bool SettingsValidationAreas::CollectSettings() {
     std::string enables;
     std::string disables;
@@ -559,7 +558,7 @@ bool SettingsValidationAreas::CollectSettings() {
                 enables = "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT";
             }
         }
-    } else {
+    } else if (_gpu_assisted_box) {
         if (_gpu_assisted_box->checkState(0) == Qt::Checked) {
             enables = "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT";
 
