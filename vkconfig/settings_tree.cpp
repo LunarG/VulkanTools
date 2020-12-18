@@ -269,25 +269,21 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     }
 
     // VUID message filtering
-    for (std::size_t setting_index = 0, settings_count = validation_layer->settings.size(); setting_index < settings_count;
-         setting_index++) {
-        const LayerSettingMeta &layer_setting_meta = validation_layer->settings[setting_index];
+    for (std::size_t i = 0, n = validation_layer->settings.size(); i < n; ++i) {
+        const LayerSettingMeta &layer_setting_meta = validation_layer->settings[i];
 
         if (layer_setting_meta.type != SETTING_VUID_FILTER) {
             continue;
         }
 
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
-
         mute_message_item->setText(0, layer_setting_meta.label);
         parent->addChild(mute_message_item);
-
-        const LayerSettingMeta *layer_setting_vuid = FindByKey(validation_layer->settings, "message_id_filter");
-        assert(layer_setting_vuid);
 
         LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
         assert(layer_setting_data);
 
+        const LayerSettingMeta *layer_setting_vuid = FindByKey(validation_layer->settings, "message_id_filter");
         VUIDSearchWidget *vuid_search_widget =
             new VUIDSearchWidget(layer_setting_vuid->enum_values, layer_setting_data->value.c_str());
 

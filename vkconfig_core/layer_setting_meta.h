@@ -41,3 +41,5 @@ struct LayerSettingMeta {
     QStringList enum_labels;
     QString default_value;  // Default value as a string
 };
+
+bool HasValue(const QStringList& values, const char* searched_value);

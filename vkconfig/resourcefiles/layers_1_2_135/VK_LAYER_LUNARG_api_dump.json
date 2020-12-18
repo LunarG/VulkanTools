@@ -1,0 +1,124 @@
+{
+    "file_format_version" : "1.4.0",
+    "layer" : {
+        "name": "VK_LAYER_LUNARG_api_dump",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_api_dump.dll",
+        "api_version": "1.2.135",
+        "implementation_version": "2",
+        "description": "LunarG API dump layer",
+        "device_extensions": [
+            {
+                 "name": "VK_EXT_tooling_info",
+                 "spec_version": "1",
+                 "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"
+                        ]
+            }
+        ],
+        "settings" : [
+            {
+                "key": "output_format",
+                "label": "Output Format",
+                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
+                "type": "enum",
+                "options": {
+                    "Text": "Text",
+                    "Html": "HTML",
+                    "Json": "Json"
+                },
+                "default": "Text"
+            },
+            {
+                "key": "detailed",
+                "label": "Detailed Output",
+                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
+                "type": "bool",
+                "default": "TRUE"
+            },
+            {
+                "key": "no_addr",
+                "label": "Hide Addresses",
+                "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
+                "type": "bool",
+                "default": "FALSE"
+            },
+            {
+                "key": "file",
+                "label": "Output to File",
+                "description": "Setting this to true indicates that output should be written to file instead of stdout",
+                "type": "bool",
+                "default": "FALSE"
+            },
+            {
+                "key": "log_filename",
+                "label": "Log Filename",
+                "description": "Specifies the file to dump to when output files are enabled",
+                "type": "save_file",
+                "default": "vk_apidump.txt"
+            },
+            {
+                "key": "flush",
+                "label": "Log Flush After Write",
+                "description": "Setting this to true causes IO to be flushed after each API call that is written",
+                "type": "bool",
+                "default": "TRUE"
+            },
+            {
+                "key": "indent_size",
+                "label": "Indent Size",
+                "description": "Specifies the number of spaces that a tab is equal to",
+                "type": "string",
+                "default": "4"
+            },
+            {
+                "key": "show_types",
+                "label": "Show Types",
+                "description": "Setting this to true causes types to be dumped in addition to values",
+                "type": "bool",
+                "default": "TRUE"
+            },
+            {
+                "key": "name_size",
+                "label": "Name Size",
+                "description": "The number of characters the name of a variable should consume, assuming more are not required",
+                "type": "string",
+                "default": "32"
+            },
+            {
+                "key": "type_size",
+                "label": "Type Size",
+                "description": "The number of characters the name of a type should consume, assuming more are not required",
+                "type": "string",
+                "default": "0"
+            },
+            {
+                "key": "use_spaces",
+                "label": "Use Spaces",
+                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                "type": "bool",
+                "default": "TRUE"
+            },
+            {
+                "key": "show_timestamp",
+                "label": "Show Timestamp",
+                "description": "Show the timestamp of function calls since start in microseconds",
+                "type": "bool",
+                "default": "FALSE"
+            },
+            {
+                "key": "show_shader",
+                "label": "Show Shader",
+                "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
+                "type": "bool",
+                "default": "FALSE"
+            },
+            {
+                "key": "output_range",
+                "label": "Output Range",
+                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "string",
+                "default": "0-0"
+            }            
+        ]
+    }
+}
