@@ -66,7 +66,6 @@ void Configurator::CopyResourceFiles() {
     CheckPathsExist(dir_save.toStdString());
 
     const QFileInfoList &devsim_files = GetJSONFiles(":/resourcefiles/devsim/");
-
     for (int i = 0, n = devsim_files.size(); i < n; ++i) {
         const QString filename_load(devsim_files[i].absoluteFilePath());
         QFile file_load(filename_load);
@@ -189,7 +188,6 @@ void Configurator::BuildCustomLayerTree(QTreeWidget *tree_widget) {
     // present in the folder (because they may not be used). We have to list the custom layer paths
     // and then look for layers that are already loaded that are from that path.
     const QStringList &custom_layer_paths = environment.GetCustomLayerPaths();
-
     for (int custom_path_index = 0, n = custom_layer_paths.size(); custom_path_index < n; ++custom_path_index) {
         // Custom path is the parent tree item
         const QString custom_path(ConvertNativeSeparators(custom_layer_paths[custom_path_index].toStdString()).c_str());
@@ -245,9 +243,7 @@ void Configurator::LoadAllConfigurations() {
     }
 
     const QFileInfoList &configuration_files = GetJSONFiles(path.GetPath(PATH_CONFIGURATION).c_str());
-
-    // Loop through all the configurations found and load them
-    for (int i = 0, n = configuration_files.size(); i < n; i++) {
+    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
         const QFileInfo &info = configuration_files.at(i);
 
         Configuration configuration;
@@ -279,7 +275,7 @@ void Configurator::RemoveConfiguration(const QString &configuration_name) {
 
     // Delete the configuration file
     const QString full_path(path.GetFullPath(PATH_CONFIGURATION, configuration_name));
-    const bool result = std::remove(full_path.toUtf8().constData()) == 0;
+    const bool result = std::remove(full_path.toStdString().c_str()) == 0;
     assert(result);
 
     // Reload to remove the configuration in the UI

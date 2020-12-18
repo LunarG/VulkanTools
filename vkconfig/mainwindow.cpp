@@ -623,11 +623,10 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     ConfigurationListItem *item = SaveLastItem();
     if (item == nullptr) return;
 
-    Configurator &configurator = Configurator::Get();
-
     // Save current state before we go in
     _settings_tree_manager.CleanupGUI();
 
+    Configurator &configurator = Configurator::Get();
     auto configuration = configurator.GetActiveConfiguration();
     assert(configuration != configurator.available_configurations.end());
 
