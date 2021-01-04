@@ -20,12 +20,17 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.1.0 for Vulkan SDK 1.2.162.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.1) - January 2020
+## [Vulkan Configurator 2.1.1 for Vulkan SDK 1.2.X.0](https://github.com/LunarG/VulkanTools/tree/master) - February 2021
+
+### Features:
+- Add *Synchronization* default configuration #1304
+
+## [Vulkan Configurator 2.1.0 for Vulkan SDK 1.2.162.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.1) - January 2021
 
 ### Features:
 - Refactor built-in configurations #1247
 - Add layer settings presets #1271
-- Add portability default configuration #1279
+- Add *Portability* default configuration #1279
 
 ### Improvements:
 - In case of crash or user interruption, remove the layers override #1278
@@ -37,7 +42,7 @@
 ### Fixes:
 - Expose missing VK_LAYER_LUNARG_gfxreconstruct 'Log Detailed' setting
 
-## [Vulkan Configurator 2.0.3 for Vulkan SDK 1.2.162.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162) - December 2020
+## [Vulkan Configurator 2.0.3 for Vulkan SDK 1.2.162.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.0) - December 2020
 
 ### Features:
 - Add command line arguments to manage layers override #1213
@@ -54,7 +59,7 @@
 - Fix warning about old loader when trying to use application list #1230
 - Fix initialization of added applications on macOS #1249 
 
-## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.154) - October 2020
+## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.154.0) - October 2020
 
 ### Features:
 - Add multiple debug actions simulaneously #1119
@@ -82,14 +87,14 @@
 - Fix `debug_output` setting displayed on Linux and macOS but not avaiable #1086
 - Fix `numeric_bool` setting display #1166
 
-## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148) - August 2020 (revision 1)
+## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148.1) - August 2020 (revision 1)
 
 ### Fixes:
 - Fix Shader Printf built-in configuration that was setup for GPU-Assisted validation isntead
 - Fix layer configurations selection on Linux
 - Fix debug output setting not working
 
-## [Vulkan Configurator 2.0.0 for Vulkan SDK 1.2.148.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148) - August 2020
+## [Vulkan Configurator 2.0.0 for Vulkan SDK 1.2.148.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148.0) - August 2020
 
 ### Features:
 - Design GUI

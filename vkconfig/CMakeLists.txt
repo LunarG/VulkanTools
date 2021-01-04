@@ -15,12 +15,21 @@ elseif(Qt5_VERSION VERSION_LESS 5.5)
 else()
     file(GLOB FILES_RESSOURCE_CONFIGURATIONS ./resourcefiles/configurations/*.json)
     file(GLOB FILES_RESSOURCE_LAYERS_1_1_130 ./resourcefiles/layers_1_1_130/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_1_135 ./resourcefiles/layers_1_2_135/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_1_2_135 ./resourcefiles/layers_1_2_135/*.json)
     file(GLOB FILES_RESSOURCE_LAYERS_1_2_141 ./resourcefiles/layers_1_2_141/*.json)
     file(GLOB FILES_RESSOURCE_LAYERS_1_2_148 ./resourcefiles/layers_1_2_148/*.json)
     file(GLOB FILES_RESSOURCE_LAYERS_1_2_154 ./resourcefiles/layers_1_2_154/*.json)
     file(GLOB FILES_RESSOURCE_LAYERS_1_2_162 ./resourcefiles/layers_1_2_162/*.json)
-    set(FILES_RESSOURCE ${FILES_RESSOURCE_CONFIGURATIONS} ${FILES_RESSOURCE_LAYERS_1_1_130} ${FILES_RESSOURCE_LAYERS_1_1_135} ${FILES_RESSOURCE_LAYERS_1_2_141} ${FILES_RESSOURCE_LAYERS_1_2_148} ${FILES_RESSOURCE_LAYERS_1_2_154} ${FILES_RESSOURCE_LAYERS_1_2_162})
+    file(GLOB FILES_RESSOURCE_LAYERS_1_2_LATEST ./resourcefiles/layers_1_2_latest/*.json)
+    set(FILES_RESSOURCE 
+        ${FILES_RESSOURCE_CONFIGURATIONS} 
+        ${FILES_RESSOURCE_LAYERS_1_1_130} 
+        ${FILES_RESSOURCE_LAYERS_1_2_135} 
+        ${FILES_RESSOURCE_LAYERS_1_2_141} 
+        ${FILES_RESSOURCE_LAYERS_1_2_148} 
+        ${FILES_RESSOURCE_LAYERS_1_2_154} 
+        ${FILES_RESSOURCE_LAYERS_1_2_162} 
+        ${FILES_RESSOURCE_LAYERS_1_2_LATEST})
 
     source_group("Resources - Configurations" FILES ${FILES_RESSOURCE_CONFIGURATIONS})
     source_group("Resources - 1.1.130 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_1_130})
@@ -29,6 +38,7 @@ else()
     source_group("Resources - 1.2.148 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_148})
     source_group("Resources - 1.2.154 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_154})
     source_group("Resources - 1.2.162 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_162})
+    source_group("Resources - 1.2.latest Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_LATEST})
 
     file(GLOB FILES_UI ./*.ui)
 
