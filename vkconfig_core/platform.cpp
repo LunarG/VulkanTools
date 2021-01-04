@@ -141,10 +141,10 @@ const char* GetPlatformString(PlatformString platform_string) {
             "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
         },
         {
-            // PLATFORM_STRING_VULKAN_CONTENT
-            "/Config",               // PLATFORM_WINDOWS
-            "/share/vulkan/config",  // PLATFORM_LINUX
-            "/share/vulkan/config",  // PLATFORM_MACOS
+            // PLATFORM_STRING_VULKAN_LAYER_CONFIG
+            "/Config",                      // PLATFORM_WINDOWS
+            "/.local/share/vulkan/config",  // PLATFORM_LINUX
+            "/.local/share/vulkan/config",  // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_EXPLICIT_LAYERS

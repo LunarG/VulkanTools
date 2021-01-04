@@ -60,13 +60,19 @@ Configurator::~Configurator() {
 }
 
 void Configurator::CopyResourceFiles() {
-    const QString dir_save(QString(GetPath(BUILTIN_PATH_VULKAN_CONTENT).c_str()) + "/VK_LAYER_LUNARG_device_simulation");
-    if (QDir().exists(dir_save)) return;
-
+    const QString dir_save(QString(GetPath(BUILTIN_PATH_VULKAN_LAYER_CONFIG).c_str()) + "/VK_LAYER_LUNARG_device_simulation");
     CheckPathsExist(dir_save.toStdString());
 
     const QFileInfoList &devsim_files = GetJSONFiles(":/resourcefiles/devsim/");
     for (int i = 0, n = devsim_files.size(); i < n; ++i) {
+        const QString filename_exist(dir_save + "/" + devsim_files[i].fileName());
+        QFile file_exist(filename_exist);
+        const bool opened_exist = file_exist.open(QIODevice::ReadOnly | QIODevice::Text);
+        if (opened_exist) {
+            file_exist.close();
+            continue;
+        }
+
         const QString filename_load(devsim_files[i].absoluteFilePath());
         QFile file_load(filename_load);
         const bool opened_load = file_load.open(QIODevice::ReadOnly | QIODevice::Text);
