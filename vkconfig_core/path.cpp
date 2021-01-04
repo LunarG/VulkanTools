@@ -64,10 +64,12 @@ std::string GetPath(BuiltinPath path) {
             else
                 return ConvertNativeSeparators(path.toStdString());
         }
-        case BUILTIN_PATH_VULKAN_CONTENT: {
-            const std::string content_path = GetPlatformString(PLATFORM_STRING_VULKAN_CONTENT);
-            assert(!content_path.empty());
-            return GetPath(BUILTIN_PATH_VULKAN_SDK) + content_path;
+        case BUILTIN_PATH_VULKAN_LAYER_CONFIG: {
+            if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS)
+                return ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) +
+                                               GetPlatformString(PLATFORM_STRING_VULKAN_LAYER_CONFIG));
+            else
+                return ConvertNativeSeparators(GetPlatformString(PLATFORM_STRING_VULKAN_LAYER_CONFIG));
         }
         default: {
             assert(0);
@@ -84,7 +86,7 @@ struct BuiltinDesc {
 std::string ReplaceBuiltInVariable(const std::string& path) {
     static const BuiltinDesc VARIABLES[] = {{BUILTIN_PATH_HOME, "${HOME}"},
                                             {BUILTIN_PATH_VULKAN_SDK, "${VULKAN_SDK}"},
-                                            {BUILTIN_PATH_VULKAN_CONTENT, "${VULKAN_CONTENT}"}};
+                                            {BUILTIN_PATH_VULKAN_LAYER_CONFIG, "${VULKAN_CONTENT}"}};
 
     static_assert(countof(VARIABLES) == BUILTIN_PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
