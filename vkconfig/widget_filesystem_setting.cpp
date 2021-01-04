@@ -87,6 +87,7 @@ void FileSystemSettingWidget::browseButtonClicked() {
 
     if (!file.isEmpty()) {
         file = ConvertNativeSeparators(file.toStdString()).c_str();
+        _line_edit->setText(file);
         layer_setting_data.value = file.toStdString();
         emit itemChanged();
     }
