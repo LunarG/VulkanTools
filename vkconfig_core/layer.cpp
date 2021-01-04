@@ -42,8 +42,10 @@ QString GetBuiltinFolder(const Version& version) {
         return ":/resourcefiles/layers_1_2_148";
     else if (version <= Version(1, 2, 154))
         return ":/resourcefiles/layers_1_2_154";
-    else
+    else if (version <= Version(1, 2, 162))
         return ":/resourcefiles/layers_1_2_162";
+    else
+        return ":/resourcefiles/layers_1_2_latest";
 }
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
