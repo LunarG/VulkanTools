@@ -34,9 +34,10 @@ struct LayerSettingMeta {
     std::string key;      // Name of the setting the layer looks for (programatic variable name)
     QString label;        // Short name to prompt end user
     QString description;  // Human version, describes the setting
-    SettingType type;     // The data type
-    QVariant max_value;   // For range based
-    QVariant min_value;   // For range based
+    int platform_flags;
+    SettingType type;    // The data type
+    QVariant max_value;  // For range based
+    QVariant min_value;  // For range based
     QStringList enum_values;
     QStringList enum_labels;
     QString default_value;  // Default value as a string

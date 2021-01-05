@@ -153,6 +153,10 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
             setting.key = ReadStringValue(json_setting, "key").c_str();
             setting.label = ReadStringValue(json_setting, "label").c_str();
             setting.description = ReadStringValue(json_setting, "description").c_str();
+            if (json_setting.value("platforms") != QJsonValue::Undefined)
+                setting.platform_flags = GetPlatformFlags(ReadStringArray(json_setting, "platforms"));
+            else
+                setting.platform_flags = PLATFORM_ALL_BIT;
             setting.type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
             setting.default_value = ReadString(json_setting, "default").c_str();
 
