@@ -45,7 +45,11 @@ Configurator &Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator() : environment(path), layers(environment), request_vulkan_status(true) { CopyResourceFiles(); }
+Configurator::Configurator() : environment(path), layers(environment), request_vulkan_status(true) {
+    if (0) {
+        CopyResourceFiles();
+    }
+}
 
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.available_layers, path);
