@@ -26,6 +26,8 @@
 #include <windows.h>  // For OutputDebugString
 #endif
 
+#include <QStringList>
+
 #include <cstddef>
 #include <cstdio>
 #include <cassert>
@@ -110,3 +112,7 @@ bool IsFound(const std::vector<T>& container, const char* key) {
 
 void RemoveString(std::string& delimited_string, const std::string& value);
 void AppendString(std::string& delimited_string, const std::string& value);
+
+std::vector<std::string> ConvertString(const QStringList& string_list);
+
+QStringList ConvertString(const std::vector<std::string>& strings);

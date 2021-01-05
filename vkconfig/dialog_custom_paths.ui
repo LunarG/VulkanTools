@@ -23,7 +23,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Additional Custom Paths to locate Vulkan Layers</string>
+   <string>User-Defined Paths to locate Vulkan Layers</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">

@@ -30,7 +30,7 @@ CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new 
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    ui->treeWidget->headerItem()->setText(0, "Custom Search Paths & Layers");
+    ui->treeWidget->headerItem()->setText(0, "User-Defined Layers Paths");
 
     RepopulateTree();
     ui->buttonBox->setEnabled(!Configurator::Get().layers.Empty());
@@ -51,10 +51,11 @@ void CustomPathsDialog::RepopulateTree() {
     // layers are used on a first occurance basis. So we can't just show the layers that are
     // present in the folder (because they may not be used). We have to list the custom layer paths
     // and then look for layers that are already loaded that are from that path.
-    const QStringList &custom_layer_paths = configurator.environment.GetCustomLayerPaths();
-    for (int custom_path_index = 0, n = custom_layer_paths.size(); custom_path_index < n; ++custom_path_index) {
+    const std::vector<std::string> &user_defined_layers_paths =
+        configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+    for (std::size_t custom_path_index = 0, n = user_defined_layers_paths.size(); custom_path_index < n; ++custom_path_index) {
         // Custom path is the parent tree item
-        const std::string custom_path(ConvertNativeSeparators(custom_layer_paths[custom_path_index].toStdString()));
+        const std::string custom_path(ConvertNativeSeparators(user_defined_layers_paths[custom_path_index]));
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, custom_path.c_str());
@@ -78,7 +79,7 @@ void CustomPathsDialog::RepopulateTree() {
 
 void CustomPathsDialog::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();
-    const std::string custom_path = configurator.path.SelectPath(this, PATH_CUSTOM_LAYER_PATH);
+    const std::string custom_path = configurator.path.SelectPath(this, PATH_USER_DEFINED_LAYERS_PATHS_GUI);
 
     if (!custom_path.empty()) {
         if (configurator.environment.AppendCustomLayerPath(custom_path)) {

@@ -294,7 +294,7 @@
       <item row="0" column="1">
        <widget class="QPushButton" name="pushButtonCustomLayers">
         <property name="text">
-         <string>Custom Layer Paths...</string>
+         <string>User-Defined Layers Paths...</string>
         </property>
        </widget>
       </item>

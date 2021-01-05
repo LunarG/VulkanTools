@@ -55,9 +55,10 @@ static const DirectoryDesc& GetDesc(PathType directory) {
 #else
         {"executable", "", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #endif
-        {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},          // PATH_EXECUTABLE
-        {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},              // PATH_LAUNCHER_LOG_FILE
-        {"custom layer path", ".json", "lastCustomLayerPath", nullptr, true, PATH_CUSTOM_LAYER_PATH},  // PATH_CUSTOM_LAYER_PATH
+        {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},  // PATH_EXECUTABLE
+        {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},      // PATH_LAUNCHER_LOG_FILE
+        {"user-defined layers paths", ".json", "lastCustomLayerPath", nullptr, true,
+         PATH_USER_DEFINED_LAYERS_PATHS_GUI},  // PATH_USER_DEFINED_LAYERS_PATHS_GUI
     };
     static_assert(countof(table) == PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -250,9 +251,9 @@ std::string PathManager::SelectPathImpl(QWidget* parent, PathType path, const st
             SetPath(path, selected_path);
             return GetPath(path).c_str();
         }
-        case PATH_CUSTOM_LAYER_PATH: {
+        case PATH_USER_DEFINED_LAYERS_PATHS_GUI: {
             const std::string selected_path =
-                QFileDialog::getExistingDirectory(parent, "Add Custom Layer Folder...", suggested_path.c_str(),
+                QFileDialog::getExistingDirectory(parent, "Add User-Defined Layers Folder...", suggested_path.c_str(),
                                                   QFileDialog::DontUseNativeDialog)
                     .toStdString();
             if (selected_path.empty())  // The user cancelled

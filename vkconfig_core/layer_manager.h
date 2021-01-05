@@ -38,11 +38,6 @@ class LayerManager {
     void LoadAllInstalledLayers();
     void LoadLayersFromPath(const std::string& path, std::vector<Layer>& layers);
 
-    QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
-                                // a list of paths that should be searched first for
-                                // Vulkan layers. (Named as environment variable for
-                                // clarity as to where this comes from).
-
     std::vector<Layer> available_layers;
 
     const Environment& environment;

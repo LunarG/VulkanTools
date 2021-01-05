@@ -252,7 +252,7 @@ bool Environment::Load() {
 
     // Load active configuration
     for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
-        actives[i] = settings.value(GetActiveToken(static_cast<Active>(i)), actives[i].c_str()).toByteArray();
+        actives[i] = settings.value(GetActiveToken(static_cast<Active>(i)), actives[i].c_str()).toString().toStdString();
     }
 
     // Load notifications
@@ -266,7 +266,18 @@ bool Environment::Load() {
     }
 
     // Load custom paths
-    custom_layer_paths = settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList();
+    user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI] =
+        ConvertString(settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList());
+
+    // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
+    // assemble a list of paths that take precidence for layer discovery.
+    const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
+    if (!VK_LAYER_PATH.isEmpty()) {
+        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV] =
+            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(GetPlatformString(PLATFORM_STRING_SEPARATOR)));
+    } else {
+        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV].clear();
+    }
 
     // Load application list
     const bool result = LoadApplications();
@@ -292,7 +303,7 @@ bool Environment::LoadApplications() {
                 const QJsonObject& json_doc_object = json_doc.object();
                 const QStringList& app_keys = json_doc_object.keys();
 
-                for (int i = 0, n = app_keys.length(); i < n; i++) {
+                for (int i = 0, n = app_keys.length(); i < n; ++i) {
                     const QJsonValue& app_value = json_doc_object.value(app_keys[i]);
                     const QJsonObject& app_object = app_value.toObject();
 
@@ -347,7 +358,7 @@ bool Environment::Save() const {
     }
 
     // Save custom paths
-    settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, custom_layer_paths);
+    settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, ConvertString(user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI]));
 
     const bool result = SaveApplications();
     assert(result);
@@ -511,26 +522,37 @@ void Environment::Set(Active active, const std::string& key) { actives[active] =
 bool Environment::AppendCustomLayerPath(const std::string& path) {
     assert(!path.empty());
 
-    for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
-        if (ConvertNativeSeparators(custom_layer_paths[i].toStdString()) == ConvertNativeSeparators(path)) {
+    std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
+
+    for (std::size_t i = 0, n = custom_layer_paths_gui.size(); i < n; ++i) {
+        if (ConvertNativeSeparators(custom_layer_paths_gui[i]) == ConvertNativeSeparators(path)) {
             return false;
         }
     }
 
-    custom_layer_paths.append(ConvertNativeSeparators(path).c_str());
+    custom_layer_paths_gui.push_back(ConvertNativeSeparators(path).c_str());
     return true;
 }
 
 bool Environment::RemoveCustomLayerPath(const std::string& path) {
     assert(!path.empty());
 
-    for (int i = 0, n = custom_layer_paths.size(); i < n; ++i) {
-        if (custom_layer_paths[i].toStdString() == ConvertNativeSeparators(path)) {
-            custom_layer_paths.removeAt(i);
-            return true;
+    bool found = false;
+
+    std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
+
+    std::vector<std::string> new_custom_layer_paths_gui;
+    for (std::size_t i = 0, n = custom_layer_paths_gui.size(); i < n; ++i) {
+        if (custom_layer_paths_gui[i] == ConvertNativeSeparators(path)) {
+            found = true;
+            continue;
         }
+
+        new_custom_layer_paths_gui.push_back(custom_layer_paths_gui[i]);
     }
-    return false;
+
+    std::swap(custom_layer_paths_gui, new_custom_layer_paths_gui);
+    return found;
 }
 
 ///////////////////////////////////////////////////////////////////////////
