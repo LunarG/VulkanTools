@@ -701,7 +701,7 @@
   </action>
   <action name="actionCustom_Layer_Paths">
    <property name="text">
-    <string>Custom Layer Paths...</string>
+    <string>User-Defined Layers Paths...</string>
    </property>
   </action>
   <action name="actionLog_API_Dump">

@@ -25,7 +25,6 @@
 #include "path_manager.h"
 
 #include <QByteArray>
-#include <QStringList>
 
 #include <array>
 #include <vector>
@@ -80,6 +79,16 @@ enum Active {
 
 enum { ACTIVE_COUNT = ACTIVE_LAST - ACTIVE_FIRST + 1 };
 
+enum UserDefinedLayersPaths {
+    USER_DEFINED_LAYERS_PATHS_ENV = 0,
+    USER_DEFINED_LAYERS_PATHS_GUI,
+
+    USER_DEFINED_LAYERS_PATHS_FIRST = USER_DEFINED_LAYERS_PATHS_ENV,  // VK_LAYER_PATH
+    USER_DEFINED_LAYERS_PATHS_LAST = USER_DEFINED_LAYERS_PATHS_GUI,
+};
+
+enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_DEFINED_LAYERS_PATHS_FIRST + 1 };
+
 class Environment {
    public:
     Environment(PathManager& paths);
@@ -125,7 +134,9 @@ class Environment {
 
     bool AppendCustomLayerPath(const std::string& path);
     bool RemoveCustomLayerPath(const std::string& path);
-    const QStringList& GetCustomLayerPaths() const { return custom_layer_paths; }
+    const std::vector<std::string>& GetUserDefinedLayersPaths(UserDefinedLayersPaths user_defined_layers_paths_id) const {
+        return user_defined_layers_paths[user_defined_layers_paths_id];
+    }
 
    private:
     Environment(const Environment&) = delete;
@@ -137,7 +148,7 @@ class Environment {
     std::array<std::string, ACTIVE_COUNT> actives;
     std::array<bool, NOTIFICATION_COUNT> hidden_notifications;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
-    QStringList custom_layer_paths;
+    std::array<std::vector<std::string>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
     std::vector<Application> applications;
 
     PathManager& paths_manager;

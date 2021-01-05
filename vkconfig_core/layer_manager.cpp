@@ -82,16 +82,7 @@ static const char *SEARCH_PATHS[] = {"/usr/local/etc/vulkan/explicit_layer.d",  
                                      ".local/share/vulkan/implicit_layer.d"};
 #endif
 
-LayerManager::LayerManager(const Environment &environment) : environment(environment) {
-    available_layers.reserve(10);
-
-    // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
-    // assemble a list of paths that take precidence for layer discovery.
-    QString layer_path = qgetenv("VK_LAYER_PATH");
-    if (!layer_path.isEmpty()) {
-        VK_LAYER_PATH = layer_path.split(GetPlatformString(PLATFORM_STRING_SEPARATOR));
-    }
-}
+LayerManager::LayerManager(const Environment &environment) : environment(environment) { available_layers.reserve(10); }
 
 void LayerManager::Clear() { available_layers.clear(); }
 
@@ -102,14 +93,17 @@ void LayerManager::LoadAllInstalledLayers() {
     available_layers.clear();
 
     // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
-    for (int i = 0, n = VK_LAYER_PATH.count(); i < n; ++i) {
-        LoadLayersFromPath(VK_LAYER_PATH[i].toStdString(), available_layers);
+    const std::vector<std::string> &env_user_defined_layers_paths =
+        environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV);
+    for (std::size_t i = 0, n = env_user_defined_layers_paths.size(); i < n; ++i) {
+        LoadLayersFromPath(env_user_defined_layers_paths[i], available_layers);
     }
 
-    // SECOND: Any custom paths? Search for those too
-    const QStringList &custom_layers_paths = environment.GetCustomLayerPaths();
-    for (int i = 0, n = custom_layers_paths.size(); i < n; ++i) {
-        LoadLayersFromPath(custom_layers_paths[i].toStdString(), available_layers);
+    // SECOND: Any user-defined path from Vulkan Configurator? Search for those too
+    const std::vector<std::string> &gui_user_defined_layers_paths =
+        environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+    for (std::size_t i = 0, n = gui_user_defined_layers_paths.size(); i < n; ++i) {
+        LoadLayersFromPath(gui_user_defined_layers_paths[i], available_layers);
     }
 
     // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.

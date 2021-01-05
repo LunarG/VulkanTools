@@ -55,6 +55,21 @@ Version GetVulkanLoaderVersion() {
     return Version(version);
 }
 
+static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLayersPaths custom_layer_path) {
+    std::string log;
+
+    const std::vector<std::string> &user_defined_layer_paths =
+        Configurator::Get().environment.GetUserDefinedLayersPaths(custom_layer_path);
+    if (!user_defined_layer_paths.empty()) {
+        log += format("- Used-Defined Layers Paths from %s:\n", label);
+        for (std::size_t i = 0, n = user_defined_layer_paths.size(); i < n; ++i)
+            log += format("    - %s\n", user_defined_layer_paths[i].c_str());
+    } else
+        log += format("- Used-Defined Layers Paths from %s: None\n", label);
+
+    return log;
+}
+
 std::string GenerateVulkanStatus() {
     std::string log;
 
@@ -63,9 +78,9 @@ std::string GenerateVulkanStatus() {
     // Check Vulkan SDK path
     const std::string search_path(qgetenv("VULKAN_SDK"));
     if (!search_path.empty())
-        log += format("- SDK path: %s\n", search_path.c_str());
+        log += format("- $VULKAN_SDK SDK path: %s\n", search_path.c_str());
     else
-        log += "- VULKAN_SDK environment variable not set\n";
+        log += "- $VULKAN_SDK environment variable not set\n";
 
     const Version loader_version = GetVulkanLoaderVersion();
 
@@ -82,17 +97,8 @@ std::string GenerateVulkanStatus() {
         log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str());
     }
 
-    const QStringList &layer_paths = Configurator::Get().layers.VK_LAYER_PATH;
-    if (!layer_paths.isEmpty()) log += "- Using Layers from VK_LAYER_PATH\n";
-
-    // Check layer paths
-    const QStringList &custom_layer_paths = Configurator::Get().environment.GetCustomLayerPaths();
-    if (!custom_layer_paths.isEmpty()) {
-        log += "- Custom Layers Paths:\n";
-        for (int i = 0, n = custom_layer_paths.count(); i < n; ++i)
-            log += format("    - %s\n", custom_layer_paths[i].toStdString().c_str());
-    } else
-        log += "- Custom Layers Paths: None\n";
+    log += GetUserDefinedLayersPathsLog("$VK_LAYER_PATH", USER_DEFINED_LAYERS_PATHS_ENV);
+    log += GetUserDefinedLayersPathsLog("Vulkan Configurator", USER_DEFINED_LAYERS_PATHS_GUI);
 
     QLibrary library(GetPlatformString(PLATFORM_STRING_VULKAN_LIBRARY));
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =

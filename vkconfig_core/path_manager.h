@@ -29,18 +29,18 @@
 #include <string>
 
 enum PathType {
-    PATH_CONFIGURATION = 0,     // Where config working files live
-    PATH_OVERRIDE_SETTINGS,     // Where settings go when profile is active
-    PATH_OVERRIDE_LAYERS,       // Where json goes when profile is active
-    PATH_IMPORT_CONFIGURATION,  // The last path used by the user to import a configuration
-    PATH_EXPORT_CONFIGURATION,  // The last path used by the user to export a configuration
-    PATH_EXECUTABLE,            // The last path used by the user when adding an executable to the application list
-    PATH_WORKING_DIR,           // The last path used as a working directory
-    PATH_LAUNCHER_LOG_FILE,     // The last path used by the user to set the launcher log file
-    PATH_CUSTOM_LAYER_PATH,     // The last custom layer path
+    PATH_CONFIGURATION = 0,              // Where config working files live
+    PATH_OVERRIDE_SETTINGS,              // Where settings go when profile is active
+    PATH_OVERRIDE_LAYERS,                // Where json goes when profile is active
+    PATH_IMPORT_CONFIGURATION,           // The last path used by the user to import a configuration
+    PATH_EXPORT_CONFIGURATION,           // The last path used by the user to export a configuration
+    PATH_EXECUTABLE,                     // The last path used by the user when adding an executable to the application list
+    PATH_WORKING_DIR,                    // The last path used as a working directory
+    PATH_LAUNCHER_LOG_FILE,              // The last path used by the user to set the launcher log file
+    PATH_USER_DEFINED_LAYERS_PATHS_GUI,  // The last user-defined layers path
 
     PATH_FIRST = PATH_CONFIGURATION,
-    PATH_LAST = PATH_CUSTOM_LAYER_PATH
+    PATH_LAST = PATH_USER_DEFINED_LAYERS_PATHS_GUI
 };
 
 enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };

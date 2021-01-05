@@ -83,3 +83,23 @@ void AppendString(std::string& delimited_string, const std::string& value) {
 
     delimited_string += value;
 }
+
+std::vector<std::string> ConvertString(const QStringList& string_list) {
+    std::vector<std::string> strings;
+
+    for (int i = 0, n = string_list.length(); i < n; ++i) {
+        strings.push_back(string_list[i].toStdString());
+    }
+
+    return strings;
+}
+
+QStringList ConvertString(const std::vector<std::string>& strings) {
+    QStringList string_list;
+
+    for (std::size_t i = 0, n = strings.size(); i < n; ++i) {
+        string_list.append(strings[i].c_str());
+    }
+
+    return string_list;
+}
