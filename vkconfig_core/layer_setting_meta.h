@@ -23,7 +23,6 @@
 
 #include "layer_setting_type.h"
 
-#include <QString>
 #include <QStringList>
 #include <QVariant>
 #include <QJsonObject>
@@ -31,15 +30,15 @@
 #include <string>
 
 struct LayerSettingMeta {
-    std::string key;      // Name of the setting the layer looks for (programatic variable name)
-    QString label;        // Short name to prompt end user
-    QString description;  // Human version, describes the setting
-    SettingType type;     // The data type
-    QVariant max_value;   // For range based
-    QVariant min_value;   // For range based
+    std::string key;          // Name of the setting the layer looks for (programatic variable name)
+    std::string label;        // Short name to prompt end user
+    std::string description;  // Human version, describes the setting
+    SettingType type;         // The data type
+    QVariant max_value;       // For range based
+    QVariant min_value;       // For range based
     QStringList enum_values;
     QStringList enum_labels;
-    QString default_value;  // Default value as a string
+    std::string default_value;  // Default value as a string
 };
 
 bool HasValue(const QStringList& values, const char* searched_value);

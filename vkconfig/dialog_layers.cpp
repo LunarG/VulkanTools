@@ -81,11 +81,11 @@ PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 #endif
 
 /// Utility function to see if the file is 32-bit
-bool IsDLL32Bit(QString full_path) {
+static bool IsDLL32Bit(const std::string full_path) {
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-    if (full_path.isEmpty()) return false;
+    if (full_path.empty()) return false;
 
-    QFile file(full_path);
+    QFile file(full_path.c_str());
     if (!file.open(QIODevice::ReadOnly)) return false;  // punt...
 
     // Not gonna lie, just guessed 1024 and it was enough.
@@ -117,8 +117,8 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    ui->lineEditName->setText(configuration.key);
-    ui->lineEditDescription->setText(configuration.description);
+    ui->lineEditName->setText(configuration.key.c_str());
+    ui->lineEditDescription->setText(configuration.description.c_str());
 
     Environment &environment = Configurator::Get().environment;
     restoreGeometry(environment.Get(LAYOUT_LAYER_GEOMETRY));
@@ -210,7 +210,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 
     const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
 
-    QString decorated_name(parameter.key.c_str());
+    std::string decorated_name(parameter.key);
 
     bool is_implicit_layer = false;
     if (layer != available_layers.end()) {
@@ -218,7 +218,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 
         if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
             is_implicit_layer = true;
-            decorated_name += QString(" (") + GetLayerTypeLabel(layer->_layer_type) + ")";
+            decorated_name += std::string(" (") + GetLayerTypeLabel(layer->_layer_type) + ")";
         }
     } else {
         decorated_name += " (Missing)";
@@ -226,7 +226,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 
     TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter.key.c_str());
 
-    item->setText(0, decorated_name);
+    item->setText(0, decorated_name.c_str());
     item->setFlags(item->flags() | Qt::ItemIsSelectable);
     item->setDisabled(layer == available_layers.end());
 
@@ -278,9 +278,9 @@ void LayersDialog::LoadSortedLayersUI() {
     }
 }
 
-QString LayersDialog::GetConfigurationName() const {
+std::string LayersDialog::GetConfigurationName() const {
     assert(!ui->lineEditName->text().isEmpty());
-    return ui->lineEditName->text();
+    return ui->lineEditName->text().toStdString();
 }
 
 // The only way to catch the resize from the layouts
@@ -382,9 +382,9 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
 
     const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, layer_item->layer_name.c_str());
     if (layer != available_layers.end()) {
-        QString detailsText = layer->description;
+        std::string detailsText = layer->description;
         detailsText += "\n";
-        detailsText += QString("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
+        detailsText += std::string("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
 
         detailsText += layer->_library_path;
         detailsText += "\n\n";
@@ -403,7 +403,7 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
         detailsText += "File format: ";
         detailsText += layer->file_format_version.str().c_str();
 
-        ui->labelLayerDetails->setText(detailsText);
+        ui->labelLayerDetails->setText(detailsText.c_str());
     } else {
         ui->labelLayerDetails->setText("Missing layer");
     }
@@ -498,20 +498,20 @@ void LayersDialog::accept() {
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configuration.key != ui->lineEditName->text() &&
-        FindItByKey(configurator.available_configurations, ui->lineEditName->text().toStdString().c_str()) !=
-            configurator.available_configurations.end()) {
+    if (configuration.key != ui->lineEditName->text().toStdString() &&
+        FindItByKey(configurator.configurations.available_configurations, ui->lineEditName->text().toStdString().c_str()) !=
+            configurator.configurations.available_configurations.end()) {
         Alert::ConfigurationRenamingFailed();
         return;
     }
 
     FilterParameters(parameters, LAYER_STATE_APPLICATION_CONTROLLED);
 
-    configuration.key = ui->lineEditName->text();
-    configuration.description = ui->lineEditDescription->text();
+    configuration.key = ui->lineEditName->text().toStdString();
+    configuration.description = ui->lineEditDescription->text().toStdString();
     configuration.parameters = parameters;
 
-    const QString save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text());
+    const std::string save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text().toStdString());
     const bool result = configuration.Save(configurator.layers.available_layers, save_path);
     assert(result);
 

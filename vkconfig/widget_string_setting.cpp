@@ -30,8 +30,8 @@ StringSettingWidget::StringSettingWidget(QTreeWidgetItem* item, const LayerSetti
     assert(&layer_setting_meta);
     assert(&layer_setting_data);
 
-    item->setText(0, layer_setting_meta.label);
-    item->setToolTip(0, layer_setting_meta.description);
+    item->setText(0, layer_setting_meta.label.c_str());
+    item->setToolTip(0, layer_setting_meta.description.c_str());
     this->setText(layer_setting_data.value.c_str());
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }

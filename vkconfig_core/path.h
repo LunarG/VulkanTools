@@ -39,6 +39,7 @@ class Path {
    public:
     Path();
     explicit Path(const char* path);
+    explicit Path(const std::string& path);
 
     Path& operator=(const std::string& path);
 

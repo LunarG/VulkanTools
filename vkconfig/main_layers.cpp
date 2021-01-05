@@ -128,10 +128,10 @@ static int RunLayersVerbose(const CommandLine& command_line) {
         const Layer& layer = layers.available_layers[i];
 
         printf("\n%s (%s) %s-%s\n", layer.key.c_str(), GetLayerTypeLabel(layer._layer_type), layer._api_version.str().c_str(),
-               layer._implementation_version.toStdString().c_str());
-        printf("- %s\n", layer.description.toStdString().c_str());
-        printf("- %s\n", layer._layer_path.toStdString().c_str());
-        printf("- %s\n", layer._library_path.toStdString().c_str());
+               layer._implementation_version.c_str());
+        printf("- %s\n", layer.description.c_str());
+        printf("- %s\n", layer._layer_path.c_str());
+        printf("- %s\n", layer._library_path.c_str());
     }
 
     return 0;

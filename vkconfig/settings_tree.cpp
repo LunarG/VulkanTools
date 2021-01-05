@@ -49,7 +49,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     Configurator &configurator = Configurator::Get();
 
     _settings_tree = build_tree;
-    auto configuration = configurator.GetActiveConfiguration();
+    auto configuration = configurator.configurations.GetActiveConfiguration();
 
     build_tree->blockSignals(true);
     build_tree->clear();
@@ -69,7 +69,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             layer_item->setText(0, (parameter.key + (layer != available_layers.end() ? "" : " (Missing)")).c_str());
-            if (layer != available_layers.end()) layer_item->setToolTip(0, layer->description);
+            if (layer != available_layers.end()) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
 
             if (layer == available_layers.end()) continue;
@@ -113,7 +113,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setText(0, (parameter.key + (layer != configurator.layers.available_layers.end() ? "" : " (Missing)")).c_str());
             if (layer != configurator.layers.available_layers.end()) {
-                child->setToolTip(0, layer->description);
+                child->setToolTip(0, layer->description.c_str());
             }
             excluded_layers->addChild(child);
         }
@@ -138,8 +138,8 @@ void SettingsTreeManager::CleanupGUI() {
 
     Configurator &configurator = Configurator::Get();
 
-    std::vector<Configuration>::iterator configuration = configurator.GetActiveConfiguration();
-    if (configuration == configurator.available_configurations.end()) return;
+    std::vector<Configuration>::iterator configuration = configurator.configurations.GetActiveConfiguration();
+    if (configuration == configurator.configurations.available_configurations.end()) return;
 
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, _settings_tree->invisibleRootItem());
@@ -187,7 +187,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
-    debug_action_branch->setText(0, debug_action_meta->label);
+    debug_action_branch->setText(0, debug_action_meta->label.c_str());
     parent->addChild(debug_action_branch);
 
     // Each debug action has it's own checkbox
@@ -232,7 +232,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         if (layer_setting_data == nullptr) {
             LayerSettingData new_layer_setting_data;
             new_layer_setting_data.key = layer_setting_meta.key;
-            new_layer_setting_data.value = layer_setting_meta.default_value.toStdString();
+            new_layer_setting_data.value = layer_setting_meta.default_value;
             parameter.settings.push_back(new_layer_setting_data);
 
             layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
@@ -241,8 +241,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         // Multi-enum - report flags only
         if (layer_setting_meta.key == "report_flags") {
             QTreeWidgetItem *sub_category = new QTreeWidgetItem;
-            sub_category->setText(0, layer_setting_meta.label);
-            sub_category->setToolTip(0, layer_setting_meta.description);
+            sub_category->setText(0, layer_setting_meta.label.c_str());
+            sub_category->setToolTip(0, layer_setting_meta.description.c_str());
             parent->addChild(sub_category);
 
             for (int i = 0, n = layer_setting_meta.enum_values.size(); i < n; ++i) {
@@ -276,8 +276,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         }
 
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
-        mute_message_item->setText(0, layer_setting_meta.label);
-        mute_message_item->setToolTip(0, layer_setting_meta.description);
+        mute_message_item->setText(0, layer_setting_meta.label.c_str());
+        mute_message_item->setToolTip(0, layer_setting_meta.description.c_str());
         parent->addChild(mute_message_item);
 
         LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
@@ -360,7 +360,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
             case SETTING_EXCLUSIVE_LIST:  // Combobox - enum - just one thing
             {
-                setting_item->setText(0, layer_setting_meta.label);
+                setting_item->setText(0, layer_setting_meta.label.c_str());
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                 setting_item->addChild(place_holder);
 
@@ -379,8 +379,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             } break;
 
             default: {
-                setting_item->setText(0, layer_setting_meta.label);
-                setting_item->setToolTip(0, layer_setting_meta.description);
+                setting_item->setText(0, layer_setting_meta.label.c_str());
+                setting_item->setToolTip(0, layer_setting_meta.description.c_str());
                 assert(0);  // Unknown setting
             } break;
         }
@@ -394,7 +394,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
 
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 }
 
 void SettingsTreeManager::GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item) {
@@ -431,5 +431,5 @@ void SettingsTreeManager::OnSettingChanged() {
 
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 }

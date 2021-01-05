@@ -28,8 +28,8 @@ EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, const LayerSettingMe
     assert(item);
     assert(&setting_data);
 
-    item->setText(0, setting_meta.label);
-    item->setToolTip(0, setting_meta.description);
+    item->setText(0, setting_meta.label.c_str());
+    item->setToolTip(0, setting_meta.description.c_str());
 
     int selection = 0;
     for (int i = 0; i < setting_meta.enum_labels.size(); i++) {

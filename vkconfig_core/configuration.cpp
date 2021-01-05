@@ -49,8 +49,8 @@ static Version GetConfigurationVersion(const QJsonValue& value) {
 }
 
 bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object,
-                            const QString& full_path) {
-    const QString& filename = QFileInfo(full_path).fileName();
+                            const std::string& full_path) {
+    const QString& filename = QFileInfo(full_path.c_str()).fileName();
 
     const QJsonValue& json_file_format_version = json_root_object.value("file_format_version");
     const Version version(GetConfigurationVersion(json_file_format_version));
@@ -61,14 +61,14 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
     if (SUPPORT_VKCONFIG_2_0_1 && version <= Version("2.0.1")) {
-        key = filename.left(filename.length() - 5);
+        key = filename.left(filename.length() - 5).toStdString();
     } else {
         key = ReadString(configuration_entry_object, "name").c_str();
     }
 
-    if (key.isEmpty()) {
+    if (key.empty()) {
         key = "Configuration";
-        const int result = std::remove(full_path.toStdString().c_str());
+        const int result = std::remove(full_path.c_str());
         assert(result == 0);
     }
 
@@ -198,10 +198,10 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
     return true;
 }
 
-bool Configuration::Load(const std::vector<Layer>& available_layers, const QString& full_path) {
-    assert(!full_path.isEmpty());
+bool Configuration::Load(const std::vector<Layer>& available_layers, const std::string& full_path) {
+    assert(!full_path.empty());
 
-    QFile file(full_path);
+    QFile file(full_path.c_str());
     const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
     QString json_text = file.readAll();
@@ -224,8 +224,8 @@ bool Configuration::Load(const std::vector<Layer>& available_layers, const QStri
     }
 }
 
-bool Configuration::Save(const std::vector<Layer>& available_layers, const QString& full_path) const {
-    assert(!full_path.isEmpty());
+bool Configuration::Save(const std::vector<Layer>& available_layers, const std::string& full_path) const {
+    assert(!full_path.empty());
 
     QJsonObject root;
     root.insert("file_format_version", Version::VKCONFIG.str().c_str());
@@ -266,8 +266,8 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const QStri
     }
 
     QJsonObject json_configuration;
-    json_configuration.insert("name", key);
-    json_configuration.insert("description", description);
+    json_configuration.insert("name", key.c_str());
+    json_configuration.insert("description", description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(platform_flags));
     json_configuration.insert("editor_state", setting_tree_state.data());
     json_configuration.insert("layers", json_layers);
@@ -275,14 +275,14 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const QStri
 
     QJsonDocument doc(root);
 
-    QFile json_file(full_path);
+    QFile json_file(full_path.c_str());
     const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
     assert(result);
 
     if (!result) {
         QMessageBox alert;
         alert.setText("Could not save the configuration file!");
-        alert.setWindowTitle(key);
+        alert.setWindowTitle(key.c_str());
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return false;
@@ -319,13 +319,13 @@ static std::string ExtractDuplicateBaseName(const std::string& configuration_nam
     return configuration_name.substr(0, found - 1);
 }
 
-QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name) {
-    const std::string key = configuration_name.toStdString();
+std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name) {
+    const std::string key = configuration_name;
     const std::string base_name = ExtractDuplicateNumber(key) != NOT_FOUND ? ExtractDuplicateBaseName(key) : key;
 
     std::size_t max_duplicate = 0;
     for (std::size_t i = 0, n = configurations.size(); i < n; ++i) {
-        const std::string& search_name = configurations[i].key.toStdString();
+        const std::string& search_name = configurations[i].key;
 
         if (search_name.compare(0, base_name.length(), base_name) != 0) continue;
 
@@ -333,5 +333,5 @@ QString MakeConfigurationName(const std::vector<Configuration>& configurations, 
         max_duplicate = std::max<std::size_t>(max_duplicate, found_number != NOT_FOUND ? found_number : 1);
     }
 
-    return QString(base_name.c_str()) + (max_duplicate > 0 ? format(" (%d)", max_duplicate + 1).c_str() : "");
+    return base_name + (max_duplicate > 0 ? format(" (%d)", max_duplicate + 1).c_str() : "");
 }

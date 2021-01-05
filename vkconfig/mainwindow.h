@@ -41,8 +41,8 @@
 /// with a list widget item.
 class ConfigurationListItem : public QTreeWidgetItem {
    public:
-    ConfigurationListItem(const QString &configuration_name) : configuration_name(configuration_name) {}
-    QString configuration_name;
+    ConfigurationListItem(const std::string &configuration_name) : configuration_name(configuration_name) {}
+    std::string configuration_name;
     QRadioButton *radio_button;
 
    private:
@@ -77,7 +77,7 @@ class MainWindow : public QMainWindow {
     std::unique_ptr<QDialog> vk_info_dialog;
     std::unique_ptr<QDialog> vk_installation_dialog;
 
-    void Log(const QString &log);
+    void Log(const std::string &log);
 
     ConfigurationListItem *GetCheckedItem();
 
@@ -89,11 +89,11 @@ class MainWindow : public QMainWindow {
     QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_browse_button;
 
-    bool SelectConfigurationItem(const QString &configuration_name);
+    bool SelectConfigurationItem(const std::string &configuration_name);
 
     ConfigurationListItem *SaveLastItem();
     bool RestoreLastItem(const char *szOverride = nullptr);
-    QString _last_item;
+    std::string _last_item;
 
     void RemoveClicked(ConfigurationListItem *item);
     void RenameClicked(ConfigurationListItem *item);

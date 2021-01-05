@@ -32,6 +32,8 @@ Path::Path() {}
 
 Path::Path(const char* path) : data(ConvertNativeSeparators(path)) {}
 
+Path::Path(const std::string& path) : data(ConvertNativeSeparators(path)) {}
+
 Path& Path::operator=(const std::string& path) {
     data = ConvertNativeSeparators(path);
     return *this;
@@ -58,11 +60,11 @@ std::string GetPath(BuiltinPath path) {
         case BUILTIN_PATH_HOME:
             return ConvertNativeSeparators(QDir().homePath().toStdString());
         case BUILTIN_PATH_VULKAN_SDK: {
-            const QString path(qgetenv("VULKAN_SDK"));
-            if (path.isEmpty())
+            const std::string path(qgetenv("VULKAN_SDK").toStdString());
+            if (path.empty())
                 return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK");
             else
-                return ConvertNativeSeparators(path.toStdString());
+                return ConvertNativeSeparators(path);
         }
         case BUILTIN_PATH_VULKAN_LAYER_CONFIG: {
             if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS)

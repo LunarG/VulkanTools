@@ -23,10 +23,11 @@
 #include <QDir>
 #include <QFileInfo>
 
-Application::Application(const QString& executable_full_path, const QString& arguments)
-    : executable_path(executable_full_path.toStdString().c_str()),
-      working_folder(QFileInfo(executable_full_path).path().toStdString().c_str()),
+Application::Application(const std::string& executable_full_path, const std::string& arguments)
+    : executable_path(executable_full_path),
+      working_folder(QFileInfo(executable_full_path.c_str()).path().toStdString()),
       arguments(arguments),
-      log_file(
-          (QDir::homePath() + GetNativeSeparator() + QFileInfo(executable_full_path).baseName() + ".txt").toStdString().c_str()),
+      log_file((QDir::homePath() + GetNativeSeparator() + QFileInfo(executable_full_path.c_str()).baseName() + ".txt")
+                   .toStdString()
+                   .c_str()),
       override_layers(true) {}

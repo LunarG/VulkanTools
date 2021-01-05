@@ -117,7 +117,7 @@ void FilterParameters(std::vector<Parameter>& parameters, const LayerState state
     parameters = filtered_parameters;
 }
 
-bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
+bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
     for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
         if (!IsFound(layers, it->key.c_str())) return true;
     }

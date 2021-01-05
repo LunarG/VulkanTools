@@ -23,6 +23,11 @@
 #include "layer.h"
 #include "environment.h"
 
+#include <QStringList>
+
+#include <string>
+#include <vector>
+
 class LayerManager {
    public:
     LayerManager(const Environment& environment);
@@ -31,7 +36,7 @@ class LayerManager {
     bool Empty() const;
 
     void LoadAllInstalledLayers();
-    void LoadLayersFromPath(const QString& path, std::vector<Layer>& layers);
+    void LoadLayersFromPath(const std::string& path, std::vector<Layer>& layers);
 
     QStringList VK_LAYER_PATH;  // If this environment variable is set, this contains
                                 // a list of paths that should be searched first for

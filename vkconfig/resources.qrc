@@ -15,52 +15,52 @@
         <file>resourcefiles/devsim/iOS_gpu_family_3_portability.json</file>
         <file>resourcefiles/devsim/iOS_gpu_family_5_portability.json</file>
       
-        <file>resourcefiles/layers_1_1_130/VK_LAYER_KHRONOS_validation.json</file>
-        <file>resourcefiles/layers_1_1_130/VK_LAYER_LUNARG_api_dump.json</file>
-        <file>resourcefiles/layers_1_1_130/VK_LAYER_LUNARG_device_simulation.json</file>
-        <file>resourcefiles/layers_1_1_130/VK_LAYER_LUNARG_monitor.json</file>
-        <file>resourcefiles/layers_1_1_130/VK_LAYER_LUNARG_screenshot.json</file>
+        <file>resourcefiles/layers_130/VK_LAYER_KHRONOS_validation.json</file>
+        <file>resourcefiles/layers_130/VK_LAYER_LUNARG_api_dump.json</file>
+        <file>resourcefiles/layers_130/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file>resourcefiles/layers_130/VK_LAYER_LUNARG_monitor.json</file>
+        <file>resourcefiles/layers_130/VK_LAYER_LUNARG_screenshot.json</file>
         
-        <file>resourcefiles/layers_1_2_135/VK_LAYER_KHRONOS_validation.json</file>
-        <file>resourcefiles/layers_1_2_135/VK_LAYER_LUNARG_api_dump.json</file>
-        <file>resourcefiles/layers_1_2_135/VK_LAYER_LUNARG_device_simulation.json</file>
-        <file>resourcefiles/layers_1_2_135/VK_LAYER_LUNARG_monitor.json</file>
-        <file>resourcefiles/layers_1_2_135/VK_LAYER_LUNARG_screenshot.json</file>
+        <file>resourcefiles/layers_135/VK_LAYER_KHRONOS_validation.json</file>
+        <file>resourcefiles/layers_135/VK_LAYER_LUNARG_api_dump.json</file>
+        <file>resourcefiles/layers_135/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file>resourcefiles/layers_135/VK_LAYER_LUNARG_monitor.json</file>
+        <file>resourcefiles/layers_135/VK_LAYER_LUNARG_screenshot.json</file>
         
-        <file>resourcefiles/layers_1_2_141/VK_LAYER_KHRONOS_validation.json</file>
-        <file>resourcefiles/layers_1_2_141/VK_LAYER_LUNARG_api_dump.json</file>
-        <file>resourcefiles/layers_1_2_141/VK_LAYER_LUNARG_device_simulation.json</file>
-        <file>resourcefiles/layers_1_2_141/VK_LAYER_LUNARG_gfxreconstruct.json</file>
-        <file>resourcefiles/layers_1_2_141/VK_LAYER_LUNARG_monitor.json</file>
-        <file>resourcefiles/layers_1_2_141/VK_LAYER_LUNARG_screenshot.json</file>
+        <file>resourcefiles/layers_141/VK_LAYER_KHRONOS_validation.json</file>
+        <file>resourcefiles/layers_141/VK_LAYER_LUNARG_api_dump.json</file>
+        <file>resourcefiles/layers_141/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file>resourcefiles/layers_141/VK_LAYER_LUNARG_gfxreconstruct.json</file>
+        <file>resourcefiles/layers_141/VK_LAYER_LUNARG_monitor.json</file>
+        <file>resourcefiles/layers_141/VK_LAYER_LUNARG_screenshot.json</file>
         
-        <file>resourcefiles/layers_1_2_148/VK_LAYER_KHRONOS_validation.json</file>
-        <file>resourcefiles/layers_1_2_148/VK_LAYER_LUNARG_api_dump.json</file>
-        <file>resourcefiles/layers_1_2_148/VK_LAYER_LUNARG_device_simulation.json</file>
-        <file>resourcefiles/layers_1_2_148/VK_LAYER_LUNARG_gfxreconstruct.json</file>
-        <file>resourcefiles/layers_1_2_148/VK_LAYER_LUNARG_monitor.json</file>
-        <file>resourcefiles/layers_1_2_148/VK_LAYER_LUNARG_screenshot.json</file>
+        <file>resourcefiles/layers_148/VK_LAYER_KHRONOS_validation.json</file>
+        <file>resourcefiles/layers_148/VK_LAYER_LUNARG_api_dump.json</file>
+        <file>resourcefiles/layers_148/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file>resourcefiles/layers_148/VK_LAYER_LUNARG_gfxreconstruct.json</file>
+        <file>resourcefiles/layers_148/VK_LAYER_LUNARG_monitor.json</file>
+        <file>resourcefiles/layers_148/VK_LAYER_LUNARG_screenshot.json</file>
         
-        <file>resourcefiles/layers_1_2_154/VK_LAYER_KHRONOS_validation.json</file>
-        <file>resourcefiles/layers_1_2_154/VK_LAYER_LUNARG_api_dump.json</file>
-        <file>resourcefiles/layers_1_2_154/VK_LAYER_LUNARG_device_simulation.json</file>
-        <file>resourcefiles/layers_1_2_154/VK_LAYER_LUNARG_gfxreconstruct.json</file>
-        <file>resourcefiles/layers_1_2_154/VK_LAYER_LUNARG_monitor.json</file>
-        <file>resourcefiles/layers_1_2_154/VK_LAYER_LUNARG_screenshot.json</file>
+        <file>resourcefiles/layers_154/VK_LAYER_KHRONOS_validation.json</file>
+        <file>resourcefiles/layers_154/VK_LAYER_LUNARG_api_dump.json</file>
+        <file>resourcefiles/layers_154/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file>resourcefiles/layers_154/VK_LAYER_LUNARG_gfxreconstruct.json</file>
+        <file>resourcefiles/layers_154/VK_LAYER_LUNARG_monitor.json</file>
+        <file>resourcefiles/layers_154/VK_LAYER_LUNARG_screenshot.json</file>
         
-        <file>resourcefiles/layers_1_2_162/VK_LAYER_KHRONOS_validation.json</file>
-        <file>resourcefiles/layers_1_2_162/VK_LAYER_LUNARG_api_dump.json</file>
-        <file>resourcefiles/layers_1_2_162/VK_LAYER_LUNARG_device_simulation.json</file>
-        <file>resourcefiles/layers_1_2_162/VK_LAYER_LUNARG_gfxreconstruct.json</file>
-        <file>resourcefiles/layers_1_2_162/VK_LAYER_LUNARG_monitor.json</file>
-        <file>resourcefiles/layers_1_2_162/VK_LAYER_LUNARG_screenshot.json</file>
+        <file>resourcefiles/layers_162/VK_LAYER_KHRONOS_validation.json</file>
+        <file>resourcefiles/layers_162/VK_LAYER_LUNARG_api_dump.json</file>
+        <file>resourcefiles/layers_162/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file>resourcefiles/layers_162/VK_LAYER_LUNARG_gfxreconstruct.json</file>
+        <file>resourcefiles/layers_162/VK_LAYER_LUNARG_monitor.json</file>
+        <file>resourcefiles/layers_162/VK_LAYER_LUNARG_screenshot.json</file>
         
-        <file>resourcefiles/layers_1_2_latest/VK_LAYER_KHRONOS_synchronization2.json</file>
-        <file>resourcefiles/layers_1_2_latest/VK_LAYER_KHRONOS_validation.json</file>
-        <file>resourcefiles/layers_1_2_latest/VK_LAYER_LUNARG_api_dump.json</file>
-        <file>resourcefiles/layers_1_2_latest/VK_LAYER_LUNARG_device_simulation.json</file>
-        <file>resourcefiles/layers_1_2_latest/VK_LAYER_LUNARG_gfxreconstruct.json</file>
-        <file>resourcefiles/layers_1_2_latest/VK_LAYER_LUNARG_monitor.json</file>
-        <file>resourcefiles/layers_1_2_latest/VK_LAYER_LUNARG_screenshot.json</file>
+        <file>resourcefiles/layers_latest/VK_LAYER_KHRONOS_synchronization2.json</file>
+        <file>resourcefiles/layers_latest/VK_LAYER_KHRONOS_validation.json</file>
+        <file>resourcefiles/layers_latest/VK_LAYER_LUNARG_api_dump.json</file>
+        <file>resourcefiles/layers_latest/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file>resourcefiles/layers_latest/VK_LAYER_LUNARG_gfxreconstruct.json</file>
+        <file>resourcefiles/layers_latest/VK_LAYER_LUNARG_monitor.json</file>
+        <file>resourcefiles/layers_latest/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
 </RCC>

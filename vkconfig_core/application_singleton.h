@@ -31,9 +31,11 @@
 
 #include <QtNetwork/QLocalServer>
 
+#include <string>
+
 class ApplicationSingleton {
    public:
-    ApplicationSingleton(const QString &application_name, int timeout = 5000);
+    ApplicationSingleton(const std::string &application_name, int timeout = 5000);
     ~ApplicationSingleton();
 
     bool IsFirstInstance() const { return is_first_instance; }

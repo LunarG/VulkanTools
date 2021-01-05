@@ -24,8 +24,6 @@
 #include <cstddef>
 #include <string>
 
-#include <QString>
-
 static const char *VKCONFIG_NAME = "Vulkan Configurator";
 static const char *VKCONFIG_SHORT_NAME = "vkconfig";
 
@@ -33,6 +31,7 @@ static const bool SUPPORT_VKCONFIG_2_0_0 = true;
 static const bool SUPPORT_VKCONFIG_2_0_1 = true;
 static const bool SUPPORT_VKCONFIG_2_0_2 = true;
 static const bool SUPPORT_VKCONFIG_2_0_3 = true;
+static const bool SUPPORT_VKCONFIG_2_1_0 = true;
 
 class Version {
    public:
@@ -44,7 +43,7 @@ class Version {
     explicit Version(uint32_t version_complete);
     explicit Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch);
     explicit Version(const char *version);
-    explicit Version(const QString &version);
+    explicit Version(const std::string &version);
 
     std::string str() const;
 

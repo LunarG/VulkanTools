@@ -25,11 +25,11 @@
 #include "path_manager.h"
 
 #include <QByteArray>
-#include <QString>
 #include <QStringList>
 
 #include <array>
 #include <vector>
+#include <string>
 
 enum Notification {
     NOTIFICATION_RESTART = 0,
@@ -107,8 +107,8 @@ class Environment {
     const Application& GetApplication(std::size_t application_index) const;
     Application& GetApplication(std::size_t application_index);
 
-    const QString& Get(Active active) const;
-    void Set(Active active, const QString& key);
+    const std::string& Get(Active active) const;
+    void Set(Active active, const std::string& key);
 
     const QByteArray& Get(LayoutState state) const;
     void Set(LayoutState state, const QByteArray& data);
@@ -123,8 +123,8 @@ class Environment {
 
     bool first_run;
 
-    bool AppendCustomLayerPath(const QString& path);
-    bool RemoveCustomLayerPath(const QString& path);
+    bool AppendCustomLayerPath(const std::string& path);
+    bool RemoveCustomLayerPath(const std::string& path);
     const QStringList& GetCustomLayerPaths() const { return custom_layer_paths; }
 
    private:
@@ -134,7 +134,7 @@ class Environment {
     Version version;
     OverrideState override_state;
 
-    std::array<QString, ACTIVE_COUNT> actives;
+    std::array<std::string, ACTIVE_COUNT> actives;
     std::array<bool, NOTIFICATION_COUNT> hidden_notifications;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     QStringList custom_layer_paths;
@@ -146,7 +146,7 @@ class Environment {
     const PathManager& paths;
 };
 
-bool ExactExecutableFromAppBundle(QString& path);
+bool ExactExecutableFromAppBundle(std::string& path);
 
 // Search for all the applications in the list, an remove the application which executable can't be found
 std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications);

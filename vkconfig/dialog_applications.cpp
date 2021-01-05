@@ -111,14 +111,14 @@ void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test applicatio
 {
     Configurator &configurator = Configurator::Get();
 
-    const QString suggested_path(configurator.path.GetPath(PATH_EXECUTABLE).c_str());
-    QString executable_full_path = configurator.path.SelectPath(this, PATH_EXECUTABLE, suggested_path);
+    const std::string suggested_path(configurator.path.GetPath(PATH_EXECUTABLE).c_str());
+    std::string executable_full_path = configurator.path.SelectPath(this, PATH_EXECUTABLE, suggested_path).c_str();
 
     // If they have selected something!
-    if (!executable_full_path.isEmpty()) {
+    if (!executable_full_path.empty()) {
         // On macOS, they may have selected a binary, or they may have selected an app bundle.
         // If the later, we need to drill down to the actuall applicaiton
-        if (executable_full_path.right(4) == QString(".app")) {
+        if (executable_full_path.find(".app") != std::string::npos) {
             // Start by drilling down
             ExactExecutableFromAppBundle(executable_full_path);
         }
@@ -128,7 +128,7 @@ void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test applicatio
 
         QTreeWidgetItem *item = CreateApplicationItem(new_application);
 
-        configurator.RefreshConfiguration();
+        configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
         ui->treeWidget->setCurrentItem(item);
         configurator.environment.SelectActiveApplication(ui->treeWidget->indexOfTopLevelItem(item));
     }
@@ -171,7 +171,7 @@ void ApplicationsDialog::on_pushButtonRemove_clicked() {
     ui->lineEditWorkingFolder->setText("");
     ui->lineEditLogFile->setText("");
 
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
     ui->treeWidget->update();
 }
 
@@ -207,7 +207,7 @@ void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTre
     const Application &application = Configurator::Get().environment.GetApplication(application_index);
 
     ui->lineEditWorkingFolder->setText(application.working_folder.c_str());
-    ui->lineEditCmdArgs->setText(application.arguments);
+    ui->lineEditCmdArgs->setText(application.arguments.c_str());
     ui->lineEditLogFile->setText(application.log_file.c_str());
 }
 
@@ -245,7 +245,7 @@ void ApplicationsDialog::editCommandLine(const QString &cmdLine) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
     if (_last_selected_application_index < 0) return;
 
-    Configurator::Get().environment.GetApplication(_last_selected_application_index).arguments = cmdLine;
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).arguments = cmdLine.toStdString();
 }
 
 void ApplicationsDialog::editWorkingFolder(const QString &workingFolder) {

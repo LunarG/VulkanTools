@@ -125,12 +125,12 @@ TEST(test_parameter, missing_layers) {
 
     std::vector<Parameter> parameters_exist = GenerateTestParametersExist();
     ;
-    EXPECT_EQ(true, HasMissingParameter(parameters_exist, layers_empty));
-    EXPECT_EQ(false, HasMissingParameter(parameters_exist, layers));
+    EXPECT_EQ(true, HasMissingLayer(parameters_exist, layers_empty));
+    EXPECT_EQ(false, HasMissingLayer(parameters_exist, layers));
 
     std::vector<Parameter> parameters_missing = GenerateTestParametersMissing();
-    EXPECT_EQ(true, HasMissingParameter(parameters_missing, layers_empty));
-    EXPECT_EQ(true, HasMissingParameter(parameters_missing, layers));
+    EXPECT_EQ(true, HasMissingLayer(parameters_missing, layers_empty));
+    EXPECT_EQ(true, HasMissingLayer(parameters_missing, layers));
 }
 
 TEST(test_parameter, filter) {
