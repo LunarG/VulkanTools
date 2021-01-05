@@ -14,31 +14,31 @@ elseif(Qt5_VERSION VERSION_LESS 5.5)
     message("WARNING: vkconfig will be excluded because the found Qt version is too old. vkconfig requires version 5.5.")
 else()
     file(GLOB FILES_RESSOURCE_CONFIGURATIONS ./resourcefiles/configurations/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_1_130 ./resourcefiles/layers_1_1_130/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_2_135 ./resourcefiles/layers_1_2_135/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_2_141 ./resourcefiles/layers_1_2_141/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_2_148 ./resourcefiles/layers_1_2_148/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_2_154 ./resourcefiles/layers_1_2_154/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_2_162 ./resourcefiles/layers_1_2_162/*.json)
-    file(GLOB FILES_RESSOURCE_LAYERS_1_2_LATEST ./resourcefiles/layers_1_2_latest/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_130 ./resourcefiles/layers_130/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_135 ./resourcefiles/layers_135/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_141 ./resourcefiles/layers_141/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_148 ./resourcefiles/layers_148/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_154 ./resourcefiles/layers_154/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_162 ./resourcefiles/layers_162/*.json)
+    file(GLOB FILES_RESSOURCE_LAYERS_LATEST ./resourcefiles/layers_latest/*.json)
     set(FILES_RESSOURCE 
         ${FILES_RESSOURCE_CONFIGURATIONS} 
-        ${FILES_RESSOURCE_LAYERS_1_1_130} 
-        ${FILES_RESSOURCE_LAYERS_1_2_135} 
-        ${FILES_RESSOURCE_LAYERS_1_2_141} 
-        ${FILES_RESSOURCE_LAYERS_1_2_148} 
-        ${FILES_RESSOURCE_LAYERS_1_2_154} 
-        ${FILES_RESSOURCE_LAYERS_1_2_162} 
-        ${FILES_RESSOURCE_LAYERS_1_2_LATEST})
+        ${FILES_RESSOURCE_LAYERS_130} 
+        ${FILES_RESSOURCE_LAYERS_135} 
+        ${FILES_RESSOURCE_LAYERS_141} 
+        ${FILES_RESSOURCE_LAYERS_148} 
+        ${FILES_RESSOURCE_LAYERS_154} 
+        ${FILES_RESSOURCE_LAYERS_162} 
+        ${FILES_RESSOURCE_LAYERS_LATEST})
 
     source_group("Resources - Configurations" FILES ${FILES_RESSOURCE_CONFIGURATIONS})
-    source_group("Resources - 1.1.130 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_1_130})
-    source_group("Resources - 1.2.135 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_135})
-    source_group("Resources - 1.2.141 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_141})
-    source_group("Resources - 1.2.148 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_148})
-    source_group("Resources - 1.2.154 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_154})
-    source_group("Resources - 1.2.162 Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_162})
-    source_group("Resources - 1.2.latest Layers" FILES ${FILES_RESSOURCE_LAYERS_1_2_LATEST})
+    source_group("Resources - 130 Layers" FILES ${FILES_RESSOURCE_LAYERS_130})
+    source_group("Resources - 135 Layers" FILES ${FILES_RESSOURCE_LAYERS_135})
+    source_group("Resources - 141 Layers" FILES ${FILES_RESSOURCE_LAYERS_141})
+    source_group("Resources - 148 Layers" FILES ${FILES_RESSOURCE_LAYERS_148})
+    source_group("Resources - 154 Layers" FILES ${FILES_RESSOURCE_LAYERS_154})
+    source_group("Resources - 162 Layers" FILES ${FILES_RESSOURCE_LAYERS_162})
+    source_group("Resources - latest Layers" FILES ${FILES_RESSOURCE_LAYERS_LATEST})
 
     file(GLOB FILES_UI ./*.ui)
 

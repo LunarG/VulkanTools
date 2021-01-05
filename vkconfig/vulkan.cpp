@@ -55,15 +55,15 @@ Version GetVulkanLoaderVersion() {
     return Version(version);
 }
 
-QString GenerateVulkanStatus() {
-    QString log;
+std::string GenerateVulkanStatus() {
+    std::string log;
 
     // return log;  // bug https://github.com/LunarG/VulkanTools/issues/1172
 
     // Check Vulkan SDK path
-    const QString search_path(qgetenv("VULKAN_SDK"));
-    if (!search_path.isEmpty())
-        log += QString().asprintf("- SDK path: %s\n", search_path.toUtf8().constData());
+    const std::string search_path(qgetenv("VULKAN_SDK"));
+    if (!search_path.empty())
+        log += format("- SDK path: %s\n", search_path.c_str());
     else
         log += "- VULKAN_SDK environment variable not set\n";
 
@@ -79,7 +79,7 @@ QString GenerateVulkanStatus() {
         log += "- Could not find a Vulkan Loader.\n";
         return log;
     } else {
-        log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str()).c_str();
+        log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str());
     }
 
     const QStringList &layer_paths = Configurator::Get().layers.VK_LAYER_PATH;
@@ -90,7 +90,7 @@ QString GenerateVulkanStatus() {
     if (!custom_layer_paths.isEmpty()) {
         log += "- Custom Layers Paths:\n";
         for (int i = 0, n = custom_layer_paths.count(); i < n; ++i)
-            log += QString().asprintf("    - %s\n", custom_layer_paths[i].toUtf8().constData());
+            log += format("    - %s\n", custom_layer_paths[i].toStdString().c_str());
     } else
         log += "- Custom Layers Paths: None\n";
 
@@ -111,8 +111,7 @@ QString GenerateVulkanStatus() {
 
     log += "- Available Layers:\n";
     for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
-        log += QString().asprintf("    - %s (%s)\n", layers_properties[i].layerName,
-                                  Version(layers_properties[i].specVersion).str().c_str());
+        log += format("    - %s (%s)\n", layers_properties[i].layerName, Version(layers_properties[i].specVersion).str().c_str());
     }
 
     // Check Vulkan Devices
@@ -180,9 +179,9 @@ QString GenerateVulkanStatus() {
         PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
             (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
         vkGetPhysicalDeviceProperties(devices[i], &properties);
-        log += QString().asprintf("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName,
-                                  GetPhysicalDeviceType(properties.deviceType), VK_VERSION_MAJOR(properties.apiVersion),
-                                  VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
+        log += format("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName, GetPhysicalDeviceType(properties.deviceType),
+                      VK_VERSION_MAJOR(properties.apiVersion), VK_VERSION_MINOR(properties.apiVersion),
+                      VK_VERSION_PATCH(properties.apiVersion));
     }
 
     PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");

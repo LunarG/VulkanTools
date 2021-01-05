@@ -22,15 +22,15 @@
 
 #include "path.h"
 
-#include <QString>
+#include <string>
 
 struct Application {
     Application() {}
-    Application(const QString& executable_full_path, const QString& arguments);
+    Application(const std::string& executable_full_path, const std::string& arguments);
 
     Path executable_path;
     Path working_folder;
-    QString arguments;
+    std::string arguments;
     Path log_file;
     bool override_layers;
 };

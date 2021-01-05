@@ -31,8 +31,8 @@ BoolSettingWidget::BoolSettingWidget(const LayerSettingMeta& layer_setting_meta,
     assert(&layer_setting_meta);
     assert(&layer_setting_data);
 
-    setText(layer_setting_meta.label);
-    setToolTip(layer_setting_meta.description);
+    setText(layer_setting_meta.label.c_str());
+    setToolTip(layer_setting_meta.description.c_str());
     setChecked(layer_setting_data.value == GetToken(true, layer_setting_meta.type));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }

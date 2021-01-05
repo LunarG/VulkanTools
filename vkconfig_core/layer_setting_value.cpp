@@ -23,7 +23,6 @@
 #include "path.h"
 
 #include <QJsonArray>
-#include <QString>
 
 #include <cassert>
 

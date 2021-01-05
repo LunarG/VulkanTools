@@ -24,8 +24,6 @@
 #include "layer_state.h"
 #include "layer_setting_data.h"
 
-#include <QString>
-
 #include <vector>
 
 enum ParameterRank {
@@ -55,4 +53,4 @@ ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, c
 void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
 
-bool HasMissingParameter(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);

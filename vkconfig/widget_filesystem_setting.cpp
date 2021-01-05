@@ -39,8 +39,8 @@ FileSystemSettingWidget::FileSystemSettingWidget(QTreeWidgetItem* item, const La
     assert(&layer_setting_meta);
     assert(&layer_setting_data);
 
-    item->setText(0, layer_setting_meta.label);
-    item->setToolTip(0, layer_setting_meta.description);
+    item->setText(0, layer_setting_meta.label.c_str());
+    item->setToolTip(0, layer_setting_meta.description.c_str());
 
     _line_edit = new QLineEdit(this);
     _line_edit->setText(ReplaceBuiltInVariable(layer_setting_data.value).c_str());
@@ -68,27 +68,27 @@ void FileSystemSettingWidget::resizeEvent(QResizeEvent* event) {
 }
 
 void FileSystemSettingWidget::browseButtonClicked() {
-    QString file;
+    std::string file;
 
     switch (_mode) {
         case MODE_OPEN_FILE:
-            file = QFileDialog::getOpenFileName(_push_button, "Select file", _line_edit->text());
+            file = QFileDialog::getOpenFileName(_push_button, "Select file", _line_edit->text()).toStdString();
             break;
         case MODE_SAVE_FILE:
-            file = QFileDialog::getSaveFileName(_push_button, "Select File", _line_edit->text());
+            file = QFileDialog::getSaveFileName(_push_button, "Select File", _line_edit->text()).toStdString();
             break;
         case MODE_SAVE_FOLDER:
-            file = QFileDialog::getExistingDirectory(_push_button, "Select Folder", _line_edit->text());
+            file = QFileDialog::getExistingDirectory(_push_button, "Select Folder", _line_edit->text()).toStdString();
             break;
         default:
             assert(0);
             break;
     }
 
-    if (!file.isEmpty()) {
-        file = ConvertNativeSeparators(file.toStdString()).c_str();
-        _line_edit->setText(file);
-        layer_setting_data.value = file.toStdString();
+    if (!file.empty()) {
+        file = ConvertNativeSeparators(file);
+        _line_edit->setText(file.c_str());
+        layer_setting_data.value = file;
         emit itemChanged();
     }
 }

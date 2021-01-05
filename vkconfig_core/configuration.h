@@ -23,22 +23,22 @@
 
 #include "parameter.h"
 
-#include <QString>
-#include <QStringList>
+#include <QByteArray>
 
 #include <vector>
+#include <string>
 
 class Configuration {
    public:
     Configuration();
 
-    bool Load(const std::vector<Layer>& available_layers, const QString& full_path);
-    bool Save(const std::vector<Layer>& available_layers, const QString& full_path) const;
+    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
+    bool Save(const std::vector<Layer>& available_layers, const std::string& full_path) const;
     bool IsAvailableOnThisPlatform() const;
 
-    QString key;  // User readable display of the profile name (may contain spaces)
+    std::string key;  // User readable display of the configuration name (may contain spaces)
     int platform_flags;
-    QString description;            // A friendly description of what this profile does
+    std::string description;        // A friendly description of what this profile does
     QByteArray setting_tree_state;  // Recall editor tree state
 
     std::vector<Parameter> parameters;
@@ -46,8 +46,8 @@ class Configuration {
     bool IsEmpty() const;
 
    private:
-    bool Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object, const QString& full_path);
+    bool Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object, const std::string& full_path);
     bool Load2_1(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
 };
 
-QString MakeConfigurationName(const std::vector<Configuration>& configurations, const QString& configuration_name);
+std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name);

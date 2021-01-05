@@ -27,33 +27,33 @@
 
 #include <gtest/gtest.h>
 
-static void Init(PathManager& paths, const QString& path_value) {
+static void Init(PathManager& paths, const std::string& path_value) {
     for (int i = 0, n = PATH_COUNT; i < n; ++i) {
         const PathType path = static_cast<PathType>(i);
-        paths.SetPath(path, path_value.toStdString());
+        paths.SetPath(path, path_value);
     }
 }
 
-static QString InitPath(const char* tail) {
+static std::string InitPath(const char* tail) {
     const QDir dir(QString("vkconfig/test_path_manager/") + tail);
-    const QString native_path(ConvertNativeSeparators(dir.absolutePath().toStdString()).c_str());
+    const std::string native_path(ConvertNativeSeparators(dir.absolutePath().toStdString()));
     return native_path;
 }
 
 TEST(test_path_manager, init_first) {
-    const QString path_value = InitPath("init_first");
+    const std::string path_value = InitPath("init_first");
     PathManager paths;
     Init(paths, path_value);
 
-    EXPECT_STREQ(path_value.toUtf8().constData(), paths.GetPath(PATH_FIRST).c_str());
+    EXPECT_STREQ(path_value.c_str(), paths.GetPath(PATH_FIRST).c_str());
 }
 
 TEST(test_path_manager, init_last) {
-    const QString path_value = InitPath("init_last");
+    const std::string path_value = InitPath("init_last");
     PathManager paths;
     Init(paths, path_value);
 
-    EXPECT_STREQ(path_value.toUtf8().constData(), paths.GetPath(PATH_LAST).c_str());
+    EXPECT_STREQ(path_value.c_str(), paths.GetPath(PATH_LAST).c_str());
 }
 
 TEST(test_path_manager, init_all) {
@@ -63,8 +63,8 @@ TEST(test_path_manager, init_all) {
     for (int i = PATH_FIRST, n = PATH_LAST; i <= n; ++i) {
         const PathType path = static_cast<PathType>(i);
 
-        QString init_path = InitPath("init_all_%d");
-        std::string path_string = format(init_path.toUtf8().constData(), i);
+        std::string init_path = InitPath("init_all_%d");
+        std::string path_string = format(init_path.c_str(), i);
 
         paths.SetPath(path, path_string.c_str());
 
@@ -83,13 +83,13 @@ TEST(test_path_manager, path_format) {
         paths.Clear();
         paths.SetPath(PATH_CONFIGURATION, QDir::homePath().toStdString() + table[i]);
 
-        const QString path(paths.GetPath(PATH_CONFIGURATION).c_str());
-        const QString home_path(GetPath(BUILTIN_PATH_HOME).c_str());
+        const std::string path(paths.GetPath(PATH_CONFIGURATION).c_str());
+        const std::string home_path(GetPath(BUILTIN_PATH_HOME).c_str());
 
         if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
-            EXPECT_STREQ((home_path + "\\vkconfig\\test\\path\\format").toStdString().c_str(), path.toStdString().c_str());
+            EXPECT_STREQ((home_path + "\\vkconfig\\test\\path\\format").c_str(), path.c_str());
         } else {
-            EXPECT_STREQ((home_path + "/vkconfig/test/path/format").toStdString().c_str(), path.toStdString().c_str());
+            EXPECT_STREQ((home_path + "/vkconfig/test/path/format").c_str(), path.c_str());
         }
     }
 }
@@ -98,7 +98,7 @@ TEST(test_path_manager, path_format) {
 TEST(test_path_manager, empty_import) {
     PathManager paths;
     paths.Clear();
-    paths.SetPath(PATH_EXPORT_CONFIGURATION, InitPath("empty_import").toStdString());
+    paths.SetPath(PATH_EXPORT_CONFIGURATION, InitPath("empty_import"));
 
     EXPECT_STRNE(paths.GetPath(PATH_IMPORT_CONFIGURATION).c_str(), GetPath(BUILTIN_PATH_HOME).c_str());
     EXPECT_STREQ(paths.GetPath(PATH_EXPORT_CONFIGURATION).c_str(), paths.GetPath(PATH_IMPORT_CONFIGURATION).c_str());
@@ -108,7 +108,7 @@ TEST(test_path_manager, empty_import) {
 TEST(test_path_manager, empty_export) {
     PathManager paths;
     paths.Clear();
-    paths.SetPath(PATH_IMPORT_CONFIGURATION, InitPath("empty_export").toStdString());
+    paths.SetPath(PATH_IMPORT_CONFIGURATION, InitPath("empty_export"));
 
     EXPECT_STRNE(paths.GetPath(PATH_EXPORT_CONFIGURATION).c_str(), GetPath(BUILTIN_PATH_HOME).c_str());
     EXPECT_STREQ(paths.GetPath(PATH_IMPORT_CONFIGURATION).c_str(), paths.GetPath(PATH_EXPORT_CONFIGURATION).c_str());
@@ -119,7 +119,7 @@ TEST(test_path_manager, empty_export) {
 TEST(test_path_manager, check_missing_dir) {
     PathManager paths;
     paths.Clear();
-    paths.SetPath(PATH_CONFIGURATION, InitPath("check_missing_dir").toStdString());
+    paths.SetPath(PATH_CONFIGURATION, InitPath("check_missing_dir"));
 
     EXPECT_TRUE(strstr(paths.GetPath(PATH_CONFIGURATION).c_str(), "check_missing_dir") != nullptr);
 
@@ -130,7 +130,7 @@ TEST(test_path_manager, check_default_filename) {
     PathManager paths;
     paths.Clear();
 
-    const QString string = paths.GetFullPath(PATH_OVERRIDE_SETTINGS);
+    const QString string = paths.GetFullPath(PATH_OVERRIDE_SETTINGS).c_str();
 
     EXPECT_TRUE(string.endsWith("vk_layer_settings.txt"));
 
@@ -141,7 +141,7 @@ TEST(test_path_manager, check_default_suffix) {
     PathManager paths;
     paths.Clear();
 
-    const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration");
+    const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration").c_str();
 
     EXPECT_TRUE(string.endsWith("my_configuration.json"));
 
@@ -152,7 +152,7 @@ TEST(test_path_manager, check_with_suffix) {
     PathManager paths;
     paths.Clear();
 
-    const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration.json");
+    const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration.json").c_str();
 
     EXPECT_TRUE(string.endsWith("my_configuration.json"));
 

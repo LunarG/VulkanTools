@@ -47,7 +47,7 @@ class LayersDialog : public QDialog {
     void LoadAvailableLayersUI();
     void LoadSortedLayersUI();
 
-    QString GetConfigurationName() const;
+    std::string GetConfigurationName() const;
 
    public Q_SLOTS:
     virtual void accept() override;  // Save the configuration

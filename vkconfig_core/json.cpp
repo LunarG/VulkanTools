@@ -20,7 +20,6 @@
 
 #include "json.h"
 
-#include <QString>
 #include <QJsonArray>
 
 #include <cassert>

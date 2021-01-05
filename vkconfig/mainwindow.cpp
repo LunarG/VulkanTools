@@ -119,7 +119,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_2->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER2));
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 
     LoadConfigurationList();
 
@@ -130,7 +130,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->document()->setMaximumBlockCount(2048);
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    if (configurator.HasActiveConfiguration()) {
+    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
@@ -148,8 +148,8 @@ static std::string GetMainWindowTitle(bool active) {
 void MainWindow::UpdateUI() {
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
-    const bool has_active_configuration = configurator.HasActiveConfiguration();
-    const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
+    const bool has_active_configuration = configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers);
+    const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
     ui->configuration_tree->blockSignals(true);
 
@@ -163,31 +163,31 @@ void MainWindow::UpdateUI() {
     for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(item);
-        assert(!item->configuration_name.isEmpty());
+        assert(!item->configuration_name.empty());
 
-        auto configuration = FindItByKey(configurator.available_configurations, item->configuration_name.toStdString().c_str());
-        if (configuration == configurator.available_configurations.end()) continue;
+        auto configuration = FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
+        if (configuration == configurator.configurations.available_configurations.end()) continue;
 
-        if (!HasMissingParameter(configuration->parameters, configurator.layers.available_layers)) {
-            item->setText(1, item->configuration_name);
-            item->radio_button->setToolTip(configuration->description);
+        if (!HasMissingLayer(configuration->parameters, configurator.layers.available_layers)) {
+            item->setText(1, item->configuration_name.c_str());
+            item->radio_button->setToolTip(configuration->description.c_str());
         } else {
-            item->setText(1, item->configuration_name + " (Invalid)");
+            item->setText(1, (item->configuration_name + " (Invalid)").c_str());
             item->radio_button->setToolTip(
                 "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
         }
 
-        if (&item->configuration_name == active_contiguration_name) {
+        if (item->configuration_name == active_contiguration_name) {
             ui->configuration_tree->setCurrentItem(item);
             item->radio_button->setChecked(true);
         }
     }
 
     // Update settings
-    ui->push_button_select_configuration->setEnabled(environment.UseOverride() && !active_contiguration_name.isEmpty());
+    ui->push_button_select_configuration->setEnabled(environment.UseOverride() && !active_contiguration_name.empty());
     ui->settings_tree->setEnabled(environment.UseOverride() && has_active_configuration);
-    ui->group_box_settings->setTitle(active_contiguration_name.isEmpty() ? "Configuration Settings"
-                                                                         : active_contiguration_name + " Settings");
+    ui->group_box_settings->setTitle(active_contiguration_name.empty() ? "Configuration Settings"
+                                                                       : (active_contiguration_name + " Settings").c_str());
 
     // Handle application lists states
     ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && environment.UseOverride());
@@ -209,7 +209,7 @@ void MainWindow::UpdateUI() {
         _launcher_apps_combo->setCurrentIndex(environment.GetActiveApplicationIndex());
 
         const Application &application = environment.GetActiveApplication();
-        _launcher_arguments->setText(application.arguments);
+        _launcher_arguments->setText(application.arguments.c_str());
         _launcher_working->setText(application.working_folder.c_str());
         _launcher_log_file_edit->setText(application.log_file.c_str());
     }
@@ -247,7 +247,7 @@ void MainWindow::UpdateUI() {
     if (configurator.request_vulkan_status) {
         ui->log_browser->clear();
         ui->log_browser->append("Vulkan Development Status:");
-        ui->log_browser->append(GenerateVulkanStatus());
+        ui->log_browser->append(GenerateVulkanStatus().c_str());
         ui->push_button_clear_log->setEnabled(true);
         configurator.request_vulkan_status = false;
     }
@@ -275,15 +275,15 @@ void MainWindow::LoadConfigurationList() {
 
     Configurator &configurator = Configurator::Get();
 
-    for (std::size_t i = 0, n = configurator.available_configurations.size(); i < n; i++) {
-        const Configuration &configuration = configurator.available_configurations[i];
+    for (std::size_t i = 0, n = configurator.configurations.available_configurations.size(); i < n; i++) {
+        const Configuration &configuration = configurator.configurations.available_configurations[i];
 
         ConfigurationListItem *item = new ConfigurationListItem(configuration.key);
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
         item->radio_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         item->radio_button->setFixedSize(QSize(24, 24));
-        item->radio_button->setToolTip(configuration.description);
+        item->radio_button->setToolTip(configuration.description.c_str());
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->configuration_tree->setItemWidget(item, 0, item->radio_button);
@@ -319,7 +319,7 @@ void MainWindow::on_radio_override_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 
     UpdateUI();
 }
@@ -329,7 +329,7 @@ void MainWindow::on_radio_fully_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 
     UpdateUI();
 }
@@ -374,7 +374,7 @@ void MainWindow::on_check_box_apply_list_clicked() {
         dialog.exec();
     }
 
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 
     UpdateUI();
 }
@@ -405,13 +405,14 @@ void MainWindow::toolsResetToDefault(bool checked) {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-    configurator.ResetDefaultsConfigurations();
+    configurator.configurations.ResetDefaultsConfigurations(configurator.layers.available_layers, configurator.path,
+                                                            configurator.environment);
 
-    configurator.RefreshConfiguration();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 
     LoadConfigurationList();
 
-    if (configurator.HasActiveConfiguration()) {
+    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
@@ -434,8 +435,8 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     ui->configuration_tree->setCurrentItem(item);
 
     Configurator &configurator = Configurator::Get();
-    configurator.environment.Set(ACTIVE_CONFIGURATION, item->configuration_name);
-    configurator.RefreshConfiguration();
+    configurator.environment.Set(ACTIVE_CONFIGURATION, item->configuration_name.c_str());
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 
     UpdateUI();
 }
@@ -453,21 +454,21 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         // We are renaming the file. Things can go wrong here...
         // This is the name of the configuratin we are changing
-        const QString full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, configuration_item->configuration_name));
+        const std::string full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, configuration_item->configuration_name));
 
         // This is the new name we want to use for the configuration
-        const QString &new_configuration_name = configuration_item->text(1);
+        const std::string &new_configuration_name = configuration_item->text(1).toStdString();
 
-        if (new_configuration_name.isEmpty()) {
+        if (new_configuration_name.empty()) {
             Alert::ConfigurationNameEmpty();
-        } else if (!IsPortableFilename(new_configuration_name.toStdString())) {
+        } else if (!IsPortableFilename(new_configuration_name)) {
             Alert::ConfigurationNameInvalid();
         }
 
-        auto end = configurator.available_configurations.end();
-        const bool failed = new_configuration_name.isEmpty() || !IsPortableFilename(new_configuration_name.toStdString());
+        auto end = configurator.configurations.available_configurations.end();
+        const bool failed = new_configuration_name.empty() || !IsPortableFilename(new_configuration_name);
         auto duplicate_configuration =
-            failed ? end : FindItByKey(configurator.available_configurations, new_configuration_name.toStdString().c_str());
+            failed ? end : FindItByKey(configurator.configurations.available_configurations, new_configuration_name.c_str());
 
         if (duplicate_configuration != end) {
             Alert::ConfigurationRenamingFailed();
@@ -475,26 +476,27 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         // Find existing configuration using it's old name
         auto configuration =
-            FindItByKey(configurator.available_configurations, configuration_item->configuration_name.toStdString().c_str());
+            FindItByKey(configurator.configurations.available_configurations, configuration_item->configuration_name.c_str());
 
         if (failed || duplicate_configuration != end) {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
 
             ui->configuration_tree->blockSignals(true);
-            item->setText(1, configuration_item->configuration_name);
+            item->setText(1, configuration_item->configuration_name.c_str());
             ui->configuration_tree->blockSignals(false);
         } else {
             // Rename configuration ; Remove old configuration file ; Create new configuration file
 
             configuration->key = configuration_item->configuration_name = new_configuration_name;
 
-            remove(full_path.toUtf8().constData());
-            const bool result = configuration->Save(configurator.layers.available_layers,
-                                                    configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name));
+            remove(full_path.c_str());
+            const std::string configuration_path = configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name);
+            const bool result = configuration->Save(configurator.layers.available_layers, configuration_path);
             assert(result);
         }
 
-        configurator.SetActiveConfiguration(configuration);
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+                                                           configuration);
 
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
@@ -514,7 +516,9 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
     if (configuration_item == nullptr) return;
 
     configuration_item->radio_button->setChecked(true);
-    Configurator::Get().SetActiveConfiguration(configuration_item->configuration_name);
+    Configurator &configurator = Configurator::Get();
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+                                                       configuration_item->configuration_name);
 
     _settings_tree_manager.CreateGUI(ui->settings_tree);
 
@@ -617,7 +621,8 @@ void MainWindow::on_push_button_applications_clicked() {
     ApplicationsDialog dlg(this);
     dlg.exec();
 
-    Configurator::Get().RefreshConfiguration();
+    Configurator &configurator = Configurator::Get();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
 
     UpdateUI();
 }
@@ -631,14 +636,16 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-    auto configuration = configurator.GetActiveConfiguration();
-    assert(configuration != configurator.available_configurations.end());
+    auto configuration = configurator.configurations.GetActiveConfiguration();
+    assert(configuration != configurator.configurations.available_configurations.end());
 
     LayersDialog dlg(this, *configuration);
     dlg.exec();
 
-    configurator.LoadAllConfigurations();
-    configurator.SetActiveConfiguration(dlg.GetConfigurationName());
+    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
+                                                      configurator.environment);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+                                                       dlg.GetConfigurationName());
     LoadConfigurationList();
 
     RestoreLastItem();
@@ -656,18 +663,18 @@ ConfigurationListItem *MainWindow::SaveLastItem() {
     ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->currentItem());
     if (item == nullptr) return nullptr;
 
-    assert(!item->configuration_name.isEmpty());
+    assert(!item->configuration_name.empty());
     _last_item = item->configuration_name;
     return item;
 }
 
-bool MainWindow::SelectConfigurationItem(const QString &configuration_name) {
-    assert(!configuration_name.isEmpty());
+bool MainWindow::SelectConfigurationItem(const std::string &configuration_name) {
+    assert(!configuration_name.empty());
 
     for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(item != nullptr);
-        assert(!item->configuration_name.isEmpty());
+        assert(!item->configuration_name.empty());
 
         if (item->configuration_name == configuration_name) {
             ui->configuration_tree->setCurrentItem(item);
@@ -688,7 +695,7 @@ bool MainWindow::RestoreLastItem(const char *configuration_override) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         if (item == nullptr) continue;
 
-        assert(!item->configuration_name.isEmpty());
+        assert(!item->configuration_name.empty());
         if (item->configuration_name == _last_item) {
             ui->configuration_tree->setCurrentItem(item);
             return true;
@@ -717,18 +724,20 @@ void MainWindow::addCustomPaths() {
 // Edit the layers for the given configuration.
 void MainWindow::EditClicked(ConfigurationListItem *item) {
     assert(item);
-    assert(!item->configuration_name.isEmpty());
+    assert(!item->configuration_name.empty());
 
     Configurator &configurator = Configurator::Get();
 
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    LayersDialog dlg(this, *FindItByKey(configurator.available_configurations, item->configuration_name.toStdString().c_str()));
+    LayersDialog dlg(this, *FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str()));
     dlg.exec();
 
-    configurator.LoadAllConfigurations();
-    configurator.SetActiveConfiguration(dlg.GetConfigurationName());
+    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
+                                                      configurator.environment);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+                                                       dlg.GetConfigurationName());
     LoadConfigurationList();
 
     RestoreLastItem();
@@ -741,28 +750,30 @@ void MainWindow::NewClicked() {
     Configurator &configurator = Configurator::Get();
 
     Configuration configuration;
-    configuration.key = MakeConfigurationName(configurator.available_configurations, "New Configuration");
+    configuration.key = MakeConfigurationName(configurator.configurations.available_configurations, "New Configuration");
 
     LayersDialog dlg(this, configuration);
     if (QDialog::Accepted == dlg.exec()) {
-        configurator.LoadAllConfigurations();
-        configurator.SetActiveConfiguration(dlg.GetConfigurationName());
+        configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
+                                                          configurator.environment);
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+                                                           dlg.GetConfigurationName());
         LoadConfigurationList();
 
-        RestoreLastItem(dlg.GetConfigurationName().toUtf8().constData());
+        RestoreLastItem(dlg.GetConfigurationName().c_str());
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 }
 
 void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     assert(item);
-    assert(!item->configuration_name.isEmpty());
+    assert(!item->configuration_name.empty());
 
     // Let make sure...
     QMessageBox alert;
     alert.setWindowTitle(VKCONFIG_NAME);
     alert.setText("Are you sure you want to remove this configuration?");
-    alert.setInformativeText(item->configuration_name);
+    alert.setInformativeText(item->configuration_name.c_str());
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
     alert.setIcon(QMessageBox::Question);
@@ -771,7 +782,9 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    Configurator::Get().RemoveConfiguration(item->configuration_name);
+    Configurator &configurator = Configurator::Get();
+    configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, configurator.path,
+                                                    configurator.environment, item->configuration_name);
     LoadConfigurationList();
     RestoreLastItem();
 }
@@ -788,12 +801,13 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    assert(!item->configuration_name.isEmpty());
+    assert(!item->configuration_name.empty());
 
-    auto configuration = FindItByKey(configurator.available_configurations, item->configuration_name.toStdString().c_str());
-    assert(configuration != configurator.available_configurations.end());
+    auto configuration = FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
+    assert(configuration != configurator.configurations.available_configurations.end());
 
-    const QString &new_name = MakeConfigurationName(configurator.available_configurations, item->configuration_name);
+    const std::string &new_name =
+        MakeConfigurationName(configurator.configurations.available_configurations, item->configuration_name);
     assert(new_name != item->configuration_name);
 
     configuration->key = item->configuration_name = new_name;
@@ -803,8 +817,9 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     _settings_tree_manager.CleanupGUI();
 
-    configurator.LoadAllConfigurations();
-    configurator.SetActiveConfiguration(new_name);
+    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
+                                                      configurator.environment);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment, new_name);
     LoadConfigurationList();
 
     ConfigurationListItem *new_item = nullptr;
@@ -827,12 +842,13 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     (void)item;  // We don't need this
     Configurator &configurator = Configurator::Get();
 
-    const QString full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
-    if (full_import_path.isEmpty()) return;
+    const std::string full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
+    if (full_import_path.empty()) return;
 
     _settings_tree_manager.CleanupGUI();
 
-    Configurator::Get().ImportConfiguration(full_import_path);
+    configurator.configurations.ImportConfiguration(configurator.layers.available_layers, configurator.path,
+                                                    configurator.environment, full_import_path);
     LoadConfigurationList();
 }
 
@@ -841,11 +857,12 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    const QString full_suggested_path = configurator.path.GetFullPath(PATH_EXPORT_CONFIGURATION, item->configuration_name);
-    const QString full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
-    if (full_export_path.isEmpty()) return;
+    const std::string full_suggested_path = configurator.path.GetFullPath(PATH_EXPORT_CONFIGURATION, item->configuration_name);
+    const std::string full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
+    if (full_export_path.empty()) return;
 
-    configurator.ExportConfiguration(full_export_path, item->configuration_name);
+    configurator.configurations.ExportConfiguration(configurator.layers.available_layers, full_export_path,
+                                                    item->configuration_name);
 }
 
 void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
@@ -873,12 +890,12 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
 
     Configurator &configurator = Configurator::Get();
-
     configurator.environment.Notify(NOTIFICATION_RESTART);
 
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
     if (configuration_item != nullptr) {
-        configurator.SetActiveConfiguration(configuration_item->configuration_name);
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+                                                           configuration_item->configuration_name);
     }
     SaveLastItem();
 
@@ -889,8 +906,9 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
     (void)item;
 
-    Configurator::Get().environment.Notify(NOTIFICATION_RESTART);
-    Configurator::Get().RefreshConfiguration();
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.Notify(NOTIFICATION_RESTART);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
     SaveLastItem();
 
     UpdateUI();
@@ -1006,13 +1024,13 @@ void MainWindow::launchSetLogFile() {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    const QString path = Configurator::Get().path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file.c_str());
+    const std::string path = Configurator::Get().path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file.c_str());
 
     // The user has cancel the operation
-    if (path.isEmpty()) return;
+    if (path.empty()) return;
 
-    application.log_file = path.toStdString();
-    _launcher_log_file_edit->setText(path);
+    application.log_file = path;
+    _launcher_log_file_edit->setText(path.c_str());
 }
 
 void MainWindow::launchSetWorkingFolder() {
@@ -1020,13 +1038,13 @@ void MainWindow::launchSetWorkingFolder() {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    const QString path = Configurator::Get().path.SelectPath(this, PATH_WORKING_DIR, application.working_folder.c_str());
+    const std::string path = Configurator::Get().path.SelectPath(this, PATH_WORKING_DIR, application.working_folder.c_str());
 
     // The user has cancel the operation
-    if (path.isEmpty()) return;
+    if (path.empty()) return;
 
-    application.working_folder = path.toStdString();
-    _launcher_working->setText(path);
+    application.working_folder = path;
+    _launcher_working->setText(path.c_str());
 }
 
 // Log file path edited manually.
@@ -1055,7 +1073,7 @@ void MainWindow::launchItemChanged(int application_index) {
     environment.SelectActiveApplication(application_index);
 
     Application &application = environment.GetApplication(application_index);
-    _launcher_arguments->setText(application.arguments);
+    _launcher_arguments->setText(application.arguments.c_str());
     _launcher_working->setText(application.working_folder.c_str());
     _launcher_log_file_edit->setText(application.log_file.c_str());
 }
@@ -1066,7 +1084,7 @@ void MainWindow::launchArgsEdited(const QString &arguments) {
     if (application_index < 0) return;
 
     Application &application = Configurator::Get().environment.GetApplication(application_index);
-    application.arguments = arguments;
+    application.arguments = arguments.toStdString();
 }
 
 // Clear the browser window
@@ -1098,9 +1116,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
             const Environment &environment = Configurator::Get().environment;
-            const QString &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
+            const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-            const bool active = environment.UseOverride() && !active_contiguration_name.isEmpty();
+            const bool active = environment.UseOverride() && !active_contiguration_name.empty();
 
             // Create context menu here
             QMenu menu(ui->configuration_tree);
@@ -1195,36 +1213,34 @@ void MainWindow::on_push_button_launcher_clicked() {
     }
 
     // We are logging, let's add that we've launched a new application
-    QString launch_log = "Launching Vulkan Application:\n";
+    std::string launch_log = "Launching Vulkan Application:\n";
 
     Configurator &configurator = Configurator::Get();
     const Application &active_application = configurator.environment.GetActiveApplication();
 
-    auto configuration = configurator.GetActiveConfiguration();
+    auto configuration = configurator.configurations.GetActiveConfiguration();
 
-    if (configuration == configurator.available_configurations.end()) {
+    if (configuration == configurator.configurations.available_configurations.end()) {
         launch_log += "- Layers fully controlled by the application.\n";
-    } else if (HasMissingParameter(configuration->parameters, configurator.layers.available_layers)) {
-        launch_log += QString().asprintf("- No layers override. The active \"%s\" configuration is missing a layer.\n",
-                                         configuration->key.toUtf8().constData());
+    } else if (HasMissingLayer(configuration->parameters, configurator.layers.available_layers)) {
+        launch_log +=
+            format("- No layers override. The active \"%s\" configuration is missing a layer.\n", configuration->key.c_str());
     } else if (configurator.environment.UseOverride()) {
         if (configurator.environment.UseApplicationListOverrideMode() && configurator.environment.HasOverriddenApplications() &&
             !active_application.override_layers) {
             launch_log += "- Layers fully controlled by the application. Application excluded from layers override.\n";
         } else {
-            launch_log +=
-                QString().asprintf("- Layers overridden by \"%s\" configuration.\n", configuration->key.toUtf8().constData());
+            launch_log += format("- Layers overridden by \"%s\" configuration.\n", configuration->key.c_str());
         }
     }
 
     assert(!active_application.executable_path.empty());
-    launch_log += QString().asprintf("- Executable Path: %s\n", active_application.executable_path.c_str());
+    launch_log += format("- Executable Path: %s\n", active_application.executable_path.c_str());
     assert(!active_application.working_folder.empty());
-    launch_log += QString().asprintf("- Working Directory: %s\n", active_application.working_folder.c_str());
-    if (!active_application.arguments.isEmpty())
-        launch_log += QString().asprintf("- Command-line Arguments: %s\n", active_application.arguments.toUtf8().constData());
-    if (!active_application.log_file.empty())
-        launch_log += QString().asprintf("- Log file: %s\n", active_application.log_file.c_str());
+    launch_log += format("- Working Directory: %s\n", active_application.working_folder.c_str());
+    if (!active_application.arguments.empty())
+        launch_log += format("- Command-line Arguments: %s\n", active_application.arguments.c_str());
+    if (!active_application.log_file.empty()) launch_log += format("- Log file: %s\n", active_application.log_file.c_str());
 
     if (!active_application.log_file.empty()) {
         // Start logging
@@ -1247,7 +1263,7 @@ void MainWindow::on_push_button_launcher_clicked() {
     }
 
     if (ui->check_box_clear_on_launch->isChecked()) ui->log_browser->clear();
-    Log(launch_log);
+    Log(launch_log.c_str());
 
     // Launch the test application
     _launch_application.reset(new QProcess(this));
@@ -1259,8 +1275,8 @@ void MainWindow::on_push_button_launcher_clicked() {
     _launch_application->setProgram(active_application.executable_path.c_str());
     _launch_application->setWorkingDirectory(active_application.working_folder.c_str());
 
-    if (!active_application.arguments.isEmpty()) {
-        const QStringList args = active_application.arguments.split(" ");
+    if (!active_application.arguments.empty()) {
+        const QStringList args = QString(active_application.arguments.c_str()).split(" ");
         _launch_application->setArguments(args);
     }
 
@@ -1273,7 +1289,7 @@ void MainWindow::on_push_button_launcher_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        const QString failed_log = QString("Failed to launch ") + active_application.executable_path.c_str() + "!\n";
+        const std::string failed_log = std::string("Failed to launch ") + active_application.executable_path.c_str() + "!\n";
         Log(failed_log);
         UpdateUI();
         return;
@@ -1313,22 +1329,22 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
 /// If a log file is open, we also write the output to the log.
 void MainWindow::standardOutputAvailable() {
     if (_launch_application) {
-        Log(_launch_application->readAllStandardOutput());
+        Log(_launch_application->readAllStandardOutput().toStdString());
     }
 }
 
 void MainWindow::errorOutputAvailable() {
     if (_launch_application) {
-        Log(_launch_application->readAllStandardError());
+        Log(_launch_application->readAllStandardError().toStdString());
     }
 }
 
-void MainWindow::Log(const QString &log) {
-    ui->log_browser->append(log);
+void MainWindow::Log(const std::string &log) {
+    ui->log_browser->append(log.c_str());
     ui->push_button_clear_log->setEnabled(true);
 
     if (_log_file.isOpen()) {
-        _log_file.write(log.toUtf8().constData(), log.length());
+        _log_file.write(log.c_str(), log.size());
         _log_file.flush();
     }
 }

@@ -26,25 +26,13 @@
 #include "../vkconfig_core/layer_manager.h"
 #include "../vkconfig_core/path_manager.h"
 #include "../vkconfig_core/environment.h"
-#include "../vkconfig_core/configuration.h"
+#include "../vkconfig_core/configuration_manager.h"
 #include "../vkconfig_core/platform.h"
-
-#include <QString>
-#include <QDir>
-#include <QTreeWidget>
-
-#include <vulkan/vulkan.h>
-
-#include <vector>
 
 class Configurator {
    public:
     static Configurator& Get();
     bool Init();
-
-    // Additional places to look for layers
-   public:
-    void BuildCustomLayerTree(QTreeWidget* tree_widget);
 
     // The list of applications affected
    public:
@@ -56,23 +44,6 @@ class Configurator {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
     }
 
-    std::vector<Configuration> available_configurations;
-    void LoadAllConfigurations();  // Load all the .profile files found
-    void ImportConfiguration(const QString& full_import_path);
-    void ExportConfiguration(const QString& full_export_path, const QString& ConfigurationName);
-    void ResetDefaultsConfigurations();
-
-    bool HasLayers() const;
-
-    // Set this as the current override configuration
-    std::vector<Configuration>::iterator GetActiveConfiguration() const { return _active_configuration; }
-    void SetActiveConfiguration(std::vector<Configuration>::iterator active_configuration);
-    void SetActiveConfiguration(const QString& configuration_name);
-    void RefreshConfiguration();
-    void RemoveConfiguration(const QString& configuration_name);
-    void RemoveConfigurationFiles();
-    bool HasActiveConfiguration() const;
-
    private:
     Configurator();
     ~Configurator();
@@ -82,11 +53,10 @@ class Configurator {
 
     void CopyResourceFiles();
 
-    std::vector<Configuration>::iterator _active_configuration;
-
    public:
     PathManager path;
     Environment environment;
     LayerManager layers;
+    ConfigurationManager configurations;
     bool request_vulkan_status;
 };

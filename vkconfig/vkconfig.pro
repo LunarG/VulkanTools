@@ -28,6 +28,7 @@ SOURCES += \
     ../vkconfig_core/application_singleton.cpp \
     ../vkconfig_core/command_line.cpp \
     ../vkconfig_core/configuration.cpp \
+    ../vkconfig_core/configuration_manager.cpp \
     ../vkconfig_core/environment.cpp \
     ../vkconfig_core/help.cpp \
     ../vkconfig_core/json.cpp \
@@ -79,6 +80,7 @@ HEADERS += \
     ../vkconfig_core/application_singleton.h \
     ../vkconfig_core/command_line.h \
     ../vkconfig_core/configuration.h \
+    ../vkconfig_core/configuration_manager.h \
     ../vkconfig_core/environment.h \
     ../vkconfig_core/help.h \
     ../vkconfig_core/json.h \

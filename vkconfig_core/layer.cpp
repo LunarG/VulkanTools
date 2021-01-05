@@ -30,22 +30,16 @@
 #include <QJsonArray>
 
 #include <cassert>
+#include <string>
+#include <algorithm>
 
-QString GetBuiltinFolder(const Version& version) {
-    if (version <= Version(1, 1, 130))
-        return ":/resourcefiles/layers_1_1_130";
-    else if (version <= Version(1, 2, 135))
-        return ":/resourcefiles/layers_1_2_135";
-    else if (version <= Version(1, 2, 141))
-        return ":/resourcefiles/layers_1_2_141";
-    else if (version <= Version(1, 2, 148))
-        return ":/resourcefiles/layers_1_2_148";
-    else if (version <= Version(1, 2, 154))
-        return ":/resourcefiles/layers_1_2_154";
-    else if (version <= Version(1, 2, 162))
-        return ":/resourcefiles/layers_1_2_162";
+static std::string GetBuiltinFolder(const Version& version) {
+    const std::uint32_t vulkan_version = std::max(static_cast<std::uint32_t>(130), version.GetPatch());
+
+    if (vulkan_version <= 162)
+        return format(":/resourcefiles/layers_%d", vulkan_version).c_str();
     else
-        return ":/resourcefiles/layers_1_2_latest";
+        return ":/resourcefiles/layers_latest";
 }
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
@@ -55,7 +49,7 @@ Layer::Layer() {}
 Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), _layer_type(layer_type) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
-             const QString& implementation_version, const QString& library_path, const QString& type)
+             const std::string& implementation_version, const std::string& library_path, const std::string& type)
     : key(key),
       file_format_version(file_format_version),
       _type(type),
@@ -66,8 +60,8 @@ Layer::Layer(const std::string& key, const LayerType layer_type, const Version& 
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return file_format_version != Version::VERSION_NULL && !key.empty() && !_type.isEmpty() && !_library_path.isEmpty() &&
-           _api_version != Version::VERSION_NULL && !_implementation_version.isEmpty();
+    return file_format_version != Version::VERSION_NULL && !key.empty() && !_type.empty() && !_library_path.empty() &&
+           _api_version != Version::VERSION_NULL && !_implementation_version.empty();
 }
 
 std::string Layer::FindPresetLabel(const std::vector<LayerSettingData>& layer_settings) const {
@@ -79,12 +73,12 @@ std::string Layer::FindPresetLabel(const std::vector<LayerSettingData>& layer_se
 }
 
 /// Reports errors via a message box. This might be a bad idea?
-bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
+bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     _layer_type = layer_type;  // Set layer type, no way to know this from the json file
 
-    if (full_path_to_file.isEmpty()) return false;
+    if (full_path_to_file.empty()) return false;
 
-    QFile file(full_path_to_file);
+    QFile file(full_path_to_file.c_str());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
     }
@@ -119,26 +113,26 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
 
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
-    key = ReadStringValue(json_layer_object, "name").c_str();
-    _type = ReadStringValue(json_layer_object, "type").c_str();
+    key = ReadStringValue(json_layer_object, "name");
+    _type = ReadStringValue(json_layer_object, "type");
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
-        _library_path = json_library_path_value.toString();
+        _library_path = json_library_path_value.toString().toStdString();
     }
 
     _api_version = ReadVersionValue(json_layer_object, "api_version");
-    _implementation_version = ReadStringValue(json_layer_object, "implementation_version").c_str();
-    description = ReadStringValue(json_layer_object, "description").c_str();
+    _implementation_version = ReadStringValue(json_layer_object, "implementation_version");
+    description = ReadStringValue(json_layer_object, "description");
 
     // Load default layer json file if necessary
     const bool is_missing_layer_data =
         json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
-    const bool is_builtin_layer_file = full_path_to_file.startsWith(":/resourcefiles/");
+    const bool is_builtin_layer_file = full_path_to_file.find(":/resourcefiles/") != std::string::npos;
 
     Layer default_layer;
     if (is_missing_layer_data && !is_builtin_layer_file) {
-        const QString path = GetBuiltinFolder(_api_version) + "/" + key.c_str() + ".json";
+        const std::string path = GetBuiltinFolder(_api_version) + "/" + key + ".json";
         default_layer.Load(path, _layer_type);
     }
 
@@ -152,11 +146,11 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
 
             LayerSettingMeta setting;
 
-            setting.key = ReadStringValue(json_setting, "key").c_str();
-            setting.label = ReadStringValue(json_setting, "label").c_str();
-            setting.description = ReadStringValue(json_setting, "description").c_str();
+            setting.key = ReadStringValue(json_setting, "key");
+            setting.label = ReadStringValue(json_setting, "label");
+            setting.description = ReadStringValue(json_setting, "description");
             setting.type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
-            setting.default_value = ReadString(json_setting, "default").c_str();
+            setting.default_value = ReadString(json_setting, "default");
 
             switch (setting.type) {
                 case SETTING_EXCLUSIVE_LIST:
@@ -177,7 +171,7 @@ bool Layer::Load(const QString& full_path_to_file, LayerType layer_type) {
                 } break;
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE: {
-                    setting.default_value = setting.default_value.toStdString().c_str();
+                    setting.default_value = setting.default_value.c_str();
                 } break;
                 case SETTING_VUID_FILTER: {
                     const QJsonValue& json_value_options = json_setting.value("options");
@@ -242,7 +236,7 @@ std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerS
     std::vector<LayerSettingData> result;
 
     for (std::size_t i = 0, n = meta.size(); i < n; ++i) {
-        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].default_value.toStdString().c_str()));
+        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].default_value.c_str()));
     }
 
     return result;

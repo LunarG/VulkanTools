@@ -28,7 +28,7 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(2, 1, 0);
+const Version Version::VKCONFIG(2, 1, 1);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 const Version Version::VERSION_NULL(0u);
 
@@ -52,7 +52,7 @@ Version::Version(uint32_t version_major, uint32_t version_minor, uint32_t versio
 
 Version::Version(const char *version) : Version(GetVersionData(version)) {}
 
-Version::Version(const QString &version) : Version(version.toUtf8().constData()) {}
+Version::Version(const std::string &version) : Version(version.c_str()) {}
 
 std::string Version::str() const { return format("%d.%d.%d", _major, _minor, _patch); }
 

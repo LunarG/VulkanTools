@@ -17,3 +17,7 @@
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#include "../configuration_manager.h"
+
+#include <gtest/gtest.h>

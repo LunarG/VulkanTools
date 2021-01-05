@@ -33,7 +33,6 @@
 #include <QObject>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QString>
 
 #include <vector>
 #include <string>
@@ -45,7 +44,7 @@ class Layer {
     Layer();
     Layer(const std::string& key, const LayerType layer_type);
     Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
-          const QString& implementation_version, const QString& library_path, const QString& type);
+          const std::string& implementation_version, const std::string& library_path, const std::string& type);
 
     bool IsValid() const;
 
@@ -54,20 +53,20 @@ class Layer {
    public:
     std::string key;
     Version file_format_version;
-    QString _type;
-    QString _library_path;  // This is a relative path, straight out of the json
+    std::string _type;
+    std::string _library_path;  // This is a relative path, straight out of the json
     Version _api_version;
-    QString _implementation_version;
-    QString description;
+    std::string _implementation_version;
+    std::string description;
 
     std::vector<LayerSettingMeta> settings;
     std::vector<LayerPreset> presets;
 
-    QString _layer_path;  // Actual path to the folder that contains the layer (this is important!)
+    std::string _layer_path;  // Actual path to the folder that contains the layer (this is important!)
     LayerType _layer_type;
 
     // File based layers
-    bool Load(const QString& full_path_to_file, LayerType layer_type);
+    bool Load(const std::string& full_path_to_file, LayerType layer_type);
 };
 
 std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerSettingMeta>& layer_settings);

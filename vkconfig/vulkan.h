@@ -22,7 +22,7 @@
 
 #include "../vkconfig_core/version.h"
 
-#include <QString>
+#include <string>
 
 Version GetVulkanLoaderVersion();
-QString GenerateVulkanStatus();
+std::string GenerateVulkanStatus();
