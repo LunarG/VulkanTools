@@ -328,6 +328,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
     for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; ++setting_index) {
         const LayerSettingMeta &layer_setting_meta = layer_setting_metas[setting_index];
+        if (!(layer_setting_meta.platform_flags & (1 << VKC_PLATFORM))) continue;
+
         LayerSettingData *layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());
         assert(layer_setting_data);
 

@@ -78,6 +78,10 @@
                 "key": "debug_enable",
                 "label": "Debug Enable",
                 "description": "Enables debug message output.",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ],
                 "type": "bool_numeric",
                 "default": "1"
             },
@@ -85,6 +89,10 @@
                 "key": "emulate_portability",
                 "label": "Emulate VK_KHR_portability_subset",
                 "description": "Emulate that VK_KHR_portability_subset extension is supported by the device.",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ],
                 "type": "bool_numeric",
                 "default": "1"
             },
