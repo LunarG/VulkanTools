@@ -93,7 +93,8 @@
         "name": "Portability",
         "platforms": [
             "WINDOWS",
-            "LINUX"
+            "LINUX",
+            "MACOS"
         ]
     },
     "file_format_version": "2.1.0"
