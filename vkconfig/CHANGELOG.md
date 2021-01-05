@@ -25,14 +25,14 @@
 ### Features:
 - Refactor built-in configurations #1247
 - Add layer settings presets #1271
-- Add portability default configuration #1279
+- Add *Portability* default configuration on Linux and Windows #1279
 
 ### Improvements:
 - In case of crash or user interruption, remove the layers override #1278
 - Improve layers support since version 1.1.130
 - Improve layer configurations compatibilities between versions
 - Add more tool tips #1296
-- Display the "Vulkan Development Status" each time the layers paths are changed
+- Display the *Vulkan Development Status* each time the layers paths are changed
 
 ### Fixes:
 - Expose missing VK_LAYER_LUNARG_gfxreconstruct 'Log Detailed' setting

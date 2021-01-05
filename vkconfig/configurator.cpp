@@ -46,7 +46,7 @@ Configurator &Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator() : environment(path), layers(environment), request_vulkan_status(true) { CopyResourceFiles(); }
+Configurator::Configurator() : environment(path), layers(environment), request_vulkan_status(true) {}
 
 Configurator::~Configurator() {
     for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
