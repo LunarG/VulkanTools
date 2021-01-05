@@ -24,6 +24,7 @@
 
 ### Features:
 - Add *Synchronization* default configuration #1304
+- Add *Portability* default configuration on macOS #1307
 
 ### Improvements:
 - Add display of VK_LAYER_PATH content in Vulkan Development Status
@@ -34,7 +35,7 @@
 ### Features:
 - Refactor built-in configurations #1247
 - Add layer settings presets #1271
-- Add *Portability* default configuration #1279
+- Add *Portability* default configuration on Linux and Windows #1279
 
 ### Improvements:
 - In case of crash or user interruption, remove the layers override #1278
