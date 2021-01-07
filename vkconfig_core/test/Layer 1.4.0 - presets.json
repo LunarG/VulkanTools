@@ -1,0 +1,56 @@
+{
+    "file_format_version" : "1.4.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_test",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_test.dll",
+        "api_version": "1.2.162",
+        "implementation_version": "2",
+        "description": "test layer",
+        "device_extensions": [
+            {
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
+            }
+        ],
+        "presets": [
+            {
+                "label": "Preset0",
+                "description": "Description0",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "stringA",
+                        "value": "A string0"
+                    }
+                ]
+            },
+            {
+                "label": "Preset1",
+                "description": "Description1",
+                "platforms": [ "WINDOWS" ],
+                "status": "BETA",
+                "settings": [
+                    {
+                        "key": "stringA",
+                        "value": "A string1"
+                    }
+                ]
+            }
+        ],
+        "settings": [
+            {
+                "key": "stringA",
+                "label": "String",
+                "platforms": [ "WINDOWS" ],
+                "description": "string",
+                "type": "string",
+                "default": "A string"
+            }
+        ]
+    }
+}
