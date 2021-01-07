@@ -148,7 +148,7 @@
                 "key": "debug_action",
                 "label": "Debug Action",
                 "description": "This indicates what action is to be taken when a layer wants to report information",
-                "type": "enum",
+                "type": "ENUM",
                 "options": {
                     "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
                     "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
@@ -161,7 +161,7 @@
                 "key": "report_flags",
                 "label": "Message Severity",
                 "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
-                "type": "multi_enum",
+                "type": "FLAGS",
                 "options": {
                     "info": "Info",
                     "warn": "Warn",
@@ -179,14 +179,14 @@
                 "key": "log_filename",
                 "label": "Log Filename",
                 "description": "Specifies the output filename",
-                "type": "save_file",
+                "type": "SAVE_FILE",
                 "default": "stdout"
             },
             {
                 "key": "disables",
                 "label": "Disables",
                 "description": "Setting an option here will disable areas of validation",
-                "type": "multi_enum",
+                "type": "FLAGS",
                 "options": {
                     "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety",
                     "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter",
@@ -207,7 +207,7 @@
                 "key": "enables",
                 "label": "Enables",
                 "description": "Setting an option here will enable specialized areas of validation",
-                "type": "multi_enum",
+                "type": "FLAGS",
                 "options": {
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",

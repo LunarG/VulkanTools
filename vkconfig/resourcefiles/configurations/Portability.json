@@ -1,5 +1,12 @@
 {
+    "file_format_version": "2.2.0",
     "configuration": {
+        "name": "Portability",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
         "description": "Check the Vulkan application is portable to Apple platforms",
         "editor_state": "0110011111111111111111100101111011111000111111111111",
         "layers": [
@@ -45,7 +52,7 @@
                     },
                     {
                         "key": "duplicate_message_limit",
-                        "value": "10"
+                        "value": 10
                     },
                     {
                         "key": "enables",
@@ -72,15 +79,15 @@
                 "settings": [
                     {
                         "key": "debug_enable",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "emulate_portability",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "exit_on_error",
-                        "value": "0"
+                        "value": false
                     },
                     {
                         "key": "filename",
@@ -89,13 +96,6 @@
                 ],
                 "state": "OVERRIDDEN"
             }
-        ],
-        "name": "Portability",
-        "platforms": [
-            "WINDOWS",
-            "LINUX",
-            "MACOS"
         ]
-    },
-    "file_format_version": "2.1.0"
+    }
 }

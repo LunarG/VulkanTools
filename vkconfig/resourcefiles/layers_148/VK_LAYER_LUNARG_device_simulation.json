@@ -21,22 +21,22 @@
                 "key": "filename",
                 "label": "Devsim JSON configuration file",
                 "description": "Path of a devsim configuration file to load.",
-                "type": "load_file",
+                "type": "LOAD_FILE",
                 "default": ""
             },
             {
                 "key": "debug_enable",
                 "label": "Debug Enable",
                 "description": "Enables debug message output.",
-                "type": "bool_numeric",
-                "default": "1"
+                "type": "BOOL_NUMERIC",
+                "default": true
             },
             {
                 "key": "exit_on_error",
                 "label": "Exit on Error",
                 "description": "Enables exit-on-error.",
-                "type": "bool_numeric",
-                "default": "0"
+                "type": "BOOL_NUMERIC",
+                "default": false
             }
         ]
     }

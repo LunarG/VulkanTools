@@ -18,8 +18,8 @@
                 "key": "force_enable",
                 "label": "Force Enable",
                 "description": "Force the layer to be active even if the underlying driver already supports the synchonization2 extension.",
-                "type": "bool",
-                "default": "FALSE"
+                "type": "BOOL",
+                "default": false
             }
         ]
     }
