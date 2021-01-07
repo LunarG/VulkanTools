@@ -74,7 +74,7 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
             setting_value.push_back(QVariant(json_value.toInt()));
             break;
         }
-        case SETTING_RANGE_INT: {
+        case SETTING_INT_RANGE: {
             assert(json_value.isArray());
             const QJsonArray& json_array = json_value.toArray();
             assert(json_array.size() == 2);
@@ -125,7 +125,7 @@ bool SettingValue::Save(const char* key, const SettingType type, QJsonObject& js
             json_object.insert(key, this->setting_value[0].toInt());
             break;
         }
-        case SETTING_RANGE_INT: {
+        case SETTING_INT_RANGE: {
             assert(this->setting_value.size() == 2);
             QJsonArray json_array;
             for (std::size_t i = 0, n = this->setting_value.size(); i < n; ++i) {

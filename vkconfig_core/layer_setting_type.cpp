@@ -21,12 +21,10 @@
 #include "layer_setting_type.h"
 #include "util.h"
 
-#include <cstring>
-
 SettingType GetSettingType(const char* token) {
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
-        if (std::strcmp(token, GetSettingToken(type)) == 0) return type;
+        if (ToUpperCase(token) == GetSettingToken(type)) return type;
     }
 
     assert(0);  // Unknown token
@@ -37,17 +35,17 @@ const char* GetSettingToken(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 
     static const char* table[] = {
-        "string",        // SETTING_STRING
-        "int",           // SETTING_INT
-        "save_file",     // SETTING_SAVE_FILE
-        "load_file",     // SETTING_LOAD_FILE
-        "save_folder",   // SETTING_SAVE_FOLDER
-        "bool",          // SETTING_BOOL
-        "bool_numeric",  // SETTING_BOOL_NUMERIC
-        "enum",          // SETTING_EXCLUSIVE_LIST
-        "multi_enum",    // SETTING_INCLUSIVE_LIST
-        "range",         // SETTING_RANGE_INT
-        "vuid_exclude"   // SETTING_VUID_FILTER
+        "STRING",        // SETTING_STRING
+        "INT",           // SETTING_INT
+        "SAVE_FILE",     // SETTING_SAVE_FILE
+        "LOAD_FILE",     // SETTING_LOAD_FILE
+        "SAVE_FOLDER",   // SETTING_SAVE_FOLDER
+        "BOOL",          // SETTING_BOOL
+        "BOOL_NUMERIC",  // SETTING_BOOL_NUMERIC
+        "ENUM",          // SETTING_EXCLUSIVE_LIST
+        "FLAGS",         // SETTING_INCLUSIVE_LIST
+        "INT_RANGE",     // SETTING_RANGE_INT
+        "VUID_EXCLUDE"   // SETTING_VUID_FILTER
     };
     static_assert(countof(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

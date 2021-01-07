@@ -116,3 +116,7 @@ void AppendString(std::string& delimited_string, const std::string& value);
 std::vector<std::string> ConvertString(const QStringList& string_list);
 
 QStringList ConvertString(const std::vector<std::string>& strings);
+
+std::string ToLowerCase(const std::string& value);
+
+std::string ToUpperCase(const std::string& value);

@@ -88,6 +88,13 @@ int ReadIntValue(const QJsonObject& json_object, const char* key) {
     return json_value.toInt();
 }
 
+bool ReadBoolValue(const QJsonObject& json_object, const char* key) {
+    const QJsonValue& json_value = json_object.value(key);
+    assert(json_value != QJsonValue::Undefined);
+    assert(json_value.isBool());
+    return json_value.toBool();
+}
+
 Version ReadVersionValue(const QJsonObject& json_object, const char* key) {
     const std::string& version_string = ReadStringValue(json_object, key);
     assert(!version_string.empty());

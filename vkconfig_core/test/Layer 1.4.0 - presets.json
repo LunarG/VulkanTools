@@ -48,7 +48,7 @@
                 "label": "String",
                 "platforms": [ "WINDOWS" ],
                 "description": "string",
-                "type": "string",
+                "type": "STRING",
                 "default": "A string"
             }
         ]

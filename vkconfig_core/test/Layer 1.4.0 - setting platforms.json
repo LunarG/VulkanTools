@@ -22,7 +22,7 @@
                 "label": "Windows only setting",
                 "platforms": [ "WINDOWS" ],
                 "description": "windows only setting",
-                "type": "string",
+                "type": "STRING",
                 "default": "WINDOWS"
             },
             {
@@ -30,7 +30,7 @@
                 "label": "Linux only setting",
                 "platforms": [ "LINUX" ],
                 "description": "Linux only setting",
-                "type": "string",
+                "type": "STRING",
                 "default": "LINUX"
             },
             {
@@ -38,7 +38,7 @@
                 "label": "macOS only setting",
                 "platforms": [ "MACOS" ],
                 "description": "macOS only setting",
-                "type": "string",
+                "type": "STRING",
                 "default": "MACOS"
             },
             {
@@ -46,14 +46,14 @@
                 "label": "explicit cross platform setting",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "description": "explicit cross platform setting",
-                "type": "string",
+                "type": "STRING",
                 "default": "ALL"
             },
             {
                 "key": "case4",
                 "label": "implicit cross platform setting",
                 "description": "implicit cross platform setting",
-                "type": "string",
+                "type": "STRING",
                 "default": "ALL"
             },
             {
@@ -61,7 +61,7 @@
                 "label": "multiple platform setting",
                 "platforms": [ "WINDOWS", "MACOS" ],
                 "description": "multiple platform setting",
-                "type": "string",
+                "type": "STRING",
                 "default": "WINDOWS and MACOS"
             }
         ]

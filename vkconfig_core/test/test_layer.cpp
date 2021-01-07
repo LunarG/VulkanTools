@@ -82,17 +82,17 @@ TEST(test_layer, load_v1_4_0_layer_setting_default_value) {
 
     EXPECT_EQ(SETTING_COUNT, layer.settings.size());
 
-    EXPECT_STREQ("value1", FindByKey(layer.settings, "enum")->default_value.c_str());
-    EXPECT_STREQ("flag0,flag1", FindByKey(layer.settings, "flags")->default_value.c_str());
-    EXPECT_STREQ("A string", FindByKey(layer.settings, "string")->default_value.c_str());
-    EXPECT_STREQ("TRUE", FindByKey(layer.settings, "bool")->default_value.c_str());
-    EXPECT_STREQ("1", FindByKey(layer.settings, "bool_numeric")->default_value.c_str());
-    EXPECT_STREQ("./test.txt", FindByKey(layer.settings, "save_file")->default_value.c_str());
-    EXPECT_STREQ("./test", FindByKey(layer.settings, "save_folder")->default_value.c_str());
-    EXPECT_STREQ("./test.txt", FindByKey(layer.settings, "load_file")->default_value.c_str());
-    EXPECT_STREQ("76", FindByKey(layer.settings, "int")->default_value.c_str());
-    EXPECT_STREQ("76-82", FindByKey(layer.settings, "range")->default_value.c_str());
-    EXPECT_STREQ("stringB,stringC", FindByKey(layer.settings, "message_id_filter")->default_value.c_str());
+    EXPECT_STREQ("value1", FindByKey(layer.settings, "ENUM")->default_value.c_str());
+    EXPECT_STREQ("flag0,flag1", FindByKey(layer.settings, "FLAGS")->default_value.c_str());
+    EXPECT_STREQ("A string", FindByKey(layer.settings, "STRING")->default_value.c_str());
+    EXPECT_STREQ("TRUE", FindByKey(layer.settings, "BOOL")->default_value.c_str());
+    EXPECT_STREQ("1", FindByKey(layer.settings, "BOOL_NUMERIC")->default_value.c_str());
+    EXPECT_STREQ("./test.txt", FindByKey(layer.settings, "SAVE_FILE")->default_value.c_str());
+    EXPECT_STREQ("./test", FindByKey(layer.settings, "SAVE_FOLDER")->default_value.c_str());
+    EXPECT_STREQ("./test.txt", FindByKey(layer.settings, "LOAD_FILE")->default_value.c_str());
+    EXPECT_STREQ("76", FindByKey(layer.settings, "INT")->default_value.c_str());
+    EXPECT_STREQ("76-82", FindByKey(layer.settings, "INT_RANGE")->default_value.c_str());
+    EXPECT_STREQ("stringB,stringC", FindByKey(layer.settings, "VUID_EXCLUDE")->default_value.c_str());
 }
 
 TEST(test_layer, load_v1_4_0_layer_preset) {
