@@ -25,7 +25,7 @@
                 "settings": [
                     {
                         "key": "emulate_portability",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "filename",
@@ -41,7 +41,7 @@
                 "settings": [
                     {
                         "key": "emulate_portability",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "filename",
@@ -57,7 +57,7 @@
                 "settings": [
                     {
                         "key": "emulate_portability",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "filename",
@@ -71,7 +71,7 @@
                 "key": "filename",
                 "label": "Devsim JSON configuration file",
                 "description": "Path of a devsim configuration file to load.",
-                "type": "load_file",
+                "type": "LOAD_FILE",
                 "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
             },
             {
@@ -82,8 +82,8 @@
                     "WINDOWS",
                     "LINUX"
                 ],
-                "type": "bool_numeric",
-                "default": "1"
+                "type": "BOOL_NUMERIC",
+                "default": true
             },
             {
                 "key": "emulate_portability",
@@ -93,15 +93,15 @@
                     "WINDOWS",
                     "LINUX"
                 ],
-                "type": "bool_numeric",
-                "default": "1"
+                "type": "BOOL_NUMERIC",
+                "default": true
             },
             {
                 "key": "exit_on_error",
                 "label": "Exit on Error",
                 "description": "Enables exit-on-error.",
-                "type": "bool_numeric",
-                "default": "0"
+                "type": "BOOL_NUMERIC",
+                "default": false
             }
         ]
     }

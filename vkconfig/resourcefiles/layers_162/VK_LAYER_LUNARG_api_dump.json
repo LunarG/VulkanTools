@@ -32,91 +32,91 @@
                 "key": "detailed",
                 "label": "Detailed Output",
                 "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
-                "type": "bool",
-                "default": "TRUE"
+                "type": "BOOL",
+                "default": true
             },
             {
                 "key": "no_addr",
                 "label": "Hide Addresses",
                 "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
-                "type": "bool",
-                "default": "FALSE"
+                "type": "BOOL",
+                "default": false
             },
             {
                 "key": "file",
                 "label": "Output to File",
                 "description": "Setting this to true indicates that output should be written to file instead of stdout",
-                "type": "bool",
-                "default": "FALSE"
+                "type": "BOOL",
+                "default": false
             },
             {
                 "key": "log_filename",
                 "label": "Log Filename",
                 "description": "Specifies the file to dump to when output files are enabled",
-                "type": "save_file",
+                "type": "SAVE_FILE",
                 "default": "vk_apidump.txt"
             },
             {
                 "key": "flush",
                 "label": "Log Flush After Write",
                 "description": "Setting this to true causes IO to be flushed after each API call that is written",
-                "type": "bool",
-                "default": "TRUE"
+                "type": "BOOL",
+                "default": true
             },
             {
                 "key": "indent_size",
                 "label": "Indent Size",
                 "description": "Specifies the number of spaces that a tab is equal to",
-                "type": "string",
-                "default": "4"
+                "type": "INT",
+                "default": 4
             },
             {
                 "key": "show_types",
                 "label": "Show Types",
                 "description": "Setting this to true causes types to be dumped in addition to values",
-                "type": "bool",
-                "default": "TRUE"
+                "type": "BOOL",
+                "default": true
             },
             {
                 "key": "name_size",
                 "label": "Name Size",
                 "description": "The number of characters the name of a variable should consume, assuming more are not required",
-                "type": "string",
-                "default": "32"
+                "type": "INT",
+                "default": 32
             },
             {
                 "key": "type_size",
                 "label": "Type Size",
                 "description": "The number of characters the name of a type should consume, assuming more are not required",
-                "type": "string",
-                "default": "0"
+                "type": "INT",
+                "default": 0
             },
             {
                 "key": "use_spaces",
                 "label": "Use Spaces",
                 "description": "Setting this to true causes all tab characters to be replaced with spaces",
-                "type": "bool",
-                "default": "TRUE"
+                "type": "BOOL",
+                "default": true
             },
             {
                 "key": "show_timestamp",
                 "label": "Show Timestamp",
                 "description": "Show the timestamp of function calls since start in microseconds",
-                "type": "bool",
-                "default": "FALSE"
+                "type": "BOOL",
+                "default": false
             },
             {
                 "key": "show_shader",
                 "label": "Show Shader",
                 "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
-                "type": "bool",
-                "default": "FALSE"
+                "type": "BOOL",
+                "default": false
             },
             {
                 "key": "output_range",
                 "label": "Output Range",
                 "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
-                "type": "string",
+                "type": "INT_RANGE",
                 "default": "0-0"
             }            
         ]

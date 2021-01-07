@@ -1,5 +1,12 @@
 {
+    "file_format_version": "2.2.0",
     "configuration": {
+        "name": "Synchronization",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
         "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
         "editor_state": "011100111111111111111111010111111111100111011111",
         "layers": [
@@ -9,7 +16,7 @@
                 "settings": [
                     {
                         "key": "force_enable",
-                        "value": "FALSE"
+                        "value": false
                     }
                 ],
                 "state": "OVERRIDDEN"
@@ -32,7 +39,7 @@
                     },
                     {
                         "key": "duplicate_message_limit",
-                        "value": "10"
+                        "value": 10
                     },
                     {
                         "key": "message_id_filter",
@@ -48,30 +55,23 @@
                     },
                     {
                         "key": "gpuav_buffer_oob",
-                        "value": "FALSE"
+                        "value": false
                     },
                     {
                         "key": "printf_to_stdout",
-                        "value": "TRUE"
+                        "value": true
                     },
                     {
                         "key": "printf_verbose",
-                        "value": "FALSE"
+                        "value": false
                     },
                     {
                         "key": "printf_buffer_size",
-                        "value": "1024"
+                        "value": 1024
                     }
                 ],
                 "state": "OVERRIDDEN"
             }
-        ],
-        "name": "Synchronization",
-        "platforms": [
-            "WINDOWS",
-            "LINUX",
-            "MACOS"
         ]
-    },
-    "file_format_version": "2.1.0"
+    }
 }

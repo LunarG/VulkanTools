@@ -20,21 +20,21 @@
                 "key": "frames",
                 "label": "Frames",
                 "description": "Comma separated list of frames to output as screen shots or a range of frames with a start, count, and optional interval separated by a dash. Setting the variable to \"all\" will output every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
-                "type": "string",
+                "type": "STRING",
                 "default": ""
             },
             {
                 "key": "dir",
                 "label": "Directory",
                 "description": "This can be set to specify the directory in which to create the screenshot files.",
-                "type": "save_folder",
+                "type": "SAVE_FOLDER",
                 "default": ""
             },
             {
                 "key": "format",
                 "label": "Format",
                 "description": "This can be set to a color space for the output.",
-                "type": "enum",
+                "type": "ENUM",
                 "options": {
                     "UNORM": "UNORM",
                     "SNORM": "SNORM",

@@ -172,7 +172,7 @@
                 "key": "debug_action",
                 "label": "Debug Action",
                 "description": "This indicates what action is to be taken when a layer wants to report information",
-                "type": "enum",
+                "type": "ENUM",
                 "options": {
                     "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
                     "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
@@ -185,7 +185,7 @@
                 "key": "report_flags",
                 "label": "Message Severity",
                 "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
-                "type": "multi_enum",
+                "type": "FLAGS",
                 "options": {
                     "info": "Info",
                     "warn": "Warn",
@@ -203,21 +203,21 @@
                 "key": "log_filename",
                 "label": "Log Filename",
                 "description": "Specifies the output filename",
-                "type": "save_file",
+                "type": "SAVE_FILE",
                 "default": "stdout"
             },
             {
                 "key": "duplicate_message_limit",
                 "label": "Duplicated Messages Limit",
                 "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
-                "type": "string",
-                "default": "10"
+                "type": "INT",
+                "default": 10
             },
             {
                 "key": "message_id_filter",
                 "label": "Mute Message VUIDs",
                 "description": "List of VUIDs and VUID identifers which are to be IGNORED by the validation layer",
-                "type": "vuid_exclude",
+                "type": "VUID_EXCLUDE",
                 "options": [
                     "VUID-VkAabbPositionsKHR-minX-03546",
                     "VUID-VkAabbPositionsKHR-minY-03547",
@@ -6685,7 +6685,7 @@
                 "key": "disables",
                 "label": "Disables",
                 "description": "Setting an option here will disable areas of validation",
-                "type": "multi_enum",
+                "type": "FLAGS",
                 "options": {
                     "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety",
                     "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter",
@@ -6706,7 +6706,7 @@
                 "key": "enables",
                 "label": "Enables",
                 "description": "Setting an option here will enable specialized areas of validation",
-                "type": "multi_enum",
+                "type": "FLAGS",
                 "options": {
                     "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT": "Debug printf",
                     "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
