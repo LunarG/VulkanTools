@@ -143,7 +143,7 @@
             {
                 "label": "GPU-Assisted",
                 "description": "Check for API usage errors at shader execution time.",
-                "platforms": [ "WINDOWS", "LINUX" ],
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
                     {
@@ -168,7 +168,7 @@
             {
                 "label": "Shader Printf",
                 "description": "Debug shader code by \"printing\" any values of interest to the debug callback or stdout.",
-                "platforms": [ "WINDOWS", "LINUX" ],
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
                     {

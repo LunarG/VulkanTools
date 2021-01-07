@@ -1,0 +1,116 @@
+{
+    "file_format_version" : "1.4.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_test",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_test.dll",
+        "api_version": "1.2.162",
+        "implementation_version": "2",
+        "description": "test layer",
+        "device_extensions": [
+            {
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
+            }
+        ],
+        "settings": [
+            {
+                "key": "enum",
+                "label": "enum",
+                "platforms": [ "WINDOWS" ],
+                "description": "enum case",
+                "type": "enum",
+                "options": {
+                    "value0": "Value 0",
+                    "value1": "Value 1",
+                    "value2": "Value 2"
+                },
+                "default": "value1"
+            },
+            {
+                "key": "flags",
+                "label": "flags",
+                "description": "flags case",
+                "type": "multi_enum",
+                "options": {
+                    "flag0": "Flag 0",
+                    "flag1": "Flag 1",
+                    "flag2": "Flag 2"
+                },
+                "default": [ "flag0", "flag1" ]
+            },
+            {
+                "key": "string",
+                "label": "String",
+                "platforms": [ "WINDOWS" ],
+                "description": "string",
+                "type": "string",
+                "default": "A string"
+            },
+            {
+                "key": "bool",
+                "label": "bool",
+                "description": "true or false",
+                "type": "bool",
+                "default": "TRUE"
+            },
+            {
+                "key": "bool_numeric",
+                "label": "bool numeric",
+                "description": "1 or 0",
+                "type": "bool_numeric",
+                "default": "1"
+            },
+            {
+                "key": "save_file",
+                "label": "Save file",
+                "description": "Save file path",
+                "type": "save_file",
+                "default": "./test.txt"
+            },
+            {
+                "key": "save_folder",
+                "label": "Save folder",
+                "description": "Save folder path",
+                "type": "save_folder",
+                "default": "./test"
+            },
+            {
+                "key": "load_file",
+                "label": "Load file",
+                "description": "Load file path",
+                "type": "load_file",
+                "default": "./test.txt"
+            },
+            {
+                "key": "int",
+                "label": "Integer",
+                "description": "Integer",
+                "type": "int",
+                "default": "76"
+            },
+            {
+                "key": "range",
+                "label": "Integer Range",
+                "description": "Range",
+                "type": "range",
+                "default": "76-82"
+            },
+            {
+                "key": "message_id_filter",
+                "label": "string list",
+                "description": "list of strings",
+                "type": "vuid_exclude",
+                "options": [
+                    "stringA",
+                    "stringB",
+                    "stringC"
+                ],
+                "default": "stringB,stringC"
+            }
+        ]
+    }
+}
