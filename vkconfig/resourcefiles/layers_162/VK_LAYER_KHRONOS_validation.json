@@ -233,8 +233,8 @@
                 "key": "duplicate_message_limit",
                 "label": "Duplicated Messages Limit",
                 "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
-                "type": "string",
-                "default": "10"
+                "type": "int",
+                "default": 10
             },
             {
                 "key": "message_id_filter",
@@ -6745,28 +6745,28 @@
                 "label": "Buffer out of bounds check",
                 "description": "Enable buffer out of bounds checking",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             {
                 "key": "printf_to_stdout",
                 "label": "Printf to stdout",
                 "description": "To redirect Debug Printf messages from the debug callback to stdout",
                 "type": "bool",
-                "default": "TRUE"
+                "default": true
             },
             {
                 "key": "printf_verbose",
                 "label": "Verbose",
                 "description": "Verbosity of debug printf messages",
                 "type": "bool",
-                "default": "FALSE"
+                "default": false
             },
             {
                 "key": "printf_buffer_size",
                 "label": "Printf buffer size",
                 "description": "The size in bytes of the buffer used by debug printf",
-                "type": "string",
-                "default": "1024"
+                "type": "int",
+                "default": 1024
             }
         ]
     }

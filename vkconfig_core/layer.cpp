@@ -154,7 +154,6 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
             else
                 setting.platform_flags = PLATFORM_ALL_BIT;
             setting.type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
-            setting.default_value = ReadString(json_setting, "default");
 
             switch (setting.type) {
                 case SETTING_EXCLUSIVE_LIST:
@@ -172,10 +171,12 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         setting.enum_values << key;
                         setting.enum_labels << default_value;
                     }
+
+                    setting.default_value = ReadString(json_setting, "default").c_str();
                 } break;
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE: {
-                    setting.default_value = setting.default_value.c_str();
+                    setting.default_value = ReadString(json_setting, "default").c_str();
                 } break;
                 case SETTING_VUID_FILTER: {
                     const QJsonValue& json_value_options = json_setting.value("options");
@@ -185,13 +186,25 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     for (int i = 0, n = json_value_array.size(); i < n; ++i) {
                         setting.enum_values.append(json_value_array[i].toString());
                     }
+                    setting.default_value = ReadString(json_setting, "default").c_str();
                 } break;
-                case SETTING_SAVE_FOLDER:
-                case SETTING_BOOL:
-                case SETTING_BOOL_NUMERIC:
-                case SETTING_STRING:
-                case SETTING_INT:
+                case SETTING_SAVE_FOLDER: {
+                    setting.default_value = ReadString(json_setting, "default").c_str();
                     break;
+                }
+                case SETTING_BOOL_NUMERIC:
+                case SETTING_BOOL: {
+                    setting.default_value = ReadBoolValue(json_setting, "default");
+                    break;
+                }
+                case SETTING_STRING: {
+                    setting.default_value = ReadString(json_setting, "default").c_str();
+                    break;
+                }
+                case SETTING_INT: {
+                    setting.default_value = ReadIntValue(json_setting, "default");
+                    break;
+                }
                 default:
                     assert(0);
                     break;
@@ -240,7 +253,7 @@ std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerS
     std::vector<LayerSettingData> result;
 
     for (std::size_t i = 0, n = meta.size(); i < n; ++i) {
-        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].default_value.c_str()));
+        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].default_value.toString().toStdString().c_str()));
     }
 
     return result;

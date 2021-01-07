@@ -232,7 +232,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         if (layer_setting_data == nullptr) {
             LayerSettingData new_layer_setting_data;
             new_layer_setting_data.key = layer_setting_meta.key;
-            new_layer_setting_data.value = layer_setting_meta.default_value;
+            new_layer_setting_data.value = layer_setting_meta.default_value.toString().toStdString();
             parameter.settings.push_back(new_layer_setting_data);
 
             layer_setting_data = FindByKey(parameter.settings, layer_setting_meta.key.c_str());

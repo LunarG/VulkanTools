@@ -81,6 +81,13 @@ std::string ReadString(const QJsonObject& json_object, const char* key) {
     }
 }
 
+bool ReadBoolValue(const QJsonObject& json_object, const char* key) {
+    const QJsonValue& json_value = json_object.value(key);
+    assert(json_value != QJsonValue::Undefined);
+    assert(json_value.isBool());
+    return json_value.toBool();
+}
+
 int ReadIntValue(const QJsonObject& json_object, const char* key) {
     const QJsonValue& json_value = json_object.value(key);
     assert(json_value != QJsonValue::Undefined);

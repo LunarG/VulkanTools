@@ -39,7 +39,7 @@ struct LayerSettingMeta {
     QVariant min_value;  // For range based
     QStringList enum_values;
     QStringList enum_labels;
-    std::string default_value;  // Default value as a string
+    QVariant default_value;  // Default value as a string
 };
 
 bool HasValue(const QStringList& values, const char* searched_value);

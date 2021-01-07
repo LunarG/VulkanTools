@@ -40,6 +40,9 @@ std::vector<std::string> ReadStringArray(const QJsonObject& json_object, const c
 // Read a concatenated string from the json_object
 std::string ReadString(const QJsonObject& json_object, const char* key);
 
+// Read a bool value from the json_object
+bool ReadBoolValue(const QJsonObject& json_object, const char* key);
+
 // Read an int value from the json_object
 int ReadIntValue(const QJsonObject& json_object, const char* key);
 

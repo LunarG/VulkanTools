@@ -1,0 +1,76 @@
+{
+    "file_format_version" : "1.4.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_test",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_test.dll",
+        "api_version": "1.2.162",
+        "implementation_version": "2",
+        "description": "test layer",
+        "device_extensions": [
+            {
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
+            }
+        ],
+        "settings": [
+            {
+                "key": "enum",
+                "label": "enum",
+                "description": "enum case",
+                "type": "enum",
+                "options": {
+                    "key0": "value0",
+                    "key1": "value1",
+                    "key2": "value2"
+                },
+                "default": "value0"
+            },
+            {
+                "key": "detailed",
+                "label": "Detailed Output",
+                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
+                "type": "bool",
+                "default": true
+            },
+            {
+                "key": "detailed",
+                "label": "Detailed Output",
+                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
+                "type": "bool",
+                "default": true
+            },
+            {
+                "key": "log_filename",
+                "label": "Log Filename",
+                "description": "Specifies the file to dump to when output files are enabled",
+                "type": "save_file",
+                "default": "vk_apidump.txt"
+            },
+            {
+                "key": "log_filename",
+                "label": "Log Filename",
+                "description": "Specifies the file to dump to when output files are enabled",
+                "type": "save_file",
+                "default": "vk_apidump.txt"
+            },
+            {
+                "key": "indent_size",
+                "label": "Indent Size",
+                "description": "Specifies the number of spaces that a tab is equal to",
+                "type": "int",
+                "default": 4
+            },
+            {
+                "key": "output_range",
+                "label": "Output Range",
+                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "string",
+                "default": "0-0"
+            }
+        ]
+    }
+}

@@ -25,7 +25,7 @@
                 "settings": [
                     {
                         "key": "emulate_portability",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "filename",
@@ -41,7 +41,7 @@
                 "settings": [
                     {
                         "key": "emulate_portability",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "filename",
@@ -57,7 +57,7 @@
                 "settings": [
                     {
                         "key": "emulate_portability",
-                        "value": "1"
+                        "value": true
                     },
                     {
                         "key": "filename",
@@ -83,7 +83,7 @@
                     "LINUX"
                 ],
                 "type": "bool_numeric",
-                "default": "1"
+                "default": true
             },
             {
                 "key": "emulate_portability",
@@ -94,14 +94,14 @@
                     "LINUX"
                 ],
                 "type": "bool_numeric",
-                "default": "1"
+                "default": true
             },
             {
                 "key": "exit_on_error",
                 "label": "Exit on Error",
                 "description": "Enables exit-on-error.",
                 "type": "bool_numeric",
-                "default": "0"
+                "default": false
             }
         ]
     }

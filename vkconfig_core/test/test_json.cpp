@@ -97,3 +97,17 @@ TEST(test_json, read_int_value) {
 
     EXPECT_EQ(76, ReadIntValue(json_object, "key"));
 }
+
+TEST(test_json, read_bool_value_true) {
+    QJsonObject json_object;
+    json_object.insert("key", true);
+
+    EXPECT_EQ(true, ReadBoolValue(json_object, "key"));
+}
+
+TEST(test_json, read_bool_value_true) {
+    QJsonObject json_object;
+    json_object.insert("key", false);
+
+    EXPECT_EQ(false, ReadBoolValue(json_object, "key"));
+}
