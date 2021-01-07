@@ -18,11 +18,11 @@
         ],
         "settings": [
             {
-                "key": "enum",
+                "key": "ENUM",
                 "label": "enum",
                 "platforms": [ "WINDOWS" ],
                 "description": "enum case",
-                "type": "enum",
+                "type": "ENUM",
                 "options": {
                     "value0": "Value 0",
                     "value1": "Value 1",
@@ -31,10 +31,10 @@
                 "default": "value1"
             },
             {
-                "key": "flags",
+                "key": "FLAGS",
                 "label": "flags",
                 "description": "flags case",
-                "type": "multi_enum",
+                "type": "FLAGS",
                 "options": {
                     "flag0": "Flag 0",
                     "flag1": "Flag 1",
@@ -43,67 +43,67 @@
                 "default": [ "flag0", "flag1" ]
             },
             {
-                "key": "string",
+                "key": "STRING",
                 "label": "String",
                 "platforms": [ "WINDOWS" ],
                 "description": "string",
-                "type": "string",
+                "type": "STRING",
                 "default": "A string"
             },
             {
-                "key": "bool",
+                "key": "BOOL",
                 "label": "bool",
                 "description": "true or false",
-                "type": "bool",
-                "default": "TRUE"
+                "type": "BOOL",
+                "default": true
             },
             {
-                "key": "bool_numeric",
+                "key": "BOOL_NUMERIC",
                 "label": "bool numeric",
                 "description": "1 or 0",
-                "type": "bool_numeric",
-                "default": "1"
+                "type": "BOOL_NUMERIC",
+                "default": true
             },
             {
-                "key": "save_file",
+                "key": "SAVE_FILE",
                 "label": "Save file",
                 "description": "Save file path",
-                "type": "save_file",
+                "type": "SAVE_FILE",
                 "default": "./test.txt"
             },
             {
-                "key": "save_folder",
+                "key": "SAVE_FOLDER",
                 "label": "Save folder",
                 "description": "Save folder path",
-                "type": "save_folder",
+                "type": "SAVE_FOLDER",
                 "default": "./test"
             },
             {
-                "key": "load_file",
+                "key": "LOAD_FILE",
                 "label": "Load file",
                 "description": "Load file path",
-                "type": "load_file",
+                "type": "LOAD_FILE",
                 "default": "./test.txt"
             },
             {
-                "key": "int",
+                "key": "INT",
                 "label": "Integer",
                 "description": "Integer",
-                "type": "int",
-                "default": "76"
+                "type": "INT",
+                "default": 76
             },
             {
-                "key": "range",
+                "key": "INT_RANGE",
                 "label": "Integer Range",
                 "description": "Range",
-                "type": "range",
+                "type": "INT_RANGE",
                 "default": "76-82"
             },
             {
-                "key": "message_id_filter",
+                "key": "VUID_EXCLUDE",
                 "label": "string list",
                 "description": "list of strings",
-                "type": "vuid_exclude",
+                "type": "VUID_EXCLUDE",
                 "options": [
                     "stringA",
                     "stringB",

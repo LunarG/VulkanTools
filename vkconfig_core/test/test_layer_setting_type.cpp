@@ -28,9 +28,9 @@ TEST(test_setting_type, is_enum_true2) { EXPECT_EQ(true, IsEnum(SETTING_INCLUSIV
 
 TEST(test_setting_type, is_enum_false) { EXPECT_EQ(false, IsEnum(SETTING_STRING)); }
 
-TEST(test_setting_type, get_setting_token) { EXPECT_STREQ("string", GetSettingToken(SETTING_STRING)); }
+TEST(test_setting_type, get_setting_token) { EXPECT_STREQ("STRING", GetSettingToken(SETTING_STRING)); }
 
-TEST(test_setting_type, get_setting_type) { EXPECT_EQ(SETTING_STRING, GetSettingType("string")); }
+TEST(test_setting_type, get_setting_type) { EXPECT_EQ(SETTING_STRING, GetSettingType("STRING")); }
 
 TEST(test_setting_type, get_setting_save_file) { EXPECT_TRUE(IsPath(SETTING_SAVE_FILE)); }
 

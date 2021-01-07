@@ -346,6 +346,14 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
+            case SETTING_INT: {  // TODO
+                StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);
+                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                setting_item->addChild(place_holder);
+                _settings_tree->setItemWidget(place_holder, 0, widget);
+                connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            } break;
+
             case SETTING_SAVE_FILE:    // Save a file?
             case SETTING_LOAD_FILE:    // Load a file?
             case SETTING_SAVE_FOLDER:  // Save to folder?
@@ -371,6 +379,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
+            case SETTING_INT_RANGE:
             case SETTING_STRING:  // Raw text field?
             {
                 StringSettingWidget *widget = new StringSettingWidget(setting_item, layer_setting_meta, *layer_setting_data);

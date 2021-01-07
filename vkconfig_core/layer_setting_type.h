@@ -32,7 +32,7 @@ enum SettingType {  // Enum value can't be changed
     SETTING_BOOL_NUMERIC,  // Deprecated
     SETTING_EXCLUSIVE_LIST,
     SETTING_INCLUSIVE_LIST,
-    SETTING_RANGE_INT,
+    SETTING_INT_RANGE,
     SETTING_VUID_FILTER,
 
     SETTING_FIRST = SETTING_STRING,

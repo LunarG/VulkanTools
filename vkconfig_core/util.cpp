@@ -30,7 +30,8 @@
 
 #include <QString>
 #include <QStringList>
-#include <QDir>
+
+#include <cctype>
 
 std::string format(const char* message, ...) {
     std::size_t const STRING_BUFFER(4096);
@@ -102,4 +103,24 @@ QStringList ConvertString(const std::vector<std::string>& strings) {
     }
 
     return string_list;
+}
+
+std::string ToLowerCase(const std::string& value) {
+    std::string result = value;
+
+    for (std::size_t i = 0, n = result.size(); i < n; ++i) {
+        result[i] = std::tolower(result[i]);
+    }
+
+    return result;
+}
+
+std::string ToUpperCase(const std::string& value) {
+    std::string result = value;
+
+    for (std::size_t i = 0, n = result.size(); i < n; ++i) {
+        result[i] = std::toupper(result[i]);
+    }
+
+    return result;
 }
