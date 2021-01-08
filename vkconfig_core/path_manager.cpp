@@ -46,6 +46,7 @@ static const DirectoryDesc& GetDesc(PathType directory) {
 
     static const DirectoryDesc table[] = {
         {"configuration", ".json", nullptr, nullptr, false, PATH_CONFIGURATION},                        // PATH_CONFIGURATION
+        {"configuration", ".json", nullptr, nullptr, false, PATH_CONFIGURATION_LEGACY},                 // PATH_CONFIGURATION_LEGACY
         {"override settings", ".txt", nullptr, "vk_layer_settings", false, PATH_OVERRIDE_SETTINGS},     // PATH_OVERRIDE_SETTINGS
         {"override layers", ".json", nullptr, "VkLayer_override", false, PATH_OVERRIDE_LAYERS},         // PATH_OVERRIDE_LAYERS
         {"configuration import", ".json", "lastImportPath", nullptr, true, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
@@ -100,6 +101,7 @@ bool PathManager::Load() {
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
     SetPath(PATH_CONFIGURATION, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
+    SetPath(PATH_CONFIGURATION_LEGACY, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_LEGACY));
     SetPath(PATH_OVERRIDE_LAYERS, base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
     SetPath(PATH_OVERRIDE_SETTINGS, base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
 

@@ -29,7 +29,8 @@
 #include <string>
 
 enum PathType {
-    PATH_CONFIGURATION = 0,              // Where config working files live
+    PATH_CONFIGURATION = 0,              // Where configuration files live
+    PATH_CONFIGURATION_LEGACY,           // Where legacy 2.0 configuration files live
     PATH_OVERRIDE_SETTINGS,              // Where settings go when profile is active
     PATH_OVERRIDE_LAYERS,                // Where json goes when profile is active
     PATH_IMPORT_CONFIGURATION,           // The last path used by the user to import a configuration

@@ -59,19 +59,49 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
         environment.first_run = false;
     }
 
-    const QFileInfoList &configuration_files = GetJSONFiles(path_manager.GetPath(PATH_CONFIGURATION).c_str());
+    LoadConfigurationsPath(available_layers, path_manager, PATH_CONFIGURATION);
+    if (SUPPORT_VKCONFIG_2_0_3) LoadConfigurationsPath(available_layers, path_manager, PATH_CONFIGURATION_LEGACY);
+
+    RefreshConfiguration(available_layers, environment);
+}
+
+static bool IsConfigurationExcluded(const char *filename) {
+    static const char *EXCLUDED_FILENAMES[] = {"Validation - Synchronization (Alpha).json",
+                                               "Validation - Standard.json",
+                                               "Validation - Reduced-Overhead.json",
+                                               "Validation - GPU-Assisted.json",
+                                               "Validation - Debug Printf.json",
+                                               "Validation - Shader Printf.json",
+                                               "Validation - Best Practices.json",
+                                               "Frame Capture - Range (F5 to start and to stop).json",
+                                               "Frame Capture - Range (F10 to start and to stop).json",
+                                               "Frame Capture - First two frames.json",
+                                               "applist.json"};
+
+    for (std::size_t i = 0, n = countof(EXCLUDED_FILENAMES); i < n; ++i) {
+        if (std::strcmp(EXCLUDED_FILENAMES[i], filename) == 0) return true;
+    }
+
+    return false;
+}
+
+void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers, const PathManager &path_manager,
+                                                  PathType path_type) {
+    const QFileInfoList &configuration_files = GetJSONFiles(path_manager.GetPath(path_type).c_str());
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-        const QFileInfo &info = configuration_files.at(i);
+        const QFileInfo &info = configuration_files[i];
+        if (SUPPORT_VKCONFIG_2_0_3 && IsConfigurationExcluded(info.fileName().toStdString().c_str())) continue;
 
         Configuration configuration;
         const bool result = configuration.Load(available_layers, info.absoluteFilePath().toStdString());
+
+        if (FindByKey(available_configurations, configuration.key.c_str()) != nullptr) continue;
+
         OrderParameter(configuration.parameters, available_layers);
         if (result) {
             available_configurations.push_back(configuration);
         }
     }
-
-    RefreshConfiguration(available_layers, environment);
 }
 
 void ConfigurationManager::SaveAllConfigurations(const std::vector<Layer> &available_layers, const PathManager &path_manager) {
