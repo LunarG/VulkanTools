@@ -211,7 +211,7 @@ void MainWindow::UpdateUI() {
         const Application &application = environment.GetActiveApplication();
         _launcher_arguments->setText(application.arguments.c_str());
         _launcher_working->setText(application.working_folder.c_str());
-        _launcher_log_file_edit->setText(application.log_file.c_str());
+        _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
     }
 
     _launcher_apps_combo->blockSignals(false);
@@ -1023,8 +1023,9 @@ void MainWindow::launchSetLogFile() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    const std::string path = Configurator::Get().path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file.c_str());
+    Configurator &configurator = Configurator::Get();
+    Application &application = configurator.environment.GetApplication(current_application_index);
+    const std::string path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file.c_str());
 
     // The user has cancel the operation
     if (path.empty()) return;
@@ -1037,8 +1038,9 @@ void MainWindow::launchSetWorkingFolder() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    const std::string path = Configurator::Get().path.SelectPath(this, PATH_WORKING_DIR, application.working_folder.c_str());
+    Configurator &configurator = Configurator::Get();
+    Application &application = configurator.environment.GetApplication(current_application_index);
+    const std::string path = configurator.path.SelectPath(this, PATH_WORKING_DIR, application.working_folder.c_str());
 
     // The user has cancel the operation
     if (path.empty()) return;
@@ -1075,7 +1077,7 @@ void MainWindow::launchItemChanged(int application_index) {
     Application &application = environment.GetApplication(application_index);
     _launcher_arguments->setText(application.arguments.c_str());
     _launcher_working->setText(application.working_folder.c_str());
-    _launcher_log_file_edit->setText(application.log_file.c_str());
+    _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
 }
 
 /// New command line arguments. Update them.
@@ -1234,20 +1236,22 @@ void MainWindow::on_push_button_launcher_clicked() {
         }
     }
 
+    const std::string actual_log_file = ReplaceBuiltInVariable(active_application.log_file.c_str());
+
     assert(!active_application.executable_path.empty());
     launch_log += format("- Executable Path: %s\n", active_application.executable_path.c_str());
     assert(!active_application.working_folder.empty());
     launch_log += format("- Working Directory: %s\n", active_application.working_folder.c_str());
     if (!active_application.arguments.empty())
         launch_log += format("- Command-line Arguments: %s\n", active_application.arguments.c_str());
-    if (!active_application.log_file.empty()) launch_log += format("- Log file: %s\n", active_application.log_file.c_str());
+    if (!actual_log_file.empty()) launch_log += format("- Log file: %s\n", actual_log_file.c_str());
 
-    if (!active_application.log_file.empty()) {
+    if (!actual_log_file.empty()) {
         // Start logging
         // Make sure the log file is not already opened. This can occur if the
         // launched application is closed from the applicaiton.
         if (!_log_file.isOpen()) {
-            _log_file.setFileName(active_application.log_file.c_str());
+            _log_file.setFileName(actual_log_file.c_str());
 
             // Open and append, or open and truncate?
             QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;

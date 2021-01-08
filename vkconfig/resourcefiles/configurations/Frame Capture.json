@@ -20,7 +20,7 @@
                     "type": "enum"
                 },
                 "capture_file": {
-                    "default": "${HOME}/VulkanSDK/gfxrecon_capture.gfxr",
+                    "default": "${LOCAL}/gfxrecon_capture.gfxr",
                     "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
                     "name": "Capture File Name",
                     "type": "save_file"

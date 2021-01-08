@@ -676,7 +676,7 @@ static Application CreateDefaultApplication(const DefaultApplication& default_ap
     // initially will be set to the users home folder across all OS's. This is highly visible
     // in the application launcher and should not present a usability issue. The developer can
     // easily change this later to anywhere they like.
-    application.log_file = GetPath(BUILTIN_PATH_HOME) + default_application.key + ".txt";
+    application.log_file = std::string("${LOCAL}") + default_application.key + ".txt";
 
     return application;
 }
