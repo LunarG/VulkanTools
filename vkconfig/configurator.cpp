@@ -127,17 +127,7 @@ bool Configurator::Init() {
     LoadAllConfigurations();
 
     if (available_configurations.empty()) {
-        QMessageBox alert;
-        alert.setWindowTitle("Vulkan Configurator couldn't find any layers configuration.");
-        alert.setText(
-            "A layers configuration is required to override Vulkan layers but none could be found during the initialization...");
-        alert.setInformativeText("Restoring the default layers configurations.");
-        alert.setStandardButtons(QMessageBox::Ok);
-        alert.setDefaultButton(QMessageBox::Ok);
-        alert.setIcon(QMessageBox::Warning);
-        if (alert.exec() == QMessageBox::Ok) {
-            ResetDefaultsConfigurations();
-        }
+        ResetDefaultsConfigurations();
     }
 
     if (HasActiveConfiguration()) {
