@@ -62,11 +62,11 @@ std::string GetPath(BuiltinPath path) {
         case BUILTIN_PATH_LOCAL:
             return GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL);
         case BUILTIN_PATH_VULKAN_SDK: {
-            std::string path(qgetenv("VULKAN_SDK").toStdString());
-            if (path.empty()) {
+            QString path(qgetenv("VULKAN_SDK"));
+            if (path.isEmpty()) {
                 path = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_DEFAULT);
             }
-            return ConvertNativeSeparators(path);
+            return ConvertNativeSeparators(path.toStdString());
         }
         case BUILTIN_PATH_VULKAN_LAYER_CONFIG: {
             return ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) +
