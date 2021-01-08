@@ -30,6 +30,7 @@
 
 enum PathType {
     PATH_CONFIGURATION = 0,     // Where config working files live
+    PATH_CONFIGURATION_LEGACY,  // Where legacy 2.0 configuration files live
     PATH_OVERRIDE_SETTINGS,     // Where settings go when profile is active
     PATH_OVERRIDE_LAYERS,       // Where json goes when profile is active
     PATH_IMPORT_CONFIGURATION,  // The last path used by the user to import a configuration
@@ -38,7 +39,6 @@ enum PathType {
     PATH_WORKING_DIR,           // The last path used as a working directory
     PATH_LAUNCHER_LOG_FILE,     // The last path used by the user to set the launcher log file
     PATH_CUSTOM_LAYER_PATH,     // The last custom layer path
-
     PATH_FIRST = PATH_CONFIGURATION,
     PATH_LAST = PATH_CUSTOM_LAYER_PATH
 };

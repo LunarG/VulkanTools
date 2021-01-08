@@ -81,6 +81,7 @@ class Configurator {
     Configurator& operator=(const Configurator&) = delete;
 
     void CopyResourceFiles();
+    void LoadConfigurationsPath(PathType path_type);
 
     std::vector<Configuration>::iterator _active_configuration;
 
