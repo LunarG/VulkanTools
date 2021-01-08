@@ -26,26 +26,24 @@
 - Add *Synchronization* default configuration #1304
 - Add *Portability* default configuration on macOS #1307
 
-### Improvements:
-- Add display of VK_LAYER_PATH content in Vulkan Development Status
-- Renamed "Custom Path" by "User-Defined Path"
-
 ## [Vulkan Configurator 2.1.0 for Vulkan SDK 1.2.162.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.1) - January 2021
 
 ### Features:
-- Refactor built-in configurations #1247
-- Add layer settings presets #1271
+- Refactor built-in layers configurations #1247
 - Add *Portability* default configuration on Linux and Windows #1279
+- Add layer settings presets #1271
 
 ### Improvements:
 - In case of crash or user interruption, remove the layers override #1278
 - Improve layers support since version 1.1.130
 - Improve layer configurations compatibilities between versions
 - Add more tool tips #1296
-- Display the "Vulkan Development Status" each time the layers paths are changed
+- Display the *Vulkan Development Status* each time the layers paths are changed
+- Add display of `VK_LAYER_PATH` content in *Vulkan Development Status*
+- Renamed "Custom Path" by "User-Defined Path"
 
 ### Fixes:
-- Expose missing VK_LAYER_LUNARG_gfxreconstruct 'Log Detailed' setting
+- Expose missing `VK_LAYER_LUNARG_gfxreconstruct` `Log Detailed` setting
 
 ## [Vulkan Configurator 2.0.3 for Vulkan SDK 1.2.162.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.0) - December 2020
 
@@ -53,8 +51,8 @@
 - Add command line arguments to manage layers override #1213
 
 ### Improvements:
-- Test with VS2015, VS2017 and VS2019
-- Test with Qt 5.9 and Qt 5.15 including QMake build
+- Test with *VS2015*, *VS2017* and *VS2019*
+- Test with *Qt 5.9* and *Qt 5.15* including *QMake* build
 - Test manually using a [use cases based template](https://docs.google.com/document/d/1z0WqfMp2IBko1fvDICkjDE_3JKnf8SrU5APQTqKRR-U/edit)
 
 ### Fixes:
@@ -62,7 +60,7 @@
 - Fix layers override update when changing layers management options #1225
 - Fix reset button in layers window #1227
 - Fix warning about old loader when trying to use application list #1230
-- Fix initialization of added applications on macOS #1249 
+- Fix initialization of added applications on *macOS* #1249 
 
 ## [Vulkan Configurator 2.0.2 for Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.154.0) - October 2020
 
@@ -76,18 +74,18 @@
 - Add selected path from dialog window cache #1107
 - Add unit test framework #1100
 - Add button to browse working directory #1099
-- Add version in the title bar and show <ACTIVE> state #1109
+- Add version in the title bar and show `<ACTIVE>` state #1109
 - Add default settings state in the layer configuration settings #1076
-- Make "Validation - Standard", the default configuration #1076
-- Update vkcube to use the version from the same Vulkan SDK than Vulkan Configurator #1112
-- Expose `duplicate_message_limit` setting from VK_LAYER_KHRONOS_validation #1176
+- Make *Validation - Standard*, the default configuration #1076
+- Update `vkcube` to use the version from the same *Vulkan SDK* than *Vulkan Configurator* #1112
+- Expose `duplicate_message_limit` setting from `VK_LAYER_KHRONOS_validation` #1176
 
 ### Fixes:
 - Fix disabled configurations that can't be reenabled or removed
 - Fix display of custom layer paths #1101
 - Fix inconsistant display of separators in paths #1107
 - Fix display of empty entries in the custom path dialog when opening Json files that are not layer json files #1103
-- Fix log file default location to HOME to ensure write access #1083
+- Fix log file default location to `HOME` to ensure write access #1083
 - Fix log file not written to #1109
 - Fix `debug_output` setting displayed on Linux and macOS but not avaiable #1086
 - Fix `numeric_bool` setting display #1166
@@ -95,7 +93,7 @@
 ## [Vulkan Configurator 2.0.1 for Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148.1) - August 2020 (revision 1)
 
 ### Fixes:
-- Fix Shader Printf built-in configuration that was setup for GPU-Assisted validation isntead
+- Fix `Shader Printf` built-in configuration that was setup for `GPU-Assisted` validation isntead
 - Fix layer configurations selection on Linux
 - Fix debug output setting not working
 
@@ -106,7 +104,7 @@
 - Add built-in Vulkan layers configurations
 - Add user-defined Vulkan layers configurations
 - Add import and export of Vulkan layers configuration
-- Add VK_LAYER_KHRONOS_validation settings presets
+- Add `VK_LAYER_KHRONOS_validation` settings presets
 - Add message filtering using VUID and message IDs
 - Add an option to make layers overriding persistent on exit
 - Add an option to override only a selected list of applications

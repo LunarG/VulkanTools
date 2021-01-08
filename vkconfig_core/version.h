@@ -31,7 +31,6 @@ static const bool SUPPORT_VKCONFIG_2_0_0 = true;
 static const bool SUPPORT_VKCONFIG_2_0_1 = true;
 static const bool SUPPORT_VKCONFIG_2_0_2 = true;
 static const bool SUPPORT_VKCONFIG_2_0_3 = true;
-static const bool SUPPORT_VKCONFIG_2_1_0 = true;
 
 class Version {
    public:
