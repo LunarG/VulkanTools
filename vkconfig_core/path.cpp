@@ -67,11 +67,8 @@ std::string GetPath(BuiltinPath path) {
             return ConvertNativeSeparators(path.toStdString());
         }
         case BUILTIN_PATH_VULKAN_LAYER_CONFIG: {
-            if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS)
-                return ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) +
-                                               GetPlatformString(PLATFORM_STRING_VULKAN_LAYER_CONFIG));
-            else
-                return ConvertNativeSeparators(GetPlatformString(PLATFORM_STRING_VULKAN_LAYER_CONFIG));
+            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) +
+                                           GetPlatformString(PLATFORM_STRING_VULKAN_LAYER_CONFIG));
         }
         default: {
             assert(0);
