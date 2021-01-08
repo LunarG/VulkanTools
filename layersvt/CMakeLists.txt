@@ -61,6 +61,7 @@ if (NOT APPLE)
 else()
     set(TARGET_NAMES
         VkLayer_api_dump
+	VkLayer_device_simulation
         )
 endif ()
 
@@ -96,6 +97,7 @@ if (APPLE)
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
         ${Vulkan-ValidationLayers_INCLUDE_DIR}
+        ${JSONCPP_INCLUDE_DIR}
     )
 else ()
     include_directories(
@@ -125,9 +127,9 @@ run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_json.h)
 if (NOT APPLE)
     add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
     add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
-    add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 endif ()
 
+add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
 
 # json file creation
