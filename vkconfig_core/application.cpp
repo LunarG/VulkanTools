@@ -27,7 +27,8 @@ Application::Application(const std::string& executable_full_path, const std::str
     : executable_path(executable_full_path),
       working_folder(QFileInfo(executable_full_path.c_str()).path().toStdString()),
       arguments(arguments),
-      log_file((QDir::homePath() + GetNativeSeparator() + QFileInfo(executable_full_path.c_str()).baseName() + ".txt")
+      log_file((QString(GetPath(BUILTIN_PATH_LOCAL).c_str()) + GetNativeSeparator() +
+                QFileInfo(executable_full_path.c_str()).baseName() + ".txt")
                    .toStdString()
                    .c_str()),
       override_layers(true) {}

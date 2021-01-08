@@ -141,16 +141,28 @@ const char* GetPlatformString(PlatformString platform_string) {
             "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
         },
         {
+            // PLATFORM_STRING_VULKAN_SDK_DEFAULT
+            "",                         // PLATFORM_WINDOWS
+            "/usr/share/vulkan",        // PLATFORM_LINUX
+            "/usr/local/share/vulkan",  // PLATFORM_MACOS
+        },
+        {
             // PLATFORM_STRING_VULKAN_LAYER_CONFIG
-            "/Config",                      // PLATFORM_WINDOWS
-            "/.local/share/vulkan/config",  // PLATFORM_LINUX
-            "/.local/share/vulkan/config",  // PLATFORM_MACOS
+            "/Config",  // PLATFORM_WINDOWS
+            "/config",  // PLATFORM_LINUX
+            "/config",  // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_EXPLICIT_LAYERS
             "/Bin",                          // PLATFORM_WINDOWS
             "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
             "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
+        },
+        {
+            // PLATFORM_STRING_VULKAN_SDK_LOCAL
+            "/VulkanSDK",  // PLATFORM_WINDOWS
+            "/VulkanSDK",  // PLATFORM_LINUX
+            "/VulkanSDK",  // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_PATH_VKC_USER_DIR

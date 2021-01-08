@@ -128,7 +128,8 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     // Load default layer json file if necessary
     const bool is_missing_layer_data =
         json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
-    const bool is_builtin_layer_file = full_path_to_file.find(":/") != std::string::npos;
+    const bool is_builtin_layer_file =
+        full_path_to_file.rfind(":/") == 0;  // Check whether the path start with ":/" for resource file paths.
 
     Layer default_layer;
     if (is_missing_layer_data && !is_builtin_layer_file) {
