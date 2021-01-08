@@ -63,5 +63,7 @@ class ConfigurationManager {
     std::vector<Configuration> available_configurations;
 
    private:
+    void LoadConfigurationsPath(const std::vector<Layer>& available_layers, const PathManager& path_manager, PathType path_type);
+
     std::vector<Configuration>::iterator active_configuration;
 };
