@@ -193,15 +193,24 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     setting.default_value = ReadString(json_setting, "default");
                 } break;
                 case SETTING_BOOL: {
-                    setting.default_value = ReadBoolValue(json_setting, "default") ? "TRUE" : "FALSE";
+                    if (json_setting.value("default").isString())
+                        setting.default_value = ReadString(json_setting, "default");
+                    else
+                        setting.default_value = ReadBoolValue(json_setting, "default") ? "TRUE" : "FALSE";
                     break;
                 }
                 case SETTING_BOOL_NUMERIC: {
-                    setting.default_value = ReadBoolValue(json_setting, "default") ? "1" : "0";
+                    if (json_setting.value("default").isString())
+                        setting.default_value = ReadString(json_setting, "default");
+                    else
+                        setting.default_value = ReadBoolValue(json_setting, "default") ? "1" : "0";
                     break;
                 }
                 case SETTING_INT: {
-                    setting.default_value = format("%d", ReadIntValue(json_setting, "default"));
+                    if (json_setting.value("default").isString())
+                        setting.default_value = ReadString(json_setting, "default");
+                    else
+                        setting.default_value = format("%d", ReadIntValue(json_setting, "default"));
                     break;
                 }
                 default:
@@ -235,7 +244,28 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
                 LayerSettingData setting_value;
                 setting_value.key = ReadStringValue(json_setting_object, "key");
-                setting_value.value = ReadString(json_setting_object, "value");
+
+                if (json_setting_object.value(setting_value.key.c_str()).isString()) {
+                    setting_value.value = ReadString(json_setting_object, "value");
+                } else {
+                    const LayerSettingMeta* meta = FindByKey(settings, setting_value.key.c_str());
+                    assert(meta);
+                    switch (meta->type) {
+                        case SETTING_INT: {
+                            setting_value.value = format("%d", ReadIntValue(json_setting_object, "value"));
+                        } break;
+                        case SETTING_BOOL_NUMERIC: {
+                            setting_value.value = ReadBoolValue(json_setting_object, "value") ? "TRUE" : "FALSE";
+                        } break;
+                        case SETTING_BOOL: {
+                            setting_value.value = ReadBoolValue(json_setting_object, "value") ? "1" : "0";
+                        } break;
+                        default: {
+                            setting_value.value = ReadString(json_setting_object, "value");
+                        } break;
+                    }
+                }
+
                 preset.settings.push_back(setting_value);
             }
 
