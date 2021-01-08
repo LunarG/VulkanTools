@@ -208,7 +208,7 @@ void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTre
 
     ui->lineEditWorkingFolder->setText(application.working_folder.c_str());
     ui->lineEditCmdArgs->setText(application.arguments);
-    ui->lineEditLogFile->setText(application.log_file.c_str());
+    ui->lineEditLogFile->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
 }
 
 void ApplicationsDialog::itemChanged(QTreeWidgetItem *item, int column) {

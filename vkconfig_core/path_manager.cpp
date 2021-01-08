@@ -92,7 +92,7 @@ bool PathManager::Load() {
         paths[type] = settings.value(GetDesc(type).setting).toString().toUtf8().constData();
     }
 
-    CheckPathsExist(::GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK");
+    CheckPathsExist(::GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL));
 
     const std::string base_path = ConvertNativeSeparators(QDir::home().path().toStdString());
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));

@@ -216,6 +216,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     }
 
     const LayerSettingMeta *setting_meta_enables = FindByKey(settings_meta, "enables");
+    assert(setting_meta_enables);
 
     // Now for the GPU specific stuff
     const bool has_debug_printf = HasEnable("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");

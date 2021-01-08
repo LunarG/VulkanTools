@@ -5,7 +5,7 @@
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_device_simulation.dll",
         "api_version": "1.2.154",
-        "implementation_version": "1.4.0",
+        "implementation_version": "1.3.0",
         "description": "LunarG device simulation layer",
         "device_extensions": [
             {
@@ -16,75 +16,18 @@
                 ]
             }
         ],
-        "presets": [
-            {
-                "label": "macOS portability",
-                "description": "Check the application for Vulkan portability subset.",
-                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-                "status": "STABLE",
-                "settings": [
-                    {
-                        "key": "emulate_portability",
-                        "value": "1"
-                    },
-                    {
-                        "key": "filename",
-                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
-                    }
-                ]
-            },
-            {
-                "label": "iOS GPU family 3 portability",
-                "description": "Check the application for Vulkan portability subset.",
-                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-                "status": "STABLE",
-                "settings": [
-                    {
-                        "key": "emulate_portability",
-                        "value": "1"
-                    },
-                    {
-                        "key": "filename",
-                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/iOS_gpu_family_3_portability.json"
-                    }
-                ]
-            },
-            {
-                "label": "iOS GPU family 5 portability",
-                "description": "Check the application for Vulkan portability subset.",
-                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-                "status": "STABLE",
-                "settings": [
-                    {
-                        "key": "emulate_portability",
-                        "value": "1"
-                    },
-                    {
-                        "key": "filename",
-                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/iOS_gpu_family_5_portability.json"
-                    }
-                ]
-            }
-        ],
         "settings": [
             {
                 "key": "filename",
                 "label": "Devsim JSON configuration file",
                 "description": "Path of a devsim configuration file to load.",
                 "type": "load_file",
-                "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
+                "default": ""
             },
             {
                 "key": "debug_enable",
                 "label": "Debug Enable",
                 "description": "Enables debug message output.",
-                "type": "bool_numeric",
-                "default": "1"
-            },
-            {
-                "key": "emulate_portability",
-                "label": "Emulate VK_KHR_portability_subset",
-                "description": "Emulate that VK_KHR_portability_subset extension is supported by the device.",
                 "type": "bool_numeric",
                 "default": "1"
             },
