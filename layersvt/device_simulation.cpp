@@ -88,6 +88,9 @@ const char *kOurLayerName = kLayerProperties[0].layerName;
 const std::array<VkExtensionProperties, 0> kInstanceExtensionProperties = {};
 const uint32_t kInstanceExtensionPropertiesCount = static_cast<uint32_t>(kInstanceExtensionProperties.size());
 
+// TODO (ncesario): Where should this live?
+bool get_physical_device_properties2_active = false;
+
 // Device extensions that this layer provides:
 const std::array<VkExtensionProperties, 2> kDeviceExtensionProperties = {
     {{VK_EXT_TOOLING_INFO_EXTENSION_NAME, VK_EXT_TOOLING_INFO_SPEC_VERSION},
@@ -1445,94 +1448,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
     std::lock_guard<std::mutex> lock(global_lock);
 
-    VkResult result = LayerSetupCreateInstance(pCreateInfo, pAllocator, pInstance);
-    if (result != VK_SUCCESS) {
-        return result;
-    }
-
-    // Our layer-specific initialization...
-
-    const auto dt = instance_dispatch_table(*pInstance);
-
-    std::vector<VkPhysicalDevice> physical_devices;
-    result = EnumerateAll<VkPhysicalDevice>(&physical_devices, [&](uint32_t *count, VkPhysicalDevice *results) {
-        return dt->EnumeratePhysicalDevices(*pInstance, count, results);
-    });
-    if (result != VK_SUCCESS) {
-        return result;
-    }
-
-    bool get_physical_device_properties2_active = false;
-    for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-        if (strncmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-                    VK_MAX_EXTENSION_NAME_SIZE) == 0) {
-            get_physical_device_properties2_active = true;
-            break;
-        }
-    }
-
-    // For each physical device, create and populate a PDD instance.
-    for (const auto &physical_device : physical_devices) {
-        PhysicalDeviceData &pdd = PhysicalDeviceData::Create(physical_device, *pInstance);
-
-        EnumerateAll<VkExtensionProperties>(&(pdd.device_extensions), [&](uint32_t *count, VkExtensionProperties *results) {
-            return dt->EnumerateDeviceExtensionProperties(physical_device, nullptr, count, results);
-        });
-
-        dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
-
-        // Initialize PDD members to the actual Vulkan implementation's defaults.
-        if (get_physical_device_properties2_active || VK_VERSION_MINOR(requested_version) > 0) {
-            VkPhysicalDeviceProperties2KHR property_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR};
-            VkPhysicalDeviceFeatures2KHR feature_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR};
-            VkPhysicalDeviceMemoryProperties2KHR memory_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2_KHR};
-
-            if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)) {
-                property_chain.pNext = &(pdd.physical_device_portability_subset_properties_);
-                feature_chain.pNext = &(pdd.physical_device_portability_subset_features_);
-            } else if (emulatePortability.num > 0) {
-                pdd.physical_device_portability_subset_properties_ = {
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR, nullptr, 1};
-                pdd.physical_device_portability_subset_features_ = {
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR,
-                    nullptr,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE,
-                    VK_TRUE};
+    if (VK_VERSION_MINOR(requested_version) > 0) {
+        get_physical_device_properties2_active = true;
+    } else {
+        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+            if (strncmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+                        VK_MAX_EXTENSION_NAME_SIZE) == 0) {
+                get_physical_device_properties2_active = true;
+                break;
             }
-
-            dt->GetPhysicalDeviceProperties2KHR(physical_device, &property_chain);
-            dt->GetPhysicalDeviceFeatures2KHR(physical_device, &feature_chain);
-            dt->GetPhysicalDeviceMemoryProperties2KHR(physical_device, &memory_chain);
-
-            pdd.physical_device_properties_ = property_chain.properties;
-            pdd.physical_device_features_ = feature_chain.features;
-            pdd.physical_device_memory_properties_ = memory_chain.memoryProperties;
-        } else {
-            dt->GetPhysicalDeviceFeatures(physical_device, &pdd.physical_device_features_);
-            dt->GetPhysicalDeviceMemoryProperties(physical_device, &pdd.physical_device_memory_properties_);
         }
-
-        DebugPrintf("\tdeviceName \"%s\"\n", pdd.physical_device_properties_.deviceName);
-
-        // Override PDD members with values from configuration file(s).
-        JsonLoader json_loader(pdd);
-        json_loader.LoadFiles();
     }
 
-    return result;
+    return LayerSetupCreateInstance(pCreateInfo, pAllocator, pInstance);
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
@@ -1822,6 +1750,91 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
     return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) {
+    // Our layer-specific initialization...
+
+    // TODO (ncesario): Probably want to use a different way to check this. Could possibly use (pPhysicalDevices != nullptr)?
+    static bool pdd_initialized = false;
+
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(instance);
+    VkResult result = dt->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
+
+    // HACK!! epd_count is used to ensure the following code only gets called _after_ vkCreateInstance finishes *in the "vkcube + devsim" use case*
+    if (!pdd_initialized && (VK_SUCCESS == result)) {
+        std::vector<VkPhysicalDevice> physical_devices;
+        result = EnumerateAll<VkPhysicalDevice>(&physical_devices, [&](uint32_t *count, VkPhysicalDevice *results) {
+            return dt->EnumeratePhysicalDevices(instance, count, results);
+        });
+        if (result != VK_SUCCESS) {
+            return result;
+        }
+
+        // For each physical device, create and populate a PDD instance.
+        for (const auto &physical_device : physical_devices) {
+            PhysicalDeviceData &pdd = PhysicalDeviceData::Create(physical_device, instance);
+
+            EnumerateAll<VkExtensionProperties>(&(pdd.device_extensions), [&](uint32_t *count, VkExtensionProperties *results) {
+                return dt->EnumerateDeviceExtensionProperties(physical_device, nullptr, count, results);
+            });
+
+            dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
+
+            // Initialize PDD members to the actual Vulkan implementation's defaults.
+            if (get_physical_device_properties2_active) {
+                VkPhysicalDeviceProperties2KHR property_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR};
+                VkPhysicalDeviceFeatures2KHR feature_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR};
+                VkPhysicalDeviceMemoryProperties2KHR memory_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2_KHR};
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)) {
+                    property_chain.pNext = &(pdd.physical_device_portability_subset_properties_);
+                    feature_chain.pNext = &(pdd.physical_device_portability_subset_features_);
+                } else if (emulatePortability.num > 0) {
+                    pdd.physical_device_portability_subset_properties_ = {
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR, nullptr, 1};
+                    pdd.physical_device_portability_subset_features_ = {
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR,
+                        nullptr,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE,
+                        VK_TRUE};
+                }
+
+                dt->GetPhysicalDeviceProperties2KHR(physical_device, &property_chain);
+                dt->GetPhysicalDeviceFeatures2KHR(physical_device, &feature_chain);
+                dt->GetPhysicalDeviceMemoryProperties2KHR(physical_device, &memory_chain);
+
+                pdd.physical_device_properties_ = property_chain.properties;
+                pdd.physical_device_features_ = feature_chain.features;
+                pdd.physical_device_memory_properties_ = memory_chain.memoryProperties;
+            } else {
+                dt->GetPhysicalDeviceFeatures(physical_device, &pdd.physical_device_features_);
+                dt->GetPhysicalDeviceMemoryProperties(physical_device, &pdd.physical_device_memory_properties_);
+            }
+
+            DebugPrintf("\tdeviceName \"%s\"\n", pdd.physical_device_properties_.deviceName);
+
+            // Override PDD members with values from configuration file(s).
+            JsonLoader json_loader(pdd);
+            json_loader.LoadFiles();
+        }
+        pdd_initialized = true;
+    }
+    return result;
+}
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *pName) {
 // Apply the DRY principle, see https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 #define GET_PROC_ADDR(func) \
@@ -1831,6 +1844,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     GET_PROC_ADDR(EnumerateInstanceLayerProperties);
     GET_PROC_ADDR(EnumerateInstanceExtensionProperties);
     GET_PROC_ADDR(EnumerateDeviceExtensionProperties);
+    GET_PROC_ADDR(EnumeratePhysicalDevices);
     GET_PROC_ADDR(DestroyInstance);
     GET_PROC_ADDR(GetPhysicalDeviceProperties);
     GET_PROC_ADDR(GetPhysicalDeviceProperties2);
@@ -1882,6 +1896,10 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerPropertie
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
                                                                                       VkExtensionProperties *pProperties) {
     return EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) {
+    return EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct) {
