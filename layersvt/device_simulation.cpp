@@ -1482,7 +1482,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
         dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
 
         // Initialize PDD members to the actual Vulkan implementation's defaults.
-        if (get_physical_device_properties2_active || VK_VERSION_MINOR(requested_version) > 0) {
+        if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) && (get_physical_device_properties2_active || VK_VERSION_MINOR(requested_version) > 0)) {
             VkPhysicalDeviceProperties2KHR property_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR};
             VkPhysicalDeviceFeatures2KHR feature_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR};
             VkPhysicalDeviceMemoryProperties2KHR memory_chain = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2_KHR};
