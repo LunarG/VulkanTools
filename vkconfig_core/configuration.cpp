@@ -169,6 +169,12 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
         parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
         parameter.state = GetLayerState(ReadStringValue(json_layer_object, "state").c_str());
 
+        const QJsonValue& json_platform_value = json_layer_object.value("platforms");
+        if (json_platform_value != QJsonValue::Undefined) {
+            platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
+            if ((platform_flags & (1 << VKC_PLATFORM)) == 0) continue;
+        }
+
         std::vector<LayerSettingData> settings;
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer) {
