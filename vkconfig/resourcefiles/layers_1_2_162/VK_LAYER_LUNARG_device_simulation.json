@@ -78,10 +78,6 @@
                 "key": "debug_enable",
                 "label": "Debug Enable",
                 "description": "Enables debug message output.",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX"
-                ],
                 "type": "bool_numeric",
                 "default": "1"
             },
