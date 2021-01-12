@@ -143,14 +143,14 @@ const char* GetPlatformString(PlatformString platform_string) {
         {
             // PLATFORM_STRING_VULKAN_SDK_DEFAULT
             "/gni/share/vulkan",        // PLATFORM_WINDOWS
-            "/usr/share/vulkan",        // PLATFORM_LINUX
+            "/usr",                     // PLATFORM_LINUX
             "/usr/local/share/vulkan",  // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_VULKAN_LAYER_CONFIG
-            "/Config",  // PLATFORM_WINDOWS
-            "/config",  // PLATFORM_LINUX
-            "/config",  // PLATFORM_MACOS
+            "/Config",               // PLATFORM_WINDOWS
+            "/share/vulkan/config",  // PLATFORM_LINUX
+            "/config",               // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_EXPLICIT_LAYERS
