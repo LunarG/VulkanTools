@@ -171,8 +171,8 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
-            platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
-            if ((platform_flags & (1 << VKC_PLATFORM)) == 0) continue;
+            const int layer_platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
+            if ((layer_platform_flags & (1 << VKC_PLATFORM)) == 0) continue;
         }
 
         std::vector<LayerSettingData> settings;
