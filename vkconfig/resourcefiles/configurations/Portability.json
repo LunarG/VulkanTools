@@ -15,21 +15,33 @@
                 "rank": -1,
                 "settings": [
                 ],
-                "state": "EXCLUDED"
+                "state": "EXCLUDED",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ]
             },
             {
                 "name": "VK_LAYER_LUNARG_monitor",
                 "rank": -1,
                 "settings": [
                 ],
-                "state": "EXCLUDED"
+                "state": "EXCLUDED",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ]
             },
             {
                 "name": "VK_LAYER_LUNARG_screenshot",
                 "rank": -1,
                 "settings": [
                 ],
-                "state": "EXCLUDED"
+                "state": "EXCLUDED",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ]
             },
             {
                 "name": "VK_LAYER_KHRONOS_validation",
