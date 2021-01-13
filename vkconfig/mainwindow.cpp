@@ -119,7 +119,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_2->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER2));
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     LoadConfigurationList();
 
@@ -319,7 +319,7 @@ void MainWindow::on_radio_override_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     UpdateUI();
 }
@@ -329,7 +329,7 @@ void MainWindow::on_radio_fully_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     UpdateUI();
 }
@@ -374,7 +374,7 @@ void MainWindow::on_check_box_apply_list_clicked() {
         dialog.exec();
     }
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     UpdateUI();
 }
@@ -405,10 +405,9 @@ void MainWindow::toolsResetToDefault(bool checked) {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.ResetDefaultsConfigurations(configurator.layers.available_layers, configurator.path,
-                                                            configurator.environment);
+    configurator.configurations.ResetDefaultsConfigurations(configurator.layers.available_layers);
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     LoadConfigurationList();
 
@@ -436,7 +435,7 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
 
     Configurator &configurator = Configurator::Get();
     configurator.environment.Set(ACTIVE_CONFIGURATION, item->configuration_name.c_str());
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     UpdateUI();
 }
@@ -495,8 +494,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             assert(result);
         }
 
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
-                                                           configuration);
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration);
 
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
@@ -517,7 +515,7 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 
     configuration_item->radio_button->setChecked(true);
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers,
                                                        configuration_item->configuration_name);
 
     _settings_tree_manager.CreateGUI(ui->settings_tree);
@@ -622,7 +620,7 @@ void MainWindow::on_push_button_applications_clicked() {
     dlg.exec();
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     UpdateUI();
 }
@@ -642,10 +640,8 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     LayersDialog dlg(this, *configuration);
     dlg.exec();
 
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
-                                                      configurator.environment);
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
-                                                       dlg.GetConfigurationName());
+    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, dlg.GetConfigurationName());
     LoadConfigurationList();
 
     RestoreLastItem();
@@ -734,10 +730,8 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     LayersDialog dlg(this, *FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str()));
     dlg.exec();
 
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
-                                                      configurator.environment);
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
-                                                       dlg.GetConfigurationName());
+    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, dlg.GetConfigurationName());
     LoadConfigurationList();
 
     RestoreLastItem();
@@ -754,10 +748,8 @@ void MainWindow::NewClicked() {
 
     LayersDialog dlg(this, configuration);
     if (QDialog::Accepted == dlg.exec()) {
-        configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
-                                                          configurator.environment);
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
-                                                           dlg.GetConfigurationName());
+        configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, dlg.GetConfigurationName());
         LoadConfigurationList();
 
         RestoreLastItem(dlg.GetConfigurationName().c_str());
@@ -783,8 +775,7 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, configurator.path,
-                                                    configurator.environment, item->configuration_name);
+    configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, item->configuration_name);
     LoadConfigurationList();
     RestoreLastItem();
 }
@@ -798,28 +789,17 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
 
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(item);
-
-    Configurator &configurator = Configurator::Get();
-
     assert(!item->configuration_name.empty());
-
-    auto configuration = FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
-    assert(configuration != configurator.configurations.available_configurations.end());
-
-    const std::string &new_name =
-        MakeConfigurationName(configurator.configurations.available_configurations, item->configuration_name);
-    assert(new_name != item->configuration_name);
-
-    configuration->key = item->configuration_name = new_name;
-    const bool result = configuration->Save(configurator.layers.available_layers,
-                                            configurator.path.GetFullPath(PATH_CONFIGURATION, item->configuration_name));
-    assert(result);
 
     _settings_tree_manager.CleanupGUI();
 
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers, configurator.path,
-                                                      configurator.environment);
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment, new_name);
+    Configurator &configurator = Configurator::Get();
+    Configuration *duplicated_configuration =
+        configurator.configurations.DuplicateConfiguration(configurator.layers.available_layers, item->configuration_name);
+    assert(duplicated_configuration != nullptr);
+
+    item->configuration_name = duplicated_configuration->key;
+
     LoadConfigurationList();
 
     ConfigurationListItem *new_item = nullptr;
@@ -827,7 +807,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
         ConfigurationListItem *searched_item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(searched_item);
 
-        if (searched_item->configuration_name != new_name) continue;
+        if (searched_item->configuration_name != duplicated_configuration->key) continue;
 
         new_item = searched_item;
         break;
@@ -847,9 +827,9 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
 
     _settings_tree_manager.CleanupGUI();
 
-    configurator.configurations.ImportConfiguration(configurator.layers.available_layers, configurator.path,
-                                                    configurator.environment, full_import_path);
+    configurator.configurations.ImportConfiguration(configurator.layers.available_layers, full_import_path);
     LoadConfigurationList();
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::ExportClicked(ConfigurationListItem *item) {
@@ -894,7 +874,7 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
 
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
     if (configuration_item != nullptr) {
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configurator.environment,
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers,
                                                            configuration_item->configuration_name);
     }
     SaveLastItem();
@@ -908,7 +888,7 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
 
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     SaveLastItem();
 
     UpdateUI();

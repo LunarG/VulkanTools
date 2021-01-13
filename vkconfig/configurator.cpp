@@ -45,14 +45,15 @@ Configurator &Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator() : environment(path), layers(environment), request_vulkan_status(true) {
+Configurator::Configurator()
+    : environment(path), layers(environment), configurations(path, environment), request_vulkan_status(true) {
     if (0) {
         CopyResourceFiles();
     }
 }
 
 Configurator::~Configurator() {
-    configurations.SaveAllConfigurations(layers.available_layers, path);
+    configurations.SaveAllConfigurations(layers.available_layers);
 
     if (!environment.UsePersistentOverrideMode()) {
         SurrenderLayers(environment);
@@ -124,10 +125,10 @@ bool Configurator::Init() {
         return false;
     }
 
-    configurations.LoadAllConfigurations(layers.available_layers, path, environment);
+    configurations.LoadAllConfigurations(layers.available_layers);
 
     if (configurations.Empty()) {
-        configurations.ResetDefaultsConfigurations(layers.available_layers, path, environment);
+        configurations.ResetDefaultsConfigurations(layers.available_layers);
     }
 
     if (configurations.HasActiveConfiguration(layers.available_layers)) {
