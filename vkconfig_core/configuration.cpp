@@ -207,6 +207,8 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
 bool Configuration::Load(const std::vector<Layer>& available_layers, const std::string& full_path) {
     assert(!full_path.empty());
 
+    parameters.clear();
+
     QFile file(full_path.c_str());
     const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
@@ -299,7 +301,98 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     }
 }
 
-bool Configuration::IsEmpty() const { return parameters.empty(); }
+void Configuration::Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager) {
+    // Case 1: reset using built-in configuration files
+    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/resourcefiles/configurations/");
+    for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
+        const std::string& basename = builtin_configuration_files[i].baseName().toStdString();
+
+        if (this->key == basename) {
+            const bool result = this->Load(available_layers, builtin_configuration_files[i].absoluteFilePath().toStdString());
+            assert(result);
+
+            OrderParameter(this->parameters, available_layers);
+            return;
+        }
+    }
+
+    // Case 2: reset using configuration files using saved configurations
+    static const PathType PATHS[] = {PATH_CONFIGURATION, PATH_CONFIGURATION_LEGACY};
+
+    for (std::size_t i = 0, n = countof(PATHS); i < n; ++i) {
+        const std::string full_path(path_manager.GetFullPath(PATHS[i], this->key.c_str()));
+        std::FILE* file = std::fopen(full_path.c_str(), "r");
+        if (file) {
+            std::fclose(file);
+            const bool result = this->Load(available_layers, full_path);
+            assert(result);
+
+            OrderParameter(this->parameters, available_layers);
+            return;
+        }
+    }
+
+    // Case 2: reset using configuration files in PATH_CONFIGURATION_LEGACY
+    {
+        const std::string full_path(path_manager.GetFullPath(PATH_CONFIGURATION_LEGACY, this->key.c_str()));
+        std::FILE* file = std::fopen(full_path.c_str(), "r");
+        if (file) {
+            std::fclose(file);
+            const bool result = this->Load(available_layers, full_path);
+            assert(result);
+
+            OrderParameter(this->parameters, available_layers);
+            return;
+        }
+    }
+
+    // Case 3: reset to zero
+    {
+        for (auto it = this->parameters.begin(); it != this->parameters.end(); ++it) {
+            it->state = LAYER_STATE_APPLICATION_CONTROLLED;
+            it->overridden_rank = Parameter::NO_RANK;
+            it->settings = CollectDefaultSettingData(FindByKey(available_layers, it->key.c_str())->settings);
+        }
+
+        OrderParameter(this->parameters, available_layers);
+    }
+}
+
+bool Configuration::HasOverriddenLayers() const {
+    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+        if (this->parameters[i].state != LAYER_STATE_APPLICATION_CONTROLLED) return true;
+    }
+
+    return false;
+}
+
+bool Configuration::IsBuiltIn() const {
+    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/resourcefiles/configurations/");
+    for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
+        const std::string& basename = builtin_configuration_files[i].baseName().toStdString();
+
+        if (basename == this->key) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Configuration::HasSavedFile(const PathManager& path_manager) const {
+    // Case 2: reset using configuration files using saved configurations
+    static const PathType PATHS[] = {PATH_CONFIGURATION, PATH_CONFIGURATION_LEGACY};
+
+    for (std::size_t i = 0, n = countof(PATHS); i < n; ++i) {
+        const std::string full_path(path_manager.GetFullPath(PATHS[i], this->key.c_str()));
+        std::FILE* file = std::fopen(full_path.c_str(), "r");
+        if (file) {
+            std::fclose(file);
+            return true;
+        }
+    }
+    return false;
+}
 
 bool Configuration::IsAvailableOnThisPlatform() const { return platform_flags & (1 << VKC_PLATFORM); }
 

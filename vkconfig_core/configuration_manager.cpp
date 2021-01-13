@@ -184,7 +184,7 @@ void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &avai
     if (this->active_configuration != nullptr) {
         assert(!this->active_configuration->key.empty());
         environment.Set(ACTIVE_CONFIGURATION, this->active_configuration->key.c_str());
-        surrender = this->active_configuration->IsEmpty();
+        surrender = !this->active_configuration->HasOverriddenLayers();
     } else {
         this->active_configuration = nullptr;
         surrender = true;
@@ -214,7 +214,8 @@ void ConfigurationManager::RefreshConfiguration(const std::vector<Layer> &availa
 
 bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
     if (this->active_configuration != nullptr)
-        return !HasMissingLayer(this->active_configuration->parameters, available_layers) && !this->active_configuration->IsEmpty();
+        return !HasMissingLayer(this->active_configuration->parameters, available_layers) &&
+               this->active_configuration->HasOverriddenLayers();
     else
         return false;
 }
