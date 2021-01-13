@@ -50,6 +50,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     _settings_tree = build_tree;
     auto configuration = configurator.configurations.GetActiveConfiguration();
+    assert(configuration != configurator.configurations.available_configurations.end());
 
     build_tree->blockSignals(true);
     build_tree->clear();
@@ -405,7 +406,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
 
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 }
 
 void SettingsTreeManager::GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item) {
@@ -442,5 +443,5 @@ void SettingsTreeManager::OnSettingChanged() {
 
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers, configurator.environment);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 }
