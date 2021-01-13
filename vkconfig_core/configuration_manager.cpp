@@ -130,8 +130,14 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
 
     // Delete the configuration file
     const std::string full_path(path_manager.GetFullPath(PATH_CONFIGURATION, configuration_name.c_str()));
-    const bool result = std::remove(full_path.c_str()) == 0;
-    assert(result);
+    const bool result_configuration = std::remove(full_path.c_str()) == 0;
+    assert(SUPPORT_VKCONFIG_2_0_3 || result_configuration);
+
+    if (SUPPORT_VKCONFIG_2_0_3 && !result_configuration) {
+        const std::string full_path(path_manager.GetFullPath(PATH_CONFIGURATION_LEGACY, configuration_name.c_str()));
+        const bool result_legacy = std::remove(full_path.c_str()) == 0;
+        assert(result_legacy);
+    }
 
     // Reload to remove the configuration in the UI
     LoadAllConfigurations(available_layers, path_manager, environment);
