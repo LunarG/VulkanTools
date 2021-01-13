@@ -625,7 +625,6 @@ void MainWindow::on_push_button_applications_clicked() {
     UpdateUI();
 }
 
-/// Just resave the list anytime we go into the editor
 void MainWindow::on_push_button_select_configuration_clicked() {
     ConfigurationListItem *item = SaveLastItem();
     if (item == nullptr) return;
@@ -640,8 +639,7 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     LayersDialog dlg(this, *configuration);
     dlg.exec();
 
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, dlg.GetConfigurationName());
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     LoadConfigurationList();
 
     RestoreLastItem();
@@ -730,8 +728,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     LayersDialog dlg(this, *FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str()));
     dlg.exec();
 
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, dlg.GetConfigurationName());
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     LoadConfigurationList();
 
     RestoreLastItem();
@@ -748,7 +745,6 @@ void MainWindow::NewClicked() {
 
     LayersDialog dlg(this, configuration);
     if (QDialog::Accepted == dlg.exec()) {
-        configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
         configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, dlg.GetConfigurationName());
         LoadConfigurationList();
 

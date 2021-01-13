@@ -84,7 +84,7 @@ void CustomPathsDialog::on_pushButtonAdd_clicked() {
     if (!custom_path.empty()) {
         if (configurator.environment.AppendCustomLayerPath(custom_path)) {
             configurator.layers.LoadAllInstalledLayers();
-            configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+            configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
         }
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -116,7 +116,7 @@ void CustomPathsDialog::on_pushButtonRemove_clicked() {
     // Now actually remove it.
     if (configurator.environment.RemoveCustomLayerPath(selected->text(0).toStdString())) {
         configurator.layers.LoadAllInstalledLayers();
-        configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+        configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     }
 
     // Update GUI and save
