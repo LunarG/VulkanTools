@@ -38,7 +38,7 @@ TEST(test_override, override_and_surrender) {
     Configuration configuration;
     const bool load = configuration.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load);
-    ASSERT_TRUE(!configuration.IsEmpty());
+    ASSERT_TRUE(!configuration.parameters.empty());
 
     EXPECT_EQ(true, OverrideLayers(environment, available_layers, configuration));
     EXPECT_EQ(true, SurrenderLayers(environment));
@@ -54,7 +54,7 @@ TEST(test_override, missing_layers) {
     Configuration configuration;
     const bool load = configuration.Load(std::vector<Layer>(), ":/Configuration 2.0.2 - Standard.json");
     ASSERT_TRUE(load);
-    ASSERT_TRUE(!configuration.IsEmpty());
+    ASSERT_TRUE(!configuration.parameters.empty());
 
     EXPECT_EQ(false, OverrideLayers(environment, std::vector<Layer>(), configuration));
     EXPECT_EQ(true, SurrenderLayers(environment));

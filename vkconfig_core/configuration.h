@@ -22,6 +22,7 @@
 #pragma once
 
 #include "parameter.h"
+#include "path_manager.h"
 
 #include <QByteArray>
 
@@ -35,6 +36,9 @@ class Configuration {
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
     bool Save(const std::vector<Layer>& available_layers, const std::string& full_path) const;
     bool IsAvailableOnThisPlatform() const;
+    bool HasOverriddenLayers() const;
+
+    void Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager);
 
     std::string key;  // User readable display of the configuration name (may contain spaces)
     int platform_flags;
@@ -43,7 +47,8 @@ class Configuration {
 
     std::vector<Parameter> parameters;
 
-    bool IsEmpty() const;
+    bool IsBuiltIn() const;
+    bool HasSavedFile(const PathManager& path_manager) const;
 
    private:
     bool Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object, const std::string& full_path);

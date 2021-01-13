@@ -25,6 +25,8 @@
 ### Features:
 - Add *Synchronization* default configuration #1304
 - Add *Portability* default configuration on macOS #1307
+- Add per-configuration reset in layers configuration context menu
+- Add per-configuration reset in layers window
 
 ### Improvements:
 - Add display of VK_LAYER_PATH content in Vulkan Development Status

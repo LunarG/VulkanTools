@@ -96,6 +96,7 @@ class MainWindow : public QMainWindow {
     std::string _last_item;
 
     void RemoveClicked(ConfigurationListItem *item);
+    void ResetClicked(ConfigurationListItem *item);
     void RenameClicked(ConfigurationListItem *item);
     void EditClicked(ConfigurationListItem *item);
     void NewClicked();

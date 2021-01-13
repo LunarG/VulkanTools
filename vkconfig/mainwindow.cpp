@@ -743,7 +743,7 @@ void MainWindow::NewClicked() {
         configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, new_configuration.key);
         LoadConfigurationList();
 
-        RestoreLastItem(dlg.GetConfigurationName().c_str());
+        RestoreLastItem(new_configuration.key.c_str());
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 }
@@ -754,12 +754,12 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
 
     // Let make sure...
     QMessageBox alert;
-    alert.setWindowTitle(VKCONFIG_NAME);
-    alert.setText("Are you sure you want to remove this configuration?");
-    alert.setInformativeText(item->configuration_name.c_str());
+    alert.setWindowTitle(format("Removing *%s* configuration...", item->configuration_name.c_str()).c_str());
+    alert.setText(format("Are you sure you want to remove the *%s* configuration?", item->configuration_name.c_str()).c_str());
+    alert.setInformativeText("All the data from this configuration will be lost.");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
-    alert.setIcon(QMessageBox::Question);
+    alert.setIcon(QMessageBox::Warning);
     if (alert.exec() == QMessageBox::No) return;
 
     SaveLastItem();
@@ -768,7 +768,46 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     Configurator &configurator = Configurator::Get();
     configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, item->configuration_name);
     LoadConfigurationList();
+
     RestoreLastItem();
+}
+
+void MainWindow::ResetClicked(ConfigurationListItem *item) {
+    assert(item);
+    assert(!item->configuration_name.empty());
+
+    Configurator &configurator = Configurator::Get();
+    Configuration *configuration =
+        FindByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
+    assert(configuration != nullptr);
+
+    QMessageBox alert;
+    alert.setWindowTitle(format("Resetting *%s* configuration...", configuration->key.c_str()).c_str());
+    alert.setText(format("Are you sure you want to reset the *%s* configuration?", configuration->key.c_str()).c_str());
+    if (configuration->IsBuiltIn())
+        alert.setInformativeText(
+            format("The configuration layers and settings will be restored to default built-in *%s* configuration.",
+                   configuration->key.c_str())
+                .c_str());
+    else if (configuration->HasSavedFile(configurator.path))
+        alert.setInformativeText(
+            format("The configuration layers and settings will be reloaded using the *%s* saved file from previous %s run.",
+                   configuration->key.c_str(), VKCONFIG_NAME)
+                .c_str());
+    else
+        alert.setInformativeText("The configuration layers and settings will be reset to zero.");
+    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    alert.setDefaultButton(QMessageBox::Yes);
+    alert.setIcon(QMessageBox::Warning);
+    if (alert.exec() == QMessageBox::No) return;
+
+    _settings_tree_manager.CleanupGUI();
+
+    configuration->Reset(configurator.layers.available_layers, configurator.path);
+
+    LoadConfigurationList();
+
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
@@ -1111,13 +1150,17 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             duplicate_action->setEnabled(active && item != nullptr);
             menu.addAction(duplicate_action);
 
+            QAction *rename_action = new QAction("Rename", nullptr);
+            rename_action->setEnabled(active && item != nullptr);
+            menu.addAction(rename_action);
+
             QAction *remove_action = new QAction("Remove", nullptr);
             remove_action->setEnabled(active && item != nullptr);
             menu.addAction(remove_action);
 
-            QAction *rename_action = new QAction("Rename", nullptr);
-            rename_action->setEnabled(active && item != nullptr);
-            menu.addAction(rename_action);
+            QAction *reset_action = new QAction("Reset", nullptr);
+            reset_action->setEnabled(active && item != nullptr);
+            menu.addAction(reset_action);
 
             menu.addSeparator();
 
@@ -1148,6 +1191,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 RemoveClicked(item);
             } else if (action == rename_action) {
                 RenameClicked(item);
+            } else if (action == reset_action) {
+                ResetClicked(item);
             } else if (action == export_action) {
                 ExportClicked(item);
             } else if (action == import_action) {
