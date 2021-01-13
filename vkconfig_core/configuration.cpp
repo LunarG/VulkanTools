@@ -127,8 +127,8 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
 
     const QJsonArray& excluded_array = excluded_value.toArray();
     for (int i = 0, n = excluded_array.size(); i < n; ++i) {
-        auto parameter = FindItByKey(parameters, excluded_array[i].toString().toStdString().c_str());
-        if (parameter != parameters.end()) {
+        Parameter* parameter = FindByKey(parameters, excluded_array[i].toString().toStdString().c_str());
+        if (parameter != nullptr) {
             parameter->state = LAYER_STATE_EXCLUDED;
         } else {
             Parameter parameter;

@@ -165,8 +165,9 @@ void MainWindow::UpdateUI() {
         assert(item);
         assert(!item->configuration_name.empty());
 
-        auto configuration = FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
-        if (configuration == configurator.configurations.available_configurations.end()) continue;
+        Configuration *configuration =
+            FindByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
+        if (configuration == nullptr) continue;
 
         if (!HasMissingLayer(configuration->parameters, configurator.layers.available_layers)) {
             item->setText(1, item->configuration_name.c_str());
@@ -464,34 +465,28 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             Alert::ConfigurationNameInvalid();
         }
 
-        auto end = configurator.configurations.available_configurations.end();
         const bool failed = new_configuration_name.empty() || !IsPortableFilename(new_configuration_name);
-        auto duplicate_configuration =
-            failed ? end : FindItByKey(configurator.configurations.available_configurations, new_configuration_name.c_str());
+        Configuration *duplicate_configuration =
+            failed ? nullptr : FindByKey(configurator.configurations.available_configurations, new_configuration_name.c_str());
 
-        if (duplicate_configuration != end) {
+        if (duplicate_configuration != nullptr) {
             Alert::ConfigurationRenamingFailed();
         }
 
         // Find existing configuration using it's old name
-        auto configuration =
-            FindItByKey(configurator.configurations.available_configurations, configuration_item->configuration_name.c_str());
+        Configuration *configuration =
+            FindByKey(configurator.configurations.available_configurations, configuration_item->configuration_name.c_str());
 
-        if (failed || duplicate_configuration != end) {
+        if (failed || duplicate_configuration != nullptr) {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
 
             ui->configuration_tree->blockSignals(true);
             item->setText(1, configuration_item->configuration_name.c_str());
             ui->configuration_tree->blockSignals(false);
         } else {
-            // Rename configuration ; Remove old configuration file ; Create new configuration file
-
-            configuration->key = configuration_item->configuration_name = new_configuration_name;
-
+            // Rename configuration ; Remove old configuration file ; change the name of the configuration
             remove(full_path.c_str());
-            const std::string configuration_path = configurator.path.GetFullPath(PATH_CONFIGURATION, new_configuration_name);
-            const bool result = configuration->Save(configurator.layers.available_layers, configuration_path);
-            assert(result);
+            configuration->key = configuration_item->configuration_name = new_configuration_name;
         }
 
         configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration);
@@ -633,8 +628,8 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-    auto configuration = configurator.configurations.GetActiveConfiguration();
-    assert(configuration != configurator.configurations.available_configurations.end());
+    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    assert(configuration != nullptr);
 
     LayersDialog dlg(this, *configuration);
     dlg.exec();
@@ -725,7 +720,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
-    LayersDialog dlg(this, *FindItByKey(configurator.configurations.available_configurations, item->configuration_name.c_str()));
+    LayersDialog dlg(this, *FindByKey(configurator.configurations.available_configurations, item->configuration_name.c_str()));
     dlg.exec();
 
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
@@ -738,14 +733,14 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
 void MainWindow::NewClicked() {
     // SaveLastItem();
     _settings_tree_manager.CleanupGUI();
+
     Configurator &configurator = Configurator::Get();
+    Configuration &new_configuration =
+        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, "New Configuration");
 
-    Configuration configuration;
-    configuration.key = MakeConfigurationName(configurator.configurations.available_configurations, "New Configuration");
-
-    LayersDialog dlg(this, configuration);
+    LayersDialog dlg(this, new_configuration);
     if (QDialog::Accepted == dlg.exec()) {
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, dlg.GetConfigurationName());
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, new_configuration.key);
         LoadConfigurationList();
 
         RestoreLastItem(dlg.GetConfigurationName().c_str());
@@ -790,11 +785,10 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-    Configuration *duplicated_configuration =
-        configurator.configurations.DuplicateConfiguration(configurator.layers.available_layers, item->configuration_name);
-    assert(duplicated_configuration != nullptr);
+    const Configuration &duplicated_configuration =
+        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, item->configuration_name);
 
-    item->configuration_name = duplicated_configuration->key;
+    item->configuration_name = duplicated_configuration.key;
 
     LoadConfigurationList();
 
@@ -803,7 +797,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
         ConfigurationListItem *searched_item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(searched_item);
 
-        if (searched_item->configuration_name != duplicated_configuration->key) continue;
+        if (searched_item->configuration_name != duplicated_configuration.key) continue;
 
         new_item = searched_item;
         break;
@@ -1101,6 +1095,12 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Create context menu here
             QMenu menu(ui->configuration_tree);
 
+            QAction *edit_action = new QAction("Select Layers...", nullptr);
+            edit_action->setEnabled(active && item != nullptr);
+            menu.addAction(edit_action);
+
+            menu.addSeparator();
+
             QAction *new_action = new QAction("New...", nullptr);
             new_action->setEnabled(active);
             menu.addAction(new_action);
@@ -1128,12 +1128,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QAction *export_action = new QAction("Export...", nullptr);
             export_action->setEnabled(active && item != nullptr);
             menu.addAction(export_action);
-
-            menu.addSeparator();
-
-            QAction *edit_action = new QAction("Select Layers...", nullptr);
-            edit_action->setEnabled(active && item != nullptr);
-            menu.addAction(edit_action);
 
             menu.addSeparator();
 
@@ -1196,9 +1190,9 @@ void MainWindow::on_push_button_launcher_clicked() {
     Configurator &configurator = Configurator::Get();
     const Application &active_application = configurator.environment.GetActiveApplication();
 
-    auto configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
 
-    if (configuration == configurator.configurations.available_configurations.end()) {
+    if (configuration == nullptr) {
         launch_log += "- Layers fully controlled by the application.\n";
     } else if (HasMissingLayer(configuration->parameters, configurator.layers.available_layers)) {
         launch_log +=

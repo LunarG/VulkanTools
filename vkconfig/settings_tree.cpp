@@ -49,8 +49,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     Configurator &configurator = Configurator::Get();
 
     _settings_tree = build_tree;
-    auto configuration = configurator.configurations.GetActiveConfiguration();
-    assert(configuration != configurator.configurations.available_configurations.end());
+    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    assert(configuration != nullptr);
 
     build_tree->blockSignals(true);
     build_tree->clear();
@@ -66,14 +66,14 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
             const std::vector<Layer> &available_layers = configurator.layers.available_layers;
-            const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
+            const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
 
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
-            layer_item->setText(0, (parameter.key + (layer != available_layers.end() ? "" : " (Missing)")).c_str());
-            if (layer != available_layers.end()) layer_item->setToolTip(0, layer->description.c_str());
+            layer_item->setText(0, (parameter.key + (layer != nullptr ? "" : " (Missing)")).c_str());
+            if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
 
-            if (layer == available_layers.end()) continue;
+            if (layer == nullptr) continue;
 
             // Handle the case were we get off easy. No settings.
             if (parameter.settings.empty()) {
@@ -108,12 +108,11 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             Parameter &parameter = configuration->parameters[i];
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
-            const std::vector<Layer>::const_iterator layer =
-                FindItByKey(configurator.layers.available_layers, parameter.key.c_str());
+            const Layer *layer = FindByKey(configurator.layers.available_layers, parameter.key.c_str());
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, (parameter.key + (layer != configurator.layers.available_layers.end() ? "" : " (Missing)")).c_str());
-            if (layer != configurator.layers.available_layers.end()) {
+            child->setText(0, (parameter.key + (layer != nullptr ? "" : " (Missing)")).c_str());
+            if (layer != nullptr) {
                 child->setToolTip(0, layer->description.c_str());
             }
             excluded_layers->addChild(child);
@@ -139,8 +138,8 @@ void SettingsTreeManager::CleanupGUI() {
 
     Configurator &configurator = Configurator::Get();
 
-    std::vector<Configuration>::iterator configuration = configurator.configurations.GetActiveConfiguration();
-    if (configuration == configurator.configurations.available_configurations.end()) return;
+    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    if (configuration == nullptr) return;
 
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, _settings_tree->invisibleRootItem());
@@ -165,7 +164,7 @@ void SettingsTreeManager::CleanupGUI() {
 void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter) {
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
-    std::vector<Layer>::iterator validation_layer = FindItByKey(available_layers, "VK_LAYER_KHRONOS_validation");
+    Layer *validation_layer = FindByKey(available_layers, "VK_LAYER_KHRONOS_validation");
 
     QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
     validation_areas_item->setText(0, "Validation Areas");
@@ -325,7 +324,7 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
-    const std::vector<LayerSettingMeta> &layer_setting_metas = FindItByKey(available_layers, parameter.key.c_str())->settings;
+    const std::vector<LayerSettingMeta> &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
 
     for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; ++setting_index) {
         const LayerSettingMeta &layer_setting_meta = layer_setting_metas[setting_index];

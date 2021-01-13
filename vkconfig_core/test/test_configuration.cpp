@@ -108,8 +108,8 @@ TEST(test_configuration, load_and_save_v2_0_1_api_dump) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    ASSERT_TRUE(parameter != nullptr);
 
     configuration_loaded.key = "Api Dump";
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_api_dump.json");
@@ -128,8 +128,8 @@ TEST(test_configuration, load_and_save_v2_0_1_frame_capture) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    ASSERT_TRUE(parameter != nullptr);
 
     configuration_loaded.key = "Frame Capture";
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_frame_capture.json");
@@ -148,8 +148,8 @@ TEST(test_configuration, load_and_save_v2_0_2_frame_capture) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    ASSERT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Frame Capture - Range (F5 to start and to stop)", configuration_loaded.key.c_str());
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_frame_capture.json");
@@ -168,8 +168,8 @@ TEST(test_configuration, load_and_save_v2_0_1_gpu_assisted) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     configuration_loaded.key = "GPU-Assisted";
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_gpu_assisted.json");
@@ -188,8 +188,8 @@ TEST(test_configuration, load_and_save_v2_0_2_gpu_assisted) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Validation - GPU-Assisted", configuration_loaded.key.c_str());
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_gpu_assisted.json");
@@ -208,8 +208,8 @@ TEST(test_configuration, load_and_save_v2_0_1_shader_printf) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     configuration_loaded.key = "shader-printf";
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_shader_printf.json");
@@ -228,8 +228,8 @@ TEST(test_configuration, load_and_save_v2_0_2_debug_printf) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Validation - Debug Printf", configuration_loaded.key.c_str());
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_shader_printf.json");
@@ -248,8 +248,8 @@ TEST(test_configuration, load_and_save_v2_0_1_best_practices) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     configuration_loaded.key = "best-practices";
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_1_best_practices.json");
@@ -268,8 +268,8 @@ TEST(test_configuration, load_and_save_v2_0_2_best_practices) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Validation - Best Practices", configuration_loaded.key.c_str());
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_best_practices.json");
@@ -288,28 +288,28 @@ TEST(test_configuration, load_and_save_v2_0_2_override_all_layers) {
     EXPECT_EQ(6, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter_validation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter_validation != configuration_loaded.parameters.end());
+    Parameter* parameter_validation = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter_validation != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_validation->state);
 
-    auto parameter_api_dump = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
-    ASSERT_TRUE(parameter_api_dump != configuration_loaded.parameters.end());
+    Parameter* parameter_api_dump = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    ASSERT_TRUE(parameter_api_dump != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_api_dump->state);
 
-    auto parameter_device_simulation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
-    ASSERT_TRUE(parameter_device_simulation != configuration_loaded.parameters.end());
+    Parameter* parameter_device_simulation = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
+    ASSERT_TRUE(parameter_device_simulation != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_device_simulation->state);
 
-    auto parameter_gfxreconstruct = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
-    ASSERT_TRUE(parameter_gfxreconstruct != configuration_loaded.parameters.end());
+    Parameter* parameter_gfxreconstruct = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    ASSERT_TRUE(parameter_gfxreconstruct != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_gfxreconstruct->state);
 
-    auto parameter_monitor = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
-    ASSERT_TRUE(parameter_monitor != configuration_loaded.parameters.end());
+    Parameter* parameter_monitor = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
+    ASSERT_TRUE(parameter_monitor != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_monitor->state);
 
-    auto parameter_screenshot = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_screenshot");
-    ASSERT_TRUE(parameter_screenshot != configuration_loaded.parameters.end());
+    Parameter* parameter_screenshot = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_screenshot");
+    ASSERT_TRUE(parameter_screenshot != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_screenshot->state);
 
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_override_all_layers.json");
@@ -328,28 +328,28 @@ TEST(test_configuration, load_and_save_v2_0_2_exclude_all_layers) {
     EXPECT_EQ(6, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter_validation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter_validation != configuration_loaded.parameters.end());
+    Parameter* parameter_validation = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter_validation != nullptr);
     EXPECT_EQ(LAYER_STATE_EXCLUDED, parameter_validation->state);
 
-    auto parameter_api_dump = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
-    ASSERT_TRUE(parameter_api_dump != configuration_loaded.parameters.end());
+    Parameter* parameter_api_dump = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    ASSERT_TRUE(parameter_api_dump != nullptr);
     EXPECT_EQ(LAYER_STATE_EXCLUDED, parameter_api_dump->state);
 
-    auto parameter_device_simulation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
-    ASSERT_TRUE(parameter_device_simulation != configuration_loaded.parameters.end());
+    Parameter* parameter_device_simulation = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
+    ASSERT_TRUE(parameter_device_simulation != nullptr);
     EXPECT_EQ(LAYER_STATE_EXCLUDED, parameter_device_simulation->state);
 
-    auto parameter_gfxreconstruct = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
-    ASSERT_TRUE(parameter_gfxreconstruct != configuration_loaded.parameters.end());
+    Parameter* parameter_gfxreconstruct = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    ASSERT_TRUE(parameter_gfxreconstruct != nullptr);
     EXPECT_EQ(LAYER_STATE_EXCLUDED, parameter_gfxreconstruct->state);
 
-    auto parameter_monitor = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
-    ASSERT_TRUE(parameter_monitor != configuration_loaded.parameters.end());
+    Parameter* parameter_monitor = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
+    ASSERT_TRUE(parameter_monitor != nullptr);
     EXPECT_EQ(LAYER_STATE_EXCLUDED, parameter_monitor->state);
 
-    auto parameter_screenshot = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_screenshot");
-    ASSERT_TRUE(parameter_screenshot != configuration_loaded.parameters.end());
+    Parameter* parameter_screenshot = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_screenshot");
+    ASSERT_TRUE(parameter_screenshot != nullptr);
     EXPECT_EQ(LAYER_STATE_EXCLUDED, parameter_screenshot->state);
 
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_2_exclude_all_layers.json");
@@ -425,8 +425,8 @@ TEST(test_configuration, find_layer_parameter) {
     const bool load_2_0_1 = configuration_2_0_1.Load(std::vector<Layer>(), ":/Configuration 2.0.1 - Standard.json");
     ASSERT_TRUE(load_2_0_1);
 
-    auto parameter = FindItByKey(configuration_2_0_1.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_2_0_1.parameters.end());
+    Parameter* parameter = FindByKey(configuration_2_0_1.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ(parameter->key.c_str(), "VK_LAYER_KHRONOS_validation");
 }
@@ -439,8 +439,8 @@ TEST(test_configuration, load_and_save_v2_0_3_best_practices) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Validation - Best Practices", configuration_loaded.key.c_str());
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_0_3_best_practices.json");
@@ -459,8 +459,8 @@ TEST(test_configuration, load_and_save_v2_1_0_Frame_Capture) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
-    ASSERT_TRUE(parameter != configuration_loaded.parameters.end());
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    ASSERT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Frame Capture", configuration_loaded.key.c_str());
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_1_0_frame_capture.json");
@@ -479,17 +479,17 @@ TEST(test_configuration, load_and_save_v2_1_0_Portability) {
     EXPECT_EQ(6, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter_validation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
-    ASSERT_TRUE(parameter_validation != configuration_loaded.parameters.end());
+    Parameter* parameter_validation = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    ASSERT_TRUE(parameter_validation != nullptr);
 
-    auto parameter_simulation = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
-    ASSERT_TRUE(parameter_simulation != configuration_loaded.parameters.end());
+    Parameter* parameter_simulation = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
+    ASSERT_TRUE(parameter_simulation != nullptr);
 
-    auto parameter_api_dump = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
-    ASSERT_TRUE(parameter_api_dump != configuration_loaded.parameters.end());
+    Parameter* parameter_api_dump = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    ASSERT_TRUE(parameter_api_dump != nullptr);
 
-    auto parameter_monitor = FindItByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
-    ASSERT_TRUE(parameter_monitor != configuration_loaded.parameters.end());
+    Parameter* parameter_monitor = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
+    ASSERT_TRUE(parameter_monitor != nullptr);
 
     EXPECT_STREQ("Portability", configuration_loaded.key.c_str());
     configuration_loaded.Save(std::vector<Layer>(), "test_v2_1_0_portability.json");

@@ -132,7 +132,8 @@ bool Configurator::Init() {
     }
 
     if (configurations.HasActiveConfiguration(layers.available_layers)) {
-        auto active_configuration = configurations.GetActiveConfiguration();
+        Configuration *active_configuration = configurations.GetActiveConfiguration();
+        assert(active_configuration != nullptr);
 
         if (HasMissingLayer(active_configuration->parameters, layers.available_layers)) {
             QSettings settings;

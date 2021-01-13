@@ -41,7 +41,7 @@ class LayersDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit LayersDialog(QWidget *parent, const Configuration &configuration);
+    explicit LayersDialog(QWidget *parent, Configuration &configuration);
     ~LayersDialog();
 
     void LoadAvailableLayersUI();
@@ -77,7 +77,7 @@ class LayersDialog : public QDialog {
     void OverrideAllExplicitLayers();
     void OverrideOrder(const std::string &layer_name, const TreeWidgetItemParameter *below, const TreeWidgetItemParameter *above);
 
-    Configuration configuration;
+    Configuration &configuration;
     std::vector<Parameter> parameters;  // List of available layers and configuration layers
     std::string selected_available_layer_name;
     std::string selected_sorted_layer_name;

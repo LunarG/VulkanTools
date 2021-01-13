@@ -36,22 +36,20 @@ class ConfigurationManager {
 
     void SaveAllConfigurations(const std::vector<Layer>& available_layers);
 
-    Configuration* DuplicateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
+    Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
+
+    void RemoveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
 
     void ImportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_import_path);
     void ExportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_export_path,
                              const std::string& configuration_name);
 
-    std::vector<Configuration>::iterator GetActiveConfiguration() const { return active_configuration; }
-    void SetActiveConfiguration(const std::vector<Layer>& available_layers,
-                                std::vector<Configuration>::iterator active_configuration);
+    Configuration* GetActiveConfiguration() const { return active_configuration; }
+    void SetActiveConfiguration(const std::vector<Layer>& available_layers, Configuration* active_configuration);
     void SetActiveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
     bool HasActiveConfiguration(const std::vector<Layer>& available_layers) const;
 
     void RefreshConfiguration(const std::vector<Layer>& available_layers);
-
-    void RemoveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
-    void RemoveConfigurationFiles();
 
     void ResetDefaultsConfigurations(const std::vector<Layer>& available_layers);
 
@@ -60,9 +58,11 @@ class ConfigurationManager {
     std::vector<Configuration> available_configurations;
 
    private:
+    void RemoveConfigurationFiles();
+
     void LoadConfigurationsPath(const std::vector<Layer>& available_layers, PathType path_type);
 
-    std::vector<Configuration>::iterator active_configuration;
+    Configuration* active_configuration;
 
     const PathManager& path_manager;
     Environment& environment;
