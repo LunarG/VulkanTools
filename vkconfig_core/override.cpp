@@ -45,8 +45,8 @@ static bool WriteLayerOverride(const Environment& environment, const std::vector
 
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
-        if (layer == available_layers.end()) {
+        const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+        if (layer == nullptr) {
             has_missing_layers = true;
             continue;
         }
@@ -143,8 +143,8 @@ static bool WriteLayerSettings(const Environment& environment, const std::vector
     for (std::size_t j = 0, n = configuration.parameters.size(); j < n; ++j) {
         const Parameter& parameter = configuration.parameters[j];
 
-        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
-        if (layer == available_layers.end()) {
+        const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+        if (layer == nullptr) {
             has_missing_layers = true;
             continue;
         }

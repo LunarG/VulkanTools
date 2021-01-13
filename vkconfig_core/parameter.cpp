@@ -47,8 +47,8 @@ bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter) {
     assert(!parameter.key.empty());
 
-    const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
-    if (layer == available_layers.end()) {
+    const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+    if (layer == nullptr) {
         return PARAMETER_RANK_MISSING;
     } else if (parameter.state == LAYER_STATE_EXCLUDED) {
         return PARAMETER_RANK_EXCLUDED;

@@ -56,7 +56,7 @@ inline constexpr std::size_t countof(C<T, Alloc> const& data) noexcept {
 std::string format(const char* message, ...);
 
 bool IsNumber(const std::string& s);
-
+/*
 template <typename T>
 typename std::vector<T>::iterator FindItByKey(std::vector<T>& container, const char* key) {
     assert(key != nullptr);
@@ -80,7 +80,7 @@ typename std::vector<T>::const_iterator FindItByKey(const std::vector<T>& contai
 
     return container.end();
 }
-
+*/
 template <typename T>
 T* FindByKey(std::vector<T>& container, const char* key) {
     assert(key != nullptr);

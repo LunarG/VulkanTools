@@ -188,10 +188,10 @@ TEST(test_parameter, order_manual) {
     std::vector<Layer> layers = GenerateTestLayers();
     std::vector<Parameter> parameters = GenerateTestParametersAll();
 
-    auto layer_e0 = FindItByKey(parameters, "Layer E0");
+    Parameter* layer_e0 = FindByKey(parameters, "Layer E0");
     layer_e0->overridden_rank = 14;
 
-    auto layer_c0 = FindItByKey(parameters, "Layer C0");
+    Parameter* layer_c0 = FindByKey(parameters, "Layer C0");
     layer_c0->overridden_rank = 15;
 
     OrderParameter(parameters, layers);

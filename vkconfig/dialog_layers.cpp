@@ -109,7 +109,7 @@ static bool IsDLL32Bit(const std::string full_path) {
 #endif
 }
 
-LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
+LayersDialog::LayersDialog(QWidget *parent, Configuration &configuration)
     : QDialog(parent), configuration(configuration), ui(new Ui::dialog_layers) {
     assert(parent);
     assert(&configuration);
@@ -205,15 +205,14 @@ void LayersDialog::OnLayerTreeSortedClicked(QTreeWidgetItem *item, int column) {
 void LayersDialog::AddLayerItem(const Parameter &parameter) {
     assert(!parameter.key.empty());
 
-    Configurator &configurator = Configurator::Get();
-    std::vector<Layer> &available_layers = configurator.layers.available_layers;
+    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
-    const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, parameter.key.c_str());
+    const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
 
     std::string decorated_name(parameter.key);
 
     bool is_implicit_layer = false;
-    if (layer != available_layers.end()) {
+    if (layer != nullptr) {
         if (IsDLL32Bit(layer->_layer_path)) decorated_name += " (32-bit)";
 
         if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
@@ -228,7 +227,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 
     item->setText(0, decorated_name.c_str());
     item->setFlags(item->flags() | Qt::ItemIsSelectable);
-    item->setDisabled(layer == available_layers.end());
+    item->setDisabled(layer == nullptr);
 
     // Add the top level item
     ui->layerTree->addTopLevelItem(item);
@@ -310,7 +309,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
     for (auto it = parameters.begin(); it != parameters.end(); ++it) {
         it->state = LAYER_STATE_APPLICATION_CONTROLLED;
         it->overridden_rank = Parameter::NO_RANK;
-        it->settings = CollectDefaultSettingData(FindItByKey(configurator.layers.available_layers, it->key.c_str())->settings);
+        it->settings = CollectDefaultSettingData(FindByKey(configurator.layers.available_layers, it->key.c_str())->settings);
     }
 
     OrderParameter(parameters, configurator.layers.available_layers);
@@ -330,10 +329,10 @@ void LayersDialog::on_pushButtonCustomLayers_clicked() {
 
 void LayersDialog::OverrideOrder(const std::string &layer_name, const TreeWidgetItemParameter *below,
                                  const TreeWidgetItemParameter *above) {
-    auto below_parameter = FindItByKey(parameters, below->layer_name.c_str());
-    assert(below_parameter != parameters.end());
-    auto above_parameter = FindItByKey(parameters, above->layer_name.c_str());
-    assert(above_parameter != parameters.end());
+    Parameter *below_parameter = FindByKey(parameters, below->layer_name.c_str());
+    assert(below_parameter != nullptr);
+    Parameter *above_parameter = FindByKey(parameters, above->layer_name.c_str());
+    assert(above_parameter != nullptr);
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
 
@@ -380,8 +379,8 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
 
     selected_available_layer_name = layer_item->layer_name.c_str();
 
-    const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, layer_item->layer_name.c_str());
-    if (layer != available_layers.end()) {
+    const Layer *layer = FindByKey(available_layers, layer_item->layer_name.c_str());
+    if (layer != nullptr) {
         std::string detailsText = layer->description;
         detailsText += "\n";
         detailsText += std::string("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
@@ -416,8 +415,8 @@ void LayersDialog::OverrideAllExplicitLayers() {
         Configurator &configurator = Configurator::Get();
         std::vector<Layer> &available_layers = configurator.layers.available_layers;
 
-        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, it->key.c_str());
-        if (layer == available_layers.end()) continue;
+        const Layer *layer = FindByKey(available_layers, it->key.c_str());
+        if (layer == nullptr) continue;
 
         if (layer->_layer_type == LAYER_TYPE_IMPLICIT) continue;
 
@@ -437,8 +436,8 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
     TreeWidgetItemParameter *tree_layer_item = dynamic_cast<TreeWidgetItemParameter *>(item);
     assert(tree_layer_item != nullptr);
-    auto current_parameter = FindItByKey(parameters, tree_layer_item->layer_name.c_str());
-    assert(current_parameter != parameters.end());
+    Parameter *current_parameter = FindByKey(parameters, tree_layer_item->layer_name.c_str());
+    assert(current_parameter != nullptr);
 
     LayerState layer_state = static_cast<LayerState>(selection);
 
@@ -456,9 +455,9 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
         }
     } else if (layer_state == LAYER_STATE_EXCLUDED) {
         const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-        const std::vector<Layer>::const_iterator layer = FindItByKey(available_layers, tree_layer_item->layer_name.c_str());
+        const Layer *layer = FindByKey(available_layers, tree_layer_item->layer_name.c_str());
 
-        if (layer != available_layers.end()) {
+        if (layer != nullptr) {
             if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
                 QMessageBox alert;
                 alert.setWindowTitle("Implicit layer excluded...");
@@ -499,8 +498,7 @@ void LayersDialog::accept() {
 
     Configurator &configurator = Configurator::Get();
     if (configuration.key != ui->lineEditName->text().toStdString() &&
-        FindItByKey(configurator.configurations.available_configurations, ui->lineEditName->text().toStdString().c_str()) !=
-            configurator.configurations.available_configurations.end()) {
+        IsFound(configurator.configurations.available_configurations, ui->lineEditName->text().toStdString().c_str())) {
         Alert::ConfigurationRenamingFailed();
         return;
     }
@@ -510,10 +508,6 @@ void LayersDialog::accept() {
     configuration.key = ui->lineEditName->text().toStdString();
     configuration.description = ui->lineEditDescription->text().toStdString();
     configuration.parameters = parameters;
-
-    const std::string save_path = configurator.path.GetFullPath(PATH_CONFIGURATION, ui->lineEditName->text().toStdString());
-    const bool result = configuration.Save(configurator.layers.available_layers, save_path);
-    assert(result);
 
     QDialog::accept();
 }
@@ -530,7 +524,7 @@ void LayersDialog::BuildParameters() {
         if (layer._layer_type != LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is overridden
-        if (FindItByKey(configuration.parameters, layer.key.c_str()) != configuration.parameters.end()) continue;
+        if (IsFound(configuration.parameters, layer.key.c_str())) continue;
 
         Parameter parameter;
         parameter.key = layer.key;
@@ -553,13 +547,13 @@ void LayersDialog::BuildParameters() {
         if (layer._layer_type == LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is already in the layer tree
-        if (FindItByKey(configuration.parameters, layer.key.c_str()) != configuration.parameters.end()) continue;
+        if (IsFound(configuration.parameters, layer.key.c_str())) continue;
 
         Parameter parameter;
         parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
         parameter.settings =
-            CollectDefaultSettingData(FindItByKey(configurator.layers.available_layers, layer.key.c_str())->settings);
+            CollectDefaultSettingData(FindByKey(configurator.layers.available_layers, layer.key.c_str())->settings);
 
         parameters.push_back(parameter);
     }
