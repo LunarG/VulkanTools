@@ -139,8 +139,17 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
         assert(result_legacy);
     }
 
-    // Reload to remove the configuration in the UI
-    LoadAllConfigurations(available_layers, path_manager, environment);
+    // Update the configuration in the list
+    std::vector<Configuration> updated_configurations;
+
+    for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
+        if (available_configurations[i].key == configuration_name) continue;
+        updated_configurations.push_back(available_configurations[i]);
+    }
+
+    std::swap(updated_configurations, available_configurations);
+
+    SetActiveConfiguration(available_layers, environment, available_configurations.end());
 }
 
 void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &available_layers, Environment &environment,
@@ -212,19 +221,14 @@ void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &availab
         return;
     }
 
-    configuration.key += " (Imported)";
+    configuration.key = MakeConfigurationName(this->available_configurations, configuration.key + " (Imported)");
 
-    if (!configuration.Save(available_layers, path_manager.GetFullPath(PATH_CONFIGURATION, configuration.key.c_str()))) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Import of Layers Configuration error");
-        msg.setText("Cannot create the destination configuration file.");
-        msg.setInformativeText(format("%s.json", configuration.key.c_str()).c_str());
-        msg.exec();
-        return;
-    }
+    this->available_configurations.push_back(configuration);
 
-    LoadAllConfigurations(available_layers, path_manager, environment);
+    auto it = FindItByKey(this->available_configurations, configuration.key.c_str());
+    assert(it != available_configurations.end());
+
+    SetActiveConfiguration(available_layers, environment, it);
 }
 
 void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &available_layers, const std::string &full_export_path,
