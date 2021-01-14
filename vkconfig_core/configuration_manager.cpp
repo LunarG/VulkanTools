@@ -140,8 +140,10 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
     assert(!configuration_name.empty());
 
     // Not the active configuration
-    if (active_configuration->key == configuration_name.c_str()) {
-        SetActiveConfiguration(available_layers, nullptr);
+    if (active_configuration != nullptr) {
+        if (active_configuration->key == configuration_name.c_str()) {
+            SetActiveConfiguration(available_layers, nullptr);
+        }
     }
 
     // Delete the configuration file if it exists
