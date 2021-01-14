@@ -44,15 +44,15 @@ TEST(test_layer_preset, has_preset) {
 
     EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
 
-    preset_settings.push_back(LayerSettingData("KeyA", "ValueA"));
+    preset_settings.push_back(LayerSettingData("KeyA", SETTING_STRING, "ValueA"));
     EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
 
-    layer_settings.push_back(LayerSettingData("KeyA", "ValueA"));
+    layer_settings.push_back(LayerSettingData("KeyA", SETTING_STRING, "ValueA"));
     EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
 
-    layer_settings.push_back(LayerSettingData("KeyB", "ValueB"));
+    layer_settings.push_back(LayerSettingData("KeyB", SETTING_STRING, "ValueB"));
     EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
 
-    preset_settings.push_back(LayerSettingData("KeyC", "ValueC"));
+    preset_settings.push_back(LayerSettingData("KeyC", SETTING_STRING, "ValueC"));
     EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
 }

@@ -47,7 +47,7 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
 
     switch (type) {
         case SETTING_VUID_FILTER:
-        case SETTING_INCLUSIVE_LIST: {
+        case SETTING_FLAGS: {
             assert(json_value.isArray());
             const QJsonArray& json_array = json_value.toArray();
             for (int i = 0, n = json_array.size(); i < n; ++i) {
@@ -55,7 +55,7 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
             }
             break;
         }
-        case SETTING_EXCLUSIVE_LIST:
+        case SETTING_ENUM:
         case SETTING_STRING: {
             assert(json_value.isString());
             setting_value.push_back(QVariant(json_value.toString()));
@@ -68,7 +68,7 @@ bool SettingValue::Load(const char* key, const SettingType type, const QJsonObje
             setting_value.push_back(json_value.toString());
             break;
         }
-        case SETTING_BOOL_NUMERIC:
+        case SETTING_BOOL_NUMERIC_DEPRECATED:
         case SETTING_INT: {
             assert(!json_value.isArray());
             setting_value.push_back(QVariant(json_value.toInt()));
@@ -102,7 +102,7 @@ bool SettingValue::Save(const char* key, const SettingType type, QJsonObject& js
 
     switch (type) {
         case SETTING_VUID_FILTER:
-        case SETTING_INCLUSIVE_LIST: {
+        case SETTING_FLAGS: {
             QJsonArray json_array;
             for (std::size_t i = 0, n = this->setting_value.size(); i < n; ++i) {
                 json_array.append(this->setting_value[i].toString());
@@ -110,7 +110,7 @@ bool SettingValue::Save(const char* key, const SettingType type, QJsonObject& js
             json_object.insert(key, json_array);
             break;
         }
-        case SETTING_EXCLUSIVE_LIST:
+        case SETTING_ENUM:
         case SETTING_STRING:
         case SETTING_LOAD_FILE:
         case SETTING_SAVE_FILE:
@@ -119,7 +119,7 @@ bool SettingValue::Save(const char* key, const SettingType type, QJsonObject& js
             json_object.insert(key, this->setting_value[0].toString());
             break;
         }
-        case SETTING_BOOL_NUMERIC:
+        case SETTING_BOOL_NUMERIC_DEPRECATED:
         case SETTING_INT: {
             assert(this->setting_value.size() == 1);
             json_object.insert(key, this->setting_value[0].toInt());

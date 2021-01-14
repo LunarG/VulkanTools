@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "version.h"
+
 #include <cassert>
 
 enum SettingType {  // Enum value can't be changed
@@ -29,9 +31,9 @@ enum SettingType {  // Enum value can't be changed
     SETTING_LOAD_FILE,
     SETTING_SAVE_FOLDER,
     SETTING_BOOL,
-    SETTING_BOOL_NUMERIC,  // Deprecated
-    SETTING_EXCLUSIVE_LIST,
-    SETTING_INCLUSIVE_LIST,
+    SETTING_BOOL_NUMERIC_DEPRECATED,  // Deprecated
+    SETTING_ENUM,
+    SETTING_FLAGS,
     SETTING_INT_RANGE,
     SETTING_VUID_FILTER,
 
@@ -47,7 +49,7 @@ const char* GetSettingToken(SettingType type);
 inline bool IsEnum(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 
-    return type == SETTING_EXCLUSIVE_LIST || type == SETTING_INCLUSIVE_LIST;
+    return type == SETTING_ENUM || type == SETTING_FLAGS;
 }
 
 inline bool IsPath(SettingType type) {

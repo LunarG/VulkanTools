@@ -27,11 +27,11 @@
 static const char *VKCONFIG_NAME = "Vulkan Configurator";
 static const char *VKCONFIG_SHORT_NAME = "vkconfig";
 
-static const bool SUPPORT_VKCONFIG_2_0_0 = true;
-static const bool SUPPORT_VKCONFIG_2_0_1 = true;
-static const bool SUPPORT_VKCONFIG_2_0_2 = true;
-static const bool SUPPORT_VKCONFIG_2_0_3 = true;
-static const bool SUPPORT_VKCONFIG_2_1_0 = true;
+#define SUPPORT_VKCONFIG_2_0_0 1
+#define SUPPORT_VKCONFIG_2_0_1 1
+#define SUPPORT_VKCONFIG_2_0_2 1
+#define SUPPORT_VKCONFIG_2_0_3 1
+#define SUPPORT_VKCONFIG_2_1_0 1
 
 class Version {
    public:

@@ -22,6 +22,8 @@
 #include "util.h"
 
 SettingType GetSettingType(const char* token) {
+    if (SUPPORT_VKCONFIG_2_1_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;
+
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
         if (ToUpperCase(token) == GetSettingToken(type)) return type;
@@ -41,9 +43,9 @@ const char* GetSettingToken(SettingType type) {
         "LOAD_FILE",     // SETTING_LOAD_FILE
         "SAVE_FOLDER",   // SETTING_SAVE_FOLDER
         "BOOL",          // SETTING_BOOL
-        "BOOL_NUMERIC",  // SETTING_BOOL_NUMERIC
-        "ENUM",          // SETTING_EXCLUSIVE_LIST
-        "FLAGS",         // SETTING_INCLUSIVE_LIST
+        "BOOL_NUMERIC",  // SETTING_BOOL_NUMERIC_DEPRECATED
+        "ENUM",          // SETTING_ENUM
+        "FLAGS",         // SETTING_FLAGS
         "INT_RANGE",     // SETTING_RANGE_INT
         "VUID_EXCLUDE"   // SETTING_VUID_FILTER
     };

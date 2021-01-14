@@ -56,30 +56,37 @@
                 "settings": [
                     {
                         "key": "debug_action",
+                        "type": "FLAGS",
                         "value": "VK_DBG_LAYER_ACTION_LOG_MSG"
                     },
                     {
                         "key": "disables",
+                        "type": "FLAGS",
                         "value": "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT"
                     },
                     {
-                        "key": "duplicate_message_limit",
-                        "value": 10
-                    },
-                    {
                         "key": "enables",
+                        "type": "FLAGS",
                         "value": ""
                     },
                     {
+                        "key": "duplicate_message_limit",
+                        "type": "INT",
+                        "value": 10
+                    },
+                    {
                         "key": "log_filename",
+                        "type": "SAVE_FILE",
                         "value": "stdout"
                     },
                     {
                         "key": "message_id_filter",
+                        "type": "VUID_EXCLUDE",
                         "value": ""
                     },
                     {
                         "key": "report_flags",
+                        "type": "FLAGS",
                         "value": "error,perf,info,warn"
                     }
                 ],
@@ -91,18 +98,22 @@
                 "settings": [
                     {
                         "key": "debug_enable",
+                        "type": "BOOL",
                         "value": true
                     },
                     {
                         "key": "emulate_portability",
+                        "type": "BOOL",
                         "value": true
                     },
                     {
                         "key": "exit_on_error",
+                        "type": "BOOL",
                         "value": false
                     },
                     {
                         "key": "filename",
+                        "type": "LOAD_FILE",
                         "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
                     }
                 ],

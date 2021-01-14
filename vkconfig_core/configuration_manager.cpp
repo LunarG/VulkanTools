@@ -45,15 +45,12 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
         for (int i = 0, n = configuration_files.size(); i < n; ++i) {
             Configuration configuration;
             const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
+            assert(result);
 
             if (!configuration.IsAvailableOnThisPlatform()) continue;
 
             OrderParameter(configuration.parameters, available_layers);
-            if (result) {
-                const std::string &path = path_manager.GetFullPath(PATH_CONFIGURATION, configuration.key.c_str());
-                const bool result = configuration.Save(available_layers, path);
-                assert(result);
-            }
+            available_configurations.push_back(configuration);
         }
 
         environment.first_run = false;

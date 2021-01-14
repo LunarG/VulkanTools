@@ -95,19 +95,19 @@
             },
             "VK_LAYER_LUNARG_api_dump": {
                 "detailed": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
                     "name": "Detailed Output",
                     "type": "bool"
                 },
                 "file": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "Setting this to true indicates that output should be written to file instead of stdout",
                     "name": "Output to File",
                     "type": "bool"
                 },
                 "flush": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Setting this to true causes IO to be flushed after each API call that is written",
                     "name": "Log Flush After Write",
                     "type": "bool"
@@ -132,7 +132,7 @@
                     "type": "string"
                 },
                 "no_addr": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
                     "name": "Hide Addresses",
                     "type": "bool"
@@ -155,19 +155,25 @@
                     "type": "string"
                 },
                 "show_shader": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
                     "name": "Show Shader",
                     "type": "bool"
                 },
+                "detailed": {
+                    "default": "TRUE",
+                    "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
+                    "name": "Detailed Output",
+                    "type": "bool"
+                },
                 "show_timestamp": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "Show the timestamp of function calls since start in microseconds",
                     "name": "Show Timestamp",
                     "type": "bool"
                 },
                 "show_types": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Setting this to true causes types to be dumped in addition to values",
                     "name": "Show Types",
                     "type": "bool"
@@ -179,7 +185,7 @@
                     "type": "string"
                 },
                 "use_spaces": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Setting this to true causes all tab characters to be replaced with spaces",
                     "name": "Use Spaces",
                     "type": "bool"
@@ -226,13 +232,13 @@
                     "type": "save_file"
                 },
                 "capture_file_flush": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
                     "name": "Capture File Flush After Write",
                     "type": "bool"
                 },
                 "capture_file_timestamp": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
                     "name": "Capture File Name with Timestamp",
                     "type": "bool"
@@ -268,7 +274,7 @@
                 },
                 "layer_rank": 3,
                 "log_break_on_error": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "Trigger a debug break when logging an error.",
                     "name": "Trigger Debug Break on Error",
                     "type": "bool"
@@ -280,19 +286,19 @@
                     "type": "save_file"
                 },
                 "log_file_create_new": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
                     "name": "Log File Overwrite",
                     "type": "bool"
                 },
                 "log_file_flush_after_write": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "Flush the log file to disk after each write when true.",
                     "name": "Log File Flush After Write",
                     "type": "bool"
                 },
                 "log_file_keep_open": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Keep the log file open between log messages when true, or close and reopen the log file for each message when false.",
                     "name": "Log File Keep Open",
                     "type": "bool"
@@ -311,13 +317,13 @@
                     "type": "enum"
                 },
                 "log_output_to_console": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "Log messages will be written to stdout.",
                     "name": "Log Output to Console / stdout",
                     "type": "bool"
                 },
                 "log_output_to_os_debug_string": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
                     "name": "Log Output to Debug Console",
                     "type": "bool"
@@ -334,19 +340,19 @@
                     "type": "enum"
                 },
                 "page_guard_copy_on_map": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
                     "name": "Page Guard Copy on Map",
                     "type": "bool"
                 },
                 "page_guard_external_memory": {
-                    "default": "",
+                    "default": "FALSE",
                     "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
                     "name": "Page Guard External Memory",
                     "type": "bool"
                 },
                 "page_guard_separate_read": {
-                    "default": "",
+                    "default": "TRUE",
                     "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
                     "name": "Page Guard Separate Read Tracking",
                     "type": "bool"
