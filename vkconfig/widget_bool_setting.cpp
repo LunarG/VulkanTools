@@ -24,16 +24,15 @@
 #include <cassert>
 
 BoolSettingWidget::BoolSettingWidget(const LayerSettingMeta& layer_setting_meta, LayerSettingData& layer_setting_data)
-    : true_token(GetToken(true, layer_setting_meta.type)),
-      false_token(GetToken(false, layer_setting_meta.type)),
-      layer_setting_meta(layer_setting_meta),
+    : true_token(GetToken(true, layer_setting_data.type)),
+      false_token(GetToken(false, layer_setting_data.type)),
       layer_setting_data(layer_setting_data) {
     assert(&layer_setting_meta);
     assert(&layer_setting_data);
 
     setText(layer_setting_meta.label.c_str());
     setToolTip(layer_setting_meta.description.c_str());
-    setChecked(layer_setting_data.value == GetToken(true, layer_setting_meta.type));
+    setChecked(layer_setting_data.value == GetToken(true, layer_setting_data.type));
     connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
@@ -49,7 +48,7 @@ std::string BoolSettingWidget::GetToken(bool state, SettingType setting_type) co
     switch (setting_type) {
         case SETTING_BOOL:
             return state ? "TRUE" : "FALSE";
-        case SETTING_BOOL_NUMERIC:
+        case SETTING_BOOL_NUMERIC_DEPRECATED:
             return state ? "1" : "0";
         default:
             assert(0);

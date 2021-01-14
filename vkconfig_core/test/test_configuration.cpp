@@ -79,8 +79,12 @@ static bool operator==(const std::vector<Parameter>& a, const std::vector<Parame
         if (a[i].settings.size() != b[i].settings.size()) return false;
 
         for (std::size_t j = 0, o = a[i].settings.size(); j < o; ++j) {
-            if (a[i].settings[j].key != b[i].settings[j].key) return false;
-            if (a[i].settings[j].value != b[i].settings[j].value) return false;
+            if (a[i].settings[j].key != b[i].settings[j].key) {
+                return false;
+            }
+            if (a[i].settings[j].value != b[i].settings[j].value) {
+                return false;
+            }
         }
     }
 

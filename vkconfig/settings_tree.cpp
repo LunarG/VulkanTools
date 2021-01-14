@@ -337,8 +337,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
         parent->addChild(setting_item);
 
         switch (layer_setting_meta.type) {
-            case SETTING_BOOL:          // True false?
-            case SETTING_BOOL_NUMERIC:  // True false? (with numeric output instead of text)
+            case SETTING_BOOL:                     // True false?
+            case SETTING_BOOL_NUMERIC_DEPRECATED:  // True false? (with numeric output instead of text)
             {
                 BoolSettingWidget *widget = new BoolSettingWidget(layer_setting_meta, *layer_setting_data);
                 _settings_tree->setItemWidget(setting_item, 0, widget);
@@ -368,7 +368,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
-            case SETTING_EXCLUSIVE_LIST:  // Combobox - enum - just one thing
+            case SETTING_ENUM:  // Combobox - enum - just one thing
             {
                 setting_item->setText(0, layer_setting_meta.label.c_str());
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();

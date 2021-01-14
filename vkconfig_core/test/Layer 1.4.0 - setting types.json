@@ -34,7 +34,7 @@
                 "key": "FLAGS",
                 "label": "flags",
                 "description": "flags case",
-                "type": "FLAGS",
+                "type": "MULTI_ENUM",
                 "options": {
                     "flag0": "Flag 0",
                     "flag1": "Flag 1",
@@ -59,7 +59,7 @@
             },
             {
                 "key": "BOOL_NUMERIC",
-                "label": "bool numeric",
+                "label": "bool numeric deprecated",
                 "description": "1 or 0",
                 "type": "BOOL_NUMERIC",
                 "default": true

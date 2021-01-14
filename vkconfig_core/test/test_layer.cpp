@@ -30,6 +30,7 @@ TEST(test_layer, collect_settings) {
 
     LayerSettingMeta meta0;
     meta0.key = "key0";
+    meta0.type = SETTING_STRING;
     meta0.default_value = "value0";
     meta.push_back(meta0);
 

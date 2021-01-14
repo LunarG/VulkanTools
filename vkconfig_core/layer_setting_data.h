@@ -20,13 +20,15 @@
 
 #pragma once
 
+#include "layer_setting_type.h"
+
 #include <string>
 
-// TODO: replace with SettingValue
 struct LayerSettingData {
     LayerSettingData() {}
-    LayerSettingData(const char* key, const char* value);
+    LayerSettingData(const char* key, SettingType type, const char* value);
 
     std::string key;
+    SettingType type;
     std::string value;
 };

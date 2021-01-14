@@ -52,6 +52,5 @@ class BoolSettingWidget : public QCheckBox {
     const std::string true_token;
     const std::string false_token;
 
-    const LayerSettingMeta& layer_setting_meta;
     LayerSettingData& layer_setting_data;
 };

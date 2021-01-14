@@ -157,8 +157,8 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
             setting.type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
 
             switch (setting.type) {
-                case SETTING_EXCLUSIVE_LIST:
-                case SETTING_INCLUSIVE_LIST: {
+                case SETTING_ENUM:
+                case SETTING_FLAGS: {
                     // Now we have a list of options, both the enum for the settings file, and the prompts
                     const QJsonValue& json_value_options = json_setting.value("options");
                     assert(json_value_options != QJsonValue::Undefined);
@@ -196,7 +196,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     setting.default_value = ReadBoolValue(json_setting, "default") ? "TRUE" : "FALSE";
                     break;
                 }
-                case SETTING_BOOL_NUMERIC: {
+                case SETTING_BOOL_NUMERIC_DEPRECATED: {
                     setting.default_value = ReadBoolValue(json_setting, "default") ? "1" : "0";
                     break;
                 }
@@ -235,7 +235,21 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
                 LayerSettingData setting_value;
                 setting_value.key = ReadStringValue(json_setting_object, "key");
-                setting_value.value = ReadString(json_setting_object, "value");
+                setting_value.type = FindByKey(settings, setting_value.key.c_str())->type;
+                switch (setting_value.type) {
+                    case SETTING_BOOL:
+                        setting_value.value = ReadBoolValue(json_setting_object, "value") ? "TRUE" : "FALSE";
+                        break;
+                    case SETTING_BOOL_NUMERIC_DEPRECATED:  // deprecated
+                        setting_value.value = ReadBoolValue(json_setting_object, "value") ? "1" : "0";
+                        break;
+                    case SETTING_INT:
+                        setting_value.value = format("%d", ReadIntValue(json_setting_object, "value"));
+                        break;
+                    default:
+                        setting_value.value = ReadString(json_setting_object, "value");
+                        break;
+                }
                 preset.settings.push_back(setting_value);
             }
 
@@ -252,7 +266,7 @@ std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerS
     std::vector<LayerSettingData> result;
 
     for (std::size_t i = 0, n = meta.size(); i < n; ++i) {
-        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].default_value.c_str()));
+        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].type, meta[i].default_value.c_str()));
     }
 
     return result;

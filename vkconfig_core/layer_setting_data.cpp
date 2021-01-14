@@ -22,7 +22,8 @@
 
 #include <cassert>
 
-LayerSettingData::LayerSettingData(const char* key, const char* value) : key(key), value(value) {
+LayerSettingData::LayerSettingData(const char* key, SettingType type, const char* value) : key(key), type(type), value(value) {
     assert(key != nullptr);
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
     assert(value != nullptr);
 }
