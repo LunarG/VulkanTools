@@ -490,6 +490,84 @@ TEST(test_configuration, load_and_save_v2_1_0_Portability) {
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
 
+TEST(test_configuration, load_and_save_v2_1_0_override_all_layers) {
+    Configuration configuration_loaded;
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.1.0 - Override all layers.json");
+    EXPECT_TRUE(load_loaded);
+    EXPECT_EQ(6, configuration_loaded.parameters.size());
+    EXPECT_TRUE(!configuration_loaded.description.empty());
+
+    auto parameter_validation = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    EXPECT_TRUE(parameter_validation != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_validation->state);
+
+    auto parameter_api_dump = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    EXPECT_TRUE(parameter_api_dump != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_api_dump->state);
+
+    auto parameter_device_simulation = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
+    EXPECT_TRUE(parameter_device_simulation != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_device_simulation->state);
+
+    auto parameter_gfxreconstruct = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    EXPECT_TRUE(parameter_gfxreconstruct != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_gfxreconstruct->state);
+
+    auto parameter_monitor = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
+    EXPECT_TRUE(parameter_monitor != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_monitor->state);
+
+    auto parameter_screenshot = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_screenshot");
+    EXPECT_TRUE(parameter_screenshot != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_screenshot->state);
+
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_0_override_all_layers.json");
+
+    Configuration configuration_saved;
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_0_override_all_layers.json");
+
+    EXPECT_EQ(configuration_loaded, configuration_saved);
+}
+
+TEST(test_configuration, load_and_save_v2_2_0_override_all_layers) {
+    Configuration configuration_loaded;
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.2.0 - Override all layers.json");
+    EXPECT_TRUE(load_loaded);
+    EXPECT_EQ(6, configuration_loaded.parameters.size());
+    EXPECT_TRUE(!configuration_loaded.description.empty());
+
+    auto parameter_validation = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    EXPECT_TRUE(parameter_validation != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_validation->state);
+
+    auto parameter_api_dump = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    EXPECT_TRUE(parameter_api_dump != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_api_dump->state);
+
+    auto parameter_device_simulation = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_device_simulation");
+    EXPECT_TRUE(parameter_device_simulation != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_device_simulation->state);
+
+    auto parameter_gfxreconstruct = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    EXPECT_TRUE(parameter_gfxreconstruct != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_gfxreconstruct->state);
+
+    auto parameter_monitor = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_monitor");
+    EXPECT_TRUE(parameter_monitor != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_monitor->state);
+
+    auto parameter_screenshot = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_screenshot");
+    EXPECT_TRUE(parameter_screenshot != nullptr);
+    EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_screenshot->state);
+
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_0_override_all_layers.json");
+
+    Configuration configuration_saved;
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_0_override_all_layers.json");
+
+    EXPECT_EQ(configuration_loaded, configuration_saved);
+}
+
 static std::vector<Configuration> GenerateConfigurations() {
     std::vector<Configuration> configurations;
 
