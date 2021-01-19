@@ -634,7 +634,7 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     LayersDialog dlg(this, *configuration);
     dlg.exec();
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration->key);
     LoadConfigurationList();
 
     RestoreLastItem();
