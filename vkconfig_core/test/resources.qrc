@@ -29,5 +29,8 @@
         <file>Layer 1.4.0 - presets.json</file>
         <file>Layer 1.4.0 - setting platforms.json</file>
         <file>Layer 1.4.0 - setting types.json</file>
+        
+        <file>override_layers_1_4_0.json</file>
+        <file>override_settings_1_4_0.txt</file>
     </qresource>
 </RCC>

@@ -1,0 +1,13 @@
+
+# VK_LAYER_LUNARG_test_1_4_0_setting_types
+lunarg_test_1_4_0_setting_types.ENUM = value2
+lunarg_test_1_4_0_setting_types.FLAGS = flag0, flag2
+lunarg_test_1_4_0_setting_types.STRING = My string
+lunarg_test_1_4_0_setting_types.BOOL = TRUE
+lunarg_test_1_4_0_setting_types.BOOL_NUMERIC = 1
+lunarg_test_1_4_0_setting_types.SAVE_FILE = ./my_test.txt
+lunarg_test_1_4_0_setting_types.SAVE_FOLDER = ./my_test
+lunarg_test_1_4_0_setting_types.LOAD_FILE = ./my_test.txt
+lunarg_test_1_4_0_setting_types.INT = 82
+lunarg_test_1_4_0_setting_types.INT_RANGE = 79-82
+lunarg_test_1_4_0_setting_types.VUID_EXCLUDE = stringA,stringB
