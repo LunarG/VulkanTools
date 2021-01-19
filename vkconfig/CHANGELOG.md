@@ -30,7 +30,8 @@
 
 ### Improvements:
 - Add display of VK_LAYER_PATH content in Vulkan Development Status
-- Renamed "Custom Path" by "User-Defined Path"
+- Rename "Custom Path" by "User-Defined Path"
+- Add extension filters to load and save file layer settings #1317
 
 ## [Vulkan Configurator 2.1.0 for Vulkan SDK 1.2.162.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.1) - January 2021
 

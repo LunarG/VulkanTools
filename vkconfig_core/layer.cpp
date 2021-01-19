@@ -176,7 +176,12 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     setting.default_value = ReadString(json_setting, "default");
                 } break;
                 case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FILE:
+                case SETTING_SAVE_FILE: {
+                    setting.default_value = ReadString(json_setting, "default");
+                    if (json_setting.value("filter") != QJsonValue::Undefined) {
+                        setting.enum_labels.push_back(ReadStringValue(json_setting, "filter").c_str());
+                    }
+                } break;
                 case SETTING_SAVE_FOLDER:
                 case SETTING_INT_RANGE:
                 case SETTING_STRING: {

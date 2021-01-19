@@ -72,6 +72,7 @@
                 "label": "Devsim JSON configuration file",
                 "description": "Path of a devsim configuration file to load.",
                 "type": "LOAD_FILE",
+                "filter": "*.json",
                 "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
             },
             {
