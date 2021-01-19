@@ -109,8 +109,14 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     // Populate key items about the layer
     const QJsonObject& json_root_object = json_document.object();
-    file_format_version = ReadVersionValue(json_root_object, "file_format_version");
+    if (json_root_object.value("file_format_version") == QJsonValue::Undefined) {
+        return false;  // Not a layer JSON file
+    }
+    if (json_root_object.value("layer") == QJsonValue::Undefined) {
+        return false;  // Not a layer JSON file
+    }
 
+    file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
     key = ReadStringValue(json_layer_object, "name");

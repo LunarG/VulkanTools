@@ -25,20 +25,20 @@
 
 #include <csignal>
 
-void SurrenderLayers(int signal) {
+void SurrenderConfiguration(int signal) {
     (void)signal;
 
     PathManager paths;
     Environment environment(paths);
 
-    SurrenderLayers(environment);
+    SurrenderConfiguration(environment);
 }
 
 void InitSignals() {
-    std::signal(SIGINT, SurrenderLayers);
-    std::signal(SIGTERM, SurrenderLayers);
-    std::signal(SIGSEGV, SurrenderLayers);
-    std::signal(SIGABRT, SurrenderLayers);
-    std::signal(SIGILL, SurrenderLayers);
-    std::signal(SIGFPE, SurrenderLayers);
+    std::signal(SIGINT, SurrenderConfiguration);
+    std::signal(SIGTERM, SurrenderConfiguration);
+    std::signal(SIGSEGV, SurrenderConfiguration);
+    std::signal(SIGABRT, SurrenderConfiguration);
+    std::signal(SIGILL, SurrenderConfiguration);
+    std::signal(SIGFPE, SurrenderConfiguration);
 }

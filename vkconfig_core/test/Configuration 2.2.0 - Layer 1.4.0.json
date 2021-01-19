@@ -1,0 +1,77 @@
+{
+    "file_format_version": "2.2.0",
+    "configuration": {
+        "name": "All layers",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "description": "All layers test",
+        "editor_state": "011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_test_1_4_0_setting_types",
+                "rank": 8,
+                "settings": [
+                    {
+                        "key": "ENUM",
+                        "type": "ENUM",
+                        "value": "value2"
+                    },
+                    {
+                        "key": "FLAGS",
+                        "type": "FLAGS",
+                        "value": "flag0, flag2"
+                    },
+                    {
+                        "key": "STRING",
+                        "type": "STRING",
+                        "value": "My string"
+                    },
+                    {
+                        "key": "BOOL",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "BOOL_NUMERIC",
+                        "type": "BOOL_NUMERIC",
+                        "value": true
+                    },
+                    {
+                        "key": "SAVE_FILE",
+                        "type": "SAVE_FILE",
+                        "value": "./my_test.txt"
+                    },
+                    {
+                        "key": "SAVE_FOLDER",
+                        "type": "SAVE_FOLDER",
+                        "value": "./my_test"
+                    },
+                    {
+                        "key": "LOAD_FILE",
+                        "type": "LOAD_FILE",
+                        "value": "./my_test.txt"
+                    },
+                    {
+                        "key": "INT",
+                        "type": "INT",
+                        "value": 82
+                    },
+                    {
+                        "key": "INT_RANGE",
+                        "type": "INT_RANGE",
+                        "value": "79-82"
+                    },
+                    {
+                        "key": "VUID_EXCLUDE",
+                        "type": "VUID_EXCLUDE",
+                        "value": "stringA,stringB"
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            }
+        ]
+    }
+}

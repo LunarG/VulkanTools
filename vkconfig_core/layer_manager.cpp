@@ -96,25 +96,25 @@ void LayerManager::LoadAllInstalledLayers() {
     const std::vector<std::string> &env_user_defined_layers_paths =
         environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV);
     for (std::size_t i = 0, n = env_user_defined_layers_paths.size(); i < n; ++i) {
-        LoadLayersFromPath(env_user_defined_layers_paths[i], available_layers);
+        LoadLayersFromPath(env_user_defined_layers_paths[i]);
     }
 
     // SECOND: Any user-defined path from Vulkan Configurator? Search for those too
     const std::vector<std::string> &gui_user_defined_layers_paths =
         environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
     for (std::size_t i = 0, n = gui_user_defined_layers_paths.size(); i < n; ++i) {
-        LoadLayersFromPath(gui_user_defined_layers_paths[i], available_layers);
+        LoadLayersFromPath(gui_user_defined_layers_paths[i]);
     }
 
     // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
     for (std::size_t i = 0, n = countof(SEARCH_PATHS); i < n; i++) {
-        LoadLayersFromPath(SEARCH_PATHS[i], available_layers);
+        LoadLayersFromPath(SEARCH_PATHS[i]);
     }
 
     // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
     const std::string vulkan_sdk(qgetenv("VULKAN_SDK").toStdString());
     if (!vulkan_sdk.empty()) {
-        LoadLayersFromPath(vulkan_sdk + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS), available_layers);
+        LoadLayersFromPath(vulkan_sdk + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS));
     }
 }
 
@@ -122,7 +122,7 @@ void LayerManager::LoadAllInstalledLayers() {
 /// load the default settings for each layer. This is just a master list of
 /// layers found. Do NOT load duplicate layer names. The type of layer (explicit or implicit) is
 /// determined from the path name.
-void LayerManager::LoadLayersFromPath(const std::string &path, std::vector<Layer> &layers) {
+void LayerManager::LoadLayersFromPath(const std::string &path) {
     // On Windows custom files are in the file system. On non Windows all layers are
     // searched this way
     LayerType type = LAYER_TYPE_CUSTOM;
@@ -134,7 +134,7 @@ void LayerManager::LoadLayersFromPath(const std::string &path, std::vector<Layer
     if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
         if (QString(path.c_str()).contains("...")) {
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-            LoadRegistryLayers(path.c_str(), layers, type);
+            LoadRegistryLayers(path.c_str(), available_layers, type);
 #endif
             return;
         }
@@ -161,7 +161,7 @@ void LayerManager::LoadLayersFromPath(const std::string &path, std::vector<Layer
             if (FindByKey(available_layers, layer.key.c_str()) != nullptr) continue;
 
             // Good to go, add the layer
-            layers.push_back(layer);
+            available_layers.push_back(layer);
         }
     }
 }
