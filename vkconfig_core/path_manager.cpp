@@ -272,7 +272,7 @@ std::string PathManager::SelectPathImpl(QWidget* parent, PathType path, const st
                 return "";
 
             SetPath(path, QFileInfo(selected_path.c_str()).absolutePath().toStdString());
-            return GetFullPath(path, QFileInfo(selected_path.c_str()).baseName().toStdString());
+            return selected_path;
         }
         case PATH_EXPORT_CONFIGURATION: {
             const std::string selected_path = QFileDialog::getSaveFileName(parent, "Export Layers Configuration File",
@@ -282,7 +282,7 @@ std::string PathManager::SelectPathImpl(QWidget* parent, PathType path, const st
                 return "";
 
             SetPath(path, QFileInfo(selected_path.c_str()).absolutePath().toStdString());
-            return GetFullPath(path, QFileInfo(selected_path.c_str()).baseName().toStdString());
+            return selected_path;
         }
         default:
             assert(0);
