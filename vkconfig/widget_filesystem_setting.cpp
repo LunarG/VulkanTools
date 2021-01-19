@@ -70,12 +70,14 @@ void FileSystemSettingWidget::resizeEvent(QResizeEvent* event) {
 void FileSystemSettingWidget::browseButtonClicked() {
     std::string file;
 
+    const QString filter = layer_setting_meta.enum_labels.empty() ? QString() : layer_setting_meta.enum_labels[0];
+
     switch (_mode) {
         case MODE_OPEN_FILE:
-            file = QFileDialog::getOpenFileName(_push_button, "Select file", _line_edit->text()).toStdString();
+            file = QFileDialog::getOpenFileName(_push_button, "Select file", _line_edit->text(), filter).toStdString();
             break;
         case MODE_SAVE_FILE:
-            file = QFileDialog::getSaveFileName(_push_button, "Select File", _line_edit->text()).toStdString();
+            file = QFileDialog::getSaveFileName(_push_button, "Select File", _line_edit->text(), filter).toStdString();
             break;
         case MODE_SAVE_FOLDER:
             file = QFileDialog::getExistingDirectory(_push_button, "Select Folder", _line_edit->text()).toStdString();

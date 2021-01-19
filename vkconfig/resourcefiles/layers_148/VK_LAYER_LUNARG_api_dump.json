@@ -55,6 +55,7 @@
                 "label": "Log Filename",
                 "description": "Specifies the file to dump to when output files are enabled",
                 "type": "SAVE_FILE",
+                "filter": "*.txt",
                 "default": "vk_apidump.txt"
             },
             {

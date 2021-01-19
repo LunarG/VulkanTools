@@ -21,7 +21,8 @@
                 "key": "filename",
                 "label": "Devsim JSON configuration file",
                 "description": "Path of a devsim configuration file to load.",
-                "type": "load_file",
+                "type": "LOAD_FILE",
+                "filter": "*.json",
                 "default": ""
             },
             {
