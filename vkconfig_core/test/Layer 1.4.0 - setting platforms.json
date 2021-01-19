@@ -1,7 +1,7 @@
 {
     "file_format_version" : "1.4.0",
     "layer": {
-        "name": "VK_LAYER_LUNARG_test",
+        "name": "VK_LAYER_LUNARG_test_1_4_0_setting_platforms",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_test.dll",
         "api_version": "1.2.162",

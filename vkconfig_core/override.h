@@ -25,10 +25,11 @@
 #include "application.h"
 
 // Create the VkLayer_override.json and vk_layer_settings.txt files to take over Vulkan layers from Vulkan applications
-bool OverrideLayers(const Environment& environment, const std::vector<Layer>& available_layers, const Configuration& configuration);
+bool OverrideConfiguration(const Environment& environment, const std::vector<Layer>& available_layers,
+                           const Configuration& configuration);
 
 // Remove the VkLayer_override.json and vk_layer_settings.txt files to return full control of the layers to the Vulkan applications
-bool SurrenderLayers(const Environment& environment);
+bool SurrenderConfiguration(const Environment& environment);
 
 // Check whether a layers configuration is activated
-bool HasOverriddenLayers(const Environment& environment);
+bool HasOverride(const Environment& environment);

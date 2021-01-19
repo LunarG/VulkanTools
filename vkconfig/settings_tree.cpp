@@ -55,7 +55,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     build_tree->blockSignals(true);
     build_tree->clear();
 
-    if (!configuration->HasOverriddenLayers()) {
+    if (!configuration->HasOverride()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, "No overridden or excluded layer");
         build_tree->addTopLevelItem(item);

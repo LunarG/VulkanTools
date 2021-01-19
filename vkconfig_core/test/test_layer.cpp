@@ -44,6 +44,7 @@ TEST(test_layer, load_v1_X_0_layer_header) {
     static const char* SOURCES[] = {":/Layer 1.3.0.json", ":/Layer 1.4.0 - setting platforms.json"};
 
     static const char* FILE_FORMAT_VERSIONS[] = {"1.3.0", "1.4.0"};
+    static const char* KEYS[] = {"VK_LAYER_LUNARG_test_1_3_0", "VK_LAYER_LUNARG_test_1_4_0_setting_platforms"};
 
     for (std::size_t i = 0, n = countof(SOURCES); i < n; ++i) {
         Layer layer;
@@ -52,7 +53,7 @@ TEST(test_layer, load_v1_X_0_layer_header) {
 
         EXPECT_STREQ(FILE_FORMAT_VERSIONS[i], layer.file_format_version.str().c_str());
 
-        EXPECT_STREQ("VK_LAYER_LUNARG_test", layer.key.c_str());
+        EXPECT_STREQ(KEYS[i], layer.key.c_str());
         EXPECT_STREQ("GLOBAL", layer._type.c_str());
         EXPECT_STREQ(".\\VkLayer_test.dll", layer._library_path.c_str());
         EXPECT_STREQ("1.2.162", layer._api_version.str().c_str());

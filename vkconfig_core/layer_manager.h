@@ -36,7 +36,7 @@ class LayerManager {
     bool Empty() const;
 
     void LoadAllInstalledLayers();
-    void LoadLayersFromPath(const std::string& path, std::vector<Layer>& layers);
+    void LoadLayersFromPath(const std::string& path);
 
     std::vector<Layer> available_layers;
 

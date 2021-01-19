@@ -458,7 +458,7 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
     }
 }
 
-bool Configuration::HasOverriddenLayers() const {
+bool Configuration::HasOverride() const {
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
         if (this->parameters[i].state != LAYER_STATE_APPLICATION_CONTROLLED) return true;
     }

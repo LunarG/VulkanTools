@@ -56,7 +56,7 @@ Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.available_layers);
 
     if (!environment.UsePersistentOverrideMode()) {
-        SurrenderLayers(environment);
+        SurrenderConfiguration(environment);
     }
 }
 
