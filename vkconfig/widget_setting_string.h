@@ -21,18 +21,18 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer_setting_data.h"
-#include "../vkconfig_core/layer_setting_meta.h"
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
 
 #include <QString>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
 
-class StringSettingWidget : public QLineEdit {
+class WidgetSettingString : public QLineEdit {
     Q_OBJECT
 
    public:
-    StringSettingWidget(QTreeWidgetItem* item, const LayerSettingMeta& layer_setting_meta, LayerSettingData& layer_setting_data);
+    WidgetSettingString(QTreeWidgetItem* item, const SettingMetaString& setting_meta, SettingDataString& setting_data);
 
    public Q_SLOTS:
     void itemEdited(const QString& newString);
@@ -41,9 +41,9 @@ class StringSettingWidget : public QLineEdit {
     void itemChanged();
 
    private:
-    StringSettingWidget(const StringSettingWidget&) = delete;
-    StringSettingWidget& operator=(const StringSettingWidget&) = delete;
+    WidgetSettingString(const WidgetSettingString&) = delete;
+    WidgetSettingString& operator=(const WidgetSettingString&) = delete;
 
-    const LayerSettingMeta& layer_setting_meta;
-    LayerSettingData& layer_setting_data;
+    const SettingMetaString& setting_meta;
+    SettingDataString& setting_data;
 };

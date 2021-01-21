@@ -21,41 +21,37 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
 
 #include <QWidget>
-#include <QTreeWidgetItem>
+#include <QListWidget>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QResizeEvent>
-#include <QFileDialog>
 
-class FileSystemSettingWidget : public QWidget {
+class WidgetSettingVUIDFilter : public QWidget {
     Q_OBJECT
 
    public:
-    explicit FileSystemSettingWidget(QTreeWidgetItem *item, const LayerSettingMeta &layer_setting_meta,
-                                     LayerSettingData &layer_setting_data);
+    explicit WidgetSettingVUIDFilter(const SettingMetaVUIDFilter &setting_meta, SettingDataVUIDFilter &setting_data);
 
    public Q_SLOTS:
-    void browseButtonClicked();
-    void textFieldChanged(const QString &newText);
+    void addItem(const QString &item);
+    void removePushed();
 
    Q_SIGNALS:
     void itemChanged();
+    void itemRemoved(const QString &item);
 
    private:
-    FileSystemSettingWidget(const FileSystemSettingWidget &) = delete;
-    FileSystemSettingWidget &operator=(const FileSystemSettingWidget &) = delete;
+    WidgetSettingVUIDFilter(const WidgetSettingVUIDFilter &) = delete;
+    WidgetSettingVUIDFilter &operator=(const WidgetSettingVUIDFilter &) = delete;
 
-    virtual void resizeEvent(QResizeEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
-    enum Mode { MODE_OPEN_FILE, MODE_SAVE_FILE, MODE_SAVE_FOLDER };
-    const Mode _mode;
-    Mode GetMode(SettingType type) const;
-
-    const LayerSettingMeta &layer_setting_meta;
-    LayerSettingData &layer_setting_data;
-    QLineEdit *_line_edit;
-    QPushButton *_push_button;
+    const SettingMetaVUIDFilter &setting_meta;
+    SettingDataVUIDFilter &setting_data;
+    QListWidget *_list_widget;
+    QPushButton *_remove_button;
 };

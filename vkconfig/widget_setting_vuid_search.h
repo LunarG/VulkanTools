@@ -28,11 +28,11 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-class VUIDSearchWidget : public QWidget {
+class WidgetSettingVUIDSearch : public QWidget {
     Q_OBJECT
 
    public:
-    explicit VUIDSearchWidget(const QStringList &layer_vuids, const QString &valuesAlreadyPresent);
+    explicit WidgetSettingVUIDSearch(const std::vector<std::string> &layer_vuids, const std::vector<std::string> &selected_vuids);
 
    public Q_SLOTS:
     void addButtonPressed();
@@ -44,15 +44,15 @@ class VUIDSearchWidget : public QWidget {
     void itemChanged();
 
    private:
-    VUIDSearchWidget(const VUIDSearchWidget &) = delete;
-    VUIDSearchWidget &operator=(const VUIDSearchWidget &) = delete;
+    WidgetSettingVUIDSearch(const WidgetSettingVUIDSearch &) = delete;
+    WidgetSettingVUIDSearch &operator=(const WidgetSettingVUIDSearch &) = delete;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     void ResetCompleter();
 
-    QStringList _vuid_list;
+    std::vector<std::string> layer_vuids;
     QCompleter *_search_vuid;
     QLineEdit *_user_box;
     QPushButton *_add_button;

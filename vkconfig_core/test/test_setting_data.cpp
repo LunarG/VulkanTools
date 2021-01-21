@@ -18,6 +18,6 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../layer_setting_data.h"
+#include "../setting_data.h"
 
 #include <gtest/gtest.h>

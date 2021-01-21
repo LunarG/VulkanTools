@@ -35,10 +35,6 @@ SOURCES += \
     ../vkconfig_core/layer.cpp \
     ../vkconfig_core/layer_manager.cpp \
     ../vkconfig_core/layer_preset.cpp \
-    ../vkconfig_core/layer_setting_data.cpp \
-    ../vkconfig_core/layer_setting_meta.cpp \
-    ../vkconfig_core/layer_setting_type.cpp \
-    ../vkconfig_core/layer_setting_value.cpp \
     ../vkconfig_core/layer_state.cpp \
     ../vkconfig_core/layer_type.cpp \
     ../vkconfig_core/override.cpp \
@@ -47,19 +43,24 @@ SOURCES += \
     ../vkconfig_core/path_manager.cpp \
     ../vkconfig_core/platform.cpp \
     ../vkconfig_core/registry.cpp \
+    ../vkconfig_core/setting_data.cpp \
+    ../vkconfig_core/setting_meta.cpp \
+    ../vkconfig_core/setting_type.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
     vulkan.cpp \
     alert.cpp \
     widget_preset.cpp \
-    widget_bool_setting.cpp \
-    widget_enum_setting.cpp \
-    widget_multi_enum_setting.cpp \
-    widget_filesystem_setting.cpp \
-    widget_string_setting.cpp \
-    widget_mute_message.cpp \
+    widget_setting_bool.cpp \
+    widget_setting_enum.cpp \
+    widget_setting_filesystem.cpp \
+    widget_setting_flags.cpp \
+    widget_setting_int.cpp \
+    widget_setting_int_range.cpp \
+    widget_setting_string.cpp \
+    widget_setting_vuid_filter.cpp \
+    widget_setting_vuid_search.cpp \
     widget_tree_friendly_combobox.cpp \
-    widget_vuid_search.cpp \
     dialog_about.cpp \
     dialog_applications.cpp \
     dialog_custom_paths.cpp \
@@ -87,10 +88,6 @@ HEADERS += \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
 	../vkconfig_core/layer_preset.h \
-    ../vkconfig_core/layer_setting_data.h \
-    ../vkconfig_core/layer_setting_meta.h \
-    ../vkconfig_core/layer_setting_type.h \
-    ../vkconfig_core/layer_setting_value.h \
     ../vkconfig_core/layer_state.h \
     ../vkconfig_core/layer_type.h \
     ../vkconfig_core/override.h \
@@ -99,19 +96,24 @@ HEADERS += \
     ../vkconfig_core/path_manager.h \
     ../vkconfig_core/platform.h \
     ../vkconfig_core/registry.h \
+    ../vkconfig_core/setting_data.h \
+    ../vkconfig_core/setting_meta.h \
+    ../vkconfig_core/setting_type.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \
     vulkan.h \
     alert.h \
     widget_preset.h \
-    widget_bool_setting.h \
-    widget_enum_setting.h \
-    widget_multi_enum_setting.h \
-    widget_filesystem_setting.h \
-    widget_string_setting.h \
-    widget_mute_message.h \
+    widget_setting_bool.h \
+    widget_setting_enum.h \
+    widget_setting_filesystem.h \
+    widget_setting_flags.h \
+    widget_setting_int.h \
+    widget_setting_int_range.h \
+    widget_setting_string.h \
+    widget_setting_vuid_filter.h \
+    widget_setting_vuid_search.h \
     widget_tree_friendly_combobox.h \
-    widget_vuid_search.h \
     dialog_about.h \
     dialog_applications.h \
     dialog_custom_paths.h \

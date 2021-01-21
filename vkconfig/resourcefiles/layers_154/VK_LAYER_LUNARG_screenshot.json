@@ -35,16 +35,48 @@
                 "label": "Format",
                 "description": "This can be set to a color space for the output.",
                 "type": "ENUM",
-                "options": {
-                    "UNORM": "UNORM",
-                    "SNORM": "SNORM",
-                    "USCALED": "USCALED",
-                    "SSCALED": "SSCALED",
-                    "UINT": "UINT",
-                    "SINT": "SINT",
-                    "SRGB": "SRGB",
-                    "USE_SWAPCHAIN_COLORSPACE": "USE_SWAPCHAIN_COLORSPACE"
-                },
+                "flags": [
+                    {
+                        "key": "UNORM",
+                        "label": "UNORM",
+                        "description": ""
+                    },
+                    {
+                        "key": "SNORM",
+                        "label": "SNORM",
+                        "description": ""
+                    },
+                    {
+                        "key": "USCALED",
+                        "label": "USCALED",
+                        "description": ""
+                    },
+                    {
+                        "key": "SSCALED",
+                        "label": "SSCALED",
+                        "description": ""
+                    },
+                    {
+                        "key": "UINT",
+                        "label": "UINT",
+                        "description": ""
+                    },
+                    {
+                        "key": "SINT",
+                        "label": "SINT",
+                        "description": ""
+                    },
+                    {
+                        "key": "SRGB",
+                        "label": "SRGB",
+                        "description": ""
+                    },
+                    {
+                        "key": "USE_SWAPCHAIN_COLORSPACE",
+                        "label": "USE_SWAPCHAIN_COLORSPACE",
+                        "description": ""
+                    }
+                ],
                 "default": "USE_SWAPCHAIN_COLORSPACE"
             }
         ]

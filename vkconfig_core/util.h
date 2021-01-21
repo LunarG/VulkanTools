@@ -86,8 +86,13 @@ bool IsFound(const std::vector<T>& container, const char* key) {
     return FindByKey(container, key) != nullptr;
 }
 
-void RemoveString(std::string& delimited_string, const std::string& value);
-void AppendString(std::string& delimited_string, const std::string& value);
+// Remove a value if it's present
+void RemoveString(std::vector<std::string>& list, const std::string& value);
+
+// Add a value with no duplicate
+void AppendString(std::vector<std::string>& list, const std::string& value);
+
+bool IsStringFound(const std::vector<std::string>& list, const std::string& value);
 
 std::vector<std::string> ConvertString(const QStringList& string_list);
 

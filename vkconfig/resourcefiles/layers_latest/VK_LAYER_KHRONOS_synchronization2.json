@@ -7,6 +7,7 @@
         "api_version": "1.2.165",
         "implementation_version": "1",
         "description": "Khronos Synchronization2 layer",
+        "status": "BETA",
         "device_extensions": [
             {
                 "name": "VK_KHR_synchronization2",

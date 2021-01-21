@@ -82,32 +82,58 @@ TEST(test_util, countof_vector_3) {
 
 TEST(test_util_format, int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }
 
-TEST(test_util_format, delimited_string) {
-    std::string delimited_string;
+TEST(test_util_format, strings_list) {
+    std::vector<std::string> list;
 
-    AppendString(delimited_string, "A");
-    EXPECT_STREQ("A", delimited_string.c_str());
+    AppendString(list, "A");
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_FALSE(IsStringFound(list, "B"));
+    EXPECT_EQ(1, list.size());
 
-    AppendString(delimited_string, "A");  // A was already added to the delimited string and can only exist once
-    EXPECT_STREQ("A", delimited_string.c_str());
+    AppendString(list, "A");  // A was already added to the delimited string and can only exist once
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_FALSE(IsStringFound(list, "B"));
+    EXPECT_EQ(1, list.size());
 
-    RemoveString(delimited_string, "B");  // B doesn't exist in delimited_string
-    EXPECT_STREQ("A", delimited_string.c_str());
+    RemoveString(list, "B");  // B doesn't exist in delimited_string
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_FALSE(IsStringFound(list, "B"));
+    EXPECT_EQ(1, list.size());
 
-    AppendString(delimited_string, "B");
-    EXPECT_STREQ("A,B", delimited_string.c_str());
+    AppendString(list, "B");
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_TRUE(IsStringFound(list, "B"));
+    EXPECT_EQ(2, list.size());
 
-    AppendString(delimited_string, "C");
-    EXPECT_STREQ("A,B,C", delimited_string.c_str());
+    AppendString(list, "C");
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_TRUE(IsStringFound(list, "B"));
+    EXPECT_TRUE(IsStringFound(list, "C"));
+    EXPECT_EQ(3, list.size());
 
-    RemoveString(delimited_string, "B");
-    EXPECT_STREQ("A,C", delimited_string.c_str());
+    RemoveString(list, "B");
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_FALSE(IsStringFound(list, "B"));
+    EXPECT_TRUE(IsStringFound(list, "C"));
+    EXPECT_EQ(2, list.size());
 
-    RemoveString(delimited_string, "C");
-    EXPECT_STREQ("A", delimited_string.c_str());
+    RemoveString(list, "B");
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_FALSE(IsStringFound(list, "B"));
+    EXPECT_TRUE(IsStringFound(list, "C"));
+    EXPECT_EQ(2, list.size());
 
-    RemoveString(delimited_string, "A");
-    EXPECT_STREQ("", delimited_string.c_str());
+    RemoveString(list, "C");
+    EXPECT_TRUE(IsStringFound(list, "A"));
+    EXPECT_FALSE(IsStringFound(list, "B"));
+    EXPECT_FALSE(IsStringFound(list, "C"));
+    EXPECT_EQ(1, list.size());
+
+    RemoveString(list, "A");
+    EXPECT_FALSE(IsStringFound(list, "A"));
+    EXPECT_FALSE(IsStringFound(list, "B"));
+    EXPECT_FALSE(IsStringFound(list, "C"));
+    EXPECT_EQ(0, list.size());
 }
 
 TEST(test_util_format, find) {

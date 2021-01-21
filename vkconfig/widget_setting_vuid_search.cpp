@@ -21,17 +21,17 @@
 
 #include "../vkconfig_core/util.h"
 
-#include "widget_vuid_search.h"
+#include "widget_setting_vuid_search.h"
 
-VUIDSearchWidget::VUIDSearchWidget(const QStringList &layer_vuids, const QString &values_already_present)
-    : QWidget(nullptr), _vuid_list(layer_vuids) {
+WidgetSettingVUIDSearch::WidgetSettingVUIDSearch(const std::vector<std::string> &layer_vuids,
+                                                 const std::vector<std::string> &selected_vuids)
+    : QWidget(nullptr), layer_vuids(layer_vuids) {
     // We always want the list presented sorted. Note: This is not
     // strictly necessary.
-    _vuid_list.sort();
+    std::sort(this->layer_vuids.begin(), this->layer_vuids.end());
 
-    QStringList removeList = values_already_present.split(",");
-    for (int i = 0; i < removeList.length(); ++i) {
-        _vuid_list.removeOne(removeList[i]);
+    for (std::size_t i = 0, n = selected_vuids.size(); i < n; ++i) {
+        RemoveString(this->layer_vuids, selected_vuids[i]);
     }
 
     _user_box = new QLineEdit(this);
@@ -50,7 +50,7 @@ VUIDSearchWidget::VUIDSearchWidget(const QStringList &layer_vuids, const QString
     connect(_add_button, SIGNAL(pressed()), this, SLOT(addButtonPressed()));
 }
 
-void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
+void WidgetSettingVUIDSearch::resizeEvent(QResizeEvent *event) {
     const int button_size = 52;
     QSize parentSize = event->size();
     _user_box->setGeometry(0, 0, parentSize.width() - 2 - button_size, parentSize.height());
@@ -60,10 +60,10 @@ void VUIDSearchWidget::resizeEvent(QResizeEvent *event) {
 /// Reload the completer with a revised list of VUID's.
 /// I'm quite impressed with how fast this brute force implementation
 /// runs in release mode.
-void VUIDSearchWidget::ResetCompleter() {
+void WidgetSettingVUIDSearch::ResetCompleter() {
     if (_search_vuid != nullptr) _search_vuid->deleteLater();
 
-    _search_vuid = new QCompleter(_vuid_list, this);
+    _search_vuid = new QCompleter(ConvertString(layer_vuids), this);
     _search_vuid->setCaseSensitivity(Qt::CaseSensitive);
     _search_vuid->setCompletionMode(QCompleter::PopupCompletion);
     _search_vuid->setModelSorting(QCompleter::CaseSensitivelySortedModel);
@@ -77,7 +77,7 @@ void VUIDSearchWidget::ResetCompleter() {
 // Add the text in the edit control to the list, and clear the control
 // This is not really used much, only if they want to add something
 // that is not in the completer list.
-void VUIDSearchWidget::addButtonPressed() {
+void WidgetSettingVUIDSearch::addButtonPressed() {
     QString entry = _user_box->text();
     if (entry.isEmpty()) return;
 
@@ -86,11 +86,15 @@ void VUIDSearchWidget::addButtonPressed() {
     _user_box->setText("");
 
     // Remove the just added item from the search list
-    if (_vuid_list.removeOne(entry)) ResetCompleter();
+    std::size_t ref_size = layer_vuids.size();
+    RemoveString(layer_vuids, entry.toStdString());
+    if (ref_size > layer_vuids.size()) {
+        ResetCompleter();
+    }
 }
 
 // Clear the edit control after the completer is finished.
-void VUIDSearchWidget::addCompleted(const QString &addedItem) {
+void WidgetSettingVUIDSearch::addCompleted(const QString &addedItem) {
     (void)addedItem;
     // We can't do this right away, the completer emits it's signal
     // before it's really "complete". If we clear the control too soon
@@ -101,14 +105,14 @@ void VUIDSearchWidget::addCompleted(const QString &addedItem) {
 
 // Item was removed from master list, so add it back to the search
 // list.
-void VUIDSearchWidget::addToSearchList(const QString &newItem) {
-    _vuid_list.append(newItem);
-    _vuid_list.sort();
+void WidgetSettingVUIDSearch::addToSearchList(const QString &new_vuid) {
+    this->layer_vuids.push_back(new_vuid.toStdString());
+    std::sort(this->layer_vuids.begin(), this->layer_vuids.end());
     ResetCompleter();
 }
 
 // Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's
-bool VUIDSearchWidget::eventFilter(QObject *target, QEvent *event) {
+bool WidgetSettingVUIDSearch::eventFilter(QObject *target, QEvent *event) {
     (void)target;
     if (event->type() == QEvent::Wheel) {
         event->ignore();

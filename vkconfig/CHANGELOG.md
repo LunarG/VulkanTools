@@ -32,6 +32,8 @@
 - Add display of VK_LAYER_PATH content in Vulkan Development Status
 - Rename "Custom Path" by "User-Defined Path"
 - Add extension filters to load and save file layer settings #1317
+- Improve in application documentation of settings #1332
+- Display the layer status in the "Vulkan Development Status" #1332
 
 ### Fixes:
 - Fix export and import path being truncated when the path as '.' character

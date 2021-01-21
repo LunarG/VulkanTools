@@ -7,6 +7,8 @@
         "api_version": "1.2.162",
         "implementation_version": "2",
         "description": "test layer",
+        "status": "BETA",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html",
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",

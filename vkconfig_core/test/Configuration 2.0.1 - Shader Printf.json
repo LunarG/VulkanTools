@@ -17,7 +17,7 @@
                         "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
                         "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": "Debug Output"
                     },
-                    "type": "enum"
+                    "type": "multi_enum"
                 },
                 "disables": {
                     "default": [

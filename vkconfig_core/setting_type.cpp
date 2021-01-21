@@ -18,8 +18,9 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "layer_setting_type.h"
+#include "setting_type.h"
 #include "util.h"
+#include "version.h"
 
 SettingType GetSettingType(const char* token) {
     if (SUPPORT_VKCONFIG_2_1_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;

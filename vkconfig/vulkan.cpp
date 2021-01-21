@@ -117,7 +117,22 @@ std::string GenerateVulkanStatus() {
 
     log += "- Available Layers:\n";
     for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
-        log += format("    - %s (%s)\n", layers_properties[i].layerName, Version(layers_properties[i].specVersion).str().c_str());
+        const Layer *layer = FindByKey(Configurator::Get().layers.available_layers, layers_properties[i].layerName);
+
+        std::string status;
+        if (layer != nullptr) {
+            if (layer->status != STATUS_STABLE) {
+                status = GetToken(layer->status);
+            }
+        }
+
+        if (status.empty()) {
+            log +=
+                format("    - %s (%s)\n", layers_properties[i].layerName, Version(layers_properties[i].specVersion).str().c_str());
+        } else {
+            log += format("    - %s (%s - %s)\n", layers_properties[i].layerName,
+                          Version(layers_properties[i].specVersion).str().c_str(), status.c_str());
+        }
     }
 
     // Check Vulkan Devices

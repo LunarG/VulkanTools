@@ -21,36 +21,37 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer_setting_meta.h"
-#include "../vkconfig_core/layer_setting_data.h"
+#include "../vkconfig_core/layer.h"
 
-#include <QObject>
 #include <QWidget>
-#include <QCheckBox>
+#include <QTreeWidgetItem>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QFileDialog>
 
-#include <string>
-
-class BoolSettingWidget : public QCheckBox {
+class WidgetSettingFilesystem : public QWidget {
     Q_OBJECT
 
    public:
-    explicit BoolSettingWidget(const LayerSettingMeta& layer_setting_meta, LayerSettingData& layer_setting_data);
+    explicit WidgetSettingFilesystem(QTreeWidgetItem *item, const SettingMetaFilesystem &setting_meta,
+                                     SettingDataFilesystem &setting_data);
 
    public Q_SLOTS:
-    void itemToggled();
+    void browseButtonClicked();
+    void textFieldChanged(const QString &newText);
 
    Q_SIGNALS:
     void itemChanged();
 
    private:
-    BoolSettingWidget(const BoolSettingWidget&) = delete;
-    BoolSettingWidget& operator=(const BoolSettingWidget&) = delete;
+    WidgetSettingFilesystem(const WidgetSettingFilesystem &) = delete;
+    WidgetSettingFilesystem &operator=(const WidgetSettingFilesystem &) = delete;
 
-    enum Mode { BOOL_NUMERIC, BOOL_STRING };
+    virtual void resizeEvent(QResizeEvent *event) override;
 
-    std::string GetToken(bool state, SettingType type) const;
-    const std::string true_token;
-    const std::string false_token;
-
-    LayerSettingData& layer_setting_data;
+    const SettingMetaFilesystem &setting_meta;
+    SettingDataFilesystem &setting_data;
+    QLineEdit *_line_edit;
+    QPushButton *_push_button;
 };

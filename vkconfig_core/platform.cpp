@@ -71,9 +71,10 @@ PlatformType GetPlatformType(const char* token) {
 
 const char* GetToken(StatusType type) {
     static const char* table[] = {
-        "STABLE",  // STATUS_STABLE
-        "BETA",    // STATUS_BETA
-        "ALPHA"    // STATUS_ALPHA
+        "STABLE",     // STATUS_STABLE
+        "BETA",       // STATUS_BETA
+        "ALPHA",      // STATUS_ALPHA
+        "DEPRECATED"  // STATUS_ALPHA
     };
     static_assert(countof(table) == STATUS_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

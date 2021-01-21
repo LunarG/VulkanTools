@@ -15,36 +15,30 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_enum_setting.h"
+#include "widget_setting_int.h"
 
 #include <cassert>
 
-EnumSettingWidget::EnumSettingWidget(QTreeWidgetItem* item, const LayerSettingMeta& setting_meta, LayerSettingData& setting_data)
+WidgetSettingInt::WidgetSettingInt(QTreeWidgetItem* item, const SettingMetaInt& setting_meta, SettingDataInt& setting_data)
     : setting_meta(setting_meta), setting_data(setting_data) {
     assert(item);
+    assert(&setting_meta);
     assert(&setting_data);
 
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
-
-    int selection = 0;
-    for (int i = 0; i < setting_meta.enum_labels.size(); i++) {
-        this->addItem(setting_meta.enum_labels[i]);
-        if (setting_meta.enum_values[i] == setting_data.value.c_str()) {
-            selection = i;
-        }
-    }
-
-    setCurrentIndex(selection);
-
-    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
+    this->setText(format("%d", setting_data.value).c_str());
+    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void EnumSettingWidget::indexChanged(int index) {
-    setting_data.value = setting_meta.enum_values[index].toStdString();
+void WidgetSettingInt::itemEdited(const QString& new_string) {
+    if (new_string.isEmpty()) {
+        this->setting_data.value = static_cast<const SettingDataInt&>(*this->setting_meta.default_value).value;
+    } else {
+        this->setting_data.value = std::atoi(new_string.toStdString().c_str());
+    }
     emit itemChanged();
 }

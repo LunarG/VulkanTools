@@ -29,6 +29,8 @@
 static bool operator==(const Configuration& a, const Configuration& b) {
     if (a.key != b.key)
         return false;
+    else if (a.platform_flags != b.platform_flags)
+        return false;
     else if (a.description != b.description)
         return false;
     else if (a.setting_tree_state != b.setting_tree_state)
@@ -40,52 +42,15 @@ static bool operator==(const Configuration& a, const Configuration& b) {
 
 static bool operator!=(const Configuration& a, const Configuration& b) { return !(a == b); }
 
-static bool operator==(const LayerSettingMeta& a, const LayerSettingMeta& b) {
-    if (a.key != b.key)
-        return false;
-    else if (a.label != b.label)
-        return false;
-    else if (a.description != b.description)
-        return false;
-    else if (a.type != b.type)
-        return false;
-    else if (a.max_value != b.max_value)
-        return false;
-    else if (a.min_value != b.min_value)
-        return false;
-    else if (a.enum_values != b.enum_values)
-        return false;
-    else if (a.enum_labels != b.enum_labels)
-        return false;
-    else if (a.enum_values != b.enum_values)
-        return false;
-    else if (a.enum_labels != b.enum_labels)
-        return false;
-    else if (a.default_value != b.default_value)
-        return false;
-    return true;
-}
+static bool operator==(const Parameter& a, const Parameter& b) {
+    if (a.key != b.key) return false;
 
-static bool operator!=(const LayerSettingMeta& a, const LayerSettingMeta& b) { return !(a == b); }
+    if (a.state != b.state) return false;
 
-static bool operator==(const std::vector<Parameter>& a, const std::vector<Parameter>& b) {
-    if (a.size() != b.size()) return false;
+    if (a.settings.data.size() != b.settings.data.size()) return false;
 
-    for (std::size_t i = 0, n = a.size(); i < n; ++i) {
-        if (a[i].key != b[i].key) return false;
-
-        if (a[i].state != b[i].state) return false;
-
-        if (a[i].settings.size() != b[i].settings.size()) return false;
-
-        for (std::size_t j = 0, o = a[i].settings.size(); j < o; ++j) {
-            if (a[i].settings[j].key != b[i].settings[j].key) {
-                return false;
-            }
-            if (a[i].settings[j].value != b[i].settings[j].value) {
-                return false;
-            }
-        }
+    for (std::size_t i = 0, n = a.settings.data.size(); i < n; ++i) {
+        if (*a.settings.data[i] != *b.settings.data[i]) return false;
     }
 
     return true;
@@ -521,10 +486,10 @@ TEST(test_configuration, load_and_save_v2_1_0_override_all_layers) {
     EXPECT_TRUE(parameter_screenshot != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter_screenshot->state);
 
-    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_0_override_all_layers.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_1_0_override_all_layers.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_0_override_all_layers.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_1_0_override_all_layers.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }

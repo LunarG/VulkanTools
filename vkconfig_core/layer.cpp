@@ -44,9 +44,9 @@ static std::string GetBuiltinFolder(const Version& version) {
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
-Layer::Layer() {}
+Layer::Layer() : status(STATUS_STABLE), _layer_type(LAYER_TYPE_EXPLICIT) {}
 
-Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), _layer_type(layer_type) {}
+Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), status(STATUS_STABLE), _layer_type(layer_type) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const std::string& implementation_version, const std::string& library_path, const std::string& type)
@@ -56,6 +56,7 @@ Layer::Layer(const std::string& key, const LayerType layer_type, const Version& 
       _library_path(library_path),
       _api_version(api_version),
       _implementation_version(implementation_version),
+      status(STATUS_STABLE),
       _layer_type(layer_type) {}
 
 // Todo: Load the layer with Vulkan API
@@ -64,9 +65,9 @@ bool Layer::IsValid() const {
            _api_version != Version::VERSION_NULL && !_implementation_version.empty();
 }
 
-std::string Layer::FindPresetLabel(const std::vector<LayerSettingData>& layer_settings) const {
-    for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
-        if (HasPreset(layer_settings, presets[i].settings)) return presets[i].label;
+std::string Layer::FindPresetLabel(const SettingDataSet& settings) const {
+    for (std::size_t i = 0, n = this->presets.size(); i < n; ++i) {
+        if (HasPreset(settings, this->presets[i].settings)) return this->presets[i].label;
     }
 
     return NO_PRESET;
@@ -124,12 +125,18 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
-        _library_path = json_library_path_value.toString().toStdString();
+        this->_library_path = json_library_path_value.toString().toStdString();
     }
 
-    _api_version = ReadVersionValue(json_layer_object, "api_version");
-    _implementation_version = ReadStringValue(json_layer_object, "implementation_version");
-    description = ReadStringValue(json_layer_object, "description");
+    this->_api_version = ReadVersionValue(json_layer_object, "api_version");
+    this->_implementation_version = ReadStringValue(json_layer_object, "implementation_version");
+    if (json_layer_object.value("status") != QJsonValue::Undefined) {
+        this->status = GetStatusType(ReadStringValue(json_layer_object, "status").c_str());
+    }
+    this->description = ReadStringValue(json_layer_object, "description");
+    if (json_layer_object.value("url") != QJsonValue::Undefined) {
+        this->url = ReadStringValue(json_layer_object, "url");
+    }
 
     // Load default layer json file if necessary
     const bool is_missing_layer_data =
@@ -151,79 +158,15 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
         for (int i = 0, n = json_array.size(); i < n; ++i) {
             const QJsonObject& json_setting = json_array[i].toObject();
 
-            LayerSettingMeta setting;
-
-            setting.key = ReadStringValue(json_setting, "key");
-            setting.label = ReadStringValue(json_setting, "label");
-            setting.description = ReadStringValue(json_setting, "description");
-            if (json_setting.value("platforms") != QJsonValue::Undefined)
-                setting.platform_flags = GetPlatformFlags(ReadStringArray(json_setting, "platforms"));
-            else
-                setting.platform_flags = PLATFORM_ALL_BIT;
-            setting.type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
-
-            switch (setting.type) {
-                case SETTING_ENUM:
-                case SETTING_FLAGS: {
-                    // Now we have a list of options, both the enum for the settings file, and the prompts
-                    const QJsonValue& json_value_options = json_setting.value("options");
-                    assert(json_value_options != QJsonValue::Undefined);
-
-                    const QJsonObject& object = json_value_options.toObject();
-                    const QStringList& keys = object.keys();
-                    for (int v = 0; v < keys.size(); v++) {
-                        QString key = keys[v];
-                        const QString default_value = object.value(key).toString();
-
-                        setting.enum_values << key;
-                        setting.enum_labels << default_value;
-                    }
-
-                    setting.default_value = ReadString(json_setting, "default");
-                } break;
-                case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FILE: {
-                    setting.default_value = ReadString(json_setting, "default");
-                    if (json_setting.value("filter") != QJsonValue::Undefined) {
-                        setting.enum_labels.push_back(ReadStringValue(json_setting, "filter").c_str());
-                    }
-                } break;
-                case SETTING_SAVE_FOLDER:
-                case SETTING_INT_RANGE:
-                case SETTING_STRING: {
-                    setting.default_value = ReadString(json_setting, "default");
-                } break;
-                case SETTING_VUID_FILTER: {
-                    const QJsonValue& json_value_options = json_setting.value("options");
-                    assert(json_value_options != QJsonValue::Undefined);
-                    assert(json_value_options.isArray());
-                    const QJsonArray& json_value_array = json_value_options.toArray();
-                    for (int i = 0, n = json_value_array.size(); i < n; ++i) {
-                        setting.enum_values.append(json_value_array[i].toString());
-                    }
-                    setting.default_value = ReadString(json_setting, "default");
-                } break;
-                case SETTING_BOOL: {
-                    setting.default_value = ReadBoolValue(json_setting, "default") ? "TRUE" : "FALSE";
-                    break;
-                }
-                case SETTING_BOOL_NUMERIC_DEPRECATED: {
-                    setting.default_value = ReadBoolValue(json_setting, "default") ? "1" : "0";
-                    break;
-                }
-                case SETTING_INT: {
-                    setting.default_value = format("%d", ReadIntValue(json_setting, "default"));
-                    break;
-                }
-                default:
-                    assert(0);
-                    break;
-            }
-
-            settings.push_back(setting);
+            const std::string key = ReadStringValue(json_setting, "key");
+            const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
+            SettingMeta& setting_meta = settings.Create(key, type);
+            const bool result = setting_meta.Load(json_setting);
+            assert(result);
         }
     } else {
-        settings = default_layer.settings;
+        this->settings = default_layer.settings;
+        this->status = default_layer.status;
     }
 
     // Load layer presets
@@ -244,24 +187,11 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
             for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {
                 const QJsonObject& json_setting_object = json_setting_array[setting_index].toObject();
 
-                LayerSettingData setting_value;
-                setting_value.key = ReadStringValue(json_setting_object, "key");
-                setting_value.type = FindByKey(settings, setting_value.key.c_str())->type;
-                switch (setting_value.type) {
-                    case SETTING_BOOL:
-                        setting_value.value = ReadBoolValue(json_setting_object, "value") ? "TRUE" : "FALSE";
-                        break;
-                    case SETTING_BOOL_NUMERIC_DEPRECATED:  // deprecated
-                        setting_value.value = ReadBoolValue(json_setting_object, "value") ? "1" : "0";
-                        break;
-                    case SETTING_INT:
-                        setting_value.value = format("%d", ReadIntValue(json_setting_object, "value"));
-                        break;
-                    default:
-                        setting_value.value = ReadString(json_setting_object, "value");
-                        break;
-                }
-                preset.settings.push_back(setting_value);
+                const std::string key = ReadStringValue(json_setting_object, "key");
+
+                SettingData* setting_data = preset.settings.Create(key, settings.Get(key.c_str())->GetType());
+                const bool result = setting_data->Load(json_setting_object);
+                assert(result);
             }
 
             presets.push_back(preset);
@@ -273,11 +203,76 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     return IsValid();  // Not all JSON file are layer JSON valid
 }
 
-std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerSettingMeta>& meta) {
-    std::vector<LayerSettingData> result;
+SettingDataSet CollectDefaultSettingData(const SettingMetaSet& meta) {
+    SettingDataSet result;
 
-    for (std::size_t i = 0, n = meta.size(); i < n; ++i) {
-        result.push_back(LayerSettingData(meta[i].key.c_str(), meta[i].type, meta[i].default_value.c_str()));
+    for (std::size_t i = 0, n = meta.data.size(); i < n; ++i) {
+        const SettingMeta& setting_meta = *meta.data[i];
+        SettingData& setting_data = *result.Create(setting_meta.GetKey(), setting_meta.GetType());
+
+        switch (setting_meta.GetType()) {
+            case SETTING_STRING: {
+                const SettingDataString& default_value = static_cast<const SettingDataString&>(*setting_meta.default_value);
+                static_cast<SettingDataString&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_INT: {
+                const SettingDataInt& default_value = static_cast<const SettingDataInt&>(*setting_meta.default_value);
+                static_cast<SettingDataInt&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_SAVE_FILE: {
+                const SettingDataFileSave& default_value = static_cast<const SettingDataFileSave&>(*setting_meta.default_value);
+                static_cast<SettingDataFileSave&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_LOAD_FILE: {
+                const SettingDataFileLoad& default_value = static_cast<const SettingDataFileLoad&>(*setting_meta.default_value);
+                static_cast<SettingDataFileLoad&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_SAVE_FOLDER: {
+                const SettingDataFolderSave& default_value = static_cast<const SettingDataFolderSave&>(*setting_meta.default_value);
+                static_cast<SettingDataFolderSave&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_BOOL: {
+                const SettingDataBool& default_value = static_cast<const SettingDataBool&>(*setting_meta.default_value);
+                static_cast<SettingDataBool&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_BOOL_NUMERIC_DEPRECATED: {
+                const SettingDataBoolNumeric& default_value =
+                    static_cast<const SettingDataBoolNumeric&>(*setting_meta.default_value);
+                static_cast<SettingDataBoolNumeric&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_ENUM: {
+                const SettingDataEnum& default_value = static_cast<const SettingDataEnum&>(*setting_meta.default_value);
+                static_cast<SettingDataEnum&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_FLAGS: {
+                const SettingDataFlags& default_value = static_cast<const SettingDataFlags&>(*setting_meta.default_value);
+                static_cast<SettingDataFlags&>(setting_data).value = default_value.value;
+                break;
+            }
+            case SETTING_INT_RANGE: {
+                const SettingDataIntRange& default_value = static_cast<const SettingDataIntRange&>(*setting_meta.default_value);
+                static_cast<SettingDataIntRange&>(setting_data).min_value = default_value.min_value;
+                static_cast<SettingDataIntRange&>(setting_data).max_value = default_value.max_value;
+                break;
+            }
+            case SETTING_VUID_FILTER: {
+                const SettingDataVUIDFilter& default_value = static_cast<const SettingDataVUIDFilter&>(*setting_meta.default_value);
+                static_cast<SettingDataVUIDFilter&>(setting_data).value = default_value.value;
+                break;
+            }
+            default: {
+                assert(0);
+                break;
+            }
+        }
     }
 
     return result;

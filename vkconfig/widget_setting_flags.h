@@ -21,16 +21,18 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer_setting_data.h"
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
 
 #include <QWidget>
 #include <QCheckBox>
 #include <QTreeWidgetItem>
 
-class MultiEnumSettingWidget : public QCheckBox {
+class WidgetSettingFlags : public QCheckBox {
     Q_OBJECT
    public:
-    explicit MultiEnumSettingWidget(LayerSettingData& setting, const char* setting_value);
+    explicit WidgetSettingFlags(const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
+                                const std::string& setting_value);
 
    public Q_SLOTS:
     void itemChecked(bool checked);
@@ -39,9 +41,10 @@ class MultiEnumSettingWidget : public QCheckBox {
     void itemChanged();
 
    private:
-    MultiEnumSettingWidget(const MultiEnumSettingWidget&) = delete;
-    MultiEnumSettingWidget& operator=(const MultiEnumSettingWidget&) = delete;
+    WidgetSettingFlags(const WidgetSettingFlags&) = delete;
+    WidgetSettingFlags& operator=(const WidgetSettingFlags&) = delete;
 
-    LayerSettingData& setting;
-    std::string setting_value;
+    const SettingMetaFlags& setting_meta;
+    SettingDataFlags& setting_data;
+    std::string setting_enum_value;
 };

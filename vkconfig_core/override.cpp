@@ -158,10 +158,13 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
         short_layer_name.remove("VK_LAYER_");
         QString lc_layer_name = short_layer_name.toLower();
 
-        for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
-            const LayerSettingData& setting = parameter.settings[i];
+        for (std::size_t i = 0, m = parameter.settings.data.size(); i < m; ++i) {
+            const SettingData& setting_data = *parameter.settings.data[i];
 
-            stream << lc_layer_name << "." << setting.key.c_str() << " = " << ReplaceBuiltInVariable(setting.value).c_str() << "\n";
+            stream << lc_layer_name << "." << setting_data.GetKey() << " = ";
+            ;
+            setting_data.Save(stream);
+            stream << "\n";
         }
     }
     file.close();
