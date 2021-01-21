@@ -20,15 +20,29 @@
 
 #pragma once
 
-#include "layer_setting_type.h"
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
 
-#include <string>
+#include <QString>
+#include <QTreeWidgetItem>
+#include <QLineEdit>
 
-struct LayerSettingData {
-    LayerSettingData() {}
-    LayerSettingData(const char* key, SettingType type, const char* value);
+class WidgetSettingIntRange : public QLineEdit {
+    Q_OBJECT
 
-    std::string key;
-    SettingType type;
-    std::string value;
+   public:
+    WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta, SettingDataIntRange& setting_data);
+
+   public Q_SLOTS:
+    void itemEdited(const QString& newString);
+
+   Q_SIGNALS:
+    void itemChanged();
+
+   private:
+    WidgetSettingIntRange(const WidgetSettingIntRange&) = delete;
+    WidgetSettingIntRange& operator=(const WidgetSettingIntRange&) = delete;
+
+    const SettingMetaIntRange& setting_meta;
+    SettingDataIntRange& setting_data;
 };

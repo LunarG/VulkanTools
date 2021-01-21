@@ -39,20 +39,24 @@ TEST(test_layer_preset, get_preset) {
 }
 
 TEST(test_layer_preset, has_preset) {
-    std::vector<LayerSettingData> preset_settings;
-    std::vector<LayerSettingData> layer_settings;
+    SettingDataSet preset_settings;
+    SettingDataSet layer_settings;
 
     EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
 
-    preset_settings.push_back(LayerSettingData("KeyA", SETTING_STRING, "ValueA"));
+    std::shared_ptr<SettingDataString> value_a(new SettingDataString("KeyA", "ValueA"));
+    std::shared_ptr<SettingDataString> value_b(new SettingDataString("KeyB", "ValueB"));
+    std::shared_ptr<SettingDataString> value_c(new SettingDataString("KeyC", "ValueC"));
+
+    preset_settings.data.push_back(value_a);
     EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
 
-    layer_settings.push_back(LayerSettingData("KeyA", SETTING_STRING, "ValueA"));
+    layer_settings.data.push_back(value_a);
     EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
 
-    layer_settings.push_back(LayerSettingData("KeyB", SETTING_STRING, "ValueB"));
+    layer_settings.data.push_back(value_b);
     EXPECT_EQ(true, HasPreset(layer_settings, preset_settings));
 
-    preset_settings.push_back(LayerSettingData("KeyC", SETTING_STRING, "ValueC"));
+    preset_settings.data.push_back(value_c);
     EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
 }

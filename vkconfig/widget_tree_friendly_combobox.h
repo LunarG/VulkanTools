@@ -25,10 +25,10 @@
 #include <QComboBox>
 #include <QTreeWidgetItem>
 
-class TreeFriendlyComboBoxWidget : public QComboBox {
+class WidgetTreeFriendlyComboBox : public QComboBox {
     Q_OBJECT
    public:
-    TreeFriendlyComboBoxWidget(QTreeWidgetItem *item);
+    WidgetTreeFriendlyComboBox(QTreeWidgetItem *item);
 
     void wheelEvent(QWheelEvent *e) {
         if (hasFocus()) QComboBox::wheelEvent(e);
@@ -41,8 +41,8 @@ class TreeFriendlyComboBoxWidget : public QComboBox {
     void selectionMade(QTreeWidgetItem *tree_item, int index);
 
    private:
-    TreeFriendlyComboBoxWidget(const TreeFriendlyComboBoxWidget &) = delete;
-    TreeFriendlyComboBoxWidget &operator=(const TreeFriendlyComboBoxWidget &) = delete;
+    WidgetTreeFriendlyComboBox(const WidgetTreeFriendlyComboBox &) = delete;
+    WidgetTreeFriendlyComboBox &operator=(const WidgetTreeFriendlyComboBox &) = delete;
 
     QTreeWidgetItem *_tree_widget;
 };

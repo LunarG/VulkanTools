@@ -81,7 +81,7 @@
                     },
                     {
                         "key": "output_range",
-                        "type": "INT_RANGE",
+                        "type": "STRING",
                         "value": "0-0"
                     }
                 ],

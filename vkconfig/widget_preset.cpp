@@ -22,7 +22,7 @@
 
 #include <cassert>
 
-PresetWidget::PresetWidget(QTreeWidgetItem* item, const Layer& layer, Parameter& parameter) : layer(layer), parameter(parameter) {
+WidgetPreset::WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter& parameter) : layer(layer), parameter(parameter) {
     assert(item);
     assert(&layer);
     assert(&parameter);
@@ -50,7 +50,7 @@ PresetWidget::PresetWidget(QTreeWidgetItem* item, const Layer& layer, Parameter&
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
 }
 
-void PresetWidget::UpdateCurrentIndex() {
+void WidgetPreset::UpdateCurrentIndex() {
     const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
     this->blockSignals(true);
@@ -64,7 +64,7 @@ void PresetWidget::UpdateCurrentIndex() {
     this->setToolTip(preset->description.c_str());
 }
 
-int PresetWidget::GetComboBoxIndex(const char* preset_label) const {
+int WidgetPreset::GetComboBoxIndex(const char* preset_label) const {
     for (std::size_t i = 0, n = preset_labels.size(); i < n; ++i) {
         if (preset_labels[i] == preset_label) return static_cast<int>(i);
     }
@@ -73,7 +73,7 @@ int PresetWidget::GetComboBoxIndex(const char* preset_label) const {
     return -1;
 }
 
-void PresetWidget::OnPresetChanged(int combox_preset_index) {
+void WidgetPreset::OnPresetChanged(int combox_preset_index) {
     assert(combox_preset_index >= 0 && static_cast<std::size_t>(combox_preset_index) < preset_labels.size());
     const std::string& preset_label = preset_labels[combox_preset_index];
 

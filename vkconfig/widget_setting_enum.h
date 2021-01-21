@@ -21,25 +21,30 @@
 
 #pragma once
 
-#include "layer_setting_type.h"
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
 
-#include <QStringList>
-#include <QVariant>
-#include <QJsonObject>
+#include <QObject>
+#include <QWidget>
+#include <QComboBox>
+#include <QTreeWidgetItem>
 
-#include <string>
+class WidgetSettingEnum : public QComboBox {
+    Q_OBJECT
 
-struct LayerSettingMeta {
-    std::string key;          // Name of the setting the layer looks for (programatic variable name)
-    std::string label;        // Short name to prompt end user
-    std::string description;  // Human version, describes the setting
-    int platform_flags;
-    SettingType type;    // The data type
-    QVariant max_value;  // For range based
-    QVariant min_value;  // For range based
-    QStringList enum_values;
-    QStringList enum_labels;
-    std::string default_value;  // Default value as a string
+   public:
+    explicit WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnum& setting_meta, SettingDataEnum& setting_data);
+
+   public Q_SLOTS:
+    void indexChanged(int index);
+
+   Q_SIGNALS:
+    void itemChanged();
+
+   private:
+    WidgetSettingEnum(const WidgetSettingEnum&) = delete;
+    WidgetSettingEnum& operator=(const WidgetSettingEnum&) = delete;
+
+    const SettingMetaEnum& setting_meta;
+    SettingDataEnum& setting_data;
 };
-
-bool HasValue(const QStringList& values, const char* searched_value);

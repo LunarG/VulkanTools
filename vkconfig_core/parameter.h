@@ -22,7 +22,7 @@
 
 #include "layer.h"
 #include "layer_state.h"
-#include "layer_setting_data.h"
+#include "setting_data.h"
 
 #include <vector>
 
@@ -45,7 +45,7 @@ struct Parameter {
 
     std::string key;
     LayerState state;
-    std::vector<LayerSettingData> settings;
+    SettingDataSet settings;
     int overridden_rank;
 };
 

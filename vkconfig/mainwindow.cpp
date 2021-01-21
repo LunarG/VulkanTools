@@ -280,6 +280,7 @@ void MainWindow::LoadConfigurationList() {
         const Configuration &configuration = configurator.configurations.available_configurations[i];
 
         ConfigurationListItem *item = new ConfigurationListItem(configuration.key);
+        item->setToolTip(0, configuration.description.c_str());
         ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
         item->radio_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

@@ -18,12 +18,6 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "layer_setting_meta.h"
+#include "../setting_meta.h"
 
-bool HasValue(const QStringList& values, const char* searched_value) {
-    for (int i = 0, n = values.size(); i < n; ++i) {
-        if (values[i] == searched_value) return true;
-    }
-
-    return false;
-}
+#include <gtest/gtest.h>

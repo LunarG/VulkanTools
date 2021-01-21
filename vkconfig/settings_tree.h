@@ -22,13 +22,8 @@
 #pragma once
 
 #include "settings_validation_areas.h"
-#include "widget_filesystem_setting.h"
-#include "widget_bool_setting.h"
-#include "widget_enum_setting.h"
-#include "widget_string_setting.h"
-#include "widget_multi_enum_setting.h"
-#include "widget_vuid_search.h"
-#include "widget_mute_message.h"
+#include "widget_setting_flags.h"
+#include "widget_setting_filesystem.h"
 #include "widget_preset.h"
 
 #include "../vkconfig_core/configuration.h"
@@ -67,10 +62,10 @@ class SettingsTreeManager : QObject {
     QTreeWidget *_settings_tree;
     std::vector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
 
-    std::vector<PresetWidget *> _presets_comboboxes;
+    std::vector<WidgetPreset *> _presets_comboboxes;
 
     QTreeWidgetItem *_validation_log_file_item;
-    FileSystemSettingWidget *_validation_log_file_widget;
-    MultiEnumSettingWidget *_validation_debug_action;
+    WidgetSettingFilesystem *_validation_log_file_widget;
+    WidgetSettingFlags *_validation_debug_action;
     SettingsValidationAreas *_validation_areas;
 };

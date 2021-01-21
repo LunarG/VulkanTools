@@ -23,9 +23,6 @@
 
 #include "../vkconfig_core/layer.h"
 
-#include "widget_mute_message.h"
-#include "widget_bool_setting.h"
-
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QRadioButton>
@@ -37,8 +34,7 @@ class SettingsValidationAreas : public QObject {
 
    public:
     explicit SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent, const Version &version,
-                                     const std::vector<LayerSettingMeta> &settings_meta,
-                                     std::vector<LayerSettingData> &settings_data);
+                                     const SettingMetaSet &settings_meta, SettingDataSet &settings_data);
 
     bool CollectSettings();
 
@@ -77,11 +73,11 @@ class SettingsValidationAreas : public QObject {
 
     QTreeWidgetItem *CreateSettingWidget(QTreeWidgetItem *parent, const char *key) const;
 
-    void StoreBoolSetting(QTreeWidgetItem *setting, const char *key);
+    void StoreBoolSetting(QTreeWidgetItem *setting_data, const char *key);
 
-    void EnableSettingWidget(QTreeWidgetItem *setting, bool enable);
+    void EnableSettingWidget(QTreeWidgetItem *setting_data, bool enable);
 
     const Version version;
-    const std::vector<LayerSettingMeta> &settings_meta;
-    std::vector<LayerSettingData> &settings_data;
+    const SettingMetaSet &settings_meta;
+    SettingDataSet &settings_data;
 };

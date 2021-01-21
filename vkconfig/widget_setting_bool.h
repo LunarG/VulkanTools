@@ -21,30 +21,31 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer_setting_data.h"
-#include "../vkconfig_core/layer_setting_meta.h"
+#include "../vkconfig_core/setting_meta.h"
+#include "../vkconfig_core/setting_data.h"
 
 #include <QObject>
 #include <QWidget>
-#include <QComboBox>
-#include <QTreeWidgetItem>
+#include <QCheckBox>
 
-class EnumSettingWidget : public QComboBox {
+#include <string>
+
+class WidgetSettingBool : public QCheckBox {
     Q_OBJECT
 
    public:
-    explicit EnumSettingWidget(QTreeWidgetItem* item, const LayerSettingMeta& setting_meta, LayerSettingData& setting_data);
+    explicit WidgetSettingBool(const SettingMetaBool& setting_meta, SettingDataBool& setting_data);
 
    public Q_SLOTS:
-    void indexChanged(int index);
+    void itemToggled();
 
    Q_SIGNALS:
     void itemChanged();
 
    private:
-    EnumSettingWidget(const EnumSettingWidget&) = delete;
-    EnumSettingWidget& operator=(const EnumSettingWidget&) = delete;
+    WidgetSettingBool(const WidgetSettingBool&) = delete;
+    WidgetSettingBool& operator=(const WidgetSettingBool&) = delete;
 
-    const LayerSettingMeta& setting_meta;
-    LayerSettingData& setting_data;
+    const SettingMetaBool& setting_meta;
+    SettingDataBool& setting_data;
 };

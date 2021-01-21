@@ -21,11 +21,23 @@
                 "label": "Output Format",
                 "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
                 "type": "enum",
-                "options": {
-                    "Text": "Text",
-                    "Html": "HTML",
-                    "Json": "Json"
-                },
+                "flags": [
+                    {
+                        "key": "Text",
+                        "label": "Text",
+                        "description": "Plain text"
+                    },
+                    {
+                        "key": "Html",
+                        "label": "HTML",
+                        "description": "HTML"
+                    },
+                    {
+                        "key": "Json",
+                        "label": "Json",
+                        "description": "Json"
+                    }
+                ],
                 "default": "Text"
             },
             {

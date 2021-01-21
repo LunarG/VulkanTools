@@ -232,7 +232,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
     ui->layerTree->addTopLevelItem(item);
 
     // Add a combo box. Default has gray background which looks hidious
-    TreeFriendlyComboBoxWidget *widget = new TreeFriendlyComboBoxWidget(item);
+    WidgetTreeFriendlyComboBox *widget = new WidgetTreeFriendlyComboBox(item);
     ui->layerTree->setItemWidget(item, 1, widget);
 
     const QFontMetrics fm = ui->layerTree->fontMetrics();
@@ -400,7 +400,8 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
         description += std::string("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
         description += layer->_library_path + "\n\n";
         description += "API Version: " + layer->_api_version.str() + "\n";
-        description += "Implementation Version: " + layer->_implementation_version + "\n\n";
+        description += "Implementation Version: " + layer->_implementation_version + "\n";
+        description += std::string("Status: ") + GetToken(layer->status) + "\n\n";
         description += layer->_layer_path + "\n";
         description += "File format: " + layer->file_format_version.str();
 

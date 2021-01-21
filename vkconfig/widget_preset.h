@@ -30,11 +30,11 @@
 
 #include <vector>
 
-class PresetWidget : public QComboBox {
+class WidgetPreset : public QComboBox {
     Q_OBJECT
 
    public:
-    explicit PresetWidget(QTreeWidgetItem* item, const Layer& layer, Parameter& parameter);
+    explicit WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter& parameter);
 
     void UpdateCurrentIndex();
 
@@ -45,8 +45,8 @@ class PresetWidget : public QComboBox {
     void itemChanged();
 
    private:
-    PresetWidget(const PresetWidget&) = delete;
-    PresetWidget& operator=(const PresetWidget&) = delete;
+    WidgetPreset(const WidgetPreset&) = delete;
+    WidgetPreset& operator=(const WidgetPreset&) = delete;
 
     int GetComboBoxIndex(const char* preset_label) const;
 

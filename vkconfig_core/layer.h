@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer_setting_meta.h"
+#include "../vkconfig_core/setting_meta.h"
 #include "../vkconfig_core/layer_preset.h"
 #include "../vkconfig_core/layer_type.h"
 #include "../vkconfig_core/version.h"
@@ -48,7 +48,7 @@ class Layer {
 
     bool IsValid() const;
 
-    std::string FindPresetLabel(const std::vector<LayerSettingData>& setting_data) const;
+    std::string FindPresetLabel(const SettingDataSet& settings) const;
 
    public:
     std::string key;
@@ -57,9 +57,11 @@ class Layer {
     std::string _library_path;  // This is a relative path, straight out of the json
     Version _api_version;
     std::string _implementation_version;
+    StatusType status;
     std::string description;
+    std::string url;
 
-    std::vector<LayerSettingMeta> settings;
+    SettingMetaSet settings;
     std::vector<LayerPreset> presets;
 
     std::string _layer_path;  // Actual path to the folder that contains the layer (this is important!)
@@ -69,4 +71,4 @@ class Layer {
     bool Load(const std::string& full_path_to_file, LayerType layer_type);
 };
 
-std::vector<LayerSettingData> CollectDefaultSettingData(const std::vector<LayerSettingMeta>& layer_settings);
+SettingDataSet CollectDefaultSettingData(const SettingMetaSet& layer_settings);

@@ -228,26 +228,25 @@ TEST(test_parameter, order_manual) {
 }
 
 TEST(test_parameter, apply_settings) {
-    LayerSettingData preset_setting;
-    preset_setting.key = "A";
-    preset_setting.value = "preset value";
-
     LayerPreset preset;
-    preset.settings.push_back(preset_setting);
-
-    LayerSettingData layer_setting_a;
-    layer_setting_a.key = "A";
-    layer_setting_a.value = "setting value";
-
-    LayerSettingData layer_setting_b;
-    layer_setting_b.key = "B";
-    layer_setting_b.value = "setting value";
+    SettingDataString* preset_setting = static_cast<SettingDataString*>(preset.settings.Create("A", SETTING_STRING));
+    preset_setting->value = "preset value";
 
     Parameter parameter;
-    parameter.settings.push_back(layer_setting_a);
-    parameter.settings.push_back(layer_setting_b);
+    SettingDataString* layer_setting_a = static_cast<SettingDataString*>(parameter.settings.Create("A", SETTING_STRING));
+    layer_setting_a->value = "setting value";
+
+    SettingDataString* layer_setting_b = static_cast<SettingDataString*>(parameter.settings.Create("B", SETTING_STRING));
+    layer_setting_b->value = "setting value";
+
+    EXPECT_EQ(1, preset.settings.data.size());
+    EXPECT_EQ(2, parameter.settings.data.size());
 
     parameter.ApplyPresetSettings(preset);
 
-    EXPECT_STREQ("preset value", FindByKey(parameter.settings, "A")->value.c_str());
+    EXPECT_EQ(1, preset.settings.data.size());
+    EXPECT_EQ(2, parameter.settings.data.size());
+
+    EXPECT_STREQ("preset value", static_cast<SettingDataString&>(*parameter.settings.Get("A")).value.c_str());
+    EXPECT_STREQ("setting value", static_cast<SettingDataString&>(*parameter.settings.Get("B")).value.c_str());
 }

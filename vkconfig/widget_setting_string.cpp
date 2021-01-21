@@ -19,28 +19,24 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_multi_enum_setting.h"
-
-#include "../vkconfig_core/layer.h"
-#include "../vkconfig_core/util.h"
+#include "widget_setting_string.h"
 
 #include <cassert>
 
-MultiEnumSettingWidget::MultiEnumSettingWidget(LayerSettingData& setting, const char* setting_value)
-    : setting(setting), setting_value(setting_value) {
-    assert(&setting);
-    assert(setting_value != nullptr);
+WidgetSettingString::WidgetSettingString(QTreeWidgetItem* item, const SettingMetaString& setting_meta,
+                                         SettingDataString& setting_data)
+    : setting_meta(setting_meta), setting_data(setting_data) {
+    assert(item);
+    assert(&setting_meta);
+    assert(&setting_data);
 
-    if (setting.value.find(setting_value) != std::string::npos) this->setChecked(true);
-
-    connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
+    item->setText(0, setting_meta.label.c_str());
+    item->setToolTip(0, setting_meta.description.c_str());
+    this->setText(setting_data.value.c_str());
+    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void MultiEnumSettingWidget::itemChecked(bool checked) {
-    if (checked)
-        AppendString(setting.value, setting_value);
-    else
-        RemoveString(setting.value, setting_value);
-
+void WidgetSettingString::itemEdited(const QString& new_string) {
+    this->setting_data.value = new_string.toStdString();
     emit itemChanged();
 }

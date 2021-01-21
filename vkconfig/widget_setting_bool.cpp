@@ -15,10 +15,27 @@
  * limitations under the License.
  *
  * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../layer_setting_meta.h"
-#include "../util.h"
+#include "widget_setting_bool.h"
 
-#include <gtest/gtest.h>
+#include <cassert>
+
+WidgetSettingBool::WidgetSettingBool(const SettingMetaBool& setting_meta, SettingDataBool& setting_data)
+    : setting_meta(setting_meta), setting_data(setting_data) {
+    assert(&setting_meta);
+    assert(&setting_data);
+
+    setText(setting_meta.label.c_str());
+    setToolTip(setting_meta.description.c_str());
+    setChecked(setting_data.value);
+    connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
+}
+
+void WidgetSettingBool::itemToggled() {
+    setting_data.value = isChecked();
+
+    emit itemChanged();
+}

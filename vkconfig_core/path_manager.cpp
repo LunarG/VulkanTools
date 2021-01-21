@@ -35,7 +35,7 @@
 struct DirectoryDesc {
     const char* label;
     const char* default_extension;  // file extension used to path
-    const char* setting;            // system token to store the path, if empty the directory is not saved
+    const char* setting_data;       // system token to store the path, if empty the directory is not saved
     const char* default_filename;   // a default filename, if empty there is no default filename
     const bool resettable;
     PathType alternative;
@@ -90,8 +90,8 @@ bool PathManager::Load() {
     QSettings settings;
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
         const PathType type = static_cast<PathType>(i);
-        if (GetDesc(type).setting == nullptr) continue;
-        paths[type] = settings.value(GetDesc(type).setting).toString().toStdString();
+        if (GetDesc(type).setting_data == nullptr) continue;
+        paths[type] = settings.value(GetDesc(type).setting_data).toString().toStdString();
     }
 
     CheckPathsExist(::GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL));
@@ -112,8 +112,8 @@ bool PathManager::Save() {
     QSettings settings;
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
         const PathType type = static_cast<PathType>(i);
-        if (GetDesc(type).setting == nullptr) continue;
-        settings.setValue(GetDesc(type).setting, paths[type].c_str());
+        if (GetDesc(type).setting_data == nullptr) continue;
+        settings.setValue(GetDesc(type).setting_data, paths[type].c_str());
     }
 
     return true;

@@ -37,7 +37,7 @@ static Version GetVersionData(const char *version) {
     uint32_t version_minor = 0;
     uint32_t version_patch = 0;
 
-    sscanf(version, "%d.%d.%d", &version_major, &version_minor, &version_patch);
+    std::sscanf(version, "%d.%d.%d", &version_major, &version_minor, &version_patch);
 
     return Version(version_major, version_minor, version_patch);
 }

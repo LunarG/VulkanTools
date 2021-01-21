@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "version.h"
-
 #include <cassert>
 
 enum SettingType {  // Enum value can't be changed

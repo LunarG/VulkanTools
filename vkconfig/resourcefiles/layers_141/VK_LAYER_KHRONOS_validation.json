@@ -167,18 +167,34 @@
                 ]
             }
         ],
-        "settings" : [
+        "settings": [
             {
                 "key": "debug_action",
                 "label": "Debug Action",
                 "description": "This indicates what action is to be taken when a layer wants to report information",
                 "type": "FLAGS",
-                "options": {
-                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
-                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
-                    "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT": "Debug Output",
-                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
-                },
+                "flags": [
+                    {
+                        "key": "VK_DBG_LAYER_ACTION_LOG_MSG",
+                        "label": "Log Message",
+                        "description": "Log a txt message to stdout or to a log filename."
+                    },
+                    {
+                        "key": "VK_DBG_LAYER_ACTION_CALLBACK",
+                        "label": "Callback",
+                        "description": "Call user defined callback function(s) that have been registered via the VK_EXT_debug_report extension. Since application must register callback, this is a NOOP for the settings file."
+                    },
+                    {
+                        "key": "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT",
+                        "label": "Debug Output",
+                        "description": "Log a txt message using the Windows OutputDebugString function."
+                    },
+                    {
+                        "key": "VK_DBG_LAYER_ACTION_BREAK",
+                        "label": "Break",
+                        "description": "Trigger a breakpoint if a debugger is in use."
+                    }
+                ],
                 "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
             },
             {
@@ -186,13 +202,33 @@
                 "label": "Message Severity",
                 "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
                 "type": "FLAGS",
-                "options": {
-                    "info": "Info",
-                    "warn": "Warn",
-                    "perf": "Perf",
-                    "error": "Error",
-                    "debug": "Debug"
-                },
+                "flags": [
+                    {
+                        "key": "info",
+                        "label": "Info",
+                        "description": "Report informational messages."
+                    },
+                    {
+                        "key": "warn",
+                        "label": "Warning",
+                        "description": "Report warnings from using the API in a manner which may lead to undefined behavior or to warn the user of common trouble spots. A warning does NOT necessarily signify illegal application behavior."
+                    },
+                    {
+                        "key": "perf",
+                        "label": "performance",
+                        "description": "Report using the API in a way that may cause suboptimal performance."
+                    },
+                    {
+                        "key": "error",
+                        "label": "Error",
+                        "description": "Report errors in API usage."
+                    },
+                    {
+                        "key": "debug",
+                        "label": "Debug",
+                        "description": "For layer development. Report messages for debugging layer behavior."
+                    }
+                ],
                 "default": [
                     "error",
                     "warn",
@@ -211,7 +247,7 @@
                 "label": "Mute Message VUIDs",
                 "description": "List of VUIDs and VUID identifers which are to be IGNORED by the validation layer",
                 "type": "VUID_EXCLUDE",
-                "options": [
+                "list": [
                     "VUID-VkAabbPositionsKHR-minX-03546",
                     "VUID-VkAabbPositionsKHR-minY-03547",
                     "VUID-VkAabbPositionsKHR-minZ-03548",
@@ -6679,35 +6715,107 @@
                 "label": "Disables",
                 "description": "Setting an option here will disable areas of validation",
                 "type": "FLAGS",
-                "options": {
-                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Thread safety",
-                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Stateless parameter",
-                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Object lifetime",
-                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Core",
-                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Handle wrapping",
-                    "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT": "Disable Shaders",
-                    "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE": "Command Buffer State",
-                    "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION": "Image Layout",
-                    "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION": "Query",
-                    "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE": "Push Constant Range",
-                    "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE": "Object in Use",
-                    "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET": "Idle Descritor Set"
-                },
-                "default": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
+                "flags": [
+                    {
+                        "key": "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                        "label": "Thread Safety",
+                        "description": "Thread checks. It may help with performance to run with thread-checking disabled most of the time, enabling it occasionally for a quick sanity check, or when debugging difficult application behaviors."
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                        "label": "Stateless Parameter",
+                        "description": "Stateless parameter checks. This may not always be necessary late in a development cycle."
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                        "label": "Object Lifetime",
+                        "description": "Object tracking checks. This may not always be necessary late in a development cycle."
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT",
+                        "label": "Core",
+                        "description": "The main, heavy-duty validation checks. This may be valuable early in the development cycle to reduce validation output while correcting parameter/object usage errors."
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                        "label": "Handle Wrapping",
+                        "description": "Handle wrapping checks. Disable this feature if you are running into crashes when authoring new extensions or developing new Vulkan objects/structures"
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT",
+                        "label": "Disable Shaders",
+                        "description": ""
+                    },
+                    {
+                        "key": "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
+                        "label": "Command Buffer State",
+                        "description": ""
+                    },
+                    {
+                        "key": "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
+                        "label": "Image Layout",
+                        "description": ""
+                    },
+                    {
+                        "key": "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
+                        "label": "Query",
+                        "description": ""
+                    },
+                    {
+                        "key": "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE",
+                        "label": "Push Constant Range",
+                        "description": ""
+                    },
+                    {
+                        "key": "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
+                        "label": "Object in Use",
+                        "description": ""
+                    },
+                    {
+                        "key": "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
+                        "label": "Idle Descritor Set",
+                        "description": ""
+                    }
+                ],
+                "default": [ ]
             },
             {
                 "key": "enables",
                 "label": "Enables",
                 "description": "Setting an option here will enable specialized areas of validation",
                 "type": "FLAGS",
-                "options": {
-                    "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT": "Debug printf",
-                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "GPU-Assisted Validation",
-                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
-                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Best Practices"
-                },
+                "flags": [
+                    {
+                        "key": "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT",
+                        "label": "Debug Printf",
+                        "description": "Enables processing of debug printf instructions in shaders and sending debug strings to the debug callback",
+                        "url": "${LUNARG_SDK}/debug_printf.html",
+                        "status": "STABLE",
+                        "platforms": [ "WINDOWS", "LINUX" ]
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
+                        "label": "GPU-Assisted",
+                        "description": "Activating this feature instruments shader programs to generate additional diagnostic data.",
+                        "url": "${LUNARG_SDK}/gpu_validation.html",
+                        "platforms": [ "WINDOWS", "LINUX" ]
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT",
+                        "label": "Reserve a descriptorSet binding slot for internal use",
+                        "description": "Specifies that the validation layers reserve a descriptor set binding slot for their own use. The layer reports a value for VkPhysicalDeviceLimits::maxBoundDescriptorSets that is one less than the value reported by the device. If the device supports the binding of only one descriptor set, the validation layer does not perform GPU-assisted validation.",
+                        "platforms": [ "WINDOWS", "LINUX" ]
+                    },
+                    {
+                        "key": "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT",
+                        "label": "Best Practices",
+                        "description": "Activating this feature enables the output of warnings related to common misuse of the API, but which are not explicitly prohibited by the specification.",
+                        "url": "${LUNARG_SDK}/best_practices.html",
+                        "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
+                    }
+                ],
                 "default": []
-            }            
+            }
         ]
     }
 }

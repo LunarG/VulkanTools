@@ -19,7 +19,6 @@
                 "label": "Initialization",
                 "description": "Capture the applications first two frames.",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "status": "STABLE",
                 "settings": [
                     {
                         "key": "capture_trigger",
@@ -27,7 +26,10 @@
                     },
                     {
                         "key": "capture_frames",
-                        "value": "1-2"
+                        "value": {
+                            "min": 1,
+                            "max": 2
+                        }
                     },
                     {
                         "key": "memory_tracking_mode",
@@ -39,7 +41,6 @@
                 "label": "Range",
                 "description": "Capture a range of frames",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "status": "STABLE",
                 "settings": [
                     {
                         "key": "capture_trigger",
@@ -47,7 +48,10 @@
                     },
                     {
                         "key": "capture_frames",
-                        "value": ""
+                        "value": {
+                            "min": 0,
+                            "max": 0
+                        }
                     },
                     {
                         "key": "memory_tracking_mode",
@@ -62,23 +66,88 @@
                 "label": "Hotkey Capture Trigger",
                 "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
                 "type": "ENUM",
-                "options": {
-                    "": "None",
-                    "F1": "F1",
-                    "F2": "F2",
-                    "F3": "F3",
-                    "F4": "F4",
-                    "F5": "F5",
-                    "F6": "F6",
-                    "F7": "F7",
-                    "F8": "F8",
-                    "F9": "F9",
-                    "F10": "F10",
-                    "F11": "F11",
-                    "F12": "F12",
-                    "TAB": "TAB",
-                    "CONTROL": "CONTROL"
-                },
+                "flags": [
+                    {
+                        "key": "",
+                        "label": "None",
+                        "description": ""
+                    },
+                    {
+                        "key": "F1",
+                        "label": "F1",
+                        "description": ""
+                    },
+                    {
+                        "key": "F2",
+                        "label": "F2",
+                        "description": ""
+                    },
+                    {
+                        "key": "F3",
+                        "label": "F3",
+                        "description": ""
+                    },
+                    {
+                        "key": "F4",
+                        "label": "F4",
+                        "description": ""
+                    },
+                    {
+                        "key": "F5",
+                        "label": "F5",
+                        "description": ""
+                    },
+                    {
+                        "key": "F6",
+                        "label": "F6",
+                        "description": ""
+                    },
+                    {
+                        "key": "F7",
+                        "label": "F7",
+                        "description": ""
+                    },
+                    {
+                        "key": "F8",
+                        "label": "F8",
+                        "description": ""
+                    },
+                    {
+                        "key": "F9",
+                        "label": "F9",
+                        "description": ""
+                    },
+                    {
+                        "key": "F10",
+                        "label": "F10",
+                        "description": ""
+                    },
+                    {
+                        "key": "F10",
+                        "label": "F10",
+                        "description": ""
+                    },
+                    {
+                        "key": "F11",
+                        "label": "F11",
+                        "description": ""
+                    },
+                    {
+                        "key": "F12",
+                        "label": "F12",
+                        "description": ""
+                    },
+                    {
+                        "key": "TAB",
+                        "label": "TAB",
+                        "description": ""
+                    },
+                    {
+                        "key": "CONTROL",
+                        "label": "CONTROL",
+                        "description": ""
+                    }
+                ],
                 "default": ""
             },
             {
@@ -86,7 +155,10 @@
                 "label": "Capture Specific Frames",
                 "description": "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. Default is: Empty string (all frames are captured).",
                 "type": "INT_RANGE",
-                "default": ""
+                "default": {
+                    "min": 0,
+                    "max": 0
+                }
             },
             {
                 "key": "capture_file",
@@ -115,12 +187,28 @@
                 "label": "Compression Format",
                 "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
                 "type": "ENUM",
-                "options": {
-                    "LZ4": "LZ4",
-                    "ZLIB": "ZLIB",
-                    "ZSTD": "ZSTD",
-                    "NONE": "NONE"
-                },
+                "flags": [
+                    {
+                        "key": "LZ4",
+                        "label": "LZ4",
+                        "description": ""
+                    },
+                    {
+                        "key": "ZLIB",
+                        "label": "ZLIB",
+                        "description": ""
+                    },
+                    {
+                        "key": "ZSTD",
+                        "label": "ZSTD",
+                        "description": ""
+                    },
+                    {
+                        "key": "NONE",
+                        "label": "NONE",
+                        "description": ""
+                    }
+                ],
                 "default": "LZ4"
             },
             {
@@ -185,13 +273,33 @@
                 "label": "Log Level",
                 "description": "Specify the highest level message to log. Options are: debug, info, warning, error, and fatal. The specified level and all levels listed after it will be enabled for logging. For example, choosing the warning level will also enable the error and fatal levels.",
                 "type": "ENUM",
-                "options": {
-                    "debug": "debug, info, warning, error",
-                    "info": "info, warning, error, fatal",
-                    "warning": "warning, error, fatal",
-                    "error": "error, fatal",
-                    "fatal": "fatal"
-                },
+                "flags": [
+                    {
+                        "key": "debug",
+                        "label": "debug, info, warning, error, fatal",
+                        "description": ""
+                    },
+                    {
+                        "key": "info",
+                        "label": "info, warning, error, fatal",
+                        "description": ""
+                    },
+                    {
+                        "key": "warning",
+                        "label": "warning, error, fatal",
+                        "description": ""
+                    },
+                    {
+                        "key": "error",
+                        "label": "error, fatal",
+                        "description": ""
+                    },
+                    {
+                        "key": "fatal",
+                        "label": "fatal",
+                        "description": ""
+                    }
+                ],
                 "default": "info"
             },
             {
@@ -199,11 +307,23 @@
                 "label": "Memory Tracking Mode",
                 "description": "Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: page_guard, assisted, and unassisted.",
                 "type": "ENUM",
-                "options": {
-                    "page_guard": "page_guard",
-                    "assisted": "assisted",
-                    "unassisted": "unassisted"
-                },
+                "flags": [
+                    {
+                        "key": "page_guard",
+                        "label": "page_guard",
+                        "description": "tracks modifications to individual memory pages, which are written to the capture file on calls to vkFlushMappedMemoryRanges, vkUnmapMemory, and vkQueueSubmit. Tracking modifications requires allocating shadow memory for all mapped memory."
+                    },
+                    {
+                        "key": "assisted",
+                        "label": "assisted",
+                        "description": "Expects the application to call vkFlushMappedMemoryRanges after memory is modified; the memory ranges specified to the vkFlushMappedMemoryRanges call will be written to the capture file during the call."
+                    },
+                    {
+                        "key": "unassisted",
+                        "label": "unassisted",
+                        "description": "writes the full content of mapped memory to the capture file on calls to vkUnmapMemory and vkQueueSubmit. It is very inefficient and may be unusable with real-world applications that map large amounts of memory."
+                    }
+                ],
                 "default": "page_guard"
             },
             {

@@ -5,8 +5,10 @@
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_test.dll",
         "api_version": "1.2.162",
-        "implementation_version": "2",
+        "implementation_version": "build 2",
         "description": "test layer",
+        "status": "BETA",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html",
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",
@@ -18,98 +20,259 @@
         ],
         "settings": [
             {
-                "key": "ENUM",
-                "label": "enum",
-                "platforms": [ "WINDOWS" ],
-                "description": "enum case",
+                "key": "enum_required_only",
                 "type": "ENUM",
-                "options": {
-                    "value0": "Value 0",
-                    "value1": "Value 1",
-                    "value2": "Value 2"
-                },
+                "label": "enum",
+                "description": "enum case",
+                "flags": [
+                    {
+                        "key": "value0",
+                        "label": "Value0",
+                        "description": "My value0"
+                    },
+                    {
+                        "key": "value1",
+                        "label": "Value1",
+                        "description": "My value1"
+                    },
+                    {
+                        "key": "value2",
+                        "label": "Value2",
+                        "description": "My value2"
+                    }
+                ],
                 "default": "value1"
             },
             {
-                "key": "FLAGS",
+                "key": "enum_with_optional",
+                "type": "ENUM",
+                "label": "enum",
+                "description": "enum case",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum",
+                "status": "BETA",
+                "platforms": [ "WINDOWS" ],
+                "flags": [
+                    {
+                        "key": "value0",
+                        "label": "Value0",
+                        "description": "My value0",
+                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value0",
+                        "status": "STABLE",
+                        "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
+                    },
+                    {
+                        "key": "value1",
+                        "label": "Value1",
+                        "description": "My value1",
+                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value1",
+                        "status": "BETA",
+                        "platforms": [ "WINDOWS", "LINUX" ]
+                    },
+                    {
+                        "key": "value2",
+                        "label": "Value2",
+                        "description": "My value2",
+                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value2",
+                        "status": "ALPHA",
+                        "platforms": [ "WINDOWS" ]
+                    }
+                ],
+                "default": "value1"
+            },
+            {
+                "key": "flags_required_only",
+                "type": "FLAGS",
                 "label": "flags",
                 "description": "flags case",
-                "type": "MULTI_ENUM",
-                "options": {
-                    "flag0": "Flag 0",
-                    "flag1": "Flag 1",
-                    "flag2": "Flag 2"
-                },
+                "flags": [
+                    {
+                        "key": "flag0",
+                        "label": "Flag0",
+                        "description": "My flag0"
+                    },
+                    {
+                        "key": "flag1",
+                        "label": "Flag1",
+                        "description": "My flag1"
+                    },
+                    {
+                        "key": "flag2",
+                        "label": "Flag2",
+                        "description": "My flag2"
+                    }
+                ],
                 "default": [ "flag0", "flag1" ]
             },
             {
-                "key": "STRING",
-                "label": "String",
-                "platforms": [ "WINDOWS" ],
-                "description": "string",
+                "key": "flags_with_optional",
+                "type": "FLAGS",
+                "label": "flags",
+                "description": "flags case",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "flags": [
+                    {
+                        "key": "flag0",
+                        "label": "Flag0",
+                        "description": "My flag0",
+                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag0",
+                        "status": "STABLE",
+                        "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
+                    },
+                    {
+                        "key": "flag1",
+                        "label": "Flag1",
+                        "description": "My flag1",
+                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag1",
+                        "status": "BETA",
+                        "platforms": [ "WINDOWS", "LINUX" ]
+                    },
+                    {
+                        "key": "flag2",
+                        "label": "Flag2",
+                        "description": "My flag2",
+                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag2",
+                        "status": "ALPHA",
+                        "platforms": [ "WINDOWS" ]
+                    }
+                ],
+                "default": [ "flag0", "flag1" ]
+            },
+            {
+                "key": "string_required_only",
                 "type": "STRING",
+                "label": "String",
+                "description": "string",
                 "default": "A string"
             },
             {
-                "key": "BOOL",
+                "key": "string_with_optional",
+                "type": "STRING",
+                "label": "String",
+                "description": "string",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "default": "A string"
+            },
+            {
+                "key": "bool_required_only",
+                "type": "BOOL",
                 "label": "bool",
                 "description": "true or false",
-                "type": "BOOL",
                 "default": true
             },
             {
-                "key": "BOOL_NUMERIC",
+                "key": "bool_with_optional",
+                "type": "BOOL",
+                "label": "bool",
+                "description": "true or false",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "default": true
+            },
+            {
+                "key": "bool_numeric_required_only",
+                "type": "BOOL_NUMERIC",
                 "label": "bool numeric deprecated",
                 "description": "1 or 0",
-                "type": "BOOL_NUMERIC",
                 "default": true
             },
             {
-                "key": "SAVE_FILE",
-                "label": "Save file",
-                "description": "Save file path",
-                "type": "SAVE_FILE",
+                "key": "bool_numeric_with_optional",
+                "type": "BOOL_NUMERIC",
+                "label": "bool numeric deprecated",
+                "description": "1 or 0",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool_numeric",
+                "status": "DEPRECATED",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "default": true
+            },
+            {
+                "key": "load_file_required_only",
+                "type": "LOAD_FILE",
+                "label": "Load file",
+                "description": "Load file path",
                 "default": "./test.txt"
             },
             {
-                "key": "SAVE_FOLDER",
+                "key": "load_file_with_optional",
+                "type": "LOAD_FILE",
+                "label": "Load file",
+                "description": "Load file path",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "filter": "*.txt",
+                "default": "./test.txt"
+            },
+            {
+                "key": "save_file_required_only",
+                "type": "SAVE_FILE",
+                "label": "Save file",
+                "description": "Save file path",
+                "default": "./test.json"
+            },
+            {
+                "key": "save_file_with_optional",
+                "type": "SAVE_FILE",
+                "label": "Save file",
+                "description": "Save file path",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "filter": "*.json",
+                "default": "./test.json"
+            },
+            {
+                "key": "save_folder_with_optional",
+                "type": "SAVE_FOLDER",
                 "label": "Save folder",
                 "description": "Save folder path",
-                "type": "SAVE_FOLDER",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
                 "default": "./test"
             },
             {
-                "key": "LOAD_FILE",
-                "label": "Load file",
-                "description": "Load file path",
-                "type": "LOAD_FILE",
-                "default": "./test.txt"
-            },
-            {
-                "key": "INT",
-                "label": "Integer",
-                "description": "Integer",
+                "key": "int_with_optional",
                 "type": "INT",
+                "label": "Integer",
+                "description": "Integer Description",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
                 "default": 76
             },
             {
-                "key": "INT_RANGE",
-                "label": "Integer Range",
-                "description": "Range",
+                "key": "int_range_with_optional",
                 "type": "INT_RANGE",
-                "default": "76-82"
+                "label": "Integer Range",
+                "description": "Integer Range Description",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_range",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "default": {
+                    "min": 76,
+                    "max": 82
+                }
             },
             {
-                "key": "VUID_EXCLUDE",
-                "label": "string list",
-                "description": "list of strings",
+                "key": "vuid_exclude_with_optional",
                 "type": "VUID_EXCLUDE",
-                "options": [
+                "label": "vuid list",
+                "description": "vuid list description",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#vuid",
+                "status": "BETA",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "list": [
                     "stringA",
                     "stringB",
                     "stringC"
                 ],
-                "default": "stringB,stringC"
+                "default": [ "stringB", "stringC" ]
             }
         ]
     }

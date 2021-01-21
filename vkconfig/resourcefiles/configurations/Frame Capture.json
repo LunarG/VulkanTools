@@ -20,8 +20,11 @@
                     },
                     {
                         "key": "capture_frames",
-                        "type": "STRING",
-                        "value": ""
+                        "type": "INT_RANGE",
+                        "value": {
+                            "min": 0,
+                            "max": 0
+                        }
                     },
                     {
                         "key": "capture_file",
@@ -86,7 +89,7 @@
                     {
                         "key": "log_level",
                         "type": "ENUM",
-                        "value": "debug"
+                        "value": "info"
                     },
                     {
                         "key": "memory_tracking_mode",

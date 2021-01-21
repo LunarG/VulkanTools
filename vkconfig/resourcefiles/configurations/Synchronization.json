@@ -11,30 +11,18 @@
         "editor_state": "011100111111111111111111010111111111100111011111",
         "layers": [
             {
-                "name": "VK_LAYER_KHRONOS_synchronization2",
-                "rank": 0,
-                "settings": [
-                    {
-                        "key": "force_enable",
-                        "type": "BOOL",
-                        "value": false
-                    }
-                ],
-                "state": "OVERRIDDEN"
-            },
-            {
                 "name": "VK_LAYER_KHRONOS_validation",
-                "rank": 1,
+                "rank": 0,
                 "settings": [
                     {
                         "key": "debug_action",
                         "type": "FLAGS",
-                        "value": "VK_DBG_LAYER_ACTION_LOG_MSG"
+                        "value": [ "VK_DBG_LAYER_ACTION_LOG_MSG" ]
                     },
                     {
                         "key": "report_flags",
                         "type": "FLAGS",
-                        "value": "error,perf,info,warn"
+                        "value": [ "error", "perf", "info", "warn" ]
                     },
                     {
                         "key": "log_filename",
@@ -54,12 +42,17 @@
                     {
                         "key": "disables",
                         "type": "FLAGS",
-                        "value": "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT,VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT,VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT,VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        "value": [
+                            "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT",
+                            "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT"
+                        ]
                     },
                     {
                         "key": "enables",
                         "type": "FLAGS",
-                        "value": "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT"
+                        "value": [ "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT" ]
                     },
                     {
                         "key": "gpuav_buffer_oob",
@@ -80,6 +73,18 @@
                         "key": "printf_buffer_size",
                         "type": "INT",
                         "value": 1024
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_synchronization2",
+                "rank": 1,
+                "settings": [
+                    {
+                        "key": "force_enable",
+                        "type": "BOOL",
+                        "value": false
                     }
                 ],
                 "state": "OVERRIDDEN"
