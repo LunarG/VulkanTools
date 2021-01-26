@@ -30,6 +30,11 @@
 #include <QMessageBox>
 #include <QCheckBox>
 
+static bool HasShaderBased(const Version &version) {
+    if (VKC_PLATFORM & VKC_PLATFORM_MACOS) return version > Version(1, 2, 162);
+    return true;
+}
+
 // Keep track of tree/setting correlations
 struct TreeSettings {
     const char *prompt;
@@ -64,7 +69,7 @@ static TreeSettings best_practices[] = {
 static TreeSettings sync_checks[] = {
     {"Synchronization", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", "", nullptr}};
 
-SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent,
+SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent, const Version &version,
                                                  const std::vector<LayerSettingMeta> &settings_meta,
                                                  std::vector<LayerSettingData> &settings_data)
     : _main_tree_widget(main_tree),
@@ -81,6 +86,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
       _debug_printf_to_stdout(nullptr),
       _debug_printf_verbose(nullptr),
       _debug_printf_buffer_size(nullptr),
+      version(version),
       settings_meta(settings_meta),
       settings_data(settings_data) {
     assert(main_tree && parent);
@@ -125,7 +131,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     const bool has_gpu_assisted = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
     const bool shader_based = has_debug_printf || has_gpu_assisted;
 
-    if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
+    if (HasShaderBased(version)) {
         if (HasValue(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
             _shader_based_box = new QTreeWidgetItem();
             _shader_based_box->setText(0, "Shader-Based");
@@ -239,7 +245,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     connect(_main_tree_widget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
     connect(_main_tree_widget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(itemClicked(QTreeWidgetItem *, int)));
 
-    if (VKC_PLATFORM != VKC_PLATFORM_MACOS) {
+    if (HasShaderBased(version)) {
         connect(_gpu_assisted_radio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
         connect(_debug_printf_radio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
     }
