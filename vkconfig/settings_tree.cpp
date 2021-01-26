@@ -171,8 +171,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
-    _validation_areas =
-        new SettingsValidationAreas(_settings_tree, validation_areas_item, validation_layer->settings, parameter.settings);
+    _validation_areas = new SettingsValidationAreas(_settings_tree, validation_areas_item, validation_layer->_api_version,
+                                                    validation_layer->settings, parameter.settings);
 
     // Get the Debug Action and log file settings (and they must exist)
     LayerSettingMeta *debug_action_meta = FindByKey(validation_layer->settings, "debug_action");

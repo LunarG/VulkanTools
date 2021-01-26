@@ -36,7 +36,7 @@ class SettingsValidationAreas : public QObject {
     Q_OBJECT
 
    public:
-    explicit SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent,
+    explicit SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent, const Version &version,
                                      const std::vector<LayerSettingMeta> &settings_meta,
                                      std::vector<LayerSettingData> &settings_data);
 
@@ -81,6 +81,7 @@ class SettingsValidationAreas : public QObject {
 
     void EnableSettingWidget(QTreeWidgetItem *setting, bool enable);
 
+    const Version version;
     const std::vector<LayerSettingMeta> &settings_meta;
     std::vector<LayerSettingData> &settings_data;
 };
