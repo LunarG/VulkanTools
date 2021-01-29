@@ -60,13 +60,13 @@ VK_ICD_FILENAMES="$VULKAN_TOOLS_BUILD_DIR/icd/VkICD_mock_icd.json" \
     "$VULKANINFO" --show-formats > apidump_file.tmp
 
 printf "$GREEN[ RUN      ]$NC $0\n"
-echo DISPLAY=$DISPLAY         # Debug
-ls -l apidump_file.tmp        # Debug
+#echo DISPLAY=$DISPLAY         # Debug
+#ls -l apidump_file.tmp        # Debug
 if [ -f apidump_file.tmp ]
 then
-    echo @===================@   # Debug
-    cat apidump_file.tmp         # Debug
-    echo @===================@   # Debug
+    #echo @===================@   # Debug
+    #cat apidump_file.tmp         # Debug
+    #echo @===================@   # Debug
     GPDFP_count=$(grep vkGetPhysicalDeviceFormatProperties apidump_file.tmp | wc -l)
     pipelineCacheUUID_count=$(grep pipelineCacheUUID apidump_file.tmp | wc -l)
     vk_format_feature_count=$(grep VK_FORMAT_FEATURE apidump_file.tmp | wc -l)
