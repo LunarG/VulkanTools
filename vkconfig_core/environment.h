@@ -139,6 +139,9 @@ class Environment {
         return user_defined_layers_paths[user_defined_layers_paths_id];
     }
 
+    bool IsDefaultConfigurationInit(const std::string& configuration_filename) const;
+    void InitDefaultConfiguration(const std::string& configuration_filename);
+
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
@@ -153,6 +156,8 @@ class Environment {
     std::vector<Application> applications;
 
     PathManager& paths_manager;
+
+    std::vector<std::string> default_configuration_filenames;
 
    public:
     const PathManager& paths;

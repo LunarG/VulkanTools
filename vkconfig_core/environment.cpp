@@ -265,6 +265,9 @@ bool Environment::Load() {
         layout_states[i] = settings.value(GetLayoutStateToken(static_cast<LayoutState>(i))).toByteArray();
     }
 
+    // Load default configuration already init
+    this->default_configuration_filenames = ConvertString(settings.value("default_configuration_files").toStringList());
+
     // Load custom paths
     user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI] =
         ConvertString(settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList());
@@ -359,6 +362,9 @@ bool Environment::Save() const {
 
     // Save custom paths
     settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, ConvertString(user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI]));
+
+    // Save default configuration initizalized
+    settings.setValue("default_configuration_files", ConvertString(this->default_configuration_filenames));
 
     const bool result = SaveApplications();
     assert(result);
@@ -553,6 +559,18 @@ bool Environment::RemoveCustomLayerPath(const std::string& path) {
 
     std::swap(custom_layer_paths_gui, new_custom_layer_paths_gui);
     return found;
+}
+
+bool Environment::IsDefaultConfigurationInit(const std::string& default_configuration_filename) const {
+    for (std::size_t i = 0, n = default_configuration_filenames.size(); i < n; ++i) {
+        if (default_configuration_filenames[i] == default_configuration_filename) return true;
+    }
+
+    return false;
+}
+
+void Environment::InitDefaultConfiguration(const std::string& configuration_filename) {
+    AppendString(this->default_configuration_filenames, configuration_filename);
 }
 
 ///////////////////////////////////////////////////////////////////////////

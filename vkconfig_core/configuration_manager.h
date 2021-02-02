@@ -53,6 +53,8 @@ class ConfigurationManager {
 
     void ResetDefaultsConfigurations(const std::vector<Layer>& available_layers);
 
+    void FirstDefaultsConfigurations(const std::vector<Layer>& available_layers);
+
     bool Empty() const { return available_configurations.empty(); }
 
     std::vector<Configuration> available_configurations;
