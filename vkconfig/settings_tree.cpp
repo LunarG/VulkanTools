@@ -287,7 +287,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
         WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta, setting_data);
-        widget->setToolTip(setting_meta.description.c_str());
         parent->addChild(setting_item);
         QTreeWidgetItem *place_holder = new QTreeWidgetItem();
         setting_item->addChild(place_holder);
