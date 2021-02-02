@@ -23,6 +23,8 @@
 
 #include "../vkconfig_core/layer.h"
 
+#include "widget_setting_int.h"
+
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QRadioButton>
@@ -54,12 +56,14 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_debug_printf_to_stdout;
     QTreeWidgetItem *_debug_printf_verbose;
     QTreeWidgetItem *_debug_printf_buffer_size;
+    WidgetSettingInt *_debug_printf_buffer_size_value;
 
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *item, int column);
     void itemClicked(QTreeWidgetItem *item, int column);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
+    void printfBufferSizeEdited(const QString &new_value);
 
    Q_SIGNALS:
     void settingChanged();
@@ -71,9 +75,11 @@ class SettingsValidationAreas : public QObject {
     bool HasEnable(const char *token) const;
     bool HasDisable(const char *token) const;
 
-    QTreeWidgetItem *CreateSettingWidget(QTreeWidgetItem *parent, const char *key) const;
+    QTreeWidgetItem *CreateSettingWidgetBool(QTreeWidgetItem *parent, const char *key);
+    QTreeWidgetItem *CreateSettingWidgetInt(QTreeWidgetItem *parent, const char *key);
 
     void StoreBoolSetting(QTreeWidgetItem *setting_data, const char *key);
+    void StoreIntSetting(QTreeWidgetItem *setting_data, const char *key);
 
     void EnableSettingWidget(QTreeWidgetItem *setting_data, bool enable);
 
