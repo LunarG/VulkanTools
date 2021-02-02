@@ -265,3 +265,32 @@ void ConfigurationManager::ResetDefaultsConfigurations(const std::vector<Layer> 
     // Now we need to kind of restart everything
     LoadAllConfigurations(available_layers);
 }
+
+void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> &available_layers) {
+    const QFileInfoList &configuration_files = GetJSONFiles(":/configurations/");
+
+    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
+        if (environment.IsDefaultConfigurationInit(configuration_files[i].baseName().toStdString())) {
+            continue;
+        }
+
+        environment.InitDefaultConfiguration(configuration_files[i].baseName().toStdString());
+
+        Configuration configuration;
+        const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
+        assert(result);
+
+        if (!configuration.IsAvailableOnThisPlatform()) {
+            continue;
+        }
+
+        if (FindByKey(available_configurations, configuration.key.c_str()) != nullptr) {
+            continue;
+        }
+
+        OrderParameter(configuration.parameters, available_layers);
+        available_configurations.push_back(configuration);
+    }
+
+    RefreshConfiguration(available_layers);
+}

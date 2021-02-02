@@ -95,6 +95,8 @@ bool Configurator::Init() {
 
     if (configurations.Empty()) {
         configurations.ResetDefaultsConfigurations(layers.available_layers);
+    } else {
+        configurations.FirstDefaultsConfigurations(layers.available_layers);
     }
 
     if (configurations.HasActiveConfiguration(layers.available_layers)) {
