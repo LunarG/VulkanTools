@@ -51,6 +51,13 @@
                 ]
             },
             {
+                "name": "VK_LAYER_KHRONOS_synchronization2",
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED"
+            },
+            {
                 "name": "VK_LAYER_KHRONOS_validation",
                 "rank": 4,
                 "settings": [

@@ -40,7 +40,7 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
     if (environment.first_run) {
         RemoveConfigurationFiles();
 
-        const QFileInfoList &configuration_files = GetJSONFiles(":/resourcefiles/configurations/");
+        const QFileInfoList &configuration_files = GetJSONFiles(":/configurations/");
 
         for (int i = 0, n = configuration_files.size(); i < n; ++i) {
             Configuration configuration;

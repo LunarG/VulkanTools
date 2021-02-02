@@ -4,7 +4,7 @@
         "name": "VK_LAYER_KHRONOS_validation",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_khronos_validation.dll",
-        "api_version": "1.2.154",
+        "api_version": "1.2.162",
         "implementation_version": "1",
         "description": "Khronos Validation Layer",
         "instance_extensions": [
@@ -118,10 +118,10 @@
                 ]
             },
             {
-                "label": "Synchronization (ALPHA)",
+                "label": "Synchronization",
                 "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
-                "status": "ALPHA",
+                "status": "STABLE",
                 "settings": [
                     {
                         "key": "enables",
@@ -143,7 +143,7 @@
             {
                 "label": "GPU-Assisted",
                 "description": "Check for API usage errors at shader execution time.",
-                "platforms": [ "WINDOWS", "LINUX" ],
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
                     {
@@ -168,7 +168,7 @@
             {
                 "label": "Shader Printf",
                 "description": "Debug shader code by \"printing\" any values of interest to the debug callback or stdout.",
-                "platforms": [ "WINDOWS", "LINUX" ],
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
                     {
@@ -190,7 +190,7 @@
                 ]
             }
         ],
-        "settings" : [
+        "settings": [
             {
                 "key": "debug_action",
                 "label": "Debug Action",
@@ -6738,7 +6738,7 @@
                     "UNASSIGNED-vkCmdExecuteCommands-commandBuffer-00001",
                     "UNASSIGNED-vkGetAccelerationStructureHandleNV-accelerationStructure-XXXX"
                 ],
-                "default": ""
+                "default": []
             },
             {
                 "key": "disables",
@@ -6820,7 +6820,7 @@
                         "label": "Synchronization",
                         "description": "This feature reports resource access conflicts due to missing or incorrect synchronization operations between actions (Draw, Copy, Dispatch, Blit) reading or writing the same regions of memory.",
                         "url": "${LUNARG_SDK}/synchronization_usage.html",
-                        "status": "ALPHA",
+                        "status": "STABLE",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
@@ -6828,20 +6828,21 @@
                         "label": "Debug Printf",
                         "description": "Enables processing of debug printf instructions in shaders and sending debug strings to the debug callback",
                         "url": "${LUNARG_SDK}/debug_printf.html",
-                        "platforms": [ "WINDOWS", "LINUX" ]
+                        "status": "STABLE",
+                        "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
                         "label": "GPU-Assisted",
                         "description": "Activating this feature instruments shader programs to generate additional diagnostic data.",
                         "url": "${LUNARG_SDK}/gpu_validation.html",
-                        "platforms": [ "WINDOWS", "LINUX" ]
+                        "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT",
                         "label": "Reserve a descriptorSet binding slot for internal use",
                         "description": "Specifies that the validation layers reserve a descriptor set binding slot for their own use. The layer reports a value for VkPhysicalDeviceLimits::maxBoundDescriptorSets that is one less than the value reported by the device. If the device supports the binding of only one descriptor set, the validation layer does not perform GPU-assisted validation.",
-                        "platforms": [ "WINDOWS", "LINUX" ]
+                        "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT",
@@ -6858,7 +6859,35 @@
                     }
                 ],
                 "default": []
-            }            
+            },
+            {
+                "key": "gpuav_buffer_oob",
+                "label": "Buffer out of bounds check",
+                "description": "Enable buffer out of bounds checking",
+                "type": "BOOL",
+                "default": false
+            },
+            {
+                "key": "printf_to_stdout",
+                "label": "Printf to stdout",
+                "description": "To redirect Debug Printf messages from the debug callback to stdout",
+                "type": "BOOL",
+                "default": true
+            },
+            {
+                "key": "printf_verbose",
+                "label": "Verbose",
+                "description": "Verbosity of debug printf messages",
+                "type": "BOOL",
+                "default": false
+            },
+            {
+                "key": "printf_buffer_size",
+                "label": "Printf buffer size",
+                "description": "The size in bytes of the buffer used by debug printf",
+                "type": "INT",
+                "default": 1024
+            }
         ]
     }
 }

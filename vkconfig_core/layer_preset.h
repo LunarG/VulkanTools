@@ -27,6 +27,8 @@
 #include <string>
 
 struct LayerPreset {
+    LayerPreset() : platform_flags(PLATFORM_ALL_BIT), status_type(STATUS_STABLE) {}
+
     std::string label;
     std::string description;
     int platform_flags;

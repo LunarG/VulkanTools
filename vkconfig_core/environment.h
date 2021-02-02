@@ -91,7 +91,7 @@ enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_D
 
 class Environment {
    public:
-    Environment(PathManager& paths);
+    Environment(PathManager& paths, const Version& api_version = Version::VKHEADER);
     ~Environment();
 
     enum ResetMode { DEFAULT = 0, SYSTEM };
@@ -131,6 +131,7 @@ class Environment {
     const bool running_as_administrator;  // Are we being "Run as Administrator"
 
     bool first_run;
+    const Version api_version;
 
     bool AppendCustomLayerPath(const std::string& path);
     bool RemoveCustomLayerPath(const std::string& path);

@@ -103,8 +103,8 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Environment::Environment(PathManager& paths)
-    :
+Environment::Environment(PathManager& paths, const Version& api_version)
+    : api_version(api_version),
 // Hack for GitHub C.I.
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
       running_as_administrator(IsUserAnAdmin()),

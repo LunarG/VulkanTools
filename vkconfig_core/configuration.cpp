@@ -169,8 +169,7 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
-            const int layer_platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
-            if ((layer_platform_flags & (1 << VKC_PLATFORM)) == 0) continue;
+            parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
         }
 
         SettingDataSet settings;
@@ -228,8 +227,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
-            const int layer_platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
-            if ((layer_platform_flags & (1 << VKC_PLATFORM)) == 0) continue;
+            parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
         }
 
         SettingDataSet settings;
@@ -320,6 +318,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
         json_layer.insert("name", parameter.key.c_str());
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("state", GetToken(parameter.state));
+        SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.data.size(); j < m; ++j) {
@@ -366,7 +365,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
 void Configuration::Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager) {
     // Case 1: reset using built-in configuration files
-    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/resourcefiles/configurations/");
+    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/configurations/");
     for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
         const std::string& basename = builtin_configuration_files[i].baseName().toStdString();
 
@@ -423,14 +422,20 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
 
 bool Configuration::HasOverride() const {
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
-        if (this->parameters[i].state != LAYER_STATE_APPLICATION_CONTROLLED) return true;
+        if (!(this->parameters[i].platform_flags & (1 << VKC_PLATFORM))) {
+            continue;
+        }
+
+        if (this->parameters[i].state != LAYER_STATE_APPLICATION_CONTROLLED) {
+            return true;
+        }
     }
 
     return false;
 }
 
 bool Configuration::IsBuiltIn() const {
-    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/resourcefiles/configurations/");
+    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/configurations/");
     for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
         const std::string& basename = builtin_configuration_files[i].baseName().toStdString();
 

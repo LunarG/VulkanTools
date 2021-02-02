@@ -149,7 +149,7 @@ void LayerManager::LoadLayersFromPath(const std::string &path) {
 
         file_list = PathFinder(search_path, true);
     } else {
-        assert(0);  // Platform
+        assert(0);  // Platform unknown
     }
 
     for (int i = 0, n = file_list.FileCount(); i < n; ++i) {

@@ -46,47 +46,13 @@ Configurator &Configurator::Get() {
 }
 
 Configurator::Configurator()
-    : environment(path), layers(environment), configurations(path, environment), request_vulkan_status(true) {
-    if (0) {
-        CopyResourceFiles();
-    }
-}
+    : environment(path), layers(environment), configurations(path, environment), request_vulkan_status(true) {}
 
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.available_layers);
 
     if (!environment.UsePersistentOverrideMode()) {
         SurrenderConfiguration(environment);
-    }
-}
-
-void Configurator::CopyResourceFiles() {
-    const std::string dir_save(GetPath(BUILTIN_PATH_VULKAN_LAYER_CONFIG) + "/VK_LAYER_LUNARG_device_simulation");
-    CheckPathsExist(dir_save);
-
-    const QFileInfoList &devsim_files = GetJSONFiles(":/resourcefiles/devsim/");
-    for (int i = 0, n = devsim_files.size(); i < n; ++i) {
-        const std::string filename_exist(dir_save + "/" + devsim_files[i].fileName().toStdString());
-        QFile file_exist(filename_exist.c_str());
-        const bool opened_exist = file_exist.open(QIODevice::ReadOnly | QIODevice::Text);
-        if (opened_exist) {
-            file_exist.close();
-            continue;
-        }
-
-        const std::string filename_load(devsim_files[i].absoluteFilePath().toStdString());
-        QFile file_load(filename_load.c_str());
-        const bool opened_load = file_load.open(QIODevice::ReadOnly | QIODevice::Text);
-        assert(opened_load);
-        QString json_text = file_load.readAll();
-        file_load.close();
-
-        const std::string filename_save(dir_save + "/" + devsim_files[i].fileName().toStdString());
-        QFile file_save(filename_save.c_str());
-        const bool opened_save = file_save.open(QIODevice::WriteOnly | QIODevice::Text);
-        assert(opened_save);
-        file_save.write(json_text.toStdString().c_str(), json_text.size());
-        file_save.close();
     }
 }
 

@@ -117,7 +117,17 @@ void FilterParameters(std::vector<Parameter>& parameters, const LayerState state
 
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
     for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
-        if (!IsFound(layers, it->key.c_str())) return true;
+        if (it->state == LAYER_STATE_EXCLUDED) {
+            continue;  // If excluded are missing, it doesn't matter
+        }
+
+        if (!(it->platform_flags & (1 << VKC_PLATFORM))) {
+            continue;  // If unsupported are missing, it doesn't matter
+        }
+
+        if (!IsFound(layers, it->key.c_str())) {
+            return true;
+        }
     }
     return false;
 }
