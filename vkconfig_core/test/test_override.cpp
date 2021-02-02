@@ -37,7 +37,7 @@ extern bool EraseSettingsOverride(const std::string& settings_path);
 
 TEST(test_override, write_erase) {
     PathManager paths;
-    Environment env(paths);
+    Environment env(paths, Version(1, 2, 162));
     env.Reset(Environment::DEFAULT);
 
     LayerManager layer_manager(env);

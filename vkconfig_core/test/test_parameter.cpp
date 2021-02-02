@@ -47,8 +47,8 @@ static std::vector<Parameter> GenerateTestParametersExist() {
 
 static std::vector<Parameter> GenerateTestParametersMissing() {
     std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E3", LAYER_STATE_EXCLUDED));
+    parameters.push_back(Parameter("Layer E3", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
     parameters.push_back(Parameter("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
     return parameters;
 }
@@ -124,7 +124,6 @@ TEST(test_parameter, missing_layers) {
     std::vector<Layer> layers = GenerateTestLayers();
 
     std::vector<Parameter> parameters_exist = GenerateTestParametersExist();
-    ;
     EXPECT_EQ(true, HasMissingLayer(parameters_exist, layers_empty));
     EXPECT_EQ(false, HasMissingLayer(parameters_exist, layers));
 

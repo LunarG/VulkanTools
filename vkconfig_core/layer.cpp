@@ -37,9 +37,9 @@ static std::string GetBuiltinFolder(const Version& version) {
     const std::uint32_t vulkan_version = std::max(static_cast<std::uint32_t>(130), version.GetPatch());
 
     if (vulkan_version <= 162)
-        return format(":/resourcefiles/layers_%d", vulkan_version).c_str();
+        return format(":/layers/%d", vulkan_version).c_str();
     else
-        return ":/resourcefiles/layers_latest";
+        return ":/layers/latest";
 }
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
@@ -180,8 +180,12 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
             LayerPreset preset;
             preset.label = ReadStringValue(json_preset_object, "label");
             preset.description = ReadStringValue(json_preset_object, "description");
-            preset.platform_flags = GetPlatformFlags(ReadStringArray(json_preset_object, "platforms"));
-            preset.status_type = GetStatusType(ReadStringValue(json_preset_object, "status").c_str());
+            if (json_preset_object.value("platforms") != QJsonValue::Undefined) {
+                preset.platform_flags = GetPlatformFlags(ReadStringArray(json_preset_object, "platforms"));
+            }
+            if (json_preset_object.value("status") != QJsonValue::Undefined) {
+                preset.status_type = GetStatusType(ReadStringValue(json_preset_object, "status").c_str());
+            }
 
             const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
             for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {

@@ -45,6 +45,9 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     QStringList layer_override_paths;
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter& parameter = configuration.parameters[i];
+        if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+            continue;
+        }
 
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
@@ -75,6 +78,10 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     QJsonArray json_excluded_layers;
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter& parameter = configuration.parameters[i];
+        if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+            continue;
+        }
+
         if (parameter.state == LAYER_STATE_OVERRIDDEN)
             json_overridden_layers.append(parameter.key.c_str());
         else if (parameter.state == LAYER_STATE_EXCLUDED)
@@ -87,7 +94,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     QJsonObject layer;
     layer.insert("name", "VK_LAYER_LUNARG_override");
     layer.insert("type", "GLOBAL");
-    layer.insert("api_version", format("1.2.%d", VK_HEADER_VERSION).c_str());
+    layer.insert("api_version", environment.api_version.str().c_str());
     layer.insert("implementation_version", "1");
     layer.insert("description", "LunarG Override Layer");
     layer.insert("override_paths", json_paths);
@@ -142,6 +149,9 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
     // Loop through all the layers
     for (std::size_t j = 0, n = configuration.parameters.size(); j < n; ++j) {
         const Parameter& parameter = configuration.parameters[j];
+        if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+            continue;
+        }
 
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer == nullptr) {

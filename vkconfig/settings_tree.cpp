@@ -73,6 +73,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         // There will be one top level item for each layer
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
+            if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) continue;
+
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
             const std::vector<Layer> &available_layers = configurator.layers.available_layers;
@@ -123,12 +125,15 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
+            if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) continue;
+
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
             const Layer *layer = FindByKey(configurator.layers.available_layers, parameter.key.c_str());
+            if (layer == nullptr) continue;  // Do not display missing excluded layers
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, (parameter.key + (layer != nullptr ? "" : " (Missing)")).c_str());
+            child->setText(0, parameter.key.c_str());
             if (layer != nullptr) {
                 child->setToolTip(0, layer->description.c_str());
             }
