@@ -307,7 +307,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                 const std::string key = ReadStringValue(json_setting_object, "key");
 
                 SettingData& setting_data = preset.settings.Create(key, settings.Get(key.c_str())->type);
-                switch (setting_data.GetType()) {
+                switch (setting_data.type) {
                     case SETTING_LOAD_FILE:
                     case SETTING_SAVE_FILE:
                     case SETTING_SAVE_FOLDER:
@@ -353,7 +353,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 }
 
 void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta) {
-    assert(setting_data.GetType() == setting_meta.type);
+    assert(setting_data.type == setting_meta.type);
 
     switch (setting_meta.type) {
         case SETTING_STRING: {

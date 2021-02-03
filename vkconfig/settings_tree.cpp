@@ -200,7 +200,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     assert(validation_layer->settings.Get("debug_action"));
     assert(validation_layer->settings.Get("debug_action")->type == SETTING_FLAGS);
     assert(parameter.settings.Get("debug_action"));
-    assert(parameter.settings.Get("debug_action")->GetType() == SETTING_FLAGS);
+    assert(parameter.settings.Get("debug_action")->type == SETTING_FLAGS);
 
     const SettingMetaFlags *debug_action_meta =
         static_cast<const SettingMetaFlags *>(validation_layer->settings.Get("debug_action"));
@@ -209,7 +209,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     assert(validation_layer->settings.Get("log_filename"));
     assert(validation_layer->settings.Get("log_filename")->type == SETTING_SAVE_FILE);
     assert(parameter.settings.Get("log_filename"));
-    assert(parameter.settings.Get("log_filename")->GetType() == SETTING_SAVE_FILE);
+    assert(parameter.settings.Get("log_filename")->type == SETTING_SAVE_FILE);
 
     const SettingMetaFileSave *log_file_meta =
         static_cast<const SettingMetaFileSave *>(validation_layer->settings.Get("log_filename"));
@@ -383,7 +383,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER: {
                 const SettingMetaFilesystem &setting_meta_src = static_cast<const SettingMetaFilesystem &>(setting_meta);
-                SettingDataFilesystem &setting_data_src = static_cast<SettingDataFilesystem &>(*setting_data);
+                SettingDataString &setting_data_src = static_cast<SettingDataString &>(*setting_data);
 
                 WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(setting_item, setting_meta_src, setting_data_src);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
