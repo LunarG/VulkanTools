@@ -23,9 +23,11 @@
 #include "platform.h"
 #include "layer.h"
 
+#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+
 #include <QString>
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#include <vector>
 
 void AppendRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
 

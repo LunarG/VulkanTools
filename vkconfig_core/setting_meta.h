@@ -24,35 +24,47 @@
 #include "setting_data.h"
 
 #include <string>
+#include <vector>
 #include <memory>
 
 struct SettingMeta : public Header {
     SettingMeta(const std::string& key, const SettingType type);
 
-    virtual bool operator==(const SettingMeta& setting_meta) const;
-
-    bool operator!=(const SettingMeta& setting_meta) const { return !(*this == setting_meta); }
+    bool operator==(const SettingMeta& other) const { return this->Equal(other); }
+    bool operator!=(const SettingMeta& other) const { return !this->Equal(other); }
 
     const std::string key;
     const SettingType type;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaString : public SettingMeta {
     SettingMetaString(const std::string& key) : SettingMeta(key, SETTING_STRING) {}
 
     std::string default_value;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaInt : public SettingMeta {
     SettingMetaInt(const std::string& key) : SettingMeta(key, SETTING_INT), default_value(0) {}
 
     int default_value;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaBool : public SettingMeta {
     SettingMetaBool(const std::string& key) : SettingMeta(key, SETTING_BOOL), default_value(false) {}
 
     bool default_value;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaBoolNumeric : public SettingMeta {
@@ -66,6 +78,9 @@ struct SettingMetaIntRange : public SettingMeta {
 
     int default_min_value;
     int default_max_value;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaFilesystem : public SettingMeta {
@@ -73,6 +88,9 @@ struct SettingMetaFilesystem : public SettingMeta {
 
     std::string default_value;
     std::string filter;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaFileLoad : public SettingMetaFilesystem {
@@ -97,30 +115,28 @@ inline bool operator!=(const SettingEnumValue& a, const SettingEnumValue& b) { r
 struct SettingMetaEnumeration : public SettingMeta {
     SettingMetaEnumeration(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
 
-    virtual bool operator==(const SettingMeta& setting_meta) const {
-        if (SettingMeta::operator!=(setting_meta)) return false;
-
-        const SettingMetaEnumeration& setting_meta_enum = static_cast<const SettingMetaEnumeration&>(setting_meta);
-
-        if (this->enum_values.size() != setting_meta_enum.enum_values.size()) return false;
-        if (this->enum_values != setting_meta_enum.enum_values) return false;
-
-        return true;
-    }
-
     std::vector<SettingEnumValue> enum_values;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaEnum : public SettingMetaEnumeration {
     SettingMetaEnum(const std::string& key) : SettingMetaEnumeration(key, SETTING_ENUM) {}
 
     std::string default_value;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaFlags : public SettingMetaEnumeration {
     SettingMetaFlags(const std::string& key) : SettingMetaEnumeration(key, SETTING_FLAGS) {}
 
     std::vector<std::string> default_value;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaVUIDFilter : public SettingMeta {
@@ -128,6 +144,9 @@ struct SettingMetaVUIDFilter : public SettingMeta {
 
     std::vector<std::string> list;
     std::vector<std::string> default_value;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
 };
 
 class SettingMetaSet {

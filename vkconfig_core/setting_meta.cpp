@@ -22,22 +22,84 @@
 
 SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
 
-bool SettingMeta::operator==(const SettingMeta& setting_meta) const {
-    if (this->key != setting_meta.key)
+bool SettingMeta::Equal(const SettingMeta& other) const {
+    if (this->key != other.key)
         return false;
-    else if (this->type != setting_meta.type)
+    else if (this->type != other.type)
         return false;
-    else if (this->label != setting_meta.label)
+    else if (this->label != other.label)
         return false;
-    else if (this->description != setting_meta.description)
+    else if (this->description != other.description)
         return false;
-    else if (this->url != setting_meta.url)
+    else if (this->url != other.url)
         return false;
-    else if (this->status != setting_meta.status)
+    else if (this->status != other.status)
         return false;
-    else if (this->platform_flags != setting_meta.platform_flags)
+    else if (this->platform_flags != other.platform_flags)
         return false;
     return true;
+}
+
+bool SettingMetaString::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    return this->default_value == static_cast<const SettingMetaString&>(other).default_value;
+}
+
+bool SettingMetaInt::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    return this->default_value == static_cast<const SettingMetaInt&>(other).default_value;
+}
+
+bool SettingMetaBool::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    return this->default_value == static_cast<const SettingMetaBool&>(other).default_value;
+}
+
+bool SettingMetaIntRange::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    const SettingMetaIntRange& meta = static_cast<const SettingMetaIntRange&>(other);
+
+    return this->default_min_value == meta.default_min_value && this->default_max_value == meta.default_max_value;
+}
+
+bool SettingMetaFilesystem::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    const SettingMetaFilesystem& meta = static_cast<const SettingMetaFilesystem&>(other);
+
+    return this->default_value == meta.default_value && this->filter == meta.filter;
+}
+
+bool SettingMetaEnumeration::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    return this->enum_values == static_cast<const SettingMetaEnumeration&>(other).enum_values;
+}
+
+bool SettingMetaEnum::Equal(const SettingMeta& other) const {
+    if (!SettingMetaEnumeration::Equal(other)) return false;
+
+    return this->default_value == static_cast<const SettingMetaEnum&>(other).default_value;
+}
+
+bool SettingMetaFlags::Equal(const SettingMeta& other) const {
+    if (!SettingMetaEnumeration::Equal(other)) return false;
+
+    return this->default_value == static_cast<const SettingMetaFlags&>(other).default_value;
+}
+
+bool SettingMetaVUIDFilter::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    const SettingMetaVUIDFilter& meta = static_cast<const SettingMetaVUIDFilter&>(other);
+
+    if (this->list != meta.list) return false;
+
+    return this->default_value == meta.default_value;
 }
 
 bool operator==(const SettingEnumValue& a, const SettingEnumValue& b) {
