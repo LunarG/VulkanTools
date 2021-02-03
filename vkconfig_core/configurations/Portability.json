@@ -94,7 +94,7 @@
                     {
                         "key": "message_id_filter",
                         "type": "VUID_EXCLUDE",
-                        "value": ""
+                        "value": []
                     }
                 ],
                 "state": "OVERRIDDEN"
