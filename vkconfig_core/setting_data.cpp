@@ -20,53 +20,6 @@
 
 #include "setting_data.h"
 
-const char* GetValueToken(const QJsonObject& json_setting_object) {
-    static const char* value = "value";
-    if (json_setting_object.value(value) != QJsonValue::Undefined) return value;
-
-    static const char* default_value = "default";
-    if (json_setting_object.value(default_value) != QJsonValue::Undefined) return default_value;
-
-    return nullptr;
-}
-
-SettingData* SettingDataSet::Create(const std::string& key, SettingType type) {
-    assert(!key.empty());
-    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
-
-    // Find existing setting, avoid duplicated setting
-    {
-        SettingData* setting_data = this->Get(key.c_str());
-        if (setting_data != nullptr) {
-            return setting_data;
-        }
-    }
-
-    // Create a new setting
-    {
-        this->data.push_back(CreateSettingData(key, type));
-        SettingData* setting_data = this->Get(key.c_str());
-        assert(setting_data != nullptr);
-        return setting_data;
-    }
-}
-
-SettingData* SettingDataSet::Get(const char* key) {
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (std::strcmp(this->data[i]->GetKey(), key) == 0) return this->data[i].get();
-    }
-
-    return nullptr;
-}
-
-const SettingData* SettingDataSet::Get(const char* key) const {
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (std::strcmp(this->data[i]->GetKey(), key) == 0) return this->data[i].get();
-    }
-
-    return nullptr;
-}
-
 std::shared_ptr<SettingData> CreateSettingData(const std::string& key, SettingType type) {
     assert(!key.empty());
 
@@ -97,4 +50,41 @@ std::shared_ptr<SettingData> CreateSettingData(const std::string& key, SettingTy
             assert(0);
             return std::shared_ptr<SettingData>();
     }
+}
+
+SettingData& SettingDataSet::Create(const std::string& key, SettingType type) {
+    assert(!key.empty());
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+    // Find existing setting, avoid duplicated setting
+    {
+        SettingData* setting_data = this->Get(key.c_str());
+        if (setting_data != nullptr) {
+            return *setting_data;
+        }
+    }
+
+    // Create a new setting
+    {
+        this->data.push_back(CreateSettingData(key, type));
+        SettingData* setting_data = this->Get(key.c_str());
+        assert(setting_data != nullptr);
+        return *setting_data;
+    }
+}
+
+SettingData* SettingDataSet::Get(const char* key) {
+    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+        if (std::strcmp(this->data[i]->GetKey(), key) == 0) return this->data[i].get();
+    }
+
+    return nullptr;
+}
+
+const SettingData* SettingDataSet::Get(const char* key) const {
+    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+        if (std::strcmp(this->data[i]->GetKey(), key) == 0) return this->data[i].get();
+    }
+
+    return nullptr;
 }

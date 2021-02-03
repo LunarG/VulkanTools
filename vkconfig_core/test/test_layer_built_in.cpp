@@ -102,7 +102,7 @@ TEST(test_layer_built_in, layer_135_screenshot) {
 TEST(test_layer_built_in, layer_141_validation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(":/layers/141/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(6, layer.settings.data.size());
+    EXPECT_EQ(5, layer.settings.data.size());
     EXPECT_EQ(5, layer.presets.size());
 }
 

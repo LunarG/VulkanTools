@@ -198,7 +198,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
     // Get the Debug Action and log file settings (and they must exist)
     assert(validation_layer->settings.Get("debug_action"));
-    assert(validation_layer->settings.Get("debug_action")->GetType() == SETTING_FLAGS);
+    assert(validation_layer->settings.Get("debug_action")->type == SETTING_FLAGS);
     assert(parameter.settings.Get("debug_action"));
     assert(parameter.settings.Get("debug_action")->GetType() == SETTING_FLAGS);
 
@@ -207,7 +207,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     SettingDataFlags *debug_action_data = static_cast<SettingDataFlags *>(parameter.settings.Get("debug_action"));
 
     assert(validation_layer->settings.Get("log_filename"));
-    assert(validation_layer->settings.Get("log_filename")->GetType() == SETTING_SAVE_FILE);
+    assert(validation_layer->settings.Get("log_filename")->type == SETTING_SAVE_FILE);
     assert(parameter.settings.Get("log_filename"));
     assert(parameter.settings.Get("log_filename")->GetType() == SETTING_SAVE_FILE);
 
@@ -259,7 +259,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         const SettingMetaFlags &setting_meta =
             static_cast<const SettingMetaFlags &>(*validation_layer->settings.Get("report_flags"));
         SettingDataFlags &setting_data =
-            static_cast<SettingDataFlags &>(*parameter.settings.Create(setting_meta.GetKey(), setting_meta.GetType()));
+            static_cast<SettingDataFlags &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
 
         QTreeWidgetItem *sub_category = new QTreeWidgetItem;
         sub_category->setText(0, setting_meta.label.c_str());
@@ -283,7 +283,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         const SettingMetaInt &setting_meta =
             static_cast<const SettingMetaInt &>(*validation_layer->settings.Get("duplicate_message_limit"));
         SettingDataInt &setting_data =
-            static_cast<SettingDataInt &>(*parameter.settings.Create(setting_meta.GetKey(), setting_meta.GetType()));
+            static_cast<SettingDataInt &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
         WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta, setting_data);
@@ -298,7 +298,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         const SettingMetaVUIDFilter &setting_meta =
             static_cast<const SettingMetaVUIDFilter &>(*validation_layer->settings.Get("message_id_filter"));
         SettingDataVUIDFilter &setting_data =
-            static_cast<SettingDataVUIDFilter &>(*parameter.settings.Create(setting_meta.GetKey(), setting_meta.GetType()));
+            static_cast<SettingDataVUIDFilter &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
 
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
         mute_message_item->setText(0, setting_meta.label.c_str());
@@ -350,13 +350,13 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
         const SettingMeta &setting_meta = *layer_setting_metas.data[setting_index];
         if (!(setting_meta.platform_flags & (1 << VKC_PLATFORM))) continue;
 
-        SettingData *setting_data = parameter.settings.Get(setting_meta.GetKey());
+        SettingData *setting_data = parameter.settings.Get(setting_meta.key.c_str());
         assert(setting_data);
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
         parent->addChild(setting_item);
 
-        switch (setting_meta.GetType()) {
+        switch (setting_meta.type) {
             case SETTING_BOOL:
             case SETTING_BOOL_NUMERIC_DEPRECATED: {
                 const SettingMetaBool &setting_meta_src = static_cast<const SettingMetaBool &>(setting_meta);

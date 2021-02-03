@@ -218,7 +218,7 @@
                         "description": "Trigger a breakpoint if a debugger is in use."
                     }
                 ],
-                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+                "default": [ "VK_DBG_LAYER_ACTION_LOG_MSG" ]
             },
             {
                 "key": "report_flags",

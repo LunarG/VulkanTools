@@ -36,7 +36,7 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidgetItem* item, const SettingMetaInt& 
 
 void WidgetSettingInt::itemEdited(const QString& new_string) {
     if (new_string.isEmpty()) {
-        this->setting_data.value = static_cast<const SettingDataInt&>(*this->setting_meta.default_value).value;
+        this->setting_data.value = this->setting_meta.default_value;
     } else {
         this->setting_data.value = std::atoi(new_string.toStdString().c_str());
     }

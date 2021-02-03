@@ -28,8 +28,8 @@ TEST(test_layer, collect_settings) {
 
     EXPECT_TRUE(CollectDefaultSettingData(meta).Empty());
 
-    SettingMeta& meta0 = meta.Create("key0", SETTING_STRING);
-    static_cast<SettingDataString&>(*meta0.default_value.get()).value = "value0";
+    SettingMetaString& meta0 = static_cast<SettingMetaString&>(meta.Create("key0", SETTING_STRING));
+    meta0.default_value = "value0";
 
     SettingDataSet data = CollectDefaultSettingData(meta);
 
@@ -88,13 +88,13 @@ TEST(test_layer, load_1_4_0_layer_preset) {
     EXPECT_STREQ("Preset0", layer.presets[0].label.c_str());
     EXPECT_STREQ("Description0", layer.presets[0].description.c_str());
     EXPECT_EQ(PLATFORM_ALL_BIT, layer.presets[0].platform_flags);
-    EXPECT_EQ(STATUS_STABLE, layer.presets[0].status_type);
+    EXPECT_EQ(STATUS_STABLE, layer.presets[0].status);
     EXPECT_STREQ("A string0", static_cast<SettingDataString&>(*layer.presets[0].settings.Get("stringA")).value.c_str());
 
     EXPECT_STREQ("Preset1", layer.presets[1].label.c_str());
     EXPECT_STREQ("Description1", layer.presets[1].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.presets[1].platform_flags);
-    EXPECT_EQ(STATUS_BETA, layer.presets[1].status_type);
+    EXPECT_EQ(STATUS_BETA, layer.presets[1].status);
     EXPECT_STREQ("A string1", static_cast<SettingDataString&>(*layer.presets[1].settings.Get("stringA")).value.c_str());
 }
 
@@ -107,8 +107,8 @@ TEST(test_layer, load_1_4_0_setting_enum_required_only) {
     SettingMetaEnum* setting_meta = dynamic_cast<SettingMetaEnum*>(layer.settings.Get("enum_required_only"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("enum_required_only", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_ENUM, setting_meta->GetType());
+    EXPECT_STREQ("enum_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_ENUM, setting_meta->type);
     EXPECT_STREQ("enum", setting_meta->label.c_str());
     EXPECT_STREQ("enum case", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
@@ -134,9 +134,7 @@ TEST(test_layer, load_1_4_0_setting_enum_required_only) {
     value2.description = "My value2";
     EXPECT_EQ(value2, setting_meta->enum_values[2]);
 
-    SettingDataEnum* setting_data = dynamic_cast<SettingDataEnum*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("value1", setting_data->value.c_str());
+    EXPECT_STREQ("value1", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
@@ -148,8 +146,8 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     SettingMetaEnum* setting_meta = dynamic_cast<SettingMetaEnum*>(layer.settings.Get("enum_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("enum_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_ENUM, setting_meta->GetType());
+    EXPECT_STREQ("enum_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_ENUM, setting_meta->type);
     EXPECT_STREQ("enum", setting_meta->label.c_str());
     EXPECT_STREQ("enum case", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum", setting_meta->url.c_str());
@@ -184,9 +182,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     value2.platform_flags = PLATFORM_WINDOWS_BIT;
     EXPECT_EQ(value2, setting_meta->enum_values[2]);
 
-    SettingDataEnum* setting_data = dynamic_cast<SettingDataEnum*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("value1", setting_data->value.c_str());
+    EXPECT_STREQ("value1", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_flags_required_only) {
@@ -198,8 +194,8 @@ TEST(test_layer, load_1_4_0_setting_flags_required_only) {
     SettingMetaFlags* setting_meta = dynamic_cast<SettingMetaFlags*>(layer.settings.Get("flags_required_only"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("flags_required_only", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_FLAGS, setting_meta->GetType());
+    EXPECT_STREQ("flags_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_FLAGS, setting_meta->type);
     EXPECT_STREQ("flags", setting_meta->label.c_str());
     EXPECT_STREQ("flags case", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
@@ -225,10 +221,8 @@ TEST(test_layer, load_1_4_0_setting_flags_required_only) {
     value2.description = "My flag2";
     EXPECT_EQ(value2, setting_meta->enum_values[2]);
 
-    SettingDataFlags* setting_data = dynamic_cast<SettingDataFlags*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("flag0", setting_data->value[0].c_str());
-    EXPECT_STREQ("flag1", setting_data->value[1].c_str());
+    EXPECT_STREQ("flag0", setting_meta->default_value[0].c_str());
+    EXPECT_STREQ("flag1", setting_meta->default_value[1].c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
@@ -240,8 +234,8 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     SettingMetaFlags* setting_meta = dynamic_cast<SettingMetaFlags*>(layer.settings.Get("flags_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("flags_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_FLAGS, setting_meta->GetType());
+    EXPECT_STREQ("flags_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_FLAGS, setting_meta->type);
     EXPECT_STREQ("flags", setting_meta->label.c_str());
     EXPECT_STREQ("flags case", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags", setting_meta->url.c_str());
@@ -276,10 +270,8 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     value2.platform_flags = PLATFORM_WINDOWS_BIT;
     EXPECT_EQ(value2, setting_meta->enum_values[2]);
 
-    SettingDataFlags* setting_data = dynamic_cast<SettingDataFlags*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("flag0", setting_data->value[0].c_str());
-    EXPECT_STREQ("flag1", setting_data->value[1].c_str());
+    EXPECT_STREQ("flag0", setting_meta->default_value[0].c_str());
+    EXPECT_STREQ("flag1", setting_meta->default_value[1].c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_string_required_only) {
@@ -291,17 +283,15 @@ TEST(test_layer, load_1_4_0_setting_string_required_only) {
     SettingMetaString* setting_meta = dynamic_cast<SettingMetaString*>(layer.settings.Get("string_required_only"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("string_required_only", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_STRING, setting_meta->GetType());
+    EXPECT_STREQ("string_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_STRING, setting_meta->type);
     EXPECT_STREQ("String", setting_meta->label.c_str());
     EXPECT_STREQ("string", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
-    SettingDataString* setting_data = dynamic_cast<SettingDataString*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("A string", setting_data->value.c_str());
+    EXPECT_STREQ("A string", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_string_with_optional) {
@@ -313,17 +303,15 @@ TEST(test_layer, load_1_4_0_setting_string_with_optional) {
     SettingMetaString* setting_meta = dynamic_cast<SettingMetaString*>(layer.settings.Get("string_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("string_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_STRING, setting_meta->GetType());
+    EXPECT_STREQ("string_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_STRING, setting_meta->type);
     EXPECT_STREQ("String", setting_meta->label.c_str());
     EXPECT_STREQ("string", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    SettingDataString* setting_data = dynamic_cast<SettingDataString*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("A string", setting_data->value.c_str());
+    EXPECT_STREQ("A string", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_bool_required_only) {
@@ -335,17 +323,15 @@ TEST(test_layer, load_1_4_0_setting_bool_required_only) {
     SettingMetaBool* setting_meta = dynamic_cast<SettingMetaBool*>(layer.settings.Get("bool_required_only"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("bool_required_only", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_BOOL, setting_meta->GetType());
+    EXPECT_STREQ("bool_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_BOOL, setting_meta->type);
     EXPECT_STREQ("bool", setting_meta->label.c_str());
     EXPECT_STREQ("true or false", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
-    SettingDataBool* setting_data = dynamic_cast<SettingDataBool*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_EQ(true, setting_data->value);
+    EXPECT_EQ(true, setting_meta->default_value);
 }
 
 TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
@@ -357,17 +343,15 @@ TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
     SettingMetaBool* setting_meta = dynamic_cast<SettingMetaBool*>(layer.settings.Get("bool_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("bool_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_BOOL, setting_meta->GetType());
+    EXPECT_STREQ("bool_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_BOOL, setting_meta->type);
     EXPECT_STREQ("bool", setting_meta->label.c_str());
     EXPECT_STREQ("true or false", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    SettingDataBool* setting_data = dynamic_cast<SettingDataBool*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_EQ(true, setting_data->value);
+    EXPECT_EQ(true, setting_meta->default_value);
 }
 
 TEST(test_layer, load_1_4_0_setting_bool_numeric_required_only) {
@@ -379,17 +363,15 @@ TEST(test_layer, load_1_4_0_setting_bool_numeric_required_only) {
     SettingMetaBoolNumeric* setting_meta = dynamic_cast<SettingMetaBoolNumeric*>(layer.settings.Get("bool_numeric_required_only"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("bool_numeric_required_only", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_BOOL_NUMERIC_DEPRECATED, setting_meta->GetType());
+    EXPECT_STREQ("bool_numeric_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_BOOL_NUMERIC_DEPRECATED, setting_meta->type);
     EXPECT_STREQ("bool numeric deprecated", setting_meta->label.c_str());
     EXPECT_STREQ("1 or 0", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
-    SettingDataBoolNumeric* setting_data = dynamic_cast<SettingDataBoolNumeric*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_EQ(true, setting_data->value);
+    EXPECT_EQ(true, setting_meta->default_value);
 }
 
 TEST(test_layer, load_1_4_0_setting_bool_numeric_with_optional) {
@@ -401,17 +383,15 @@ TEST(test_layer, load_1_4_0_setting_bool_numeric_with_optional) {
     SettingMetaBoolNumeric* setting_meta = dynamic_cast<SettingMetaBoolNumeric*>(layer.settings.Get("bool_numeric_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("bool_numeric_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_BOOL_NUMERIC_DEPRECATED, setting_meta->GetType());
+    EXPECT_STREQ("bool_numeric_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_BOOL_NUMERIC_DEPRECATED, setting_meta->type);
     EXPECT_STREQ("bool numeric deprecated", setting_meta->label.c_str());
     EXPECT_STREQ("1 or 0", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool_numeric", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_DEPRECATED, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    SettingDataBoolNumeric* setting_data = dynamic_cast<SettingDataBoolNumeric*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_EQ(true, setting_data->value);
+    EXPECT_EQ(true, setting_meta->default_value);
 }
 
 TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
@@ -423,8 +403,8 @@ TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
     SettingMetaFileLoad* setting_meta = dynamic_cast<SettingMetaFileLoad*>(layer.settings.Get("load_file_required_only"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("load_file_required_only", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->GetType());
+    EXPECT_STREQ("load_file_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->type);
     EXPECT_STREQ("Load file", setting_meta->label.c_str());
     EXPECT_STREQ("Load file path", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
@@ -432,9 +412,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
     EXPECT_TRUE(setting_meta->filter.empty());
 
-    SettingDataFileLoad* setting_data = dynamic_cast<SettingDataFileLoad*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("./test.txt", setting_data->value.c_str());
+    EXPECT_STREQ("./test.txt", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
@@ -446,8 +424,8 @@ TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
     SettingMetaFileLoad* setting_meta = dynamic_cast<SettingMetaFileLoad*>(layer.settings.Get("load_file_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("load_file_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->GetType());
+    EXPECT_STREQ("load_file_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->type);
     EXPECT_STREQ("Load file", setting_meta->label.c_str());
     EXPECT_STREQ("Load file path", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file", setting_meta->url.c_str());
@@ -455,9 +433,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
     EXPECT_STREQ("*.txt", setting_meta->filter.c_str());
 
-    SettingDataFileLoad* setting_data = dynamic_cast<SettingDataFileLoad*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("./test.txt", setting_data->value.c_str());
+    EXPECT_STREQ("./test.txt", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
@@ -469,8 +445,8 @@ TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
     SettingMetaFileSave* setting_meta = dynamic_cast<SettingMetaFileSave*>(layer.settings.Get("save_file_required_only"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("save_file_required_only", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->GetType());
+    EXPECT_STREQ("save_file_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->type);
     EXPECT_STREQ("Save file", setting_meta->label.c_str());
     EXPECT_STREQ("Save file path", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
@@ -478,9 +454,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
     EXPECT_TRUE(setting_meta->filter.empty());
 
-    SettingDataFileSave* setting_data = dynamic_cast<SettingDataFileSave*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("./test.json", setting_data->value.c_str());
+    EXPECT_STREQ("./test.json", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
@@ -492,8 +466,8 @@ TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
     SettingMetaFileSave* setting_meta = dynamic_cast<SettingMetaFileSave*>(layer.settings.Get("save_file_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("save_file_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->GetType());
+    EXPECT_STREQ("save_file_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->type);
     EXPECT_STREQ("Save file", setting_meta->label.c_str());
     EXPECT_STREQ("Save file path", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file", setting_meta->url.c_str());
@@ -501,9 +475,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
     EXPECT_STREQ("*.json", setting_meta->filter.c_str());
 
-    SettingDataFileSave* setting_data = dynamic_cast<SettingDataFileSave*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("./test.json", setting_data->value.c_str());
+    EXPECT_STREQ("./test.json", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
@@ -515,17 +487,15 @@ TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
     SettingMetaFolderSave* setting_meta = dynamic_cast<SettingMetaFolderSave*>(layer.settings.Get("save_folder_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("save_folder_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_SAVE_FOLDER, setting_meta->GetType());
+    EXPECT_STREQ("save_folder_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_SAVE_FOLDER, setting_meta->type);
     EXPECT_STREQ("Save folder", setting_meta->label.c_str());
     EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    SettingDataFolderSave* setting_data = dynamic_cast<SettingDataFolderSave*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_STREQ("./test", setting_data->value.c_str());
+    EXPECT_STREQ("./test", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_int_with_optional) {
@@ -537,17 +507,15 @@ TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     SettingMetaInt* setting_meta = dynamic_cast<SettingMetaInt*>(layer.settings.Get("int_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("int_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_INT, setting_meta->GetType());
+    EXPECT_STREQ("int_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_INT, setting_meta->type);
     EXPECT_STREQ("Integer", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    SettingDataInt* setting_data = dynamic_cast<SettingDataInt*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_EQ(76, setting_data->value);
+    EXPECT_EQ(76, setting_meta->default_value);
 }
 
 TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
@@ -559,18 +527,16 @@ TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
     SettingMetaIntRange* setting_meta = dynamic_cast<SettingMetaIntRange*>(layer.settings.Get("int_range_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("int_range_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_INT_RANGE, setting_meta->GetType());
+    EXPECT_STREQ("int_range_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_INT_RANGE, setting_meta->type);
     EXPECT_STREQ("Integer Range", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Range Description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_range", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    SettingDataIntRange* setting_data = dynamic_cast<SettingDataIntRange*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_EQ(76, setting_data->min_value);
-    EXPECT_EQ(82, setting_data->max_value);
+    EXPECT_EQ(76, setting_meta->default_min_value);
+    EXPECT_EQ(82, setting_meta->default_max_value);
 }
 
 TEST(test_layer, load_1_4_0_setting_vuid_with_optional) {
@@ -582,8 +548,8 @@ TEST(test_layer, load_1_4_0_setting_vuid_with_optional) {
     SettingMetaVUIDFilter* setting_meta = dynamic_cast<SettingMetaVUIDFilter*>(layer.settings.Get("vuid_exclude_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("vuid_exclude_with_optional", setting_meta->GetKey());
-    EXPECT_EQ(SETTING_VUID_FILTER, setting_meta->GetType());
+    EXPECT_STREQ("vuid_exclude_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_VUID_FILTER, setting_meta->type);
     EXPECT_STREQ("vuid list", setting_meta->label.c_str());
     EXPECT_STREQ("vuid list description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#vuid", setting_meta->url.c_str());
@@ -594,8 +560,6 @@ TEST(test_layer, load_1_4_0_setting_vuid_with_optional) {
     EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
     EXPECT_STREQ("stringC", setting_meta->list[2].c_str());
 
-    SettingDataVUIDFilter* setting_data = dynamic_cast<SettingDataVUIDFilter*>(setting_meta->default_value.get());
-    ASSERT_TRUE(setting_data);
-    EXPECT_EQ("stringB", setting_data->value[0]);
-    EXPECT_EQ("stringC", setting_data->value[1]);
+    EXPECT_STREQ("stringB", setting_meta->default_value[0].c_str());
+    EXPECT_STREQ("stringC", setting_meta->default_value[1].c_str());
 }
