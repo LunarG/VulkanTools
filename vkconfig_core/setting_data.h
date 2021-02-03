@@ -25,8 +25,6 @@
 #include "util.h"
 #include "path.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
 #include <QTextStream>
 
 #include <string>
@@ -45,21 +43,6 @@ class SettingData {
     virtual SettingData& operator=(const SettingData& setting_data) = 0;
     virtual bool operator==(const SettingData& setting_data) const = 0;
     bool operator!=(const SettingData& setting_data) const { return !(*this == setting_data); }
-
-    virtual bool Load(const QJsonObject& json_setting_object) {
-        // If there is a type check the types are the same otherwise they are the same.
-        if (json_setting_object.value("type") != QJsonValue::Undefined) {
-            const SettingType type = GetSettingType(ReadStringValue(json_setting_object, "type").c_str());
-            if (type != this->GetType()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    // For layers configuration files
-    virtual void Save(QJsonObject& json_setting) const = 0;
 
     // For layer settings override files
     virtual void Save(QTextStream& stream) const = 0;
@@ -88,22 +71,6 @@ struct SettingDataBool : public SettingData {
 
         return this->value == static_cast<const SettingDataBool&>(setting_data).value;
     }
-
-    virtual bool Load(const QJsonObject& json_setting_object) {
-        if (!SettingData::Load(json_setting_object)) {
-            return false;
-        }
-
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
-            value = ReadStringValue(json_setting_object, "value") == "1" || ReadStringValue(json_setting_object, "value") == "TRUE";
-        } else {
-            value = ReadBoolValue(json_setting_object, "value");
-        }
-
-        return true;
-    }
-
-    virtual void Save(QJsonObject& json_setting_object) const { json_setting_object.insert("value", this->value); }
 
     virtual void Save(QTextStream& stream) const { stream << (this->value ? "TRUE" : "FALSE"); }
 
@@ -139,24 +106,6 @@ struct SettingDataInt : public SettingData {
         return this->value == static_cast<const SettingDataInt&>(setting_data).value;
     }
 
-    virtual bool Load(const QJsonObject& json_setting_object) {
-        if (!SettingData::Load(json_setting_object)) {
-            return false;
-        }
-
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
-            const std::string tmp = ReadStringValue(json_setting_object, "value");
-            assert(!tmp.empty());
-            this->value = std::atoi(tmp.c_str());
-        } else {
-            this->value = ReadIntValue(json_setting_object, "value");
-        }
-
-        return true;
-    }
-
-    virtual void Save(QJsonObject& json_setting_object) const { json_setting_object.insert("value", this->value); }
-
     virtual void Save(QTextStream& stream) const { stream << this->value; }
 
     int value;
@@ -182,18 +131,6 @@ struct SettingDataString : public SettingData {
 
         return this->value == static_cast<const SettingDataString&>(setting_data).value;
     }
-
-    virtual bool Load(const QJsonObject& json_setting_object) {
-        if (!SettingData::Load(json_setting_object)) {
-            return false;
-        }
-
-        this->value = ReadString(json_setting_object, "value");
-
-        return true;
-    }
-
-    virtual void Save(QJsonObject& json_setting_object) const { json_setting_object.insert("value", this->value.c_str()); }
 
     virtual void Save(QTextStream& stream) const { stream << this->value.c_str(); }
 
@@ -255,32 +192,6 @@ class SettingDataIntRange : public SettingData {
         return true;
     }
 
-    virtual bool Load(const QJsonObject& json_setting_object) {
-        if (!SettingData::Load(json_setting_object)) {
-            return false;
-        }
-
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
-            const std::string value = ReadStringValue(json_setting_object, "value");
-            std::sscanf(value.c_str(), "%d-%d", &this->min_value, &this->max_value);
-        } else {
-            const QJsonObject& json_range_object = ReadObject(json_setting_object, "value");
-
-            this->min_value = ReadIntValue(json_range_object, "min");
-            this->max_value = ReadIntValue(json_range_object, "max");
-        }
-
-        return true;
-    }
-
-    virtual void Save(QJsonObject& json_setting_object) const {
-        QJsonObject json_value_object;
-        json_value_object.insert("min", this->min_value);
-        json_value_object.insert("max", this->max_value);
-
-        json_setting_object.insert("value", json_value_object);
-    }
-
     virtual void Save(QTextStream& stream) const {
         if (this->min_value < this->max_value) {
             stream << format("%d-%d", this->min_value, this->max_value).c_str();
@@ -319,34 +230,6 @@ class SettingDataVector : public SettingData {
         }
 
         return true;
-    }
-
-    virtual bool Load(const QJsonObject& json_setting_object) {
-        if (!SettingData::Load(json_setting_object)) {
-            return false;
-        }
-
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
-            const QString tmp = ReadStringValue(json_setting_object, "value").c_str();
-            const QStringList list = tmp.split(",");
-            for (int i = 0, n = list.size(); i < n; ++i) {
-                this->value.push_back(list[i].toStdString());
-            }
-        } else {
-            this->value = ReadStringArray(json_setting_object, "value");
-        }
-
-        return true;
-    }
-
-    virtual void Save(QJsonObject& json_setting_object) const {
-        QJsonArray json_array;
-
-        for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-            json_array.append(this->value[i].c_str());
-        }
-
-        json_setting_object.insert("value", json_array);
     }
 
     virtual void Save(QTextStream& stream) const {
