@@ -20,7 +20,7 @@
 
 #include "setting_meta.h"
 
-SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type) { assert(!key.empty()); }
+SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
 
 bool SettingMeta::operator==(const SettingMeta& setting_meta) const {
     if (this->key != setting_meta.key)

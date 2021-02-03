@@ -33,30 +33,29 @@
 #include <cstdio>
 
 class SettingData {
+   protected:
+    SettingData(const std::string& key, const SettingType type);
+
    public:
-    SettingData(const std::string& key) : key(key) {}
-
-    const char* GetKey() const { return this->key.c_str(); }
-
-    virtual SettingType GetType() const = 0;
-
     virtual SettingData& operator=(const SettingData& setting_data) = 0;
+
     virtual bool operator==(const SettingData& setting_data) const = 0;
     bool operator!=(const SettingData& setting_data) const { return !(*this == setting_data); }
 
-   private:
     const std::string key;
+    const SettingType type;
 };
 
 struct SettingDataBool : public SettingData {
-    SettingDataBool(const std::string& key) : SettingData(key), value(false) {}
+   protected:
+    SettingDataBool(const std::string& key, const SettingType type) : SettingData(key, type), value(false) {}
 
-    SettingDataBool(const std::string& key, const bool& value) : SettingData(key), value(value) {}
-
-    virtual SettingType GetType() const { return SETTING_BOOL; }
+   public:
+    SettingDataBool(const std::string& key) : SettingData(key, SETTING_BOOL), value(false) {}
+    SettingDataBool(const std::string& key, const bool& value) : SettingData(key, SETTING_BOOL), value(value) {}
 
     virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->GetType() == setting_data.GetType());
+        assert(this->type == setting_data.type);
 
         const SettingDataBool& setting_data_typed = static_cast<const SettingDataBool&>(setting_data);
         this->value = setting_data_typed.value;
@@ -64,7 +63,7 @@ struct SettingDataBool : public SettingData {
     }
 
     virtual bool operator==(const SettingData& setting_data) const {
-        if (this->GetType() != setting_data.GetType()) return false;
+        if (this->type != setting_data.type) return false;
 
         return this->value == static_cast<const SettingDataBool&>(setting_data).value;
     }
@@ -73,20 +72,15 @@ struct SettingDataBool : public SettingData {
 };
 
 struct SettingDataBoolNumeric : public SettingDataBool {
-    SettingDataBoolNumeric(const std::string& key) : SettingDataBool(key) {}
-
-    virtual SettingType GetType() const { return SETTING_BOOL_NUMERIC_DEPRECATED; }
+    SettingDataBoolNumeric(const std::string& key) : SettingDataBool(key, SETTING_BOOL_NUMERIC_DEPRECATED) {}
 };
 
 struct SettingDataInt : public SettingData {
-    SettingDataInt(const std::string& key) : SettingData(key), value(-1) {}
-
-    SettingDataInt(const std::string& key, const int& value) : SettingData(key), value(value) {}
-
-    virtual SettingType GetType() const { return SETTING_INT; }
+    SettingDataInt(const std::string& key) : SettingData(key, SETTING_INT), value(-1) {}
+    SettingDataInt(const std::string& key, const int& value) : SettingData(key, SETTING_INT), value(value) {}
 
     virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->GetType() == setting_data.GetType());
+        assert(this->type == setting_data.type);
 
         const SettingDataInt& setting_data_typed = static_cast<const SettingDataInt&>(setting_data);
         this->value = setting_data_typed.value;
@@ -94,7 +88,7 @@ struct SettingDataInt : public SettingData {
     }
 
     virtual bool operator==(const SettingData& setting_data) const {
-        if (this->GetType() != setting_data.GetType()) return false;
+        if (this->type != setting_data.type) return false;
 
         return this->value == static_cast<const SettingDataInt&>(setting_data).value;
     }
@@ -103,14 +97,15 @@ struct SettingDataInt : public SettingData {
 };
 
 struct SettingDataString : public SettingData {
-    SettingDataString(const std::string& key) : SettingData(key) {}
+   protected:
+    SettingDataString(const std::string& key, const SettingType type) : SettingData(key, type) {}
 
-    SettingDataString(const std::string& key, const std::string& value) : SettingData(key), value(value) {}
-
-    virtual SettingType GetType() const { return SETTING_STRING; }
+   public:
+    SettingDataString(const std::string& key, const std::string& value) : SettingData(key, SETTING_STRING), value(value) {}
+    SettingDataString(const std::string& key) : SettingDataString(key, SETTING_STRING) {}
 
     virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->GetType() == setting_data.GetType());
+        assert(this->type == setting_data.type);
 
         const SettingDataString& setting_data_typed = static_cast<const SettingDataString&>(setting_data);
         this->value = setting_data_typed.value;
@@ -118,7 +113,7 @@ struct SettingDataString : public SettingData {
     }
 
     virtual bool operator==(const SettingData& setting_data) const {
-        if (this->GetType() != setting_data.GetType()) return false;
+        if (this->type != setting_data.type) return false;
 
         return this->value == static_cast<const SettingDataString&>(setting_data).value;
     }
@@ -127,41 +122,27 @@ struct SettingDataString : public SettingData {
 };
 
 struct SettingDataEnum : public SettingDataString {
-    SettingDataEnum(const std::string& key) : SettingDataString(key) {}
-
-    virtual SettingType GetType() const { return SETTING_ENUM; }
+    SettingDataEnum(const std::string& key) : SettingDataString(key, SETTING_ENUM) {}
 };
 
-struct SettingDataFilesystem : public SettingDataString {
-    SettingDataFilesystem(const std::string& key) : SettingDataString(key) {}
+struct SettingDataFileLoad : public SettingDataString {
+    SettingDataFileLoad(const std::string& key) : SettingDataString(key, SETTING_LOAD_FILE) {}
 };
 
-struct SettingDataFileLoad : public SettingDataFilesystem {
-    SettingDataFileLoad(const std::string& key) : SettingDataFilesystem(key) {}
-
-    virtual SettingType GetType() const { return SETTING_LOAD_FILE; }
+struct SettingDataFileSave : public SettingDataString {
+    SettingDataFileSave(const std::string& key) : SettingDataString(key, SETTING_SAVE_FILE) {}
 };
 
-struct SettingDataFileSave : public SettingDataFilesystem {
-    SettingDataFileSave(const std::string& key) : SettingDataFilesystem(key) {}
-
-    virtual SettingType GetType() const { return SETTING_SAVE_FILE; }
-};
-
-struct SettingDataFolderSave : public SettingDataFilesystem {
-    SettingDataFolderSave(const std::string& key) : SettingDataFilesystem(key) {}
-
-    virtual SettingType GetType() const { return SETTING_SAVE_FOLDER; }
+struct SettingDataFolderSave : public SettingDataString {
+    SettingDataFolderSave(const std::string& key) : SettingDataString(key, SETTING_SAVE_FOLDER) {}
 };
 
 class SettingDataIntRange : public SettingData {
    public:
-    SettingDataIntRange(const std::string& key) : SettingData(key) {}
-
-    virtual SettingType GetType() const { return SETTING_INT_RANGE; }
+    SettingDataIntRange(const std::string& key) : SettingData(key, SETTING_INT_RANGE) {}
 
     virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->GetType() == setting_data.GetType());
+        assert(this->type == setting_data.type);
 
         const SettingDataIntRange& setting_data_typed = static_cast<const SettingDataIntRange&>(setting_data);
         this->min_value = setting_data_typed.min_value;
@@ -170,7 +151,7 @@ class SettingDataIntRange : public SettingData {
     }
 
     virtual bool operator==(const SettingData& setting_data) const {
-        if (this->GetType() != setting_data.GetType()) return false;
+        if (this->type != setting_data.type) return false;
 
         const SettingDataIntRange& setting_data_range = static_cast<const SettingDataIntRange&>(setting_data);
         if (this->min_value != setting_data_range.min_value) return false;
@@ -184,13 +165,12 @@ class SettingDataIntRange : public SettingData {
 };
 
 class SettingDataVector : public SettingData {
+   protected:
+    SettingDataVector(const std::string& key, const SettingType type) : SettingData(key, type) {}
+
    public:
-    SettingDataVector(const std::string& key) : SettingData(key) {}
-
-    virtual SettingType GetType() const = 0;
-
     virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->GetType() == setting_data.GetType());
+        assert(this->type == setting_data.type);
 
         const SettingDataVector& setting_data_vector = static_cast<const SettingDataVector&>(setting_data);
         this->value = setting_data_vector.value;
@@ -198,7 +178,7 @@ class SettingDataVector : public SettingData {
     }
 
     virtual bool operator==(const SettingData& setting_data) const {
-        if (this->GetType() != setting_data.GetType()) return false;
+        if (this->type != setting_data.type) return false;
 
         const SettingDataVector& setting_data_vector = static_cast<const SettingDataVector&>(setting_data);
 
@@ -217,15 +197,11 @@ class SettingDataVector : public SettingData {
 };
 
 struct SettingDataVUIDFilter : public SettingDataVector {
-    SettingDataVUIDFilter(const std::string& key) : SettingDataVector(key) {}
-
-    virtual SettingType GetType() const { return SETTING_VUID_FILTER; };
+    SettingDataVUIDFilter(const std::string& key) : SettingDataVector(key, SETTING_VUID_FILTER) {}
 };
 
 struct SettingDataFlags : public SettingDataVector {
-    SettingDataFlags(const std::string& key) : SettingDataVector(key) {}
-
-    virtual SettingType GetType() const { return SETTING_FLAGS; };
+    SettingDataFlags(const std::string& key) : SettingDataVector(key, SETTING_FLAGS) {}
 };
 
 class SettingDataSet {

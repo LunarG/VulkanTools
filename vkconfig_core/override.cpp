@@ -171,12 +171,12 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
         for (std::size_t i = 0, m = parameter.settings.data.size(); i < m; ++i) {
             const SettingData& setting_data = *parameter.settings.data[i];
 
-            stream << lc_layer_name << "." << setting_data.GetKey() << " = ";
-            switch (setting_data.GetType()) {
+            stream << lc_layer_name << "." << setting_data.key.c_str() << " = ";
+            switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER: {
-                    stream << ReplaceBuiltInVariable(static_cast<const SettingDataFilesystem&>(setting_data).value.c_str()).c_str();
+                    stream << ReplaceBuiltInVariable(static_cast<const SettingDataString&>(setting_data).value.c_str()).c_str();
                     break;
                 }
                 case SETTING_ENUM:

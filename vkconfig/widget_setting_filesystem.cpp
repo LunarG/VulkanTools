@@ -27,7 +27,7 @@
 #include <cassert>
 
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const SettingMetaFilesystem& setting_meta,
-                                                 SettingDataFilesystem& setting_data)
+                                                 SettingDataString& setting_data)
     : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data), _line_edit(nullptr), _push_button(nullptr) {
     assert(item);
     assert(&setting_meta);

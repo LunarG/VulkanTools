@@ -108,12 +108,12 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
 
             const QJsonObject& setting_object = ReadObject(layer_object, layer_settings[setting_index].toStdString().c_str());
 
-            const std::string key = layer_settings[setting_index].toStdString();
-            const SettingType type = GetSettingType(ReadStringValue(setting_object, "type").c_str());
+            const std::string setting_key = layer_settings[setting_index].toStdString();
+            const SettingType setting_type = GetSettingType(ReadStringValue(setting_object, "type").c_str());
 
-            SettingData& setting_data = settings.Create(key, type);
+            SettingData& setting_data = settings.Create(setting_key, setting_type);
 
-            switch (setting_data.GetType()) {
+            switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER:
@@ -227,7 +227,7 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
 
             SettingData& setting_data = settings.Create(setting_key, setting_type);
 
-            switch (setting_data.GetType()) {
+            switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER:
@@ -324,7 +324,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 
             SettingData& setting_data = settings.Create(setting_key, setting_type);
 
-            switch (setting_data.GetType()) {
+            switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER:
@@ -431,10 +431,10 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
             SettingData& setting_data = *parameter.settings.data[j];
 
             QJsonObject json_setting;
-            json_setting.insert("key", parameter.settings.data[j]->GetKey());
-            json_setting.insert("type", GetSettingToken(setting_data.GetType()));
+            json_setting.insert("key", parameter.settings.data[j]->key.c_str());
+            json_setting.insert("type", GetSettingToken(setting_data.type));
 
-            switch (setting_data.GetType()) {
+            switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER:

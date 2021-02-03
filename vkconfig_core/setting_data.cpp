@@ -20,6 +20,8 @@
 
 #include "setting_data.h"
 
+SettingData::SettingData(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
+
 std::shared_ptr<SettingData> CreateSettingData(const std::string& key, SettingType type) {
     assert(!key.empty());
 
@@ -75,7 +77,7 @@ SettingData& SettingDataSet::Create(const std::string& key, SettingType type) {
 
 SettingData* SettingDataSet::Get(const char* key) {
     for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (std::strcmp(this->data[i]->GetKey(), key) == 0) return this->data[i].get();
+        if (this->data[i]->key == key) return this->data[i].get();
     }
 
     return nullptr;
@@ -83,7 +85,7 @@ SettingData* SettingDataSet::Get(const char* key) {
 
 const SettingData* SettingDataSet::Get(const char* key) const {
     for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (std::strcmp(this->data[i]->GetKey(), key) == 0) return this->data[i].get();
+        if (this->data[i]->key == key) return this->data[i].get();
     }
 
     return nullptr;

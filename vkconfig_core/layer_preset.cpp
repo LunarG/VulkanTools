@@ -41,7 +41,7 @@ bool HasPreset(const SettingDataSet& layer_settings, const SettingDataSet& prese
     if (preset_settings.data.empty()) return false;
 
     for (std::size_t preset_index = 0, preset_count = preset_settings.data.size(); preset_index < preset_count; ++preset_index) {
-        const SettingData* layer_setting = layer_settings.Get(preset_settings.data[preset_index]->GetKey());
+        const SettingData* layer_setting = layer_settings.Get(preset_settings.data[preset_index]->key.c_str());
         if (layer_setting == nullptr) return false;
 
         if (*preset_settings.data[preset_index] != *layer_setting) return false;
