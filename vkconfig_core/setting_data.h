@@ -44,9 +44,6 @@ class SettingData {
     virtual bool operator==(const SettingData& setting_data) const = 0;
     bool operator!=(const SettingData& setting_data) const { return !(*this == setting_data); }
 
-    // For layer settings override files
-    virtual void Save(QTextStream& stream) const = 0;
-
    private:
     const std::string key;
 };
@@ -72,8 +69,6 @@ struct SettingDataBool : public SettingData {
         return this->value == static_cast<const SettingDataBool&>(setting_data).value;
     }
 
-    virtual void Save(QTextStream& stream) const { stream << (this->value ? "TRUE" : "FALSE"); }
-
     bool value;
 };
 
@@ -81,8 +76,6 @@ struct SettingDataBoolNumeric : public SettingDataBool {
     SettingDataBoolNumeric(const std::string& key) : SettingDataBool(key) {}
 
     virtual SettingType GetType() const { return SETTING_BOOL_NUMERIC_DEPRECATED; }
-
-    virtual void Save(QTextStream& stream) const { stream << (this->value ? "1" : "0"); }
 };
 
 struct SettingDataInt : public SettingData {
@@ -105,8 +98,6 @@ struct SettingDataInt : public SettingData {
 
         return this->value == static_cast<const SettingDataInt&>(setting_data).value;
     }
-
-    virtual void Save(QTextStream& stream) const { stream << this->value; }
 
     int value;
 };
@@ -132,8 +123,6 @@ struct SettingDataString : public SettingData {
         return this->value == static_cast<const SettingDataString&>(setting_data).value;
     }
 
-    virtual void Save(QTextStream& stream) const { stream << this->value.c_str(); }
-
     std::string value;
 };
 
@@ -145,8 +134,6 @@ struct SettingDataEnum : public SettingDataString {
 
 struct SettingDataFilesystem : public SettingDataString {
     SettingDataFilesystem(const std::string& key) : SettingDataString(key) {}
-
-    virtual void Save(QTextStream& stream) const { stream << ReplaceBuiltInVariable(this->value.c_str()).c_str(); }
 };
 
 struct SettingDataFileLoad : public SettingDataFilesystem {
@@ -192,12 +179,6 @@ class SettingDataIntRange : public SettingData {
         return true;
     }
 
-    virtual void Save(QTextStream& stream) const {
-        if (this->min_value < this->max_value) {
-            stream << format("%d-%d", this->min_value, this->max_value).c_str();
-        }
-    }
-
     int min_value;
     int max_value;
 };
@@ -230,13 +211,6 @@ class SettingDataVector : public SettingData {
         }
 
         return true;
-    }
-
-    virtual void Save(QTextStream& stream) const {
-        for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-            stream << this->value[i].c_str();
-            if (i < n - 1) stream << ",";
-        }
     }
 
     std::vector<std::string> value;

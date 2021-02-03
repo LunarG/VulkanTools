@@ -172,8 +172,52 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
             const SettingData& setting_data = *parameter.settings.data[i];
 
             stream << lc_layer_name << "." << setting_data.GetKey() << " = ";
-            ;
-            setting_data.Save(stream);
+            switch (setting_data.GetType()) {
+                case SETTING_LOAD_FILE:
+                case SETTING_SAVE_FILE:
+                case SETTING_SAVE_FOLDER: {
+                    stream << ReplaceBuiltInVariable(static_cast<const SettingDataFilesystem&>(setting_data).value.c_str()).c_str();
+                    break;
+                }
+                case SETTING_ENUM:
+                case SETTING_STRING: {
+                    stream << static_cast<const SettingDataString&>(setting_data).value.c_str();
+                    break;
+                }
+                case SETTING_INT: {
+                    stream << static_cast<const SettingDataInt&>(setting_data).value;
+                    break;
+                }
+                case SETTING_INT_RANGE: {
+                    const SettingDataIntRange& setting_object = static_cast<const SettingDataIntRange&>(setting_data);
+                    stream << format("%d-%d", setting_object.min_value, setting_object.max_value).c_str();
+                    break;
+                }
+                case SETTING_BOOL_NUMERIC_DEPRECATED: {
+                    stream << (static_cast<const SettingDataBool&>(setting_data).value ? "1" : "0");
+                    break;
+                }
+                case SETTING_BOOL: {
+                    stream << (static_cast<const SettingDataBool&>(setting_data).value ? "TRUE" : "FALSE");
+                    break;
+                }
+                case SETTING_VUID_FILTER:
+                case SETTING_FLAGS: {
+                    const SettingDataVector& setting_object = static_cast<const SettingDataVector&>(setting_data);
+
+                    for (std::size_t i = 0, n = setting_object.value.size(); i < n; ++i) {
+                        stream << setting_object.value[i].c_str();
+                        if (i < n - 1) stream << ",";
+                    }
+
+                    break;
+                }
+                default: {
+                    assert(0);
+                    break;
+                }
+            }
+
             stream << "\n";
         }
     }
