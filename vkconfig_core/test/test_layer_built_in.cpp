@@ -280,6 +280,9 @@ TEST(test_layer_built_in, layer_latest_validation) {
     EXPECT_TRUE(layer.Load(":/layers/latest/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
     EXPECT_EQ(11, layer.settings.data.size());
     EXPECT_EQ(6, layer.presets.size());
+    EXPECT_TRUE(static_cast<SettingDataFlags*>(layer.presets[0].settings.Get("enables"))->value.empty());
+    EXPECT_STREQ("VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                 static_cast<SettingDataFlags*>(layer.presets[0].settings.Get("disables"))->value[0].c_str());
 }
 
 TEST(test_layer_built_in, layer_latest_synchronization2) {

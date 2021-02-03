@@ -307,8 +307,40 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                 const std::string key = ReadStringValue(json_setting_object, "key");
 
                 SettingData& setting_data = preset.settings.Create(key, settings.Get(key.c_str())->type);
-                const bool result = setting_data.Load(json_setting_object);
-                assert(result);
+                switch (setting_data.GetType()) {
+                    case SETTING_LOAD_FILE:
+                    case SETTING_SAVE_FILE:
+                    case SETTING_SAVE_FOLDER:
+                    case SETTING_ENUM:
+                    case SETTING_STRING: {
+                        static_cast<SettingDataString&>(setting_data).value = ReadStringValue(json_setting_object, "value");
+                        break;
+                    }
+                    case SETTING_INT: {
+                        static_cast<SettingDataInt&>(setting_data).value = ReadIntValue(json_setting_object, "value");
+                        break;
+                    }
+                    case SETTING_INT_RANGE: {
+                        const QJsonObject& json_range_object = ReadObject(json_setting_object, "value");
+                        static_cast<SettingDataIntRange&>(setting_data).min_value = ReadIntValue(json_range_object, "min");
+                        static_cast<SettingDataIntRange&>(setting_data).max_value = ReadIntValue(json_range_object, "max");
+                        break;
+                    }
+                    case SETTING_BOOL_NUMERIC_DEPRECATED:
+                    case SETTING_BOOL: {
+                        static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
+                        break;
+                    }
+                    case SETTING_VUID_FILTER:
+                    case SETTING_FLAGS: {
+                        static_cast<SettingDataVector&>(setting_data).value = ReadStringArray(json_setting_object, "value");
+                        break;
+                    }
+                    default: {
+                        assert(0);
+                        break;
+                    }
+                }
             }
 
             presets.push_back(preset);
