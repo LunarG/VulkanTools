@@ -64,7 +64,7 @@ void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
 void WidgetSettingFilesystem::browseButtonClicked() {
     std::string file;
 
-    switch (this->setting_meta.GetType()) {
+    switch (this->setting_meta.type) {
         case SETTING_LOAD_FILE:
             file = QFileDialog::getOpenFileName(this->_push_button, "Select file", this->_line_edit->text(),
                                                 this->setting_meta.filter.c_str())

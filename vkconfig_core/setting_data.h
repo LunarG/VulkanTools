@@ -34,8 +34,6 @@
 #include <memory>
 #include <cstdio>
 
-const char* GetValueToken(const QJsonObject& json_setting_object);
-
 class SettingData {
    public:
     SettingData(const std::string& key) : key(key) {}
@@ -96,12 +94,10 @@ struct SettingDataBool : public SettingData {
             return false;
         }
 
-        const char* token = GetValueToken(json_setting_object);
-
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value(token).isString()) {
-            value = ReadStringValue(json_setting_object, token) == "1" || ReadStringValue(json_setting_object, token) == "TRUE";
+        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
+            value = ReadStringValue(json_setting_object, "value") == "1" || ReadStringValue(json_setting_object, "value") == "TRUE";
         } else {
-            value = ReadBoolValue(json_setting_object, token);
+            value = ReadBoolValue(json_setting_object, "value");
         }
 
         return true;
@@ -148,14 +144,12 @@ struct SettingDataInt : public SettingData {
             return false;
         }
 
-        const char* token = GetValueToken(json_setting_object);
-
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value(token).isString()) {
-            const std::string tmp = ReadStringValue(json_setting_object, token);
+        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
+            const std::string tmp = ReadStringValue(json_setting_object, "value");
             assert(!tmp.empty());
             this->value = std::atoi(tmp.c_str());
         } else {
-            this->value = ReadIntValue(json_setting_object, token);
+            this->value = ReadIntValue(json_setting_object, "value");
         }
 
         return true;
@@ -194,7 +188,7 @@ struct SettingDataString : public SettingData {
             return false;
         }
 
-        this->value = ReadString(json_setting_object, GetValueToken(json_setting_object));
+        this->value = ReadString(json_setting_object, "value");
 
         return true;
     }
@@ -266,12 +260,11 @@ class SettingDataIntRange : public SettingData {
             return false;
         }
 
-        const char* token = GetValueToken(json_setting_object);
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value(token).isString()) {
-            const std::string value = ReadStringValue(json_setting_object, token);
+        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
+            const std::string value = ReadStringValue(json_setting_object, "value");
             std::sscanf(value.c_str(), "%d-%d", &this->min_value, &this->max_value);
         } else {
-            const QJsonObject& json_range_object = ReadObject(json_setting_object, token);
+            const QJsonObject& json_range_object = ReadObject(json_setting_object, "value");
 
             this->min_value = ReadIntValue(json_range_object, "min");
             this->max_value = ReadIntValue(json_range_object, "max");
@@ -333,14 +326,14 @@ class SettingDataVector : public SettingData {
             return false;
         }
 
-        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value(GetValueToken(json_setting_object)).isString()) {
-            const QString tmp = ReadStringValue(json_setting_object, GetValueToken(json_setting_object)).c_str();
+        if (SUPPORT_VKCONFIG_2_1_0 && json_setting_object.value("value").isString()) {
+            const QString tmp = ReadStringValue(json_setting_object, "value").c_str();
             const QStringList list = tmp.split(",");
             for (int i = 0, n = list.size(); i < n; ++i) {
                 this->value.push_back(list[i].toStdString());
             }
         } else {
-            this->value = ReadStringArray(json_setting_object, GetValueToken(json_setting_object));
+            this->value = ReadStringArray(json_setting_object, "value");
         }
 
         return true;
@@ -380,12 +373,10 @@ struct SettingDataFlags : public SettingDataVector {
 
 class SettingDataSet {
    public:
-    SettingData* Create(const std::string& key, SettingType type);
+    SettingData& Create(const std::string& key, SettingType type);
     SettingData* Get(const char* key);
     const SettingData* Get(const char* key) const;
     bool Empty() const { return this->data.empty(); }
 
     std::vector<std::shared_ptr<SettingData> > data;
 };
-
-std::shared_ptr<SettingData> CreateSettingData(const std::string& key, SettingType type);

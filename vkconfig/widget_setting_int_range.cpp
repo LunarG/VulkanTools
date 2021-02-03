@@ -39,8 +39,8 @@ WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const Settin
 
 void WidgetSettingIntRange::itemEdited(const QString& value) {
     if (value.isEmpty()) {
-        this->setting_data.min_value = static_cast<const SettingDataIntRange&>(*this->setting_meta.default_value).min_value;
-        this->setting_data.max_value = static_cast<const SettingDataIntRange&>(*this->setting_meta.default_value).max_value;
+        this->setting_data.min_value = this->setting_meta.default_min_value;
+        this->setting_data.max_value = this->setting_meta.default_max_value;
     } else {
         std::sscanf(value.toStdString().c_str(), "%d-%d", &this->setting_data.min_value, &this->setting_data.max_value);
     }

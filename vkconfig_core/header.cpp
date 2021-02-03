@@ -18,19 +18,4 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
 #include "header.h"
-#include "setting_data.h"
-
-#include <vector>
-
-struct LayerPreset : public Header {
-    SettingDataSet settings;
-};
-
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char* preset_label);
-
-// Check whether "layer_settings" has all the settings set in "preset_settings"
-// "layer_settings" may have more settings then "preset_settings" and return true
-bool HasPreset(const SettingDataSet& layer_settings, const SettingDataSet& preset_settings);

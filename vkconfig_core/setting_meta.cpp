@@ -20,6 +20,26 @@
 
 #include "setting_meta.h"
 
+SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type) { assert(!key.empty()); }
+
+bool SettingMeta::operator==(const SettingMeta& setting_meta) const {
+    if (this->key != setting_meta.key)
+        return false;
+    else if (this->type != setting_meta.type)
+        return false;
+    else if (this->label != setting_meta.label)
+        return false;
+    else if (this->description != setting_meta.description)
+        return false;
+    else if (this->url != setting_meta.url)
+        return false;
+    else if (this->status != setting_meta.status)
+        return false;
+    else if (this->platform_flags != setting_meta.platform_flags)
+        return false;
+    return true;
+}
+
 bool operator==(const SettingEnumValue& a, const SettingEnumValue& b) {
     if (a.key != b.key) return false;
     if (a.label != b.label) return false;
@@ -38,7 +58,7 @@ SettingMeta& SettingMetaSet::Create(const std::string& key, SettingType type) {
     {
         SettingMeta* setting_data = this->Get(key.c_str());
         if (setting_data != nullptr) {
-            assert(setting_data->GetType() == type);
+            assert(setting_data->type == type);
             return *setting_data;
         }
     }
@@ -93,7 +113,7 @@ SettingMeta& SettingMetaSet::Create(const std::string& key, SettingType type) {
 
 SettingMeta* SettingMetaSet::Get(const char* key) {
     for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (std::strcmp(this->data[i]->default_value->GetKey(), key) == 0) return this->data[i].get();
+        if (this->data[i]->key == key) return this->data[i].get();
     }
 
     return nullptr;
@@ -101,7 +121,7 @@ SettingMeta* SettingMetaSet::Get(const char* key) {
 
 const SettingMeta* SettingMetaSet::Get(const char* key) const {
     for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (std::strcmp(this->data[i]->default_value->GetKey(), key) == 0) return this->data[i].get();
+        if (this->data[i]->key, key) return this->data[i].get();
     }
 
     return nullptr;

@@ -30,6 +30,7 @@ SOURCES += \
     ../vkconfig_core/configuration.cpp \
     ../vkconfig_core/configuration_manager.cpp \
     ../vkconfig_core/environment.cpp \
+    ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
     ../vkconfig_core/json.cpp \
     ../vkconfig_core/layer.cpp \
@@ -83,6 +84,7 @@ HEADERS += \
     ../vkconfig_core/configuration.h \
     ../vkconfig_core/configuration_manager.h \
     ../vkconfig_core/environment.h \
+    ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \
     ../vkconfig_core/json.h \
     ../vkconfig_core/layer.h \

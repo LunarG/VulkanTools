@@ -228,15 +228,15 @@ TEST(test_parameter, order_manual) {
 
 TEST(test_parameter, apply_settings) {
     LayerPreset preset;
-    SettingDataString* preset_setting = static_cast<SettingDataString*>(preset.settings.Create("A", SETTING_STRING));
-    preset_setting->value = "preset value";
+    SettingDataString& preset_setting = static_cast<SettingDataString&>(preset.settings.Create("A", SETTING_STRING));
+    preset_setting.value = "preset value";
 
     Parameter parameter;
-    SettingDataString* layer_setting_a = static_cast<SettingDataString*>(parameter.settings.Create("A", SETTING_STRING));
-    layer_setting_a->value = "setting value";
+    SettingDataString& layer_setting_a = static_cast<SettingDataString&>(parameter.settings.Create("A", SETTING_STRING));
+    layer_setting_a.value = "setting value";
 
-    SettingDataString* layer_setting_b = static_cast<SettingDataString*>(parameter.settings.Create("B", SETTING_STRING));
-    layer_setting_b->value = "setting value";
+    SettingDataString& layer_setting_b = static_cast<SettingDataString&>(parameter.settings.Create("B", SETTING_STRING));
+    layer_setting_b.value = "setting value";
 
     EXPECT_EQ(1, preset.settings.data.size());
     EXPECT_EQ(2, parameter.settings.data.size());
