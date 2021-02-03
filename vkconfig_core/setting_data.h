@@ -21,16 +21,12 @@
 #pragma once
 
 #include "setting_type.h"
-#include "json.h"
 #include "util.h"
 #include "path.h"
-
-#include <QTextStream>
 
 #include <string>
 #include <vector>
 #include <memory>
-#include <cstdio>
 
 class SettingData {
    protected:
@@ -39,11 +35,14 @@ class SettingData {
    public:
     virtual SettingData& operator=(const SettingData& setting_data) = 0;
 
-    virtual bool operator==(const SettingData& setting_data) const = 0;
-    bool operator!=(const SettingData& setting_data) const { return !(*this == setting_data); }
+    bool operator==(const SettingData& other) const { return this->Equal(other); }
+    bool operator!=(const SettingData& other) const { return !this->Equal(other); }
 
     const std::string key;
     const SettingType type;
+
+   protected:
+    virtual bool Equal(const SettingData& other) const;
 };
 
 struct SettingDataBool : public SettingData {
@@ -62,13 +61,10 @@ struct SettingDataBool : public SettingData {
         return *this;
     }
 
-    virtual bool operator==(const SettingData& setting_data) const {
-        if (this->type != setting_data.type) return false;
-
-        return this->value == static_cast<const SettingDataBool&>(setting_data).value;
-    }
-
     bool value;
+
+   protected:
+    virtual bool Equal(const SettingData& other) const;
 };
 
 struct SettingDataBoolNumeric : public SettingDataBool {
@@ -87,13 +83,10 @@ struct SettingDataInt : public SettingData {
         return *this;
     }
 
-    virtual bool operator==(const SettingData& setting_data) const {
-        if (this->type != setting_data.type) return false;
-
-        return this->value == static_cast<const SettingDataInt&>(setting_data).value;
-    }
-
     int value;
+
+   protected:
+    virtual bool Equal(const SettingData& other) const;
 };
 
 struct SettingDataString : public SettingData {
@@ -112,13 +105,10 @@ struct SettingDataString : public SettingData {
         return *this;
     }
 
-    virtual bool operator==(const SettingData& setting_data) const {
-        if (this->type != setting_data.type) return false;
-
-        return this->value == static_cast<const SettingDataString&>(setting_data).value;
-    }
-
     std::string value;
+
+   protected:
+    virtual bool Equal(const SettingData& other) const;
 };
 
 struct SettingDataEnum : public SettingDataString {
@@ -150,18 +140,11 @@ class SettingDataIntRange : public SettingData {
         return *this;
     }
 
-    virtual bool operator==(const SettingData& setting_data) const {
-        if (this->type != setting_data.type) return false;
-
-        const SettingDataIntRange& setting_data_range = static_cast<const SettingDataIntRange&>(setting_data);
-        if (this->min_value != setting_data_range.min_value) return false;
-        if (this->max_value != setting_data_range.max_value) return false;
-
-        return true;
-    }
-
     int min_value;
     int max_value;
+
+   protected:
+    virtual bool Equal(const SettingData& other) const;
 };
 
 class SettingDataVector : public SettingData {
@@ -177,23 +160,10 @@ class SettingDataVector : public SettingData {
         return *this;
     }
 
-    virtual bool operator==(const SettingData& setting_data) const {
-        if (this->type != setting_data.type) return false;
-
-        const SettingDataVector& setting_data_vector = static_cast<const SettingDataVector&>(setting_data);
-
-        if (this->value.size() != setting_data_vector.value.size()) return false;
-
-        for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-            if (std::find(setting_data_vector.value.begin(), setting_data_vector.value.end(), this->value[i].c_str()) ==
-                setting_data_vector.value.end())
-                return false;
-        }
-
-        return true;
-    }
-
     std::vector<std::string> value;
+
+   protected:
+    virtual bool Equal(const SettingData& other) const;
 };
 
 struct SettingDataVUIDFilter : public SettingDataVector {

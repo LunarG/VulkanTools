@@ -22,6 +22,54 @@
 
 SettingData::SettingData(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
 
+bool SettingData::Equal(const SettingData& other) const {
+    if (this->key != other.key)
+        return false;
+    else if (this->type != other.type)
+        return false;
+    return true;
+}
+
+bool SettingDataBool::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    return this->value == static_cast<const SettingDataBool&>(other).value;
+}
+
+bool SettingDataInt::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    return this->value == static_cast<const SettingDataInt&>(other).value;
+}
+
+bool SettingDataString::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    return this->value == static_cast<const SettingDataString&>(other).value;
+}
+
+bool SettingDataIntRange::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    const SettingDataIntRange& data = static_cast<const SettingDataIntRange&>(other);
+
+    return this->min_value == data.min_value && this->max_value == data.max_value;
+}
+
+bool SettingDataVector::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    const SettingDataVector& data = static_cast<const SettingDataVector&>(other);
+
+    if (this->value.size() != data.value.size()) return false;
+
+    for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+        if (std::find(data.value.begin(), data.value.end(), this->value[i].c_str()) == data.value.end()) return false;
+    }
+
+    return true;
+}
+
 std::shared_ptr<SettingData> CreateSettingData(const std::string& key, SettingType type) {
     assert(!key.empty());
 

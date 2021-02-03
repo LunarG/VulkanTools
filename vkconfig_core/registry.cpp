@@ -20,6 +20,8 @@
 
 #include "registry.h"
 
+#include <QTextStream>
+
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
 #include <windows.h>
 #include <winreg.h>
