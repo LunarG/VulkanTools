@@ -82,6 +82,8 @@ jobs:
     - name: Build and Test VulkanTools 
       run: |
         python3 scripts/github_ci_linux.py --config ${{ matrix.config.type }}
+        cd build
+        ctest --parallel 8 --output-on-failure
 
   android:
     name: ${{ matrix.config.name }}
