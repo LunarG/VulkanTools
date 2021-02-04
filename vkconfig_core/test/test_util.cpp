@@ -80,9 +80,9 @@ TEST(test_util, countof_vector_3) {
     EXPECT_EQ(3, countof(test_data));
 }
 
-TEST(test_util_format, int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }
+TEST(test_util, format_int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }
 
-TEST(test_util_format, strings_list) {
+TEST(test_util, format_strings_list) {
     std::vector<std::string> list;
 
     AppendString(list, "A");
@@ -136,7 +136,7 @@ TEST(test_util_format, strings_list) {
     EXPECT_EQ(0, list.size());
 }
 
-TEST(test_util_format, find) {
+TEST(test_util, format_find) {
     struct Element {
         std::string key;
     };
@@ -164,4 +164,24 @@ TEST(test_util_format, find) {
     EXPECT_EQ(true, IsFound(container, "B"));
     EXPECT_EQ(true, IsFound(container, "C"));
     EXPECT_EQ(false, IsFound(container, "D"));
+}
+
+TEST(test_util, to_lower_case) {
+    EXPECT_STREQ("string", ToLowerCase("string").c_str());
+    EXPECT_STREQ(" string", ToLowerCase(" string").c_str());
+    EXPECT_STREQ(" string ", ToLowerCase(" string ").c_str());
+    EXPECT_STREQ("string", ToLowerCase("sTRing").c_str());
+    EXPECT_STREQ("string", ToLowerCase("String").c_str());
+    EXPECT_STREQ("string76", ToLowerCase("StrinG76").c_str());
+    EXPECT_STREQ("str ing", ToLowerCase("Str inG").c_str());
+}
+
+TEST(test_util, to_upper_case) {
+    EXPECT_STREQ("STRING", ToUpperCase("string").c_str());
+    EXPECT_STREQ(" STRING", ToUpperCase(" string").c_str());
+    EXPECT_STREQ(" STRING ", ToUpperCase(" string ").c_str());
+    EXPECT_STREQ("STRING", ToUpperCase("sTRing").c_str());
+    EXPECT_STREQ("STRING", ToUpperCase("String").c_str());
+    EXPECT_STREQ("STRING76", ToUpperCase("StrinG76").c_str());
+    EXPECT_STREQ("STR ING", ToUpperCase("Str inG").c_str());
 }
