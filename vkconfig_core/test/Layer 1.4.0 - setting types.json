@@ -2,7 +2,6 @@
     "file_format_version" : "1.4.0",
     "layer": {
         "name": "VK_LAYER_LUNARG_test_1_4_0_setting_types",
-        "type": "GLOBAL",
         "library_path": ".\\VkLayer_test.dll",
         "api_version": "1.2.162",
         "implementation_version": "build 2",
@@ -170,23 +169,6 @@
                 "description": "true or false",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool",
                 "status": "BETA",
-                "platforms": [ "WINDOWS", "LINUX" ],
-                "default": true
-            },
-            {
-                "key": "bool_numeric_required_only",
-                "type": "BOOL_NUMERIC",
-                "label": "bool numeric deprecated",
-                "description": "1 or 0",
-                "default": true
-            },
-            {
-                "key": "bool_numeric_with_optional",
-                "type": "BOOL_NUMERIC",
-                "label": "bool numeric deprecated",
-                "description": "1 or 0",
-                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool_numeric",
-                "status": "DEPRECATED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "default": true
             },

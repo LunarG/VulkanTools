@@ -55,16 +55,6 @@
                         "value": true
                     },
                     {
-                        "key": "bool_numeric_required_only",
-                        "type": "BOOL_NUMERIC",
-                        "value": true
-                    },
-                    {
-                        "key": "bool_numeric_with_optional",
-                        "type": "BOOL_NUMERIC",
-                        "value": true
-                    },
-                    {
                         "key": "load_file_required_only",
                         "type": "LOAD_FILE",
                         "value": "./my_test.txt"

@@ -2,7 +2,6 @@
     "file_format_version" : "1.4.0",
     "layer" : {
         "name": "VK_LAYER_LUNARG_screenshot",
-        "type": "GLOBAL",
         "library_path": ".\\VkLayer_screenshot.dll",
         "api_version": "1.2.162",
         "implementation_version": "1",

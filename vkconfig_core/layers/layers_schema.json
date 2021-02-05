@@ -1,0 +1,657 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/LunarG/VulkanTools/blob/vkconfig-layers-schema/vkconfig_core/layers/layers_schema.json",
+    "$title": "Vulkan Layer Manifest File JSON Schema",
+    "$description": "JSON Schema for validating the Vulkan Layer Manifest Files",
+    "additionalProperties": false,
+    "required": [
+        "file_format_version",
+        "layer"
+    ],
+    "properties": {
+        "file_format_version": {
+            "type": "string",
+            "pattern": "^1.[0-9]+.[0-9]+"
+        },
+        "layer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name",
+                "library_path",
+                "api_version",
+                "implementation_version",
+                "description"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^VK_LAYER_[A-Z0-9]+_[a-z0-9_]+"
+                },
+                "library_path": {
+                    "type": "string"
+                },
+                "api_version": {
+                    "type": "string",
+                    "pattern": "^1.[0-9]+.[0-9]+"
+                },
+                "implementation_version": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/status"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "instance_extensions": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "name",
+                            "spec_version"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "pattern": "^VK_[A-Z0-9]+_[a-z0-9_]+"
+                            },
+                            "spec_version": {
+                                "type": "string",
+                                "format": "integer"
+                            }
+                        }
+                    }
+                },
+                "device_extensions": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "name",
+                            "spec_version"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "pattern": "^VK_[A-Z0-9]+_[a-z0-9_]+"
+                            },
+                            "spec_version": {
+                                "type": "string",
+                                "format": "integer"
+                            },
+                            "entrypoints": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^vk[A-Z]+[a-zA-Z0-9]+[A-Z]+"
+                                }
+                            }
+                        }
+                    }
+                },
+                "functions": {
+                    "additionalProperties": false,
+                    "patternProperties": {
+                        "^vk[A-Z]+[a-zA-Z0-9]+[A-Z]+": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "enable_environment": {
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "disable_environment": {
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "settings": {
+                    "type": "array",
+                    "$ref": "#/definitions/layer_settings"
+                },
+                "presets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/preset"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "status": {
+            "description": "The development status of the setting ('STABLE' by default)",
+            "type": "string",
+            "enum": [ "ALPHA", "BETA", "STABLE", "DEPRECATED" ]
+        },
+        "platforms": {
+            "description": "The platforms where the setting is available (all by default)",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [ "WINDOWS", "LINUX", "MACOS" ]
+            }
+        },
+        "flags": {
+            "type": "array",
+            "items": {
+                "required": [
+                    "key",
+                    "label",
+                    "description"
+                ],
+                "properties": {
+                    "key": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/definitions/status"
+                    },
+                    "platforms": {
+                        "$ref": "#/definitions/platforms"
+                    }
+                }
+            }
+        },
+        "preset": {
+            "required": [
+                "label",
+                "description",
+                "settings"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "platforms": {
+                    "$ref": "#/definitions/platforms"
+                },
+                "status": {
+                    "$ref": "#/definitions/status"
+                },
+                "editor_state": {
+                    "type": "string",
+                    "pattern": "^[0-9]"
+                },
+                "settings": {
+                    "$ref": "#/definitions/preset_settings"
+                }
+            }
+        },
+        "preset_settings": {
+            "description": "The different kind of settings stored in a preset",
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                    "min",
+                                    "max"
+                                ],
+                                "properties": {
+                                    "min": {
+                                        "type": "number"
+                                    },
+                                    "max": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "layer_settings": {
+            "description": "The different kind of settings of layers",
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default"
+                        ],
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "STRING", "SAVE_FOLDER" ]
+                            },
+                            "default": {
+                                "type": "string"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default"
+                        ],
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "SAVE_FILE", "LOAD_FILE" ]
+                            },
+                            "filter": {
+                                "type": "string"
+                            },
+                            "default": {
+                                "type": "string"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default"
+                        ],
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "BOOL" ]
+                            },
+                            "default": {
+                                "type": "boolean"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default"
+                        ],
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "INT" ]
+                            },
+                            "default": {
+                                "type": "number"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default",
+                            "flags"
+                        ],
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "ENUM" ]
+                            },
+                            "default": {
+                                "type": "string"
+                            },
+                            "flags": {
+                                "$ref": "#/definitions/flags"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default",
+                            "flags"
+                        ],
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "FLAGS" ]
+                            },
+                            "default": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
+                            },
+                            "flags": {
+                                "$ref": "#/definitions/flags"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default",
+                            "list"
+                        ],
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "VUID_EXCLUDE" ]
+                            },
+                            "default": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
+                            },
+                            "list": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+
