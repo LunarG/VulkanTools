@@ -106,7 +106,6 @@
                 "label": "Modify device entionsions list",
                 "description": "Modify the device extensions list from the layer JSON config file.",
                 "type": "BOOL_NUMERIC",
-                "platforms": [],
                 "default": false
             }
         ]
