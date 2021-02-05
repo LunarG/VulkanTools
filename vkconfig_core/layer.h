@@ -53,7 +53,6 @@ class Layer {
    public:
     std::string key;
     Version file_format_version;
-    std::string _type;
     std::string _library_path;  // This is a relative path, straight out of the json
     Version _api_version;
     std::string _implementation_version;

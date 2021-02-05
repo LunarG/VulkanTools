@@ -54,7 +54,6 @@ Layer::Layer(const std::string& key, const LayerType layer_type, const Version& 
              const std::string& implementation_version, const std::string& library_path, const std::string& type)
     : key(key),
       file_format_version(file_format_version),
-      _type(type),
       _library_path(library_path),
       _api_version(api_version),
       _implementation_version(implementation_version),
@@ -63,7 +62,7 @@ Layer::Layer(const std::string& key, const LayerType layer_type, const Version& 
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return file_format_version != Version::VERSION_NULL && !key.empty() && !_type.empty() && !_library_path.empty() &&
+    return file_format_version != Version::VERSION_NULL && !key.empty() && !_library_path.empty() &&
            _api_version != Version::VERSION_NULL && !_implementation_version.empty();
 }
 
@@ -137,7 +136,6 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
     key = ReadStringValue(json_layer_object, "name");
-    _type = ReadStringValue(json_layer_object, "type");
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {

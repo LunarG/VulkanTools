@@ -51,7 +51,6 @@ TEST(test_layer, load_1_X_0_layer_header) {
         EXPECT_STREQ(FILE_FORMAT_VERSIONS[i], layer.file_format_version.str().c_str());
 
         EXPECT_STREQ(KEYS[i], layer.key.c_str());
-        EXPECT_STREQ("GLOBAL", layer._type.c_str());
         EXPECT_STREQ(".\\VkLayer_test.dll", layer._library_path.c_str());
         EXPECT_STREQ("1.2.162", layer._api_version.str().c_str());
         EXPECT_STREQ("2", layer._implementation_version.c_str());
