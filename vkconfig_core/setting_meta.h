@@ -35,6 +35,7 @@ struct SettingMeta : public Header {
 
     const std::string key;
     const SettingType type;
+    std::string env;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;

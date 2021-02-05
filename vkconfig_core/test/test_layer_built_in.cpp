@@ -248,7 +248,7 @@ TEST(test_layer_built_in, layer_162_api_dump) {
 TEST(test_layer_built_in, layer_162_device_simulation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(":/layers/162/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(4, layer.settings.data.size());
+    EXPECT_EQ(5, layer.settings.data.size());
     EXPECT_EQ(3, layer.presets.size());
 }
 
@@ -302,7 +302,7 @@ TEST(test_layer_built_in, layer_latest_api_dump) {
 TEST(test_layer_built_in, layer_latest_device_simulation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(":/layers/latest/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(4, layer.settings.data.size());
+    EXPECT_EQ(5, layer.settings.data.size());
     EXPECT_EQ(3, layer.presets.size());
 }
 

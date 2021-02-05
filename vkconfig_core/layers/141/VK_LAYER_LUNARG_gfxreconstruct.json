@@ -27,10 +27,7 @@
                     },
                     {
                         "key": "capture_frames",
-                        "value": {
-                            "min": 1,
-                            "max": 2
-                        }
+                        "value": "1-2"
                     },
                     {
                         "key": "memory_tracking_mode",
@@ -49,10 +46,7 @@
                     },
                     {
                         "key": "capture_frames",
-                        "value": {
-                            "min": 0,
-                            "max": 0
-                        }
+                        "value": ""
                     },
                     {
                         "key": "memory_tracking_mode",
@@ -64,6 +58,7 @@
         "settings": [
             {
                 "key": "capture_trigger",
+                "env": "GFXRECON_CAPTURE_TRIGGER",
                 "label": "Hotkey Capture Trigger",
                 "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).",
                 "type": "enum",
@@ -153,16 +148,15 @@
             },
             {
                 "key": "capture_frames",
+                "env": "GFXRECON_CAPTURE_FRAMES",
                 "label": "Capture Specific Frames",
                 "description": "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. Default is: Empty string (all frames are captured).",
-                "type": "INT_RANGE",
-                "default": {
-                    "min": 0,
-                    "max": 0
-                }
+                "type": "STRING",
+                "default": ""
             },
             {
                 "key": "capture_file",
+                "env": "GFXRECON_CAPTURE_FILE",
                 "label": "Capture File Name",
                 "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
                 "type": "SAVE_FILE",
@@ -171,6 +165,7 @@
             },
             {
                 "key": "capture_file_timestamp",
+                "env": "GFXRECON_CAPTURE_FILE_TIMESTAMP",
                 "label": "Capture File Name with Timestamp",
                 "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
                 "type": "BOOL",
@@ -178,6 +173,7 @@
             },
             {
                 "key": "capture_file_flush",
+                "env": "GFXRECON_CAPTURE_FILE_FLUSH",
                 "label": "Capture File Flush After Write",
                 "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
                 "type": "BOOL",
@@ -185,6 +181,7 @@
             },
             {
                 "key": "capture_compression_type",
+                "env": "GFXRECON_CAPTURE_COMPRESSION_TYPE",
                 "label": "Compression Format",
                 "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
                 "type": "ENUM",
@@ -214,6 +211,7 @@
             },
             {
                 "key": "log_output_to_console",
+                "env": "GFXRECON_LOG_OUTPUT_TO_CONSOLE",
                 "label": "Log Output to Console / stdout",
                 "description": "Log messages will be written to stdout.",
                 "type": "BOOL",
@@ -221,6 +219,7 @@
             },
             {
                 "key": "log_break_on_error",
+                "env": "GFXRECON_LOG_BREAK_ON_ERROR",
                 "label": "Trigger Debug Break on Error",
                 "description": "Trigger a debug break when logging an error.",
                 "type": "BOOL",
@@ -228,6 +227,7 @@
             },
             {
                 "key": "log_output_to_os_debug_string",
+                "env": "GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING",
                 "label": "Log Output to Debug Console",
                 "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
                 "type": "BOOL",
@@ -235,6 +235,7 @@
             },
             {
                 "key": "log_file",
+                "env": "GFXRECON_LOG_FILE",
                 "label": "Log File",
                 "description": "When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).",
                 "type": "SAVE_FILE",
@@ -243,6 +244,7 @@
             },
             {
                 "key": "log_detailed",
+                "env": "GFXRECON_LOG_DETAILED",
                 "label": "Log Detailed",
                 "description": "Include name and line number from the file responsible.",
                 "type": "BOOL",
@@ -250,6 +252,7 @@
             },
             {
                 "key": "log_file_flush_after_write",
+                "env": "GFXRECON_LOG_FILE_FLUSH_AFTER_WRITE",
                 "label": "Log File Flush After Write",
                 "description": "Flush the log file to disk after each write when true.",
                 "type": "BOOL",
@@ -257,6 +260,7 @@
             },
             {
                 "key": "log_file_keep_open",
+                "env": "GFXRECON_LOG_FILE_KEEP_OPEN",
                 "label": "Log File Keep Open",
                 "description": "Keep the log file open between log messages when true, or close and reopen the log file for each message when false.",
                 "type": "BOOL",
@@ -264,6 +268,7 @@
             },
             {
                 "key": "log_file_create_new",
+                "env": "GFXRECON_LOG_FILE_CREATE_NEW",
                 "label": "Log File Overwrite",
                 "description": "Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false.",
                 "type": "BOOL",
@@ -271,6 +276,7 @@
             },
             {
                 "key": "log_level",
+                "env": "GFXRECON_LOG_LEVEL",
                 "label": "Log Level",
                 "description": "Specify the highest level message to log. Options are: debug, info, warning, error, and fatal. The specified level and all levels listed after it will be enabled for logging. For example, choosing the warning level will also enable the error and fatal levels.",
                 "type": "ENUM",
@@ -305,6 +311,7 @@
             },
             {
                 "key": "memory_tracking_mode",
+                "env": "GFXRECON_MEMORY_TRACKING_MODE",
                 "label": "Memory Tracking Mode",
                 "description": "Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: page_guard, assisted, and unassisted.",
                 "type": "ENUM",
@@ -329,6 +336,7 @@
             },
             {
                 "key": "page_guard_copy_on_map",
+                "env": "GFXRECON_PAGE_GUARD_COPY_ON_MAP",
                 "label": "Page Guard Copy on Map",
                 "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
                 "type": "BOOL",
@@ -336,6 +344,7 @@
             },
             {
                 "key": "page_guard_separate_read",
+                "env": "GFXRECON_PAGE_GUARD_SEPARATE_READ",
                 "label": "Page Guard Separate Read Tracking",
                 "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
                 "type": "BOOL",
@@ -343,6 +352,7 @@
             },
             {
                 "key": "page_guard_external_memory",
+                "env": "GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY",
                 "label": "Page Guard External Memory",
                 "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
                 "type": "BOOL",
