@@ -22,7 +22,6 @@
 #include "dialog_applications.h"
 
 #include "configurator.h"
-#include "../vkconfig_core/environment.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -49,7 +48,9 @@ ApplicationsDialog::ApplicationsDialog(QWidget *parent)
 
     // Show the current list
     const std::vector<Application> &applications = configurator.environment.GetApplications();
-    for (std::size_t i = 0, n = applications.size(); i < n; i++) CreateApplicationItem(applications[i]);
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        CreateApplicationItem(applications[i]);
+    }
 
     ui->treeWidget->installEventFilter(this);
 
@@ -66,8 +67,8 @@ ApplicationsDialog::ApplicationsDialog(QWidget *parent)
     // enabled, and the first item is selected, but not visibly so. Repainting does not fix the issue either. This
     // is a macOS only fix, but is put in for all platforms so that the GUI behavior is consistent across all
     // platforms.
-    QTreeWidgetItem *pItem = ui->treeWidget->topLevelItem(0);
-    ui->treeWidget->setCurrentItem(pItem);
+    QTreeWidgetItem *item = ui->treeWidget->topLevelItem(0);
+    ui->treeWidget->setCurrentItem(item);
 }
 
 bool ApplicationsDialog::eventFilter(QObject *target, QEvent *event) {

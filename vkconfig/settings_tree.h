@@ -66,6 +66,6 @@ class SettingsTreeManager : QObject {
 
     QTreeWidgetItem *_validation_log_file_item;
     WidgetSettingFilesystem *_validation_log_file_widget;
-    WidgetSettingFlags *_validation_debug_action;
+    WidgetSettingFlag *_validation_debug_action;
     SettingsValidationAreas *_validation_areas;
 };

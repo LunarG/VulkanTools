@@ -35,7 +35,6 @@ class Configuration {
 
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
     bool Save(const std::vector<Layer>& available_layers, const std::string& full_path) const;
-    bool IsAvailableOnThisPlatform() const;
     bool HasOverride() const;
 
     void Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager);

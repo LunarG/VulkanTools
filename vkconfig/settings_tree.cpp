@@ -73,7 +73,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         // There will be one top level item for each layer
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
-            if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) continue;
+            if (!IsPlatformSupported(parameter.platform_flags)) continue;
 
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
@@ -125,7 +125,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
-            if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) continue;
+            if (!IsPlatformSupported(parameter.platform_flags)) continue;
 
             if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
@@ -222,24 +222,20 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
     // Each debug action has it's own checkbox
     for (std::size_t i = 0, n = debug_action_meta->enum_values.size(); i < n; ++i) {
-        // Debug output is only for Windows
-        if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS && debug_action_meta->enum_values[i].key == "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT")
-            continue;
+        if (!IsPlatformSupported(debug_action_meta->enum_values[i].platform_flags)) continue;
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
-        WidgetSettingFlags *this_control =
-            new WidgetSettingFlags(*debug_action_meta, *debug_action_data, debug_action_meta->enum_values[i].key);
-        this_control->setText(debug_action_meta->enum_values[i].label.c_str());
-        this_control->setToolTip(debug_action_meta->enum_values[i].description.c_str());
+        WidgetSettingFlag *widget =
+            new WidgetSettingFlag(*debug_action_meta, *debug_action_data, debug_action_meta->enum_values[i].key);
         debug_action_branch->addChild(child);
-        _settings_tree->setItemWidget(child, 0, this_control);
-        this_control->setFont(_settings_tree->font());
-        connect(this_control, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+        _settings_tree->setItemWidget(child, 0, widget);
+        widget->setFont(_settings_tree->font());
+        connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
         // The log message action also has a child; the log file selection setting/widget
         // Note, this is usually last, but I'll check for it any way in case other new items are added
         if (debug_action_meta->enum_values[i].key == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
-            _validation_debug_action = this_control;
+            _validation_debug_action = widget;
             _validation_log_file_item = new QTreeWidgetItem();
             child->addChild(_validation_log_file_item);
             _validation_log_file_widget = new WidgetSettingFilesystem(_validation_log_file_item, *log_file_meta, *log_file_data);
@@ -268,14 +264,11 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
         for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            WidgetSettingFlags *control =
-                new WidgetSettingFlags(setting_meta, setting_data, setting_meta.enum_values[i].key.c_str());
-            control->setText(setting_meta.enum_values[i].label.c_str());
-            control->setToolTip(setting_meta.enum_values[i].description.c_str());
+            WidgetSettingFlag *widget = new WidgetSettingFlag(setting_meta, setting_data, setting_meta.enum_values[i].key.c_str());
             sub_category->addChild(child);
-            _settings_tree->setItemWidget(child, 0, control);
-            control->setFont(_settings_tree->font());
-            connect(control, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            _settings_tree->setItemWidget(child, 0, widget);
+            widget->setFont(_settings_tree->font());
+            connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         }
     }
 
@@ -327,7 +320,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         connect(mute_message_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
     }
 
-    // This really does go way down here.
     connect(_validation_areas, SIGNAL(settingChanged()), this, SLOT(OnSettingChanged()));
 }
 
@@ -348,7 +340,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
     for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
         const SettingMeta &setting_meta = layer_setting_metas[setting_index];
-        if (!(setting_meta.platform_flags & (1 << VKC_PLATFORM))) continue;
+        if (!IsPlatformSupported(setting_meta.platform_flags)) continue;
 
         SettingData &setting_data = *parameter.settings.Get(setting_meta.key.c_str());
         assert(&setting_data);

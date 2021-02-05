@@ -200,3 +200,5 @@ const char* GetPlatformString(PlatformString platform_string) {
 
     return table[platform_string][VKC_PLATFORM];
 }
+
+bool IsPlatformSupported(int platform_flags) { return platform_flags & (1 << VKC_PLATFORM); }
