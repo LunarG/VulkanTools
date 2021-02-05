@@ -239,10 +239,7 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
     const QSize combo_size = fm.size(Qt::TextSingleLine, "Application-Controlled") * 1.6;
     item->setSizeHint(1, combo_size);
 
-    if (is_implicit_layer)
-        widget->addItem("Implicitly On");
-    else
-        widget->addItem("Application-Controlled");
+    widget->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
     widget->addItem("Overridden / Forced On");
     widget->addItem("Excluded / Forced Off");
     widget->setCurrentIndex(parameter.state);

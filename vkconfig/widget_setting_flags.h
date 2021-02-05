@@ -28,11 +28,11 @@
 #include <QCheckBox>
 #include <QTreeWidgetItem>
 
-class WidgetSettingFlags : public QCheckBox {
+class WidgetSettingFlag : public QCheckBox {
     Q_OBJECT
    public:
-    explicit WidgetSettingFlags(const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
-                                const std::string& setting_value);
+    explicit WidgetSettingFlag(const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
+                               const std::string& setting_flag);
 
    public Q_SLOTS:
     void itemChecked(bool checked);
@@ -41,10 +41,10 @@ class WidgetSettingFlags : public QCheckBox {
     void itemChanged();
 
    private:
-    WidgetSettingFlags(const WidgetSettingFlags&) = delete;
-    WidgetSettingFlags& operator=(const WidgetSettingFlags&) = delete;
+    WidgetSettingFlag(const WidgetSettingFlag&) = delete;
+    WidgetSettingFlag& operator=(const WidgetSettingFlag&) = delete;
 
     const SettingMetaFlags& setting_meta;
     SettingDataFlags& setting_data;
-    std::string setting_enum_value;
+    std::string setting_flag;
 };

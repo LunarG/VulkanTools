@@ -106,3 +106,5 @@ enum PlatformString {
 enum { PLATFORM_STRING_COUNT = PLATFORM_STRING_LAST - PLATFORM_STRING_FIRST + 1 };
 
 const char* GetPlatformString(PlatformString platform_string);
+
+bool IsPlatformSupported(int platform_flags);

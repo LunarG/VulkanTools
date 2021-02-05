@@ -35,7 +35,7 @@ WidgetPreset::WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter&
     for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
         const LayerPreset& layer_preset = layer.presets[i];
 
-        if (!(layer_preset.platform_flags & (1 << VKC_PLATFORM))) {
+        if (!IsPlatformSupported(layer_preset.platform_flags)) {
             continue;
         }
 
@@ -44,7 +44,6 @@ WidgetPreset::WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter&
     }
 
     this->blockSignals(false);
-
     this->UpdateCurrentIndex();
 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));

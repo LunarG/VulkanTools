@@ -571,7 +571,7 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
 
 bool Configuration::HasOverride() const {
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
-        if (!(this->parameters[i].platform_flags & (1 << VKC_PLATFORM))) {
+        if (!IsPlatformSupported(this->parameters[i].platform_flags)) {
             continue;
         }
 
@@ -610,8 +610,6 @@ bool Configuration::HasSavedFile(const PathManager& path_manager) const {
     }
     return false;
 }
-
-bool Configuration::IsAvailableOnThisPlatform() const { return platform_flags & (1 << VKC_PLATFORM); }
 
 static const size_t NOT_FOUND = static_cast<size_t>(-1);
 

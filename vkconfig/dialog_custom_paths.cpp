@@ -53,6 +53,7 @@ void CustomPathsDialog::RepopulateTree() {
     // and then look for layers that are already loaded that are from that path.
     const std::vector<std::string> &user_defined_layers_paths =
         configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+
     for (std::size_t custom_path_index = 0, n = user_defined_layers_paths.size(); custom_path_index < n; ++custom_path_index) {
         // Custom path is the parent tree item
         const std::string custom_path(ConvertNativeSeparators(user_defined_layers_paths[custom_path_index]));

@@ -26,23 +26,28 @@
 
 #include <cassert>
 
-WidgetSettingFlags::WidgetSettingFlags(const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
-                                       const std::string& setting_enum_value)
-    : setting_meta(setting_meta), setting_data(setting_data), setting_enum_value(setting_enum_value) {
+WidgetSettingFlag::WidgetSettingFlag(const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
+                                     const std::string& setting_flag)
+    : setting_meta(setting_meta), setting_data(setting_data), setting_flag(setting_flag) {
     assert(&setting_data);
-    assert(!setting_enum_value.empty());
+    assert(!setting_flag.empty());
 
-    if (std::find(setting_data.value.begin(), setting_data.value.end(), setting_enum_value) != setting_data.value.end())
+    const SettingEnumValue* enum_value = FindByKey(setting_meta.enum_values, setting_flag.c_str());
+    assert(enum_value);
+    this->setText(enum_value->label.c_str());
+    this->setToolTip(enum_value->description.c_str());
+
+    if (std::find(setting_data.value.begin(), setting_data.value.end(), setting_flag) != setting_data.value.end())
         this->setChecked(true);
 
     connect(this, SIGNAL(clicked(bool)), this, SLOT(itemChecked(bool)));
 }
 
-void WidgetSettingFlags::itemChecked(bool checked) {
+void WidgetSettingFlag::itemChecked(bool checked) {
     if (checked) {
-        AppendString(setting_data.value, setting_enum_value);
+        AppendString(setting_data.value, setting_flag);
     } else {
-        RemoveString(setting_data.value, setting_enum_value);
+        RemoveString(setting_data.value, setting_flag);
     }
 
     emit itemChanged();

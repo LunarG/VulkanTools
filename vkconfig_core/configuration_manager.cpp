@@ -47,7 +47,7 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
             const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
             assert(result);
 
-            if (!configuration.IsAvailableOnThisPlatform()) continue;
+            if (!IsPlatformSupported(configuration.platform_flags)) continue;
 
             OrderParameter(configuration.parameters, available_layers);
             available_configurations.push_back(configuration);
@@ -280,7 +280,7 @@ void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> 
         const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
         assert(result);
 
-        if (!configuration.IsAvailableOnThisPlatform()) {
+        if (!IsPlatformSupported(configuration.platform_flags)) {
             continue;
         }
 
