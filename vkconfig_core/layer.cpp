@@ -174,67 +174,41 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
             const std::string key = ReadStringValue(json_setting, "key");
             const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
-            std::shared_ptr<SettingMeta> meta;
+            SettingMeta& setting_meta = settings.Create(key, type);
 
             switch (type) {
+                case SETTING_SAVE_FOLDER:
                 case SETTING_STRING: {
-                    SettingMetaString* meta_object = new SettingMetaString(key);
-                    meta_object->default_value = ReadStringValue(json_setting, "default");
-                    meta.reset(meta_object);
+                    static_cast<SettingMetaString&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
                     break;
                 }
                 case SETTING_INT: {
-                    SettingMetaInt* meta_object = new SettingMetaInt(key);
-                    meta_object->default_value = ReadIntValue(json_setting, "default");
-                    meta.reset(meta_object);
+                    static_cast<SettingMetaInt&>(setting_meta).default_value = ReadIntValue(json_setting, "default");
                     break;
                 }
                 case SETTING_INT_RANGE: {
-                    SettingMetaIntRange* meta_object = new SettingMetaIntRange(key);
                     const QJsonObject& json_range_object = ReadObject(json_setting, "default");
-                    meta_object->default_min_value = ReadIntValue(json_range_object, "min");
-                    meta_object->default_max_value = ReadIntValue(json_range_object, "max");
-                    meta.reset(meta_object);
+                    static_cast<SettingMetaIntRange&>(setting_meta).default_min_value = ReadIntValue(json_range_object, "min");
+                    static_cast<SettingMetaIntRange&>(setting_meta).default_max_value = ReadIntValue(json_range_object, "max");
                     break;
                 }
+                case SETTING_SAVE_FILE:
                 case SETTING_LOAD_FILE: {
-                    SettingMetaFileLoad* meta_object = new SettingMetaFileLoad(key);
+                    SettingMetaFilesystem& setting_meta_filesystem = static_cast<SettingMetaFilesystem&>(setting_meta);
                     if (json_setting.value("filter") != QJsonValue::Undefined) {
-                        meta_object->filter = ReadStringValue(json_setting, "filter");
+                        setting_meta_filesystem.filter = ReadStringValue(json_setting, "filter");
                     }
-                    meta_object->default_value = ReadStringValue(json_setting, "default");
-                    meta.reset(meta_object);
+                    setting_meta_filesystem.default_value = ReadStringValue(json_setting, "default");
                     break;
                 }
-                case SETTING_SAVE_FILE: {
-                    SettingMetaFileSave* meta_object = new SettingMetaFileSave(key);
-                    if (json_setting.value("filter") != QJsonValue::Undefined) {
-                        meta_object->filter = ReadStringValue(json_setting, "filter");
-                    }
-                    meta_object->default_value = ReadStringValue(json_setting, "default");
-                    meta.reset(meta_object);
-                    break;
-                }
-                case SETTING_SAVE_FOLDER: {
-                    SettingMetaFolderSave* meta_object = new SettingMetaFolderSave(key);
-                    meta_object->default_value = ReadStringValue(json_setting, "default");
-                    meta.reset(meta_object);
-                    break;
-                }
+                case SETTING_BOOL_NUMERIC_DEPRECATED:
                 case SETTING_BOOL: {
-                    SettingMetaBool* meta_object = new SettingMetaBool(key);
-                    meta_object->default_value = ReadBoolValue(json_setting, "default");
-                    meta.reset(meta_object);
+                    static_cast<SettingMetaBool&>(setting_meta).default_value = ReadBoolValue(json_setting, "default");
                     break;
                 }
-                case SETTING_BOOL_NUMERIC_DEPRECATED: {
-                    SettingMetaBoolNumeric* meta_object = new SettingMetaBoolNumeric(key);
-                    meta_object->default_value = ReadBoolValue(json_setting, "default");
-                    meta.reset(meta_object);
-                    break;
-                }
+                case SETTING_FLAGS:
                 case SETTING_ENUM: {
-                    SettingMetaEnum* meta_object = new SettingMetaEnum(key);
+                    SettingMetaEnumeration& setting_meta_enumeration = static_cast<SettingMetaEnumeration&>(setting_meta);
                     const QJsonArray& json_array_flags = ReadArray(json_setting, "flags");
                     for (int i = 0, n = json_array_flags.size(); i < n; ++i) {
                         const QJsonObject& json_object = json_array_flags[i].toObject();
@@ -243,33 +217,18 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         setting_enum_value.key = ReadStringValue(json_object, "key");
                         LoadMetaHeader(setting_enum_value, json_object);
 
-                        meta_object->enum_values.push_back(setting_enum_value);
+                        setting_meta_enumeration.enum_values.push_back(setting_enum_value);
                     }
-                    meta_object->default_value = ReadStringValue(json_setting, "default");
-                    meta.reset(meta_object);
-                    break;
-                }
-                case SETTING_FLAGS: {
-                    SettingMetaFlags* meta_object = new SettingMetaFlags(key);
-                    const QJsonArray& json_array_flags = ReadArray(json_setting, "flags");
-                    for (int i = 0, n = json_array_flags.size(); i < n; ++i) {
-                        const QJsonObject& json_object = json_array_flags[i].toObject();
-
-                        SettingEnumValue setting_enum_value;
-                        setting_enum_value.key = ReadStringValue(json_object, "key");
-                        LoadMetaHeader(setting_enum_value, json_object);
-
-                        meta_object->enum_values.push_back(setting_enum_value);
+                    if (type == SETTING_FLAGS) {
+                        static_cast<SettingMetaFlags&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
+                    } else {
+                        static_cast<SettingMetaEnum&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
                     }
-                    meta_object->default_value = ReadStringArray(json_setting, "default");
-                    meta.reset(meta_object);
                     break;
                 }
                 case SETTING_VUID_FILTER: {
-                    SettingMetaVUIDFilter* meta_object = new SettingMetaVUIDFilter(key);
-                    meta_object->list = ReadStringArray(json_setting, "list");
-                    meta_object->default_value = ReadStringArray(json_setting, "default");
-                    meta.reset(meta_object);
+                    static_cast<SettingMetaVUIDFilter&>(setting_meta).list = ReadStringArray(json_setting, "list");
+                    static_cast<SettingMetaVUIDFilter&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
                     break;
                 }
                 default: {
@@ -278,14 +237,10 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                 }
             }
 
-            LoadMetaHeader(*meta, json_setting);
+            LoadMetaHeader(setting_meta, json_setting);
             if (json_setting.value("env") != QJsonValue::Undefined) {
-                meta->env = ReadStringValue(json_setting, "env");
+                setting_meta.env = ReadStringValue(json_setting, "env");
             }
-
-            settings.data.push_back(meta);
-
-            SettingMeta& setting_meta = settings.Create(key, type);
         }
     } else {
         this->settings = default_layer.settings;
@@ -425,8 +380,8 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
 SettingDataSet CollectDefaultSettingData(const SettingMetaSet& meta) {
     SettingDataSet result;
 
-    for (std::size_t i = 0, n = meta.data.size(); i < n; ++i) {
-        const SettingMeta& setting_meta = *meta.data[i];
+    for (std::size_t i = 0, n = meta.Size(); i < n; ++i) {
+        const SettingMeta& setting_meta = meta[i];
         SettingData& setting_data = result.Create(setting_meta.key, setting_meta.type);
         InitSettingDefaultValue(setting_data, setting_meta);
     }

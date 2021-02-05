@@ -71,6 +71,5 @@ class Layer {
     bool Load(const std::string& full_path_to_file, LayerType layer_type);
 };
 
-std::shared_ptr<SettingData> CreateSettingData(const std::string& key, SettingType type);
 void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta);
 SettingDataSet CollectDefaultSettingData(const SettingMetaSet& layer_settings);

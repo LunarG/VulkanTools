@@ -47,10 +47,10 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 
     if (a.state != b.state) return false;
 
-    if (a.settings.data.size() != b.settings.data.size()) return false;
+    if (a.settings.Size() != b.settings.Size()) return false;
 
-    for (std::size_t i = 0, n = a.settings.data.size(); i < n; ++i) {
-        if (*a.settings.data[i] != *b.settings.data[i]) return false;
+    for (std::size_t i = 0, n = a.settings.Size(); i < n; ++i) {
+        if (a.settings[i] != b.settings[i]) return false;
     }
 
     return true;

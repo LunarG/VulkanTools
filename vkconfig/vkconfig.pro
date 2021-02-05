@@ -46,6 +46,7 @@ SOURCES += \
     ../vkconfig_core/registry.cpp \
     ../vkconfig_core/setting_data.cpp \
     ../vkconfig_core/setting_meta.cpp \
+    ../vkconfig_core/setting_set.cpp \
     ../vkconfig_core/setting_type.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
@@ -100,6 +101,7 @@ HEADERS += \
     ../vkconfig_core/registry.h \
     ../vkconfig_core/setting_data.h \
     ../vkconfig_core/setting_meta.h \
+    ../vkconfig_core/setting_set.h \
     ../vkconfig_core/setting_type.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \

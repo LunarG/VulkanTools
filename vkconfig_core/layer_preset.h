@@ -22,6 +22,7 @@
 
 #include "header.h"
 #include "setting_data.h"
+#include "setting_set.h"
 
 #include <vector>
 

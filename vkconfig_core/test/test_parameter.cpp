@@ -238,13 +238,13 @@ TEST(test_parameter, apply_settings) {
     SettingDataString& layer_setting_b = static_cast<SettingDataString&>(parameter.settings.Create("B", SETTING_STRING));
     layer_setting_b.value = "setting value";
 
-    EXPECT_EQ(1, preset.settings.data.size());
-    EXPECT_EQ(2, parameter.settings.data.size());
+    EXPECT_EQ(1, preset.settings.Size());
+    EXPECT_EQ(2, parameter.settings.Size());
 
     parameter.ApplyPresetSettings(preset);
 
-    EXPECT_EQ(1, preset.settings.data.size());
-    EXPECT_EQ(2, parameter.settings.data.size());
+    EXPECT_EQ(1, preset.settings.Size());
+    EXPECT_EQ(2, parameter.settings.Size());
 
     EXPECT_STREQ("preset value", static_cast<SettingDataString&>(*parameter.settings.Get("A")).value.c_str());
     EXPECT_STREQ("setting value", static_cast<SettingDataString&>(*parameter.settings.Get("B")).value.c_str());

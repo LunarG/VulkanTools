@@ -150,12 +150,4 @@ struct SettingMetaVUIDFilter : public SettingMeta {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
-class SettingMetaSet {
-   public:
-    SettingMeta& Create(const std::string& key, SettingType type);
-    SettingMeta* Get(const char* key);
-    const SettingMeta* Get(const char* key) const;
-    bool Empty() const { return this->data.empty(); }
-
-    std::vector<std::shared_ptr<SettingMeta> > data;
-};
+typedef SettingSet<SettingMeta> SettingMetaSet;

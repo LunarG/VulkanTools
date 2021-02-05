@@ -346,12 +346,12 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
     const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
 
-    for (std::size_t setting_index = 0, n = layer_setting_metas.data.size(); setting_index < n; ++setting_index) {
-        const SettingMeta &setting_meta = *layer_setting_metas.data[setting_index];
+    for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
+        const SettingMeta &setting_meta = layer_setting_metas[setting_index];
         if (!(setting_meta.platform_flags & (1 << VKC_PLATFORM))) continue;
 
-        SettingData *setting_data = parameter.settings.Get(setting_meta.key.c_str());
-        assert(setting_data);
+        SettingData &setting_data = *parameter.settings.Get(setting_meta.key.c_str());
+        assert(&setting_data);
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
         parent->addChild(setting_item);
@@ -360,7 +360,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             case SETTING_BOOL:
             case SETTING_BOOL_NUMERIC_DEPRECATED: {
                 const SettingMetaBool &setting_meta_src = static_cast<const SettingMetaBool &>(setting_meta);
-                SettingDataBool &setting_data_src = static_cast<SettingDataBool &>(*setting_data);
+                SettingDataBool &setting_data_src = static_cast<SettingDataBool &>(setting_data);
 
                 WidgetSettingBool *widget = new WidgetSettingBool(setting_meta_src, setting_data_src);
                 _settings_tree->setItemWidget(setting_item, 0, widget);
@@ -370,7 +370,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
             case SETTING_INT: {
                 const SettingMetaInt &setting_meta_src = static_cast<const SettingMetaInt &>(setting_meta);
-                SettingDataInt &setting_data_src = static_cast<SettingDataInt &>(*setting_data);
+                SettingDataInt &setting_data_src = static_cast<SettingDataInt &>(setting_data);
 
                 WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta_src, setting_data_src);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
@@ -383,7 +383,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER: {
                 const SettingMetaFilesystem &setting_meta_src = static_cast<const SettingMetaFilesystem &>(setting_meta);
-                SettingDataString &setting_data_src = static_cast<SettingDataString &>(*setting_data);
+                SettingDataString &setting_data_src = static_cast<SettingDataString &>(setting_data);
 
                 WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(setting_item, setting_meta_src, setting_data_src);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
@@ -396,7 +396,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
             case SETTING_ENUM: {
                 const SettingMetaEnum &setting_meta_src = static_cast<const SettingMetaEnum &>(setting_meta);
-                SettingDataEnum &setting_data_src = static_cast<SettingDataEnum &>(*setting_data);
+                SettingDataEnum &setting_data_src = static_cast<SettingDataEnum &>(setting_data);
 
                 setting_item->setText(0, setting_meta.label.c_str());
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
@@ -409,7 +409,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
             case SETTING_INT_RANGE: {
                 const SettingMetaIntRange &setting_meta_src = static_cast<const SettingMetaIntRange &>(setting_meta);
-                SettingDataIntRange &setting_data_src = static_cast<SettingDataIntRange &>(*setting_data);
+                SettingDataIntRange &setting_data_src = static_cast<SettingDataIntRange &>(setting_data);
 
                 WidgetSettingIntRange *widget = new WidgetSettingIntRange(setting_item, setting_meta_src, setting_data_src);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
@@ -420,7 +420,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
             case SETTING_STRING: {
                 const SettingMetaString &setting_meta_src = static_cast<const SettingMetaString &>(setting_meta);
-                SettingDataString &setting_data_src = static_cast<SettingDataString &>(*setting_data);
+                SettingDataString &setting_data_src = static_cast<SettingDataString &>(setting_data);
 
                 WidgetSettingString *widget = new WidgetSettingString(setting_item, setting_meta_src, setting_data_src);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
