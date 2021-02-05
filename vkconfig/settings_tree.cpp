@@ -390,13 +390,32 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 const SettingMetaEnum &setting_meta_src = static_cast<const SettingMetaEnum &>(setting_meta);
                 SettingDataEnum &setting_data_src = static_cast<SettingDataEnum &>(setting_data);
 
-                setting_item->setText(0, setting_meta.label.c_str());
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                setting_item->setText(0, setting_meta.label.c_str());
+                setting_item->setToolTip(0, setting_meta.description.c_str());
                 setting_item->addChild(place_holder);
 
                 WidgetSettingEnum *enum_widget = new WidgetSettingEnum(setting_item, setting_meta_src, setting_data_src);
                 _settings_tree->setItemWidget(place_holder, 0, enum_widget);
                 connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            } break;
+
+            case SETTING_FLAGS: {
+                const SettingMetaFlags &setting_meta_src = static_cast<const SettingMetaFlags &>(setting_meta);
+                SettingDataFlags &setting_data_src = static_cast<SettingDataFlags &>(setting_data);
+
+                setting_item->setText(0, setting_meta.label.c_str());
+                setting_item->setToolTip(0, setting_meta.description.c_str());
+
+                for (std::size_t i = 0, n = setting_meta_src.enum_values.size(); i < n; ++i) {
+                    WidgetSettingFlag *widget =
+                        new WidgetSettingFlag(setting_meta_src, setting_data_src, setting_meta_src.enum_values[i].key.c_str());
+                    QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                    setting_item->addChild(place_holder);
+                    _settings_tree->setItemWidget(place_holder, 0, widget);
+                    widget->setFont(_settings_tree->font());
+                    connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                }
             } break;
 
             case SETTING_INT_RANGE: {
