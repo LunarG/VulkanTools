@@ -27,6 +27,7 @@
 - Add *Portability* default configuration on macOS #1307
 - Add per-configuration reset in layers configuration context menu
 - Add per-configuration reset in layers window
+- Expose `modify_extension_list` setting from devsim
 
 ### Improvements:
 - Add display of VK_LAYER_PATH content in Vulkan Development Status
