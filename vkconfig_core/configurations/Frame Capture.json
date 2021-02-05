@@ -20,11 +20,8 @@
                     },
                     {
                         "key": "capture_frames",
-                        "type": "INT_RANGE",
-                        "value": {
-                            "min": 0,
-                            "max": 0
-                        }
+                        "type": "STRING",
+                        "value": ""
                     },
                     {
                         "key": "capture_file",

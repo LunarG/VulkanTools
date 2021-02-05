@@ -27,6 +27,8 @@ bool SettingMeta::Equal(const SettingMeta& other) const {
         return false;
     else if (this->type != other.type)
         return false;
+    else if (this->env != other.env)
+        return false;
     else if (this->label != other.label)
         return false;
     else if (this->description != other.description)

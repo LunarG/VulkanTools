@@ -18,30 +18,32 @@
         "settings" : [
             {
                 "key": "output_format",
+                "env": "VK_APIDUMP_OUTPUT_FORMAT",
                 "label": "Output Format",
                 "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
                 "type": "ENUM",
                 "flags": [
                     {
-                        "key": "Text",
+                        "key": "text",
                         "label": "Text",
                         "description": "Plain text"
                     },
                     {
-                        "key": "Html",
+                        "key": "html",
                         "label": "HTML",
                         "description": "HTML"
                     },
                     {
-                        "key": "Json",
+                        "key": "json",
                         "label": "Json",
                         "description": "Json"
                     }
                 ],
-                "default": "Text"
+                "default": "text"
             },
             {
                 "key": "detailed",
+                "env": "VK_APIDUMP_DETAILED",
                 "label": "Detailed Output",
                 "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
                 "type": "BOOL",
@@ -49,6 +51,7 @@
             },
             {
                 "key": "no_addr",
+                "env": "VK_APIDUMP_NO_ADDR",
                 "label": "Hide Addresses",
                 "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
                 "type": "BOOL",
@@ -63,6 +66,7 @@
             },
             {
                 "key": "log_filename",
+                "env": "VK_APIDUMP_LOG_FILENAME",
                 "label": "Log Filename",
                 "description": "Specifies the file to dump to when output files are enabled",
                 "type": "SAVE_FILE",
@@ -71,6 +75,7 @@
             },
             {
                 "key": "flush",
+                "env": "VK_APIDUMP_FLUSH",
                 "label": "Log Flush After Write",
                 "description": "Setting this to true causes IO to be flushed after each API call that is written",
                 "type": "BOOL",
@@ -113,6 +118,7 @@
             },
             {
                 "key": "show_timestamp",
+                "env": "VK_APIDUMP_TIMESTAMP",
                 "label": "Show Timestamp",
                 "description": "Show the timestamp of function calls since start in microseconds",
                 "type": "BOOL",
@@ -127,6 +133,7 @@
             },
             {
                 "key": "output_range",
+                "env": "VK_APIDUMP_OUTPUT_RANGE",
                 "label": "Output Range",
                 "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
                 "type": "STRING",

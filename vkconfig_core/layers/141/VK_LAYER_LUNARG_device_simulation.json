@@ -19,6 +19,7 @@
         "settings": [
             {
                 "key": "filename",
+                "env": "VK_DEVSIM_FILENAME",
                 "label": "Devsim JSON configuration file",
                 "description": "Path of a devsim configuration file to load.",
                 "type": "LOAD_FILE",
@@ -27,6 +28,7 @@
             },
             {
                 "key": "debug_enable",
+                "env": "VK_DEVSIM_DEBUG_ENABLE",
                 "label": "Debug Enable",
                 "description": "Enables debug message output.",
                 "type": "BOOL_NUMERIC",
@@ -34,6 +36,7 @@
             },
             {
                 "key": "exit_on_error",
+                "env": "VK_DEVSIM_EXIT_ON_ERROR",
                 "label": "Exit on Error",
                 "description": "Enables exit-on-error.",
                 "type": "BOOL_NUMERIC",

@@ -279,6 +279,9 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
             }
 
             LoadMetaHeader(*meta, json_setting);
+            if (json_setting.value("env") != QJsonValue::Undefined) {
+                meta->env = ReadStringValue(json_setting, "env");
+            }
 
             settings.data.push_back(meta);
 
