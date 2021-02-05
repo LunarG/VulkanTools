@@ -427,11 +427,11 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
 
         QJsonArray json_settings;
-        for (std::size_t j = 0, m = parameter.settings.data.size(); j < m; ++j) {
-            SettingData& setting_data = *parameter.settings.data[j];
+        for (std::size_t j = 0, m = parameter.settings.Size(); j < m; ++j) {
+            const SettingData& setting_data = parameter.settings[j];
 
             QJsonObject json_setting;
-            json_setting.insert("key", parameter.settings.data[j]->key.c_str());
+            json_setting.insert("key", parameter.settings[j].key.c_str());
             json_setting.insert("type", GetSettingToken(setting_data.type));
 
             switch (setting_data.type) {
@@ -440,31 +440,31 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
                 case SETTING_SAVE_FOLDER:
                 case SETTING_ENUM:
                 case SETTING_STRING: {
-                    json_setting.insert("value", static_cast<SettingDataString&>(setting_data).value.c_str());
+                    json_setting.insert("value", static_cast<const SettingDataString&>(setting_data).value.c_str());
                     break;
                 }
                 case SETTING_INT: {
-                    json_setting.insert("value", static_cast<SettingDataInt&>(setting_data).value);
+                    json_setting.insert("value", static_cast<const SettingDataInt&>(setting_data).value);
                     break;
                 }
                 case SETTING_INT_RANGE: {
                     QJsonObject json_range_object;
-                    json_range_object.insert("min", static_cast<SettingDataIntRange&>(setting_data).min_value);
-                    json_range_object.insert("max", static_cast<SettingDataIntRange&>(setting_data).max_value);
+                    json_range_object.insert("min", static_cast<const SettingDataIntRange&>(setting_data).min_value);
+                    json_range_object.insert("max", static_cast<const SettingDataIntRange&>(setting_data).max_value);
                     json_setting.insert("value", json_range_object);
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED:
                 case SETTING_BOOL: {
-                    json_setting.insert("value", static_cast<SettingDataBool&>(setting_data).value);
+                    json_setting.insert("value", static_cast<const SettingDataBool&>(setting_data).value);
                     break;
                 }
                 case SETTING_VUID_FILTER:
                 case SETTING_FLAGS: {
                     QJsonArray json_array;
 
-                    for (std::size_t i = 0, n = static_cast<SettingDataVector&>(setting_data).value.size(); i < n; ++i) {
-                        json_array.append(static_cast<SettingDataVector&>(setting_data).value[i].c_str());
+                    for (std::size_t i = 0, n = static_cast<const SettingDataVector&>(setting_data).value.size(); i < n; ++i) {
+                        json_array.append(static_cast<const SettingDataVector&>(setting_data).value[i].c_str());
                     }
 
                     json_setting.insert("value", json_array);

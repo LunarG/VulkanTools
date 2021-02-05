@@ -38,13 +38,13 @@ const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char
 }
 
 bool HasPreset(const SettingDataSet& layer_settings, const SettingDataSet& preset_settings) {
-    if (preset_settings.data.empty()) return false;
+    if (preset_settings.Empty()) return false;
 
-    for (std::size_t preset_index = 0, preset_count = preset_settings.data.size(); preset_index < preset_count; ++preset_index) {
-        const SettingData* layer_setting = layer_settings.Get(preset_settings.data[preset_index]->key.c_str());
+    for (std::size_t preset_index = 0, preset_count = preset_settings.Size(); preset_index < preset_count; ++preset_index) {
+        const SettingData* layer_setting = layer_settings.Get(preset_settings[preset_index].key.c_str());
         if (layer_setting == nullptr) return false;
 
-        if (*preset_settings.data[preset_index] != *layer_setting) return false;
+        if (preset_settings[preset_index] != *layer_setting) return false;
     }
 
     return true;

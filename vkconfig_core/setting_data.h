@@ -21,6 +21,7 @@
 #pragma once
 
 #include "setting_type.h"
+#include "setting_set.h"
 #include "util.h"
 #include "path.h"
 
@@ -28,12 +29,8 @@
 #include <vector>
 #include <memory>
 
-class SettingData {
-   protected:
-    SettingData(const std::string& key, const SettingType type);
-
-   public:
-    virtual SettingData& operator=(const SettingData& setting_data) = 0;
+struct SettingData {
+    SettingData& operator=(const SettingData& other);
 
     bool operator==(const SettingData& other) const { return this->Equal(other); }
     bool operator!=(const SettingData& other) const { return !this->Equal(other); }
@@ -42,29 +39,22 @@ class SettingData {
     const SettingType type;
 
    protected:
+    SettingData(const std::string& key, const SettingType type);
+
     virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other) = 0;
 };
 
 struct SettingDataBool : public SettingData {
-   protected:
-    SettingDataBool(const std::string& key, const SettingType type) : SettingData(key, type), value(false) {}
-
-   public:
     SettingDataBool(const std::string& key) : SettingData(key, SETTING_BOOL), value(false) {}
-    SettingDataBool(const std::string& key, const bool& value) : SettingData(key, SETTING_BOOL), value(value) {}
-
-    virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->type == setting_data.type);
-
-        const SettingDataBool& setting_data_typed = static_cast<const SettingDataBool&>(setting_data);
-        this->value = setting_data_typed.value;
-        return *this;
-    }
 
     bool value;
 
    protected:
+    SettingDataBool(const std::string& key, const SettingType type) : SettingData(key, type), value(false) {}
+
     virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other);
 };
 
 struct SettingDataBoolNumeric : public SettingDataBool {
@@ -72,43 +62,25 @@ struct SettingDataBoolNumeric : public SettingDataBool {
 };
 
 struct SettingDataInt : public SettingData {
-    SettingDataInt(const std::string& key) : SettingData(key, SETTING_INT), value(-1) {}
-    SettingDataInt(const std::string& key, const int& value) : SettingData(key, SETTING_INT), value(value) {}
-
-    virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->type == setting_data.type);
-
-        const SettingDataInt& setting_data_typed = static_cast<const SettingDataInt&>(setting_data);
-        this->value = setting_data_typed.value;
-        return *this;
-    }
+    SettingDataInt(const std::string& key) : SettingData(key, SETTING_INT), value(0) {}
 
     int value;
 
    protected:
     virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other);
 };
 
 struct SettingDataString : public SettingData {
-   protected:
-    SettingDataString(const std::string& key, const SettingType type) : SettingData(key, type) {}
-
-   public:
-    SettingDataString(const std::string& key, const std::string& value) : SettingData(key, SETTING_STRING), value(value) {}
     SettingDataString(const std::string& key) : SettingDataString(key, SETTING_STRING) {}
-
-    virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->type == setting_data.type);
-
-        const SettingDataString& setting_data_typed = static_cast<const SettingDataString&>(setting_data);
-        this->value = setting_data_typed.value;
-        return *this;
-    }
 
     std::string value;
 
    protected:
+    SettingDataString(const std::string& key, const SettingType type) : SettingData(key, type) {}
+
     virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other);
 };
 
 struct SettingDataEnum : public SettingDataString {
@@ -127,43 +99,25 @@ struct SettingDataFolderSave : public SettingDataString {
     SettingDataFolderSave(const std::string& key) : SettingDataString(key, SETTING_SAVE_FOLDER) {}
 };
 
-class SettingDataIntRange : public SettingData {
-   public:
-    SettingDataIntRange(const std::string& key) : SettingData(key, SETTING_INT_RANGE) {}
-
-    virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->type == setting_data.type);
-
-        const SettingDataIntRange& setting_data_typed = static_cast<const SettingDataIntRange&>(setting_data);
-        this->min_value = setting_data_typed.min_value;
-        this->max_value = setting_data_typed.max_value;
-        return *this;
-    }
+struct SettingDataIntRange : public SettingData {
+    SettingDataIntRange(const std::string& key) : SettingData(key, SETTING_INT_RANGE), min_value(0), max_value(0) {}
 
     int min_value;
     int max_value;
 
    protected:
     virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other);
 };
 
-class SettingDataVector : public SettingData {
-   protected:
-    SettingDataVector(const std::string& key, const SettingType type) : SettingData(key, type) {}
-
-   public:
-    virtual SettingData& operator=(const SettingData& setting_data) {
-        assert(this->type == setting_data.type);
-
-        const SettingDataVector& setting_data_vector = static_cast<const SettingDataVector&>(setting_data);
-        this->value = setting_data_vector.value;
-        return *this;
-    }
-
+struct SettingDataVector : public SettingData {
     std::vector<std::string> value;
 
    protected:
+    SettingDataVector(const std::string& key, const SettingType type) : SettingData(key, type) {}
+
     virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other);
 };
 
 struct SettingDataVUIDFilter : public SettingDataVector {
@@ -174,12 +128,4 @@ struct SettingDataFlags : public SettingDataVector {
     SettingDataFlags(const std::string& key) : SettingDataVector(key, SETTING_FLAGS) {}
 };
 
-class SettingDataSet {
-   public:
-    SettingData& Create(const std::string& key, SettingType type);
-    SettingData* Get(const char* key);
-    const SettingData* Get(const char* key) const;
-    bool Empty() const { return this->data.empty(); }
-
-    std::vector<std::shared_ptr<SettingData> > data;
-};
+typedef SettingSet<SettingData> SettingDataSet;

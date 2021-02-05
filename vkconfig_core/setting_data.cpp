@@ -20,7 +20,14 @@
 
 #include "setting_data.h"
 
+#include <cassert>
+
 SettingData::SettingData(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
+
+SettingData& SettingData::operator=(const SettingData& other) {
+    this->Assign(other);
+    return *this;
+}
 
 bool SettingData::Equal(const SettingData& other) const {
     if (this->key != other.key)
@@ -36,10 +43,24 @@ bool SettingDataBool::Equal(const SettingData& other) const {
     return this->value == static_cast<const SettingDataBool&>(other).value;
 }
 
+SettingData& SettingDataBool::Assign(const SettingData& other) {
+    assert(this->type == other.type);
+
+    this->value = static_cast<const SettingDataBool&>(other).value;
+    return *this;
+}
+
 bool SettingDataInt::Equal(const SettingData& other) const {
     if (!SettingData::Equal(other)) return false;
 
     return this->value == static_cast<const SettingDataInt&>(other).value;
+}
+
+SettingData& SettingDataInt::Assign(const SettingData& other) {
+    assert(this->type == other.type);
+
+    this->value = static_cast<const SettingDataInt&>(other).value;
+    return *this;
 }
 
 bool SettingDataString::Equal(const SettingData& other) const {
@@ -48,12 +69,27 @@ bool SettingDataString::Equal(const SettingData& other) const {
     return this->value == static_cast<const SettingDataString&>(other).value;
 }
 
+SettingData& SettingDataString::Assign(const SettingData& other) {
+    assert(this->type == other.type);
+
+    this->value = static_cast<const SettingDataString&>(other).value;
+    return *this;
+}
+
 bool SettingDataIntRange::Equal(const SettingData& other) const {
     if (!SettingData::Equal(other)) return false;
 
     const SettingDataIntRange& data = static_cast<const SettingDataIntRange&>(other);
 
     return this->min_value == data.min_value && this->max_value == data.max_value;
+}
+
+SettingData& SettingDataIntRange::Assign(const SettingData& other) {
+    assert(this->type == other.type);
+
+    this->min_value = static_cast<const SettingDataIntRange&>(other).min_value;
+    this->max_value = static_cast<const SettingDataIntRange&>(other).max_value;
+    return *this;
 }
 
 bool SettingDataVector::Equal(const SettingData& other) const {
@@ -70,71 +106,9 @@ bool SettingDataVector::Equal(const SettingData& other) const {
     return true;
 }
 
-std::shared_ptr<SettingData> CreateSettingData(const std::string& key, SettingType type) {
-    assert(!key.empty());
+SettingData& SettingDataVector::Assign(const SettingData& other) {
+    assert(this->type == other.type);
 
-    switch (type) {
-        case SETTING_STRING:
-            return std::shared_ptr<SettingData>(new SettingDataString(key));
-        case SETTING_INT:
-            return std::shared_ptr<SettingData>(new SettingDataInt(key));
-        case SETTING_SAVE_FILE:
-            return std::shared_ptr<SettingData>(new SettingDataFileSave(key));
-        case SETTING_LOAD_FILE:
-            return std::shared_ptr<SettingData>(new SettingDataFileLoad(key));
-        case SETTING_SAVE_FOLDER:
-            return std::shared_ptr<SettingData>(new SettingDataFolderSave(key));
-        case SETTING_BOOL:
-            return std::shared_ptr<SettingData>(new SettingDataBool(key));
-        case SETTING_BOOL_NUMERIC_DEPRECATED:
-            return std::shared_ptr<SettingData>(new SettingDataBoolNumeric(key));
-        case SETTING_ENUM:
-            return std::shared_ptr<SettingData>(new SettingDataEnum(key));
-        case SETTING_FLAGS:
-            return std::shared_ptr<SettingData>(new SettingDataFlags(key));
-        case SETTING_INT_RANGE:
-            return std::shared_ptr<SettingData>(new SettingDataIntRange(key));
-        case SETTING_VUID_FILTER:
-            return std::shared_ptr<SettingData>(new SettingDataVUIDFilter(key));
-        default:
-            assert(0);
-            return std::shared_ptr<SettingData>();
-    }
-}
-
-SettingData& SettingDataSet::Create(const std::string& key, SettingType type) {
-    assert(!key.empty());
-    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
-
-    // Find existing setting, avoid duplicated setting
-    {
-        SettingData* setting_data = this->Get(key.c_str());
-        if (setting_data != nullptr) {
-            return *setting_data;
-        }
-    }
-
-    // Create a new setting
-    {
-        this->data.push_back(CreateSettingData(key, type));
-        SettingData* setting_data = this->Get(key.c_str());
-        assert(setting_data != nullptr);
-        return *setting_data;
-    }
-}
-
-SettingData* SettingDataSet::Get(const char* key) {
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (this->data[i]->key == key) return this->data[i].get();
-    }
-
-    return nullptr;
-}
-
-const SettingData* SettingDataSet::Get(const char* key) const {
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (this->data[i]->key == key) return this->data[i].get();
-    }
-
-    return nullptr;
+    this->value = static_cast<const SettingDataVector&>(other).value;
+    return *this;
 }

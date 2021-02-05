@@ -30,8 +30,8 @@
 #include <algorithm>
 
 bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
-    for (std::size_t preset_index = 0, preset_count = preset.settings.data.size(); preset_index < preset_count; ++preset_index) {
-        const SettingData& preset_setting = *preset.settings.data[preset_index];
+    for (std::size_t preset_index = 0, preset_count = preset.settings.Size(); preset_index < preset_count; ++preset_index) {
+        const SettingData& preset_setting = preset.settings[preset_index];
 
         SettingData& layer_setting = this->settings.Create(preset_setting.key, preset_setting.type);
 
