@@ -10,7 +10,7 @@ These tools have binaries included within the [Vulkan SDK](https://www.lunarg.co
 ## CI Build Status
 | Platform | Build Status |
 |:--------:|:------------:|
-| Linux/Android | [![Build Status](https://travis-ci.com/LunarG/VulkanTools.svg?branch=master)](https://travis-ci.com/LunarG/VulkanTools) |
+| Linux/Android | [![Build Status](https://github.com/LunarG/VulkanTools/workflows/CI/badge.svg?branch=actions-test&event=push)](https://github.com/LunarG/VulkanTools/actions) |
 | Windows | [![Build status](https://ci.appveyor.com/api/projects/status/2ncmy766ufb2hnh2/branch/master?svg=true)](https://ci.appveyor.com/project/karl-lunarg/vulkantools/branch/master) |
 
 ## Contributing
