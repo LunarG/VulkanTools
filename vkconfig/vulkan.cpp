@@ -61,11 +61,11 @@ static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLa
     const std::vector<std::string> &user_defined_layer_paths =
         Configurator::Get().environment.GetUserDefinedLayersPaths(custom_layer_path);
     if (!user_defined_layer_paths.empty()) {
-        log += format("- Used-Defined Layers Paths from %s:\n", label);
+        log += format("- User-Defined Layers Paths from %s:\n", label);
         for (std::size_t i = 0, n = user_defined_layer_paths.size(); i < n; ++i)
             log += format("    - %s\n", user_defined_layer_paths[i].c_str());
     } else
-        log += format("- Used-Defined Layers Paths from %s: None\n", label);
+        log += format("- User-Defined Layers Paths from %s: None\n", label);
 
     return log;
 }
