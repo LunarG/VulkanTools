@@ -324,6 +324,9 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 
             SettingData& setting_data = settings.Create(setting_key, setting_type);
 
+            // Configuration type and layer type are differents, use layer default value
+            if (setting_data.type != setting_type) continue;
+
             switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE:
