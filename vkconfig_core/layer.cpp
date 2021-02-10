@@ -36,7 +36,9 @@
 static std::string GetBuiltinFolder(const Version& version) {
     const std::uint32_t vulkan_version = std::max(static_cast<std::uint32_t>(130), version.GetPatch());
 
-    if (vulkan_version <= 162)
+    if (vulkan_version < 135)
+        return ":/layers/130";
+    else if (vulkan_version <= 162)
         return format(":/layers/%d", vulkan_version).c_str();
     else
         return ":/layers/latest";
