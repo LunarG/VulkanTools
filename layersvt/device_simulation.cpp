@@ -1340,6 +1340,24 @@ static void GetDevSimFilename() {
     }
 }
 
+static int GetBooleanValue(const std::string &value) {
+    std::string temp = value;
+    std::transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+
+    if (value.empty())
+        return 0;
+    else if (temp == "true")
+        return 1;
+    else if (temp == "false")
+        return 0;
+    else
+#if defined(__ANDROID__)
+        return atoi(temp.c_str());
+#else
+        return std::atoi(temp.c_str());
+#endif
+}
+
 // Fill the debugLevel variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimDebugLevel() {
@@ -1350,11 +1368,7 @@ static void GetDevSimDebugLevel() {
         debug_setting = env_var;
         debugLevel.fromEnvVar = true;
     }
-#if defined(__ANDROID__)
-    debugLevel.num = atoi(debug_setting.c_str());
-#else
-    debugLevel.num = std::atoi(debug_setting.c_str());
-#endif
+    debugLevel.num = GetBooleanValue(debug_setting);
 }
 
 // Fill the errorLevel variable with a value from either vk_layer_settings.txt or environment variables.
@@ -1367,11 +1381,7 @@ static void GetDevSimErrorLevel() {
         error_setting = env_var;
         errorLevel.fromEnvVar = true;
     }
-#if defined(__ANDROID__)
-    errorLevel.num = atoi(error_setting.c_str());
-#else
-    errorLevel.num = std::atoi(error_setting.c_str());
-#endif
+    errorLevel.num = GetBooleanValue(error_setting);
 }
 
 // Fill the emulatePortability variable with a value from either vk_layer_settings.txt or environment variables.
@@ -1384,11 +1394,7 @@ static void GetDevSimEmulatePortability() {
         emulate_portability = env_var;
         emulatePortability.fromEnvVar = true;
     }
-#if defined(__ANDROID__)
-    emulatePortability.num = atoi(emulate_portability.c_str());
-#else
-    emulatePortability.num = std::atoi(emulate_portability.c_str());
-#endif
+    emulatePortability.num = GetBooleanValue(emulate_portability);
 }
 
 // Fill the modifyExtensionList variable with a value from either vk_layer_settings.txt or environment variables.
@@ -1401,11 +1407,7 @@ static void GetDevSimModifyExtensionList() {
         modify_extension_list = env_var;
         modifyExtensionList.fromEnvVar = true;
     }
-#if defined(__ANDROID__)
-    modifyExtensionList.num = atoi(modify_extension_list.c_str());
-#else
-    modifyExtensionList.num = std::atoi(modify_extension_list.c_str());
-#endif
+    modifyExtensionList.num = GetBooleanValue(modify_extension_list);
 }
 
 // Generic layer dispatch table setup, see [LALI].
@@ -1750,7 +1752,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
+                                                        VkPhysicalDevice *pPhysicalDevices) {
     // Our layer-specific initialization...
 
     // TODO (ncesario): Probably want to use a different way to check this. Could possibly use (pPhysicalDevices != nullptr)?
@@ -1760,7 +1763,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
     const auto dt = instance_dispatch_table(instance);
     VkResult result = dt->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 
-    // HACK!! epd_count is used to ensure the following code only gets called _after_ vkCreateInstance finishes *in the "vkcube + devsim" use case*
+    // HACK!! epd_count is used to ensure the following code only gets called _after_ vkCreateInstance finishes *in the "vkcube +
+    // devsim" use case*
     if (!pdd_initialized && (VK_SUCCESS == result)) {
         std::vector<VkPhysicalDevice> physical_devices;
         result = EnumerateAll<VkPhysicalDevice>(&physical_devices, [&](uint32_t *count, VkPhysicalDevice *results) {
@@ -1898,7 +1902,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
     return EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) {
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
+                                                                          VkPhysicalDevice *pPhysicalDevices) {
     return EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 }
 

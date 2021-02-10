@@ -81,7 +81,7 @@
                 "env": "VK_DEVSIM_DEBUG_ENABLE",
                 "label": "Debug Enable",
                 "description": "Enables debug message output.",
-                "type": "BOOL_NUMERIC",
+                "type": "BOOL",
                 "default": true
             },
             {
@@ -89,7 +89,11 @@
                 "env": "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION",
                 "label": "Emulate VK_KHR_portability_subset",
                 "description": "Emulate that VK_KHR_portability_subset extension is supported by the device.",
-                "type": "BOOL_NUMERIC",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ],
+                "type": "BOOL",
                 "default": true
             },
             {
@@ -97,15 +101,15 @@
                 "env": "VK_DEVSIM_EXIT_ON_ERROR",
                 "label": "Exit on Error",
                 "description": "Enables exit-on-error.",
-                "type": "BOOL_NUMERIC",
+                "type": "BOOL",
                 "default": false
             },
             {
                 "key": "modify_extension_list",
                 "env": "VK_DEVSIM_MODIFY_EXTENSION_LIST",
-                "label": "Modify device entionsions list",
+                "label": "Modify Device Extension list",
                 "description": "Modify the device extensions list from the layer JSON config file.",
-                "type": "BOOL_NUMERIC",
+                "type": "BOOL",
                 "default": false
             }
         ]
