@@ -37,7 +37,12 @@ class SettingSet {
         {
             T* setting = this->Get(key.c_str());
             if (setting != nullptr) {
-                return *setting;
+                if (setting->type == type)
+                    return *setting;
+                else {
+                    Remove(key.c_str());
+                    return Create(key, type);
+                }
             }
         }
 
@@ -77,6 +82,16 @@ class SettingSet {
     }
 
    private:
+    void Remove(const char* key) {
+        std::vector<std::shared_ptr<T> > new_data;
+        for (std::size_t i = 0, n = data.size(); i < n; ++i) {
+            if (data[i]->key == key) continue;
+            new_data.push_back(data[i]);
+        }
+
+        std::swap(new_data, data);
+    }
+
     std::shared_ptr<T> AllocSetting(const std::string& key, SettingType type) const;
 
     std::vector<std::shared_ptr<T> > data;
