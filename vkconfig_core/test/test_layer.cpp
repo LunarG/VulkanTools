@@ -353,46 +353,6 @@ TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
     EXPECT_EQ(true, setting_meta->default_value);
 }
 
-TEST(test_layer, load_1_4_0_setting_bool_numeric_required_only) {
-    Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
-    ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
-
-    SettingMetaBoolNumeric* setting_meta = dynamic_cast<SettingMetaBoolNumeric*>(layer.settings.Get("bool_numeric_required_only"));
-    ASSERT_TRUE(setting_meta);
-
-    EXPECT_STREQ("bool_numeric_required_only", setting_meta->key.c_str());
-    EXPECT_EQ(SETTING_BOOL_NUMERIC_DEPRECATED, setting_meta->type);
-    EXPECT_STREQ("bool numeric deprecated", setting_meta->label.c_str());
-    EXPECT_STREQ("1 or 0", setting_meta->description.c_str());
-    EXPECT_TRUE(setting_meta->url.empty());
-    EXPECT_EQ(STATUS_STABLE, setting_meta->status);
-    EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
-
-    EXPECT_EQ(true, setting_meta->default_value);
-}
-
-TEST(test_layer, load_1_4_0_setting_bool_numeric_with_optional) {
-    Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
-    ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
-
-    SettingMetaBoolNumeric* setting_meta = dynamic_cast<SettingMetaBoolNumeric*>(layer.settings.Get("bool_numeric_with_optional"));
-    ASSERT_TRUE(setting_meta);
-
-    EXPECT_STREQ("bool_numeric_with_optional", setting_meta->key.c_str());
-    EXPECT_EQ(SETTING_BOOL_NUMERIC_DEPRECATED, setting_meta->type);
-    EXPECT_STREQ("bool numeric deprecated", setting_meta->label.c_str());
-    EXPECT_STREQ("1 or 0", setting_meta->description.c_str());
-    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool_numeric", setting_meta->url.c_str());
-    EXPECT_EQ(STATUS_DEPRECATED, setting_meta->status);
-    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
-
-    EXPECT_EQ(true, setting_meta->default_value);
-}
-
 TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
