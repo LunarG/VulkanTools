@@ -68,7 +68,7 @@ namespace {
 // layersvt/{linux,windows}/VkLayer_device_simulation*.json
 
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 4;
+const uint32_t kVersionDevsimMinor = 5;
 const uint32_t kVersionDevsimPatch = 1;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
@@ -296,6 +296,8 @@ const char *const kEnvarDevsimEmulatePortability =
                                                // extension.
 const char *const kEnvarDevsimModifyExtensionList =
     "debug.vulkan.devsim.modifyextensionlist";  // a non-zero integer will enable modifying device extensions list.
+const char *const kEnvarDevsimModifyMemoryFlags =
+    "debug.vulkan.devsim.modifymemoryflags";  // a non-zero integer will enable modifying device memory flags.
 #else
 const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // path of the configuration file(s) to load.
 const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non-zero integer will enable debugging output.
@@ -305,6 +307,8 @@ const char *const kEnvarDevsimEmulatePortability =
                                                        // extension.
 const char *const kEnvarDevsimModifyExtensionList =
     "VK_DEVSIM_MODIFY_EXTENSION_LIST";  // a non-zero integer will enable modifying device extensions list.
+const char *const kEnvarDevsimModifyMemoryFlags =
+    "VK_DEVSIM_MODIFY_MEMORY_FLAGS";  // a non-zero integer will enable modifying device memory flags.
 #endif
 
 const char *const kLayerSettingsDevsimFilename =
@@ -318,6 +322,9 @@ const char *const kLayerSettingsDevsimEmulatePortability =
 
 const char *const kLayerSettingsDevsimModifyExtensionList =
     "lunarg_device_simulation.modify_extension_list";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyExtensionList
+
+const char *const kLayerSettingsDevsimModifyMemoryFlags =
+    "lunarg_device_simulation.modify_memory_flags";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyMemoryFlags
 
 struct IntSetting {
     int num;
@@ -334,6 +341,7 @@ struct IntSetting debugLevel;
 struct IntSetting errorLevel;
 struct IntSetting emulatePortability;
 struct IntSetting modifyExtensionList;
+struct IntSetting modifyMemoryFlags;
 
 // Various small utility functions ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1410,6 +1418,19 @@ static void GetDevSimModifyExtensionList() {
     modifyExtensionList.num = GetBooleanValue(modify_extension_list);
 }
 
+// Fill the modifyMemoryFlags variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void GetDevSimModifyMemoryFlags() {
+    std::string modify_memory_flags = getLayerOption(kLayerSettingsDevsimModifyMemoryFlags);
+    modifyMemoryFlags.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimModifyMemoryFlags);
+    if (!env_var.empty()) {
+        modify_memory_flags = env_var;
+        modifyMemoryFlags.fromEnvVar = true;
+    }
+    modifyMemoryFlags.num = GetBooleanValue(modify_memory_flags);
+}
+
 // Generic layer dispatch table setup, see [LALI].
 static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                          VkInstance *pInstance) {
@@ -1418,6 +1439,7 @@ static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo
     GetDevSimDebugLevel();
     GetDevSimErrorLevel();
     GetDevSimModifyExtensionList();
+    GetDevSimModifyMemoryFlags();
 
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo);
@@ -1641,7 +1663,19 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice ph
     // Are there JSON overrides, or should we call down to return the original values?
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
     if (pdd) {
-        *pMemoryProperties = pdd->physical_device_memory_properties_;
+        if (modifyMemoryFlags.num > 0) {
+            *pMemoryProperties = pdd->physical_device_memory_properties_;
+        } else {
+            dt->GetPhysicalDeviceMemoryProperties(physicalDevice, pMemoryProperties);
+            uint32_t min_memory_heap_count =
+                pMemoryProperties->memoryHeapCount < pdd->physical_device_memory_properties_.memoryHeapCount
+                    ? pMemoryProperties->memoryHeapCount
+                    : pdd->physical_device_memory_properties_.memoryHeapCount;
+            pMemoryProperties->memoryHeapCount = min_memory_heap_count;
+            for (uint32_t i = 0; i < min_memory_heap_count; i++) {
+                pMemoryProperties->memoryHeaps[i].size = pdd->physical_device_memory_properties_.memoryHeaps[i].size;
+            }
+        }
     } else {
         dt->GetPhysicalDeviceMemoryProperties(physicalDevice, pMemoryProperties);
     }

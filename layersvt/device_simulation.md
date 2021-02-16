@@ -159,6 +159,7 @@ DevSim config files that use this feature should validate to the portability spe
 | `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | debug.vulkan.devsim.exitonerror | A non-zero integer enables exit-on-error. |
 | `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | debug.vulkan.devsim.emulateportability | A non-zero integer enables emulation of the `VK_KHR_portability_subset` extension. |
 | `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | debug.vulkan.devsim.modifyextensionlist | A non-zero integer enables modification of the device extensions list from the JSON config file. |
+| `VK_DEVSIM_MODIFY_MEMORY_FLAGS` | `lunarg_device_simulation.modify_memory_flags` | debug.vulkan.devsim.modifymemoryflags | A non-zero integer enables modification of the device memory heap flags and memory type flags from the JSON config file. |
 
 **Note:** Environment variables take precedence over `vk_layer_settings.txt` options.
 
