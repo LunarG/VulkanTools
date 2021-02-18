@@ -30,11 +30,6 @@
 #include <QMessageBox>
 #include <QCheckBox>
 
-static bool HasShaderBased(const Version &version) {
-    if (VKC_PLATFORM & VKC_PLATFORM_MACOS) return version > Version(1, 2, 162);
-    return true;
-}
-
 // Keep track of tree/setting correlations
 struct TreeSettings {
     const char *prompt;
@@ -68,6 +63,12 @@ static TreeSettings best_practices[] = {
 
 static TreeSettings sync_checks[] = {
     {"Synchronization", "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT", "", nullptr}};
+
+static bool IsSupported(const std::vector<SettingEnumValue> &values, const char *key) {
+    const SettingEnumValue *value = FindByKey(values, key);
+    if (value == nullptr) return false;
+    return (value->platform_flags & (1 << VKC_PLATFORM)) != 0;
+}
 
 SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent, const Version &version,
                                                  const SettingMetaSet &settings_meta, SettingDataSet &settings_data)
@@ -131,8 +132,9 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     const bool has_gpu_assisted = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
     const bool shader_based = has_debug_printf || has_gpu_assisted;
 
-    if (HasShaderBased(version)) {
-        if (IsFound(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
+    if (IsSupported(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
+        IsSupported(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT")) {
+        if (IsSupported(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT")) {
             _shader_based_box = new QTreeWidgetItem();
             _shader_based_box->setText(0, "Shader-Based");
             _shader_based_box->setCheckState(0, shader_based ? Qt::Checked : Qt::Unchecked);
@@ -229,7 +231,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     }
 
     // Synchronization
-    if (IsFound(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT")) {
+    if (IsSupported(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT")) {
         const bool synchronization = HasEnable("VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT");
         _synchronization_box = new QTreeWidgetItem();
         _synchronization_box->setText(0, sync_checks[0].prompt);
@@ -253,7 +255,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     best_practices[0].item = item;
 
     // ARM best practices
-    if (IsFound(setting_meta_enables->enum_values, "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM")) {
+    if (IsSupported(setting_meta_enables->enum_values, "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM")) {
         QTreeWidgetItem *core_child_item = new QTreeWidgetItem();
         core_child_item->setText(0, best_practices[1].prompt);
         core_child_item->setToolTip(
@@ -267,7 +269,8 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
     connect(_main_tree_widget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
     connect(_main_tree_widget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(itemClicked(QTreeWidgetItem *, int)));
 
-    if (HasShaderBased(version)) {
+    if (IsSupported(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT") ||
+        IsSupported(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT")) {
         connect(_gpu_assisted_radio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
         connect(_debug_printf_radio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
         connect(_debug_printf_buffer_size_value, SIGNAL(textEdited(const QString &)), this,
