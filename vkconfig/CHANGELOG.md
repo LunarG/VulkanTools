@@ -20,7 +20,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.2.0 for Vulkan SDK 1.2.169.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.169.0) - February 2021
+## [Vulkan Configurator 2.2.0 for Vulkan SDK 1.2.170.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.170.0) - February 2021
 
 ### Features:
 - Add *Synchronization* default configuration #1304
