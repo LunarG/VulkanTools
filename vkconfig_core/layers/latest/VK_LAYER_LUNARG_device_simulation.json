@@ -111,6 +111,14 @@
                 "description": "Modify the device extensions list from the layer JSON config file.",
                 "type": "BOOL",
                 "default": false
+            },
+            {
+                "key": "modify_memory_flags",
+                "env": "VK_DEVSIM_MODIFY_MEMORY_FLAGS",
+                "label": "Modify Device Extension list",
+                "description": "Modify the device memory heap flags and memory type flags from the JSON config file.",
+                "type": "BOOL",
+                "default": false
             }
         ]
     }

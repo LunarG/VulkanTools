@@ -152,14 +152,14 @@ DevSim config files that use this feature should validate to the portability spe
 
 ### DevSim Layer Options
 
-| Environment Variable | `vk_layer_settings.txt` Option | Android Option | Description |
-|:--------------------:|:----------------------------:|:--------------:|:-----------:|
-| `VK_DEVSIM_FILENAME` | `lunarg_device_simulation.filename` | `debug.vulkan.devsim.filepath` | Name of one or more configuration file(s) to load. _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`. Files are loaded in order.  Later files can override settings from earlier files.|
-| `VK_DEVSIM_DEBUG_ENABLE` | `lunarg_device_simulation.debug_enable` | debug.vulkan.devsim.debugenable | A non-zero integer enables debug message output. |
-| `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | debug.vulkan.devsim.exitonerror | A non-zero integer enables exit-on-error. |
-| `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | debug.vulkan.devsim.emulateportability | A non-zero integer enables emulation of the `VK_KHR_portability_subset` extension. |
-| `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | debug.vulkan.devsim.modifyextensionlist | A non-zero integer enables modification of the device extensions list from the JSON config file. |
-| `VK_DEVSIM_MODIFY_MEMORY_FLAGS` | `lunarg_device_simulation.modify_memory_flags` | debug.vulkan.devsim.modifymemoryflags | A non-zero integer enables modification of the device memory heap flags and memory type flags from the JSON config file. |
+| Environment Variable | `vk_layer_settings.txt` Option | Android Option | Default | Description |
+|:--------------------:|:----------------------------:|:--------------:|:-----------:|:--------------:|
+| `VK_DEVSIM_FILENAME` | `lunarg_device_simulation.filename` | `debug.vulkan.devsim.filepath` | Not Set | Name of one or more configuration file(s) to load. _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`. Files are loaded in order.  Later files can override settings from earlier files.|
+| `VK_DEVSIM_DEBUG_ENABLE` | `lunarg_device_simulation.debug_enable` | debug.vulkan.devsim.debugenable | false | Enables debug message output. |
+| `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | debug.vulkan.devsim.exitonerror | false | Enables exit-on-error. |
+| `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | debug.vulkan.devsim.emulateportability | true | Enables emulation of the `VK_KHR_portability_subset` extension. |
+| `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | debug.vulkan.devsim.modifyextensionlist | false | Enables modification of the device extensions list from the JSON config file. |
+| `VK_DEVSIM_MODIFY_MEMORY_FLAGS` | `lunarg_device_simulation.modify_memory_flags` | debug.vulkan.devsim.modifymemoryflags | false | Enables modification of the device memory heap flags and memory type flags from the JSON config file. |
 
 **Note:** Environment variables take precedence over `vk_layer_settings.txt` options.
 
