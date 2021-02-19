@@ -578,6 +578,9 @@ class PhysicalDeviceData {
     ArrayOfVkLayerProperties arrayof_layer_properties_;
     ArrayOfVkExtensionProperties arrayof_extension_properties_;
 
+    // VK_KHR_16bit_storage structs
+    VkPhysicalDevice16BitStorageFeaturesKHR physical_device_16bit_storage_features_;
+
     // VK_KHR_portability_subset structs
     VkPhysicalDevicePortabilitySubsetPropertiesKHR physical_device_portability_subset_properties_;
     VkPhysicalDevicePortabilitySubsetFeaturesKHR physical_device_portability_subset_features_;
@@ -589,6 +592,11 @@ class PhysicalDeviceData {
         physical_device_properties_ = {};
         physical_device_features_ = {};
         physical_device_memory_properties_ = {};
+
+        // VK_KHR_16bit_storage structs
+        physical_device_16bit_storage_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR};
+
+        // VK_KHR_portability_subset structs
         physical_device_portability_subset_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR};
         physical_device_portability_subset_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR};
     }
@@ -618,6 +626,7 @@ class JsonLoader {
     enum class SchemaId {
         kUnknown = 0,
         kDevsim100,
+        kDevsim16BitStorageKHR,
         kDevsimPortabilitySubsetKHR,
     };
 
@@ -627,6 +636,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
@@ -952,6 +962,16 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsim16BitStorageKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_16bit_storage, but VK_KHR_16bit_storage is "
+                    "not supported by the device.\n",
+                    kEnvarDevsimEmulatePortability);
+            }
+            GetValue(root, "VkPhysicalDevice16BitStorageFeaturesKHR", &pdd_.physical_device_16bit_storage_features_);
+            break;
+
         case SchemaId::kDevsimPortabilitySubsetKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && emulatePortability.num <= 0) {
                 ErrorPrintf(
@@ -984,6 +1004,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     const char *schema_string = value.asCString();
     if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_0_0.json#") == 0) {
         schema_id = SchemaId::kDevsim100;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_16bit_storage_1.json#") == 0) {
+        schema_id = SchemaId::kDevsim16BitStorageKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#") ==
                0) {
         schema_id = SchemaId::kDevsimPortabilitySubsetKHR;
@@ -1214,6 +1236,18 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(sparseResidencyAliased);
     GET_VALUE(variableMultisampleRate);
     GET_VALUE(inheritedQueries);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevice16BitStorageFeaturesKHR)\n");
+    GET_VALUE_WARN(storageBuffer16BitAccess, WarnIfGreater);
+    GET_VALUE_WARN(uniformAndStorageBuffer16BitAccess, WarnIfGreater);
+    GET_VALUE_WARN(storagePushConstant16, WarnIfGreater);
+    GET_VALUE_WARN(storageInputOutput16, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest) {
@@ -1545,6 +1579,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = psf->pNext;
             *psf = physicalDeviceData->physical_device_portability_subset_features_;
             psf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
+            VkPhysicalDevice16BitStorageFeaturesKHR *sbsf = (VkPhysicalDevice16BitStorageFeaturesKHR *)place;
+            void *pNext = sbsf->pNext;
+            *sbsf = physicalDeviceData->physical_device_16bit_storage_features_;
+            sbsf->pNext = pNext;
         }
 
         place = structure->pNext;
@@ -1848,6 +1888,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                         VK_TRUE,
                         VK_TRUE,
                         VK_TRUE};
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
+                    pdd.physical_device_16bit_storage_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_16bit_storage_features_);
                 }
 
                 dt->GetPhysicalDeviceProperties2KHR(physical_device, &property_chain);
