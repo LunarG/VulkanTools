@@ -584,6 +584,9 @@ class PhysicalDeviceData {
     // VK_KHR_maintenance2 structs
     VkPhysicalDevicePointClippingPropertiesKHR physical_device_point_clipping_properties_;
 
+    // VK_KHR_maintenance3 structs
+    VkPhysicalDeviceMaintenance3PropertiesKHR physical_device_maintenance_3_properties_;
+
     // VK_KHR_portability_subset structs
     VkPhysicalDevicePortabilitySubsetPropertiesKHR physical_device_portability_subset_properties_;
     VkPhysicalDevicePortabilitySubsetFeaturesKHR physical_device_portability_subset_features_;
@@ -601,6 +604,9 @@ class PhysicalDeviceData {
 
         // VK_KHR_maintenance2 structs
         physical_device_point_clipping_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR};
+
+        // VK_KHR_maintenance3 structs
+        physical_device_maintenance_3_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES_KHR};
 
         // VK_KHR_portability_subset structs
         physical_device_portability_subset_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR};
@@ -634,11 +640,13 @@ class JsonLoader {
         kDevsim100,
         kDevsim16BitStorageKHR,
         kDevsimMaintenance2KHR,
+        kDevsimMaintenance3KHR,
         kDevsimPortabilitySubsetKHR,
     };
 
     SchemaId IdentifySchema(const Json::Value &value);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceProperties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMaintenance3PropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePointClippingPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
@@ -990,6 +998,16 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimMaintenance3KHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MAINTENANCE3_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_maintenance3, but VK_KHR_maintenance3 is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceMaintenance3PropertiesKHR", &pdd_.physical_device_maintenance_3_properties_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimPortabilitySubsetKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && emulatePortability.num <= 0) {
                 ErrorPrintf(
@@ -1026,6 +1044,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsim16BitStorageKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json#") == 0) {
         schema_id = SchemaId::kDevsimMaintenance2KHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance3_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimMaintenance3KHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#") ==
                0) {
         schema_id = SchemaId::kDevsimPortabilitySubsetKHR;
@@ -1059,6 +1079,16 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_ARRAY(pipelineCacheUUID);  // size == VK_UUID_SIZE
     GET_VALUE(limits);
     GET_VALUE(sparseProperties);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMaintenance3PropertiesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMaintenance3PropertiesKHR)\n");
+    GET_VALUE_WARN(maxPerSetDescriptors, WarnIfGreater);
+    GET_VALUE_WARN(maxMemoryAllocationSize, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePointClippingPropertiesKHR *dest) {
@@ -1620,6 +1650,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = pcp->pNext;
             *pcp = physicalDeviceData->physical_device_point_clipping_properties_;
             pcp->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_MAINTENANCE3_EXTENSION_NAME)) {
+            VkPhysicalDeviceMaintenance3PropertiesKHR *pcp = (VkPhysicalDeviceMaintenance3PropertiesKHR *)place;
+            void *pNext = pcp->pNext;
+            *pcp = physicalDeviceData->physical_device_maintenance_3_properties_;
+            pcp->pNext = pNext;
         }
 
         place = structure->pNext;
@@ -1929,6 +1965,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_point_clipping_properties_.pNext = property_chain.pNext;
 
                     property_chain.pNext = &(pdd.physical_device_point_clipping_properties_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_MAINTENANCE3_EXTENSION_NAME)) {
+                    pdd.physical_device_maintenance_3_properties_.pNext = property_chain.pNext;
+
+                    property_chain.pNext = &(pdd.physical_device_maintenance_3_properties_);
                 }
 
                 // Features pNext chain linking
