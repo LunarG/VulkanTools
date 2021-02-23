@@ -247,7 +247,11 @@ void MainWindow::UpdateUI() {
 
     if (configurator.request_vulkan_status) {
         ui->log_browser->clear();
-        ui->log_browser->append("Vulkan Development Status:");
+        if (has_active_configuration) {
+            ui->log_browser->append(format("Vulkan Development Status (\"%s\"):", active_contiguration_name.c_str()).c_str());
+        } else {
+            ui->log_browser->append("Vulkan Development Status:");
+        }
         ui->log_browser->append(GenerateVulkanStatus().c_str());
         ui->push_button_clear_log->setEnabled(true);
         configurator.request_vulkan_status = false;
@@ -322,6 +326,7 @@ void MainWindow::on_radio_override_clicked() {
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.request_vulkan_status = true;
 
     UpdateUI();
 }
@@ -332,6 +337,7 @@ void MainWindow::on_radio_fully_clicked() {
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.request_vulkan_status = true;
 
     UpdateUI();
 }
@@ -435,9 +441,9 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     // to ensure the new item is "selected"
     ui->configuration_tree->setCurrentItem(item);
 
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.Set(ACTIVE_CONFIGURATION, item->configuration_name.c_str());
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    // Configurator &configurator = Configurator::Get();
+    // configurator.environment.Set(ACTIVE_CONFIGURATION, item->configuration_name.c_str());
+    // configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     UpdateUI();
 }
@@ -490,9 +496,13 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             configuration->key = configuration_item->configuration_name = new_configuration_name;
         }
 
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration);
+        const std::string configuration_name = configuration->key;
+        configurator.configurations.SortConfigurations();
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration_name);
 
         _settings_tree_manager.CreateGUI(ui->settings_tree);
+
+        LoadConfigurationList();
     }
 
     UpdateUI();
@@ -503,16 +513,24 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 /// for the radio button, and one to change the editor/information at lower right.
 void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous) {
     (void)previous;
-    _settings_tree_manager.CleanupGUI();
+
     // This pointer will only be valid if it's one of the elements with
     // the radio button
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(current);
     if (configuration_item == nullptr) return;
 
-    configuration_item->radio_button->setChecked(true);
     Configurator &configurator = Configurator::Get();
+    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+        if (configurator.configurations.GetActiveConfiguration()->key == configuration_item->configuration_name) return;
+    }
+
+    _settings_tree_manager.CleanupGUI();
+
+    configuration_item->radio_button->setChecked(true);
+
     configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers,
                                                        configuration_item->configuration_name);
+    configurator.request_vulkan_status = true;
 
     _settings_tree_manager.CreateGUI(ui->settings_tree);
 
