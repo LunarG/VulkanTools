@@ -35,6 +35,7 @@
 - Add extension filters to load and save file layer settings #1317
 - Improve in application documentation of settings #1332
 - Display the layer status in the "Vulkan Development Status" #1332
+- Refresh "Vulkan Development Status" when the configuration changed #1366
 
 ### Fixes:
 - Fix export and import path being truncated when the path as '.' character

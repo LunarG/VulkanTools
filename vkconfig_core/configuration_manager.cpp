@@ -82,6 +82,19 @@ static bool IsConfigurationExcluded(const char *filename) {
     return false;
 }
 
+void ConfigurationManager::SortConfigurations() {
+    this->active_configuration = nullptr;
+
+    struct Compare {
+        bool operator()(const Configuration &a, const Configuration &b) const {
+            const bool result = a.key < b.key;
+            return result;
+        }
+    };
+
+    std::sort(this->available_configurations.begin(), this->available_configurations.end(), Compare());
+}
+
 void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers, PathType path_type) {
     const QFileInfoList &configuration_files = GetJSONFiles(path_manager.GetPath(path_type).c_str());
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
@@ -115,6 +128,7 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
 
     this->available_configurations.push_back(new_configuration);
+    this->SortConfigurations();
 
     SetActiveConfiguration(available_layers, new_configuration.key);
 
@@ -235,6 +249,7 @@ void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &availab
 
     configuration.key = MakeConfigurationName(this->available_configurations, configuration.key + " (Imported)");
     this->available_configurations.push_back(configuration);
+    this->SortConfigurations();
     SetActiveConfiguration(available_layers, configuration.key.c_str());
 }
 
