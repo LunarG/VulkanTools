@@ -96,6 +96,7 @@ JSON file formats consumed by the DevSim layer are specified by one of the JSON 
 | Vulkan v1.0 | https://schema.khronos.org/vulkan/devsim_1_0_0.json# |
 | VK_KHR_portability_subset | https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json# |
 | VK_KHR_16bit_storage | https://schema.khronos.org/vulkan/devsim_VK_KHR_16bit_storage_1.json# |
+| VK_KHR_maintenance2 | https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json# |
 
 Usually you will be using configuration files validated with the Vulkan v1.0 schema.
 
