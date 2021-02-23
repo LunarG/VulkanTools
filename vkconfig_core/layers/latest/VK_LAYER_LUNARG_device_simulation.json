@@ -115,7 +115,7 @@
             {
                 "key": "modify_memory_flags",
                 "env": "VK_DEVSIM_MODIFY_MEMORY_FLAGS",
-                "label": "Modify Device Extension list",
+                "label": "Modify Device Memory Flags",
                 "description": "Modify the device memory heap flags and memory type flags from the JSON config file.",
                 "type": "BOOL",
                 "default": false
