@@ -55,6 +55,8 @@ class ConfigurationManager {
 
     void FirstDefaultsConfigurations(const std::vector<Layer>& available_layers);
 
+    void SortConfigurations();
+
     bool Empty() const { return available_configurations.empty(); }
 
     std::vector<Configuration> available_configurations;
