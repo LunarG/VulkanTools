@@ -44,6 +44,7 @@
 - Fix crash when loading a JSON file as if it's a JSON layer file but it's not #1330
 - Fix validation layer 'printf buffer size' setting exposed as a 'bool' instead of a 'int' #1338
 - Fix crash when using older `VK_LAYER_KHRONOS_validation` versions
+- Fix *Vulkan Info* and *Vulkan Installation Analysis* dialog no longer running with overridden layers
 
 ## [Vulkan Configurator 2.1.0 for Vulkan SDK 1.2.162.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.1) - January 2021
 
