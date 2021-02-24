@@ -23,7 +23,9 @@
 
 #pragma once
 
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif  // NOMINMAX
 
 #include "vulkan/vk_layer.h"
 #include "vk_layer_config.h"
