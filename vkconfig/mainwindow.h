@@ -89,8 +89,6 @@ class MainWindow : public QMainWindow {
     QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_browse_button;
 
-    bool SelectConfigurationItem(const std::string &configuration_name);
-
     ConfigurationListItem *SaveLastItem();
     bool RestoreLastItem(const char *szOverride = nullptr);
     std::string _last_item;
@@ -155,6 +153,8 @@ class MainWindow : public QMainWindow {
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
 
+    void SetActiveConfiguration(const std::string &configuration_name);
+    bool SelectConfigurationItem(const std::string &configuration_name);
     void ResetLaunchApplication();
 
     std::unique_ptr<Ui::MainWindow> ui;
