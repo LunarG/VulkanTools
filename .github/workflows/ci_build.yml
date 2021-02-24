@@ -42,10 +42,6 @@ jobs:
     steps:
     - name: Clone repository
       uses: actions/checkout@v1
-    - name: Install build dependencies
-      run: |
-        sudo apt-get -qq update
-        sudo apt-get install -y python-pathlib
     - name: Execute Source Code Format Checking Script
       run: |
         scripts/check_code_format.sh --target-refspec=origin/${{ github.base_ref }}
@@ -78,7 +74,7 @@ jobs:
       run: |
         sudo apt-get -qq update
         sudo apt-get install -y libxkbcommon-dev libwayland-dev libxrandr-dev qt5-default\
-                              libx11-xcb-dev libxcb-randr0-dev python-pathlib cmake jq wget
+                              libx11-xcb-dev libxcb-randr0-dev cmake jq wget
     - name: Build and Test VulkanTools 
       run: |
         python3 scripts/github_ci_linux.py --config ${{ matrix.config.type }}
