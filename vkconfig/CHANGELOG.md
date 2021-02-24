@@ -36,7 +36,8 @@
 - Improve in application documentation of settings #1332
 - Display the layer status in the "Vulkan Development Status" #1332
 - Refresh "Vulkan Development Status" when the configuration changed #1366
-- Streamline "configuration tree" UI usage #1369
+- Streamline "configuration tree" UI usage #1370
+- Add 'Reload Default Configuration' to retrieve missing default configurations #1370
 
 ### Fixes:
 - Fix export and import path being truncated when the path as '.' character

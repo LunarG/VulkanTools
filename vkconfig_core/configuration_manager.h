@@ -53,6 +53,8 @@ class ConfigurationManager {
 
     void ResetDefaultsConfigurations(const std::vector<Layer>& available_layers);
 
+    void ReloadDefaultsConfigurations(const std::vector<Layer>& available_layers);
+
     void FirstDefaultsConfigurations(const std::vector<Layer>& available_layers);
 
     void SortConfigurations();
@@ -65,6 +67,7 @@ class ConfigurationManager {
     void RemoveConfigurationFiles();
 
     void LoadConfigurationsPath(const std::vector<Layer>& available_layers, PathType path_type);
+    void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
 
     Configuration* active_configuration;
 
