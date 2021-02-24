@@ -546,18 +546,41 @@ void MainWindow::aboutVkConfig(bool checked) {
     dlg.exec();
 }
 
+void MainWindow::StartTool(Tool tool) {
+    std::string active_configuration;
+
+    Configurator &configurator = Configurator::Get();
+    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+        active_configuration = configurator.configurations.GetActiveConfiguration()->key;
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, nullptr);
+    }
+
+    switch (tool) {
+        case TOOL_VULKAN_INFO:
+            vk_info_dialog.reset(new VulkanInfoDialog(this));
+            break;
+        case TOOL_VULKAN_INSTALL:
+            vk_installation_dialog.reset(new VulkanAnalysisDialog(this));
+            break;
+    }
+
+    if (!active_configuration.empty()) {
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration);
+    }
+}
+
 /// Create the VulkanInfo dialog if it doesn't already exits & show it.
 void MainWindow::toolsVulkanInfo(bool checked) {
     (void)checked;
 
-    vk_info_dialog.reset(new VulkanInfoDialog(this));
+    this->StartTool(TOOL_VULKAN_INFO);
 }
 
 /// Create the VulkanTools dialog if it doesn't already exist & show it.
 void MainWindow::toolsVulkanInstallation(bool checked) {
     (void)checked;
 
-    vk_installation_dialog.reset(new VulkanAnalysisDialog(this));
+    this->StartTool(TOOL_VULKAN_INSTALL);
 }
 
 void MainWindow::helpShowHelp(bool checked) {
