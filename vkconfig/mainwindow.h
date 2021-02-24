@@ -50,6 +50,8 @@ class ConfigurationListItem : public QTreeWidgetItem {
     ConfigurationListItem &operator=(const ConfigurationListItem &) = delete;
 };
 
+enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -157,6 +159,7 @@ class MainWindow : public QMainWindow {
     void SetActiveConfiguration(const std::string &configuration_name);
     bool SelectConfigurationItem(const std::string &configuration_name);
     void ResetLaunchApplication();
+    void StartTool(Tool tool);
 
     std::unique_ptr<Ui::MainWindow> ui;
     bool been_warned_about_old_loader;
