@@ -77,6 +77,14 @@ std::string GenerateVulkanStatus() {
 
     const Configurator &configurator = Configurator::Get();
 
+    // Layers override configuration
+    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+        log +=
+            format("- Layers override: \"%s\" configuration\n", configurator.configurations.GetActiveConfiguration()->key.c_str());
+    } else {
+        log += "- Layers override: None\n";
+    }
+
     // Check Vulkan SDK path
     const std::string search_path(qgetenv("VULKAN_SDK"));
     if (!search_path.empty())
