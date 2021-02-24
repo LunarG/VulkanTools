@@ -716,7 +716,7 @@
   </action>
   <action name="actionRestore_Default_Configurations">
    <property name="text">
-    <string>Reload Default Configurations</string>
+    <string>Reset To Default</string>
    </property>
   </action>
   <action name="actionVulkan_specification">

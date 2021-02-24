@@ -816,8 +816,6 @@ void MainWindow::RenameClicked(ConfigurationListItem *item) {
 
     SaveLastItem();
     ui->configuration_tree->editItem(item, 1);
-
-    // this->SelectConfigurationItem(item->configuration_name);
 }
 
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
@@ -876,6 +874,28 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
 
     configurator.configurations.ExportConfiguration(configurator.layers.available_layers, full_export_path,
                                                     item->configuration_name);
+}
+
+void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
+    (void)item;
+
+    QMessageBox alert;
+    alert.setWindowTitle("Reloading Missing Default Configurations...");
+    alert.setText("Are you sure you want to reload the default configurations?");
+    alert.setInformativeText("Add missing default configurations. Existing configurations are preserved.");
+    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    alert.setDefaultButton(QMessageBox::No);
+    alert.setIcon(QMessageBox::Warning);
+
+    if (alert.exec() == QMessageBox::Yes) {
+        _settings_tree_manager.CleanupGUI();
+
+        Configurator &configurator = Configurator::Get();
+        configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.available_layers);
+
+        LoadConfigurationList();
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
+    }
 }
 
 void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
@@ -1163,6 +1183,12 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
+            QAction *reload_default_action = new QAction("Reload Default Configurations", nullptr);
+            reload_default_action->setEnabled(true);
+            menu.addAction(reload_default_action);
+
+            menu.addSeparator();
+
             QAction *custom_path_action = new QAction("Edit Layers Custom Path...", nullptr);
             custom_path_action->setEnabled(true);
             menu.addAction(custom_path_action);
@@ -1186,6 +1212,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 ExportClicked(item);
             } else if (action == import_action) {
                 ImportClicked(item);
+            } else if (action == reload_default_action) {
+                ReloadDefaultClicked(item);
             } else if (action == custom_path_action) {
                 EditCustomPathsClicked(item);
             } else {
