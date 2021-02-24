@@ -39,19 +39,7 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
     // configuration files.
     if (environment.first_run) {
         RemoveConfigurationFiles();
-
-        const QFileInfoList &configuration_files = GetJSONFiles(":/configurations/");
-
-        for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-            Configuration configuration;
-            const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
-            assert(result);
-
-            if (!IsPlatformSupported(configuration.platform_flags)) continue;
-
-            OrderParameter(configuration.parameters, available_layers);
-            available_configurations.push_back(configuration);
-        }
+        LoadDefaultConfigurations(available_layers);
 
         environment.first_run = false;
     }
@@ -60,6 +48,27 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
     if (SUPPORT_VKCONFIG_2_0_3) LoadConfigurationsPath(available_layers, PATH_CONFIGURATION_LEGACY);
 
     RefreshConfiguration(available_layers);
+}
+
+void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &available_layers) {
+    const QFileInfoList &configuration_files = GetJSONFiles(":/configurations/");
+
+    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
+        Configuration configuration;
+        const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
+        assert(result);
+
+        if (!IsPlatformSupported(configuration.platform_flags)) continue;
+
+        OrderParameter(configuration.parameters, available_layers);
+
+        Configuration *found_configuration = FindByKey(this->available_configurations, configuration.key.c_str());
+        if (found_configuration == nullptr) {
+            this->available_configurations.push_back(configuration);
+        }
+    }
+
+    this->SortConfigurations();
 }
 
 static bool IsConfigurationExcluded(const char *filename) {
@@ -279,6 +288,16 @@ void ConfigurationManager::ResetDefaultsConfigurations(const std::vector<Layer> 
 
     // Now we need to kind of restart everything
     LoadAllConfigurations(available_layers);
+}
+
+void ConfigurationManager::ReloadDefaultsConfigurations(const std::vector<Layer> &available_layers) {
+    // Clear the current configuration as we may be about to remove it.
+    SetActiveConfiguration(available_layers, nullptr);
+
+    // Now we need to kind of restart everything
+    LoadDefaultConfigurations(available_layers);
+
+    RefreshConfiguration(available_layers);
 }
 
 void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> &available_layers) {

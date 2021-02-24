@@ -101,6 +101,7 @@ class MainWindow : public QMainWindow {
     void DuplicateClicked(ConfigurationListItem *item);
     void ExportClicked(ConfigurationListItem *item);
     void ImportClicked(ConfigurationListItem *item);
+    void ReloadDefaultClicked(ConfigurationListItem *item);
     void EditCustomPathsClicked(ConfigurationListItem *item);
 
    public Q_SLOTS:
