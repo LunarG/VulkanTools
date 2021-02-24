@@ -30,19 +30,19 @@
 - Expose `modify_extension_list` and `modify_memory_flags` settings from devsim
 
 ### Improvements:
-- Add display of `VK_LAYER_PATH` content in Vulkan Development Status
-- Rename "Custom Path" by "User-Defined Path"
+- Add display of `VK_LAYER_PATH` content in 'Vulkan Development Status'
+- Rename 'Custom Path' by 'User-Defined Path'
 - Add extension filters to load and save file layer settings #1317
 - Improve in application documentation of settings #1332
-- Display the layer status in the "Vulkan Development Status" #1332
-- Refresh "Vulkan Development Status" when the configuration changed #1366
-- Streamline "configuration tree" UI usage #1370
+- Display the layer status in the 'Vulkan Development Status' #1332
+- Refresh 'Vulkan Development Status' when the configuration changed #1366
+- Streamline 'configuration tree' UI usage #1370
 - Add 'Reload Default Configuration' to retrieve missing default configurations #1370
 
 ### Fixes:
 - Fix export and import path being truncated when the path as '.' character
 - Fix crash when loading a JSON file as if it's a JSON layer file but it's not #1330
-- Fix validation layer `printf buffer size` setting exposed as a 'bool' instead of a 'int' #1338
+- Fix validation layer 'printf buffer size' setting exposed as a 'bool' instead of a 'int' #1338
 - Fix crash when using older `VK_LAYER_KHRONOS_validation` versions
 
 ## [Vulkan Configurator 2.1.0 for Vulkan SDK 1.2.162.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.1) - January 2021
@@ -57,7 +57,7 @@
 - Improve layers support since version 1.1.130
 - Improve layer configurations compatibilities between versions
 - Add more tool tips #1296
-- Display the "Vulkan Development Status" each time the layers paths are changed
+- Display the 'Vulkan Development Status' each time the layers paths are changed
 
 ### Fixes:
 - Expose missing `VK_LAYER_LUNARG_gfxreconstruct` 'Log Detailed' setting
@@ -93,7 +93,7 @@
 - Add button to browse working directory #1099
 - Add version in the title bar and show <ACTIVE> state #1109
 - Add default settings state in the layer configuration settings #1076
-- Make "Validation - Standard", the default configuration #1076
+- Make *Validation - Standard*, the default configuration #1076
 - Update `vkcube` to use the version from the same *Vulkan SDK* than *Vulkan Configurator* #1112
 - Expose `duplicate_message_limit` setting from `VK_LAYER_KHRONOS_validation` #1176
 
@@ -121,7 +121,7 @@
 - Add built-in Vulkan layers configurations
 - Add user-defined Vulkan layers configurations
 - Add import and export of Vulkan layers configuration
-- Add *VK_LAYER_KHRONOS_validation* settings presets
+- Add `VK_LAYER_KHRONOS_validation` settings presets
 - Add message filtering using VUID and message IDs
 - Add an option to make layers overriding persistent on exit
 - Add an option to override only a selected list of applications
