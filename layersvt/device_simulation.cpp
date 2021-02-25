@@ -587,6 +587,10 @@ class PhysicalDeviceData {
     // VK_KHR_maintenance3 structs
     VkPhysicalDeviceMaintenance3PropertiesKHR physical_device_maintenance_3_properties_;
 
+    // VK_KHR_multiview structs
+    VkPhysicalDeviceMultiviewPropertiesKHR physical_device_multiview_properties_;
+    VkPhysicalDeviceMultiviewFeaturesKHR physical_device_multiview_features_;
+
     // VK_KHR_portability_subset structs
     VkPhysicalDevicePortabilitySubsetPropertiesKHR physical_device_portability_subset_properties_;
     VkPhysicalDevicePortabilitySubsetFeaturesKHR physical_device_portability_subset_features_;
@@ -607,6 +611,10 @@ class PhysicalDeviceData {
 
         // VK_KHR_maintenance3 structs
         physical_device_maintenance_3_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES_KHR};
+
+        // VK_KHR_multiview structs
+        physical_device_multiview_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES_KHR};
+        physical_device_multiview_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES_KHR};
 
         // VK_KHR_portability_subset structs
         physical_device_portability_subset_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR};
@@ -641,18 +649,21 @@ class JsonLoader {
         kDevsim16BitStorageKHR,
         kDevsimMaintenance2KHR,
         kDevsimMaintenance3KHR,
+        kDevsimMultiviewKHR,
         kDevsimPortabilitySubsetKHR,
     };
 
     SchemaId IdentifySchema(const Json::Value &value);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMaintenance3PropertiesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePointClippingPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
@@ -1008,6 +1019,17 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimMultiviewKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MULTIVIEW_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_multiview, but VK_KHR_multiview is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceMultiviewPropertiesKHR", &pdd_.physical_device_multiview_properties_);
+            GetValue(root, "VkPhysicalDeviceMultiviewFeaturesKHR", &pdd_.physical_device_multiview_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimPortabilitySubsetKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && emulatePortability.num <= 0) {
                 ErrorPrintf(
@@ -1046,6 +1068,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsimMaintenance2KHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance3_1.json#") == 0) {
         schema_id = SchemaId::kDevsimMaintenance3KHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_multiview_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimMultiviewKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#") ==
                0) {
         schema_id = SchemaId::kDevsimPortabilitySubsetKHR;
@@ -1089,6 +1113,16 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMaintenance3PropertiesKHR)\n");
     GET_VALUE_WARN(maxPerSetDescriptors, WarnIfGreater);
     GET_VALUE_WARN(maxMemoryAllocationSize, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewPropertiesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMultiviewPropertiesKHR)\n");
+    GET_VALUE_WARN(maxMultiviewViewCount, WarnIfGreater);
+    GET_VALUE_WARN(maxMultiviewInstanceIndex, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePointClippingPropertiesKHR *dest) {
@@ -1307,6 +1341,17 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE_WARN(uniformAndStorageBuffer16BitAccess, WarnIfGreater);
     GET_VALUE_WARN(storagePushConstant16, WarnIfGreater);
     GET_VALUE_WARN(storageInputOutput16, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMultiviewFeaturesKHR)\n");
+    GET_VALUE_WARN(multiview, WarnIfGreater);
+    GET_VALUE_WARN(multiviewGeometryShader, WarnIfGreater);
+    GET_VALUE_WARN(multiviewTessellationShader, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest) {
@@ -1656,6 +1701,18 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = pcp->pNext;
             *pcp = physicalDeviceData->physical_device_maintenance_3_properties_;
             pcp->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_MULTIVIEW_EXTENSION_NAME)) {
+            VkPhysicalDeviceMultiviewPropertiesKHR *mp = (VkPhysicalDeviceMultiviewPropertiesKHR *)place;
+            void *pNext = mp->pNext;
+            *mp = physicalDeviceData->physical_device_multiview_properties_;
+            mp->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_MULTIVIEW_EXTENSION_NAME)) {
+            VkPhysicalDeviceMultiviewFeaturesKHR *mf = (VkPhysicalDeviceMultiviewFeaturesKHR *)place;
+            void *pNext = mf->pNext;
+            *mf = physicalDeviceData->physical_device_multiview_features_;
+            mf->pNext = pNext;
         }
 
         place = structure->pNext;
@@ -1961,6 +2018,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                         VK_TRUE};
                 }
 
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
+                    pdd.physical_device_16bit_storage_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_16bit_storage_features_);
+                }
+
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {
                     pdd.physical_device_point_clipping_properties_.pNext = property_chain.pNext;
 
@@ -1973,12 +2036,14 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     property_chain.pNext = &(pdd.physical_device_maintenance_3_properties_);
                 }
 
-                // Features pNext chain linking
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_MULTIVIEW_EXTENSION_NAME)) {
+                    pdd.physical_device_multiview_properties_.pNext = property_chain.pNext;
 
-                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
-                    pdd.physical_device_16bit_storage_features_.pNext = feature_chain.pNext;
+                    property_chain.pNext = &(pdd.physical_device_multiview_properties_);
 
-                    feature_chain.pNext = &(pdd.physical_device_16bit_storage_features_);
+                    pdd.physical_device_multiview_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_multiview_features_);
                 }
 
                 dt->GetPhysicalDeviceProperties2KHR(physical_device, &property_chain);
