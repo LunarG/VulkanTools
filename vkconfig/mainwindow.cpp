@@ -464,7 +464,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         // We are renaming the file. Things can go wrong here...
         // This is the name of the configuratin we are changing
-        const std::string full_path(configurator.path.GetFullPath(PATH_CONFIGURATION, configuration_item->configuration_name));
+        const std::string full_path(configurator.path.GetFullPath(PATH_LAST_CONFIGURATION, configuration_item->configuration_name));
 
         // This is the new name we want to use for the configuration
         const std::string &new_name = configuration_item->text(1).toStdString();
