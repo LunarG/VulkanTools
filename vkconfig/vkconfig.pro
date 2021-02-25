@@ -72,6 +72,7 @@ SOURCES += \
     main.cpp \
     main_gui.cpp \
     main_signal.cpp \
+    main_reset.cpp \
     main_layers.cpp \
     mainwindow.cpp \
     settings_tree.cpp \
@@ -126,6 +127,7 @@ HEADERS += \
     dialog_vulkan_info.h \
     main_gui.h \
     main_signal.h \
+    main_reset.h \
     main_layers.h \
     mainwindow.h \
     settings_validation_areas.h \
