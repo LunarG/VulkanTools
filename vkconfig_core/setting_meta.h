@@ -29,6 +29,7 @@
 
 struct SettingMeta : public Header {
     SettingMeta(const std::string& key, const SettingType type);
+    virtual ~SettingMeta() {}
 
     bool operator==(const SettingMeta& other) const { return this->Equal(other); }
     bool operator!=(const SettingMeta& other) const { return !this->Equal(other); }
@@ -43,6 +44,7 @@ struct SettingMeta : public Header {
 
 struct SettingMetaString : public SettingMeta {
     SettingMetaString(const std::string& key) : SettingMeta(key, SETTING_STRING) {}
+    virtual ~SettingMetaString() {}
 
     std::string default_value;
 
@@ -52,6 +54,7 @@ struct SettingMetaString : public SettingMeta {
 
 struct SettingMetaInt : public SettingMeta {
     SettingMetaInt(const std::string& key) : SettingMeta(key, SETTING_INT), default_value(0) {}
+    virtual ~SettingMetaInt() {}
 
     int default_value;
 
@@ -61,6 +64,7 @@ struct SettingMetaInt : public SettingMeta {
 
 struct SettingMetaBool : public SettingMeta {
     SettingMetaBool(const std::string& key) : SettingMeta(key, SETTING_BOOL), default_value(false) {}
+    virtual ~SettingMetaBool() {}
 
     bool default_value;
 
@@ -70,12 +74,14 @@ struct SettingMetaBool : public SettingMeta {
 
 struct SettingMetaBoolNumeric : public SettingMeta {
     SettingMetaBoolNumeric(const std::string& key) : SettingMeta(key, SETTING_BOOL_NUMERIC_DEPRECATED), default_value(false) {}
+    virtual ~SettingMetaBoolNumeric() {}
 
     bool default_value;
 };
 
 struct SettingMetaIntRange : public SettingMeta {
     SettingMetaIntRange(const std::string& key) : SettingMeta(key, SETTING_INT_RANGE), default_min_value(0), default_max_value(0) {}
+    virtual ~SettingMetaIntRange() {}
 
     int default_min_value;
     int default_max_value;
@@ -86,6 +92,7 @@ struct SettingMetaIntRange : public SettingMeta {
 
 struct SettingMetaFilesystem : public SettingMeta {
     SettingMetaFilesystem(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
+    virtual ~SettingMetaFilesystem() {}
 
     std::string default_value;
     std::string filter;
@@ -96,14 +103,17 @@ struct SettingMetaFilesystem : public SettingMeta {
 
 struct SettingMetaFileLoad : public SettingMetaFilesystem {
     SettingMetaFileLoad(const std::string& key) : SettingMetaFilesystem(key, SETTING_LOAD_FILE) {}
+    virtual ~SettingMetaFileLoad() {}
 };
 
 struct SettingMetaFileSave : public SettingMetaFilesystem {
     SettingMetaFileSave(const std::string& key) : SettingMetaFilesystem(key, SETTING_SAVE_FILE) {}
+    virtual ~SettingMetaFileSave() {}
 };
 
 struct SettingMetaFolderSave : public SettingMetaFilesystem {
     SettingMetaFolderSave(const std::string& key) : SettingMetaFilesystem(key, SETTING_SAVE_FOLDER) {}
+    virtual ~SettingMetaFolderSave() {}
 };
 
 struct SettingEnumValue : public Header {
@@ -115,6 +125,7 @@ inline bool operator!=(const SettingEnumValue& a, const SettingEnumValue& b) { r
 
 struct SettingMetaEnumeration : public SettingMeta {
     SettingMetaEnumeration(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
+    virtual ~SettingMetaEnumeration() {}
 
     std::vector<SettingEnumValue> enum_values;
 
@@ -124,6 +135,7 @@ struct SettingMetaEnumeration : public SettingMeta {
 
 struct SettingMetaEnum : public SettingMetaEnumeration {
     SettingMetaEnum(const std::string& key) : SettingMetaEnumeration(key, SETTING_ENUM) {}
+    virtual ~SettingMetaEnum() {}
 
     std::string default_value;
 
@@ -133,6 +145,7 @@ struct SettingMetaEnum : public SettingMetaEnumeration {
 
 struct SettingMetaFlags : public SettingMetaEnumeration {
     SettingMetaFlags(const std::string& key) : SettingMetaEnumeration(key, SETTING_FLAGS) {}
+    virtual ~SettingMetaFlags() {}
 
     std::vector<std::string> default_value;
 
@@ -142,6 +155,7 @@ struct SettingMetaFlags : public SettingMetaEnumeration {
 
 struct SettingMetaVUIDFilter : public SettingMeta {
     SettingMetaVUIDFilter(const std::string& key) : SettingMeta(key, SETTING_VUID_FILTER) {}
+    virtual ~SettingMetaVUIDFilter() {}
 
     std::vector<std::string> list;
     std::vector<std::string> default_value;

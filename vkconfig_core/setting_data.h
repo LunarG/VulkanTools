@@ -40,6 +40,7 @@ struct SettingData {
 
    protected:
     SettingData(const std::string& key, const SettingType type);
+    virtual ~SettingData() {}
 
     virtual bool Equal(const SettingData& other) const;
     virtual SettingData& Assign(const SettingData& other) = 0;
@@ -47,6 +48,7 @@ struct SettingData {
 
 struct SettingDataBool : public SettingData {
     SettingDataBool(const std::string& key) : SettingData(key, SETTING_BOOL), value(false) {}
+    virtual ~SettingDataBool() {}
 
     bool value;
 
@@ -59,10 +61,12 @@ struct SettingDataBool : public SettingData {
 
 struct SettingDataBoolNumeric : public SettingDataBool {
     SettingDataBoolNumeric(const std::string& key) : SettingDataBool(key, SETTING_BOOL_NUMERIC_DEPRECATED) {}
+    virtual ~SettingDataBoolNumeric() {}
 };
 
 struct SettingDataInt : public SettingData {
     SettingDataInt(const std::string& key) : SettingData(key, SETTING_INT), value(0) {}
+    virtual ~SettingDataInt() {}
 
     int value;
 
@@ -73,6 +77,7 @@ struct SettingDataInt : public SettingData {
 
 struct SettingDataString : public SettingData {
     SettingDataString(const std::string& key) : SettingDataString(key, SETTING_STRING) {}
+    virtual ~SettingDataString() {}
 
     std::string value;
 
@@ -85,22 +90,27 @@ struct SettingDataString : public SettingData {
 
 struct SettingDataEnum : public SettingDataString {
     SettingDataEnum(const std::string& key) : SettingDataString(key, SETTING_ENUM) {}
+    virtual ~SettingDataEnum() {}
 };
 
 struct SettingDataFileLoad : public SettingDataString {
     SettingDataFileLoad(const std::string& key) : SettingDataString(key, SETTING_LOAD_FILE) {}
+    virtual ~SettingDataFileLoad() {}
 };
 
 struct SettingDataFileSave : public SettingDataString {
     SettingDataFileSave(const std::string& key) : SettingDataString(key, SETTING_SAVE_FILE) {}
+    virtual ~SettingDataFileSave() {}
 };
 
 struct SettingDataFolderSave : public SettingDataString {
     SettingDataFolderSave(const std::string& key) : SettingDataString(key, SETTING_SAVE_FOLDER) {}
+    virtual ~SettingDataFolderSave() {}
 };
 
 struct SettingDataIntRange : public SettingData {
     SettingDataIntRange(const std::string& key) : SettingData(key, SETTING_INT_RANGE), min_value(0), max_value(0) {}
+    virtual ~SettingDataIntRange() {}
 
     int min_value;
     int max_value;
@@ -115,6 +125,7 @@ struct SettingDataVector : public SettingData {
 
    protected:
     SettingDataVector(const std::string& key, const SettingType type) : SettingData(key, type) {}
+    virtual ~SettingDataVector() {}
 
     virtual bool Equal(const SettingData& other) const;
     virtual SettingData& Assign(const SettingData& other);
@@ -122,10 +133,12 @@ struct SettingDataVector : public SettingData {
 
 struct SettingDataVUIDFilter : public SettingDataVector {
     SettingDataVUIDFilter(const std::string& key) : SettingDataVector(key, SETTING_VUID_FILTER) {}
+    virtual ~SettingDataVUIDFilter() {}
 };
 
 struct SettingDataFlags : public SettingDataVector {
     SettingDataFlags(const std::string& key) : SettingDataVector(key, SETTING_FLAGS) {}
+    virtual ~SettingDataFlags() {}
 };
 
 typedef SettingSet<SettingData> SettingDataSet;
