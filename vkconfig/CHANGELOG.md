@@ -39,6 +39,7 @@
 - Streamline 'configuration tree' UI usage #1370
 - Add 'Reload Default Configuration' to retrieve missing default configurations #1370
 - Add 'reset' command line argument to reset the platform layers configurations
+- Add possible recovery by resetting to default when a crash happened during last run
 
 ### Fixes:
 - Fix export and import path being truncated when the path as '.' character
