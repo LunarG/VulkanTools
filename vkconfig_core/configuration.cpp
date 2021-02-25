@@ -102,60 +102,6 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
             settings = CollectDefaultSettingData(layer->settings);
         }
 
-        const QStringList& layer_settings = layer_object.keys();
-        for (int setting_index = 0, setting_count = layer_settings.size(); setting_index < setting_count; ++setting_index) {
-            if (layer_settings[setting_index] == "layer_rank") continue;
-
-            const QJsonObject& setting_object = ReadObject(layer_object, layer_settings[setting_index].toStdString().c_str());
-
-            const std::string setting_key = layer_settings[setting_index].toStdString();
-            const SettingType setting_type = GetSettingType(ReadStringValue(setting_object, "type").c_str());
-
-            SettingData& setting_data = settings.Create(setting_key, setting_type);
-
-            switch (setting_data.type) {
-                case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FILE:
-                case SETTING_SAVE_FOLDER:
-                case SETTING_ENUM:
-                case SETTING_STRING: {
-                    static_cast<SettingDataString&>(setting_data).value = ReadStringValue(setting_object, "default");
-                    break;
-                }
-                case SETTING_INT: {
-                    const std::string tmp = ReadStringValue(setting_object, "default");
-                    assert(!tmp.empty());
-                    static_cast<SettingDataInt&>(setting_data).value = std::atoi(tmp.c_str());
-                    break;
-                }
-                case SETTING_BOOL: {
-                    static_cast<SettingDataBool&>(setting_data).value = ReadStringValue(setting_object, "default") == "TRUE";
-                    break;
-                }
-                case SETTING_BOOL_NUMERIC_DEPRECATED: {
-                    static_cast<SettingDataBoolNumeric&>(setting_data).value = ReadStringValue(setting_object, "default") == "1";
-                    break;
-                }
-                case SETTING_VUID_FILTER:
-                case SETTING_FLAGS: {
-                    if (setting_object.value("default").isString()) {
-                        const QString tmp = ReadStringValue(setting_object, "default").c_str();
-                        const QStringList list = tmp.split(",");
-                        for (int i = 0, n = list.size(); i < n; ++i) {
-                            static_cast<SettingDataVector&>(setting_data).value.push_back(list[i].toStdString());
-                        }
-                    } else {
-                        static_cast<SettingDataVector&>(setting_data).value = ReadStringArray(setting_object, "default");
-                    }
-                    break;
-                }
-                default: {
-                    assert(0);
-                    break;
-                }
-            }
-        }
-
         parameter.settings = settings;
         parameters.push_back(parameter);
     }
@@ -216,58 +162,6 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
             settings = CollectDefaultSettingData(layer->settings);
-        }
-
-        const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");
-        for (int i = 0, n = json_settings.size(); i < n; ++i) {
-            const QJsonObject& json_setting_object = json_settings[i].toObject();
-
-            const std::string setting_key = ReadStringValue(json_setting_object, "key");
-            const SettingType setting_type = SETTING_STRING;
-
-            SettingData& setting_data = settings.Create(setting_key, setting_type);
-
-            switch (setting_data.type) {
-                case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FILE:
-                case SETTING_SAVE_FOLDER:
-                case SETTING_ENUM:
-                case SETTING_STRING: {
-                    static_cast<SettingDataString&>(setting_data).value = ReadStringValue(json_setting_object, "value");
-                    break;
-                }
-                case SETTING_INT: {
-                    const std::string tmp = ReadStringValue(json_setting_object, "value");
-                    assert(!tmp.empty());
-                    static_cast<SettingDataInt&>(setting_data).value = std::atoi(tmp.c_str());
-                    break;
-                }
-                case SETTING_BOOL: {
-                    static_cast<SettingDataBool&>(setting_data).value = ReadStringValue(json_setting_object, "value") == "TRUE";
-                    break;
-                }
-                case SETTING_BOOL_NUMERIC_DEPRECATED: {
-                    static_cast<SettingDataBoolNumeric&>(setting_data).value = ReadStringValue(json_setting_object, "value") == "1";
-                    break;
-                }
-                case SETTING_VUID_FILTER:
-                case SETTING_FLAGS: {
-                    if (json_setting_object.value("value").isString()) {
-                        const QString tmp = ReadStringValue(json_setting_object, "value").c_str();
-                        const QStringList list = tmp.split(",");
-                        for (int i = 0, n = list.size(); i < n; ++i) {
-                            static_cast<SettingDataVector&>(setting_data).value.push_back(list[i].toStdString());
-                        }
-                    } else {
-                        static_cast<SettingDataVector&>(setting_data).value = ReadStringArray(json_setting_object, "value");
-                    }
-                    break;
-                }
-                default: {
-                    assert(0);
-                    break;
-                }
-            }
         }
 
         parameter.settings = settings;
@@ -531,24 +425,8 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
     }
 
     // Case 2: reset using configuration files using saved configurations
-    static const PathType PATHS[] = {PATH_CONFIGURATION, PATH_CONFIGURATION_LEGACY};
-
-    for (std::size_t i = 0, n = countof(PATHS); i < n; ++i) {
-        const std::string full_path(path_manager.GetFullPath(PATHS[i], this->key.c_str()));
-        std::FILE* file = std::fopen(full_path.c_str(), "r");
-        if (file) {
-            std::fclose(file);
-            const bool result = this->Load(available_layers, full_path);
-            assert(result);
-
-            OrderParameter(this->parameters, available_layers);
-            return;
-        }
-    }
-
-    // Case 2: reset using configuration files in PATH_CONFIGURATION_LEGACY
-    {
-        const std::string full_path(path_manager.GetFullPath(PATH_CONFIGURATION_LEGACY, this->key.c_str()));
+    for (std::size_t i = PATH_LAST_CONFIGURATION; i >= PATH_FIRST_CONFIGURATION; --i) {
+        const std::string full_path(path_manager.GetFullPath(static_cast<PathType>(i), this->key.c_str()));
         std::FILE* file = std::fopen(full_path.c_str(), "r");
         if (file) {
             std::fclose(file);
@@ -600,11 +478,8 @@ bool Configuration::IsBuiltIn() const {
 }
 
 bool Configuration::HasSavedFile(const PathManager& path_manager) const {
-    // Case 2: reset using configuration files using saved configurations
-    static const PathType PATHS[] = {PATH_CONFIGURATION, PATH_CONFIGURATION_LEGACY};
-
-    for (std::size_t i = 0, n = countof(PATHS); i < n; ++i) {
-        const std::string full_path(path_manager.GetFullPath(PATHS[i], this->key.c_str()));
+    for (std::size_t i = PATH_LAST_CONFIGURATION; i >= PATH_FIRST_CONFIGURATION; --i) {
+        const std::string full_path(path_manager.GetFullPath(static_cast<PathType>(i), this->key.c_str()));
         std::FILE* file = std::fopen(full_path.c_str(), "r");
         if (file) {
             std::fclose(file);

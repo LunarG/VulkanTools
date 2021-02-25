@@ -21,6 +21,7 @@
 #pragma once
 
 #include "path.h"
+#include "version.h"
 
 #include <QString>
 #include <QWidget>
@@ -29,10 +30,11 @@
 #include <string>
 
 enum PathType {
-    PATH_CONFIGURATION = 0,              // Where configuration files live
-    PATH_CONFIGURATION_LEGACY,           // Where legacy 2.0 configuration files live
-    PATH_OVERRIDE_SETTINGS,              // Where settings go when profile is active
+    PATH_OVERRIDE_SETTINGS = 0,          // Where settings go when profile is active
     PATH_OVERRIDE_LAYERS,                // Where json goes when profile is active
+    PATH_CONFIGURATION_2_0,              // Where configuration version 2.0 files live
+    PATH_CONFIGURATION_2_1,              // Where configuration version 2.1 files live
+    PATH_CONFIGURATION_2_2,              // Where configuration version 2.2 files live
     PATH_IMPORT_CONFIGURATION,           // The last path used by the user to import a configuration
     PATH_EXPORT_CONFIGURATION,           // The last path used by the user to export a configuration
     PATH_EXECUTABLE,                     // The last path used by the user when adding an executable to the application list
@@ -40,7 +42,10 @@ enum PathType {
     PATH_LAUNCHER_LOG_FILE,              // The last path used by the user to set the launcher log file
     PATH_USER_DEFINED_LAYERS_PATHS_GUI,  // The last user-defined layers path
 
-    PATH_FIRST = PATH_CONFIGURATION,
+    PATH_FIRST_CONFIGURATION = PATH_CONFIGURATION_2_0,
+    PATH_LAST_CONFIGURATION = PATH_CONFIGURATION_2_2,
+
+    PATH_FIRST = PATH_OVERRIDE_SETTINGS,
     PATH_LAST = PATH_USER_DEFINED_LAYERS_PATHS_GUI
 };
 
