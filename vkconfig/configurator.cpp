@@ -91,7 +91,23 @@ bool Configurator::Init() {
         return false;
     }
 
-    configurations.LoadAllConfigurations(layers.available_layers);
+    QSettings settings;
+    if (settings.value("crashed", QVariant(false)).toBool()) {
+        settings.setValue("crashed", false);
+
+        QMessageBox alert;
+        alert.setWindowTitle("Vulkan Configurator crashed during last run...");
+        alert.setText("Do you want to reset to default resolve the issue?");
+        alert.setInformativeText("All layers configurations will be lost...");
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::No);
+        alert.setIcon(QMessageBox::Critical);
+        if (alert.exec() == QMessageBox::No) {
+            configurations.LoadAllConfigurations(layers.available_layers);
+        }
+    } else {
+        configurations.LoadAllConfigurations(layers.available_layers);
+    }
 
     if (configurations.Empty()) {
         configurations.ResetDefaultsConfigurations(layers.available_layers);
@@ -104,7 +120,6 @@ bool Configurator::Init() {
         assert(active_configuration != nullptr);
 
         if (HasMissingLayer(active_configuration->parameters, layers.available_layers)) {
-            QSettings settings;
             if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
                 QMessageBox alert;
                 alert.setWindowTitle("Vulkan Configurator couldn't find some Vulkan layers...");

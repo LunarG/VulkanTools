@@ -23,10 +23,18 @@
 
 #include "main_signal.h"
 
+#include <QSettings>
+
 #include <csignal>
 
 void SurrenderConfiguration(int signal) {
     (void)signal;
+
+    // Indicate that Vulkan Configurator crashed to handle it on next run
+    {
+        QSettings settings;
+        settings.setValue("crashed", true);
+    }
 
     PathManager paths;
     Environment environment(paths);
