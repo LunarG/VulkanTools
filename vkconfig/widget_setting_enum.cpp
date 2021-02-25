@@ -45,7 +45,7 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnu
 }
 
 void WidgetSettingEnum::indexChanged(int index) {
-    assert(index >= 0 && index < setting_meta.enum_values.size());
+    assert(index >= 0 && index < static_cast<int>(setting_meta.enum_values.size()));
 
     setting_data.value = setting_meta.enum_values[index].key;
     emit itemChanged();
