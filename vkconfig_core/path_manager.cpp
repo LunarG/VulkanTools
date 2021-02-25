@@ -45,10 +45,11 @@ static const DirectoryDesc& GetDesc(PathType directory) {
     assert(directory >= PATH_FIRST && directory <= PATH_LAST);
 
     static const DirectoryDesc table[] = {
-        {"configuration", ".json", nullptr, nullptr, false, PATH_CONFIGURATION},                        // PATH_CONFIGURATION
-        {"configuration", ".json", nullptr, nullptr, false, PATH_CONFIGURATION_LEGACY},                 // PATH_CONFIGURATION_LEGACY
         {"override settings", ".txt", nullptr, "vk_layer_settings", false, PATH_OVERRIDE_SETTINGS},     // PATH_OVERRIDE_SETTINGS
         {"override layers", ".json", nullptr, "VkLayer_override", false, PATH_OVERRIDE_LAYERS},         // PATH_OVERRIDE_LAYERS
+        {"configuration 2.0", ".json", nullptr, nullptr, false, PATH_CONFIGURATION_2_0},                // PATH_CONFIGURATION_2_0
+        {"configuration 2.1", ".json", nullptr, nullptr, false, PATH_CONFIGURATION_2_1},                // PATH_CONFIGURATION_2_1
+        {"configuration 2.2", ".json", nullptr, nullptr, false, PATH_CONFIGURATION_2_1},                // PATH_CONFIGURATION_2_2
         {"configuration import", ".json", "lastImportPath", nullptr, true, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
         {"configuration export", ".json", "lastExportPath", nullptr, true, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
@@ -97,11 +98,14 @@ bool PathManager::Load() {
     CheckPathsExist(::GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL));
 
     const std::string base_path = ConvertNativeSeparators(QDir::home().path().toStdString());
-    CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
+    CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_2_0));
+    CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_2_1));
+    CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_2_2));
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
     CheckPathsExist(base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
-    SetPath(PATH_CONFIGURATION, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION));
-    SetPath(PATH_CONFIGURATION_LEGACY, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_LEGACY));
+    SetPath(PATH_CONFIGURATION_2_0, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_2_0));
+    SetPath(PATH_CONFIGURATION_2_1, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_2_1));
+    SetPath(PATH_CONFIGURATION_2_2, base_path + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION_2_2));
     SetPath(PATH_OVERRIDE_LAYERS, base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS));
     SetPath(PATH_OVERRIDE_SETTINGS, base_path + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS));
 
@@ -189,7 +193,7 @@ std::string PathManager::GetFullPath(PathType path, const std::string& filename)
 }
 
 std::string PathManager::GetFullPath(Filename filename) const {
-    const std::string path(GetPath(PATH_CONFIGURATION).c_str());
+    const std::string path(GetPath(PATH_LAST_CONFIGURATION).c_str());
 
     const std::string full_path(ConvertNativeSeparators(path + GetNativeSeparator() + GetDesc(filename).filename).c_str());
     return full_path;

@@ -375,7 +375,8 @@ TEST(test_configuration, compare_settings) {
     EXPECT_TRUE(!configuration_best_practices.parameters.empty());
     EXPECT_STREQ("Validation - Best Practices", configuration_best_practices.key.c_str());
 
-    EXPECT_TRUE(configuration_standard.parameters != configuration_best_practices.parameters);
+    // Settings are reset to default
+    EXPECT_TRUE(configuration_standard.parameters == configuration_best_practices.parameters);
 }
 
 TEST(test_configuration, find_layer_parameter) {

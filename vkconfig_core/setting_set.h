@@ -37,12 +37,13 @@ class SettingSet {
         {
             T* setting = this->Get(key.c_str());
             if (setting != nullptr) {
-                if (setting->type == type)
-                    return *setting;
+                if (setting->type == type) return *setting;
+                /*
                 else {
                     Remove(key.c_str());
                     return Create(key, type);
                 }
+                */
             }
         }
 
