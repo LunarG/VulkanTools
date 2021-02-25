@@ -24,7 +24,8 @@
 #include <string>
 #include <vector>
 
-enum CommandType { COMMAND_NONE = 0, COMMAND_SHOW_USAGE, COMMAND_VERSION, COMMAND_GUI, COMMAND_LAYERS };
+enum CommandType { COMMAND_NONE = 0, COMMAND_SHOW_USAGE, COMMAND_VERSION, COMMAND_GUI, COMMAND_RESET, COMMAND_LAYERS };
+
 enum CommandLayersArg {
     COMMAND_LAYERS_NONE = 0,
     COMMAND_LAYERS_OVERRIDE,
@@ -32,6 +33,9 @@ enum CommandLayersArg {
     COMMAND_LAYERS_LIST,
     COMMAND_LAYERS_VERBOSE
 };
+
+enum CommandResetArg { COMMAND_RESET_NONE = 0, COMMAND_RESET_SOFT, COMMAND_RESET_HARD };
+
 enum CommandError {
     ERROR_NONE = 0,
     ERROR_INVALID_COMMAND_USAGE,
@@ -42,7 +46,7 @@ enum CommandError {
     ERROR_FILE_NOTFOUND
 };
 
-enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_GUI, HELP_LAYERS };
+enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_GUI, HELP_LAYERS, HELP_RESET };
 
 class CommandLine {
    public:
@@ -52,6 +56,7 @@ class CommandLine {
     void version() const;
 
     const CommandType& command;
+    const CommandResetArg& command_reset_arg;
     const CommandLayersArg& command_layers_arg;
     const std::string& layers_configuration_path;
 
@@ -63,6 +68,7 @@ class CommandLine {
     CommandLine& operator=(const CommandLine&) = delete;
 
     CommandType _command;
+    CommandResetArg _command_reset_arg;
     CommandLayersArg _command_layers_arg;
     std::string _layers_configuration_path;
 

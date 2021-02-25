@@ -38,6 +38,7 @@
 - Refresh 'Vulkan Development Status' when the configuration changed #1366
 - Streamline 'configuration tree' UI usage #1370
 - Add 'Reload Default Configuration' to retrieve missing default configurations #1370
+- Add 'reset' command line argument to reset the platform layers configurations
 
 ### Fixes:
 - Fix export and import path being truncated when the path as '.' character

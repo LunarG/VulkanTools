@@ -19,6 +19,7 @@
  */
 
 #include "main_gui.h"
+#include "main_reset.h"
 #include "main_layers.h"
 #include "main_signal.h"
 
@@ -48,6 +49,9 @@ int main(int argc, char* argv[]) {
         }
         case COMMAND_LAYERS: {
             return run_layers(command_line);
+        }
+        case COMMAND_RESET: {
+            return run_reset(argc, argv, command_line);
         }
         case COMMAND_GUI: {
             return run_gui(argc, argv);
