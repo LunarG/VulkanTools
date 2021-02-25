@@ -1,12 +1,11 @@
 <!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
+<p align="left">Copyright © 2015-2021 LunarG, Inc.</p>
 
 [![Creative Commons][3]][4]
 
 [3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
-
-Copyright &copy; 2015-2020 LunarG, Inc.
 
 # VK\_LAYER\_LUNARG\_screenshot
 The `VK_LAYER_LUNARG_screenshot` layer records frames to image files. The layer can easily be enabled and configured using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK. Or you can manually enable and configure the layer by following the directions below.
