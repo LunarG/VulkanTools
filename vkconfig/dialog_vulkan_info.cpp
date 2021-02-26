@@ -227,13 +227,22 @@ void VulkanInfoDialog::BuildLayers(QJsonValue &jsonValue, QTreeWidgetItem *root)
         QJsonObject layerObject = layerTop.toObject();
         output = layers[i] + " (";
         output += layerObject.value("description").toString();
-        output += ") Vulkan version ";
-        output += layerObject.value("version").toString();
-        output += ", layer version ";
-        output += layerObject.value("implementation version").toVariant().toString();
+        output += ")";
 
         QTreeWidgetItem *layer = new QTreeWidgetItem();
         layer->setText(0, output);
+
+        QJsonValue apiVersion = layerObject.value("version");
+        QTreeWidgetItem *api_version_item = new QTreeWidgetItem();
+        output = "Vulkan Version : " + apiVersion.toString();
+        api_version_item->setText(0, output);
+        layer->addChild(api_version_item);
+
+        QVariant implementationVersion = layerObject.value("implementation version").toVariant();
+        QTreeWidgetItem *implementation_version_item = new QTreeWidgetItem();
+        output = "Implementation Version : " + implementationVersion.toString();
+        implementation_version_item->setText(0, output);
+        layer->addChild(implementation_version_item);
 
         // Each layer has extensions
         QJsonValue layerExtensions = layerObject.value("Layer Extensions");
