@@ -88,9 +88,9 @@ std::string GenerateVulkanStatus() {
     // Check Vulkan SDK path
     const std::string search_path(qgetenv("VULKAN_SDK"));
     if (!search_path.empty())
-        log += format("- $VULKAN_SDK SDK path: %s\n", search_path.c_str());
+        log += format("- VULKAN_SDK environment variable: %s\n", search_path.c_str());
     else
-        log += "- $VULKAN_SDK environment variable not set\n";
+        log += "- VULKAN_SDK environment variable not set\n";
 
     const Version loader_version = GetVulkanLoaderVersion();
 
@@ -107,7 +107,7 @@ std::string GenerateVulkanStatus() {
         log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str());
     }
 
-    log += GetUserDefinedLayersPathsLog("$VK_LAYER_PATH", USER_DEFINED_LAYERS_PATHS_ENV);
+    log += GetUserDefinedLayersPathsLog("VK_LAYER_PATH environment variable", USER_DEFINED_LAYERS_PATHS_ENV);
     if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers))
         log += GetUserDefinedLayersPathsLog("Vulkan Configurator", USER_DEFINED_LAYERS_PATHS_GUI);
 
