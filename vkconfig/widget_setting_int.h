@@ -23,11 +23,11 @@
 #include "../vkconfig_core/setting_data.h"
 #include "../vkconfig_core/setting_meta.h"
 
-#include <QString>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
+#include <QResizeEvent>
 
-class WidgetSettingInt : public QLineEdit {
+class WidgetSettingInt : public QWidget {
     Q_OBJECT
 
    public:
@@ -43,6 +43,9 @@ class WidgetSettingInt : public QLineEdit {
     WidgetSettingInt(const WidgetSettingInt&) = delete;
     WidgetSettingInt& operator=(const WidgetSettingInt&) = delete;
 
+    virtual void resizeEvent(QResizeEvent* event) override;
+
     const SettingMetaInt& setting_meta;
     SettingDataInt& setting_data;
+    QLineEdit* field;
 };

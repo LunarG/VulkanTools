@@ -283,11 +283,9 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             static_cast<SettingDataInt &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-        WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta, setting_data);
         parent->addChild(setting_item);
-        QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-        setting_item->addChild(place_holder);
-        _settings_tree->setItemWidget(place_holder, 0, widget);
+        WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta, setting_data);
+        _settings_tree->setItemWidget(setting_item, 0, widget);
         connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
 
@@ -359,7 +357,6 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
                 WidgetSettingBool *widget = new WidgetSettingBool(setting_meta_src, setting_data_src);
                 _settings_tree->setItemWidget(setting_item, 0, widget);
-                widget->setFont(_settings_tree->font());
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
@@ -368,9 +365,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 SettingDataInt &setting_data_src = static_cast<SettingDataInt &>(setting_data);
 
                 WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta_src, setting_data_src);
-                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                setting_item->addChild(place_holder);
-                _settings_tree->setItemWidget(place_holder, 0, widget);
+                _settings_tree->setItemWidget(setting_item, 0, widget);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 

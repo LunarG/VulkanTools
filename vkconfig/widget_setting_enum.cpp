@@ -39,9 +39,8 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnu
         }
     }
 
-    setCurrentIndex(selection);
-
-    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
+    this->setCurrentIndex(selection);
+    this->connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
 void WidgetSettingEnum::indexChanged(int index) {

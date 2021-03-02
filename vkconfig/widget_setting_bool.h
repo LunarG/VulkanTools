@@ -24,13 +24,10 @@
 #include "../vkconfig_core/setting_meta.h"
 #include "../vkconfig_core/setting_data.h"
 
-#include <QObject>
-#include <QWidget>
-#include <QCheckBox>
+#include <QLabel>
+#include <QResizeEvent>
 
-#include <string>
-
-class WidgetSettingBool : public QCheckBox {
+class WidgetSettingBool : public QLabel {
     Q_OBJECT
 
    public:
@@ -45,6 +42,8 @@ class WidgetSettingBool : public QCheckBox {
    private:
     WidgetSettingBool(const WidgetSettingBool&) = delete;
     WidgetSettingBool& operator=(const WidgetSettingBool&) = delete;
+
+    virtual void resizeEvent(QResizeEvent* event) override;
 
     const SettingMetaBool& setting_meta;
     SettingDataBool& setting_data;

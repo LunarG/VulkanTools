@@ -478,7 +478,7 @@
             <set>QAbstractItemView::NoEditTriggers</set>
            </property>
            <property name="alternatingRowColors">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="sortingEnabled">
             <bool>false</bool>
@@ -733,7 +733,7 @@
    <property name="text">
     <string>Vulkan GPU Info Reports</string>
    </property>
-  </action>     
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>

@@ -19,6 +19,9 @@
  */
 
 #include "widget_setting_int.h"
+#include "../vkconfig_core/util.h"
+
+#include <QMessageBox>
 
 #include <cassert>
 
@@ -30,15 +33,41 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidgetItem* item, const SettingMetaInt& 
 
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
-    this->setText(format("%d", setting_data.value).c_str());
-    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
+
+    this->field = new QLineEdit(this);
+    this->field->setText(format("%d", setting_data.value).c_str());
+    this->field->setAlignment(Qt::AlignRight);
+    this->field->show();
+
+    connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void WidgetSettingInt::itemEdited(const QString& new_string) {
-    if (new_string.isEmpty()) {
+void WidgetSettingInt::resizeEvent(QResizeEvent* event) {
+    if (this->field == nullptr) return;
+
+    const QSize parent_size = event->size();
+
+    const QRect button_rect = QRect(parent_size.width() - 48, 0, 48, parent_size.height());
+    this->field->setGeometry(button_rect);
+}
+
+void WidgetSettingInt::itemEdited(const QString& number) {
+    if (number.isEmpty()) {
         this->setting_data.value = this->setting_meta.default_value;
+        this->field->setText(format("%d", setting_data.value).c_str());
+    } else if (!IsNumber(number.toStdString())) {
+        this->setting_data.value = this->setting_meta.default_value;
+        this->field->setText(format("%d", setting_data.value).c_str());
+
+        QMessageBox alert;
+        alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
+        alert.setText("The setting input value is not a number. Please use digits [1-9] only.");
+        alert.setInformativeText(format("Resetting the value to setting default: '%i'.", this->setting_meta.default_value).c_str());
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
     } else {
-        this->setting_data.value = std::atoi(new_string.toStdString().c_str());
+        this->setting_data.value = std::atoi(number.toStdString().c_str());
     }
     emit itemChanged();
 }

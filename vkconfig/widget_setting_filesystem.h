@@ -23,12 +23,10 @@
 
 #include "../vkconfig_core/layer.h"
 
-#include <QWidget>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QResizeEvent>
-#include <QFileDialog>
 
 class WidgetSettingFilesystem : public QWidget {
     Q_OBJECT

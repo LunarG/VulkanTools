@@ -26,6 +26,8 @@
 
 #include <cassert>
 
+#include <QFileDialog>
+
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const SettingMetaFilesystem& setting_meta,
                                                  SettingDataString& setting_data)
     : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data), _line_edit(nullptr), _push_button(nullptr) {
@@ -54,10 +56,10 @@ void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
     const QSize parent_size = event->size();
 
     // Button takes up the last 32 pixels
-    const QRect edit_rect = QRect(0, 0, parent_size.width() - 32, parent_size.height());
+    const QRect edit_rect = QRect(0, 0, parent_size.width() - 24, parent_size.height());
     this->_line_edit->setGeometry(edit_rect);
 
-    const QRect button_rect = QRect(parent_size.width() - 32, 0, 32, parent_size.height());
+    const QRect button_rect = QRect(parent_size.width() - 24, 0, 24, parent_size.height());
     this->_push_button->setGeometry(button_rect);
 }
 
