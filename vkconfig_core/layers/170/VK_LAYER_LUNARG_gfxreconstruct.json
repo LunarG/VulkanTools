@@ -4,7 +4,7 @@
         "name": "VK_LAYER_LUNARG_gfxreconstruct",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_gfxreconstruct.dll",
-        "api_version": "1.2.171",
+        "api_version": "1.2.170",
         "implementation_version": "36868",
         "description": "GFXReconstruct Capture Layer Version 0.9.4",
         "device_extensions": [

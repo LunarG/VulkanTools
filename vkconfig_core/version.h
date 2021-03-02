@@ -32,6 +32,7 @@ static const char *VKCONFIG_SHORT_NAME = "vkconfig";
 #define SUPPORT_VKCONFIG_2_0_2 1
 #define SUPPORT_VKCONFIG_2_0_3 1
 #define SUPPORT_VKCONFIG_2_1_0 1
+#define SUPPORT_VKCONFIG_2_2_0 1
 
 class Version {
    public:

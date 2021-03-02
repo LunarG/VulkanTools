@@ -1,24 +1,24 @@
 {
     "file_format_version" : "1.3.0",
-    "layer" : {
+    "layer": {
         "name": "VK_LAYER_KHRONOS_validation",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_khronos_validation.dll",
-        "api_version": "1.2.171",
+        "api_version": "1.2.170",
         "implementation_version": "1",
         "description": "Khronos Validation Layer",
         "instance_extensions": [
             {
-             "name": "VK_EXT_debug_report",
-             "spec_version": "9"
+                "name": "VK_EXT_debug_report",
+                "spec_version": "9"
             },
             {
-             "name": "VK_EXT_debug_utils",
-             "spec_version": "1"
+                "name": "VK_EXT_debug_utils",
+                "spec_version": "1"
             },
             {
-             "name": "VK_EXT_validation_features",
-             "spec_version": "2"
+                "name": "VK_EXT_validation_features",
+                "spec_version": "2"
             }
         ],
         "device_extensions": [
