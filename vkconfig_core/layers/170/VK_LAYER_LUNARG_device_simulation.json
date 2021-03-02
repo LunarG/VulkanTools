@@ -4,7 +4,7 @@
         "name": "VK_LAYER_LUNARG_device_simulation",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_device_simulation.dll",
-        "api_version": "1.2.171",
+        "api_version": "1.2.170",
         "implementation_version": "1.4.1",
         "description": "LunarG device simulation layer",
         "device_extensions": [

@@ -38,7 +38,7 @@ static std::string GetBuiltinFolder(const Version& version) {
 
     if (vulkan_version < 135)
         return ":/layers/130";
-    else if (vulkan_version <= 162)
+    else if (vulkan_version <= 170)
         return format(":/layers/%d", vulkan_version).c_str();
     else
         return ":/layers/latest";

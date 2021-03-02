@@ -30,6 +30,9 @@ if(Qt5_FOUND)
     file(GLOB FILES_LAYERS_162 ./layers/162/*.json)
     source_group("Layers 162 Files" FILES ${FILES_LAYERS_162})
 
+    file(GLOB FILES_LAYERS_170 ./layers/170/*.json)
+    source_group("Layers 170 Files" FILES ${FILES_LAYERS_170})
+
     file(GLOB FILES_LAYERS_LATEST ./layers/latest/*.json)
     source_group("Layers Latest Files" FILES ${FILES_LAYERS_LATEST})
 
@@ -41,6 +44,7 @@ if(Qt5_FOUND)
         ${FILES_LAYERS_148}
         ${FILES_LAYERS_154}
         ${FILES_LAYERS_162}
+        ${FILES_LAYERS_170}
         ${FILES_LAYERS_LATEST})
 
     set(FILES_ALL ${FILES_SOURCE} ${FILES_HEADER} ${FILES_RESOURCES})

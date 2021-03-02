@@ -1,21 +1,22 @@
 {
     "file_format_version" : "1.4.0",
-    "layer" : {
+    "layer": {
         "name": "VK_LAYER_LUNARG_api_dump",
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_api_dump.dll",
-        "api_version": "1.2.171",
+        "api_version": "1.2.170",
         "implementation_version": "2",
         "description": "LunarG API dump layer",
         "device_extensions": [
             {
-                 "name": "VK_EXT_tooling_info",
-                 "spec_version": "1",
-                 "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"
-                        ]
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
             }
         ],
-        "settings" : [
+        "settings": [
             {
                 "key": "output_format",
                 "env": "VK_APIDUMP_OUTPUT_FORMAT",
@@ -138,7 +139,7 @@
                 "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
                 "type": "STRING",
                 "default": "0-0"
-            }            
+            }
         ]
     }
 }
