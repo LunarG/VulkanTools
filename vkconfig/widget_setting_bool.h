@@ -24,14 +24,15 @@
 #include "../vkconfig_core/setting_meta.h"
 #include "../vkconfig_core/setting_data.h"
 
-#include <QLabel>
+#include <QTreeWidgetItem>
 #include <QResizeEvent>
+#include <QCheckBox>
 
-class WidgetSettingBool : public QLabel {
+class WidgetSettingBool : public QWidget {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingBool(const SettingMetaBool& setting_meta, SettingDataBool& setting_data);
+    explicit WidgetSettingBool(QTreeWidgetItem* item, const SettingMetaBool& setting_meta, SettingDataBool& setting_data);
 
    public Q_SLOTS:
     void itemToggled();
@@ -47,4 +48,5 @@ class WidgetSettingBool : public QLabel {
 
     const SettingMetaBool& setting_meta;
     SettingDataBool& setting_data;
+    QCheckBox* field;
 };

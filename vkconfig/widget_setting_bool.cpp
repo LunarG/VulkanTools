@@ -25,30 +25,30 @@
 
 #include <cassert>
 
-WidgetSettingBool::WidgetSettingBool(const SettingMetaBool& setting_meta, SettingDataBool& setting_data)
+WidgetSettingBool::WidgetSettingBool(QTreeWidgetItem* item, const SettingMetaBool& setting_meta, SettingDataBool& setting_data)
     : setting_meta(setting_meta), setting_data(setting_data) {
     assert(&setting_meta);
     assert(&setting_data);
 
-    this->setText(setting_meta.label.c_str());
-    this->setToolTip(setting_meta.description.c_str());
+    item->setText(0, setting_meta.label.c_str());
+    item->setToolTip(0, setting_meta.description.c_str());
 
-    QCheckBox* checkbox = new QCheckBox(this);
-    checkbox->setChecked(setting_data.value);
-    this->setBuddy(checkbox);
+    this->field = new QCheckBox(this);
+    this->field->setChecked(setting_data.value);
+    this->field->show();
 
-    this->connect(checkbox, SIGNAL(clicked()), this, SLOT(itemToggled()));
+    this->connect(this->field, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
 void WidgetSettingBool::resizeEvent(QResizeEvent* event) {
-    const QSize parent_size = event->size();
+    if (this->field == nullptr) return;
 
-    const QRect button_rect = QRect(parent_size.width() - 16, 0, 16, parent_size.height());
-    static_cast<QCheckBox*>(this->buddy())->setGeometry(button_rect);
+    const QRect button_rect = QRect(event->size().width() - 16, 0, 16, event->size().height());
+    this->field->setGeometry(button_rect);
 }
 
 void WidgetSettingBool::itemToggled() {
-    this->setting_data.value = static_cast<QCheckBox*>(this->buddy())->isChecked();
+    this->setting_data.value = this->field->isChecked();
 
     emit itemChanged();
 }

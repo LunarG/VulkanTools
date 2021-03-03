@@ -355,7 +355,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 const SettingMetaBool &setting_meta_src = static_cast<const SettingMetaBool &>(setting_meta);
                 SettingDataBool &setting_data_src = static_cast<SettingDataBool &>(setting_data);
 
-                WidgetSettingBool *widget = new WidgetSettingBool(setting_meta_src, setting_data_src);
+                WidgetSettingBool *widget = new WidgetSettingBool(setting_item, setting_meta_src, setting_data_src);
                 _settings_tree->setItemWidget(setting_item, 0, widget);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;

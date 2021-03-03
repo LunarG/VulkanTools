@@ -28,6 +28,8 @@
 
 #include <cassert>
 
+static const int MIN_FIELD_WIDTH = 48;
+
 WidgetSettingInt::WidgetSettingInt(QTreeWidgetItem* item, const SettingMetaInt& setting_meta, SettingDataInt& setting_data)
     : setting_meta(setting_meta), setting_data(setting_data) {
     assert(item);
@@ -69,7 +71,7 @@ void WidgetSettingInt::FieldEditedCheck() {
 
 void WidgetSettingInt::Resize() {
     const QFontMetrics fm = this->field->fontMetrics();
-    const int width = std::max(fm.horizontalAdvance(this->field->text()) + fm.horizontalAdvance("00"), 48);
+    const int width = std::max(fm.horizontalAdvance(this->field->text()) + fm.horizontalAdvance("00"), MIN_FIELD_WIDTH);
 
     const QRect button_rect = QRect(this->resize.width() - width, 0, width, this->resize.height());
     this->field->setGeometry(button_rect);

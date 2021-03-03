@@ -24,8 +24,8 @@
 #include "../vkconfig_core/setting_meta.h"
 
 #include <QTreeWidgetItem>
-#include <QLineEdit>
 #include <QResizeEvent>
+#include <QLineEdit>
 
 class WidgetSettingInt : public QWidget {
     Q_OBJECT
