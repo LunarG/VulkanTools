@@ -29,7 +29,7 @@ class WidgetSettingInt : public WidgetSetting {
     Q_OBJECT
 
    public:
-    WidgetSettingInt(QTreeWidgetItem* item, const SettingMetaInt& setting_meta, SettingDataInt& setting_data);
+    WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaInt& setting_meta, SettingDataInt& setting_data);
 
    public Q_SLOTS:
     void itemEdited(const QString& value);

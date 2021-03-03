@@ -60,8 +60,6 @@ class SettingsTreeManager : QObject {
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
 
     QTreeWidget *_settings_tree;
-    std::vector<QTreeWidgetItem *> _compound_widgets;  // These have special cleanup requirements
-
     std::vector<WidgetPreset *> _presets_comboboxes;
 
     QTreeWidgetItem *_validation_log_file_item;

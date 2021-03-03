@@ -552,10 +552,7 @@ QTreeWidgetItem *SettingsValidationAreas::CreateSettingWidgetInt(QTreeWidgetItem
     if (setting_data && setting_meta) {
         assert(setting_meta->type == SETTING_INT);
 
-        child = new QTreeWidgetItem();
-        _debug_printf_buffer_size_value = new WidgetSettingInt(child, *setting_meta, *setting_data);
-        parent->addChild(child);
-        _main_tree_widget->setItemWidget(child, 0, _debug_printf_buffer_size_value);
+        _debug_printf_buffer_size_value = new WidgetSettingInt(_main_tree_widget, parent, *setting_meta, *setting_data);
     }
 
     return child;

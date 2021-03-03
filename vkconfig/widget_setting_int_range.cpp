@@ -30,9 +30,9 @@
 
 static const int MIN_FIELD_WIDTH = 48;
 
-WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta,
+WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRange& setting_meta,
                                              SettingDataIntRange& setting_data)
-    : WidgetSetting(item, setting_meta), setting_meta(setting_meta), setting_data(setting_data) {
+    : WidgetSetting(tree, parent, setting_meta), setting_meta(setting_meta), setting_data(setting_data) {
     assert(&setting_data);
 
     this->field = new QLineEdit(this);

@@ -30,7 +30,8 @@ class WidgetSettingEnum : public WidgetSetting {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnum& setting_meta, SettingDataEnum& setting_data);
+    explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaEnum& setting_meta,
+                               SettingDataEnum& setting_data);
 
    public Q_SLOTS:
     void indexChanged(int index);

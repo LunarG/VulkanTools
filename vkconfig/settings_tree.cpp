@@ -175,9 +175,6 @@ void SettingsTreeManager::CleanupGUI() {
         _validation_areas = nullptr;
     }
 
-    for (std::size_t i = 0; i < _compound_widgets.size(); i++) _settings_tree->setItemWidget(_compound_widgets[i], 1, nullptr);
-
-    _compound_widgets.clear();
     _presets_comboboxes.clear();
 
     _settings_tree->clear();
@@ -242,10 +239,9 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             _validation_debug_action = widget;
             _validation_log_file_item = new QTreeWidgetItem();
             child->addChild(_validation_log_file_item);
-            _validation_log_file_widget = new WidgetSettingFilesystem(_validation_log_file_item, *log_file_meta, *log_file_data);
+            _validation_log_file_widget = new WidgetSettingFilesystem(_settings_tree, child, *log_file_meta, *log_file_data);
             _validation_log_file_item->setSizeHint(0, QSize(0, 28));
             _settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
-            _compound_widgets.push_back(child);
 
             connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(khronosDebugChanged(int)));
@@ -282,10 +278,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         SettingDataInt &setting_data =
             static_cast<SettingDataInt &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
 
-        QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-        parent->addChild(setting_item);
-        WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta, setting_data);
-        _settings_tree->setItemWidget(setting_item, 0, widget);
+        WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, parent, setting_meta, setting_data);
         connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
 
@@ -305,15 +298,24 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         QTreeWidgetItem *next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, 28));
         mute_message_item->addChild(next_line);
+<<<<<<< HEAD
         _settings_tree->setItemWidget(next_line, 0, widget_search);
         _compound_widgets.push_back(next_line);
+=======
+        _settings_tree->setItemWidget(next_line, 0, vuid_search_widget);
+>>>>>>> d9f2fbda7... vkconfig: compact filesystem UI
 
         QTreeWidgetItem *list_item = new QTreeWidgetItem();
         mute_message_item->addChild(list_item);
         list_item->setSizeHint(0, QSize(0, 200));
+<<<<<<< HEAD
         WidgetSettingList *widget_list = new WidgetSettingList(setting_meta, setting_data);
         _compound_widgets.push_back(list_item);
         _settings_tree->setItemWidget(list_item, 0, widget_list);
+=======
+        WidgetSettingVUIDFilter *mute_message_widget = new WidgetSettingVUIDFilter(setting_meta, setting_data);
+        _settings_tree->setItemWidget(list_item, 0, mute_message_widget);
+>>>>>>> d9f2fbda7... vkconfig: compact filesystem UI
 
         connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
         connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -341,69 +343,68 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
     for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
         const SettingMeta &setting_meta = layer_setting_metas[setting_index];
+
         if (!IsPlatformSupported(setting_meta.platform_flags)) continue;
 
         SettingData &setting_data = *parameter.settings.Get(setting_meta.key.c_str());
         assert(&setting_data);
 
-        QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-        parent->addChild(setting_item);
-
         switch (setting_meta.type) {
             case SETTING_BOOL:
             case SETTING_BOOL_NUMERIC_DEPRECATED: {
-                const SettingMetaBool &setting_meta_src = static_cast<const SettingMetaBool &>(setting_meta);
-                SettingDataBool &setting_data_src = static_cast<SettingDataBool &>(setting_data);
+                const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(setting_meta);
+                SettingDataBool &data = static_cast<SettingDataBool &>(setting_data);
 
-                WidgetSettingBool *widget = new WidgetSettingBool(setting_item, setting_meta_src, setting_data_src);
-                _settings_tree->setItemWidget(setting_item, 0, widget);
+                WidgetSettingBool *widget = new WidgetSettingBool(_settings_tree, parent, meta, data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_INT: {
-                const SettingMetaInt &setting_meta_src = static_cast<const SettingMetaInt &>(setting_meta);
-                SettingDataInt &setting_data_src = static_cast<SettingDataInt &>(setting_data);
+                const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(setting_meta);
+                SettingDataInt &data = static_cast<SettingDataInt &>(setting_data);
 
-                WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta_src, setting_data_src);
-                _settings_tree->setItemWidget(setting_item, 0, widget);
+                WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, parent, meta, data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_SAVE_FILE:
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER: {
-                const SettingMetaFilesystem &setting_meta_src = static_cast<const SettingMetaFilesystem &>(setting_meta);
-                SettingDataString &setting_data_src = static_cast<SettingDataString &>(setting_data);
+                // QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+                // parent->addChild(setting_item);
 
-                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(setting_item, setting_meta_src, setting_data_src);
-                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                place_holder->setSizeHint(0, QSize(0, 28));
-                setting_item->addChild(place_holder);
-                setting_item->setSizeHint(0, QSize(0, 28));
-                _settings_tree->setItemWidget(place_holder, 0, widget);
-                _compound_widgets.push_back(place_holder);
+                const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(setting_meta);
+                SettingDataString &data = static_cast<SettingDataString &>(setting_data);
+
+                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(_settings_tree, parent, meta, data);
+                // QTreeWidgetItem *place_holder = new QTreeWidgetItem();
+                // place_holder->setSizeHint(0, QSize(0, 28));
+                // setting_item->addChild(place_holder);
+                // setting_item->setSizeHint(0, QSize(0, 28));
+                //_settings_tree->setItemWidget(setting_item, 0, widget);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_ENUM: {
-                const SettingMetaEnum &setting_meta_src = static_cast<const SettingMetaEnum &>(setting_meta);
-                SettingDataEnum &setting_data_src = static_cast<SettingDataEnum &>(setting_data);
+                const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(setting_meta);
+                SettingDataEnum &data = static_cast<SettingDataEnum &>(setting_data);
 
-                WidgetSettingEnum *enum_widget = new WidgetSettingEnum(setting_item, setting_meta_src, setting_data_src);
-                _settings_tree->setItemWidget(setting_item, 0, enum_widget);
+                WidgetSettingEnum *enum_widget = new WidgetSettingEnum(_settings_tree, parent, meta, data);
                 connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_FLAGS: {
-                const SettingMetaFlags &setting_meta_src = static_cast<const SettingMetaFlags &>(setting_meta);
-                SettingDataFlags &setting_data_src = static_cast<SettingDataFlags &>(setting_data);
+                QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+                parent->addChild(setting_item);
+
+                const SettingMetaFlags &meta = static_cast<const SettingMetaFlags &>(setting_meta);
+                SettingDataFlags &data = static_cast<SettingDataFlags &>(setting_data);
 
                 setting_item->setText(0, setting_meta.label.c_str());
                 setting_item->setToolTip(0, setting_meta.description.c_str());
 
-                for (std::size_t i = 0, n = setting_meta_src.enum_values.size(); i < n; ++i) {
-                    WidgetSettingFlag *widget =
-                        new WidgetSettingFlag(setting_meta_src, setting_data_src, setting_meta_src.enum_values[i].key.c_str());
+                for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
+                    WidgetSettingFlag *widget = new WidgetSettingFlag(meta, data, meta.enum_values[i].key.c_str());
                     QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                     setting_item->addChild(place_holder);
                     _settings_tree->setItemWidget(place_holder, 0, widget);
@@ -413,19 +414,21 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             } break;
 
             case SETTING_INT_RANGES: {
-                const SettingMetaIntRange &setting_meta_src = static_cast<const SettingMetaIntRange &>(setting_meta);
-                SettingDataIntRange &setting_data_src = static_cast<SettingDataIntRange &>(setting_data);
+                const SettingMetaIntRange &meta = static_cast<const SettingMetaIntRange &>(setting_meta);
+                SettingDataIntRange &data = static_cast<SettingDataIntRange &>(setting_data);
 
-                WidgetSettingIntRange *widget = new WidgetSettingIntRange(setting_item, setting_meta_src, setting_data_src);
-                _settings_tree->setItemWidget(setting_item, 0, widget);
+                WidgetSettingIntRange *widget = new WidgetSettingIntRange(_settings_tree, parent, meta, data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_STRING: {
-                const SettingMetaString &setting_meta_src = static_cast<const SettingMetaString &>(setting_meta);
-                SettingDataString &setting_data_src = static_cast<SettingDataString &>(setting_data);
+                QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+                parent->addChild(setting_item);
 
-                WidgetSettingString *widget = new WidgetSettingString(setting_item, setting_meta_src, setting_data_src);
+                const SettingMetaString &meta = static_cast<const SettingMetaString &>(setting_meta);
+                SettingDataString &data = static_cast<SettingDataString &>(setting_data);
+
+                WidgetSettingString *widget = new WidgetSettingString(setting_item, meta, data);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                 setting_item->addChild(place_holder);
                 _settings_tree->setItemWidget(place_holder, 0, widget);
@@ -464,7 +467,6 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             } break;
 
             default: {
-                setting_item->setText(0, "Unknown setting");
                 assert(0);  // Unknown setting
             } break;
         }

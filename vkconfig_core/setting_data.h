@@ -80,6 +80,7 @@ struct SettingDataString : public SettingData {
     virtual ~SettingDataString() {}
 
     std::string value;
+    bool expanded;
 
    protected:
     SettingDataString(const std::string& key, const SettingType type) : SettingData(key, type) {}

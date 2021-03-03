@@ -28,7 +28,11 @@
 
 class WidgetSetting : public QWidget {
    public:
-    explicit WidgetSetting(QTreeWidgetItem* item, const SettingMeta& setting_meta);
+    explicit WidgetSetting(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMeta& setting_meta);
+
+   protected:
+    QTreeWidget* tree;
+    QTreeWidgetItem* item;
 
    private:
     WidgetSetting(const WidgetSetting&) = delete;

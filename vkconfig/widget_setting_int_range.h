@@ -29,7 +29,8 @@ class WidgetSettingIntRange : public WidgetSetting {
     Q_OBJECT
 
    public:
-    WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta, SettingDataIntRange& setting_data);
+    WidgetSettingIntRange(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRange& setting_meta,
+                          SettingDataIntRange& setting_data);
 
    public Q_SLOTS:
     void itemEdited(const QString& value);

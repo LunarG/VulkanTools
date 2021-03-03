@@ -25,11 +25,13 @@
 
 static const int MIN_FIELD_WIDTH = 48;
 
-WidgetSettingEnum::WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnum& setting_meta, SettingDataEnum& setting_data)
-    : WidgetSetting(item, setting_meta), setting_meta(setting_meta), setting_data(setting_data), field(nullptr) {
+WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaEnum& setting_meta,
+                                     SettingDataEnum& setting_data)
+    : WidgetSetting(tree, parent, setting_meta),
+      setting_meta(setting_meta),
+      setting_data(setting_data),
+      field(new QComboBox(this)) {
     assert(&setting_data);
-
-    this->field = new QComboBox(this);
 
     int selection = 0;
     for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
@@ -46,8 +48,6 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnu
 }
 
 void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
-    if (this->field == nullptr) return;
-
     int width = MIN_FIELD_WIDTH;
 
     const QFontMetrics fm = this->field->fontMetrics();

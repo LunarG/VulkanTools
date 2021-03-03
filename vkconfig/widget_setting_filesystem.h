@@ -21,23 +21,24 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
+#include "widget_setting.h"
 
-#include <QTreeWidgetItem>
+#include <QResizeEvent>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QResizeEvent>
 
-class WidgetSettingFilesystem : public QWidget {
+class WidgetSettingFilesystem : public WidgetSetting {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingFilesystem(QTreeWidgetItem *item, const SettingMetaFilesystem &setting_meta,
+    explicit WidgetSettingFilesystem(QTreeWidget *tree, QTreeWidgetItem *parent, const SettingMetaFilesystem &setting_meta,
                                      SettingDataString &setting_data);
 
    public Q_SLOTS:
-    void browseButtonClicked();
-    void textFieldChanged(const QString &newText);
+    void OnButtonClicked();
+    void OnTextEdited(const QString &value);
+    void OnItemExpanded(QTreeWidgetItem *expanded_item);
+    void OnItemCollapsed(QTreeWidgetItem *expanded_item);
 
    Q_SIGNALS:
     void itemChanged();
@@ -50,6 +51,8 @@ class WidgetSettingFilesystem : public QWidget {
 
     const SettingMetaFilesystem &setting_meta;
     SettingDataString &setting_data;
-    QLineEdit *_line_edit;
-    QPushButton *_push_button;
+    QPushButton *button;
+    QLineEdit *title_field;
+    QLineEdit *child_field;
+    QTreeWidgetItem *child_item;
 };

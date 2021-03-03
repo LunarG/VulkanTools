@@ -23,11 +23,14 @@
 
 #include <cassert>
 
-WidgetSettingBool::WidgetSettingBool(QTreeWidgetItem* item, const SettingMetaBool& setting_meta, SettingDataBool& setting_data)
-    : WidgetSetting(item, setting_meta), setting_meta(setting_meta), setting_data(setting_data) {
+WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaBool& setting_meta,
+                                     SettingDataBool& setting_data)
+    : WidgetSetting(tree, parent, setting_meta),
+      setting_meta(setting_meta),
+      setting_data(setting_data),
+      field(new QCheckBox(this)) {
     assert(&setting_data);
 
-    this->field = new QCheckBox(this);
     this->field->setChecked(setting_data.value);
     this->field->show();
 
@@ -35,8 +38,6 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidgetItem* item, const SettingMetaBoo
 }
 
 void WidgetSettingBool::resizeEvent(QResizeEvent* event) {
-    if (this->field == nullptr) return;
-
     const QRect button_rect = QRect(event->size().width() - 16, 0, 16, event->size().height());
     this->field->setGeometry(button_rect);
 }

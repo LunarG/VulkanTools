@@ -20,11 +20,18 @@
 
 #include "widget_setting.h"
 
-WidgetSetting::WidgetSetting(QTreeWidgetItem* item, const SettingMeta& setting_meta) {
-    assert(item);
+WidgetSetting::WidgetSetting(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMeta& setting_meta)
+    : tree(tree), item(new QTreeWidgetItem()) {
+    assert(tree);
+    assert(parent);
     assert(&setting_meta);
 
-    item->setText(0, setting_meta.label.c_str());
-    item->setToolTip(0, setting_meta.description.c_str());
-    item->setSizeHint(0, QSize(0, 24));
+    this->item->setText(0, setting_meta.label.c_str());
+    this->item->setToolTip(0, setting_meta.description.c_str());
+    this->item->setSizeHint(0, QSize(0, 24));
+    this->item->setFont(0, tree->font());
+
+    parent->addChild(this->item);
+
+    tree->setItemWidget(this->item, 0, this);
 }

@@ -30,7 +30,8 @@ class WidgetSettingBool : public WidgetSetting {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingBool(QTreeWidgetItem* item, const SettingMetaBool& setting_meta, SettingDataBool& setting_data);
+    explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaBool& setting_meta,
+                               SettingDataBool& setting_data);
 
    public Q_SLOTS:
     void itemToggled();

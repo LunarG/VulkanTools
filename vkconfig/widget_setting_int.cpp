@@ -30,21 +30,22 @@
 
 static const int MIN_FIELD_WIDTH = 48;
 
-WidgetSettingInt::WidgetSettingInt(QTreeWidgetItem* item, const SettingMetaInt& setting_meta, SettingDataInt& setting_data)
-    : WidgetSetting(item, setting_meta), setting_meta(setting_meta), setting_data(setting_data) {
+WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaInt& setting_meta,
+                                   SettingDataInt& setting_data)
+    : WidgetSetting(tree, parent, setting_meta),
+      setting_meta(setting_meta),
+      setting_data(setting_data),
+      field(new QLineEdit(this)) {
     assert(&setting_data);
 
-    this->field = new QLineEdit(this);
     this->field->setText(format("%d", setting_data.value).c_str());
     this->field->setAlignment(Qt::AlignRight);
     this->field->show();
 
-    connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
+    this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
 void WidgetSettingInt::FieldEditedCheck() {
-    if (this->field == nullptr) return;
-
     if (setting_data.value < setting_meta.min_value || setting_data.value > setting_meta.max_value) {
         const std::string text =
             format("'%s' is out of range. Use a value in the [%d-%d].", this->field->text().toStdString().c_str(),
@@ -74,9 +75,6 @@ void WidgetSettingInt::Resize() {
 
 void WidgetSettingInt::resizeEvent(QResizeEvent* event) {
     this->resize = event->size();
-
-    if (this->field == nullptr) return;
-
     this->Resize();
 }
 
