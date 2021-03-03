@@ -578,6 +578,10 @@ class PhysicalDeviceData {
     ArrayOfVkLayerProperties arrayof_layer_properties_;
     ArrayOfVkExtensionProperties arrayof_extension_properties_;
 
+    // Vulkan 1.2 structs for summarizing core extension properties and features
+    VkPhysicalDeviceVulkan11Properties physical_device_vulkan_1_1_properties_;
+    VkPhysicalDeviceVulkan11Features physical_device_vulkan_1_1_features_;
+
     // VK_KHR_16bit_storage structs
     VkPhysicalDevice16BitStorageFeaturesKHR physical_device_16bit_storage_features_;
 
@@ -608,6 +612,10 @@ class PhysicalDeviceData {
         physical_device_properties_ = {};
         physical_device_features_ = {};
         physical_device_memory_properties_ = {};
+
+        // Vulkan 1.2 structs for summarizing core extension properties and features
+        physical_device_vulkan_1_1_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES};
+        physical_device_vulkan_1_1_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
 
         // VK_KHR_16bit_storage structs
         physical_device_16bit_storage_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR};
@@ -1787,6 +1795,18 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = vpf->pNext;
             *vpf = physicalDeviceData->physical_device_variable_pointers_features_;
             vpf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES &&
+                   physicalDeviceData->physical_device_properties_.apiVersion >= VK_API_VERSION_1_2) {
+            VkPhysicalDeviceVulkan11Properties *v11p = (VkPhysicalDeviceVulkan11Properties *)place;
+            void *pNext = v11p->pNext;
+            *v11p = physicalDeviceData->physical_device_vulkan_1_1_properties_;
+            v11p->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES &&
+                   physicalDeviceData->physical_device_properties_.apiVersion >= VK_API_VERSION_1_2) {
+            VkPhysicalDeviceVulkan11Features *v11f = (VkPhysicalDeviceVulkan11Features *)place;
+            void *pNext = v11f->pNext;
+            *v11f = physicalDeviceData->physical_device_vulkan_1_1_features_;
+            v11f->pNext = pNext;
         }
 
         place = structure->pNext;
@@ -2089,6 +2109,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
             });
 
             dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
+            bool api_version_above_1_2 = pdd.physical_device_properties_.apiVersion >= VK_API_VERSION_1_2;
 
             // Initialize PDD members to the actual Vulkan implementation's defaults.
             if (get_physical_device_properties2_active) {
@@ -2162,6 +2183,16 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     feature_chain.pNext = &(pdd.physical_device_variable_pointers_features_);
                 }
 
+                if (api_version_above_1_2) {
+                    pdd.physical_device_vulkan_1_1_properties_.pNext = property_chain.pNext;
+
+                    property_chain.pNext = &(pdd.physical_device_vulkan_1_1_properties_);
+
+                    pdd.physical_device_vulkan_1_1_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_vulkan_1_1_features_);
+                }
+
                 dt->GetPhysicalDeviceProperties2KHR(physical_device, &property_chain);
                 dt->GetPhysicalDeviceFeatures2KHR(physical_device, &feature_chain);
                 dt->GetPhysicalDeviceMemoryProperties2KHR(physical_device, &memory_chain);
@@ -2179,6 +2210,37 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
             // Override PDD members with values from configuration file(s).
             JsonLoader json_loader(pdd);
             json_loader.LoadFiles();
+
+            pdd.physical_device_vulkan_1_1_properties_.pointClippingBehavior =
+                pdd.physical_device_point_clipping_properties_.pointClippingBehavior;
+            pdd.physical_device_vulkan_1_1_properties_.maxMultiviewViewCount =
+                pdd.physical_device_multiview_properties_.maxMultiviewViewCount;
+            pdd.physical_device_vulkan_1_1_properties_.maxMultiviewInstanceIndex =
+                pdd.physical_device_multiview_properties_.maxMultiviewInstanceIndex;
+            pdd.physical_device_vulkan_1_1_properties_.maxPerSetDescriptors =
+                pdd.physical_device_maintenance_3_properties_.maxPerSetDescriptors;
+            pdd.physical_device_vulkan_1_1_properties_.maxMemoryAllocationSize =
+                pdd.physical_device_maintenance_3_properties_.maxMemoryAllocationSize;
+
+            pdd.physical_device_vulkan_1_1_features_.storageBuffer16BitAccess =
+                pdd.physical_device_16bit_storage_features_.storageBuffer16BitAccess;
+            pdd.physical_device_vulkan_1_1_features_.uniformAndStorageBuffer16BitAccess =
+                pdd.physical_device_16bit_storage_features_.uniformAndStorageBuffer16BitAccess;
+            pdd.physical_device_vulkan_1_1_features_.storagePushConstant16 =
+                pdd.physical_device_16bit_storage_features_.storagePushConstant16;
+            pdd.physical_device_vulkan_1_1_features_.storageInputOutput16 =
+                pdd.physical_device_16bit_storage_features_.storageInputOutput16;
+            pdd.physical_device_vulkan_1_1_features_.multiview = pdd.physical_device_multiview_features_.multiview;
+            pdd.physical_device_vulkan_1_1_features_.multiviewGeometryShader =
+                pdd.physical_device_multiview_features_.multiviewGeometryShader;
+            pdd.physical_device_vulkan_1_1_features_.multiviewTessellationShader =
+                pdd.physical_device_multiview_features_.multiviewTessellationShader;
+            pdd.physical_device_vulkan_1_1_features_.variablePointersStorageBuffer =
+                pdd.physical_device_variable_pointers_features_.variablePointersStorageBuffer;
+            pdd.physical_device_vulkan_1_1_features_.variablePointers =
+                pdd.physical_device_variable_pointers_features_.variablePointers;
+            pdd.physical_device_vulkan_1_1_features_.samplerYcbcrConversion =
+                pdd.physical_device_sampler_ycbcr_conversion_features_.samplerYcbcrConversion;
         }
         pdd_initialized = true;
     }
