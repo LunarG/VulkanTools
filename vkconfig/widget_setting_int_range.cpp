@@ -20,6 +20,12 @@
 
 #include "widget_setting_int_range.h"
 
+#include "../vkconfig_core/util.h"
+
+#include <QMessageBox>
+#include <QTimer>
+#include <QFontMetrics>
+
 #include <cassert>
 
 WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta,
@@ -31,18 +37,57 @@ WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const Settin
 
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
-    if (setting_data.min_value < setting_data.max_value) {
-        this->setText(format("%d-%d", setting_data.min_value, setting_data.max_value).c_str());
-    }
-    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
+
+    this->field = new QLineEdit(this);
+    this->field->setText(setting_data.value.c_str());
+    this->field->setAlignment(Qt::AlignRight);
+    this->field->show();
+
+    connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void WidgetSettingIntRange::itemEdited(const QString& value) {
-    if (value.isEmpty()) {
-        this->setting_data.min_value = this->setting_meta.default_min_value;
-        this->setting_data.max_value = this->setting_meta.default_max_value;
-    } else {
-        std::sscanf(value.toStdString().c_str(), "%d-%d", &this->setting_data.min_value, &this->setting_data.max_value);
+void WidgetSettingIntRange::FieldEditedCheck() {
+    if (this->field == nullptr) return;
+
+    if (!IsUIntRanges(setting_data.value)) {
+        const std::string text = format("'%s' is an invalid value. Use list of comma separated integer ranges. Example: '0-2,16'.",
+                                        this->field->text().toStdString().c_str());
+        const std::string into = format("Resetting to the setting default value: '%s'.", this->setting_meta.default_value.c_str());
+
+        this->setting_data.value = this->setting_meta.default_value;
+        this->field->setText(this->setting_data.value.c_str());
+
+        QMessageBox alert;
+        alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
+        alert.setText(text.c_str());
+        alert.setInformativeText(into.c_str());
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
     }
+}
+
+void WidgetSettingIntRange::Resize() {
+    const QFontMetrics fm = this->field->fontMetrics();
+    const int width = std::max(fm.horizontalAdvance(this->field->text()) + fm.horizontalAdvance("00"), 48);
+
+    const QRect button_rect = QRect(this->resize.width() - width, 0, width, this->resize.height());
+    this->field->setGeometry(button_rect);
+}
+
+void WidgetSettingIntRange::resizeEvent(QResizeEvent* event) {
+    this->resize = event->size();
+
+    if (this->field == nullptr) return;
+
+    this->Resize();
+}
+
+void WidgetSettingIntRange::itemEdited(const QString& numbers) {
+    this->setting_data.value = numbers.toStdString();
+    QTimer::singleShot(1000, [this]() { FieldEditedCheck(); });
+
+    this->Resize();
+
     emit itemChanged();
 }

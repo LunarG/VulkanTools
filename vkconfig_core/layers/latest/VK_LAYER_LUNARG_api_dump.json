@@ -85,7 +85,11 @@
                 "label": "Indent Size",
                 "description": "Specifies the number of spaces that a tab is equal to",
                 "type": "INT",
-                "default": 4
+                "default": 4,
+                "range": {
+                    "min": 1,
+                    "max": 16
+                }
             },
             {
                 "key": "show_types",
@@ -99,14 +103,20 @@
                 "label": "Name Size",
                 "description": "The number of characters the name of a variable should consume, assuming more are not required",
                 "type": "INT",
-                "default": 32
+                "default": 32,
+                "range": {
+                    "min": 1
+                }
             },
             {
                 "key": "type_size",
                 "label": "Type Size",
                 "description": "The number of characters the name of a type should consume, assuming more are not required",
                 "type": "INT",
-                "default": 0
+                "default": 0,
+                "range": {
+                    "min": 0
+                }
             },
             {
                 "key": "use_spaces",
@@ -135,7 +145,7 @@
                 "env": "VK_APIDUMP_OUTPUT_RANGE",
                 "label": "Output Range",
                 "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
-                "type": "STRING",
+                "type": "INT_RANGE",
                 "default": "0-0"
             }            
         ]

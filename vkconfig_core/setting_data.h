@@ -108,16 +108,9 @@ struct SettingDataFolderSave : public SettingDataString {
     virtual ~SettingDataFolderSave() {}
 };
 
-struct SettingDataIntRange : public SettingData {
-    SettingDataIntRange(const std::string& key) : SettingData(key, SETTING_INT_RANGE), min_value(0), max_value(0) {}
+struct SettingDataIntRange : public SettingDataString {
+    SettingDataIntRange(const std::string& key) : SettingDataString(key, SETTING_INT_RANGE) {}
     virtual ~SettingDataIntRange() {}
-
-    int min_value;
-    int max_value;
-
-   protected:
-    virtual bool Equal(const SettingData& other) const;
-    virtual SettingData& Assign(const SettingData& other);
 };
 
 struct SettingDataVector : public SettingData {

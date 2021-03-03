@@ -421,9 +421,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 SettingDataIntRange &setting_data_src = static_cast<SettingDataIntRange &>(setting_data);
 
                 WidgetSettingIntRange *widget = new WidgetSettingIntRange(setting_item, setting_meta_src, setting_data_src);
-                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                setting_item->addChild(place_holder);
-                _settings_tree->setItemWidget(place_holder, 0, widget);
+                _settings_tree->setItemWidget(setting_item, 0, widget);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 

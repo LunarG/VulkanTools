@@ -60,14 +60,6 @@ bool SettingMetaBool::Equal(const SettingMeta& other) const {
     return this->default_value == static_cast<const SettingMetaBool&>(other).default_value;
 }
 
-bool SettingMetaIntRange::Equal(const SettingMeta& other) const {
-    if (!SettingMeta::Equal(other)) return false;
-
-    const SettingMetaIntRange& meta = static_cast<const SettingMetaIntRange&>(other);
-
-    return this->default_min_value == meta.default_min_value && this->default_max_value == meta.default_max_value;
-}
-
 bool SettingMetaFilesystem::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
 

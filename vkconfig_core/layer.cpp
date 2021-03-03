@@ -178,18 +178,23 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
             switch (type) {
                 case SETTING_SAVE_FOLDER:
+                case SETTING_INT_RANGE:
                 case SETTING_STRING: {
                     static_cast<SettingMetaString&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
                     break;
                 }
                 case SETTING_INT: {
-                    static_cast<SettingMetaInt&>(setting_meta).default_value = ReadIntValue(json_setting, "default");
-                    break;
-                }
-                case SETTING_INT_RANGE: {
-                    const QJsonObject& json_range_object = ReadObject(json_setting, "default");
-                    static_cast<SettingMetaIntRange&>(setting_meta).default_min_value = ReadIntValue(json_range_object, "min");
-                    static_cast<SettingMetaIntRange&>(setting_meta).default_max_value = ReadIntValue(json_range_object, "max");
+                    SettingMetaInt& setting_meta_int = static_cast<SettingMetaInt&>(setting_meta);
+                    setting_meta_int.default_value = ReadIntValue(json_setting, "default");
+                    if (json_setting.value("range") != QJsonValue::Undefined) {
+                        QJsonObject json_setting_range = ReadObject(json_setting, "range");
+                        if (json_setting_range.value("min") != QJsonValue::Undefined) {
+                            setting_meta_int.min_value = ReadIntValue(json_setting_range, "min");
+                        }
+                        if (json_setting_range.value("max") != QJsonValue::Undefined) {
+                            setting_meta_int.max_value = ReadIntValue(json_setting_range, "max");
+                        }
+                    }
                     break;
                 }
                 case SETTING_SAVE_FILE:
@@ -270,18 +275,13 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     case SETTING_SAVE_FILE:
                     case SETTING_SAVE_FOLDER:
                     case SETTING_ENUM:
+                    case SETTING_INT_RANGE:
                     case SETTING_STRING: {
                         static_cast<SettingDataString&>(setting_data).value = ReadStringValue(json_setting_object, "value");
                         break;
                     }
                     case SETTING_INT: {
                         static_cast<SettingDataInt&>(setting_data).value = ReadIntValue(json_setting_object, "value");
-                        break;
-                    }
-                    case SETTING_INT_RANGE: {
-                        const QJsonObject& json_range_object = ReadObject(json_setting_object, "value");
-                        static_cast<SettingDataIntRange&>(setting_data).min_value = ReadIntValue(json_range_object, "min");
-                        static_cast<SettingDataIntRange&>(setting_data).max_value = ReadIntValue(json_range_object, "max");
                         break;
                     }
                     case SETTING_BOOL_NUMERIC_DEPRECATED:
@@ -361,8 +361,7 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
         }
         case SETTING_INT_RANGE: {
             const SettingMetaIntRange& meta_object = static_cast<const SettingMetaIntRange&>(setting_meta);
-            static_cast<SettingDataIntRange&>(setting_data).min_value = meta_object.default_min_value;
-            static_cast<SettingDataIntRange&>(setting_data).max_value = meta_object.default_max_value;
+            static_cast<SettingDataIntRange&>(setting_data).value = meta_object.default_value;
             break;
         }
         case SETTING_LIST: {

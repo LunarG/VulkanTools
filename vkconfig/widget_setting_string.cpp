@@ -36,7 +36,7 @@ WidgetSettingString::WidgetSettingString(QTreeWidgetItem* item, const SettingMet
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void WidgetSettingString::itemEdited(const QString& new_string) {
-    this->setting_data.value = new_string.toStdString();
+void WidgetSettingString::itemEdited(const QString& value) {
+    this->setting_data.value = value.toStdString();
     emit itemChanged();
 }

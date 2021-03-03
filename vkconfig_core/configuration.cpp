@@ -235,9 +235,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                     break;
                 }
                 case SETTING_INT_RANGE: {
-                    const QJsonObject& json_range_object = ReadObject(json_setting_object, "value");
-                    static_cast<SettingDataIntRange&>(setting_data).min_value = ReadIntValue(json_range_object, "min");
-                    static_cast<SettingDataIntRange&>(setting_data).max_value = ReadIntValue(json_range_object, "max");
+                    static_cast<SettingDataIntRange&>(setting_data).value = ReadStringValue(json_setting_object, "value");
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED:
@@ -336,19 +334,13 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER:
                 case SETTING_ENUM:
+                case SETTING_INT_RANGE:
                 case SETTING_STRING: {
                     json_setting.insert("value", static_cast<const SettingDataString&>(setting_data).value.c_str());
                     break;
                 }
                 case SETTING_INT: {
                     json_setting.insert("value", static_cast<const SettingDataInt&>(setting_data).value);
-                    break;
-                }
-                case SETTING_INT_RANGE: {
-                    QJsonObject json_range_object;
-                    json_range_object.insert("min", static_cast<const SettingDataIntRange&>(setting_data).min_value);
-                    json_range_object.insert("max", static_cast<const SettingDataIntRange&>(setting_data).max_value);
-                    json_setting.insert("value", json_range_object);
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED:

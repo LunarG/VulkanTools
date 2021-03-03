@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <limits>
 
 struct SettingMeta : public Header {
     SettingMeta(const std::string& key, const SettingType type);
@@ -43,20 +44,28 @@ struct SettingMeta : public Header {
 };
 
 struct SettingMetaString : public SettingMeta {
-    SettingMetaString(const std::string& key) : SettingMeta(key, SETTING_STRING) {}
+    SettingMetaString(const std::string& key) : SettingMetaString(key, SETTING_STRING) {}
     virtual ~SettingMetaString() {}
 
     std::string default_value;
 
    protected:
+    SettingMetaString(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
+
     virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaInt : public SettingMeta {
-    SettingMetaInt(const std::string& key) : SettingMeta(key, SETTING_INT), default_value(0) {}
+    SettingMetaInt(const std::string& key)
+        : SettingMeta(key, SETTING_INT),
+          default_value(0),
+          min_value(std::numeric_limits<int>::min()),
+          max_value(std::numeric_limits<int>::max()) {}
     virtual ~SettingMetaInt() {}
 
     int default_value;
+    int min_value;
+    int max_value;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;
@@ -79,15 +88,9 @@ struct SettingMetaBoolNumeric : public SettingMeta {
     bool default_value;
 };
 
-struct SettingMetaIntRange : public SettingMeta {
-    SettingMetaIntRange(const std::string& key) : SettingMeta(key, SETTING_INT_RANGE), default_min_value(0), default_max_value(0) {}
+struct SettingMetaIntRange : public SettingMetaString {
+    SettingMetaIntRange(const std::string& key) : SettingMetaString(key, SETTING_INT_RANGE) {}
     virtual ~SettingMetaIntRange() {}
-
-    int default_min_value;
-    int default_max_value;
-
-   protected:
-    virtual bool Equal(const SettingMeta& other) const;
 };
 
 struct SettingMetaFilesystem : public SettingMeta {

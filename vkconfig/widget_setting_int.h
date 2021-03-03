@@ -34,7 +34,8 @@ class WidgetSettingInt : public QWidget {
     WidgetSettingInt(QTreeWidgetItem* item, const SettingMetaInt& setting_meta, SettingDataInt& setting_data);
 
    public Q_SLOTS:
-    void itemEdited(const QString& newString);
+    void itemEdited(const QString& value);
+    void FieldEditedCheck();
 
    Q_SIGNALS:
     void itemChanged();
@@ -45,7 +46,10 @@ class WidgetSettingInt : public QWidget {
 
     virtual void resizeEvent(QResizeEvent* event) override;
 
+    void Resize();
+
     const SettingMetaInt& setting_meta;
     SettingDataInt& setting_data;
     QLineEdit* field;
+    QSize resize;
 };
