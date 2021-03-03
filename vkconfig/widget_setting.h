@@ -20,31 +20,17 @@
 
 #pragma once
 
-#include "widget_setting.h"
+#include "../vkconfig_core/setting_meta.h"
+#include "../vkconfig_core/setting_data.h"
 
-#include <QResizeEvent>
-#include <QLineEdit>
+#include <QTreeWidgetItem>
+#include <QWidget>
 
-class WidgetSettingIntRange : public WidgetSetting {
-    Q_OBJECT
-
+class WidgetSetting : public QWidget {
    public:
-    WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta, SettingDataIntRange& setting_data);
-
-   public Q_SLOTS:
-    void itemEdited(const QString& value);
-    void FieldEditedCheck();
-
-   Q_SIGNALS:
-    void itemChanged();
+    explicit WidgetSetting(QTreeWidgetItem* item, const SettingMeta& setting_meta);
 
    private:
-    virtual void resizeEvent(QResizeEvent* event) override;
-
-    void Resize();
-
-    const SettingMetaIntRange& setting_meta;
-    SettingDataIntRange& setting_data;
-    QLineEdit* field;
-    QSize resize;
+    WidgetSetting(const WidgetSetting&) = delete;
+    WidgetSetting& operator=(const WidgetSetting&) = delete;
 };

@@ -20,14 +20,12 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_data.h"
-#include "../vkconfig_core/setting_meta.h"
+#include "widget_setting.h"
 
-#include <QTreeWidgetItem>
 #include <QResizeEvent>
 #include <QLineEdit>
 
-class WidgetSettingInt : public QWidget {
+class WidgetSettingInt : public WidgetSetting {
     Q_OBJECT
 
    public:
@@ -41,9 +39,6 @@ class WidgetSettingInt : public QWidget {
     void itemChanged();
 
    private:
-    WidgetSettingInt(const WidgetSettingInt&) = delete;
-    WidgetSettingInt& operator=(const WidgetSettingInt&) = delete;
-
     virtual void resizeEvent(QResizeEvent* event) override;
 
     void Resize();

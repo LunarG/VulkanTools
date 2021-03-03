@@ -21,15 +21,12 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_data.h"
-#include "../vkconfig_core/setting_meta.h"
+#include "widget_setting.h"
 
-#include <QObject>
-#include <QWidget>
+#include <QResizeEvent>
 #include <QComboBox>
-#include <QTreeWidgetItem>
 
-class WidgetSettingEnum : public QComboBox {
+class WidgetSettingEnum : public WidgetSetting {
     Q_OBJECT
 
    public:
@@ -42,9 +39,9 @@ class WidgetSettingEnum : public QComboBox {
     void itemChanged();
 
    private:
-    WidgetSettingEnum(const WidgetSettingEnum&) = delete;
-    WidgetSettingEnum& operator=(const WidgetSettingEnum&) = delete;
+    virtual void resizeEvent(QResizeEvent* event) override;
 
     const SettingMetaEnum& setting_meta;
     SettingDataEnum& setting_data;
+    QComboBox* field;
 };

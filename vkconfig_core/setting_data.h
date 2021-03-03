@@ -109,7 +109,7 @@ struct SettingDataFolderSave : public SettingDataString {
 };
 
 struct SettingDataIntRange : public SettingDataString {
-    SettingDataIntRange(const std::string& key) : SettingDataString(key, SETTING_INT_RANGE) {}
+    SettingDataIntRange(const std::string& key) : SettingDataString(key, SETTING_INT_RANGES) {}
     virtual ~SettingDataIntRange() {}
 };
 

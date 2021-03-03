@@ -18,33 +18,13 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
 #include "widget_setting.h"
 
-#include <QResizeEvent>
-#include <QLineEdit>
+WidgetSetting::WidgetSetting(QTreeWidgetItem* item, const SettingMeta& setting_meta) {
+    assert(item);
+    assert(&setting_meta);
 
-class WidgetSettingIntRange : public WidgetSetting {
-    Q_OBJECT
-
-   public:
-    WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta, SettingDataIntRange& setting_data);
-
-   public Q_SLOTS:
-    void itemEdited(const QString& value);
-    void FieldEditedCheck();
-
-   Q_SIGNALS:
-    void itemChanged();
-
-   private:
-    virtual void resizeEvent(QResizeEvent* event) override;
-
-    void Resize();
-
-    const SettingMetaIntRange& setting_meta;
-    SettingDataIntRange& setting_data;
-    QLineEdit* field;
-    QSize resize;
-};
+    item->setText(0, setting_meta.label.c_str());
+    item->setToolTip(0, setting_meta.description.c_str());
+    item->setSizeHint(0, QSize(0, 24));
+}

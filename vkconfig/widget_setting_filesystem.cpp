@@ -40,6 +40,7 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const Se
 
     this->_line_edit = new QLineEdit(this);
     this->_line_edit->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
+    this->_line_edit->setToolTip(this->_line_edit->text());
     this->_line_edit->show();
 
     this->_push_button = new QPushButton(this);

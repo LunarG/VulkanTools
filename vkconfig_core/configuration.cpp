@@ -234,7 +234,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                     static_cast<SettingDataInt&>(setting_data).value = ReadIntValue(json_setting_object, "value");
                     break;
                 }
-                case SETTING_INT_RANGE: {
+                case SETTING_INT_RANGES: {
                     static_cast<SettingDataIntRange&>(setting_data).value = ReadStringValue(json_setting_object, "value");
                     break;
                 }
@@ -334,7 +334,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER:
                 case SETTING_ENUM:
-                case SETTING_INT_RANGE:
+                case SETTING_INT_RANGES:
                 case SETTING_STRING: {
                     json_setting.insert("value", static_cast<const SettingDataString&>(setting_data).value.c_str());
                     break;

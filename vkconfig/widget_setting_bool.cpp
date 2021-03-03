@@ -21,17 +21,11 @@
 
 #include "widget_setting_bool.h"
 
-#include <QCheckBox>
-
 #include <cassert>
 
 WidgetSettingBool::WidgetSettingBool(QTreeWidgetItem* item, const SettingMetaBool& setting_meta, SettingDataBool& setting_data)
-    : setting_meta(setting_meta), setting_data(setting_data) {
-    assert(&setting_meta);
+    : WidgetSetting(item, setting_meta), setting_meta(setting_meta), setting_data(setting_data) {
     assert(&setting_data);
-
-    item->setText(0, setting_meta.label.c_str());
-    item->setToolTip(0, setting_meta.description.c_str());
 
     this->field = new QCheckBox(this);
     this->field->setChecked(setting_data.value);

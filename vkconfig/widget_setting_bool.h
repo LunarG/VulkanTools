@@ -21,14 +21,12 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_meta.h"
-#include "../vkconfig_core/setting_data.h"
+#include "widget_setting.h"
 
-#include <QTreeWidgetItem>
 #include <QResizeEvent>
 #include <QCheckBox>
 
-class WidgetSettingBool : public QWidget {
+class WidgetSettingBool : public WidgetSetting {
     Q_OBJECT
 
    public:
@@ -41,9 +39,6 @@ class WidgetSettingBool : public QWidget {
     void itemChanged();
 
    private:
-    WidgetSettingBool(const WidgetSettingBool&) = delete;
-    WidgetSettingBool& operator=(const WidgetSettingBool&) = delete;
-
     virtual void resizeEvent(QResizeEvent* event) override;
 
     const SettingMetaBool& setting_meta;

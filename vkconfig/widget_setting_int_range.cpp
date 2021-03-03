@@ -32,13 +32,8 @@ static const int MIN_FIELD_WIDTH = 48;
 
 WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta,
                                              SettingDataIntRange& setting_data)
-    : setting_meta(setting_meta), setting_data(setting_data) {
-    assert(item);
-    assert(&setting_meta);
+    : WidgetSetting(item, setting_meta), setting_meta(setting_meta), setting_data(setting_data) {
     assert(&setting_data);
-
-    item->setText(0, setting_meta.label.c_str());
-    item->setToolTip(0, setting_meta.description.c_str());
 
     this->field = new QLineEdit(this);
     this->field->setText(setting_data.value.c_str());

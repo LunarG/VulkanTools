@@ -89,7 +89,7 @@ struct SettingMetaBoolNumeric : public SettingMeta {
 };
 
 struct SettingMetaIntRange : public SettingMetaString {
-    SettingMetaIntRange(const std::string& key) : SettingMetaString(key, SETTING_INT_RANGE) {}
+    SettingMetaIntRange(const std::string& key) : SettingMetaString(key, SETTING_INT_RANGES) {}
     virtual ~SettingMetaIntRange() {}
 };
 

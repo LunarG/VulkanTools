@@ -236,10 +236,7 @@
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_range",
                 "status": "BETA",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "default": {
-                    "min": 76,
-                    "max": 82
-                }
+                "default": "76-82"
             },
             {
                 "key": "list_with_optional",

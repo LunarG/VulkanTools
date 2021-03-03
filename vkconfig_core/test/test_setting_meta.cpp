@@ -62,11 +62,9 @@ TEST(test_setting_meta, equal_int) {
 
 TEST(test_setting_meta, equal_int_range) {
     SettingMetaIntRange data0("data");
-    data0.default_min_value = 6;
-    data0.default_max_value = 7;
+    data0.default_value = "6-7";
     SettingMetaIntRange data1("data");
-    data1.default_min_value = 6;
-    data1.default_max_value = 7;
+    data1.default_value = "6-7";
 
     EXPECT_EQ(data0, data1);
 
@@ -78,8 +76,7 @@ TEST(test_setting_meta, equal_int_range) {
     EXPECT_EQ(data0, *ptr1);
 
     SettingMetaIntRange dataX("dataX");
-    dataX.default_min_value = 6;
-    dataX.default_max_value = 7;
+    dataX.default_value = "6-7";
 
     EXPECT_NE(data0, dataX);
 
@@ -89,8 +86,7 @@ TEST(test_setting_meta, equal_int_range) {
     EXPECT_NE(data0, *ptrX);
 
     SettingMetaIntRange dataY("data");
-    dataY.default_min_value = 5;
-    dataY.default_max_value = 7;
+    dataY.default_value = "5-7";
 
     EXPECT_NE(data0, dataY);
 

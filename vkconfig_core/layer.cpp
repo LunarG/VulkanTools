@@ -178,7 +178,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
             switch (type) {
                 case SETTING_SAVE_FOLDER:
-                case SETTING_INT_RANGE:
+                case SETTING_INT_RANGES:
                 case SETTING_STRING: {
                     static_cast<SettingMetaString&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
                     break;
@@ -275,7 +275,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     case SETTING_SAVE_FILE:
                     case SETTING_SAVE_FOLDER:
                     case SETTING_ENUM:
-                    case SETTING_INT_RANGE:
+                    case SETTING_INT_RANGES:
                     case SETTING_STRING: {
                         static_cast<SettingDataString&>(setting_data).value = ReadStringValue(json_setting_object, "value");
                         break;
@@ -359,7 +359,7 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
             static_cast<SettingDataFlags&>(setting_data).value = meta_object.default_value;
             break;
         }
-        case SETTING_INT_RANGE: {
+        case SETTING_INT_RANGES: {
             const SettingMetaIntRange& meta_object = static_cast<const SettingMetaIntRange&>(setting_meta);
             static_cast<SettingDataIntRange&>(setting_data).value = meta_object.default_value;
             break;

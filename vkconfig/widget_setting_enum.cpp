@@ -23,24 +23,40 @@
 
 #include <cassert>
 
+static const int MIN_FIELD_WIDTH = 48;
+
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnum& setting_meta, SettingDataEnum& setting_data)
-    : setting_meta(setting_meta), setting_data(setting_data) {
-    assert(item);
+    : WidgetSetting(item, setting_meta), setting_meta(setting_meta), setting_data(setting_data), field(nullptr) {
     assert(&setting_data);
 
-    item->setText(0, setting_meta.label.c_str());
-    item->setToolTip(0, setting_meta.description.c_str());
+    this->field = new QComboBox(this);
 
     int selection = 0;
     for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
-        this->addItem(setting_meta.enum_values[i].label.c_str());
+        this->field->addItem(setting_meta.enum_values[i].label.c_str());
         if (setting_meta.enum_values[i].key == setting_data.value) {
             selection = static_cast<int>(i);
         }
     }
 
-    this->setCurrentIndex(selection);
-    this->connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
+    this->field->setCurrentIndex(selection);
+    this->field->show();
+
+    this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
+}
+
+void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
+    if (this->field == nullptr) return;
+
+    int width = MIN_FIELD_WIDTH;
+
+    const QFontMetrics fm = this->field->fontMetrics();
+    for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
+        width = std::max(width, fm.horizontalAdvance(setting_meta.enum_values[i].label.c_str()) + fm.horizontalAdvance("0000"));
+    }
+
+    const QRect button_rect = QRect(event->size().width() - width, 0, width, event->size().height());
+    this->field->setGeometry(button_rect);
 }
 
 void WidgetSettingEnum::indexChanged(int index) {

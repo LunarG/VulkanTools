@@ -379,6 +379,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                 place_holder->setSizeHint(0, QSize(0, 28));
                 setting_item->addChild(place_holder);
+                setting_item->setSizeHint(0, QSize(0, 28));
                 _settings_tree->setItemWidget(place_holder, 0, widget);
                 _compound_widgets.push_back(place_holder);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -388,13 +389,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 const SettingMetaEnum &setting_meta_src = static_cast<const SettingMetaEnum &>(setting_meta);
                 SettingDataEnum &setting_data_src = static_cast<SettingDataEnum &>(setting_data);
 
-                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                setting_item->setText(0, setting_meta.label.c_str());
-                setting_item->setToolTip(0, setting_meta.description.c_str());
-                setting_item->addChild(place_holder);
-
                 WidgetSettingEnum *enum_widget = new WidgetSettingEnum(setting_item, setting_meta_src, setting_data_src);
-                _settings_tree->setItemWidget(place_holder, 0, enum_widget);
+                _settings_tree->setItemWidget(setting_item, 0, enum_widget);
                 connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
@@ -416,7 +412,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 }
             } break;
 
-            case SETTING_INT_RANGE: {
+            case SETTING_INT_RANGES: {
                 const SettingMetaIntRange &setting_meta_src = static_cast<const SettingMetaIntRange &>(setting_meta);
                 SettingDataIntRange &setting_data_src = static_cast<SettingDataIntRange &>(setting_data);
 

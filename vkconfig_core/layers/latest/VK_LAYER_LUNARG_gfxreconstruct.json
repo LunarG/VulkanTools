@@ -149,7 +149,7 @@
                 "env": "GFXRECON_CAPTURE_FRAMES",
                 "label": "Capture Specific Frames",
                 "description": "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. Default is: Empty string (all frames are captured).",
-                "type": "STRING",
+                "type": "INT_RANGES",
                 "default": ""
             },
             {

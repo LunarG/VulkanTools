@@ -62,11 +62,9 @@ TEST(test_setting_data, equal_int) {
 
 TEST(test_setting_data, equal_int_range) {
     SettingDataIntRange data0("data");
-    data0.min_value = 6;
-    data0.max_value = 7;
+    data0.value = "6-7";
     SettingDataIntRange data1("data");
-    data1.min_value = 6;
-    data1.max_value = 7;
+    data1.value = "6-7";
 
     EXPECT_EQ(data0, data1);
 
@@ -78,8 +76,7 @@ TEST(test_setting_data, equal_int_range) {
     EXPECT_EQ(data0, *ptr1);
 
     SettingDataIntRange dataX("dataX");
-    dataX.min_value = 6;
-    dataX.max_value = 7;
+    dataX.value = "6-7";
 
     EXPECT_NE(data0, dataX);
 
@@ -89,8 +86,7 @@ TEST(test_setting_data, equal_int_range) {
     EXPECT_NE(data0, *ptrX);
 
     SettingDataIntRange dataY("data");
-    dataY.min_value = 5;
-    dataY.max_value = 7;
+    dataY.value = "5-7";
 
     EXPECT_NE(data0, dataY);
 
