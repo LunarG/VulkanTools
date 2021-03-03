@@ -16,6 +16,7 @@
  *
  * Author: Mike Weiblen <mikew@lunarg.com>
  * Author: Arda Coskunses <arda@lunarg.com>
+ * Author: Jeremy Kniager <jeremyk@lunarg.com>
  */
 
 /*
@@ -64,12 +65,12 @@ namespace {
 
 // For new features/functionality, increment the minor level and reset patch level to zero.
 // For any changes, at least increment the patch level.  See https://semver.org/
-// When updating the version, be sure to make corresponding changes to the layer manifest files at
-// layersvt/{linux,windows}/VkLayer_device_simulation*.json
+// When updating the version, be sure to make corresponding changes to the layer manifest file at
+// layersvt/VkLayer_device_simulation.json.in
 
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 5;
-const uint32_t kVersionDevsimPatch = 1;
+const uint32_t kVersionDevsimMinor = 6;
+const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 // Properties of this layer:
