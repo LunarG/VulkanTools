@@ -44,9 +44,6 @@ class WidgetSettingFilesystem : public WidgetSetting {
     void itemChanged();
 
    private:
-    WidgetSettingFilesystem(const WidgetSettingFilesystem &) = delete;
-    WidgetSettingFilesystem &operator=(const WidgetSettingFilesystem &) = delete;
-
     virtual void resizeEvent(QResizeEvent *event) override;
 
     const SettingMetaFilesystem &setting_meta;

@@ -74,8 +74,6 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
         assert(result == 0);
     }
 
-    setting_tree_state = configuration_entry_object.value("editor_state").toVariant().toByteArray();
-
     description = ReadString(configuration_entry_object, "description").c_str();
 
     const QJsonValue& json_platform_value = configuration_entry_object.value("platforms");
@@ -134,7 +132,6 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
 
     // Required configuration values
     key = ReadString(json_configuration_object, "name").c_str();
-    setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
     description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
@@ -179,7 +176,6 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 
     // Required configuration values
     key = ReadString(json_configuration_object, "name").c_str();
-    setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
     description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
@@ -201,6 +197,11 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
             parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
+        }
+
+        const QJsonValue& json_collapsed_value = json_layer_object.value("collapsed");
+        if (json_collapsed_value != QJsonValue::Undefined) {
+            parameter.collapsed = ReadBoolValue(json_layer_object, "collapsed");
         }
 
         SettingDataSet settings;
@@ -377,7 +378,6 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     json_configuration.insert("name", key.c_str());
     json_configuration.insert("description", description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(platform_flags));
-    json_configuration.insert("editor_state", setting_tree_state.data());
     json_configuration.insert("layers", json_layers);
     root.insert("configuration", json_configuration);
 

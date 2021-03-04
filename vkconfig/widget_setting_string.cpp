@@ -23,20 +23,72 @@
 
 #include <cassert>
 
-WidgetSettingString::WidgetSettingString(QTreeWidgetItem* item, const SettingMetaString& setting_meta,
+static const int MIN_FIELD_WIDTH = 64;
+static const int ITEM_OFFSET = 48;
+
+WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaString& setting_meta,
                                          SettingDataString& setting_data)
-    : setting_meta(setting_meta), setting_data(setting_data) {
-    assert(item);
-    assert(&setting_meta);
+    : WidgetSetting(tree, parent, setting_meta),
+      setting_meta(setting_meta),
+      setting_data(setting_data),
+      title_field(new QLineEdit(this)),
+      child_field(new QLineEdit(this)),
+      child_item(new QTreeWidgetItem()) {
     assert(&setting_data);
 
-    item->setText(0, setting_meta.label.c_str());
-    item->setToolTip(0, setting_meta.description.c_str());
-    this->setText(setting_data.value.c_str());
-    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
+    this->child_item->setSizeHint(0, QSize(0, 24));
+    this->item->addChild(this->child_item);
+    this->item->setExpanded(!this->setting_data.collapsed);
+
+    this->title_field->setText(setting_data.value.c_str());
+    this->title_field->setToolTip(this->title_field->text());
+    this->setting_data.collapsed ? this->title_field->show() : this->title_field->hide();
+    this->tree->setItemWidget(this->item, 0, this);
+
+    this->child_field->setText(setting_data.value.c_str());
+    this->child_field->setToolTip(this->title_field->text());
+    this->child_field->show();
+    this->tree->setItemWidget(this->child_item, 0, this->child_field);
+
+    this->connect(this->title_field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
+    this->connect(this->child_field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
+    this->connect(this->item->treeWidget(), SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(OnItemExpanded(QTreeWidgetItem*)));
+    this->connect(this->item->treeWidget(), SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(OnItemCollapsed(QTreeWidgetItem*)));
 }
 
-void WidgetSettingString::itemEdited(const QString& value) {
+void WidgetSettingString::Resize() {
+    const QFontMetrics fm = this->title_field->fontMetrics();
+    const int width = std::max(fm.horizontalAdvance(this->item->text(0) + "00") + ITEM_OFFSET, MIN_FIELD_WIDTH);
+
+    const QRect button_rect = QRect(128, 0, this->resize.width() - 128, this->resize.height());
+    this->title_field->setGeometry(button_rect);
+}
+
+void WidgetSettingString::resizeEvent(QResizeEvent* event) {
+    this->resize = event->size();
+    this->Resize();
+}
+
+void WidgetSettingString::OnTextEdited(const QString& value) {
     this->setting_data.value = value.toStdString();
+
+    this->Resize();
+
     emit itemChanged();
+}
+
+void WidgetSettingString::OnItemExpanded(QTreeWidgetItem* expanded_item) {
+    if (this->item != expanded_item) return;
+
+    this->setting_data.collapsed = false;
+    this->title_field->hide();
+    return;
+}
+
+void WidgetSettingString::OnItemCollapsed(QTreeWidgetItem* expanded_item) {
+    if (this->item != expanded_item) return;
+
+    this->setting_data.collapsed = true;
+    this->title_field->show();
+    return;
 }

@@ -48,9 +48,10 @@ struct SettingMetaString : public SettingMeta {
     virtual ~SettingMetaString() {}
 
     std::string default_value;
+    bool collapsed;
 
    protected:
-    SettingMetaString(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
+    SettingMetaString(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type), collapsed(false) {}
 
     virtual bool Equal(const SettingMeta& other) const;
 };
@@ -94,11 +95,13 @@ struct SettingMetaIntRange : public SettingMetaString {
 };
 
 struct SettingMetaFilesystem : public SettingMeta {
-    SettingMetaFilesystem(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
+    SettingMetaFilesystem(const std::string& key, const SettingType& setting_type)
+        : SettingMeta(key, setting_type), collapsed(false) {}
     virtual ~SettingMetaFilesystem() {}
 
     std::string default_value;
     std::string filter;
+    bool collapsed;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;
@@ -127,10 +130,12 @@ bool operator==(const SettingEnumValue& a, const SettingEnumValue& b);
 inline bool operator!=(const SettingEnumValue& a, const SettingEnumValue& b) { return !(a == b); }
 
 struct SettingMetaEnumeration : public SettingMeta {
-    SettingMetaEnumeration(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
+    SettingMetaEnumeration(const std::string& key, const SettingType& setting_type)
+        : SettingMeta(key, setting_type), collapsed(false) {}
     virtual ~SettingMetaEnumeration() {}
 
     std::vector<SettingEnumValue> enum_values;
+    bool collapsed;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;
@@ -157,11 +162,12 @@ struct SettingMetaFlags : public SettingMetaEnumeration {
 };
 
 struct SettingMetaList : public SettingMeta {
-    SettingMetaList(const std::string& key) : SettingMeta(key, SETTING_LIST) {}
+    SettingMetaList(const std::string& key) : SettingMeta(key, SETTING_LIST), collapsed(false) {}
     virtual ~SettingMetaList() {}
 
     std::vector<std::string> list;
     std::vector<std::string> default_value;
+    bool collapsed;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;

@@ -83,16 +83,20 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             const std::vector<Layer> &available_layers = configurator.layers.available_layers;
             const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
 
-            QTreeWidgetItem *layer_item = new QTreeWidgetItem();
-            std::string layer_text = parameter.key;
+            std::string layer_text = layer->key;
             if (layer == nullptr) {
                 layer_text += " (Missing)";
             } else if (layer->status != STATUS_STABLE) {
                 layer_text += std::string(" (") + GetToken(layer->status) + ")";
             }
 
+            QFont font = _settings_tree->font();
+            font.setBold(true);
+
+            QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             layer_item->setText(0, layer_text.c_str());
             layer_item->setFont(0, font);
+            layer_item->setExpanded(!parameter.collapsed);
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
 
@@ -102,12 +106,14 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (parameter.settings.Empty()) {
                 QTreeWidgetItem *layer_child_item = new QTreeWidgetItem();
                 layer_child_item->setText(0, "No User Settings");
+                layer_child_item->setExpanded(true);
                 layer_item->addChild(layer_child_item);
                 continue;
             }
 
             if (!layer->presets.empty()) {
                 QTreeWidgetItem *presets_item = new QTreeWidgetItem();
+                presets_item->setExpanded(true);
                 WidgetPreset *presets_combobox = new WidgetPreset(presets_item, *layer, parameter);
                 connect(presets_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
                 layer_item->addChild(presets_item);
@@ -125,6 +131,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         // The last item is just the excluded layers
         QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
         excluded_layers->setText(0, "Excluded Layers:");
+        excluded_layers->setExpanded(true);
         _settings_tree->addTopLevelItem(excluded_layers);
 
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
@@ -136,12 +143,13 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             const Layer *layer = FindByKey(configurator.layers.available_layers, parameter.key.c_str());
             if (layer == nullptr) continue;  // Do not display missing excluded layers
 
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, parameter.key.c_str());
+            QTreeWidgetItem *layer_item = new QTreeWidgetItem();
+            layer_item->setText(0, parameter.key.c_str());
+            layer_item->setExpanded(!parameter.collapsed);
             if (layer != nullptr) {
-                child->setToolTip(0, layer->description.c_str());
+                layer_item->setToolTip(0, layer->description.c_str());
             }
-            excluded_layers->addChild(child);
+            excluded_layers->addChild(layer_item);
         }
 
         // None excluded layer were found
@@ -152,9 +160,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         }
     }
 
-    // Everyone is expanded.
+    //_settings_tree->expandAll();
     _settings_tree->resizeColumnToContents(0);
-    SetTreeState(configuration->setting_tree_state, 0, _settings_tree->invisibleRootItem());
+    // SetTreeState(configuration->setting_tree_state, 0, _settings_tree->invisibleRootItem());
     _settings_tree->blockSignals(false);
 }
 
@@ -166,9 +174,6 @@ void SettingsTreeManager::CleanupGUI() {
 
     Configuration *configuration = configurator.configurations.GetActiveConfiguration();
     if (configuration == nullptr) return;
-
-    configuration->setting_tree_state.clear();
-    GetTreeState(configuration->setting_tree_state, _settings_tree->invisibleRootItem());
 
     if (_validation_areas) {
         delete _validation_areas;
@@ -191,6 +196,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
     QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
     validation_areas_item->setText(0, "Validation Areas");
+    validation_areas_item->setExpanded(true);
     parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
@@ -219,6 +225,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
     debug_action_branch->setText(0, debug_action_meta->label.c_str());
+    debug_action_branch->setExpanded(true);
     parent->addChild(debug_action_branch);
 
     // Each debug action has it's own checkbox
@@ -291,6 +298,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
         mute_message_item->setText(0, setting_meta.label.c_str());
         mute_message_item->setToolTip(0, setting_meta.description.c_str());
+        mute_message_item->setExpanded(true);
         parent->addChild(mute_message_item);
 
         WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta.list, setting_data.value);
@@ -422,16 +430,10 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             } break;
 
             case SETTING_STRING: {
-                QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-                parent->addChild(setting_item);
-
                 const SettingMetaString &meta = static_cast<const SettingMetaString &>(setting_meta);
                 SettingDataString &data = static_cast<SettingDataString &>(setting_data);
 
-                WidgetSettingString *widget = new WidgetSettingString(setting_item, meta, data);
-                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                setting_item->addChild(place_holder);
-                _settings_tree->setItemWidget(place_holder, 0, widget);
+                WidgetSettingString *widget = new WidgetSettingString(_settings_tree, parent, meta, data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
@@ -483,9 +485,19 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 }
 
+// The setting has been edited
+void SettingsTreeManager::OnSettingChanged() {
+    for (std::size_t i = 0, n = _presets_comboboxes.size(); i < n; ++i) {
+        _presets_comboboxes[i]->UpdateCurrentIndex();
+    }
+
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.Notify(NOTIFICATION_RESTART);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+}
+
 void SettingsTreeManager::GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item) {
     byte_array.push_back(top_item->isExpanded() ? '1' : '0');
-
     for (int i = 0, n = top_item->childCount(); i < n; ++i) {
         GetTreeState(byte_array, top_item->child(i));
     }
@@ -498,24 +510,11 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
     else {
         top_item->setExpanded(byte_array[index++] == '1');
     }
-
     // Walk the children
     if (top_item->childCount() != 0) {
         for (int i = 0, n = top_item->childCount(); i < n; ++i) {
             index = SetTreeState(byte_array, index, top_item->child(i));
         }
     }
-
     return index;
-}
-
-// The setting has been edited
-void SettingsTreeManager::OnSettingChanged() {
-    for (std::size_t i = 0, n = _presets_comboboxes.size(); i < n; ++i) {
-        _presets_comboboxes[i]->UpdateCurrentIndex();
-    }
-
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.Notify(NOTIFICATION_RESTART);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 }

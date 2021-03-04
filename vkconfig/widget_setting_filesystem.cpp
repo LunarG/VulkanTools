@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  * Authors:
- * - Lenny Komow  <lenny@lunarg.com>
  * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
@@ -45,18 +44,18 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
 
     this->child_item->setSizeHint(0, QSize(0, 24));
     this->item->addChild(this->child_item);
-    this->item->setExpanded(this->setting_data.expanded);
+    this->item->setExpanded(!this->setting_data.collapsed);
 
     this->button->setText("...");
     this->button->show();
 
     this->title_field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
     this->title_field->setToolTip(this->title_field->text());
-    this->setting_data.expanded ? this->title_field->hide() : this->title_field->show();
+    this->setting_data.collapsed ? this->title_field->show() : this->title_field->hide();
     this->tree->setItemWidget(this->item, 0, this);
 
     this->child_field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
-    this->child_field->setToolTip(this->title_field->text());
+    this->child_field->setToolTip(this->child_field->text());
     this->child_field->show();
     this->tree->setItemWidget(this->child_item, 0, this->child_field);
 
@@ -117,7 +116,7 @@ void WidgetSettingFilesystem::OnTextEdited(const QString& value) {
 void WidgetSettingFilesystem::OnItemExpanded(QTreeWidgetItem* expanded_item) {
     if (this->item != expanded_item) return;
 
-    this->setting_data.expanded = true;
+    this->setting_data.collapsed = false;
     this->title_field->hide();
     return;
 }
@@ -125,7 +124,7 @@ void WidgetSettingFilesystem::OnItemExpanded(QTreeWidgetItem* expanded_item) {
 void WidgetSettingFilesystem::OnItemCollapsed(QTreeWidgetItem* expanded_item) {
     if (this->item != expanded_item) return;
 
-    this->setting_data.expanded = false;
+    this->setting_data.collapsed = true;
     this->title_field->show();
     return;
 }

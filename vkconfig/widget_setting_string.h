@@ -21,29 +21,35 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_data.h"
-#include "../vkconfig_core/setting_meta.h"
+#include "widget_setting.h"
 
-#include <QString>
-#include <QTreeWidgetItem>
+#include <QResizeEvent>
 #include <QLineEdit>
 
-class WidgetSettingString : public QLineEdit {
+class WidgetSettingString : public WidgetSetting {
     Q_OBJECT
 
    public:
-    WidgetSettingString(QTreeWidgetItem* item, const SettingMetaString& setting_meta, SettingDataString& setting_data);
+    WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaString& setting_meta,
+                        SettingDataString& setting_data);
 
    public Q_SLOTS:
-    void itemEdited(const QString& newString);
+    void OnTextEdited(const QString& value);
+    void OnItemExpanded(QTreeWidgetItem* expanded_item);
+    void OnItemCollapsed(QTreeWidgetItem* expanded_item);
 
    Q_SIGNALS:
     void itemChanged();
 
    private:
-    WidgetSettingString(const WidgetSettingString&) = delete;
-    WidgetSettingString& operator=(const WidgetSettingString&) = delete;
+    virtual void resizeEvent(QResizeEvent* event) override;
+
+    void Resize();
 
     const SettingMetaString& setting_meta;
     SettingDataString& setting_data;
+    QLineEdit* title_field;
+    QLineEdit* child_field;
+    QTreeWidgetItem* child_item;
+    QSize resize;
 };

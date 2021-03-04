@@ -22,7 +22,8 @@
 
 ## [Vulkan Configurator 2.2.1 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools/tree/master) - April 2021
 
-
+### Fixes:
+- Fix configuration setting tree states being not cross-platforms
 
 ## [Vulkan Configurator 2.2.0 for Vulkan SDK 1.2.170.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.170.0) - February 2021
 

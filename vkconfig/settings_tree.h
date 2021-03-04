@@ -36,6 +36,7 @@
 
 class SettingsTreeManager : QObject {
     Q_OBJECT
+
    public:
     SettingsTreeManager();
 

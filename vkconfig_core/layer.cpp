@@ -177,33 +177,40 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
             SettingMeta& setting_meta = settings.Create(key, type);
 
             switch (type) {
-                case SETTING_SAVE_FOLDER:
                 case SETTING_INT_RANGES:
                 case SETTING_STRING: {
-                    static_cast<SettingMetaString&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
+                    SettingMetaString& meta = static_cast<SettingMetaString&>(setting_meta);
+                    meta.default_value = ReadStringValue(json_setting, "default");
+                    if (json_setting.value("collapsed") != QJsonValue::Undefined) {
+                        meta.collapsed = ReadBoolValue(json_setting, "collapsed");
+                    }
                     break;
                 }
                 case SETTING_INT: {
-                    SettingMetaInt& setting_meta_int = static_cast<SettingMetaInt&>(setting_meta);
-                    setting_meta_int.default_value = ReadIntValue(json_setting, "default");
+                    SettingMetaInt& meta = static_cast<SettingMetaInt&>(setting_meta);
+                    meta.default_value = ReadIntValue(json_setting, "default");
                     if (json_setting.value("range") != QJsonValue::Undefined) {
                         const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
                         if (json_setting_range.value("min") != QJsonValue::Undefined) {
-                            setting_meta_int.min_value = ReadIntValue(json_setting_range, "min");
+                            meta.min_value = ReadIntValue(json_setting_range, "min");
                         }
                         if (json_setting_range.value("max") != QJsonValue::Undefined) {
-                            setting_meta_int.max_value = ReadIntValue(json_setting_range, "max");
+                            meta.max_value = ReadIntValue(json_setting_range, "max");
                         }
                     }
                     break;
                 }
+                case SETTING_SAVE_FOLDER:
                 case SETTING_SAVE_FILE:
                 case SETTING_LOAD_FILE: {
-                    SettingMetaFilesystem& setting_meta_filesystem = static_cast<SettingMetaFilesystem&>(setting_meta);
+                    SettingMetaFilesystem& meta = static_cast<SettingMetaFilesystem&>(setting_meta);
                     if (json_setting.value("filter") != QJsonValue::Undefined) {
-                        setting_meta_filesystem.filter = ReadStringValue(json_setting, "filter");
+                        meta.filter = ReadStringValue(json_setting, "filter");
                     }
-                    setting_meta_filesystem.default_value = ReadStringValue(json_setting, "default");
+                    if (json_setting.value("collapsed") != QJsonValue::Undefined) {
+                        meta.collapsed = ReadBoolValue(json_setting, "collapsed");
+                    }
+                    meta.default_value = ReadStringValue(json_setting, "default");
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED:
@@ -213,7 +220,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                 }
                 case SETTING_FLAGS:
                 case SETTING_ENUM: {
-                    SettingMetaEnumeration& setting_meta_enumeration = static_cast<SettingMetaEnumeration&>(setting_meta);
+                    SettingMetaEnumeration& meta = static_cast<SettingMetaEnumeration&>(setting_meta);
                     const QJsonArray& json_array_flags = ReadArray(json_setting, "flags");
                     for (int i = 0, n = json_array_flags.size(); i < n; ++i) {
                         const QJsonObject& json_object = json_array_flags[i].toObject();
@@ -222,7 +229,10 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         setting_enum_value.key = ReadStringValue(json_object, "key");
                         LoadMetaHeader(setting_enum_value, json_object);
 
-                        setting_meta_enumeration.enum_values.push_back(setting_enum_value);
+                        meta.enum_values.push_back(setting_enum_value);
+                    }
+                    if (json_setting.value("collapsed") != QJsonValue::Undefined) {
+                        meta.collapsed = ReadBoolValue(json_setting, "collapsed");
                     }
                     if (type == SETTING_FLAGS) {
                         static_cast<SettingMetaFlags&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
@@ -232,8 +242,12 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     break;
                 }
                 case SETTING_LIST: {
-                    static_cast<SettingMetaList&>(setting_meta).list = ReadStringArray(json_setting, "list");
-                    static_cast<SettingMetaList&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
+                    SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
+                    meta.list = ReadStringArray(json_setting, "list");
+                    meta.default_value = ReadStringArray(json_setting, "default");
+                    if (json_setting.value("collapsed") != QJsonValue::Undefined) {
+                        meta.collapsed = ReadBoolValue(json_setting, "collapsed");
+                    }
                     break;
                 }
                 default: {

@@ -80,10 +80,10 @@ struct SettingDataString : public SettingData {
     virtual ~SettingDataString() {}
 
     std::string value;
-    bool expanded;
+    bool collapsed;
 
    protected:
-    SettingDataString(const std::string& key, const SettingType type) : SettingData(key, type) {}
+    SettingDataString(const std::string& key, const SettingType type) : SettingData(key, type), collapsed(false) {}
 
     virtual bool Equal(const SettingData& other) const;
     virtual SettingData& Assign(const SettingData& other);
@@ -116,9 +116,10 @@ struct SettingDataIntRange : public SettingDataString {
 
 struct SettingDataVector : public SettingData {
     std::vector<std::string> value;
+    bool collapsed;
 
    protected:
-    SettingDataVector(const std::string& key, const SettingType type) : SettingData(key, type) {}
+    SettingDataVector(const std::string& key, const SettingType type) : SettingData(key, type), collapsed(false) {}
     virtual ~SettingDataVector() {}
 
     virtual bool Equal(const SettingData& other) const;
