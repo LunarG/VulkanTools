@@ -275,6 +275,60 @@ TEST(test_layer_built_in, layer_162_screenshot) {
 
 // Layers latest
 
+TEST(test_layer_built_in, layer_170_validation) {
+    Layer layer;
+    EXPECT_TRUE(layer.Load(":/layers/170/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
+    EXPECT_EQ(11, layer.settings.Size());
+    EXPECT_EQ(6, layer.presets.size());
+    EXPECT_TRUE(static_cast<SettingDataFlags*>(layer.presets[0].settings.Get("enables"))->value.empty());
+    EXPECT_STREQ("VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
+                 static_cast<SettingDataFlags*>(layer.presets[0].settings.Get("disables"))->value[0].c_str());
+}
+
+TEST(test_layer_built_in, layer_170_synchronization2) {
+    Layer layer;
+    EXPECT_TRUE(layer.Load(":/layers/170/VK_LAYER_KHRONOS_synchronization2.json", LAYER_TYPE_EXPLICIT));
+    EXPECT_EQ(1, layer.settings.Size());
+    EXPECT_EQ(0, layer.presets.size());
+}
+
+TEST(test_layer_built_in, layer_170_api_dump) {
+    Layer layer;
+    EXPECT_TRUE(layer.Load(":/layers/170/VK_LAYER_LUNARG_api_dump.json", LAYER_TYPE_EXPLICIT));
+    EXPECT_EQ(14, layer.settings.Size());
+    EXPECT_EQ(0, layer.presets.size());
+}
+
+TEST(test_layer_built_in, layer_170_device_simulation) {
+    Layer layer;
+    EXPECT_TRUE(layer.Load(":/layers/170/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
+    EXPECT_EQ(6, layer.settings.Size());
+    EXPECT_EQ(3, layer.presets.size());
+}
+
+TEST(test_layer_built_in, layer_170_gfxreconstruct) {
+    Layer layer;
+    EXPECT_TRUE(layer.Load(":/layers/170/VK_LAYER_LUNARG_gfxreconstruct.json", LAYER_TYPE_EXPLICIT));
+    EXPECT_EQ(19, layer.settings.Size());
+    EXPECT_EQ(2, layer.presets.size());
+}
+
+TEST(test_layer_built_in, layer_170_monitor) {
+    Layer layer;
+    EXPECT_TRUE(layer.Load(":/layers/170/VK_LAYER_LUNARG_monitor.json", LAYER_TYPE_EXPLICIT));
+    EXPECT_EQ(0, layer.settings.Size());
+    EXPECT_EQ(0, layer.presets.size());
+}
+
+TEST(test_layer_built_in, layer_170_screenshot) {
+    Layer layer;
+    EXPECT_TRUE(layer.Load(":/layers/170/VK_LAYER_LUNARG_screenshot.json", LAYER_TYPE_EXPLICIT));
+    EXPECT_EQ(3, layer.settings.Size());
+    EXPECT_EQ(0, layer.presets.size());
+}
+
+// Layers latest
+
 TEST(test_layer_built_in, layer_latest_validation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(":/layers/latest/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
