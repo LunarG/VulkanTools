@@ -190,6 +190,12 @@ const char* GetPlatformString(PlatformString platform_string) {
             "/.local/share/vulkan/lunarg-vkconfig/configurations_2_2/"   // PLATFORM_MACOS
         },
         {
+            // PLATFORM_STRING_PATH_CONFIGURATION_2_2_1
+            "/AppData/Local/LunarG/vkconfig/configurations_2_2_1/",        // PLATFORM_WINDOWS
+            "/.local/share/vulkan/lunarg-vkconfig/configurations_2_2_1/",  // PLATFORM_LINUX
+            "/.local/share/vulkan/lunarg-vkconfig/configurations_2_2_1/"   // PLATFORM_MACOS
+        },
+        {
             // PLATFORM_STRING_PATH_OVERRIDE_LAYERS
             "/AppData/Local/LunarG/vkconfig/override",  // PLATFORM_WINDOWS
             "/.local/share/vulkan/implicit_layer.d",    // PLATFORM_LINUX

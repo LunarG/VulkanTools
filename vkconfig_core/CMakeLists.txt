@@ -15,6 +15,9 @@ if(Qt5_FOUND)
     file(GLOB FILES_CONFIGURATIONS_2_2_0 ./configurations/2.2.0/*.json)
     source_group("Configurations Files" FILES ${FILES_CONFIGURATIONS_2_2_0})
 
+    file(GLOB FILES_CONFIGURATIONS_2_2_1 ./configurations/2.2.1/*.json)
+    source_group("Configurations Files" FILES ${FILES_CONFIGURATIONS_2_2_1})
+
     file(GLOB FILES_LAYERS_130 ./layers/130/*.json)
     source_group("Layers 130 Files" FILES ${FILES_LAYERS_130})
 
@@ -42,6 +45,7 @@ if(Qt5_FOUND)
     set(FILES_RESOURCES 
         ${FILES_CONFIGURATIONS_2_1_0}
         ${FILES_CONFIGURATIONS_2_2_0}
+        ${FILES_CONFIGURATIONS_2_2_1}
         ${FILES_LAYERS_130}
         ${FILES_LAYERS_135}
         ${FILES_LAYERS_141}

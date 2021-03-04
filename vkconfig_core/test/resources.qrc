@@ -49,12 +49,12 @@
         <file alias="Validation.json">../configurations/2.2.0/Validation.json</file>
     </qresource>
     
-    <qresource prefix="/configurations/latest">
-        <file alias="API dump.json">../configurations/latest/API dump.json</file>
-        <file alias="Frame Capture.json">../configurations/latest/Frame Capture.json</file>
-        <file alias="Portability.json">../configurations/latest/Portability.json</file>
-        <file alias="Synchronization.json">../configurations/latest/Synchronization.json</file>
-        <file alias="Validation.json">../configurations/latest/Validation.json</file>
+    <qresource prefix="/configurations/2.2.1">
+        <file alias="API dump.json">../configurations/2.2.1/API dump.json</file>
+        <file alias="Frame Capture.json">../configurations/2.2.1/Frame Capture.json</file>
+        <file alias="Portability.json">../configurations/2.2.1/Portability.json</file>
+        <file alias="Synchronization.json">../configurations/2.2.1/Synchronization.json</file>
+        <file alias="Validation.json">../configurations/2.2.1/Validation.json</file>
     </qresource>
     
     <qresource prefix="/layers/130">
