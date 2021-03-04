@@ -109,6 +109,16 @@
         <file alias="VK_LAYER_LUNARG_screenshot.json">../layers/162/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>  
     
+    <qresource prefix="/layers/170">
+        <file alias="VK_LAYER_KHRONOS_synchronization2.json">../layers/170/VK_LAYER_KHRONOS_synchronization2.json</file>
+        <file alias="VK_LAYER_KHRONOS_validation.json">../layers/170/VK_LAYER_KHRONOS_validation.json</file>
+        <file alias="VK_LAYER_LUNARG_api_dump.json">../layers/170/VK_LAYER_LUNARG_api_dump.json</file>
+        <file alias="VK_LAYER_LUNARG_device_simulation.json">../layers/170/VK_LAYER_LUNARG_device_simulation.json</file>
+        <file alias="VK_LAYER_LUNARG_gfxreconstruct.json">../layers/170/VK_LAYER_LUNARG_gfxreconstruct.json</file>
+        <file alias="VK_LAYER_LUNARG_monitor.json">../layers/170/VK_LAYER_LUNARG_monitor.json</file>
+        <file alias="VK_LAYER_LUNARG_screenshot.json">../layers/170/VK_LAYER_LUNARG_screenshot.json</file>
+    </qresource>  
+
     <qresource prefix="/layers/latest">
         <file alias="VK_LAYER_KHRONOS_synchronization2.json">../layers/latest/VK_LAYER_KHRONOS_synchronization2.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../layers/latest/VK_LAYER_KHRONOS_validation.json</file>
