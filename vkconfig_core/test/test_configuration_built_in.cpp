@@ -121,7 +121,7 @@ TEST(test_built_in_load, layers_130_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
@@ -156,7 +156,7 @@ TEST(test_built_in_load, layers_135_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
@@ -191,7 +191,7 @@ TEST(test_built_in_load, layers_141_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
@@ -226,7 +226,7 @@ TEST(test_built_in_load, layers_148_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
@@ -261,7 +261,7 @@ TEST(test_built_in_load, layers_154_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
@@ -296,7 +296,7 @@ TEST(test_built_in_load, layers_162_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
@@ -331,7 +331,7 @@ TEST(test_built_in_load, layers_170_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
@@ -366,7 +366,7 @@ TEST(test_built_in_load, layers_latest_with_configuration_210) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(6, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
