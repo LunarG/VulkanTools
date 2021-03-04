@@ -668,6 +668,7 @@ class JsonLoader {
     enum class SchemaId {
         kUnknown = 0,
         kDevsim100,
+        kDevsim110,
         kDevsim16BitStorageKHR,
         kDevsimMaintenance2KHR,
         kDevsimMaintenance3KHR,
@@ -1015,6 +1016,25 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsim110:
+            GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
+            GetValue(root, "VkPhysicalDeviceMaintenance3Properties", &pdd_.physical_device_maintenance_3_properties_);
+            GetValue(root, "VkPhysicalDeviceMultiviewProperties", &pdd_.physical_device_multiview_properties_);
+            GetValue(root, "VkPhysicalDevicePointClippingProperties", &pdd_.physical_device_point_clipping_properties_);
+            GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
+            GetValue(root, "VkPhysicalDevice16BitStorageFeatures", &pdd_.physical_device_16bit_storage_features_);
+            GetValue(root, "VkPhysicalDeviceMultiviewFeatures", &pdd_.physical_device_multiview_features_);
+            GetValue(root, "VkPhysicalDeviceSamplerYcbcrConversionFeatures",
+                &pdd_.physical_device_sampler_ycbcr_conversion_features_);
+            GetValue(root, "VkPhysicalDeviceVariablePointersFeatures", &pdd_.physical_device_variable_pointers_features_);
+            GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
+            GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
+            GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
+            GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
+            GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
+            result = true;
+            break;
+
         case SchemaId::kDevsim16BitStorageKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1110,6 +1130,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     const char *schema_string = value.asCString();
     if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_0_0.json#") == 0) {
         schema_id = SchemaId::kDevsim100;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_1_0.json#") == 0) {
+        schema_id = SchemaId::kDevsim110;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_16bit_storage_1.json#") == 0) {
         schema_id = SchemaId::kDevsim16BitStorageKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json#") == 0) {
