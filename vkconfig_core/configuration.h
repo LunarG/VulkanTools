@@ -39,6 +39,8 @@ class Configuration {
 
     void Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager);
 
+    std::size_t Size() const { return this->parameters.size(); };
+
     std::string key;  // User readable display of the configuration name (may contain spaces)
     int platform_flags;
     std::string description;        // A friendly description of what this profile does
