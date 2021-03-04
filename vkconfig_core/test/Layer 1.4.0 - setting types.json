@@ -226,11 +226,15 @@
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int",
                 "status": "BETA",
                 "platforms": [ "WINDOWS", "LINUX" ],
+                "range": {
+                    "min": 75,
+                    "max": 82
+                },
                 "default": 76
             },
             {
                 "key": "int_range_with_optional",
-                "type": "INT_RANGE",
+                "type": "INT_RANGES",
                 "label": "Integer Range",
                 "description": "Integer Range Description",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_range",

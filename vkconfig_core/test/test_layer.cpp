@@ -471,6 +471,8 @@ TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     EXPECT_STREQ("Integer", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int", setting_meta->url.c_str());
+    EXPECT_EQ(75, setting_meta->min_value);
+    EXPECT_EQ(82, setting_meta->max_value);
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 

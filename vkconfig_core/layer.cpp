@@ -187,7 +187,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     SettingMetaInt& setting_meta_int = static_cast<SettingMetaInt&>(setting_meta);
                     setting_meta_int.default_value = ReadIntValue(json_setting, "default");
                     if (json_setting.value("range") != QJsonValue::Undefined) {
-                        QJsonObject json_setting_range = ReadObject(json_setting, "range");
+                        const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
                         if (json_setting_range.value("min") != QJsonValue::Undefined) {
                             setting_meta_int.min_value = ReadIntValue(json_setting_range, "min");
                         }
