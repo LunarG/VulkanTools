@@ -60,7 +60,11 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }
 
 struct TestBuilin {
-    TestBuilin(const char* layers_version) : layers_version(layers_version), environment(paths), layer_manager(environment) {
+    TestBuilin(const char* layers_version, const char* configurations_version)
+        : layers_version(layers_version),
+          configurations_version(configurations_version),
+          environment(paths),
+          layer_manager(environment) {
         this->layer_manager.LoadLayersFromPath(format(":/layers/%s", layers_version).c_str());
         EXPECT_TRUE(!this->layer_manager.available_layers.empty());
     }
@@ -71,8 +75,9 @@ struct TestBuilin {
 
     Configuration Load(const char* configuration_name) {
         Configuration configuration_loaded;
-        EXPECT_TRUE(configuration_loaded.Load(layer_manager.available_layers,
-                                              format(":/configurations/2.2.0/%s.json", configuration_name).c_str()));
+        EXPECT_TRUE(configuration_loaded.Load(
+            layer_manager.available_layers,
+            format(":/configurations/%s/%s.json", configurations_version.c_str(), configuration_name).c_str()));
         EXPECT_TRUE(!configuration_loaded.parameters.empty());
         return configuration_loaded;
     }
@@ -88,386 +93,256 @@ struct TestBuilin {
     }
 
     std::string layers_version;
+    std::string configurations_version;
     PathManager paths;
     Environment environment;
     LayerManager layer_manager;
 };
 
-// Layers 130
+// Layers 130 - Configurations 2.1.0
 
-TEST(test_built_in_load, layers_130_with_api_dump) {
-    TestBuilin test("130");
+TEST(test_built_in_load, layers_130_with_configuration_210) {
+    TestBuilin test("130", "2.1.0");
     EXPECT_EQ(5, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("API dump");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
+
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
+
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
 
-TEST(test_built_in_load, layers_130_with_frame_capture) {
-    TestBuilin test("130");
+// Layers 135 - Configurations 2.1.0
+
+TEST(test_built_in_load, layers_135_with_configuration_210) {
+    TestBuilin test("135", "2.1.0");
     EXPECT_EQ(5, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("Frame Capture");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
+
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
+
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
 
-TEST(test_built_in_load, layers_130_with_portability) {
-    TestBuilin test("130");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
+// Layers 141 - Configurations 2.1.0
 
-    Configuration configuration_loaded = test.Load("Portability");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_130_with_synchronization) {
-    TestBuilin test("130");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Synchronization");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_130_with_validation) {
-    TestBuilin test("130");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Validation");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-// Layers 135
-
-TEST(test_built_in_load, layers_135_with_api_dump) {
-    TestBuilin test("135");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("API dump");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_135_with_frame_capture) {
-    TestBuilin test("135");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Frame Capture");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_135_with_portability) {
-    TestBuilin test("135");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Portability");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_135_with_synchronization) {
-    TestBuilin test("135");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Synchronization");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_135_with_validation) {
-    TestBuilin test("135");
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Validation");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-// Layers 141
-
-TEST(test_built_in_load, layers_141_with_api_dump) {
-    TestBuilin test("141");
+TEST(test_built_in_load, layers_141_with_configuration_210) {
+    TestBuilin test("141", "2.1.0");
     EXPECT_EQ(6, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("API dump");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
+
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
+
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
 
-TEST(test_built_in_load, layers_141_with_frame_capture) {
-    TestBuilin test("141");
+// Layers 148 - Configurations 2.1.0
+
+TEST(test_built_in_load, layers_148_with_configuration_210) {
+    TestBuilin test("148", "2.1.0");
     EXPECT_EQ(6, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("Frame Capture");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
+
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
+
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
 
-TEST(test_built_in_load, layers_141_with_portability) {
-    TestBuilin test("141");
+// Layers 154 - Configurations 2.1.0
+
+TEST(test_built_in_load, layers_154_with_configuration_210) {
+    TestBuilin test("154", "2.1.0");
     EXPECT_EQ(6, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("Portability");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
+
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
+
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
 
-TEST(test_built_in_load, layers_141_with_synchronization) {
-    TestBuilin test("141");
+// Layers 162 - Configurations 2.1.0
+
+TEST(test_built_in_load, layers_162_with_configuration_210) {
+    TestBuilin test("162", "2.1.0");
     EXPECT_EQ(6, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("Synchronization");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
+
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
+
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
 
-TEST(test_built_in_load, layers_141_with_validation) {
-    TestBuilin test("141");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
+// Layers 170 - Configurations 2.1.0
 
-    Configuration configuration_loaded = test.Load("Validation");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-// Layers 148
-
-TEST(test_built_in_load, layers_148_with_api_dump) {
-    TestBuilin test("148");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("API dump");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_148_with_frame_capture) {
-    TestBuilin test("148");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Frame Capture");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_148_with_portability) {
-    TestBuilin test("148");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Portability");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_148_with_synchronization) {
-    TestBuilin test("148");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Synchronization");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_148_with_validation) {
-    TestBuilin test("148");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Validation");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-// Layers 154
-
-TEST(test_built_in_load, layers_154_with_api_dump) {
-    TestBuilin test("154");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("API dump");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_154_with_frame_capture) {
-    TestBuilin test("154");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Frame Capture");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_154_with_portability) {
-    TestBuilin test("154");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Portability");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_154_with_synchronization) {
-    TestBuilin test("154");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Synchronization");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_154_with_validation) {
-    TestBuilin test("154");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Validation");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-// Layers 162
-
-TEST(test_built_in_load, layers_162_with_api_dump) {
-    TestBuilin test("162");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("API dump");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_162_with_frame_capture) {
-    TestBuilin test("162");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Frame Capture");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_162_with_portability) {
-    TestBuilin test("162");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Portability");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_162_with_synchronization) {
-    TestBuilin test("162");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Synchronization");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_162_with_validation) {
-    TestBuilin test("162");
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Validation");
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-// Layers Latest
-
-TEST(test_built_in_load, layers_latest_with_api_dump) {
-    TestBuilin test("latest");
+TEST(test_built_in_load, layers_170_with_configuration_210) {
+    TestBuilin test("170", "2.1.0");
     EXPECT_EQ(7, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("API dump");
-    EXPECT_EQ(1, configuration_loaded.parameters.size());
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-    EXPECT_EQ(1, configuration_saved.parameters.size());
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
+
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
 
-TEST(test_built_in_load, layers_latest_with_frame_capture) {
-    TestBuilin test("latest");
+// Layers latest - Configurations 2.1.0
+
+TEST(test_built_in_load, layers_latest_with_configuration_210) {
+    TestBuilin test("latest", "2.1.0");
     EXPECT_EQ(7, test.layer_manager.available_layers.size());
 
-    Configuration configuration_loaded = test.Load("Frame Capture");
-    EXPECT_EQ(1, configuration_loaded.parameters.size());
+    {
+        Configuration load_api_dump = test.Load("API dump");
+        Configuration save_api_dump = test.Restore(load_api_dump);
+        EXPECT_EQ(save_api_dump, load_api_dump);
+    }
 
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-    EXPECT_EQ(1, configuration_saved.parameters.size());
+    {
+        Configuration load_frame_capture = test.Load("Frame Capture");
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
+    }
 
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
+    {
+        Configuration load_portability = test.Load("Portability");
+        Configuration save_portability = test.Restore(load_portability);
+        EXPECT_EQ(save_portability, load_portability);
+    }
 
-TEST(test_built_in_load, layers_latest_with_portability) {
-    TestBuilin test("latest");
-    EXPECT_EQ(7, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Portability");
-    EXPECT_EQ(7, configuration_loaded.parameters.size());
-
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-    EXPECT_EQ(7, configuration_saved.parameters.size());
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_latest_with_synchronization) {
-    TestBuilin test("latest");
-    EXPECT_EQ(7, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Synchronization");
-    EXPECT_EQ(2, configuration_loaded.parameters.size());
-
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-    EXPECT_EQ(2, configuration_saved.parameters.size());
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
-}
-
-TEST(test_built_in_load, layers_latest_with_validation) {
-    TestBuilin test("latest");
-    EXPECT_EQ(7, test.layer_manager.available_layers.size());
-
-    Configuration configuration_loaded = test.Load("Validation");
-    EXPECT_EQ(1, configuration_loaded.parameters.size());
-
-    Configuration configuration_saved = test.Restore(configuration_loaded);
-    EXPECT_EQ(1, configuration_saved.parameters.size());
-
-    EXPECT_EQ(configuration_loaded, configuration_saved);
+    {
+        Configuration load_validation = test.Load("Validation");
+        Configuration save_validation = test.Restore(load_validation);
+        EXPECT_EQ(save_validation, load_validation);
+    }
 }
