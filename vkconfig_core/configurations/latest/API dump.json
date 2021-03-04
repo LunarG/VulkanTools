@@ -1,0 +1,92 @@
+{
+    "file_format_version": "2.2.0",
+    "configuration": {
+        "name": "API dump",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "description": "A Simple API dump configuration",
+        "editor_state": "011111111111111111111111",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_api_dump",
+                "rank": 0,
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "type": "ENUM",
+                        "value": "Text"
+                    },
+                    {
+                        "key": "detailed",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "no_addr",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "file",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_filename",
+                        "type": "SAVE_FILE",
+                        "value": "stdout"
+                    },
+                    {
+                        "key": "flush",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "indent_size",
+                        "type": "INT",
+                        "value": 4
+                    },
+                    {
+                        "key": "show_types",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "name_size",
+                        "type": "INT",
+                        "value": 32
+                    },
+                    {
+                        "key": "type_size",
+                        "type": "INT",
+                        "value": 0
+                    },
+                    {
+                        "key": "use_spaces",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "show_timestamp",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "show_shader",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "output_range",
+                        "type": "STRING",
+                        "value": "0-0"
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            }
+        ]
+    }
+}

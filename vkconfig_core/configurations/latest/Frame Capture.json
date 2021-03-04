@@ -1,0 +1,116 @@
+{
+    "file_format_version": "2.2.0",
+    "configuration": {
+        "name": "Frame Capture",
+        "platforms": [
+            "WINDOWS",
+            "LINUX"
+        ],
+        "description": "Capture a range of frames",
+        "editor_state": "0111111111111111111111111110111",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_gfxreconstruct",
+                "rank": 0,
+                "settings": [
+                    {
+                        "key": "capture_trigger",
+                        "type": "ENUM",
+                        "value": "F5"
+                    },
+                    {
+                        "key": "capture_frames",
+                        "type": "STRING",
+                        "value": ""
+                    },
+                    {
+                        "key": "capture_file",
+                        "type": "SAVE_FILE",
+                        "value": "${LOCAL}/gfxrecon_capture.gfxr"
+                    },
+                    {
+                        "key": "capture_file_timestamp",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "capture_file_flush",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "capture_compression_type",
+                        "type": "enum",
+                        "value": "LZ4"
+                    },
+                    {
+                        "key": "log_output_to_console",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_break_on_error",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_output_to_os_debug_string",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_file",
+                        "type": "SAVE_FILE",
+                        "value": ""
+                    },
+                    {
+                        "key": "log_detailed",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_file_flush_after_write",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_file_keep_open",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_file_create_new",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "log_level",
+                        "type": "ENUM",
+                        "value": "info"
+                    },
+                    {
+                        "key": "memory_tracking_mode",
+                        "type": "ENUM",
+                        "value": "page_guard"
+                    },
+                    {
+                        "key": "page_guard_copy_on_map",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "page_guard_separate_read",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "page_guard_external_memory",
+                        "type": "BOOL",
+                        "value": false
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            }
+        ]
+    }
+}

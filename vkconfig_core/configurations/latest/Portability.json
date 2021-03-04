@@ -1,0 +1,131 @@
+{
+    "file_format_version": "2.2.0",
+    "configuration": {
+        "name": "Portability",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "description": "Check the Vulkan application is portable to Apple platforms",
+        "editor_state": "0110011111111111111111100101111011111000111111111111",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_api_dump",
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED"
+            },
+            {
+                "name": "VK_LAYER_LUNARG_gfxreconstruct",
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ]
+            },
+            {
+                "name": "VK_LAYER_LUNARG_monitor",
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ]
+            },
+            {
+                "name": "VK_LAYER_LUNARG_screenshot",
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX"
+                ]
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_synchronization2",
+                "rank": -1,
+                "settings": [
+                ],
+                "state": "EXCLUDED"
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "rank": 4,
+                "settings": [
+                    {
+                        "key": "debug_action",
+                        "type": "FLAGS",
+                        "value": [ "VK_DBG_LAYER_ACTION_LOG_MSG" ]
+                    },
+                    {
+                        "key": "report_flags",
+                        "type": "FLAGS",
+                        "value": [ "error", "perf", "info", "warn" ]
+                    },
+                    {
+                        "key": "disables",
+                        "type": "FLAGS",
+                        "value": [ "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT" ]
+                    },
+                    {
+                        "key": "enables",
+                        "type": "FLAGS",
+                        "value": []
+                    },
+                    {
+                        "key": "duplicate_message_limit",
+                        "type": "INT",
+                        "value": 10
+                    },
+                    {
+                        "key": "log_filename",
+                        "type": "SAVE_FILE",
+                        "value": "stdout"
+                    },
+                    {
+                        "key": "message_id_filter",
+                        "type": "VUID_EXCLUDE",
+                        "value": []
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            },
+            {
+                "name": "VK_LAYER_LUNARG_device_simulation",
+                "rank": 5,
+                "settings": [
+                    {
+                        "key": "debug_enable",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "emulate_portability",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "exit_on_error",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "filename",
+                        "type": "LOAD_FILE",
+                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            }
+        ]
+    }
+}

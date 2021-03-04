@@ -33,13 +33,28 @@
         <file>override_layers_1_4_0.json</file>
         <file>override_settings_1_4_0.txt</file>
     </qresource>
+
+    <qresource prefix="/configurations/2.1.0">
+        <file alias="API dump.json">../configurations/2.1.0/API dump.json</file>
+        <file alias="Frame Capture.json">../configurations/2.1.0/Frame Capture.json</file>
+        <file alias="Portability.json">../configurations/2.1.0/Portability.json</file>
+        <file alias="Validation.json">../configurations/2.1.0/Validation.json</file>
+    </qresource>
+
+    <qresource prefix="/configurations/2.2.0">
+        <file alias="API dump.json">../configurations/2.2.0/API dump.json</file>
+        <file alias="Frame Capture.json">../configurations/2.2.0/Frame Capture.json</file>
+        <file alias="Portability.json">../configurations/2.2.0/Portability.json</file>
+        <file alias="Synchronization.json">../configurations/2.2.0/Synchronization.json</file>
+        <file alias="Validation.json">../configurations/2.2.0/Validation.json</file>
+    </qresource>
     
-    <qresource prefix="/configurations">
-        <file alias="API dump.json">../configurations/API dump.json</file>
-        <file alias="Frame Capture.json">../configurations/Frame Capture.json</file>
-        <file alias="Portability.json">../configurations/Portability.json</file>
-        <file alias="Synchronization.json">../configurations/Synchronization.json</file>
-        <file alias="Validation.json">../configurations/Validation.json</file>
+    <qresource prefix="/configurations/latest">
+        <file alias="API dump.json">../configurations/latest/API dump.json</file>
+        <file alias="Frame Capture.json">../configurations/latest/Frame Capture.json</file>
+        <file alias="Portability.json">../configurations/latest/Portability.json</file>
+        <file alias="Synchronization.json">../configurations/latest/Synchronization.json</file>
+        <file alias="Validation.json">../configurations/latest/Validation.json</file>
     </qresource>
     
     <qresource prefix="/layers/130">

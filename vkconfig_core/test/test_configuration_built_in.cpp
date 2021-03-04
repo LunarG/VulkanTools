@@ -72,7 +72,7 @@ struct TestBuilin {
     Configuration Load(const char* configuration_name) {
         Configuration configuration_loaded;
         EXPECT_TRUE(configuration_loaded.Load(layer_manager.available_layers,
-                                              format(":/configurations/%s.json", configuration_name).c_str()));
+                                              format(":/configurations/2.2.0/%s.json", configuration_name).c_str()));
         EXPECT_TRUE(!configuration_loaded.parameters.empty());
         return configuration_loaded;
     }
