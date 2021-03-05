@@ -90,12 +90,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 layer_text += std::string(" (") + GetToken(layer->status) + ")";
             }
 
-            QFont font = _settings_tree->font();
-            font.setBold(true);
-
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             layer_item->setText(0, layer_text.c_str());
-            layer_item->setFont(0, font);
             layer_item->setExpanded(!parameter.collapsed);
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
