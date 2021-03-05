@@ -38,9 +38,9 @@ enum ParameterRank {
 struct Parameter {
     static const int NO_RANK = -1;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), platform_flags(PLATFORM_ALL_BIT), overridden_rank(NO_RANK) {}
     Parameter(const std::string& key, const LayerState state)
         : key(key), state(state), platform_flags(PLATFORM_ALL_BIT), overridden_rank(NO_RANK), collapsed(false) {}
+    Parameter() : Parameter("", LAYER_STATE_APPLICATION_CONTROLLED) {}
 
     bool ApplyPresetSettings(const LayerPreset& preset);
 
@@ -57,3 +57,6 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
 void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
 
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+
+std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters);
+std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);

@@ -321,6 +321,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("state", GetToken(parameter.state));
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
+        json_layer.insert("collapsed", parameter.collapsed);
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.Size(); j < m; ++j) {
