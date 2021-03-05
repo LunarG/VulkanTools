@@ -62,13 +62,16 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     Configuration *configuration = configurator.configurations.GetActiveConfiguration();
     assert(configuration != nullptr);
 
-    build_tree->blockSignals(true);
-    build_tree->clear();
+    _settings_tree->blockSignals(true);
+    _settings_tree->clear();
+
+    QFont font = _settings_tree->font();
+    font.setBold(true);
 
     if (!configuration->HasOverride()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, "No overridden or excluded layer");
-        build_tree->addTopLevelItem(item);
+        _settings_tree->addTopLevelItem(item);
     } else {
         // There will be one top level item for each layer
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
@@ -89,6 +92,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             }
 
             layer_item->setText(0, layer_text.c_str());
+            layer_item->setFont(0, font);
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
 
@@ -121,7 +125,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         // The last item is just the excluded layers
         QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
         excluded_layers->setText(0, "Excluded Layers:");
-        build_tree->addTopLevelItem(excluded_layers);
+        _settings_tree->addTopLevelItem(excluded_layers);
 
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
@@ -149,9 +153,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     }
 
     // Everyone is expanded.
-    build_tree->resizeColumnToContents(0);
+    _settings_tree->resizeColumnToContents(0);
     SetTreeState(configuration->setting_tree_state, 0, _settings_tree->invisibleRootItem());
-    build_tree->blockSignals(false);
+    _settings_tree->blockSignals(false);
 }
 
 void SettingsTreeManager::CleanupGUI() {
