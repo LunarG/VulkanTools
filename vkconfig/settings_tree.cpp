@@ -92,6 +92,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             layer_item->setText(0, layer_text.c_str());
+            layer_item->setFont(0, font);
             layer_item->setExpanded(!parameter.collapsed);
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
@@ -127,8 +128,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         // The last item is just the excluded layers
         QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
         excluded_layers->setText(0, "Excluded Layers:");
+        excluded_layers->setFont(0, font);
         excluded_layers->setExpanded(true);
-        _settings_tree->addTopLevelItem(excluded_layers);
 
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
@@ -149,10 +150,11 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         }
 
         // None excluded layer were found
-        if (excluded_layers->childCount() == 0) {
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, "None");
-            excluded_layers->addChild(child);
+        if (excluded_layers->childCount() != 0) {
+            _settings_tree->addTopLevelItem(excluded_layers);
+        } else {
+            delete excluded_layers;
+            excluded_layers = nullptr;
         }
     }
 
