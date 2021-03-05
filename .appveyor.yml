@@ -31,7 +31,7 @@ for:
 
     environment:
       PYTHON: C:\Python35
-      QTDIR: C:\Qt\5.9.9\msvc2015
+      QTDIR: C:\Qt\5.11\msvc2015
       PLATFORM_ARGUMENT: --32
       CONFIGURATION_ARGUMENT: --debug
     init:
@@ -55,7 +55,7 @@ for:
           image: Visual Studio 2017
     environment:
       PYTHON: C:\Python35
-      QTDIR: C:\Qt\5.9.9\msvc2017_64
+      QTDIR: C:\Qt\5.11\msvc2015_64
       PLATFORM_ARGUMENT: --64
       CONFIGURATION_ARGUMENT: --release
     init:
@@ -72,7 +72,7 @@ for:
           image: Visual Studio 2019
     environment:
       PYTHON: C:\Python35
-      QTDIR: C:\Qt\5.13\msvc2017_64
+      QTDIR: C:\Qt\5.15\msvc2017_64
       PLATFORM_ARGUMENT: --64
       CONFIGURATION_ARGUMENT: --debug
     init:
