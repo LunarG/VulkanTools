@@ -43,7 +43,9 @@ class SettingsValidationAreas : public QObject {
    private:
     QTreeWidget *_main_tree_widget;
     QTreeWidgetItem *_main_parent;
-    QTreeWidgetItem *_core_checks_parent;
+    QTreeWidgetItem *_core_box;
+    std::vector<QTreeWidgetItem *> _core_children_boxes;
+    std::vector<QTreeWidgetItem *> _misc_boxes;
 
     QTreeWidgetItem *_synchronization_box;
     QTreeWidgetItem *_shader_based_box;
