@@ -30,32 +30,15 @@
 #include <QMessageBox>
 #include <QCheckBox>
 
-// Keep track of tree/setting correlations
-struct TreeSettings {
-    const char *prompt;
-    const char *token;
-    const char *description;
-    QTreeWidgetItem *item;
-};
+static const char *CORE_KEYS[] = {
+    "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
+    "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",           "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
+    "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",     "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT",
+    "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE"};
 
-static TreeSettings core_checks[] = {{"Image Layout Validation", "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION", "", nullptr},
-                                     {"Command Buffer State", "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE", "", nullptr},
-                                     {"Object in Use", "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE", "", nullptr},
-                                     {"Query Validation", "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION", "", nullptr},
-                                     {"Idle Descriptor Set", "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET", "", nullptr},
-                                     {"Shader Validation", "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT", "", nullptr},
-                                     {"Push Constant Range", "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE", "", nullptr}};
-
-static TreeSettings misc_disables[] = {{"Thread Safety", "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
-                                        "Help with performance to run with thread-checking disabled most of the time, enabling it "
-                                        "occasionally for a quick sanity check, or when debugging difficult application behaviors.",
-                                        nullptr},
-                                       {"Handle Wrapping", "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
-                                        "Disable this feature if you are running into crashes when authoring new extensions or "
-                                        "developing new Vulkan objects/structures",
-                                        nullptr},
-                                       {"Object Lifetimes", "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT", "", nullptr},
-                                       {"Stateless Parameter", "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT", "", nullptr}};
+static const char *MISC_KEYS[] = {
+    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT", "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT",
+    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT", "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT"};
 
 static bool IsSupported(const std::vector<SettingEnumValue> &values, const char *key) {
     const SettingEnumValue *value = FindByKey(values, key);
@@ -67,7 +50,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
                                                  const SettingMetaSet &settings_meta, SettingDataSet &settings_data)
     : _main_tree_widget(main_tree),
       _main_parent(parent),
-      _core_checks_parent(nullptr),
+      _core_box(nullptr),
       _synchronization_box(nullptr),
       _shader_based_box(nullptr),
       _gpu_assisted_box(nullptr),
@@ -87,36 +70,47 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
       settings_data(settings_data) {
     assert(main_tree && parent);
 
-    const bool core_validation_disabled = HasDisable("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
+    const SettingMetaFlags *setting_meta_disables = static_cast<const SettingMetaFlags *>(settings_meta.Get("disables"));
+    assert(setting_meta_disables);
 
-    _core_checks_parent = new QTreeWidgetItem();
-    _core_checks_parent->setText(0, "Core");
-    _core_checks_parent->setCheckState(0, core_validation_disabled ? Qt::Unchecked : Qt::Checked);
-    parent->addChild(_core_checks_parent);
+    // Core
+    const SettingEnumValue *enum_core =
+        FindByKey(setting_meta_disables->enum_values, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
 
-    for (std::size_t i = 0, n = countof(core_checks); i < n; i++) {
-        QTreeWidgetItem *core_child_item = new QTreeWidgetItem();
-        core_child_item->setText(0, core_checks[i].prompt);
+    if (enum_core != nullptr) {
+        const bool core_validation_enabled = !HasDisable("VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
 
-        if (HasDisable(core_checks[i].token) || core_validation_disabled)
-            core_child_item->setCheckState(0, Qt::Unchecked);
-        else
-            core_child_item->setCheckState(0, Qt::Checked);
+        _core_box = new QTreeWidgetItem();
+        _core_box->setText(0, enum_core->label.c_str());
+        _core_box->setToolTip(0, enum_core->description.c_str());
+        _core_box->setCheckState(0, core_validation_enabled ? Qt::Checked : Qt::Unchecked);
+        parent->addChild(_core_box);
 
-        if (core_validation_disabled) core_child_item->setFlags(core_child_item->flags() & ~Qt::ItemIsEnabled);
+        for (std::size_t i = 0, n = countof(CORE_KEYS); i < n; i++) {
+            const SettingEnumValue *enum_core_child = FindByKey(setting_meta_disables->enum_values, CORE_KEYS[i]);
+            const bool core_child_enabled = !HasDisable(CORE_KEYS[i]);
 
-        _core_checks_parent->addChild(core_child_item);
-        core_checks[i].item = core_child_item;
+            QTreeWidgetItem *core_child_item = new QTreeWidgetItem();
+            core_child_item->setText(0, enum_core_child->label.c_str());
+            core_child_item->setToolTip(0, enum_core_child->description.c_str());
+            core_child_item->setCheckState(0, core_validation_enabled && core_child_enabled ? Qt::Checked : Qt::Unchecked);
+            EnableSettingWidget(core_child_item, core_validation_enabled);
+            _core_box->addChild(core_child_item);
+            _core_children_boxes.push_back(core_child_item);
+        }
     }
 
     // Miscellaneous disables
-    for (std::size_t i = 0, n = countof(misc_disables); i < n; ++i) {
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, misc_disables[i].prompt);
-        item->setToolTip(0, misc_disables[i].description);
-        item->setCheckState(0, HasDisable(misc_disables[i].token) ? Qt::Unchecked : Qt::Checked);
-        parent->addChild(item);
-        misc_disables[i].item = item;
+    for (std::size_t i = 0, n = countof(MISC_KEYS); i < n; ++i) {
+        const SettingEnumValue *enum_misc = FindByKey(setting_meta_disables->enum_values, MISC_KEYS[i]);
+        const bool misc_child_enabled = !HasDisable(MISC_KEYS[i]);
+
+        QTreeWidgetItem *misc_child_item = new QTreeWidgetItem();
+        misc_child_item->setText(0, enum_misc->label.c_str());
+        misc_child_item->setToolTip(0, enum_misc->description.c_str());
+        misc_child_item->setCheckState(0, misc_child_enabled ? Qt::Checked : Qt::Unchecked);
+        parent->addChild(misc_child_item);
+        _misc_boxes.push_back(misc_child_item);
     }
 
     const SettingMetaFlags *setting_meta_enables = static_cast<const SettingMetaFlags *>(settings_meta.Get("enables"));
@@ -319,18 +313,11 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
     }
 
     // Core Validation.
-    if (item == _core_checks_parent) {
-        // If checked, enable all below it.
-        if (item->checkState(0) == Qt::Checked) {
-            for (int i = 0; i < 7; i++) {
-                core_checks[i].item->setFlags(core_checks[i].item->flags() | Qt::ItemIsEnabled);
-                core_checks[i].item->setCheckState(0, Qt::Checked);
-            }
-        } else {  // If unchecked both clear, and disable all below it
-            for (int i = 0; i < 7; i++) {
-                core_checks[i].item->setFlags(core_checks[i].item->flags() & ~Qt::ItemIsEnabled);
-                core_checks[i].item->setCheckState(0, Qt::Unchecked);
-            }
+    if (item == _core_box) {
+        const bool core_enabled = _core_box->checkState(0) == Qt::Checked;
+        for (std::size_t i = 0, n = _core_children_boxes.size(); i < n; ++i) {
+            _core_children_boxes[i]->setCheckState(0, core_enabled ? Qt::Checked : Qt::Unchecked);
+            EnableSettingWidget(_core_children_boxes[i], core_enabled);
         }
     }
 
@@ -390,7 +377,7 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
     // Check for performance issues. There are three different variations, and I think
     // we should alert the user to all three exactly/explicitly to what they are
 
-    const bool features_to_run_alone[] = {_core_checks_parent->checkState(0) == Qt::Checked,
+    const bool features_to_run_alone[] = {_core_box->checkState(0) == Qt::Checked,
                                           _synchronization_box ? _synchronization_box->checkState(0) == Qt::Checked : false,
                                           _best_practices_box->checkState(0) == Qt::Checked,
                                           _shader_based_box ? _shader_based_box->checkState(0) == Qt::Checked : false};
@@ -503,21 +490,22 @@ bool SettingsValidationAreas::CollectSettings() {
 
     // Sync Validation
     if (_synchronization_box != nullptr) {
-        if (_synchronization_box->checkState(0) == Qt::Checked)
+        if (_synchronization_box->checkState(0) == Qt::Checked) {
             AppendString(enables, "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT");
+        }
     }
 
-    // Everything else is a disable. Remember, these are backwards
-    // because they are exposed to the end user as an enable.
-    // If they are NOT checked, we add them to disables
-    for (std::size_t i = 0, n = countof(misc_disables); i < n; ++i) {
-        if (misc_disables[i].item->checkState(0) != Qt::Checked) AppendString(disables, misc_disables[i].token);
+    // Misc disables
+    assert(_misc_boxes.size() == countof(MISC_KEYS));
+    for (std::size_t i = 0, n = this->_misc_boxes.size(); i < n; ++i) {
+        if (this->_misc_boxes[i]->checkState(0) == Qt::Unchecked) AppendString(disables, MISC_KEYS[i]);
     }
 
-    // Core checks. If unchecked, then individual ones might still be checked
-    if (_core_checks_parent->checkState(0) == Qt::Checked) {
-        for (std::size_t i = 0, n = countof(core_checks); i < n; ++i)
-            if (core_checks[i].item->checkState(0) == Qt::Unchecked) AppendString(disables, core_checks[i].token);
+    // Core disables. If unchecked, then individual ones might still be checked
+    if (this->_core_box->checkState(0) == Qt::Checked) {
+        assert(this->_core_children_boxes.size() == countof(CORE_KEYS));
+        for (std::size_t i = 0, n = this->_core_children_boxes.size(); i < n; ++i)
+            if (this->_core_children_boxes[i]->checkState(0) == Qt::Unchecked) AppendString(disables, CORE_KEYS[i]);
     } else {  // Not checked, turn them all off
         AppendString(disables, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
     }
