@@ -58,6 +58,9 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_debug_printf_buffer_size;
     WidgetSettingInt *_debug_printf_buffer_size_value;
 
+    QTreeWidgetItem *_best_practices_box;
+    QTreeWidgetItem *_best_practices_arm_box;
+
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *item, int column);
     void itemClicked(QTreeWidgetItem *item, int column);
