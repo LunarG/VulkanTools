@@ -6834,13 +6834,13 @@
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
                         "label": "GPU-Assisted",
-                        "description": "Activating this feature instruments shader programs to generate additional diagnostic data.",
+                        "description": "Check for API usage errors at shader execution time",
                         "url": "${LUNARG_SDK}/gpu_validation.html",
                         "platforms": [ "WINDOWS", "LINUX" ]
                     },
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT",
-                        "label": "Reserve a descriptorSet binding slot for internal use",
+                        "label": "Reserve Descriptor Set Binding Slot",
                         "description": "Specifies that the validation layers reserve a descriptor set binding slot for their own use. The layer reports a value for VkPhysicalDeviceLimits::maxBoundDescriptorSets that is one less than the value reported by the device. If the device supports the binding of only one descriptor set, the validation layer does not perform GPU-assisted validation.",
                         "platforms": [ "WINDOWS", "LINUX" ]
                     },
@@ -6862,7 +6862,7 @@
             },
             {
                 "key": "gpuav_buffer_oob",
-                "label": "Buffer out of bounds check",
+                "label": "Check Buffer Out of Bounds ",
                 "description": "Enable buffer out of bounds checking",
                 "type": "BOOL",
                 "default": false
