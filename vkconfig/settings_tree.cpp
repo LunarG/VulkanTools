@@ -82,7 +82,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         if (overridden_layer_count > 1) {
             QTreeWidgetItem *item = new QTreeWidgetItem();
             item->setText(0, "Vulkan Applications");
+            item->setTextAlignment(0, Qt::AlignCenter);
             item->setFont(0, font_section);
+            item->setDisabled(true);
             _settings_tree->addTopLevelItem(item);
         }
 
@@ -141,7 +143,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         if (overridden_layer_count > 1) {
             QTreeWidgetItem *item = new QTreeWidgetItem();
             item->setText(0, "Vulkan Drivers");
+            item->setTextAlignment(0, Qt::AlignCenter);
             item->setFont(0, font_section);
+            item->setDisabled(true);
             _settings_tree->addTopLevelItem(item);
         }
 
