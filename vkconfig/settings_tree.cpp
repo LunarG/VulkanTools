@@ -153,11 +153,6 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             CountExcludedLayers(configuration->parameters, configurator.layers.available_layers);
 
         if (excluded_layer_count > 0) {
-            // A space to separate the section
-            QTreeWidgetItem *blank_item = new QTreeWidgetItem();
-            blank_item->setDisabled(true);
-            _settings_tree->addTopLevelItem(blank_item);
-
             // The last item is just the excluded layers
             QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
             excluded_layers->setText(0, "Excluded Layers:");
