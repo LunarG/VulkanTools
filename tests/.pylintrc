@@ -1,0 +1,89 @@
+[REFACTORING]
+
+# Maximum number of nested blocks for function / method body
+max-nested-blocks=10
+
+# Complete name of functions that never returns. When checking for
+# inconsistent-return-statements if a never returning function is called then
+# it will be considered as an explicit return statement and no message will be
+# printed.
+never-returning-functions=optparse.Values,sys.exit
+
+[BASIC]
+
+# Naming style matching correct argument names
+argument-naming-style=any
+
+# Naming style matching correct attribute names
+attr-naming-style=any
+
+# Naming style matching correct class attribute names
+class-attribute-naming-style=any
+
+# Naming style matching correct class names
+class-naming-style=PascalCase
+
+# Naming style matching correct function names
+function-naming-style=any
+
+# Naming style matching correct method names
+method-naming-style=camelCase
+
+# Naming style matching correct module names
+module-naming-style=any
+
+# Naming style matching correct variable names
+variable-naming-style=snake_case
+# snake_case complains about single-word entries; this fixes that.
+# also want to specifically allow things like env_HOME
+variable-rgx=^[a-zA-Z][a-zA-Z0-9]*((_[a-zA-Z0-9]+)*)?$
+
+# Colon-delimited sets of names that determine each other's naming style when
+# the name regexes allow several styles.
+name-group=argument:attr:class-attribute:function:module
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,e,ex,Run,_,log
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+max-line-length=120
+
+# Maximum number of lines in a module
+max-module-lines=2000
+
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=10
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=20
+
+# Maximum number of boolean expressions in a if statement
+max-bool-expr=10
+
+# Maximum number of branch for function / method body
+max-branches=30
+
+# Maximum number of locals for function / method body
+max-locals=50
+
+# Maximum number of parents for a class (see R0901).
+max-parents=7
+
+# Maximum number of public methods for a class (see R0904).
+max-public-methods=50
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of statements in function / method body
+max-statements=1000
+
+# Minimum number of public methods for a class (see R0903).
+# Permit the use of a class as a simple data container
+# with no public methods (over some of the other suggested
+# alternatives)
+min-public-methods=0

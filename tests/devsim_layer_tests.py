@@ -34,14 +34,14 @@ import sys
 
 log = logging.getLogger(__name__)
 
-def standalone_run(command_list):
+def standalone_run(command_list, env=None):
     """This utility is used for external execution of binaries.
     It is encapsulated here and passed as a parameter to the
     higher-level execution functions because a caller (e.g.
     internal CI) may prefer to use their own execution function.
     This function always returns the generated stdout and stderr
     of the executed process so the caller can examine them."""
-    p = subprocess.run(command_list, check=True, capture_output=True)
+    p = subprocess.run(command_list, check=True, capture_output=True, env=env)
     return p.stdout, p.stderr
 
 # Our tests will have vulkaninfo output with some expected values and
@@ -114,6 +114,17 @@ def check_types_and_compare_values(struct_1, struct_2, debug_indent=""):
 class DevsimLayerTestException(Exception):
     """The exception class for this module."""
 
+def checkPortabilityPresent(json_object):
+    """The list of supported test cases differs when a device supports
+    native portability, or whether emulated portability must be used.
+    This function returns True if the passed json_object (which is
+    a JSON-parsed vulkaninfo output) shows that native portability
+    is present."""
+    extensions = json_object.get("ArrayOfVkExtensionProperties")
+    return extensions is not None and "VK_KHR_portability_subset" in [x["extensionName"] for x in extensions]
+
+
+# All test cases are subclasses of BaseTest.
 class BaseTest:
     """
     A class that implements and defines some base functions and a base initializer for devsim tests.
@@ -126,27 +137,39 @@ class BaseTest:
     This test requires that a valid VK_LAYER_PATH and (for Linux) LD_LIBRARY_PATH
     are already set up in the enviroment.
     """
+
+    # A subclass should override this with the proper list of input
+    # files for that particular class.
+    devsim_input_files = []
+
+    # The output may either be the name of a file in the same
+    # directory as this script, or an inline object that specifies
+    # a subset of the JSON object that vulkaninfo outputs.
+    vulkaninfo_output = None
+
+    # A test case should override this if it needs to call vulkaninfo
+    # with something other than the default arguments.
+    vulkaninfo_args = ['--json']
+
+    # These class variables are used to set up the test environment.
+    # Some are not yet exercised, but are included for completeness
+    # and eventual expansion.
+    instance_layers = "VK_LAYER_LUNARG_device_simulation"
+    debug_enable = 0
+    exit_on_error = 0
+    portability = 0
+    extension_list = 0
+
     def __init__(self,
-                 devsim_input_files,
-                 expected_vulkaninfo_output,
                  vulkaninfo_path,
-                 vulkaninfo_args=None,
-                 run=standalone_run,
-                 # These variables specify the environment variables needed
-                 # for a particular test case.
-                 instance_layers="VK_LAYER_LUNARG_device_simulation",
-                 debug_enable=0,
-                 exit_on_error=0,
-                 filename="",
-                 portability=0,
-                 extension_list=0):
+                 run=standalone_run):
 
         self.vulkaninfo_path = vulkaninfo_path
         self.run = run
 
         # Create the list of absolute paths we'll need for VK_DEVSIM_FILENAME.
         devsim_absolute_files = []
-        for devsim_file in devsim_input_files:
+        for devsim_file in self.devsim_input_files:
             full_path = os.path.abspath(devsim_file)
             devsim_absolute_files.append(full_path)
             if not os.path.isfile(full_path):
@@ -157,31 +180,35 @@ class BaseTest:
         # This dictionary of environment values will be added to the run environment
         # for this test case.
         self.test_environment = {
-            "VK_INSTANCE_LAYERS": str(instance_layers),
-            "VK_DEVSIM_DEBUG_ENABLE": str(debug_enable),
-            "VK_DEVSIM_EXIT_ON_ERROR": str(exit_on_error),
+            "VK_INSTANCE_LAYERS": str(self.instance_layers),
+            "VK_DEVSIM_DEBUG_ENABLE": str(self.debug_enable),
+            "VK_DEVSIM_EXIT_ON_ERROR": str(self.exit_on_error),
             "VK_DEVSIM_FILENAME": os.pathsep.join(devsim_absolute_files),
-            "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION": str(portability),
-            "VK_DEVSIM_MODIFY_EXTENSION_LIST": str(extension_list),
+            "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION": str(self.portability),
+            "VK_DEVSIM_MODIFY_EXTENSION_LIST": str(self.extension_list),
         }
 
         # Get the expected subset dictionary output for use later.
-        if isinstance(expected_vulkaninfo_output, dict):
-            self.expected_vulkaninfo_output = expected_vulkaninfo_output
+        if isinstance(self.vulkaninfo_output, dict):
+            self.expected_vulkaninfo_output = self.vulkaninfo_output
         else:
-            output_file = os.path.abspath(expected_vulkaninfo_output)
+            output_file = os.path.abspath(self.vulkaninfo_output)
             if not os.path.isfile(output_file):
                 raise DevsimLayerTestException("expected output file does not exist: {}".format(output_file))
 
             with open(output_file) as f:
                 self.expected_vulkaninfo_output = json.load(f)
 
-    def check_output(self, stdout):
+    # We need to be able to pass json_object for subclasses, even
+    # though it is not used in the base class.
+    # pylint: disable=unused-argument,no-self-use
+    def checkJson(self, json_object):
         """Tests that need to also directly examine the vulkaninfo output
         will override this function to do their additional checks.  By
         default this function doesn't do any additional checking, making
         it appropriate for most of the tests."""
         return True
+    # pylint: enable=unused-argument,no-self-use
 
     def check(self):
         """
@@ -189,225 +216,140 @@ class BaseTest:
         Compares output of the "run" function to an "answer" file.
         If the run output contains the values in the answer file, the test is considered passed.
         """
-        command_list = [self.vulkaninfo_path]
-        if self.vulkaninfo_args is not None:
-            command_list.extend(self.vulkaninfo_args)
-        stdout, stderr = self.run(command_list)
+        command_list = [self.vulkaninfo_path] + self.vulkaninfo_args
+
+        # Prepare the environment needed for running this instance.
+        # We want to make sure that we don't modify the environment
+        # for any of the other test instances.
+        env = os.environ.copy().update(self.test_environment)
+
+        stdout, stderr = self.run(command_list, env=env)
+        log.debug("stderr from %s: %s", command_list, stderr)
         actual_vulkaninfo_output = json.loads(stdout)
         return (
             check_types_and_compare_values(self.expected_vulkaninfo_output,
                                            actual_vulkaninfo_output) and
-            self.check(stdout)
+            self.checkJson(actual_vulkaninfo_output)
         )
 
-class BasicTest(BaseTest):
-    """
-    A basic test that runs vulkaninfo with devsim and a given config file,
-    recording the output to a JSON file.
-    """
-    def run(self, vulkaninfo_path):
-        self.test_environment.setupEnvironment()
-        with open(self.output_filepath, 'w') as output:
-            subprocess.run([vulkaninfo_path, '--json'], check=True, stdout=output)
-
-
-class PortabilityTest(BaseTest):
-    """
-    A test that runs vulkaninfo and devsim with portability on,
-    recording the output to a JSON file.
-    """
-    def run(self, vulkaninfo_path):
-        self.test_environment.setupEnvironment()
-        with open(self.output_filepath, 'w') as output:
-            subprocess.run([vulkaninfo_path, '--portability'], check=True, stdout=output)
-
-
-class PortabilityExtensionPresentTest(BasicTest):
-    """
-    A test that modifies the "check" function to pass if
-    the VK_KHR_portability_subset extension is present on the device or added by devsim.
-    """
-    def check(self):
-        with open(self.output_filepath) as output_file:
-            test_results = json.load(output_file)
-            extensions = test_results.get("ArrayOfVkExtensionProperties")
-            return extensions is not None and "VK_KHR_portability_subset" in [x["extensionName"] for x in extensions]
-
-
-class TestEnvironmentSettings:
-    """
-    This class holds a dictionary of environment variables and what to set them too.
-    It acts as a sort of staging so that the script can set up
-    curtom environment settings necessary for each test.
-    """
-    def __init__(self,
-                 instance_layers="VK_LAYER_LUNARG_device_simulation",
-                 debug_enable=0,
-                 exit_on_error=0,
-                 filename="",
-                 portability=0,
-                 extension_list=0):
-        self.settings = {
-            "VK_INSTANCE_LAYERS": instance_layers,
-            "VK_DEVSIM_DEBUG_ENABLE": debug_enable,
-            "VK_DEVSIM_EXIT_ON_ERROR": exit_on_error,
-            "VK_DEVSIM_FILENAME": filename,
-            "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION": portability,
-            "VK_DEVSIM_MODIFY_EXTENSION_LIST": extension_list
-        }
-
-    def setEnvironmentSetting(self, environment_variable, value):
-        """
-        Insert or change a setting's value in the self.settings.
-        Note: This does not immediately change the environment variable.
-        """
-        if VERBOSE:
-            print("SETTING {}={}".format(environment_variable, value))
-        self.settings[environment_variable] = value
-
-    def setupEnvironment(self):
-        """
-        Sets the system environment variables to the values stored in self.settings.
-        """
-        for k, v in self.settings.items():
-            if VERBOSE:
-                print("{}={}".format(k, str(v)))
-            os.environ[k] = str(v)
-
-    def __str__(self):
-        out = ""
-        for k in list(self.settings.keys()):
-            out += "{}={}\n".format(k, self.settings[k])
-
-        return out
-
-
-class TestFramework:
-    """
-    A wrapper class for tests to streamline setting up and running them.
-    """
-    def __init__(self, in_files, test_comp, vt_install_dir):
-        self.test_comp = test_comp
-
-        self.seperator = ':'
-        if sys.platform.startswith("win32"):
-            self.seperator = ';'
-        self.in_files = ""
-        self.setInputFiles(in_files)
-        self.vt_install_dir = vt_install_dir
-
-    def setInputFiles(self, in_files):
-        """
-        Sets the VK_DEVSIM_FILENAME environment variable to
-        the list of config files used for the test.
-        """
-        self.in_files = ""
-        for in_f in in_files:
-            self.in_files += "{}{}".format(os.path.join(os.getcwd(), in_f), self.seperator)
-        self.in_files = self.in_files[:-1]
-
-        self.test_comp.test_environment.setEnvironmentSetting("VK_DEVSIM_FILENAME", self.in_files)
-
-    def runAndCheck(self):
-        """
-        Runs self.test_comp, and returns if it passed or failed.
-        """
-        self.test_comp.run(self.vt_install_dir)
-        return self.test_comp.check()
-
-
-class DevsimTestReadMultipleInputFiles(TestFramework):
+class DevsimTestReadMultipleInputFiles(BaseTest):
     """
     Tests devsim layer's ability to read in multiple input files and
     properly modify device queries.
     """
-    test_type = BasicTest(
-                          TestEnvironmentSettings(),
-                          "test1_vulkaninfo_out.json",
-                          "devsim_test2_gold.json"
-                         )
-    test_in_files = [
-                     "devsim_test2_in1.json",
-                     "devsim_test2_in2.json",
-                     "devsim_test2_in3.json",
-                     "devsim_test2_in4.json",
-                     "devsim_test2_in5.json"
-                    ]
+    devsim_input_files = [
+        "devsim_test2_in1.json",
+        "devsim_test2_in2.json",
+        "devsim_test2_in3.json",
+        "devsim_test2_in4.json",
+        "devsim_test2_in5.json"
+    ]
+    vulkaninfo_output = "devsim_test2_gold.json"
 
-    def __init__(self, vulkaninfo_path):
-        TestFramework.__init__(self, self.test_in_files, self.test_type, vulkaninfo_path)
-
-
-class PortabilityExtensionPresentEmulationOffTest(TestFramework):
+class PortabilityExtensionPresentEmulationOffTest(BaseTest):
     """
     Tests if the VK_KHR_portability_subset extension is available on the device without emulation.
     """
-    test_type = PortabilityExtensionPresentTest(
-                                                TestEnvironmentSettings(),
-                                                "port_extent_test_vulkaninfo_out.json",
-                                                None
-                                               )
-    test_in_files = [
-                     "devsim_dummy_in.json"
-                    ]
+    devsim_input_files = [
+        "devsim_dummy_in.json"
+    ]
+    vulkaninfo_output = "port_extent_test_vulkaninfo_out.json"
+    vulkaninfo_args = ['--portability']
 
-    def __init__(self, vulkaninfo_path):
-        TestFramework.__init__(self, self.test_in_files, self.test_type, vulkaninfo_path)
+    def checkJson(self, json_object):
+        return checkPortabilityPresent(json_object)
 
-
-class PortabilityExtensionPresentEmulationOnTest(TestFramework):
+class PortabilityExtensionPresentEmulationOnTest(BaseTest):
     """
     Tests if the VK_KHR_portability_subset extension is available on the device with
     devsim emulation.
     """
-    test_type = PortabilityExtensionPresentTest(
-                                                TestEnvironmentSettings(portability=1),
-                                                "port_extent_test_vulkaninfo_out.json",
-                                                None
-                                               )
-    test_in_files = [
-                     "devsim_dummy_in.json"
-                    ]
+    devsim_input_files = [
+        "devsim_dummy_in.json"
+    ]
+    vulkaninfo_output = {}
+    vulkaninfo_args = ['--portability']
+    portability = 1
 
-    def __init__(self, vulkaninfo_path):
-        TestFramework.__init__(self, self.test_in_files, self.test_type, vulkaninfo_path)
+    def checkJson(self, json_object):
+        return checkPortabilityPresent(json_object)
 
-
-class PortabilityNonEmulatedTest(TestFramework):
+class PortabilityNonEmulatedTest(BaseTest):
     """
-    Tests if devsim can modify protablity queries for the device when
+    Tests if devsim can modify portability queries for the device when
     the VK_KHR_portability_subset extension is supported by the device.
     """
-    test_type = PortabilityTest(
-                                TestEnvironmentSettings(),
-                                "port_test_vulkaninfo_out.json",
-                                "portability_test_gold.json"
-                               )
-    test_in_files = [
-                     "portability_test.json"
-                    ]
+    devsim_input_files = [
+        "portability_test.json"
+    ]
+    vulkaninfo_output = "portability_test_gold.json"
+    vulkaninfo_args = ['--portability']
 
-    def __init__(self, vulkaninfo_path):
-        TestFramework.__init__(self, self.test_in_files, self.test_type, vulkaninfo_path)
-
-
-class PortabilityEmulatedTest(TestFramework):
+class PortabilityEmulatedTest(BaseTest):
     """
     Tests if devsim can modify protablity queries for the device when
     the VK_KHR_portability_subset extension is emulated by devsim.
     """
-    test_type = PortabilityTest(
-                                TestEnvironmentSettings(portability=1),
-                                "port_test_vulkaninfo_out.json",
-                                "portability_test_gold.json"
-                               )
-    test_in_files = [
-                     "portability_test.json"
-                    ]
+    devsim_input_files = [
+        "portability_test.json"
+    ]
+    vulkaninfo_output = "portability_test_gold.json"
+    vulkaninfo_args = ['--portability']
+    portability = 1
 
-    def __init__(self, vulkaninfo_path):
-        TestFramework.__init__(self, self.test_in_files, self.test_type, vulkaninfo_path)
 
+def RunTests(vulkaninfo_path, run=standalone_run):
+    """Run all appropriate test cases for the current configuration.
+    The caller can pass in their own custom run() function if
+    desired."""
+
+    # We always run these devsim tests.
+    test_cases = [
+        DevsimTestReadMultipleInputFiles(vulkaninfo_path, run=run),
+    ]
+
+    # First check to see whether portability is present on the current
+    # device.  The list of test cases will be different.
+    stdout, stderr = run([vulkaninfo_path, '--json'])
+    log.debug("checking if portability is present: stderr=%s", stderr)
+    if checkPortabilityPresent(json.loads(stdout)):
+        log.info("Testing devsim and native portability")
+        test_cases.extend([
+            PortabilityNonEmulatedTest(vulkaninfo_path, run=run),
+            # Emulation should not override if it detects that native
+            # portability is present, so the Emulated Test should also pass.
+            PortabilityEmulatedTest(vulkaninfo_path, run=run),
+        ])
+    else:
+        log.info("Testing devsim and emulated portability")
+        test_cases.extend([
+            PortabilityExtensionPresentEmulationOffTest(vulkaninfo_path, run=run),
+            PortabilityExtensionPresentEmulationOnTest(vulkaninfo_path, run=run),
+            PortabilityEmulatedTest(vulkaninfo_path, run=run),
+        ])
+
+    # Run all the established test cases.
+    pass_count = 0
+    fail_count = 0
+    for test_case in test_cases:
+        test_case_name = test_case.__class__.__name__
+        log.info("RUNNING TEST %s", test_case_name)
+        passed = test_case.check()
+        if passed:
+            log.info("PASS %s", test_case_name)
+            pass_count += 1
+        else:
+            log.error("FAIL %s", test_case_name)
+            fail_count += 1
+
+    if fail_count == 0:
+        log.info("All %d tests PASS", pass_count)
+        return True
+
+    log.error("%d test%s FAIL, %d test%s PASS",
+              fail_count, "" if fail_count == 1 else "",
+              pass_count, "" if pass_count == 1 else "")
+    return False
 
 def main():
     """
@@ -433,30 +375,7 @@ def main():
     elif sys.platform.startswith("darwin"):
         vulkaninfo_path = os.path.join(vulkaninfo_path, "vulkaninfo", "vulkaninfo")
 
-    test_dict = {
-        "DevsimTestReadMultipleInputFiles":
-            DevsimTestReadMultipleInputFiles(vulkaninfo_path),
-        "PortabilityExtensionPresentEmulationOffTest":
-            PortabilityExtensionPresentEmulationOffTest(vulkaninfo_path),
-        "PortabilityExtensionPresentEmulationOnTest":
-            PortabilityExtensionPresentEmulationOnTest(vulkaninfo_path),
-        "PortabilityNonEmulatedTest":
-            PortabilityNonEmulatedTest(vulkaninfo_path),
-        "PortabilityEmulatedTest":
-            PortabilityEmulatedTest(vulkaninfo_path),
-    }
-
-    test_blacklist = []
-
-    if not test_dict["PortabilityExtensionPresentEmulationOffTest"].runAndCheck():
-        test_blacklist.append("PortabilityExtensionPresentEmulationOffTest")
-        test_blacklist.append("PortabilityNonEmulatedTest")
-
-    for k in test_dict:
-        if k in test_blacklist:
-            continue
-        print("RUNNING TEST", k)
-        print("PASS" if test_dict[k].runAndCheck() else "FAIL")
+    RunTests(vulkaninfo_path)
 
 
 if __name__ == '__main__':
