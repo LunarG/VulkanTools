@@ -132,6 +132,7 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
 
     // Required configuration values
     key = ReadString(json_configuration_object, "name").c_str();
+    setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
     description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
@@ -176,6 +177,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 
     // Required configuration values
     key = ReadString(json_configuration_object, "name").c_str();
+    setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
     description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
@@ -379,6 +381,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     json_configuration.insert("name", key.c_str());
     json_configuration.insert("description", description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(platform_flags));
+    json_configuration.insert("editor_state", setting_tree_state.data());
     json_configuration.insert("layers", json_layers);
     root.insert("configuration", json_configuration);
 
