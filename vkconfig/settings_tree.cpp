@@ -98,7 +98,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             const std::vector<Layer> &available_layers = configurator.layers.available_layers;
             const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
 
-            std::string layer_text = layer->key;
+            std::string layer_text = parameter.key;
             if (layer == nullptr) {
                 layer_text += " (Missing)";
             } else if (layer->status != STATUS_STABLE) {
@@ -108,7 +108,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             layer_item->setText(0, layer_text.c_str());
             layer_item->setFont(0, font_layer);
-            layer_item->setExpanded(!parameter.collapsed);
+            // layer_item->setExpanded(!parameter.collapsed);
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
 
@@ -118,14 +118,14 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (parameter.settings.Empty()) {
                 QTreeWidgetItem *layer_child_item = new QTreeWidgetItem();
                 layer_child_item->setText(0, "No User Settings");
-                layer_child_item->setExpanded(true);
+                // layer_child_item->setExpanded(true);
                 layer_item->addChild(layer_child_item);
                 continue;
             }
 
             if (!layer->presets.empty()) {
                 QTreeWidgetItem *presets_item = new QTreeWidgetItem();
-                presets_item->setExpanded(true);
+                // presets_item->setExpanded(true);
                 WidgetPreset *presets_combobox = new WidgetPreset(presets_item, *layer, parameter);
                 connect(presets_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
                 layer_item->addChild(presets_item);
@@ -180,7 +180,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     //_settings_tree->expandAll();
     _settings_tree->resizeColumnToContents(0);
-    // SetTreeState(configuration->setting_tree_state, 0, _settings_tree->invisibleRootItem());
+    SetTreeState(configuration->setting_tree_state, 0, _settings_tree->invisibleRootItem());
     _settings_tree->blockSignals(false);
 }
 
@@ -211,34 +211,33 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
     Layer *validation_layer = FindByKey(available_layers, "VK_LAYER_KHRONOS_validation");
+    assert(validation_layer != nullptr);
+
+    SettingMetaSet &layer_settings = validation_layer->settings;
+    SettingDataSet &param_settings = parameter.settings;
 
     QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
     validation_areas_item->setText(0, "Validation Areas");
-    validation_areas_item->setExpanded(true);
+    // validation_areas_item->setExpanded(true);
     parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
     _validation_areas = new SettingsValidationAreas(_settings_tree, validation_areas_item, validation_layer->_api_version,
-                                                    validation_layer->settings, parameter.settings);
+                                                    layer_settings, param_settings);
 
-    // Get the Debug Action and log file settings (and they must exist)
-    assert(validation_layer->settings.Get("debug_action"));
-    assert(validation_layer->settings.Get("debug_action")->type == SETTING_FLAGS);
-    assert(parameter.settings.Get("debug_action"));
-    assert(parameter.settings.Get("debug_action")->type == SETTING_FLAGS);
+    const SettingMetaFlags *debug_action_meta = layer_settings.Get<SettingMetaFlags>("debug_action");
+    assert(debug_action_meta != nullptr);
+    assert(debug_action_meta->type == SETTING_FLAGS);
+    SettingDataFlags *debug_action_data = param_settings.Get<SettingDataFlags>("debug_action");
+    assert(debug_action_data != nullptr);
+    assert(debug_action_data->type == SETTING_FLAGS);
 
-    const SettingMetaFlags *debug_action_meta =
-        static_cast<const SettingMetaFlags *>(validation_layer->settings.Get("debug_action"));
-    SettingDataFlags *debug_action_data = static_cast<SettingDataFlags *>(parameter.settings.Get("debug_action"));
-
-    assert(validation_layer->settings.Get("log_filename"));
-    assert(validation_layer->settings.Get("log_filename")->type == SETTING_SAVE_FILE);
-    assert(parameter.settings.Get("log_filename"));
-    assert(parameter.settings.Get("log_filename")->type == SETTING_SAVE_FILE);
-
-    const SettingMetaFileSave *log_file_meta =
-        static_cast<const SettingMetaFileSave *>(validation_layer->settings.Get("log_filename"));
-    SettingDataFileSave *log_file_data = static_cast<SettingDataFileSave *>(parameter.settings.Get("log_filename"));
+    const SettingMetaFileSave *log_file_meta = layer_settings.Get<SettingMetaFileSave>("log_filename");
+    assert(log_file_meta != nullptr);
+    assert(log_file_meta->type == SETTING_SAVE_FILE);
+    SettingDataFileSave *log_file_data = param_settings.Get<SettingDataFileSave>("log_filename");
+    assert(log_file_data != nullptr);
+    assert(log_file_data->type == SETTING_SAVE_FILE);
 
     // The debug action set of settings has it's own branch
     QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
@@ -276,11 +275,10 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         }
     }
 
-    if (validation_layer->settings.Get("report_flags") != nullptr) {
-        const SettingMetaFlags &setting_meta =
-            static_cast<const SettingMetaFlags &>(*validation_layer->settings.Get("report_flags"));
-        SettingDataFlags &setting_data =
-            static_cast<SettingDataFlags &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+    const SettingMetaFlags *meta_report_flags = layer_settings.Get<SettingMetaFlags>("report_flags");
+    if (meta_report_flags != nullptr) {
+        const SettingMetaFlags &setting_meta = *meta_report_flags;
+        SettingDataFlags &setting_data = param_settings.Create<SettingDataFlags>(setting_meta.key, setting_meta.type);
 
         QTreeWidgetItem *sub_category = new QTreeWidgetItem;
         sub_category->setText(0, setting_meta.label.c_str());
@@ -297,21 +295,19 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         }
     }
 
-    if (validation_layer->settings.Get("duplicate_message_limit") != nullptr) {
-        const SettingMetaInt &setting_meta =
-            static_cast<const SettingMetaInt &>(*validation_layer->settings.Get("duplicate_message_limit"));
-        SettingDataInt &setting_data =
-            static_cast<SettingDataInt &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+    const SettingMetaInt *meta_duplicate_message_limit = layer_settings.Get<SettingMetaInt>("duplicate_message_limit");
+    if (meta_duplicate_message_limit != nullptr) {
+        const SettingMetaInt &setting_meta = *meta_duplicate_message_limit;
+        SettingDataInt &setting_data = param_settings.Create<SettingDataInt>(setting_meta.key, setting_meta.type);
 
         WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, parent, setting_meta, setting_data);
         connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
 
-    if (validation_layer->settings.Get("message_id_filter") != nullptr) {
-        const SettingMetaList &setting_meta =
-            static_cast<const SettingMetaList &>(*validation_layer->settings.Get("message_id_filter"));
-        SettingDataList &setting_data =
-            static_cast<SettingDataList &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+    const SettingMetaList *meta_message_id_list = layer_settings.Get<SettingMetaList>("message_id_filter");
+    if (meta_message_id_list != nullptr) {
+        const SettingMetaList &setting_meta = *meta_message_id_list;
+        SettingDataList &setting_data = param_settings.Create<SettingDataList>(setting_meta.key, setting_meta.type);
 
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
         mute_message_item->setText(0, setting_meta.label.c_str());
@@ -324,24 +320,13 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         QTreeWidgetItem *next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, 28));
         mute_message_item->addChild(next_line);
-<<<<<<< HEAD
         _settings_tree->setItemWidget(next_line, 0, widget_search);
-        _compound_widgets.push_back(next_line);
-=======
-        _settings_tree->setItemWidget(next_line, 0, vuid_search_widget);
->>>>>>> d9f2fbda7... vkconfig: compact filesystem UI
 
         QTreeWidgetItem *list_item = new QTreeWidgetItem();
         mute_message_item->addChild(list_item);
         list_item->setSizeHint(0, QSize(0, 200));
-<<<<<<< HEAD
         WidgetSettingList *widget_list = new WidgetSettingList(setting_meta, setting_data);
-        _compound_widgets.push_back(list_item);
         _settings_tree->setItemWidget(list_item, 0, widget_list);
-=======
-        WidgetSettingVUIDFilter *mute_message_widget = new WidgetSettingVUIDFilter(setting_meta, setting_data);
-        _settings_tree->setItemWidget(list_item, 0, mute_message_widget);
->>>>>>> d9f2fbda7... vkconfig: compact filesystem UI
 
         connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
         connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -365,57 +350,51 @@ void SettingsTreeManager::khronosDebugChanged(int index) {
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
-    const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
+    const SettingMetaSet &setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
+    SettingDataSet &setting_datas = parameter.settings;
 
-    for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
-        const SettingMeta &setting_meta = layer_setting_metas[setting_index];
+    for (std::size_t setting_index = 0, n = setting_metas.Size(); setting_index < n; ++setting_index) {
+        const SettingMeta &setting_meta = setting_metas[setting_index];
 
         if (!IsPlatformSupported(setting_meta.platform_flags)) continue;
-
-        SettingData &setting_data = *parameter.settings.Get(setting_meta.key.c_str());
-        assert(&setting_data);
 
         switch (setting_meta.type) {
             case SETTING_BOOL:
             case SETTING_BOOL_NUMERIC_DEPRECATED: {
                 const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(setting_meta);
-                SettingDataBool &data = static_cast<SettingDataBool &>(setting_data);
+                SettingDataBool *data = setting_datas.Get<SettingDataBool>(setting_meta.key.c_str());
+                assert(data != nullptr);
 
-                WidgetSettingBool *widget = new WidgetSettingBool(_settings_tree, parent, meta, data);
+                WidgetSettingBool *widget = new WidgetSettingBool(_settings_tree, parent, meta, *data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_INT: {
                 const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(setting_meta);
-                SettingDataInt &data = static_cast<SettingDataInt &>(setting_data);
+                SettingDataInt *data = setting_datas.Get<SettingDataInt>(setting_meta.key.c_str());
+                assert(data != nullptr);
 
-                WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, parent, meta, data);
+                WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, parent, meta, *data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_SAVE_FILE:
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER: {
-                // QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-                // parent->addChild(setting_item);
-
                 const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(setting_meta);
-                SettingDataString &data = static_cast<SettingDataString &>(setting_data);
+                SettingDataString *data = setting_datas.Get<SettingDataString>(setting_meta.key.c_str());
+                assert(data != nullptr);
 
-                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(_settings_tree, parent, meta, data);
-                // QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                // place_holder->setSizeHint(0, QSize(0, 28));
-                // setting_item->addChild(place_holder);
-                // setting_item->setSizeHint(0, QSize(0, 28));
-                //_settings_tree->setItemWidget(setting_item, 0, widget);
+                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(_settings_tree, parent, meta, *data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_ENUM: {
                 const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(setting_meta);
-                SettingDataEnum &data = static_cast<SettingDataEnum &>(setting_data);
+                SettingDataEnum *data = setting_datas.Get<SettingDataEnum>(setting_meta.key.c_str());
+                assert(data != nullptr);
 
-                WidgetSettingEnum *enum_widget = new WidgetSettingEnum(_settings_tree, parent, meta, data);
+                WidgetSettingEnum *enum_widget = new WidgetSettingEnum(_settings_tree, parent, meta, *data);
                 connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
@@ -424,13 +403,14 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 parent->addChild(setting_item);
 
                 const SettingMetaFlags &meta = static_cast<const SettingMetaFlags &>(setting_meta);
-                SettingDataFlags &data = static_cast<SettingDataFlags &>(setting_data);
+                SettingDataFlags *data = setting_datas.Get<SettingDataFlags>(setting_meta.key.c_str());
+                assert(data != nullptr);
 
                 setting_item->setText(0, setting_meta.label.c_str());
                 setting_item->setToolTip(0, setting_meta.description.c_str());
 
                 for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
-                    WidgetSettingFlag *widget = new WidgetSettingFlag(meta, data, meta.enum_values[i].key.c_str());
+                    WidgetSettingFlag *widget = new WidgetSettingFlag(meta, *data, meta.enum_values[i].key.c_str());
                     QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                     setting_item->addChild(place_holder);
                     _settings_tree->setItemWidget(place_holder, 0, widget);
@@ -441,41 +421,62 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
             case SETTING_INT_RANGES: {
                 const SettingMetaIntRange &meta = static_cast<const SettingMetaIntRange &>(setting_meta);
-                SettingDataIntRange &data = static_cast<SettingDataIntRange &>(setting_data);
+                SettingDataIntRange *data = setting_datas.Get<SettingDataIntRange>(setting_meta.key.c_str());
+                assert(data != nullptr);
 
-                WidgetSettingIntRange *widget = new WidgetSettingIntRange(_settings_tree, parent, meta, data);
+                WidgetSettingIntRange *widget = new WidgetSettingIntRange(_settings_tree, parent, meta, *data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_STRING: {
                 const SettingMetaString &meta = static_cast<const SettingMetaString &>(setting_meta);
-                SettingDataString &data = static_cast<SettingDataString &>(setting_data);
+                SettingDataString *data = setting_datas.Get<SettingDataString>(setting_meta.key.c_str());
+                assert(data != nullptr);
 
-                WidgetSettingString *widget = new WidgetSettingString(_settings_tree, parent, meta, data);
+                WidgetSettingString *widget = new WidgetSettingString(_settings_tree, parent, meta, *data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
+<<<<<<< HEAD
             case SETTING_LIST: {
                 const SettingMetaList &setting_meta_src = static_cast<const SettingMetaList &>(setting_meta);
                 SettingDataList &setting_data =
                     static_cast<SettingDataList &>(parameter.settings.Create(setting_meta_src.key, setting_meta_src.type));
+=======
+            case SETTING_VUID_FILTER: {
+                const SettingMetaVUIDFilter &meta = static_cast<const SettingMetaVUIDFilter &>(setting_meta);
+                SettingDataVUIDFilter *data = setting_datas.Get<SettingDataVUIDFilter>(setting_meta.key.c_str());
+                assert(data != nullptr);
+>>>>>>> 0e9bac529... vkconfig: less verbose conversions
 
                 QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
                 mute_message_item->setText(0, setting_meta.label.c_str());
                 mute_message_item->setToolTip(0, setting_meta.description.c_str());
+<<<<<<< HEAD
                 parent->addChild(mute_message_item);
 
                 WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta_src.list, setting_data.value);
+=======
+                mute_message_item->setExpanded(true);
+                parent->addChild(mute_message_item);
+
+                WidgetSettingVUIDSearch *vuid_search_widget = new WidgetSettingVUIDSearch(meta.list, data->value);
+>>>>>>> 0e9bac529... vkconfig: less verbose conversions
 
                 QTreeWidgetItem *next_line = new QTreeWidgetItem();
                 next_line->setSizeHint(0, QSize(0, 28));
                 mute_message_item->addChild(next_line);
+<<<<<<< HEAD
                 _settings_tree->setItemWidget(next_line, 0, widget_search);
                 _compound_widgets.push_back(next_line);
+=======
+                _settings_tree->setItemWidget(next_line, 0, vuid_search_widget);
+>>>>>>> 0e9bac529... vkconfig: less verbose conversions
 
                 QTreeWidgetItem *list_item = new QTreeWidgetItem();
                 mute_message_item->addChild(list_item);
                 list_item->setSizeHint(0, QSize(0, 200));
+<<<<<<< HEAD
                 WidgetSettingList *widget_list = new WidgetSettingList(setting_meta_src, setting_data);
                 _compound_widgets.push_back(list_item);
                 _settings_tree->setItemWidget(list_item, 0, widget_list);
@@ -484,6 +485,17 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 connect(widget_list, SIGNAL(itemRemoved(const QString &)), widget_search, SLOT(addToSearchList(const QString &)));
                 connect(widget_list, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
+=======
+                WidgetSettingVUIDFilter *mute_message_widget = new WidgetSettingVUIDFilter(meta, *data);
+                _settings_tree->setItemWidget(list_item, 0, mute_message_widget);
+
+                connect(vuid_search_widget, SIGNAL(itemSelected(const QString &)), mute_message_widget,
+                        SLOT(addItem(const QString &)));
+                connect(vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                connect(mute_message_widget, SIGNAL(itemRemoved(const QString &)), vuid_search_widget,
+                        SLOT(addToSearchList(const QString &)));
+                connect(mute_message_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
+>>>>>>> 0e9bac529... vkconfig: less verbose conversions
             } break;
 
             default: {

@@ -29,47 +29,25 @@
 template <typename T>
 class SettingSet {
    public:
-    T& Create(const std::string& key, SettingType type) {
-        assert(!key.empty());
-        assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+    T& Create(const std::string& key, SettingType type) { return this->Alloc(key, type); }
 
-        // Find existing setting, avoid duplicated setting
-        {
-            T* setting = this->Get(key.c_str());
-            if (setting != nullptr) {
-                if (setting->type == type) return *setting;
-                /*
-                else {
-                    Remove(key.c_str());
-                    return Create(key, type);
-                }
-                */
-            }
-        }
-
-        // Create a new setting
-        {
-            this->data.push_back(AllocSetting(key, type));
-            T* setting = this->Get(key.c_str());
-            assert(setting != nullptr);
-            return *setting;
-        }
+    template <typename CONTRETE>
+    CONTRETE& Create(const std::string& key, SettingType type) {
+        return static_cast<CONTRETE&>(this->Alloc(key, type));
     }
 
-    T* Get(const char* key) {
-        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-            if (this->data[i]->key == key) return this->data[i].get();
-        }
+    T* Get(const char* key) { return this->Access(key); }
 
-        return nullptr;
+    template <typename CONTRETE>
+    CONTRETE* Get(const char* key) {
+        return static_cast<CONTRETE*>(this->Access(key));
     }
 
-    const T* Get(const char* key) const {
-        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-            if (this->data[i]->key == key) return this->data[i].get();
-        }
+    const T* Get(const char* key) const { return this->Access(key); }
 
-        return nullptr;
+    template <typename CONTRETE>
+    const CONTRETE* Get(const char* key) const {
+        return static_cast<const CONTRETE*>(this->Access(key));
     }
 
     bool Empty() const { return this->data.empty(); }
@@ -83,6 +61,43 @@ class SettingSet {
     }
 
    private:
+    T& Alloc(const std::string& key, SettingType type) {
+        assert(!key.empty());
+        assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+        // Find existing setting, avoid duplicated setting
+        {
+            T* setting = this->Get(key.c_str());
+            if (setting != nullptr) {
+                if (setting->type == type) return *setting;
+            }
+        }
+
+        // Create a new setting
+        {
+            this->data.push_back(AllocSetting(key, type));
+            T* setting = this->Get(key.c_str());
+            assert(setting != nullptr);
+            return *setting;
+        }
+    }
+
+    T* Access(const char* key) {
+        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+            if (this->data[i]->key == key) return this->data[i].get();
+        }
+
+        return nullptr;
+    }
+
+    const T* Access(const char* key) const {
+        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+            if (this->data[i]->key == key) return this->data[i].get();
+        }
+
+        return nullptr;
+    }
+
     void Remove(const char* key) {
         std::vector<std::shared_ptr<T> > new_data;
         for (std::size_t i = 0, n = data.size(); i < n; ++i) {
