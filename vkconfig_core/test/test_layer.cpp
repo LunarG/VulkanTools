@@ -498,20 +498,20 @@ TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
     EXPECT_EQ(82, setting_meta->default_max_value);
 }
 
-TEST(test_layer, load_1_4_0_setting_vuid_with_optional) {
+TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaVUIDFilter* setting_meta = dynamic_cast<SettingMetaVUIDFilter*>(layer.settings.Get("vuid_exclude_with_optional"));
+    SettingMetaList* setting_meta = dynamic_cast<SettingMetaList*>(layer.settings.Get("list_with_optional"));
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("vuid_exclude_with_optional", setting_meta->key.c_str());
-    EXPECT_EQ(SETTING_VUID_FILTER, setting_meta->type);
-    EXPECT_STREQ("vuid list", setting_meta->label.c_str());
-    EXPECT_STREQ("vuid list description", setting_meta->description.c_str());
-    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#vuid", setting_meta->url.c_str());
+    EXPECT_STREQ("list_with_optional", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_LIST, setting_meta->type);
+    EXPECT_STREQ("List", setting_meta->label.c_str());
+    EXPECT_STREQ("List description", setting_meta->description.c_str());
+    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 

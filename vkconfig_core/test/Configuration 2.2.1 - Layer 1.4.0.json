@@ -94,7 +94,7 @@
                     },
                     {
                         "key": "list_with_optional",
-                        "type": "VUID_EXCLUDE",
+                        "type": "LIST",
                         "value": [ "stringA", "stringB" ]
                     }
                 ],

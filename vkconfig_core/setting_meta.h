@@ -153,9 +153,9 @@ struct SettingMetaFlags : public SettingMetaEnumeration {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
-struct SettingMetaVUIDFilter : public SettingMeta {
-    SettingMetaVUIDFilter(const std::string& key) : SettingMeta(key, SETTING_VUID_FILTER) {}
-    virtual ~SettingMetaVUIDFilter() {}
+struct SettingMetaList : public SettingMeta {
+    SettingMetaList(const std::string& key) : SettingMeta(key, SETTING_LIST) {}
+    virtual ~SettingMetaList() {}
 
     std::vector<std::string> list;
     std::vector<std::string> default_value;

@@ -19,14 +19,14 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_setting_vuid_filter.h"
+#include "widget_setting_list.h"
 
 #include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/util.h"
 
 #include <cassert>
 
-WidgetSettingVUIDFilter::WidgetSettingVUIDFilter(const SettingMetaVUIDFilter &setting_meta, SettingDataVUIDFilter &setting_data)
+WidgetSettingList::WidgetSettingList(const SettingMetaList &setting_meta, SettingDataList &setting_data)
     : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data) {
     assert(&setting_meta);
     assert(&setting_data);
@@ -49,7 +49,7 @@ WidgetSettingVUIDFilter::WidgetSettingVUIDFilter(const SettingMetaVUIDFilter &se
     connect(_remove_button, SIGNAL(pressed()), this, SLOT(removePushed()));
 }
 
-void WidgetSettingVUIDFilter::resizeEvent(QResizeEvent *event) {
+void WidgetSettingList::resizeEvent(QResizeEvent *event) {
     assert(event);
 
     const int button_height = 26;
@@ -58,7 +58,7 @@ void WidgetSettingVUIDFilter::resizeEvent(QResizeEvent *event) {
     _remove_button->setGeometry(0, parent_size.height() - button_height, parent_size.width(), button_height);
 }
 
-void WidgetSettingVUIDFilter::addItem(const QString &item) {
+void WidgetSettingList::addItem(const QString &item) {
     _list_widget->addItem(item);
     _list_widget->setCurrentRow(_list_widget->count() - 1);
 
@@ -68,7 +68,7 @@ void WidgetSettingVUIDFilter::addItem(const QString &item) {
     emit itemChanged();
 }
 
-void WidgetSettingVUIDFilter::removePushed() {
+void WidgetSettingList::removePushed() {
     const int row = _list_widget->currentRow();
     if (row < 0) return;
 

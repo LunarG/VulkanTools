@@ -1,0 +1,21 @@
+{
+    "file_format_version": "1.1.2",
+    "layer": {
+        "api_version": "1.2.162",
+        "blacklisted_layers": [
+        ],
+        "component_layers": [
+            "VK_LAYER_LUNARG_test_1_4_0_setting_types"
+        ],
+        "description": "LunarG Override Layer",
+        "disable_environment": {
+            "DISABLE_VK_LAYER_LUNARG_override": "1"
+        },
+        "implementation_version": "1",
+        "name": "VK_LAYER_LUNARG_override",
+        "override_paths": [
+            ":"
+        ],
+        "type": "GLOBAL"
+    }
+}

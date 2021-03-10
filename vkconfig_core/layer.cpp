@@ -226,9 +226,9 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     }
                     break;
                 }
-                case SETTING_VUID_FILTER: {
-                    static_cast<SettingMetaVUIDFilter&>(setting_meta).list = ReadStringArray(json_setting, "list");
-                    static_cast<SettingMetaVUIDFilter&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
+                case SETTING_LIST: {
+                    static_cast<SettingMetaList&>(setting_meta).list = ReadStringArray(json_setting, "list");
+                    static_cast<SettingMetaList&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
                     break;
                 }
                 default: {
@@ -289,7 +289,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
                         break;
                     }
-                    case SETTING_VUID_FILTER:
+                    case SETTING_LIST:
                     case SETTING_FLAGS: {
                         static_cast<SettingDataVector&>(setting_data).value = ReadStringArray(json_setting_object, "value");
                         break;
@@ -365,9 +365,9 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
             static_cast<SettingDataIntRange&>(setting_data).max_value = meta_object.default_max_value;
             break;
         }
-        case SETTING_VUID_FILTER: {
-            const SettingMetaVUIDFilter& meta_object = static_cast<const SettingMetaVUIDFilter&>(setting_meta);
-            static_cast<SettingDataVUIDFilter&>(setting_data).value = meta_object.default_value;
+        case SETTING_LIST: {
+            const SettingMetaList& meta_object = static_cast<const SettingMetaList&>(setting_meta);
+            static_cast<SettingDataList&>(setting_data).value = meta_object.default_value;
             break;
         }
         default: {

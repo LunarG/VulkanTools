@@ -275,7 +275,7 @@
                 "key": "message_id_filter",
                 "label": "Mute Message VUIDs",
                 "description": "List of VUIDs and VUID identifers which are to be IGNORED by the validation layer",
-                "type": "VUID_EXCLUDE",
+                "type": "LIST",
                 "list": [
                     "VUID-VkAabbPositionsKHR-minX-03546",
                     "VUID-VkAabbPositionsKHR-minY-03547",

@@ -201,7 +201,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     stream << (static_cast<const SettingDataBool&>(setting_data).value ? "TRUE" : "FALSE");
                     break;
                 }
-                case SETTING_VUID_FILTER:
+                case SETTING_LIST:
                 case SETTING_FLAGS: {
                     const SettingDataVector& setting_object = static_cast<const SettingDataVector&>(setting_data);
 

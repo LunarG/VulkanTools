@@ -60,8 +60,8 @@ SOURCES += \
     widget_setting_int.cpp \
     widget_setting_int_range.cpp \
     widget_setting_string.cpp \
-    widget_setting_vuid_filter.cpp \
-    widget_setting_vuid_search.cpp \
+    widget_setting_list.cpp \
+    widget_setting_search.cpp \
     widget_tree_friendly_combobox.cpp \
     dialog_about.cpp \
     dialog_applications.cpp \
@@ -116,8 +116,8 @@ HEADERS += \
     widget_setting_int.h \
     widget_setting_int_range.h \
     widget_setting_string.h \
-    widget_setting_vuid_filter.h \
-    widget_setting_vuid_search.h \
+    widget_setting_list.h \
+    widget_setting_search.h \
     widget_tree_friendly_combobox.h \
     dialog_about.h \
     dialog_applications.h \

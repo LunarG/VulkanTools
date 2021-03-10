@@ -611,7 +611,7 @@
                             },
                             "type": {
                                 "type": "string",
-                                "enum": [ "VUID_EXCLUDE" ]
+                                "enum": [ "LIST" ]
                             },
                             "default": {
                                 "type": "array",
