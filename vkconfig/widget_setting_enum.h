@@ -33,6 +33,8 @@ class WidgetSettingEnum : public WidgetSetting {
     explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaEnum& setting_meta,
                                SettingDataEnum& setting_data);
 
+    void Enable(bool enable) override;
+
    public Q_SLOTS:
     void indexChanged(int index);
 

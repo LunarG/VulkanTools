@@ -66,6 +66,14 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     this->connect(this->item->treeWidget(), SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(OnItemCollapsed(QTreeWidgetItem*)));
 }
 
+void WidgetSettingFilesystem::Enable(bool enable) {
+    ::EnableItem(this->item, enable);
+    ::EnableItem(this->child_item, enable);
+    this->button->setEnabled(enable);
+    this->title_field->setEnabled(enable);
+    this->child_field->setEnabled(enable);
+}
+
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
     const QSize parent_size = event->size();
 

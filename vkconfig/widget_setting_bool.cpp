@@ -37,6 +37,11 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* parent,
     this->connect(this->field, SIGNAL(clicked()), this, SLOT(itemToggled()));
 }
 
+void WidgetSettingBool::Enable(bool enable) {
+    ::EnableItem(this->item, enable);
+    this->field->setEnabled(enable);
+}
+
 void WidgetSettingBool::resizeEvent(QResizeEvent* event) {
     const QRect button_rect = QRect(event->size().width() - 16, 0, 16, event->size().height());
     this->field->setGeometry(button_rect);

@@ -47,11 +47,11 @@ class SettingsTreeManager : QObject {
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
    public Q_SLOTS:
-    void khronosDebugChanged(int index);
+    void OnDebugLogMessageChanged(int index);
     void OnPresetChanged(int index);  // Okay, is this a custom guy HERE, or do we move it out
                                       // It really forces a reload of the entire branch of this tree
                                       // Reset layer defaults for the profile, and then call BuildKhronosTree again
-    void OnSettingChanged();          // The profile has been edited and should be saved
+    void OnSettingChanged();          // The configuration has been edited and should be saved
 
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;
@@ -63,7 +63,6 @@ class SettingsTreeManager : QObject {
     QTreeWidget *_settings_tree;
     std::vector<WidgetPreset *> _presets_comboboxes;
 
-    QTreeWidgetItem *_validation_log_file_item;
     WidgetSettingFilesystem *_validation_log_file_widget;
     WidgetSettingFlag *_validation_debug_action;
     SettingsValidationAreas *_validation_areas;

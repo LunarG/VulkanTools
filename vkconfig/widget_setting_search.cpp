@@ -23,6 +23,8 @@
 
 #include "widget_setting_search.h"
 
+static const int MIN_BUTTON_SIZE = 24;
+
 WidgetSettingSearch::WidgetSettingSearch(const std::vector<std::string> &layer_vuids,
                                          const std::vector<std::string> &selected_vuids)
     : QWidget(nullptr), layer_vuids(layer_vuids) {
@@ -36,13 +38,12 @@ WidgetSettingSearch::WidgetSettingSearch(const std::vector<std::string> &layer_v
 
     _user_box = new QLineEdit(this);
     _user_box->setFocusPolicy(Qt::StrongFocus);
-
-    _add_button = new QPushButton(this);
-    _add_button->setText("Add");
-
     _user_box->show();
     _user_box->setText("");
     _user_box->installEventFilter(this);
+
+    _add_button = new QPushButton(this);
+    _add_button->setText("+");
 
     _search_vuid = nullptr;  // Safe to delete a pointer
     ResetCompleter();
@@ -51,7 +52,7 @@ WidgetSettingSearch::WidgetSettingSearch(const std::vector<std::string> &layer_v
 }
 
 void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
-    const int button_size = 52;
+    const int button_size = MIN_BUTTON_SIZE;
     QSize parentSize = event->size();
     _user_box->setGeometry(0, 0, parentSize.width() - 2 - button_size, parentSize.height());
     _add_button->setGeometry(parentSize.width() - button_size, 0, button_size, parentSize.height());

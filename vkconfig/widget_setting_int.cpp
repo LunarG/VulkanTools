@@ -45,6 +45,11 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* parent, c
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
+void WidgetSettingInt::Enable(bool enable) {
+    ::EnableItem(this->item, enable);
+    this->field->setEnabled(enable);
+}
+
 void WidgetSettingInt::FieldEditedCheck() {
     if (setting_data.value < setting_meta.min_value || setting_data.value > setting_meta.max_value) {
         const std::string text =

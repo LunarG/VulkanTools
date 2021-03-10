@@ -47,6 +47,11 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* parent,
     this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
+void WidgetSettingEnum::Enable(bool enable) {
+    ::EnableItem(this->item, enable);
+    this->field->setEnabled(enable);
+}
+
 void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
     int width = MIN_FIELD_WIDTH;
 

@@ -46,8 +46,8 @@
 
 SettingsTreeManager::SettingsTreeManager()
     : _settings_tree(nullptr),
-      _validation_log_file_item(nullptr),
       _validation_log_file_widget(nullptr),
+      _validation_debug_action(nullptr),
       _validation_areas(nullptr) {}
 
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
@@ -204,7 +204,6 @@ void SettingsTreeManager::CleanupGUI() {
     _settings_tree = nullptr;
     _validation_debug_action = nullptr;
     _validation_log_file_widget = nullptr;
-    _validation_log_file_item = nullptr;
 }
 
 void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter) {
@@ -261,14 +260,9 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         // Note, this is usually last, but I'll check for it any way in case other new items are added
         if (debug_action_meta->enum_values[i].key == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
             _validation_debug_action = widget;
-            _validation_log_file_item = new QTreeWidgetItem();
-            child->addChild(_validation_log_file_item);
             _validation_log_file_widget = new WidgetSettingFilesystem(_settings_tree, child, *log_file_meta, *log_file_data);
-            _validation_log_file_item->setSizeHint(0, QSize(0, 28));
-            _settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
-
             connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-            connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(khronosDebugChanged(int)));
+            connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(OnDebugLogMessageChanged(int)));
 
             // Capture initial state, which reflects enabled/disabled
             _validation_log_file_widget->setDisabled(!_validation_debug_action->isChecked());
@@ -318,7 +312,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta.list, setting_data.value);
 
         QTreeWidgetItem *next_line = new QTreeWidgetItem();
-        next_line->setSizeHint(0, QSize(0, 28));
+        next_line->setSizeHint(0, QSize(0, 24));
         mute_message_item->addChild(next_line);
         _settings_tree->setItemWidget(next_line, 0, widget_search);
 
@@ -337,12 +331,11 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     connect(_validation_areas, SIGNAL(settingChanged()), this, SLOT(OnSettingChanged()));
 }
 
-void SettingsTreeManager::khronosDebugChanged(int index) {
+void SettingsTreeManager::OnDebugLogMessageChanged(int index) {
     (void)index;
-    bool enabled = !(_validation_debug_action->isChecked());
+    const bool enabled = _validation_debug_action->isChecked();
     _settings_tree->blockSignals(true);
-    _validation_log_file_item->setDisabled(enabled);
-    _validation_log_file_widget->setDisabled(enabled);
+    _validation_log_file_widget->Enable(enabled);
     _settings_tree->blockSignals(false);
     OnSettingChanged();
 }
@@ -424,7 +417,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 SettingDataIntRanges *data = setting_datas.Get<SettingDataIntRanges>(setting_meta.key.c_str());
                 assert(data != nullptr);
 
-                WidgetSettingIntRange *widget = new WidgetSettingIntRange(_settings_tree, parent, meta, *data);
+                WidgetSettingIntRanges *widget = new WidgetSettingIntRanges(_settings_tree, parent, meta, *data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 

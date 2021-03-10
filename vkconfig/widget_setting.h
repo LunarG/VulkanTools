@@ -30,6 +30,10 @@ class WidgetSetting : public QWidget {
    public:
     explicit WidgetSetting(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMeta& setting_meta);
 
+    QTreeWidgetItem* GetItem() const { return this->item; }
+
+    virtual void Enable(bool enable) = 0;
+
    protected:
     QTreeWidget* tree;
     QTreeWidgetItem* item;
@@ -38,3 +42,5 @@ class WidgetSetting : public QWidget {
     WidgetSetting(const WidgetSetting&) = delete;
     WidgetSetting& operator=(const WidgetSetting&) = delete;
 };
+
+void EnableItem(QTreeWidgetItem* item, bool enable);

@@ -31,6 +31,8 @@ class WidgetSettingInt : public WidgetSetting {
    public:
     WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaInt& setting_meta, SettingDataInt& setting_data);
 
+    void Enable(bool enable) override;
+
    public Q_SLOTS:
     void itemEdited(const QString& value);
     void FieldEditedCheck();

@@ -25,12 +25,14 @@
 #include <QResizeEvent>
 #include <QLineEdit>
 
-class WidgetSettingIntRange : public WidgetSetting {
+class WidgetSettingIntRanges : public WidgetSetting {
     Q_OBJECT
 
    public:
-    WidgetSettingIntRange(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRanges& setting_meta,
-                          SettingDataIntRanges& setting_data);
+    WidgetSettingIntRanges(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRanges& setting_meta,
+                           SettingDataIntRanges& setting_data);
+
+    void Enable(bool enable) override;
 
    public Q_SLOTS:
     void itemEdited(const QString& value);

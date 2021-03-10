@@ -33,6 +33,8 @@ class WidgetSettingBool : public WidgetSetting {
     explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaBool& setting_meta,
                                SettingDataBool& setting_data);
 
+    void Enable(bool enable) override;
+
    public Q_SLOTS:
     void itemToggled();
 

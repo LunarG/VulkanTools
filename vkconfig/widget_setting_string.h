@@ -33,6 +33,8 @@ class WidgetSettingString : public WidgetSetting {
     WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaString& setting_meta,
                         SettingDataString& setting_data);
 
+    void Enable(bool enable) override;
+
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
     void OnItemExpanded(QTreeWidgetItem* expanded_item);

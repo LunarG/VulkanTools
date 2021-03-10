@@ -34,6 +34,8 @@ class WidgetSettingFilesystem : public WidgetSetting {
     explicit WidgetSettingFilesystem(QTreeWidget *tree, QTreeWidgetItem *parent, const SettingMetaFilesystem &setting_meta,
                                      SettingDataString &setting_data);
 
+    void Enable(bool enable) override;
+
    public Q_SLOTS:
     void OnButtonClicked();
     void OnTextEdited(const QString &value);

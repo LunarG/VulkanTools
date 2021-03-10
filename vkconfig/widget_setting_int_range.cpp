@@ -30,8 +30,8 @@
 
 static const int MIN_FIELD_WIDTH = 48;
 
-WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRanges& setting_meta,
-                                             SettingDataIntRanges& setting_data)
+WidgetSettingIntRanges::WidgetSettingIntRanges(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRanges& setting_meta,
+                                               SettingDataIntRanges& setting_data)
     : WidgetSetting(tree, parent, setting_meta),
       setting_meta(setting_meta),
       setting_data(setting_data),
@@ -45,7 +45,12 @@ WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidget* tree, QTreeWidgetItem*
     connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void WidgetSettingIntRange::FieldEditedCheck() {
+void WidgetSettingIntRanges::Enable(bool enable) {
+    ::EnableItem(this->item, enable);
+    this->field->setEnabled(enable);
+}
+
+void WidgetSettingIntRanges::FieldEditedCheck() {
     if (this->field == nullptr) return;
 
     if (!IsUIntRanges(setting_data.value)) {
@@ -66,7 +71,7 @@ void WidgetSettingIntRange::FieldEditedCheck() {
     }
 }
 
-void WidgetSettingIntRange::Resize() {
+void WidgetSettingIntRanges::Resize() {
     const QFontMetrics fm = this->field->fontMetrics();
     const int width = std::max(fm.horizontalAdvance(this->field->text()) + fm.horizontalAdvance("00"), MIN_FIELD_WIDTH);
 
@@ -74,12 +79,12 @@ void WidgetSettingIntRange::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-void WidgetSettingIntRange::resizeEvent(QResizeEvent* event) {
+void WidgetSettingIntRanges::resizeEvent(QResizeEvent* event) {
     this->resize = event->size();
     this->Resize();
 }
 
-void WidgetSettingIntRange::itemEdited(const QString& numbers) {
+void WidgetSettingIntRanges::itemEdited(const QString& numbers) {
     this->setting_data.value = numbers.toStdString();
     QTimer::singleShot(1000, [this]() { FieldEditedCheck(); });
 

@@ -35,3 +35,13 @@ WidgetSetting::WidgetSetting(QTreeWidget* tree, QTreeWidgetItem* parent, const S
 
     tree->setItemWidget(this->item, 0, this);
 }
+
+void EnableItem(QTreeWidgetItem* item, bool enable) {
+    if (item == nullptr) return;
+
+    if (enable) {
+        item->setFlags(item->flags() | Qt::ItemIsEnabled);
+    } else {
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+    }
+}

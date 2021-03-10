@@ -24,6 +24,7 @@
 #include "../vkconfig_core/layer.h"
 
 #include "widget_setting_int.h"
+#include "widget_setting_bool.h"
 
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -52,13 +53,12 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_gpu_assisted_box;
     QRadioButton *_gpu_assisted_radio;
     QTreeWidgetItem *_gpu_assisted_reserve_box;
-    QTreeWidgetItem *_gpu_assisted_oob_box;
+    WidgetSettingBool *_gpu_assisted_oob_box;
     QTreeWidgetItem *_debug_printf_box;
     QRadioButton *_debug_printf_radio;
-    QTreeWidgetItem *_debug_printf_to_stdout;
-    QTreeWidgetItem *_debug_printf_verbose;
-    QTreeWidgetItem *_debug_printf_buffer_size;
-    WidgetSettingInt *_debug_printf_buffer_size_value;
+    WidgetSettingBool *_debug_printf_to_stdout;
+    WidgetSettingBool *_debug_printf_verbose;
+    WidgetSettingInt *_debug_printf_buffer_size;
 
     QTreeWidgetItem *_best_practices_box;
     QTreeWidgetItem *_best_practices_arm_box;
@@ -68,7 +68,7 @@ class SettingsValidationAreas : public QObject {
     void itemClicked(QTreeWidgetItem *item, int column);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
-    void printfBufferSizeEdited(const QString &new_value);
+    void OnSettingChanged();
 
    Q_SIGNALS:
     void settingChanged();
@@ -79,14 +79,6 @@ class SettingsValidationAreas : public QObject {
 
     bool HasEnable(const char *token) const;
     bool HasDisable(const char *token) const;
-
-    QTreeWidgetItem *CreateSettingWidgetBool(QTreeWidgetItem *parent, const char *key);
-    QTreeWidgetItem *CreateSettingWidgetInt(QTreeWidgetItem *parent, const char *key);
-
-    void StoreBoolSetting(QTreeWidgetItem *setting_data, const char *key);
-    void StoreIntSetting(QTreeWidgetItem *setting_data, const char *key);
-
-    void EnableSettingWidget(QTreeWidgetItem *setting_data, bool enable);
 
     const Version version;
     const SettingMetaSet &settings_meta;

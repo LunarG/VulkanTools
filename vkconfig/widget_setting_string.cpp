@@ -56,6 +56,13 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* par
     this->connect(this->item->treeWidget(), SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(OnItemCollapsed(QTreeWidgetItem*)));
 }
 
+void WidgetSettingString::Enable(bool enable) {
+    ::EnableItem(this->item, enable);
+    ::EnableItem(this->child_item, enable);
+    this->title_field->setEnabled(enable);
+    this->child_field->setEnabled(enable);
+}
+
 void WidgetSettingString::Resize() {
     const QFontMetrics fm = this->title_field->fontMetrics();
     const int width = std::max(fm.horizontalAdvance(this->item->text(0) + "00") + ITEM_OFFSET, MIN_FIELD_WIDTH);
