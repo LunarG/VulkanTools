@@ -61,9 +61,9 @@ TEST(test_setting_meta, equal_int) {
 }
 
 TEST(test_setting_meta, equal_int_range) {
-    SettingMetaIntRange data0("data");
+    SettingMetaIntRanges data0("data");
     data0.default_value = "6-7";
-    SettingMetaIntRange data1("data");
+    SettingMetaIntRanges data1("data");
     data1.default_value = "6-7";
 
     EXPECT_EQ(data0, data1);
@@ -75,7 +75,7 @@ TEST(test_setting_meta, equal_int_range) {
     EXPECT_EQ(*ptr0, data1);
     EXPECT_EQ(data0, *ptr1);
 
-    SettingMetaIntRange dataX("dataX");
+    SettingMetaIntRanges dataX("dataX");
     dataX.default_value = "6-7";
 
     EXPECT_NE(data0, dataX);
@@ -85,7 +85,7 @@ TEST(test_setting_meta, equal_int_range) {
     EXPECT_NE(*ptr0, dataX);
     EXPECT_NE(data0, *ptrX);
 
-    SettingMetaIntRange dataY("data");
+    SettingMetaIntRanges dataY("data");
     dataY.default_value = "5-7";
 
     EXPECT_NE(data0, dataY);

@@ -189,7 +189,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     break;
                 }
                 case SETTING_INT_RANGES: {
-                    stream << static_cast<const SettingDataIntRange&>(setting_data).value.c_str();
+                    stream << static_cast<const SettingDataIntRanges&>(setting_data).value.c_str();
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED: {

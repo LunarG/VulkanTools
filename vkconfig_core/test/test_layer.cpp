@@ -485,7 +485,7 @@ TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaIntRange* setting_meta = dynamic_cast<SettingMetaIntRange*>(layer.settings.Get("int_range_with_optional"));
+    SettingMetaIntRanges* setting_meta = dynamic_cast<SettingMetaIntRanges*>(layer.settings.Get("int_range_with_optional"));
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("int_range_with_optional", setting_meta->key.c_str());

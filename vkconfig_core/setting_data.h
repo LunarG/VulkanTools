@@ -109,9 +109,9 @@ struct SettingDataFolderSave : public SettingDataString {
     virtual ~SettingDataFolderSave() {}
 };
 
-struct SettingDataIntRange : public SettingDataString {
-    SettingDataIntRange(const std::string& key) : SettingDataString(key, SETTING_INT_RANGES) {}
-    virtual ~SettingDataIntRange() {}
+struct SettingDataIntRanges : public SettingDataString {
+    SettingDataIntRanges(const std::string& key) : SettingDataString(key, SETTING_INT_RANGES) {}
+    virtual ~SettingDataIntRanges() {}
 };
 
 struct SettingDataVector : public SettingData {

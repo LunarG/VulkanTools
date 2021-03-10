@@ -29,8 +29,8 @@ class WidgetSettingIntRange : public WidgetSetting {
     Q_OBJECT
 
    public:
-    WidgetSettingIntRange(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRange& setting_meta,
-                          SettingDataIntRange& setting_data);
+    WidgetSettingIntRange(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaIntRanges& setting_meta,
+                          SettingDataIntRanges& setting_data);
 
    public Q_SLOTS:
     void itemEdited(const QString& value);
@@ -44,8 +44,8 @@ class WidgetSettingIntRange : public WidgetSetting {
 
     void Resize();
 
-    const SettingMetaIntRange& setting_meta;
-    SettingDataIntRange& setting_data;
+    const SettingMetaIntRanges& setting_meta;
+    SettingDataIntRanges& setting_data;
     QLineEdit* field;
     QSize resize;
 };

@@ -238,7 +238,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                     break;
                 }
                 case SETTING_INT_RANGES: {
-                    static_cast<SettingDataIntRange&>(setting_data).value = ReadStringValue(json_setting_object, "value");
+                    static_cast<SettingDataIntRanges&>(setting_data).value = ReadStringValue(json_setting_object, "value");
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED:

@@ -374,8 +374,8 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
             break;
         }
         case SETTING_INT_RANGES: {
-            const SettingMetaIntRange& meta_object = static_cast<const SettingMetaIntRange&>(setting_meta);
-            static_cast<SettingDataIntRange&>(setting_data).value = meta_object.default_value;
+            const SettingMetaIntRanges& meta_object = static_cast<const SettingMetaIntRanges&>(setting_meta);
+            static_cast<SettingDataIntRanges&>(setting_data).value = meta_object.default_value;
             break;
         }
         case SETTING_LIST: {

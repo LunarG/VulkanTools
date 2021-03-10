@@ -61,9 +61,9 @@ TEST(test_setting_data, equal_int) {
 }
 
 TEST(test_setting_data, equal_int_range) {
-    SettingDataIntRange data0("data");
+    SettingDataIntRanges data0("data");
     data0.value = "6-7";
-    SettingDataIntRange data1("data");
+    SettingDataIntRanges data1("data");
     data1.value = "6-7";
 
     EXPECT_EQ(data0, data1);
@@ -75,7 +75,7 @@ TEST(test_setting_data, equal_int_range) {
     EXPECT_EQ(*ptr0, data1);
     EXPECT_EQ(data0, *ptr1);
 
-    SettingDataIntRange dataX("dataX");
+    SettingDataIntRanges dataX("dataX");
     dataX.value = "6-7";
 
     EXPECT_NE(data0, dataX);
@@ -85,7 +85,7 @@ TEST(test_setting_data, equal_int_range) {
     EXPECT_NE(*ptr0, dataX);
     EXPECT_NE(data0, *ptrX);
 
-    SettingDataIntRange dataY("data");
+    SettingDataIntRanges dataY("data");
     dataY.value = "5-7";
 
     EXPECT_NE(data0, dataY);
