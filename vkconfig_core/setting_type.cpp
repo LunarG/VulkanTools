@@ -24,6 +24,7 @@
 
 SettingType GetSettingType(const char* token) {
     if (SUPPORT_VKCONFIG_2_1_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;
+    if (SUPPORT_VKCONFIG_2_2_0 && ToUpperCase(token) == "VUID_EXCLUDE") return SETTING_LIST;
 
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
@@ -48,7 +49,7 @@ const char* GetSettingToken(SettingType type) {
         "ENUM",          // SETTING_ENUM
         "FLAGS",         // SETTING_FLAGS
         "INT_RANGE",     // SETTING_RANGE_INT
-        "VUID_EXCLUDE"   // SETTING_VUID_FILTER
+        "LIST"           // SETTING_LIST
     };
     static_assert(countof(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

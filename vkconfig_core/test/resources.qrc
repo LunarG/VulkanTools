@@ -25,13 +25,17 @@
         <file>Configuration 2.2.0 - Layer 1.4.0.json</file>
         <file>Configuration 2.2.0 - Override all layers.json</file>
     
+        <file>Configuration 2.2.1 - Layer 1.4.0.json</file>
+
         <file>Layer 1.3.0.json</file>
         <file>Layer 1.4.0 - presets.json</file>
         <file>Layer 1.4.0 - setting platforms.json</file>
         <file>Layer 1.4.0 - setting types.json</file>
         
-        <file>override_layers_1_4_0.json</file>
-        <file>override_settings_1_4_0.txt</file>
+        <file>override_layers_2_2_0_schema_1_4_0.json</file>
+        <file>override_layers_2_2_1_schema_1_4_0.json</file>
+        <file>override_settings_2_2_0_schema_1_4_0.txt</file>
+        <file>override_settings_2_2_1_schema_1_4_0.txt</file>
     </qresource>
 
     <qresource prefix="/configurations/2.1.0">
@@ -129,3 +133,4 @@
         <file alias="VK_LAYER_LUNARG_screenshot.json">../layers/latest/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
 </RCC>
+

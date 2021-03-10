@@ -131,9 +131,9 @@ struct SettingDataVector : public SettingData {
     virtual SettingData& Assign(const SettingData& other);
 };
 
-struct SettingDataVUIDFilter : public SettingDataVector {
-    SettingDataVUIDFilter(const std::string& key) : SettingDataVector(key, SETTING_VUID_FILTER) {}
-    virtual ~SettingDataVUIDFilter() {}
+struct SettingDataList : public SettingDataVector {
+    SettingDataList(const std::string& key) : SettingDataVector(key, SETTING_LIST) {}
+    virtual ~SettingDataList() {}
 };
 
 struct SettingDataFlags : public SettingDataVector {

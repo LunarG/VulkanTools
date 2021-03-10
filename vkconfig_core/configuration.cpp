@@ -245,7 +245,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                     static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
                     break;
                 }
-                case SETTING_VUID_FILTER:
+                case SETTING_LIST:
                 case SETTING_FLAGS: {
                     static_cast<SettingDataVector&>(setting_data).value = ReadStringArray(json_setting_object, "value");
                     break;
@@ -356,7 +356,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
                     json_setting.insert("value", static_cast<const SettingDataBool&>(setting_data).value);
                     break;
                 }
-                case SETTING_VUID_FILTER:
+                case SETTING_LIST:
                 case SETTING_FLAGS: {
                     QJsonArray json_array;
 

@@ -21,10 +21,10 @@
 
 #include "../vkconfig_core/util.h"
 
-#include "widget_setting_vuid_search.h"
+#include "widget_setting_search.h"
 
-WidgetSettingVUIDSearch::WidgetSettingVUIDSearch(const std::vector<std::string> &layer_vuids,
-                                                 const std::vector<std::string> &selected_vuids)
+WidgetSettingSearch::WidgetSettingSearch(const std::vector<std::string> &layer_vuids,
+                                         const std::vector<std::string> &selected_vuids)
     : QWidget(nullptr), layer_vuids(layer_vuids) {
     // We always want the list presented sorted. Note: This is not
     // strictly necessary.
@@ -50,7 +50,7 @@ WidgetSettingVUIDSearch::WidgetSettingVUIDSearch(const std::vector<std::string> 
     connect(_add_button, SIGNAL(pressed()), this, SLOT(addButtonPressed()));
 }
 
-void WidgetSettingVUIDSearch::resizeEvent(QResizeEvent *event) {
+void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
     const int button_size = 52;
     QSize parentSize = event->size();
     _user_box->setGeometry(0, 0, parentSize.width() - 2 - button_size, parentSize.height());
@@ -60,7 +60,7 @@ void WidgetSettingVUIDSearch::resizeEvent(QResizeEvent *event) {
 /// Reload the completer with a revised list of VUID's.
 /// I'm quite impressed with how fast this brute force implementation
 /// runs in release mode.
-void WidgetSettingVUIDSearch::ResetCompleter() {
+void WidgetSettingSearch::ResetCompleter() {
     if (_search_vuid != nullptr) _search_vuid->deleteLater();
 
     _search_vuid = new QCompleter(ConvertString(layer_vuids), this);
@@ -77,7 +77,7 @@ void WidgetSettingVUIDSearch::ResetCompleter() {
 // Add the text in the edit control to the list, and clear the control
 // This is not really used much, only if they want to add something
 // that is not in the completer list.
-void WidgetSettingVUIDSearch::addButtonPressed() {
+void WidgetSettingSearch::addButtonPressed() {
     QString entry = _user_box->text();
     if (entry.isEmpty()) return;
 
@@ -94,7 +94,7 @@ void WidgetSettingVUIDSearch::addButtonPressed() {
 }
 
 // Clear the edit control after the completer is finished.
-void WidgetSettingVUIDSearch::addCompleted(const QString &addedItem) {
+void WidgetSettingSearch::addCompleted(const QString &addedItem) {
     (void)addedItem;
     // We can't do this right away, the completer emits it's signal
     // before it's really "complete". If we clear the control too soon
@@ -105,14 +105,14 @@ void WidgetSettingVUIDSearch::addCompleted(const QString &addedItem) {
 
 // Item was removed from master list, so add it back to the search
 // list.
-void WidgetSettingVUIDSearch::addToSearchList(const QString &new_vuid) {
+void WidgetSettingSearch::addToSearchList(const QString &new_vuid) {
     this->layer_vuids.push_back(new_vuid.toStdString());
     std::sort(this->layer_vuids.begin(), this->layer_vuids.end());
     ResetCompleter();
 }
 
 // Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's
-bool WidgetSettingVUIDSearch::eventFilter(QObject *target, QEvent *event) {
+bool WidgetSettingSearch::eventFilter(QObject *target, QEvent *event) {
     (void)target;
     if (event->type() == QEvent::Wheel) {
         event->ignore();

@@ -94,10 +94,10 @@ bool SettingMetaFlags::Equal(const SettingMeta& other) const {
     return this->default_value == static_cast<const SettingMetaFlags&>(other).default_value;
 }
 
-bool SettingMetaVUIDFilter::Equal(const SettingMeta& other) const {
+bool SettingMetaList::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
 
-    const SettingMetaVUIDFilter& meta = static_cast<const SettingMetaVUIDFilter&>(other);
+    const SettingMetaList& meta = static_cast<const SettingMetaList&>(other);
 
     if (this->list != meta.list) return false;
 

@@ -47,8 +47,8 @@ std::shared_ptr<SettingData> SettingSet<SettingData>::AllocSetting(const std::st
             return std::shared_ptr<SettingData>(new SettingDataFlags(key));
         case SETTING_INT_RANGE:
             return std::shared_ptr<SettingData>(new SettingDataIntRange(key));
-        case SETTING_VUID_FILTER:
-            return std::shared_ptr<SettingData>(new SettingDataVUIDFilter(key));
+        case SETTING_LIST:
+            return std::shared_ptr<SettingData>(new SettingDataList(key));
         default:
             assert(0);
             return std::shared_ptr<SettingData>();
@@ -80,8 +80,8 @@ std::shared_ptr<SettingMeta> SettingSet<SettingMeta>::AllocSetting(const std::st
             return std::shared_ptr<SettingMeta>(new SettingMetaFlags(key));
         case SETTING_INT_RANGE:
             return std::shared_ptr<SettingMeta>(new SettingMetaIntRange(key));
-        case SETTING_VUID_FILTER:
-            return std::shared_ptr<SettingMeta>(new SettingMetaVUIDFilter(key));
+        case SETTING_LIST:
+            return std::shared_ptr<SettingMeta>(new SettingMetaList(key));
         default:
             assert(0);
             return std::shared_ptr<SettingMeta>();

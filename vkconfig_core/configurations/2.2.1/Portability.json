@@ -93,7 +93,7 @@
                     },
                     {
                         "key": "message_id_filter",
-                        "type": "VUID_EXCLUDE",
+                        "type": "LIST",
                         "value": []
                     }
                 ],

@@ -29,8 +29,8 @@
 #include "widget_setting_string.h"
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
-#include "widget_setting_vuid_filter.h"
-#include "widget_setting_vuid_search.h"
+#include "widget_setting_list.h"
+#include "widget_setting_search.h"
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
@@ -292,36 +292,35 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     }
 
     if (validation_layer->settings.Get("message_id_filter") != nullptr) {
-        const SettingMetaVUIDFilter &setting_meta =
-            static_cast<const SettingMetaVUIDFilter &>(*validation_layer->settings.Get("message_id_filter"));
-        SettingDataVUIDFilter &setting_data =
-            static_cast<SettingDataVUIDFilter &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+        const SettingMetaList &setting_meta =
+            static_cast<const SettingMetaList &>(*validation_layer->settings.Get("message_id_filter"));
+        SettingDataList &setting_data =
+            static_cast<SettingDataList &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
 
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
         mute_message_item->setText(0, setting_meta.label.c_str());
         mute_message_item->setToolTip(0, setting_meta.description.c_str());
         parent->addChild(mute_message_item);
 
-        WidgetSettingVUIDSearch *vuid_search_widget = new WidgetSettingVUIDSearch(setting_meta.list, setting_data.value);
+        WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta.list, setting_data.value);
 
         QTreeWidgetItem *next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, 28));
         mute_message_item->addChild(next_line);
-        _settings_tree->setItemWidget(next_line, 0, vuid_search_widget);
+        _settings_tree->setItemWidget(next_line, 0, widget_search);
         _compound_widgets.push_back(next_line);
 
         QTreeWidgetItem *list_item = new QTreeWidgetItem();
         mute_message_item->addChild(list_item);
         list_item->setSizeHint(0, QSize(0, 200));
-        WidgetSettingVUIDFilter *mute_message_widget = new WidgetSettingVUIDFilter(setting_meta, setting_data);
+        WidgetSettingList *widget_list = new WidgetSettingList(setting_meta, setting_data);
         _compound_widgets.push_back(list_item);
-        _settings_tree->setItemWidget(list_item, 0, mute_message_widget);
+        _settings_tree->setItemWidget(list_item, 0, widget_list);
 
-        connect(vuid_search_widget, SIGNAL(itemSelected(const QString &)), mute_message_widget, SLOT(addItem(const QString &)));
-        connect(vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-        connect(mute_message_widget, SIGNAL(itemRemoved(const QString &)), vuid_search_widget,
-                SLOT(addToSearchList(const QString &)));
-        connect(mute_message_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
+        connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
+        connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+        connect(widget_list, SIGNAL(itemRemoved(const QString &)), widget_search, SLOT(addToSearchList(const QString &)));
+        connect(widget_list, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
     }
 
     connect(_validation_areas, SIGNAL(settingChanged()), this, SLOT(OnSettingChanged()));

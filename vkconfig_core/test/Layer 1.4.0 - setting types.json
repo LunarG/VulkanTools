@@ -242,11 +242,11 @@
                 }
             },
             {
-                "key": "vuid_exclude_with_optional",
-                "type": "VUID_EXCLUDE",
-                "label": "vuid list",
-                "description": "vuid list description",
-                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#vuid",
+                "key": "list_with_optional",
+                "type": "LIST",
+                "label": "List",
+                "description": "List description",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list",
                 "status": "BETA",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "list": [

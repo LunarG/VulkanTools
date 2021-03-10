@@ -1,0 +1,18 @@
+
+# VK_LAYER_LUNARG_test_1_4_0_setting_types
+lunarg_test_1_4_0_setting_types.enum_required_only = value2
+lunarg_test_1_4_0_setting_types.enum_with_optional = value0
+lunarg_test_1_4_0_setting_types.flags_required_only = flag0,flag2
+lunarg_test_1_4_0_setting_types.flags_with_optional = flag0,flag2
+lunarg_test_1_4_0_setting_types.string_required_only = My string
+lunarg_test_1_4_0_setting_types.string_with_optional = My string
+lunarg_test_1_4_0_setting_types.bool_required_only = TRUE
+lunarg_test_1_4_0_setting_types.bool_with_optional = TRUE
+lunarg_test_1_4_0_setting_types.load_file_required_only = ./my_test.txt
+lunarg_test_1_4_0_setting_types.load_file_with_optional = ./my_test.txt
+lunarg_test_1_4_0_setting_types.save_file_required_only = ./my_test.txt
+lunarg_test_1_4_0_setting_types.save_file_with_optional = ./my_test.txt
+lunarg_test_1_4_0_setting_types.save_folder_with_optional = ./my_test
+lunarg_test_1_4_0_setting_types.int_with_optional = 82
+lunarg_test_1_4_0_setting_types.int_range_with_optional = 79-82
+lunarg_test_1_4_0_setting_types.list_with_optional = stringA,stringB

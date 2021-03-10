@@ -30,11 +30,11 @@
 #include <QPushButton>
 #include <QResizeEvent>
 
-class WidgetSettingVUIDFilter : public QWidget {
+class WidgetSettingList : public QWidget {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingVUIDFilter(const SettingMetaVUIDFilter &setting_meta, SettingDataVUIDFilter &setting_data);
+    explicit WidgetSettingList(const SettingMetaList &setting_meta, SettingDataList &setting_data);
 
    public Q_SLOTS:
     void addItem(const QString &item);
@@ -45,13 +45,13 @@ class WidgetSettingVUIDFilter : public QWidget {
     void itemRemoved(const QString &item);
 
    private:
-    WidgetSettingVUIDFilter(const WidgetSettingVUIDFilter &) = delete;
-    WidgetSettingVUIDFilter &operator=(const WidgetSettingVUIDFilter &) = delete;
+    WidgetSettingList(const WidgetSettingList &) = delete;
+    WidgetSettingList &operator=(const WidgetSettingList &) = delete;
 
     void resizeEvent(QResizeEvent *event) override;
 
-    const SettingMetaVUIDFilter &setting_meta;
-    SettingDataVUIDFilter &setting_data;
+    const SettingMetaList &setting_meta;
+    SettingDataList &setting_data;
     QListWidget *_list_widget;
     QPushButton *_remove_button;
 };
