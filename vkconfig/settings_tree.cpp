@@ -437,65 +437,34 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
-<<<<<<< HEAD
             case SETTING_LIST: {
-                const SettingMetaList &setting_meta_src = static_cast<const SettingMetaList &>(setting_meta);
-                SettingDataList &setting_data =
-                    static_cast<SettingDataList &>(parameter.settings.Create(setting_meta_src.key, setting_meta_src.type));
-=======
-            case SETTING_VUID_FILTER: {
-                const SettingMetaVUIDFilter &meta = static_cast<const SettingMetaVUIDFilter &>(setting_meta);
-                SettingDataVUIDFilter *data = setting_datas.Get<SettingDataVUIDFilter>(setting_meta.key.c_str());
+                const SettingMetaList &meta = static_cast<const SettingMetaList &>(setting_meta);
+                SettingDataList *data = setting_datas.Get<SettingDataList>(setting_meta.key.c_str());
                 assert(data != nullptr);
->>>>>>> 0e9bac529... vkconfig: less verbose conversions
 
                 QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
                 mute_message_item->setText(0, setting_meta.label.c_str());
                 mute_message_item->setToolTip(0, setting_meta.description.c_str());
-<<<<<<< HEAD
                 parent->addChild(mute_message_item);
 
-                WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta_src.list, setting_data.value);
-=======
-                mute_message_item->setExpanded(true);
-                parent->addChild(mute_message_item);
-
-                WidgetSettingVUIDSearch *vuid_search_widget = new WidgetSettingVUIDSearch(meta.list, data->value);
->>>>>>> 0e9bac529... vkconfig: less verbose conversions
+                WidgetSettingSearch *widget_search = new WidgetSettingSearch(meta.list, data->value);
 
                 QTreeWidgetItem *next_line = new QTreeWidgetItem();
                 next_line->setSizeHint(0, QSize(0, 28));
                 mute_message_item->addChild(next_line);
-<<<<<<< HEAD
                 _settings_tree->setItemWidget(next_line, 0, widget_search);
-                _compound_widgets.push_back(next_line);
-=======
-                _settings_tree->setItemWidget(next_line, 0, vuid_search_widget);
->>>>>>> 0e9bac529... vkconfig: less verbose conversions
 
                 QTreeWidgetItem *list_item = new QTreeWidgetItem();
                 mute_message_item->addChild(list_item);
                 list_item->setSizeHint(0, QSize(0, 200));
-<<<<<<< HEAD
-                WidgetSettingList *widget_list = new WidgetSettingList(setting_meta_src, setting_data);
-                _compound_widgets.push_back(list_item);
+
+                WidgetSettingList *widget_list = new WidgetSettingList(meta, *data);
                 _settings_tree->setItemWidget(list_item, 0, widget_list);
 
                 connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
                 connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 connect(widget_list, SIGNAL(itemRemoved(const QString &)), widget_search, SLOT(addToSearchList(const QString &)));
                 connect(widget_list, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
-=======
-                WidgetSettingVUIDFilter *mute_message_widget = new WidgetSettingVUIDFilter(meta, *data);
-                _settings_tree->setItemWidget(list_item, 0, mute_message_widget);
-
-                connect(vuid_search_widget, SIGNAL(itemSelected(const QString &)), mute_message_widget,
-                        SLOT(addItem(const QString &)));
-                connect(vuid_search_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-                connect(mute_message_widget, SIGNAL(itemRemoved(const QString &)), vuid_search_widget,
-                        SLOT(addToSearchList(const QString &)));
-                connect(mute_message_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
->>>>>>> 0e9bac529... vkconfig: less verbose conversions
             } break;
 
             default: {
