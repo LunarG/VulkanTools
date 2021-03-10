@@ -444,16 +444,16 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
             } break;
 
             case SETTING_LIST: {
-                const SettingMetaList &setting_meta = static_cast<const SettingMetaList &>(setting_meta);
+                const SettingMetaList &setting_meta_src = static_cast<const SettingMetaList &>(setting_meta);
                 SettingDataList &setting_data =
-                    static_cast<SettingDataList &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+                    static_cast<SettingDataList &>(parameter.settings.Create(setting_meta_src.key, setting_meta_src.type));
 
                 QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
                 mute_message_item->setText(0, setting_meta.label.c_str());
                 mute_message_item->setToolTip(0, setting_meta.description.c_str());
                 parent->addChild(mute_message_item);
 
-                WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta.list, setting_data.value);
+                WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta_src.list, setting_data.value);
 
                 QTreeWidgetItem *next_line = new QTreeWidgetItem();
                 next_line->setSizeHint(0, QSize(0, 28));
@@ -464,7 +464,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 QTreeWidgetItem *list_item = new QTreeWidgetItem();
                 mute_message_item->addChild(list_item);
                 list_item->setSizeHint(0, QSize(0, 200));
-                WidgetSettingList *widget_list = new WidgetSettingList(setting_meta, setting_data);
+                WidgetSettingList *widget_list = new WidgetSettingList(setting_meta_src, setting_data);
                 _compound_widgets.push_back(list_item);
                 _settings_tree->setItemWidget(list_item, 0, widget_list);
 

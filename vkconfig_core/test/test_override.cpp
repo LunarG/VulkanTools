@@ -47,7 +47,7 @@ TEST(test_override, write_erase_2_2_0) {
     layer_manager.LoadLayersFromPath(":/");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.0 - Layer 1.4.0.json");
+    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.0.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
@@ -105,7 +105,7 @@ TEST(test_override, write_erase_2_2_1) {
     layer_manager.LoadLayersFromPath(":/");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.1 - Layer 1.4.0.json");
+    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.1.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 

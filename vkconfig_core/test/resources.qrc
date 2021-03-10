@@ -1,31 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>Configuration 2.0.1 - API dump.json</file>
-        <file>Configuration 2.0.1 - Best Practices.json</file>
-        <file>Configuration 2.0.1 - Frame Capture.json</file>
-        <file>Configuration 2.0.1 - GPU-Assisted.json</file>
-        <file>Configuration 2.0.1 - Shader Printf.json</file>
-        <file>Configuration 2.0.1 - Standard.json</file>
-
-        <file>Configuration 2.0.2 - Best Practices.json</file>
-        <file>Configuration 2.0.2 - Frame Capture.json</file>
-        <file>Configuration 2.0.2 - GPU-Assisted.json</file>
-        <file>Configuration 2.0.2 - Debug Printf.json</file>
-        <file>Configuration 2.0.2 - Standard.json</file>
-
-        <file>Configuration 2.0.2 - Exclude all layers.json</file>
-        <file>Configuration 2.0.2 - Override all layers.json</file>
-
-        <file>Configuration 2.0.3 - Best Practices.json</file>
-        
-        <file>Configuration 2.1.0 - Frame Capture.json</file>
-        <file>Configuration 2.1.0 - Portability.json</file>
-        <file>Configuration 2.1.0 - Override all layers.json</file>
-        
-        <file>Configuration 2.2.0 - Layer 1.4.0.json</file>
-        <file>Configuration 2.2.0 - Override all layers.json</file>
-    
-        <file>Configuration 2.2.1 - Layer 1.4.0.json</file>
+        <file>Configuration 2.0.1.json</file>
+        <file>Configuration 2.0.2.json</file>
+        <file>Configuration 2.0.3.json</file>
+        <file>Configuration 2.1.0.json</file>
+        <file>Configuration 2.2.0.json</file>
+        <file>Configuration 2.2.1.json</file>
 
         <file>Layer 1.3.0.json</file>
         <file>Layer 1.4.0 - presets.json</file>

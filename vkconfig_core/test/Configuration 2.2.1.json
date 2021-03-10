@@ -1,0 +1,105 @@
+{
+    "file_format_version": "2.2.1",
+    "configuration": {
+        "name": "All layers",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "description": "All layers test",
+        "editor_state": "011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_test_1_4_0_setting_types",
+                "rank": 8,
+                "settings": [
+                    {
+                        "key": "enum_required_only",
+                        "type": "ENUM",
+                        "value": "value2"
+                    },
+                    {
+                        "key": "enum_with_optional",
+                        "type": "ENUM",
+                        "value": "value0"
+                    },
+                    {
+                        "key": "flags_required_only",
+                        "type": "FLAGS",
+                        "value": [ "flag0", "flag2" ]
+                    },
+                    {
+                        "key": "flags_with_optional",
+                        "type": "FLAGS",
+                        "value": [ "flag0", "flag2" ]
+                    },
+                    {
+                        "key": "string_required_only",
+                        "type": "STRING",
+                        "value": "My string"
+                    },
+                    {
+                        "key": "string_with_optional",
+                        "type": "STRING",
+                        "value": "My string"
+                    },
+                    {
+                        "key": "bool_required_only",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "bool_with_optional",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "load_file_required_only",
+                        "type": "LOAD_FILE",
+                        "value": "./my_test.txt"
+                    },
+                    {
+                        "key": "load_file_with_optional",
+                        "type": "LOAD_FILE",
+                        "value": "./my_test.txt"
+                    },
+                    {
+                        "key": "save_file_required_only",
+                        "type": "SAVE_FILE",
+                        "value": "./my_test.txt"
+                    },
+                    {
+                        "key": "save_file_with_optional",
+                        "type": "SAVE_FILE",
+                        "value": "./my_test.txt"
+                    },
+                    {
+                        "key": "save_folder_with_optional",
+                        "type": "SAVE_FOLDER",
+                        "value": "./my_test"
+                    },
+                    {
+                        "key": "int_with_optional",
+                        "type": "INT",
+                        "value": 82
+                    },
+                    {
+                        "key": "int_range_with_optional",
+                        "type": "INT_RANGE",
+                        "value": {
+                            "min": 79,
+                            "max": 82
+                        }
+                    },
+                    {
+                        "key": "list_with_optional",
+                        "type": "LIST",
+                        "value": [ "stringA", "stringB" ]
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            }
+        ]
+    }
+}
