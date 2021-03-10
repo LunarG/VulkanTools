@@ -443,6 +443,37 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
+            case SETTING_LIST: {
+                const SettingMetaList &setting_meta = static_cast<const SettingMetaList &>(setting_meta);
+                SettingDataList &setting_data =
+                    static_cast<SettingDataList &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+
+                QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
+                mute_message_item->setText(0, setting_meta.label.c_str());
+                mute_message_item->setToolTip(0, setting_meta.description.c_str());
+                parent->addChild(mute_message_item);
+
+                WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta.list, setting_data.value);
+
+                QTreeWidgetItem *next_line = new QTreeWidgetItem();
+                next_line->setSizeHint(0, QSize(0, 28));
+                mute_message_item->addChild(next_line);
+                _settings_tree->setItemWidget(next_line, 0, widget_search);
+                _compound_widgets.push_back(next_line);
+
+                QTreeWidgetItem *list_item = new QTreeWidgetItem();
+                mute_message_item->addChild(list_item);
+                list_item->setSizeHint(0, QSize(0, 200));
+                WidgetSettingList *widget_list = new WidgetSettingList(setting_meta, setting_data);
+                _compound_widgets.push_back(list_item);
+                _settings_tree->setItemWidget(list_item, 0, widget_list);
+
+                connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
+                connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                connect(widget_list, SIGNAL(itemRemoved(const QString &)), widget_search, SLOT(addToSearchList(const QString &)));
+                connect(widget_list, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
+            } break;
+
             default: {
                 setting_item->setText(0, "Unknown setting");
                 assert(0);  // Unknown setting
