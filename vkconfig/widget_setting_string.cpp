@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-static const int MIN_FIELD_WIDTH = 64;
+static const int MIN_FIELD_WIDTH = 96;
 static const int ITEM_OFFSET = 48;
 
 WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* parent, const SettingMetaString& setting_meta,
@@ -41,11 +41,13 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* par
     this->item->setExpanded(!this->setting_data.collapsed);
 
     this->title_field->setText(setting_data.value.c_str());
+    this->title_field->setCursorPosition(0);
     this->title_field->setToolTip(this->title_field->text());
     this->setting_data.collapsed ? this->title_field->show() : this->title_field->hide();
     this->tree->setItemWidget(this->item, 0, this);
 
     this->child_field->setText(setting_data.value.c_str());
+    this->child_field->setCursorPosition(0);
     this->child_field->setToolTip(this->title_field->text());
     this->child_field->show();
     this->tree->setItemWidget(this->child_item, 0, this->child_field);
@@ -65,10 +67,11 @@ void WidgetSettingString::Enable(bool enable) {
 
 void WidgetSettingString::Resize() {
     const QFontMetrics fm = this->title_field->fontMetrics();
-    const int width = std::max(fm.horizontalAdvance(this->item->text(0) + "00") + ITEM_OFFSET, MIN_FIELD_WIDTH);
+    const int text_width = fm.horizontalAdvance(this->title_field->text() + "00");
+    const int width = std::min(std::max(text_width, MIN_FIELD_WIDTH), this->resize.width() * 2 / 3);
 
-    const QRect button_rect = QRect(128, 0, this->resize.width() - 128, this->resize.height());
-    this->title_field->setGeometry(button_rect);
+    const QRect field_rect = QRect(this->resize.width() - width, 0, width, this->resize.height());
+    this->title_field->setGeometry(field_rect);
 }
 
 void WidgetSettingString::resizeEvent(QResizeEvent* event) {
@@ -78,7 +81,6 @@ void WidgetSettingString::resizeEvent(QResizeEvent* event) {
 
 void WidgetSettingString::OnTextEdited(const QString& value) {
     this->setting_data.value = value.toStdString();
-
     this->Resize();
 
     emit itemChanged();
@@ -88,6 +90,8 @@ void WidgetSettingString::OnItemExpanded(QTreeWidgetItem* expanded_item) {
     if (this->item != expanded_item) return;
 
     this->setting_data.collapsed = false;
+    this->child_field->setText(this->setting_data.value.c_str());
+    this->child_field->setCursorPosition(0);
     this->title_field->hide();
     return;
 }
@@ -96,6 +100,9 @@ void WidgetSettingString::OnItemCollapsed(QTreeWidgetItem* expanded_item) {
     if (this->item != expanded_item) return;
 
     this->setting_data.collapsed = true;
+    this->title_field->setText(this->setting_data.value.c_str());
+    this->title_field->setCursorPosition(0);
     this->title_field->show();
+    this->Resize();
     return;
 }

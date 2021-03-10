@@ -48,10 +48,13 @@ class WidgetSettingFilesystem : public WidgetSetting {
    private:
     virtual void resizeEvent(QResizeEvent *event) override;
 
+    void Resize();
+
     const SettingMetaFilesystem &setting_meta;
     SettingDataString &setting_data;
     QPushButton *button;
     QLineEdit *title_field;
     QLineEdit *child_field;
     QTreeWidgetItem *child_item;
+    QSize resize;
 };

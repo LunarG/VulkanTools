@@ -27,7 +27,7 @@
 
 #include <QFileDialog>
 
-static const int MIN_FIELD_WIDTH = 64;
+static const int MIN_FIELD_WIDTH = 96;
 static const int MIN_BUTTON_SIZE = 24;
 static const int ITEM_OFFSET = 48;
 
@@ -74,17 +74,21 @@ void WidgetSettingFilesystem::Enable(bool enable) {
     this->child_field->setEnabled(enable);
 }
 
-void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
-    const QSize parent_size = event->size();
-
+void WidgetSettingFilesystem::Resize() {
     const QFontMetrics fm = this->title_field->fontMetrics();
-    const int width = std::max(fm.horizontalAdvance(this->title_field->text() + "00") + ITEM_OFFSET, MIN_FIELD_WIDTH);
+    const int text_width = fm.horizontalAdvance(this->title_field->text() + "00");
+    const int width = std::min(std::max(text_width, MIN_FIELD_WIDTH), this->resize.width() * 2 / 3);
 
-    const QRect edit_rect = QRect(width, 0, parent_size.width() - MIN_BUTTON_SIZE - width, parent_size.height());
-    this->title_field->setGeometry(edit_rect);
+    const QRect field_rect = QRect(this->resize.width() - width, 0, width - MIN_BUTTON_SIZE, this->resize.height());
+    this->title_field->setGeometry(field_rect);
 
-    const QRect button_rect = QRect(parent_size.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, parent_size.height());
+    const QRect button_rect = QRect(this->resize.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, this->resize.height());
     this->button->setGeometry(button_rect);
+}
+
+void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
+    this->resize = event->size();
+    this->Resize();
 }
 
 void WidgetSettingFilesystem::OnButtonClicked() {
@@ -118,6 +122,8 @@ void WidgetSettingFilesystem::OnButtonClicked() {
 
 void WidgetSettingFilesystem::OnTextEdited(const QString& value) {
     this->setting_data.value = value.toStdString();
+    this->Resize();
+
     emit itemChanged();
 }
 
@@ -125,6 +131,7 @@ void WidgetSettingFilesystem::OnItemExpanded(QTreeWidgetItem* expanded_item) {
     if (this->item != expanded_item) return;
 
     this->setting_data.collapsed = false;
+    this->child_field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
     this->title_field->hide();
     return;
 }
@@ -133,6 +140,8 @@ void WidgetSettingFilesystem::OnItemCollapsed(QTreeWidgetItem* expanded_item) {
     if (this->item != expanded_item) return;
 
     this->setting_data.collapsed = true;
+    this->title_field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
     this->title_field->show();
+    this->Resize();
     return;
 }
