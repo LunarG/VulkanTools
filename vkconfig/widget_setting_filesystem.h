@@ -52,6 +52,6 @@ class WidgetSettingFilesystem : public QWidget {
 
     const SettingMetaFilesystem &setting_meta;
     SettingDataString &setting_data;
-    QLineEdit *_line_edit;
-    QPushButton *_push_button;
+    QLineEdit *field;
+    QPushButton *button;
 };

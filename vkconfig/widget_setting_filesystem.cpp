@@ -30,7 +30,7 @@ static const int MIN_BUTTON_SIZE = 24;
 
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const SettingMetaFilesystem& setting_meta,
                                                  SettingDataString& setting_data)
-    : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data), _line_edit(nullptr), _push_button(nullptr) {
+    : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data), field(nullptr), button(nullptr) {
     assert(item);
     assert(&setting_meta);
     assert(&setting_data);
@@ -38,47 +38,46 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const Se
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
 
-    this->_line_edit = new QLineEdit(this);
-    this->_line_edit->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
-    this->_line_edit->show();
+    this->field = new QLineEdit(this);
+    this->field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
+    this->field->show();
 
-    this->_push_button = new QPushButton(this);
-    this->_push_button->setText("...");
-    this->_push_button->show();
+    this->button = new QPushButton(this);
+    this->button->setText("...");
+    this->button->show();
 
-    connect(this->_push_button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
-    connect(this->_line_edit, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
+    connect(this->button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
+    connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 }
 
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
-    if (this->_line_edit == nullptr) return;
+    if (this->field == nullptr) return;
 
     const QSize parent_size = event->size();
 
     // Button takes up the last 32 pixels
     const QRect edit_rect = QRect(0, 0, parent_size.width() - MIN_BUTTON_SIZE, parent_size.height());
-    this->_line_edit->setGeometry(edit_rect);
+    this->field->setGeometry(edit_rect);
 
     const QRect button_rect = QRect(parent_size.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, parent_size.height());
-    this->_push_button->setGeometry(button_rect);
+    this->button->setGeometry(button_rect);
 }
 
 void WidgetSettingFilesystem::browseButtonClicked() {
     std::string file;
 
+    const char* filter = this->setting_meta.filter.c_str();
+    const char* path = this->setting_data.value.c_str();
+
     switch (this->setting_meta.type) {
         case SETTING_LOAD_FILE:
-            file = QFileDialog::getOpenFileName(this->_push_button, "Select file", this->_line_edit->text(),
-                                                this->setting_meta.filter.c_str())
-                       .toStdString();
+            file = QFileDialog::getOpenFileName(this->button, "Select file", path, filter).toStdString();
             break;
         case SETTING_SAVE_FILE:
-            file = QFileDialog::getSaveFileName(this->_push_button, "Select File", this->_line_edit->text(),
-                                                this->setting_meta.filter.c_str())
-                       .toStdString();
+            file = QFileDialog::getSaveFileName(this->button, "Select File", path, filter).toStdString();
             break;
         case SETTING_SAVE_FOLDER:
-            file = QFileDialog::getExistingDirectory(this->_push_button, "Select Folder", this->_line_edit->text()).toStdString();
+            file = QFileDialog::getExistingDirectory(this->button, "Select Folder", path).toStdString();
             break;
         default:
             assert(0);
@@ -87,7 +86,7 @@ void WidgetSettingFilesystem::browseButtonClicked() {
 
     if (!file.empty()) {
         file = ConvertNativeSeparators(file);
-        _line_edit->setText(file.c_str());
+        field->setText(file.c_str());
         this->setting_data.value = file;
         emit itemChanged();
     }

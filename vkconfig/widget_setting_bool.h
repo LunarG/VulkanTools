@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QCheckBox>
+#include <QTreeWidget>
 
 #include <string>
 
@@ -34,10 +35,11 @@ class WidgetSettingBool : public QCheckBox {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingBool(const SettingMetaBool& setting_meta, SettingDataBool& setting_data);
+    explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& setting_meta,
+                               SettingDataBool& setting_data);
 
    public Q_SLOTS:
-    void itemToggled();
+    void OnClicked();
 
    Q_SIGNALS:
     void itemChanged();
