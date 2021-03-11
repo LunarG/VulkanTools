@@ -44,6 +44,8 @@
 
 #include <cassert>
 
+static const int ITEM_HEIGHT = 24;
+
 SettingsTreeManager::SettingsTreeManager()
     : _settings_tree(nullptr),
       _validation_log_file_item(nullptr),
@@ -258,6 +260,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         if (!IsPlatformSupported(debug_action_meta->enum_values[i].platform_flags)) continue;
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
+        child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         WidgetSettingFlag *widget =
             new WidgetSettingFlag(*debug_action_meta, *debug_action_data, debug_action_meta->enum_values[i].key);
         debug_action_branch->addChild(child);
@@ -272,7 +275,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             _validation_log_file_item = new QTreeWidgetItem();
             child->addChild(_validation_log_file_item);
             _validation_log_file_widget = new WidgetSettingFilesystem(_validation_log_file_item, *log_file_meta, *log_file_data);
-            _validation_log_file_item->setSizeHint(0, QSize(0, 28));
+            _validation_log_file_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             _settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
             _compound_widgets.push_back(child);
 
@@ -293,10 +296,12 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         QTreeWidgetItem *sub_category = new QTreeWidgetItem;
         sub_category->setText(0, setting_meta.label.c_str());
         sub_category->setToolTip(0, setting_meta.description.c_str());
+        sub_category->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         parent->addChild(sub_category);
 
         for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
             QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             WidgetSettingFlag *widget = new WidgetSettingFlag(setting_meta, setting_data, setting_meta.enum_values[i].key.c_str());
             sub_category->addChild(child);
             _settings_tree->setItemWidget(child, 0, widget);
@@ -312,6 +317,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             static_cast<SettingDataInt &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+        setting_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta, setting_data);
         parent->addChild(setting_item);
         QTreeWidgetItem *place_holder = new QTreeWidgetItem();
@@ -334,7 +340,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta.list, setting_data.value);
 
         QTreeWidgetItem *next_line = new QTreeWidgetItem();
-        next_line->setSizeHint(0, QSize(0, 28));
+        next_line->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         mute_message_item->addChild(next_line);
         _settings_tree->setItemWidget(next_line, 0, widget_search);
         _compound_widgets.push_back(next_line);
@@ -378,6 +384,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
         assert(&setting_data);
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+        setting_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         parent->addChild(setting_item);
 
         switch (setting_meta.type) {
@@ -411,7 +418,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
                 WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(setting_item, setting_meta_src, setting_data_src);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                place_holder->setSizeHint(0, QSize(0, 28));
+                place_holder->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                 setting_item->addChild(place_holder);
                 _settings_tree->setItemWidget(place_holder, 0, widget);
                 _compound_widgets.push_back(place_holder);
@@ -485,7 +492,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta_src.list, setting_data.value);
 
                 QTreeWidgetItem *next_line = new QTreeWidgetItem();
-                next_line->setSizeHint(0, QSize(0, 28));
+                next_line->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                 mute_message_item->addChild(next_line);
                 _settings_tree->setItemWidget(next_line, 0, widget_search);
                 _compound_widgets.push_back(next_line);
