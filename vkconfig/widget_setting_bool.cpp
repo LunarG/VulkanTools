@@ -23,19 +23,23 @@
 
 #include <cassert>
 
-WidgetSettingBool::WidgetSettingBool(const SettingMetaBool& setting_meta, SettingDataBool& setting_data)
+WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& setting_meta,
+                                     SettingDataBool& setting_data)
     : setting_meta(setting_meta), setting_data(setting_data) {
     assert(&setting_meta);
     assert(&setting_data);
 
-    setText(setting_meta.label.c_str());
-    setToolTip(setting_meta.description.c_str());
-    setChecked(setting_data.value);
-    connect(this, SIGNAL(clicked()), this, SLOT(itemToggled()));
+    this->setText(setting_meta.label.c_str());
+    this->setFont(tree->font());
+    this->setToolTip(setting_meta.description.c_str());
+    this->setChecked(setting_data.value);
+    this->connect(this, SIGNAL(clicked()), this, SLOT(OnClicked()));
+
+    tree->setItemWidget(item, 0, this);
 }
 
-void WidgetSettingBool::itemToggled() {
-    setting_data.value = isChecked();
+void WidgetSettingBool::OnClicked() {
+    this->setting_data.value = isChecked();
 
     emit itemChanged();
 }
