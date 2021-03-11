@@ -86,11 +86,8 @@
                     },
                     {
                         "key": "int_range_with_optional",
-                        "type": "INT_RANGE",
-                        "value": {
-                            "min": 79,
-                            "max": 82
-                        }
+                        "type": "INT_RANGES",
+                        "value": "79-82"
                     },
                     {
                         "key": "list_with_optional",

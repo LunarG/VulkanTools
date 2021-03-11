@@ -20,10 +20,15 @@
 
 #include "widget_setting_int_range.h"
 
+#include "../vkconfig_core/util.h"
+
+#include <QMessageBox>
+#include <QTimer>
+
 #include <cassert>
 
-WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta,
-                                             SettingDataIntRange& setting_data)
+WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRanges& setting_meta,
+                                             SettingDataIntRanges& setting_data)
     : setting_meta(setting_meta), setting_data(setting_data) {
     assert(item);
     assert(&setting_meta);
@@ -31,18 +36,33 @@ WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const Settin
 
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
-    if (setting_data.min_value < setting_data.max_value) {
-        this->setText(format("%d-%d", setting_data.min_value, setting_data.max_value).c_str());
-    }
+    this->setText(setting_data.value.c_str());
+
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void WidgetSettingIntRange::itemEdited(const QString& value) {
-    if (value.isEmpty()) {
-        this->setting_data.min_value = this->setting_meta.default_min_value;
-        this->setting_data.max_value = this->setting_meta.default_max_value;
-    } else {
-        std::sscanf(value.toStdString().c_str(), "%d-%d", &this->setting_data.min_value, &this->setting_data.max_value);
+void WidgetSettingIntRange::FieldEditedCheck() {
+    if (!IsUIntRanges(setting_data.value)) {
+        const std::string text = format("'%s' is an invalid value. Use list of comma separated integer ranges. Example: '0-2,16'.",
+                                        this->text().toStdString().c_str());
+        const std::string into = format("Resetting to the setting default value: '%s'.", this->setting_meta.default_value.c_str());
+
+        this->setting_data.value = this->setting_meta.default_value;
+        this->setText(this->setting_data.value.c_str());
+
+        QMessageBox alert;
+        alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
+        alert.setText(text.c_str());
+        alert.setInformativeText(into.c_str());
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
     }
+}
+
+void WidgetSettingIntRange::itemEdited(const QString& value) {
+    this->setting_data.value = value.toStdString();
+    QTimer::singleShot(1000, [this]() { FieldEditedCheck(); });
+
     emit itemChanged();
 }

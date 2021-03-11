@@ -45,8 +45,8 @@ std::shared_ptr<SettingData> SettingSet<SettingData>::AllocSetting(const std::st
             return std::shared_ptr<SettingData>(new SettingDataEnum(key));
         case SETTING_FLAGS:
             return std::shared_ptr<SettingData>(new SettingDataFlags(key));
-        case SETTING_INT_RANGE:
-            return std::shared_ptr<SettingData>(new SettingDataIntRange(key));
+        case SETTING_INT_RANGES:
+            return std::shared_ptr<SettingData>(new SettingDataIntRanges(key));
         case SETTING_LIST:
             return std::shared_ptr<SettingData>(new SettingDataList(key));
         default:
@@ -78,8 +78,8 @@ std::shared_ptr<SettingMeta> SettingSet<SettingMeta>::AllocSetting(const std::st
             return std::shared_ptr<SettingMeta>(new SettingMetaEnum(key));
         case SETTING_FLAGS:
             return std::shared_ptr<SettingMeta>(new SettingMetaFlags(key));
-        case SETTING_INT_RANGE:
-            return std::shared_ptr<SettingMeta>(new SettingMetaIntRange(key));
+        case SETTING_INT_RANGES:
+            return std::shared_ptr<SettingMeta>(new SettingMetaIntRanges(key));
         case SETTING_LIST:
             return std::shared_ptr<SettingMeta>(new SettingMetaList(key));
         default:

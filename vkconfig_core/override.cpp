@@ -179,6 +179,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     stream << ReplaceBuiltInVariable(static_cast<const SettingDataString&>(setting_data).value.c_str()).c_str();
                     break;
                 }
+                case SETTING_INT_RANGES:
                 case SETTING_ENUM:
                 case SETTING_STRING: {
                     stream << static_cast<const SettingDataString&>(setting_data).value.c_str();
@@ -186,11 +187,6 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 }
                 case SETTING_INT: {
                     stream << static_cast<const SettingDataInt&>(setting_data).value;
-                    break;
-                }
-                case SETTING_INT_RANGE: {
-                    const SettingDataIntRange& setting_object = static_cast<const SettingDataIntRange&>(setting_data);
-                    stream << format("%d-%d", setting_object.min_value, setting_object.max_value).c_str();
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED: {

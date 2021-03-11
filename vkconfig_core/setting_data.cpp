@@ -76,22 +76,6 @@ SettingData& SettingDataString::Assign(const SettingData& other) {
     return *this;
 }
 
-bool SettingDataIntRange::Equal(const SettingData& other) const {
-    if (!SettingData::Equal(other)) return false;
-
-    const SettingDataIntRange& data = static_cast<const SettingDataIntRange&>(other);
-
-    return this->min_value == data.min_value && this->max_value == data.max_value;
-}
-
-SettingData& SettingDataIntRange::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-
-    this->min_value = static_cast<const SettingDataIntRange&>(other).min_value;
-    this->max_value = static_cast<const SettingDataIntRange&>(other).max_value;
-    return *this;
-}
-
 bool SettingDataVector::Equal(const SettingData& other) const {
     if (!SettingData::Equal(other)) return false;
 

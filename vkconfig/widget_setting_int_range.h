@@ -31,10 +31,11 @@ class WidgetSettingIntRange : public QLineEdit {
     Q_OBJECT
 
    public:
-    WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRange& setting_meta, SettingDataIntRange& setting_data);
+    WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRanges& setting_meta, SettingDataIntRanges& setting_data);
 
    public Q_SLOTS:
-    void itemEdited(const QString& newString);
+    void itemEdited(const QString& value);
+    void FieldEditedCheck();
 
    Q_SIGNALS:
     void itemChanged();
@@ -43,6 +44,6 @@ class WidgetSettingIntRange : public QLineEdit {
     WidgetSettingIntRange(const WidgetSettingIntRange&) = delete;
     WidgetSettingIntRange& operator=(const WidgetSettingIntRange&) = delete;
 
-    const SettingMetaIntRange& setting_meta;
-    SettingDataIntRange& setting_data;
+    const SettingMetaIntRanges& setting_meta;
+    SettingDataIntRanges& setting_data;
 };

@@ -43,12 +43,14 @@ struct SettingMeta : public Header {
 };
 
 struct SettingMetaString : public SettingMeta {
-    SettingMetaString(const std::string& key) : SettingMeta(key, SETTING_STRING) {}
+    SettingMetaString(const std::string& key) : SettingMetaString(key, SETTING_STRING) {}
     virtual ~SettingMetaString() {}
 
     std::string default_value;
 
    protected:
+    SettingMetaString(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}
+
     virtual bool Equal(const SettingMeta& other) const;
 };
 
@@ -79,15 +81,9 @@ struct SettingMetaBoolNumeric : public SettingMeta {
     bool default_value;
 };
 
-struct SettingMetaIntRange : public SettingMeta {
-    SettingMetaIntRange(const std::string& key) : SettingMeta(key, SETTING_INT_RANGE), default_min_value(0), default_max_value(0) {}
-    virtual ~SettingMetaIntRange() {}
-
-    int default_min_value;
-    int default_max_value;
-
-   protected:
-    virtual bool Equal(const SettingMeta& other) const;
+struct SettingMetaIntRanges : public SettingMetaString {
+    SettingMetaIntRanges(const std::string& key) : SettingMetaString(key, SETTING_INT_RANGES) {}
+    virtual ~SettingMetaIntRanges() {}
 };
 
 struct SettingMetaFilesystem : public SettingMeta {
