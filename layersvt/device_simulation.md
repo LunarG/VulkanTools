@@ -103,13 +103,20 @@ JSON file formats consumed by the DevSim layer are specified by one of the JSON 
 | VK_KHR_sampler_ycbcr_conversion | https://schema.khronos.org/vulkan/devsim_VK_KHR_sampler_ycbcr_conversion_1.json# |
 | VK_KHR_variable_pointers | https://schema.khronos.org/vulkan/devsim_VK_KHR_variable_pointers_1.json# |
 
-Usually you will be using configuration files validated with the Vulkan v1.0 schema.
+Usually you will be using configuration files validated with the Vulkan v1.1 schema.
 
 The top-level sections of such configuration files are processed as follows:
 * `$schema` - Mandatory.  Must be the URI string referencing the JSON schema.
 * `comments` - Optional.  May contain arbitrary comments, description, copyright, etc.
 * `VkPhysicalDeviceProperties` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceMaintenance3Properties` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceMultiviewProperties` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDevicePointClippingProperties` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceFeatures` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDevice16BitStorageFeatures` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceMultiviewFeatures` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceSamplerYcbcrConversionFeatures` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceVariablePointersFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceMemoryProperties` - Optional.  Only values specified in the JSON will be modified.
 * `ArrayOfVkQueueFamilyProperties` - Optional.  If present, all values of all elements must be specified.
 * `ArrayOfVkFormatProperties` - Optional.  If present, all values of all elements must be specified.
@@ -123,7 +130,7 @@ The schemas define basic range checking for common Vulkan data types, but they c
 If a configuration defines capabilities beyond what the actual device is natively capable of providing, the results are undefined.
 DevSim has some simple checking of configuration values and writes debug messages (if enabled) for values that are incompatible with the capabilities of the actual device.
 
-This version of DevSim currently supports only Vulkan v1.0.
+This version of DevSim currently supports Vulkan v1.0 and v1.1.
 If the application requests an unsupported version of the Vulkan API, DevSim will emit an error message.
 If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` environment variable (see below).
 
