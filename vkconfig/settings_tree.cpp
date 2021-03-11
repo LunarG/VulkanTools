@@ -65,14 +65,29 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     _settings_tree->blockSignals(true);
     _settings_tree->clear();
 
-    QFont font = _settings_tree->font();
-    font.setBold(true);
+    QFont font_layer = _settings_tree->font();
+    font_layer.setBold(true);
+
+    QFont font_section = _settings_tree->font();
+    font_section.setItalic(true);
 
     if (!configuration->HasOverride()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, "No overridden or excluded layer");
+        item->setFont(0, font_section);
         _settings_tree->addTopLevelItem(item);
     } else {
+        const std::size_t overridden_layer_count = CountOverriddenLayers(configuration->parameters);
+
+        if (overridden_layer_count > 1) {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(0, "Vulkan Applications");
+            item->setTextAlignment(0, Qt::AlignCenter);
+            item->setFont(0, font_section);
+            item->setDisabled(true);
+            _settings_tree->addTopLevelItem(item);
+        }
+
         // There will be one top level item for each layer
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
@@ -92,7 +107,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             }
 
             layer_item->setText(0, layer_text.c_str());
-            layer_item->setFont(0, font);
+            layer_item->setFont(0, font_layer);
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             _settings_tree->addTopLevelItem(layer_item);
 
@@ -122,33 +137,47 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             }
         }
 
-        // The last item is just the excluded layers
-        QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
-        excluded_layers->setText(0, "Excluded Layers:");
-        _settings_tree->addTopLevelItem(excluded_layers);
-
-        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-            Parameter &parameter = configuration->parameters[i];
-            if (!IsPlatformSupported(parameter.platform_flags)) continue;
-
-            if (parameter.state != LAYER_STATE_EXCLUDED) continue;
-
-            const Layer *layer = FindByKey(configurator.layers.available_layers, parameter.key.c_str());
-            if (layer == nullptr) continue;  // Do not display missing excluded layers
-
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, parameter.key.c_str());
-            if (layer != nullptr) {
-                child->setToolTip(0, layer->description.c_str());
-            }
-            excluded_layers->addChild(child);
+        if (overridden_layer_count > 1) {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(0, "Vulkan Drivers");
+            item->setTextAlignment(0, Qt::AlignCenter);
+            item->setFont(0, font_section);
+            item->setDisabled(true);
+            _settings_tree->addTopLevelItem(item);
         }
 
-        // None excluded layer were found
-        if (excluded_layers->childCount() == 0) {
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, "None");
-            excluded_layers->addChild(child);
+        const std::size_t excluded_layer_count =
+            CountExcludedLayers(configuration->parameters, configurator.layers.available_layers);
+
+        if (excluded_layer_count > 0) {
+            // The last item is just the excluded layers
+            QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
+            excluded_layers->setText(0, "Excluded Layers:");
+            excluded_layers->setFont(0, font_section);
+            _settings_tree->addTopLevelItem(excluded_layers);
+
+            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+                Parameter &parameter = configuration->parameters[i];
+                if (!IsPlatformSupported(parameter.platform_flags)) continue;
+
+                if (parameter.state != LAYER_STATE_EXCLUDED) continue;
+
+                const Layer *layer = FindByKey(configurator.layers.available_layers, parameter.key.c_str());
+                if (layer == nullptr) continue;  // Do not display missing excluded layers
+
+                QTreeWidgetItem *layer_item = new QTreeWidgetItem();
+                layer_item->setText(0, parameter.key.c_str());
+                layer_item->setFont(0, font_layer);
+                layer_item->setToolTip(0, layer->description.c_str());
+                excluded_layers->addChild(layer_item);
+            }
+
+            // None excluded layer were found
+            if (excluded_layers->childCount() == 0) {
+                QTreeWidgetItem *child = new QTreeWidgetItem();
+                child->setText(0, "None");
+                excluded_layers->addChild(child);
+            }
         }
     }
 
