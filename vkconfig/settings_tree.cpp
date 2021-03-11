@@ -421,9 +421,9 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 }
             } break;
 
-            case SETTING_INT_RANGE: {
-                const SettingMetaIntRange &setting_meta_src = static_cast<const SettingMetaIntRange &>(setting_meta);
-                SettingDataIntRange &setting_data_src = static_cast<SettingDataIntRange &>(setting_data);
+            case SETTING_INT_RANGES: {
+                const SettingMetaIntRanges &setting_meta_src = static_cast<const SettingMetaIntRanges &>(setting_meta);
+                SettingDataIntRanges &setting_data_src = static_cast<SettingDataIntRanges &>(setting_data);
 
                 WidgetSettingIntRange *widget = new WidgetSettingIntRange(setting_item, setting_meta_src, setting_data_src);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();

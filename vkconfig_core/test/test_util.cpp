@@ -185,3 +185,25 @@ TEST(test_util, to_upper_case) {
     EXPECT_STREQ("STRING76", ToUpperCase("StrinG76").c_str());
     EXPECT_STREQ("STR ING", ToUpperCase("Str inG").c_str());
 }
+
+TEST(test_util, is_number) {
+    EXPECT_EQ(true, IsNumber("0123456789"));
+    EXPECT_EQ(false, IsNumber("01234c56789"));
+    EXPECT_EQ(false, IsNumber("$%#&@()-_[]{}"));
+}
+
+TEST(test_util, is_uint_ranges) {
+    EXPECT_EQ(true, IsUIntRanges("0-2,6,7"));
+    EXPECT_EQ(true, IsUIntRanges("0-2,6-7"));
+    EXPECT_EQ(true, IsUIntRanges("0,2,6,7"));
+
+    EXPECT_EQ(false, IsUIntRanges("1,"));
+    EXPECT_EQ(false, IsUIntRanges("-1"));
+    EXPECT_EQ(false, IsUIntRanges("1-"));
+    EXPECT_EQ(false, IsUIntRanges("1--4"));
+    EXPECT_EQ(false, IsUIntRanges("1,,4"));
+    EXPECT_EQ(false, IsUIntRanges("1,-4"));
+    EXPECT_EQ(false, IsUIntRanges(",-76"));
+    EXPECT_EQ(false, IsUIntRanges("76,-"));
+    EXPECT_EQ(false, IsUIntRanges("76,-82"));
+}

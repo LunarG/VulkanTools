@@ -483,19 +483,18 @@ TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaIntRange* setting_meta = dynamic_cast<SettingMetaIntRange*>(layer.settings.Get("int_range_with_optional"));
+    SettingMetaIntRanges* setting_meta = dynamic_cast<SettingMetaIntRanges*>(layer.settings.Get("int_range_with_optional"));
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("int_range_with_optional", setting_meta->key.c_str());
-    EXPECT_EQ(SETTING_INT_RANGE, setting_meta->type);
+    EXPECT_EQ(SETTING_INT_RANGES, setting_meta->type);
     EXPECT_STREQ("Integer Range", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Range Description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_range", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    EXPECT_EQ(76, setting_meta->default_min_value);
-    EXPECT_EQ(82, setting_meta->default_max_value);
+    EXPECT_STREQ("76-82", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_list_with_optional) {

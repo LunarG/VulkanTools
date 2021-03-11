@@ -9,7 +9,11 @@ function(vkConfigTest NAME)
 	set(TEST_FILE ./${NAME}.cpp)
     set(TEST_NAME vkconfig_${NAME})
 
-    add_executable(${TEST_NAME} ${TEST_FILE} resources.qrc)
+    file(GLOB FILES_JSON ./*.json)
+    file(GLOB FILES_TEXT ./*0.txt)
+    source_group("Test Files" FILES ${FILES_JSON} ${FILES_TEXT})
+
+    add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} resources.qrc)
     target_link_libraries(${TEST_NAME} vkconfig_core gtest gtest_main Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     if(WIN32)
         target_link_libraries(${TEST_NAME} Cfgmgr32)

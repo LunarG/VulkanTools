@@ -61,6 +61,23 @@ bool IsNumber(const std::string& s) {
     return true;
 }
 
+bool IsUIntRanges(const std::string& s) {
+    if (s.find("--") != std::string::npos) return false;
+    if (s.find(",,") != std::string::npos) return false;
+    if (s.find("-,") != std::string::npos) return false;
+    if (s.find(",-") != std::string::npos) return false;
+
+    for (std::size_t i = 0, n = s.length(); i < n; ++i) {
+        if (std::isdigit(s[i])) continue;
+
+        if (i > 0 && (i < n - 1) && (s[i] == '-' || s[i] == ',')) continue;
+
+        return false;
+    }
+
+    return true;
+}
+
 void RemoveString(std::vector<std::string>& list, const std::string& value) {
     std::vector<std::string> new_list;
     new_list.reserve(list.size());

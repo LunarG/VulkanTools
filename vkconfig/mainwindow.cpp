@@ -405,6 +405,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
+    configurator.environment.ClearCustomLayerPath();
     configurator.configurations.ResetDefaultsConfigurations(configurator.layers.available_layers);
 
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);

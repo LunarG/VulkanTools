@@ -561,6 +561,8 @@ bool Environment::RemoveCustomLayerPath(const std::string& path) {
     return found;
 }
 
+void Environment::ClearCustomLayerPath() { user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI].clear(); }
+
 bool Environment::IsDefaultConfigurationInit(const std::string& default_configuration_filename) const {
     for (std::size_t i = 0, n = default_configuration_filenames.size(); i < n; ++i) {
         if (default_configuration_filenames[i] == default_configuration_filename) return true;
