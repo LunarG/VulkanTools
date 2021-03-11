@@ -130,3 +130,36 @@ bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector
     }
     return false;
 }
+
+std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters) {
+    std::size_t count = 0;
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Parameter& parameter = parameters[i];
+        if (!IsPlatformSupported(parameter.platform_flags)) continue;
+
+        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
+
+        ++count;
+    }
+
+    return count;
+}
+
+std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
+    std::size_t count = 0;
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Parameter& parameter = parameters[i];
+        if (!IsPlatformSupported(parameter.platform_flags)) continue;
+
+        if (parameter.state != LAYER_STATE_EXCLUDED) continue;
+
+        const Layer* layer = FindByKey(layers, parameter.key.c_str());
+        if (layer == nullptr) continue;  // Do not display missing excluded layers
+
+        ++count;
+    }
+
+    return count;
+}

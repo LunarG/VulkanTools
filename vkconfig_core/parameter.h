@@ -56,3 +56,6 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
 void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
 
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+
+std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters);
+std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
