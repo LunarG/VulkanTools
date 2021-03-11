@@ -183,7 +183,20 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     break;
                 }
                 case SETTING_INT: {
-                    static_cast<SettingMetaInt&>(setting_meta).default_value = ReadIntValue(json_setting, "default");
+                    SettingMetaInt& meta = static_cast<SettingMetaInt&>(setting_meta);
+                    meta.default_value = ReadIntValue(json_setting, "default");
+                    if (json_setting.value("range") != QJsonValue::Undefined) {
+                        const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
+                        if (json_setting_range.value("min") != QJsonValue::Undefined) {
+                            meta.min_value = ReadIntValue(json_setting_range, "min");
+                        }
+                        if (json_setting_range.value("max") != QJsonValue::Undefined) {
+                            meta.max_value = ReadIntValue(json_setting_range, "max");
+                        }
+                    }
+                    if (json_setting.value("unit") != QJsonValue::Undefined) {
+                        meta.unit = ReadStringValue(json_setting, "unit");
+                    }
                     break;
                 }
                 case SETTING_SAVE_FOLDER:

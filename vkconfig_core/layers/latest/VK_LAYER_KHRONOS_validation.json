@@ -6882,10 +6882,15 @@
             },
             {
                 "key": "printf_buffer_size",
-                "label": "Printf buffer size (in bytes)",
+                "label": "Printf buffer size",
                 "description": "The size in bytes of the buffer used by debug printf",
                 "type": "INT",
-                "default": 1024
+                "default": 1024,
+                "range": {
+                    "min": 128,
+                    "max": 65536
+                },
+                "unit": "bytes"
             }
         ]
     }

@@ -51,7 +51,13 @@ bool SettingMetaString::Equal(const SettingMeta& other) const {
 bool SettingMetaInt::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
 
-    return this->default_value == static_cast<const SettingMetaInt&>(other).default_value;
+    const SettingMetaInt& meta = static_cast<const SettingMetaInt&>(other);
+
+    if (this->min_value != meta.min_value) return false;
+    if (this->max_value != meta.max_value) return false;
+    if (this->unit != meta.unit) return false;
+
+    return this->default_value == meta.default_value;
 }
 
 bool SettingMetaBool::Equal(const SettingMeta& other) const {

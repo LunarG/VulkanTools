@@ -33,6 +33,7 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->setFont(tree->font());
     this->setToolTip(setting_meta.description.c_str());
     this->setChecked(setting_data.value);
+
     this->connect(this, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
     tree->setItemWidget(item, 0, this);
