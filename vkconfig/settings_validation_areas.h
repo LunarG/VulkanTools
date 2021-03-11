@@ -68,7 +68,7 @@ class SettingsValidationAreas : public QObject {
     void itemClicked(QTreeWidgetItem *item, int column);
     void gpuToggled(bool toggle);
     void printfToggled(bool toggle);
-    void printfBufferSizeEdited(const QString &new_value);
+    void OnSettingChanged();
 
    Q_SIGNALS:
     void settingChanged();
@@ -81,12 +81,8 @@ class SettingsValidationAreas : public QObject {
     bool HasDisable(const char *token) const;
 
     QTreeWidgetItem *CreateSettingWidgetBool(QTreeWidgetItem *parent, const char *key);
-    QTreeWidgetItem *CreateSettingWidgetInt(QTreeWidgetItem *parent, const char *key);
 
     void StoreBoolSetting(QTreeWidgetItem *setting_data, const char *key);
-    void StoreIntSetting(QTreeWidgetItem *setting_data, const char *key);
-
-    void EnableSettingWidget(QTreeWidgetItem *setting_data, bool enable);
 
     const Version version;
     const SettingMetaSet &settings_meta;

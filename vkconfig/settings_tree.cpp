@@ -303,12 +303,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         SettingDataInt &data = *parameter.settings.Get<SettingDataInt>(meta.key.c_str());
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-        setting_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-        WidgetSettingInt *widget = new WidgetSettingInt(setting_item, meta, data);
         parent->addChild(setting_item);
-        QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-        setting_item->addChild(place_holder);
-        _settings_tree->setItemWidget(place_holder, 0, widget);
+        WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, setting_item, meta, data);
         connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
 
@@ -381,10 +377,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(layer_setting_metas[setting_index]);
                 SettingDataInt &data = *parameter.settings.Get<SettingDataInt>(meta.key.c_str());
 
-                WidgetSettingInt *widget = new WidgetSettingInt(item, meta, data);
-                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                item->addChild(place_holder);
-                _settings_tree->setItemWidget(place_holder, 0, widget);
+                WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, item, meta, data);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 

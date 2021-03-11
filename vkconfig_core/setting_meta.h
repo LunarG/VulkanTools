@@ -55,10 +55,17 @@ struct SettingMetaString : public SettingMeta {
 };
 
 struct SettingMetaInt : public SettingMeta {
-    SettingMetaInt(const std::string& key) : SettingMeta(key, SETTING_INT), default_value(0) {}
+    SettingMetaInt(const std::string& key)
+        : SettingMeta(key, SETTING_INT),
+          default_value(0),
+          min_value(std::numeric_limits<int>::min()),
+          max_value(std::numeric_limits<int>::max()) {}
     virtual ~SettingMetaInt() {}
 
     int default_value;
+    int min_value;
+    int max_value;
+    std::string unit;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;

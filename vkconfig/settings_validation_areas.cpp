@@ -19,6 +19,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include "widget_setting.h"
 #include "settings_validation_areas.h"
 #include "configurator.h"
 
@@ -94,7 +95,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
             core_child_item->setText(0, enum_core_child->label.c_str());
             core_child_item->setToolTip(0, enum_core_child->description.c_str());
             core_child_item->setCheckState(0, core_validation_enabled && core_child_enabled ? Qt::Checked : Qt::Unchecked);
-            EnableSettingWidget(core_child_item, core_validation_enabled);
+            ::EnableItem(core_child_item, core_validation_enabled);
             _core_box->addChild(core_child_item);
             _core_children_boxes.push_back(core_child_item);
         }
@@ -169,43 +170,68 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
             _debug_printf_radio = new QRadioButton();
             _main_tree_widget->setItemWidget(_debug_printf_box, 0, _debug_printf_radio);
 
-            if (settings_meta.Get("printf_to_stdout") != nullptr) {
-                _debug_printf_to_stdout = CreateSettingWidgetBool(_debug_printf_box, "printf_to_stdout");
+            const SettingMetaBool *meta_printf_to_stdout = settings_meta.Get<SettingMetaBool>("printf_to_stdout");
+            if (meta_printf_to_stdout != nullptr) {
+                SettingDataBool *data = settings_data.Get<SettingDataBool>(meta_printf_to_stdout->key.c_str());
+
+                _debug_printf_to_stdout = new QTreeWidgetItem();
+                _debug_printf_to_stdout->setText(0, meta_printf_to_stdout->label.c_str());
+                _debug_printf_to_stdout->setToolTip(0, meta_printf_to_stdout->description.c_str());
+                _debug_printf_to_stdout->setCheckState(0, data->value ? Qt::Checked : Qt::Unchecked);
+                _debug_printf_box->addChild(_debug_printf_to_stdout);
             }
-            if (settings_meta.Get("printf_verbose") != nullptr) {
-                _debug_printf_verbose = CreateSettingWidgetBool(_debug_printf_box, "printf_verbose");
+
+            const SettingMetaBool *meta_printf_verbose = settings_meta.Get<SettingMetaBool>("printf_verbose");
+            if (meta_printf_verbose != nullptr) {
+                SettingDataBool *data = settings_data.Get<SettingDataBool>(meta_printf_verbose->key.c_str());
+
+                _debug_printf_verbose = new QTreeWidgetItem();
+                _debug_printf_verbose->setText(0, meta_printf_verbose->label.c_str());
+                _debug_printf_verbose->setToolTip(0, meta_printf_verbose->description.c_str());
+                _debug_printf_verbose->setCheckState(0, data->value ? Qt::Checked : Qt::Unchecked);
+                _debug_printf_box->addChild(_debug_printf_verbose);
             }
-            if (settings_meta.Get("printf_buffer_size") != nullptr) {
-                _debug_printf_buffer_size = CreateSettingWidgetInt(_debug_printf_box, "printf_buffer_size");
+
+            const SettingMetaInt *meta_printf_buffer_size = settings_meta.Get<SettingMetaInt>("printf_buffer_size");
+            if (meta_printf_buffer_size != nullptr) {
+                SettingDataInt *data = settings_data.Get<SettingDataInt>(meta_printf_buffer_size->key.c_str());
+
+                _debug_printf_buffer_size = new QTreeWidgetItem();
+                _debug_printf_box->addChild(_debug_printf_buffer_size);
+                _debug_printf_buffer_size_value =
+                    new WidgetSettingInt(_main_tree_widget, _debug_printf_buffer_size, *meta_printf_buffer_size, *data);
+
+                this->connect(_debug_printf_buffer_size_value->GetField(), SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             }
         }
 
         if (has_debug_printf || has_gpu_assisted) {
             _debug_printf_radio->setChecked(has_debug_printf);
-            EnableSettingWidget(_debug_printf_to_stdout, has_debug_printf);
-            EnableSettingWidget(_debug_printf_verbose, has_debug_printf);
-            EnableSettingWidget(_debug_printf_buffer_size, has_debug_printf);
+            ::EnableItem(_debug_printf_to_stdout, has_debug_printf);
+            ::EnableItem(_debug_printf_verbose, has_debug_printf);
+
+            ::EnableItem(_debug_printf_buffer_size, has_debug_printf);
             if (_debug_printf_buffer_size != nullptr) {
                 _debug_printf_buffer_size_value->setEnabled(has_debug_printf);
             }
 
             _gpu_assisted_radio->setChecked(has_gpu_assisted);
-            EnableSettingWidget(_gpu_assisted_reserve_box, has_gpu_assisted);
-            EnableSettingWidget(_gpu_assisted_oob_box, has_gpu_assisted);
+            ::EnableItem(_gpu_assisted_reserve_box, has_gpu_assisted);
+            ::EnableItem(_gpu_assisted_oob_box, has_gpu_assisted);
         } else {
             _debug_printf_radio->setEnabled(false);
-            EnableSettingWidget(_debug_printf_box, false);
-            EnableSettingWidget(_debug_printf_to_stdout, false);
-            EnableSettingWidget(_debug_printf_verbose, false);
-            EnableSettingWidget(_debug_printf_buffer_size, false);
+            ::EnableItem(_debug_printf_box, false);
+            ::EnableItem(_debug_printf_to_stdout, false);
+            ::EnableItem(_debug_printf_verbose, false);
+            ::EnableItem(_debug_printf_buffer_size, false);
             if (_debug_printf_buffer_size != nullptr) {
                 _debug_printf_buffer_size_value->setEnabled(false);
             }
 
             _gpu_assisted_radio->setEnabled(false);
-            EnableSettingWidget(_gpu_assisted_box, false);
-            EnableSettingWidget(_gpu_assisted_reserve_box, false);
-            EnableSettingWidget(_gpu_assisted_oob_box, false);
+            ::EnableItem(_gpu_assisted_box, false);
+            ::EnableItem(_gpu_assisted_reserve_box, false);
+            ::EnableItem(_gpu_assisted_oob_box, false);
         }
 
         connect(_gpu_assisted_radio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
@@ -231,7 +257,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
             _gpu_assisted_reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
             _gpu_assisted_box->addChild(_gpu_assisted_reserve_box);
 
-            EnableSettingWidget(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
+            ::EnableItem(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
         }
     }
 
@@ -274,7 +300,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
             _best_practices_arm_box->setToolTip(0, enum_best_practices_arm->description.c_str());
             _best_practices_arm_box->setCheckState(0, enable_best_practices_arm ? Qt::Checked : Qt::Unchecked);
             _best_practices_box->addChild(_best_practices_arm_box);
-            EnableSettingWidget(_best_practices_arm_box, _best_practices_box->checkState(0) == Qt::Checked);
+            ::EnableItem(_best_practices_arm_box, _best_practices_box->checkState(0) == Qt::Checked);
         }
     }
 
@@ -317,7 +343,7 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
         const bool core_enabled = _core_box->checkState(0) == Qt::Checked;
         for (std::size_t i = 0, n = _core_children_boxes.size(); i < n; ++i) {
             _core_children_boxes[i]->setCheckState(0, core_enabled ? Qt::Checked : Qt::Unchecked);
-            EnableSettingWidget(_core_children_boxes[i], core_enabled);
+            ::EnableItem(_core_children_boxes[i], core_enabled);
         }
     }
 
@@ -325,49 +351,49 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
     if (item == _shader_based_box) {  // Just enable/disable the items below it
         if (_shader_based_box->checkState(0) == Qt::Checked) {
             _debug_printf_radio->setEnabled(true);
-            EnableSettingWidget(_debug_printf_box, true);
-            EnableSettingWidget(_debug_printf_to_stdout, true);
-            EnableSettingWidget(_debug_printf_verbose, true);
-            EnableSettingWidget(_debug_printf_buffer_size, true);
+            ::EnableItem(_debug_printf_box, true);
+            ::EnableItem(_debug_printf_to_stdout, true);
+            ::EnableItem(_debug_printf_verbose, true);
+            ::EnableItem(_debug_printf_buffer_size, true);
             if (_debug_printf_buffer_size != nullptr) _debug_printf_buffer_size_value->setEnabled(true);
 
             _gpu_assisted_radio->setEnabled(true);
-            EnableSettingWidget(_gpu_assisted_box, true);
-            EnableSettingWidget(_gpu_assisted_reserve_box, true);
-            EnableSettingWidget(_gpu_assisted_oob_box, true);
+            ::EnableItem(_gpu_assisted_box, true);
+            ::EnableItem(_gpu_assisted_reserve_box, true);
+            ::EnableItem(_gpu_assisted_oob_box, true);
         } else {
             _debug_printf_radio->setEnabled(false);
-            EnableSettingWidget(_debug_printf_box, false);
-            EnableSettingWidget(_debug_printf_to_stdout, false);
-            EnableSettingWidget(_debug_printf_verbose, false);
-            EnableSettingWidget(_debug_printf_buffer_size, false);
+            ::EnableItem(_debug_printf_box, false);
+            ::EnableItem(_debug_printf_to_stdout, false);
+            ::EnableItem(_debug_printf_verbose, false);
+            ::EnableItem(_debug_printf_buffer_size, false);
             if (_debug_printf_buffer_size != nullptr) _debug_printf_buffer_size_value->setEnabled(false);
 
             _gpu_assisted_radio->setEnabled(false);
-            EnableSettingWidget(_gpu_assisted_box, false);
-            EnableSettingWidget(_gpu_assisted_reserve_box, false);
-            EnableSettingWidget(_gpu_assisted_oob_box, false);
+            ::EnableItem(_gpu_assisted_box, false);
+            ::EnableItem(_gpu_assisted_reserve_box, false);
+            ::EnableItem(_gpu_assisted_oob_box, false);
         }
     }
 
     if (item == _gpu_assisted_box && _gpu_assisted_radio == nullptr) {
-        EnableSettingWidget(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
-        EnableSettingWidget(_gpu_assisted_oob_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
+        ::EnableItem(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
+        ::EnableItem(_gpu_assisted_oob_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
     }
 
     // Debug printf or GPU based also enables/disables the checkbox for reserving a slot
     if (_debug_printf_radio != nullptr) {
         if (item == _debug_printf_box && _debug_printf_radio->isChecked()) {
-            EnableSettingWidget(_gpu_assisted_reserve_box, false);
-            EnableSettingWidget(_gpu_assisted_oob_box, false);
+            ::EnableItem(_gpu_assisted_reserve_box, false);
+            ::EnableItem(_gpu_assisted_oob_box, false);
         }
     }
 
     if (_gpu_assisted_radio != nullptr) {
         if (item == _gpu_assisted_box && _gpu_assisted_radio->isChecked()) {
-            EnableSettingWidget(_debug_printf_to_stdout, false);
-            EnableSettingWidget(_debug_printf_verbose, false);
-            EnableSettingWidget(_debug_printf_buffer_size, false);
+            ::EnableItem(_debug_printf_to_stdout, false);
+            ::EnableItem(_debug_printf_verbose, false);
+            ::EnableItem(_debug_printf_buffer_size, false);
             if (_debug_printf_buffer_size != nullptr) _debug_printf_buffer_size_value->setEnabled(false);
         }
     }
@@ -409,12 +435,12 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
 
 void SettingsValidationAreas::gpuToggled(bool toggle) {
     if (toggle) {
-        EnableSettingWidget(_gpu_assisted_reserve_box, true);
-        EnableSettingWidget(_gpu_assisted_oob_box, true);
+        ::EnableItem(_gpu_assisted_reserve_box, true);
+        ::EnableItem(_gpu_assisted_oob_box, true);
 
-        EnableSettingWidget(_debug_printf_to_stdout, false);
-        EnableSettingWidget(_debug_printf_verbose, false);
-        EnableSettingWidget(_debug_printf_buffer_size, false);
+        ::EnableItem(_debug_printf_to_stdout, false);
+        ::EnableItem(_debug_printf_verbose, false);
+        ::EnableItem(_debug_printf_buffer_size, false);
         if (_debug_printf_buffer_size != nullptr) {
             _debug_printf_buffer_size_value->setEnabled(false);
         }
@@ -426,12 +452,12 @@ void SettingsValidationAreas::gpuToggled(bool toggle) {
 
 void SettingsValidationAreas::printfToggled(bool toggle) {
     if (toggle) {
-        EnableSettingWidget(_gpu_assisted_reserve_box, false);
-        EnableSettingWidget(_gpu_assisted_oob_box, false);
+        ::EnableItem(_gpu_assisted_reserve_box, false);
+        ::EnableItem(_gpu_assisted_oob_box, false);
 
-        EnableSettingWidget(_debug_printf_to_stdout, true);
-        EnableSettingWidget(_debug_printf_verbose, true);
-        EnableSettingWidget(_debug_printf_buffer_size, true);
+        ::EnableItem(_debug_printf_to_stdout, true);
+        ::EnableItem(_debug_printf_verbose, true);
+        ::EnableItem(_debug_printf_buffer_size, true);
         if (_debug_printf_buffer_size != nullptr) {
             _debug_printf_buffer_size_value->setEnabled(true);
         }
@@ -441,7 +467,7 @@ void SettingsValidationAreas::printfToggled(bool toggle) {
     emit settingChanged();
 }
 
-void SettingsValidationAreas::printfBufferSizeEdited(const QString &new_value) {
+void SettingsValidationAreas::OnSettingChanged() {
     CollectSettings();
     emit settingChanged();
 }
@@ -543,52 +569,11 @@ QTreeWidgetItem *SettingsValidationAreas::CreateSettingWidgetBool(QTreeWidgetIte
     return child;
 }
 
-QTreeWidgetItem *SettingsValidationAreas::CreateSettingWidgetInt(QTreeWidgetItem *parent, const char *key) {
-    const SettingMetaInt *setting_meta = static_cast<const SettingMetaInt *>(settings_meta.Get(key));
-    SettingDataInt *setting_data = static_cast<SettingDataInt *>(settings_data.Get(key));
-
-    QTreeWidgetItem *child = nullptr;
-
-    if (setting_data && setting_meta) {
-        assert(setting_meta->type == SETTING_INT);
-
-        child = new QTreeWidgetItem();
-        _debug_printf_buffer_size_value = new WidgetSettingInt(child, *setting_meta, *setting_data);
-        parent->addChild(child);
-        QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-        child->addChild(place_holder);
-        _main_tree_widget->setItemWidget(place_holder, 0, _debug_printf_buffer_size_value);
-    }
-
-    return child;
-}
-
-void SettingsValidationAreas::StoreBoolSetting(QTreeWidgetItem *setting_data, const char *key) {
+void SettingsValidationAreas::StoreBoolSetting(QTreeWidgetItem *item, const char *key) {
     assert(key);
     assert(std::strcmp(key, "") != 0);
 
-    if (setting_data == nullptr) return;
+    if (item == nullptr) return;
 
-    static_cast<SettingDataBool &>(*settings_data.Get(key)).value = setting_data->checkState(0) == Qt::Checked;
-}
-
-void SettingsValidationAreas::StoreIntSetting(QTreeWidgetItem *setting_data, const char *key) {
-    assert(key);
-    assert(std::strcmp(key, "") != 0);
-
-    if (setting_data == nullptr) return;
-
-    if (setting_data->text(0).isEmpty()) return;
-
-    static_cast<SettingDataInt &>(*settings_data.Get(key)).value = std::atoi(setting_data->text(0).toStdString().c_str());
-}
-
-void SettingsValidationAreas::EnableSettingWidget(QTreeWidgetItem *setting_data, bool enable) {
-    if (setting_data == nullptr) return;
-
-    if (enable) {
-        setting_data->setFlags(setting_data->flags() | Qt::ItemIsEnabled);
-    } else {
-        setting_data->setFlags(setting_data->flags() & ~Qt::ItemIsEnabled);
-    }
+    static_cast<SettingDataBool &>(*settings_data.Get(key)).value = item->checkState(0) == Qt::Checked;
 }
