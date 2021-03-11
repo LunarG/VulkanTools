@@ -206,9 +206,6 @@ void SettingsTreeManager::CleanupGUI() {
         _validation_areas = nullptr;
     }
 
-    for (std::size_t i = 0; i < _compound_widgets.size(); i++) _settings_tree->setItemWidget(_compound_widgets[i], 1, nullptr);
-
-    _compound_widgets.clear();
     _presets_comboboxes.clear();
 
     _settings_tree->clear();
@@ -277,7 +274,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             _validation_log_file_widget = new WidgetSettingFilesystem(_validation_log_file_item, *log_file_meta, *log_file_data);
             _validation_log_file_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             _settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
-            _compound_widgets.push_back(child);
 
             connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(khronosDebugChanged(int)));
@@ -287,22 +283,21 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         }
     }
 
-    if (validation_layer->settings.Get("report_flags") != nullptr) {
-        const SettingMetaFlags &setting_meta =
-            static_cast<const SettingMetaFlags &>(*validation_layer->settings.Get("report_flags"));
-        SettingDataFlags &setting_data =
-            static_cast<SettingDataFlags &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+    const SettingMetaFlags *meta_report = validation_layer->settings.Get<SettingMetaFlags>("report_flags");
+    if (meta_report != nullptr) {
+        const SettingMetaFlags &meta = *meta_report;
+        SettingDataFlags &data = *parameter.settings.Get<SettingDataFlags>(meta.key.c_str());
 
         QTreeWidgetItem *sub_category = new QTreeWidgetItem;
-        sub_category->setText(0, setting_meta.label.c_str());
-        sub_category->setToolTip(0, setting_meta.description.c_str());
+        sub_category->setText(0, meta.label.c_str());
+        sub_category->setToolTip(0, meta.description.c_str());
         sub_category->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         parent->addChild(sub_category);
 
-        for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
+        for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            WidgetSettingFlag *widget = new WidgetSettingFlag(setting_meta, setting_data, setting_meta.enum_values[i].key.c_str());
+            WidgetSettingFlag *widget = new WidgetSettingFlag(meta, data, meta.enum_values[i].key.c_str());
             sub_category->addChild(child);
             _settings_tree->setItemWidget(child, 0, widget);
             widget->setFont(_settings_tree->font());
@@ -310,15 +305,14 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         }
     }
 
-    if (validation_layer->settings.Get("duplicate_message_limit") != nullptr) {
-        const SettingMetaInt &setting_meta =
-            static_cast<const SettingMetaInt &>(*validation_layer->settings.Get("duplicate_message_limit"));
-        SettingDataInt &setting_data =
-            static_cast<SettingDataInt &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+    const SettingMetaInt *meta_duplicate = validation_layer->settings.Get<SettingMetaInt>("duplicate_message_limit");
+    if (meta_duplicate != nullptr) {
+        const SettingMetaInt &meta = *meta_duplicate;
+        SettingDataInt &data = *parameter.settings.Get<SettingDataInt>(meta.key.c_str());
 
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
         setting_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-        WidgetSettingInt *widget = new WidgetSettingInt(setting_item, setting_meta, setting_data);
+        WidgetSettingInt *widget = new WidgetSettingInt(setting_item, meta, data);
         parent->addChild(setting_item);
         QTreeWidgetItem *place_holder = new QTreeWidgetItem();
         setting_item->addChild(place_holder);
@@ -326,30 +320,28 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
 
-    if (validation_layer->settings.Get("message_id_filter") != nullptr) {
-        const SettingMetaList &setting_meta =
-            static_cast<const SettingMetaList &>(*validation_layer->settings.Get("message_id_filter"));
-        SettingDataList &setting_data =
-            static_cast<SettingDataList &>(parameter.settings.Create(setting_meta.key, setting_meta.type));
+    const SettingMetaList *meta_filter = validation_layer->settings.Get<SettingMetaList>("message_id_filter");
+    if (meta_filter != nullptr) {
+        const SettingMetaList &meta = *meta_filter;
+        static_cast<const SettingMetaList &>(*validation_layer->settings.Get("message_id_filter"));
+        SettingDataList &data = *parameter.settings.Get<SettingDataList>(meta.key.c_str());
 
         QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
-        mute_message_item->setText(0, setting_meta.label.c_str());
-        mute_message_item->setToolTip(0, setting_meta.description.c_str());
+        mute_message_item->setText(0, meta.label.c_str());
+        mute_message_item->setToolTip(0, meta.description.c_str());
         parent->addChild(mute_message_item);
 
-        WidgetSettingSearch *widget_search = new WidgetSettingSearch(setting_meta.list, setting_data.value);
+        WidgetSettingSearch *widget_search = new WidgetSettingSearch(meta.list, data.value);
 
         QTreeWidgetItem *next_line = new QTreeWidgetItem();
         next_line->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         mute_message_item->addChild(next_line);
         _settings_tree->setItemWidget(next_line, 0, widget_search);
-        _compound_widgets.push_back(next_line);
 
         QTreeWidgetItem *list_item = new QTreeWidgetItem();
         mute_message_item->addChild(list_item);
         list_item->setSizeHint(0, QSize(0, 200));
-        WidgetSettingList *widget_list = new WidgetSettingList(setting_meta, setting_data);
-        _compound_widgets.push_back(list_item);
+        WidgetSettingList *widget_list = new WidgetSettingList(meta, data);
         _settings_tree->setItemWidget(list_item, 0, widget_list);
 
         connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
@@ -421,7 +413,6 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 place_holder->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                 setting_item->addChild(place_holder);
                 _settings_tree->setItemWidget(place_holder, 0, widget);
-                _compound_widgets.push_back(place_holder);
                 connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
@@ -495,13 +486,11 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 next_line->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                 mute_message_item->addChild(next_line);
                 _settings_tree->setItemWidget(next_line, 0, widget_search);
-                _compound_widgets.push_back(next_line);
 
                 QTreeWidgetItem *list_item = new QTreeWidgetItem();
                 mute_message_item->addChild(list_item);
                 list_item->setSizeHint(0, QSize(0, 200));
                 WidgetSettingList *widget_list = new WidgetSettingList(setting_meta_src, setting_data);
-                _compound_widgets.push_back(list_item);
                 _settings_tree->setItemWidget(list_item, 0, widget_list);
 
                 connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
