@@ -355,10 +355,56 @@
                             },
                             "type": {
                                 "type": "string",
-                                "enum": [ "FRAMES" ]
+                                "enum": [ "SAVE_FILE", "LOAD_FILE" ]
                             },
                             "filter": {
                                 "type": "string"
+                            },
+                            "default": {
+                                "type": "string"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "FRAMES" ]
                             },
                             "default": {
                                 "type": "string",
