@@ -14,7 +14,15 @@
                         ]
             }
         ],
-        "settings" : [
+        "settings": [
+            {
+                "key": "output_range",
+                "env": "VK_APIDUMP_OUTPUT_RANGE",
+                "label": "Output Range",
+                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "STRING",
+                "default": "0-0"
+            },
             {
                 "key": "output_format",
                 "env": "VK_APIDUMP_OUTPUT_FORMAT",
@@ -39,22 +47,6 @@
                     }
                 ],
                 "default": "text"
-            },
-            {
-                "key": "detailed",
-                "env": "VK_APIDUMP_DETAILED",
-                "label": "Detailed Output",
-                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
-                "type": "BOOL",
-                "default": true
-            },
-            {
-                "key": "no_addr",
-                "env": "VK_APIDUMP_NO_ADDR",
-                "label": "Hide Addresses",
-                "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
-                "type": "BOOL",
-                "default": false
             },
             {
                 "key": "file",
@@ -85,7 +77,30 @@
                 "label": "Indent Size",
                 "description": "Specifies the number of spaces that a tab is equal to",
                 "type": "INT",
-                "default": 4
+                "default": 4,
+                "range": {
+                    "min": 1,
+                    "max": 16
+                },
+                "unit": "chars"
+            },
+            {
+                "key": "use_spaces",
+                "label": "Use Spaces",
+                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                "type": "BOOL",
+                "default": true
+            },
+            {
+                "key": "name_size",
+                "label": "Name Size",
+                "description": "The number of characters the name of a variable should consume, assuming more are not required",
+                "type": "INT",
+                "default": 32,
+                "range": {
+                    "min": 1
+                },
+                "unit": "chars"
             },
             {
                 "key": "show_types",
@@ -95,25 +110,30 @@
                 "default": true
             },
             {
-                "key": "name_size",
-                "label": "Name Size",
-                "description": "The number of characters the name of a variable should consume, assuming more are not required",
-                "type": "INT",
-                "default": 32
-            },
-            {
                 "key": "type_size",
                 "label": "Type Size",
                 "description": "The number of characters the name of a type should consume, assuming more are not required",
                 "type": "INT",
-                "default": 0
+                "default": 0,
+                "range": {
+                    "min": 0
+                }
             },
             {
-                "key": "use_spaces",
-                "label": "Use Spaces",
-                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                "key": "detailed",
+                "env": "VK_APIDUMP_DETAILED",
+                "label": "Detailed Output",
+                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
                 "type": "BOOL",
                 "default": true
+            },
+            {
+                "key": "no_addr",
+                "env": "VK_APIDUMP_NO_ADDR",
+                "label": "Hide Addresses",
+                "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
+                "type": "BOOL",
+                "default": false
             },
             {
                 "key": "show_timestamp",
@@ -129,15 +149,7 @@
                 "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
                 "type": "BOOL",
                 "default": false
-            },
-            {
-                "key": "output_range",
-                "env": "VK_APIDUMP_OUTPUT_RANGE",
-                "label": "Output Range",
-                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
-                "type": "STRING",
-                "default": "0-0"
-            }            
+            }
         ]
     }
 }
