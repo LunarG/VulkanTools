@@ -21,5 +21,9 @@
 #pragma once
 
 #include <QTreeWidgetItem>
+#include <QFontMetrics>
+#include <QString>
 
-void EnableItem(QTreeWidgetItem *item, bool enable);
+void EnableItem(QTreeWidgetItem* item, bool enable);
+
+int HorizontalAdvance(const QFontMetrics& fm, const QString& string);
