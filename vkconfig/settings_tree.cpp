@@ -305,7 +305,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         QTreeWidgetItem *setting_item = new QTreeWidgetItem();
         parent->addChild(setting_item);
         WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, setting_item, meta, data);
-        connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+        this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
 
     const SettingMetaList *meta_filter = validation_layer->settings.Get<SettingMetaList>("message_id_filter");

@@ -201,7 +201,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
                 _debug_printf_buffer_size_value =
                     new WidgetSettingInt(_main_tree_widget, _debug_printf_buffer_size, *meta_printf_buffer_size, *data);
 
-                this->connect(_debug_printf_buffer_size_value->GetField(), SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                this->connect(_debug_printf_buffer_size_value, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             }
         }
 
