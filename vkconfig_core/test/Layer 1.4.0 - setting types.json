@@ -44,6 +44,7 @@
             },
             {
                 "key": "enum_with_optional",
+                "env": "TEST_ENUM",
                 "type": "ENUM",
                 "label": "enum",
                 "description": "enum case",
@@ -104,6 +105,7 @@
             },
             {
                 "key": "flags_with_optional",
+                "env": "TEST_FLAGS",
                 "type": "FLAGS",
                 "label": "flags",
                 "description": "flags case",
@@ -147,6 +149,7 @@
             },
             {
                 "key": "string_with_optional",
+                "env": "TEST_STRING",
                 "type": "STRING",
                 "label": "String",
                 "description": "string",
@@ -164,6 +167,7 @@
             },
             {
                 "key": "bool_with_optional",
+                "env": "TEST_BOOL",
                 "type": "BOOL",
                 "label": "bool",
                 "description": "true or false",
@@ -181,6 +185,7 @@
             },
             {
                 "key": "load_file_with_optional",
+                "env": "TEST_LOAD_FILE",
                 "type": "LOAD_FILE",
                 "label": "Load file",
                 "description": "Load file path",
@@ -199,6 +204,7 @@
             },
             {
                 "key": "save_file_with_optional",
+                "env": "TEST_SAVE_FILE",
                 "type": "SAVE_FILE",
                 "label": "Save file",
                 "description": "Save file path",
@@ -217,6 +223,7 @@
             },
             {
                 "key": "save_folder_with_optional",
+                "env": "TEST_SAVE_FOLDER",
                 "type": "SAVE_FOLDER",
                 "label": "Save folder",
                 "description": "Save folder path",
@@ -234,6 +241,7 @@
             },
             {
                 "key": "int_with_optional",
+                "env": "TEST_INT",
                 "type": "INT",
                 "label": "Integer",
                 "description": "Integer Description",
@@ -256,6 +264,7 @@
             },
             {
                 "key": "int_range_with_optional",
+                "env": "TEST_INT_RANGES",
                 "type": "INT_RANGES",
                 "label": "Integer Range",
                 "description": "Integer Range Description",
@@ -278,6 +287,7 @@
             },
             {
                 "key": "list_with_optional",
+                "env": "TEST_LIST",
                 "type": "LIST",
                 "label": "List",
                 "description": "List description",
