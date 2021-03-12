@@ -53,6 +53,7 @@ SOURCES += \
     vulkan.cpp \
     alert.cpp \
     widget_preset.cpp \
+    widget_setting.cpp \
     widget_setting_bool.cpp \
     widget_setting_enum.cpp \
     widget_setting_filesystem.cpp \
@@ -109,6 +110,7 @@ HEADERS += \
     vulkan.h \
     alert.h \
     widget_preset.h \
+    widget_setting.h \
     widget_setting_bool.h \
     widget_setting_enum.h \
     widget_setting_filesystem.h \
