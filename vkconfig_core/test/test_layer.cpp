@@ -107,6 +107,7 @@ TEST(test_layer, load_1_4_0_setting_enum_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("enum_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_ENUM, setting_meta->type);
     EXPECT_STREQ("enum", setting_meta->label.c_str());
     EXPECT_STREQ("enum case", setting_meta->description.c_str());
@@ -146,6 +147,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("enum_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_ENUM", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_ENUM, setting_meta->type);
     EXPECT_STREQ("enum", setting_meta->label.c_str());
     EXPECT_STREQ("enum case", setting_meta->description.c_str());
@@ -194,6 +196,7 @@ TEST(test_layer, load_1_4_0_setting_flags_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("flags_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_FLAGS, setting_meta->type);
     EXPECT_STREQ("flags", setting_meta->label.c_str());
     EXPECT_STREQ("flags case", setting_meta->description.c_str());
@@ -234,6 +237,7 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("flags_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_FLAGS", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_FLAGS, setting_meta->type);
     EXPECT_STREQ("flags", setting_meta->label.c_str());
     EXPECT_STREQ("flags case", setting_meta->description.c_str());
@@ -283,6 +287,7 @@ TEST(test_layer, load_1_4_0_setting_string_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("string_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_STRING, setting_meta->type);
     EXPECT_STREQ("String", setting_meta->label.c_str());
     EXPECT_STREQ("string", setting_meta->description.c_str());
@@ -303,6 +308,7 @@ TEST(test_layer, load_1_4_0_setting_string_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("string_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_STRING", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_STRING, setting_meta->type);
     EXPECT_STREQ("String", setting_meta->label.c_str());
     EXPECT_STREQ("string", setting_meta->description.c_str());
@@ -323,6 +329,7 @@ TEST(test_layer, load_1_4_0_setting_bool_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("bool_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_BOOL, setting_meta->type);
     EXPECT_STREQ("bool", setting_meta->label.c_str());
     EXPECT_STREQ("true or false", setting_meta->description.c_str());
@@ -343,6 +350,7 @@ TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("bool_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_BOOL", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_BOOL, setting_meta->type);
     EXPECT_STREQ("bool", setting_meta->label.c_str());
     EXPECT_STREQ("true or false", setting_meta->description.c_str());
@@ -363,6 +371,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("load_file_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->type);
     EXPECT_STREQ("Load file", setting_meta->label.c_str());
     EXPECT_STREQ("Load file path", setting_meta->description.c_str());
@@ -384,6 +393,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("load_file_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_LOAD_FILE", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->type);
     EXPECT_STREQ("Load file", setting_meta->label.c_str());
     EXPECT_STREQ("Load file path", setting_meta->description.c_str());
@@ -405,6 +415,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_file_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->type);
     EXPECT_STREQ("Save file", setting_meta->label.c_str());
     EXPECT_STREQ("Save file path", setting_meta->description.c_str());
@@ -426,6 +437,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_file_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_SAVE_FILE", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->type);
     EXPECT_STREQ("Save file", setting_meta->label.c_str());
     EXPECT_STREQ("Save file path", setting_meta->description.c_str());
@@ -447,6 +459,7 @@ TEST(test_layer, load_1_4_0_setting_save_folder_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_folder_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_SAVE_FOLDER, setting_meta->type);
     EXPECT_STREQ("Save folder", setting_meta->label.c_str());
     EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
@@ -467,6 +480,7 @@ TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_folder_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_SAVE_FOLDER", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_SAVE_FOLDER, setting_meta->type);
     EXPECT_STREQ("Save folder", setting_meta->label.c_str());
     EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
@@ -487,6 +501,7 @@ TEST(test_layer, load_1_4_0_setting_int_required_only) {
     ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("int_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_INT, setting_meta->type);
     EXPECT_STREQ("Integer", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
@@ -510,6 +525,7 @@ TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("int_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_INT", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_INT, setting_meta->type);
     EXPECT_STREQ("Integer", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
@@ -533,6 +549,7 @@ TEST(test_layer, load_1_4_0_setting_int_range_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("int_range_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_INT_RANGES, setting_meta->type);
     EXPECT_STREQ("Integer Range", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Range Description", setting_meta->description.c_str());
@@ -553,6 +570,7 @@ TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("int_range_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_INT_RANGES", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_INT_RANGES, setting_meta->type);
     EXPECT_STREQ("Integer Range", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Range Description", setting_meta->description.c_str());
@@ -573,6 +591,7 @@ TEST(test_layer, load_1_4_0_setting_list_required_only) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("list_required_only", setting_meta->key.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_LIST, setting_meta->type);
     EXPECT_STREQ("List", setting_meta->label.c_str());
     EXPECT_STREQ("List description", setting_meta->description.c_str());
@@ -598,6 +617,7 @@ TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("list_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_LIST", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_LIST, setting_meta->type);
     EXPECT_STREQ("List", setting_meta->label.c_str());
     EXPECT_STREQ("List description", setting_meta->description.c_str());
