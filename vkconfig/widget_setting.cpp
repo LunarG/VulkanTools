@@ -20,7 +20,7 @@
 
 #include "widget_setting.h"
 
-void EnableItem(QTreeWidgetItem *item, bool enable) {
+void EnableItem(QTreeWidgetItem* item, bool enable) {
     if (item == nullptr) return;
 
     if (enable) {
@@ -28,4 +28,12 @@ void EnableItem(QTreeWidgetItem *item, bool enable) {
     } else {
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
+}
+
+int HorizontalAdvance(const QFontMetrics& fm, const QString& string) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    return fm.horizontalAdvance(string);
+#else
+    return fm.width(string);
+#endif
 }

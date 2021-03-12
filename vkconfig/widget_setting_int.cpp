@@ -19,6 +19,7 @@
  */
 
 #include "widget_setting_int.h"
+#include "widget_setting.h"
 
 #include <QMessageBox>
 #include <QTimer>
@@ -46,7 +47,7 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, con
 
     this->field->setText(format("%d", setting_data.value).c_str());
     this->field->setFont(tree->font());
-    this->field->setToolTip(format("%d-%d", setting_meta.min_value, setting_meta.max_value).c_str());
+    this->field->setToolTip(format("[%d, %d]", setting_meta.min_value, setting_meta.max_value).c_str());
     this->field->setAlignment(Qt::AlignRight);
     this->field->show();
 
@@ -60,7 +61,7 @@ void WidgetSettingInt::Enable(bool enable) { this->field->setEnabled(enable); }
 void WidgetSettingInt::FieldEditedCheck() {
     if (setting_data.value < setting_meta.min_value || setting_data.value > setting_meta.max_value) {
         const std::string text =
-            format("'%s' is out of range. Use a value in the [%d-%d].", this->field->text().toStdString().c_str(),
+            format("'%s' is out of range. Use a value in the [%d, %d].", this->field->text().toStdString().c_str(),
                    this->setting_meta.min_value, this->setting_meta.max_value);
         const std::string into = format("Resetting to the setting default value: '%d'.", this->setting_meta.default_value);
 
@@ -79,7 +80,7 @@ void WidgetSettingInt::FieldEditedCheck() {
 
 void WidgetSettingInt::Resize() {
     const QFontMetrics fm = this->field->fontMetrics();
-    const int width = std::max(fm.horizontalAdvance(this->field->text()) + fm.horizontalAdvance("00"), MIN_FIELD_WIDTH);
+    const int width = std::max(HorizontalAdvance(fm, this->field->text() + "00"), MIN_FIELD_WIDTH);
 
     const QRect button_rect = QRect(this->resize.width() - width, 0, width, this->resize.height());
     this->field->setGeometry(button_rect);
