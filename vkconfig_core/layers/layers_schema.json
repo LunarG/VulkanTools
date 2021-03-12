@@ -139,6 +139,21 @@
                 "enum": [ "WINDOWS", "LINUX", "MACOS" ]
             }
         },
+        "range": {
+            "description": "A range of integer values",
+            "type": "object",
+            "items": {
+                "additionalProperties": false,
+                "properties": {
+                    "min": {
+                        "type": "number"
+                    },
+                    "max": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
         "flags": {
             "type": "array",
             "items": {
@@ -191,10 +206,6 @@
                 },
                 "status": {
                     "$ref": "#/definitions/status"
-                },
-                "editor_state": {
-                    "type": "string",
-                    "pattern": "^[0-9]"
                 },
                 "settings": {
                     "$ref": "#/definitions/preset_settings"
@@ -251,35 +262,6 @@
                             },
                             "value": {
                                 "type": "number"
-                            }
-                        }
-                    },
-                    {
-                        "type": "object",
-                        "required": [
-                            "key",
-                            "value"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "key": {
-                                "type": "string"
-                            },
-                            "value": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "required": [
-                                    "min",
-                                    "max"
-                                ],
-                                "properties": {
-                                    "min": {
-                                        "type": "number"
-                                    },
-                                    "max": {
-                                        "type": "number"
-                                    }
-                                }
                             }
                         }
                     },
@@ -490,6 +472,13 @@
                             },
                             "status": {
                                 "$ref": "#/definitions/status"
+                            },
+                            "range": {
+                                "$ref": "#/definitions/range"
+                            },
+                            "unit": {
+                                "description": "The unit of measurement",
+                                "type": "string"
                             }
                         }
                     },
@@ -609,25 +598,13 @@
                                 "description": "The unique identifier of a setting",
                                 "type": "string"
                             },
-                            "type": {
-                                "type": "string",
-                                "enum": [ "LIST" ]
-                            },
-                            "default": {
-                                "type": "array",
-                                "contains": {
-                                    "type": "string"
-                                }
-                            },
-                            "list": {
-                                "type": "array",
-                                "contains": {
-                                    "type": "string"
-                                }
-                            },
                             "env": {
                                 "description": "The environment variable that may be used to set this setting",
                                 "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "LIST" ]
                             },
                             "label": {
                                 "description": "The string used to identify the setting to the user",
@@ -641,11 +618,23 @@
                                 "description": "The URL to find more information about the setting",
                                 "type": "string"
                             },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            },
                             "platforms": {
                                 "$ref": "#/definitions/platforms"
                             },
-                            "status": {
-                                "$ref": "#/definitions/status"
+                            "list": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
+                            },
+                            "default": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
                             }
                         }
                     }
@@ -653,5 +642,5 @@
             }
         }
     }
-}
+    }
 
