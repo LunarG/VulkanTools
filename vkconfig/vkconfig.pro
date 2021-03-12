@@ -59,7 +59,7 @@ SOURCES += \
     widget_setting_filesystem.cpp \
     widget_setting_flags.cpp \
     widget_setting_int.cpp \
-    widget_setting_int_range.cpp \
+    widget_setting_frames.cpp \
     widget_setting_string.cpp \
     widget_setting_list.cpp \
     widget_setting_search.cpp \
@@ -116,7 +116,7 @@ HEADERS += \
     widget_setting_filesystem.h \
     widget_setting_flags.h \
     widget_setting_int.h \
-    widget_setting_int_range.h \
+    widget_setting_frames.h \
     widget_setting_string.h \
     widget_setting_list.h \
     widget_setting_search.h \

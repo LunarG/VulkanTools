@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_setting_int_range.h"
+#include "widget_setting_frames.h"
 
 #include "../vkconfig_core/util.h"
 
@@ -27,8 +27,8 @@
 
 #include <cassert>
 
-WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRanges& setting_meta,
-                                             SettingDataIntRanges& setting_data)
+WidgetSettingFrames::WidgetSettingFrames(QTreeWidgetItem* item, const SettingMetaFrames& setting_meta,
+                                         SettingDataFrames& setting_data)
     : setting_meta(setting_meta), setting_data(setting_data) {
     assert(item);
     assert(&setting_meta);
@@ -41,7 +41,7 @@ WidgetSettingIntRange::WidgetSettingIntRange(QTreeWidgetItem* item, const Settin
     connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
-void WidgetSettingIntRange::FieldEditedCheck() {
+void WidgetSettingFrames::FieldEditedCheck() {
     if (!IsUIntRanges(setting_data.value)) {
         const std::string text = format("'%s' is an invalid value. Use list of comma separated integer ranges. Example: '0-2,16'.",
                                         this->text().toStdString().c_str());
@@ -60,7 +60,7 @@ void WidgetSettingIntRange::FieldEditedCheck() {
     }
 }
 
-void WidgetSettingIntRange::itemEdited(const QString& value) {
+void WidgetSettingFrames::itemEdited(const QString& value) {
     this->setting_data.value = value.toStdString();
     QTimer::singleShot(1000, [this]() { FieldEditedCheck(); });
 

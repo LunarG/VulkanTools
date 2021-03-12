@@ -32,7 +32,7 @@ enum SettingType {  // Enum value can't be changed
     SETTING_BOOL_NUMERIC_DEPRECATED,  // Deprecated
     SETTING_ENUM,
     SETTING_FLAGS,
-    SETTING_INT_RANGES,
+    SETTING_FRAMES,
     SETTING_LIST,
 
     SETTING_FIRST = SETTING_STRING,

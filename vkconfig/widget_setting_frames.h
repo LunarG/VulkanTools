@@ -27,11 +27,11 @@
 #include <QTreeWidgetItem>
 #include <QLineEdit>
 
-class WidgetSettingIntRange : public QLineEdit {
+class WidgetSettingFrames : public QLineEdit {
     Q_OBJECT
 
    public:
-    WidgetSettingIntRange(QTreeWidgetItem* item, const SettingMetaIntRanges& setting_meta, SettingDataIntRanges& setting_data);
+    WidgetSettingFrames(QTreeWidgetItem* item, const SettingMetaFrames& setting_meta, SettingDataFrames& setting_data);
 
    public Q_SLOTS:
     void itemEdited(const QString& value);
@@ -41,9 +41,9 @@ class WidgetSettingIntRange : public QLineEdit {
     void itemChanged();
 
    private:
-    WidgetSettingIntRange(const WidgetSettingIntRange&) = delete;
-    WidgetSettingIntRange& operator=(const WidgetSettingIntRange&) = delete;
+    WidgetSettingFrames(const WidgetSettingFrames&) = delete;
+    WidgetSettingFrames& operator=(const WidgetSettingFrames&) = delete;
 
-    const SettingMetaIntRanges& setting_meta;
-    SettingDataIntRanges& setting_data;
+    const SettingMetaFrames& setting_meta;
+    SettingDataFrames& setting_data;
 };

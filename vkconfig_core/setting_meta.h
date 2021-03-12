@@ -88,9 +88,9 @@ struct SettingMetaBoolNumeric : public SettingMeta {
     bool default_value;
 };
 
-struct SettingMetaIntRanges : public SettingMetaString {
-    SettingMetaIntRanges(const std::string& key) : SettingMetaString(key, SETTING_INT_RANGES) {}
-    virtual ~SettingMetaIntRanges() {}
+struct SettingMetaFrames : public SettingMetaString {
+    SettingMetaFrames(const std::string& key) : SettingMetaString(key, SETTING_FRAMES) {}
+    virtual ~SettingMetaFrames() {}
 };
 
 struct SettingMetaFilesystem : public SettingMeta {
