@@ -75,6 +75,11 @@
                         "value": "./my_test.txt"
                     },
                     {
+                        "key": "save_folder_required_only",
+                        "type": "SAVE_FOLDER",
+                        "value": "./my_test"
+                    },
+                    {
                         "key": "save_folder_with_optional",
                         "type": "SAVE_FOLDER",
                         "value": "./my_test"

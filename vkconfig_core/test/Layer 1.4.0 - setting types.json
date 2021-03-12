@@ -209,6 +209,13 @@
                 "default": "./test.json"
             },
             {
+                "key": "save_folder_required_only",
+                "type": "SAVE_FOLDER",
+                "label": "Save folder",
+                "description": "Save folder path",
+                "default": "./test"
+            },
+            {
                 "key": "save_folder_with_optional",
                 "type": "SAVE_FOLDER",
                 "label": "Save folder",
@@ -219,6 +226,13 @@
                 "default": "./test"
             },
             {
+                "key": "int_required_only",
+                "type": "INT",
+                "label": "Integer",
+                "description": "Integer Description",
+                "default": 76
+            },
+            {
                 "key": "int_with_optional",
                 "type": "INT",
                 "label": "Integer",
@@ -226,7 +240,19 @@
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int",
                 "status": "BETA",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "default": 76
+                "default": 76,
+                "range": {
+                    "min": 75,
+                    "max": 82
+                },
+                "unit": "byte"
+            },
+            {
+                "key": "int_range_required_only",
+                "type": "INT_RANGES",
+                "label": "Integer Range",
+                "description": "Integer Range Description",
+                "default": "76-82"
             },
             {
                 "key": "int_range_with_optional",
@@ -237,6 +263,18 @@
                 "status": "BETA",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "default": "76-82"
+            },
+            {
+                "key": "list_required_only",
+                "type": "LIST",
+                "label": "List",
+                "description": "List description",
+                "list": [
+                    "stringA",
+                    "stringB",
+                    "stringC"
+                ],
+                "default": [ "stringB", "stringC" ]
             },
             {
                 "key": "list_with_optional",

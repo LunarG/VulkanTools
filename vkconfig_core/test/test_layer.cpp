@@ -33,7 +33,7 @@ TEST(test_layer, collect_settings) {
 
     SettingDataSet data = CollectDefaultSettingData(meta);
 
-    SettingDataString& data0 = static_cast<SettingDataString&>(*data.Get("key0"));
+    SettingDataString& data0 = *data.Get<SettingDataString>("key0");
     EXPECT_STREQ("value0", data0.value.c_str());
 }
 
@@ -88,13 +88,13 @@ TEST(test_layer, load_1_4_0_layer_preset) {
     EXPECT_STREQ("Description0", layer.presets[0].description.c_str());
     EXPECT_EQ(PLATFORM_ALL_BIT, layer.presets[0].platform_flags);
     EXPECT_EQ(STATUS_STABLE, layer.presets[0].status);
-    EXPECT_STREQ("A string0", static_cast<SettingDataString&>(*layer.presets[0].settings.Get("stringA")).value.c_str());
+    EXPECT_STREQ("A string0", layer.presets[0].settings.Get<SettingDataString>("stringA")->value.c_str());
 
     EXPECT_STREQ("Preset1", layer.presets[1].label.c_str());
     EXPECT_STREQ("Description1", layer.presets[1].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.presets[1].platform_flags);
     EXPECT_EQ(STATUS_BETA, layer.presets[1].status);
-    EXPECT_STREQ("A string1", static_cast<SettingDataString&>(*layer.presets[1].settings.Get("stringA")).value.c_str());
+    EXPECT_STREQ("A string1", layer.presets[1].settings.Get<SettingDataString>("stringA")->value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_enum_required_only) {
@@ -103,7 +103,7 @@ TEST(test_layer, load_1_4_0_setting_enum_required_only) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaEnum* setting_meta = dynamic_cast<SettingMetaEnum*>(layer.settings.Get("enum_required_only"));
+    SettingMetaEnum* setting_meta = layer.settings.Get<SettingMetaEnum>("enum_required_only");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("enum_required_only", setting_meta->key.c_str());
@@ -142,7 +142,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaEnum* setting_meta = dynamic_cast<SettingMetaEnum*>(layer.settings.Get("enum_with_optional"));
+    SettingMetaEnum* setting_meta = layer.settings.Get<SettingMetaEnum>("enum_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("enum_with_optional", setting_meta->key.c_str());
@@ -190,7 +190,7 @@ TEST(test_layer, load_1_4_0_setting_flags_required_only) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaFlags* setting_meta = dynamic_cast<SettingMetaFlags*>(layer.settings.Get("flags_required_only"));
+    SettingMetaFlags* setting_meta = layer.settings.Get<SettingMetaFlags>("flags_required_only");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("flags_required_only", setting_meta->key.c_str());
@@ -230,7 +230,7 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaFlags* setting_meta = dynamic_cast<SettingMetaFlags*>(layer.settings.Get("flags_with_optional"));
+    SettingMetaFlags* setting_meta = layer.settings.Get<SettingMetaFlags>("flags_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("flags_with_optional", setting_meta->key.c_str());
@@ -279,7 +279,7 @@ TEST(test_layer, load_1_4_0_setting_string_required_only) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaString* setting_meta = dynamic_cast<SettingMetaString*>(layer.settings.Get("string_required_only"));
+    SettingMetaString* setting_meta = layer.settings.Get<SettingMetaString>("string_required_only");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("string_required_only", setting_meta->key.c_str());
@@ -299,7 +299,7 @@ TEST(test_layer, load_1_4_0_setting_string_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaString* setting_meta = dynamic_cast<SettingMetaString*>(layer.settings.Get("string_with_optional"));
+    SettingMetaString* setting_meta = layer.settings.Get<SettingMetaString>("string_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("string_with_optional", setting_meta->key.c_str());
@@ -319,7 +319,7 @@ TEST(test_layer, load_1_4_0_setting_bool_required_only) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaBool* setting_meta = dynamic_cast<SettingMetaBool*>(layer.settings.Get("bool_required_only"));
+    SettingMetaBool* setting_meta = layer.settings.Get<SettingMetaBool>("bool_required_only");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("bool_required_only", setting_meta->key.c_str());
@@ -339,7 +339,7 @@ TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaBool* setting_meta = dynamic_cast<SettingMetaBool*>(layer.settings.Get("bool_with_optional"));
+    SettingMetaBool* setting_meta = layer.settings.Get<SettingMetaBool>("bool_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("bool_with_optional", setting_meta->key.c_str());
@@ -359,7 +359,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaFileLoad* setting_meta = dynamic_cast<SettingMetaFileLoad*>(layer.settings.Get("load_file_required_only"));
+    SettingMetaFileLoad* setting_meta = layer.settings.Get<SettingMetaFileLoad>("load_file_required_only");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("load_file_required_only", setting_meta->key.c_str());
@@ -380,7 +380,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaFileLoad* setting_meta = dynamic_cast<SettingMetaFileLoad*>(layer.settings.Get("load_file_with_optional"));
+    SettingMetaFileLoad* setting_meta = layer.settings.Get<SettingMetaFileLoad>("load_file_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("load_file_with_optional", setting_meta->key.c_str());
@@ -401,7 +401,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaFileSave* setting_meta = dynamic_cast<SettingMetaFileSave*>(layer.settings.Get("save_file_required_only"));
+    SettingMetaFileSave* setting_meta = layer.settings.Get<SettingMetaFileSave>("save_file_required_only");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_file_required_only", setting_meta->key.c_str());
@@ -422,7 +422,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaFileSave* setting_meta = dynamic_cast<SettingMetaFileSave*>(layer.settings.Get("save_file_with_optional"));
+    SettingMetaFileSave* setting_meta = layer.settings.Get<SettingMetaFileSave>("save_file_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_file_with_optional", setting_meta->key.c_str());
@@ -437,13 +437,33 @@ TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
     EXPECT_STREQ("./test.json", setting_meta->default_value.c_str());
 }
 
+TEST(test_layer, load_1_4_0_setting_save_folder_required_only) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!layer.settings.Empty());
+
+    SettingMetaFolderSave* setting_meta = layer.settings.Get<SettingMetaFolderSave>("save_folder_required_only");
+    ASSERT_TRUE(setting_meta);
+
+    EXPECT_STREQ("save_folder_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_SAVE_FOLDER, setting_meta->type);
+    EXPECT_STREQ("Save folder", setting_meta->label.c_str());
+    EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
+    EXPECT_TRUE(setting_meta->url.empty());
+    EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
+
+    EXPECT_STREQ("./test", setting_meta->default_value.c_str());
+}
+
 TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaFolderSave* setting_meta = dynamic_cast<SettingMetaFolderSave*>(layer.settings.Get("save_folder_with_optional"));
+    SettingMetaFolderSave* setting_meta = layer.settings.Get<SettingMetaFolderSave>("save_folder_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_folder_with_optional", setting_meta->key.c_str());
@@ -457,14 +477,37 @@ TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
     EXPECT_STREQ("./test", setting_meta->default_value.c_str());
 }
 
+TEST(test_layer, load_1_4_0_setting_int_required_only) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!layer.settings.Empty());
+
+    SettingMetaInt* setting_meta = layer.settings.Get<SettingMetaInt>("int_required_only");
+    ASSERT_TRUE(setting_meta != nullptr);
+
+    EXPECT_STREQ("int_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_INT, setting_meta->type);
+    EXPECT_STREQ("Integer", setting_meta->label.c_str());
+    EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
+    EXPECT_TRUE(setting_meta->url.empty());
+    EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
+    EXPECT_EQ(std::numeric_limits<int>::min(), setting_meta->min_value);
+    EXPECT_EQ(std::numeric_limits<int>::max(), setting_meta->max_value);
+    EXPECT_TRUE(setting_meta->unit.empty());
+
+    EXPECT_EQ(76, setting_meta->default_value);
+}
+
 TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaInt* setting_meta = dynamic_cast<SettingMetaInt*>(layer.settings.Get("int_with_optional"));
-    ASSERT_TRUE(setting_meta);
+    SettingMetaInt* setting_meta = layer.settings.Get<SettingMetaInt>("int_with_optional");
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("int_with_optional", setting_meta->key.c_str());
     EXPECT_EQ(SETTING_INT, setting_meta->type);
@@ -473,8 +516,31 @@ TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
+    EXPECT_EQ(75, setting_meta->min_value);
+    EXPECT_EQ(82, setting_meta->max_value);
+    EXPECT_STREQ("byte", setting_meta->unit.c_str());
 
     EXPECT_EQ(76, setting_meta->default_value);
+}
+
+TEST(test_layer, load_1_4_0_setting_int_range_required_only) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!layer.settings.Empty());
+
+    SettingMetaIntRanges* setting_meta = layer.settings.Get<SettingMetaIntRanges>("int_range_required_only");
+    ASSERT_TRUE(setting_meta);
+
+    EXPECT_STREQ("int_range_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_INT_RANGES, setting_meta->type);
+    EXPECT_STREQ("Integer Range", setting_meta->label.c_str());
+    EXPECT_STREQ("Integer Range Description", setting_meta->description.c_str());
+    EXPECT_TRUE(setting_meta->url.empty());
+    EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
+
+    EXPECT_STREQ("76-82", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
@@ -483,7 +549,7 @@ TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaIntRanges* setting_meta = dynamic_cast<SettingMetaIntRanges*>(layer.settings.Get("int_range_with_optional"));
+    SettingMetaIntRanges* setting_meta = layer.settings.Get<SettingMetaIntRanges>("int_range_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("int_range_with_optional", setting_meta->key.c_str());
@@ -497,13 +563,38 @@ TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
     EXPECT_STREQ("76-82", setting_meta->default_value.c_str());
 }
 
+TEST(test_layer, load_1_4_0_setting_list_required_only) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!layer.settings.Empty());
+
+    SettingMetaList* setting_meta = layer.settings.Get<SettingMetaList>("list_required_only");
+    ASSERT_TRUE(setting_meta);
+
+    EXPECT_STREQ("list_required_only", setting_meta->key.c_str());
+    EXPECT_EQ(SETTING_LIST, setting_meta->type);
+    EXPECT_STREQ("List", setting_meta->label.c_str());
+    EXPECT_STREQ("List description", setting_meta->description.c_str());
+    EXPECT_TRUE(setting_meta->url.empty());
+    EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
+
+    EXPECT_STREQ("stringA", setting_meta->list[0].c_str());
+    EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
+    EXPECT_STREQ("stringC", setting_meta->list[2].c_str());
+
+    EXPECT_STREQ("stringB", setting_meta->default_value[0].c_str());
+    EXPECT_STREQ("stringC", setting_meta->default_value[1].c_str());
+}
+
 TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaList* setting_meta = dynamic_cast<SettingMetaList*>(layer.settings.Get("list_with_optional"));
+    SettingMetaList* setting_meta = layer.settings.Get<SettingMetaList>("list_with_optional");
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("list_with_optional", setting_meta->key.c_str());
