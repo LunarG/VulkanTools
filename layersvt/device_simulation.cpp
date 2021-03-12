@@ -583,6 +583,9 @@ class PhysicalDeviceData {
     VkPhysicalDeviceVulkan11Properties physical_device_vulkan_1_1_properties_;
     VkPhysicalDeviceVulkan11Features physical_device_vulkan_1_1_features_;
 
+    // VK_KHR_8bit_storage structs
+    VkPhysicalDevice8BitStorageFeaturesKHR physical_device_8bit_storage_features_;
+
     // VK_KHR_16bit_storage structs
     VkPhysicalDevice16BitStorageFeaturesKHR physical_device_16bit_storage_features_;
 
@@ -617,6 +620,9 @@ class PhysicalDeviceData {
         // Vulkan 1.2 structs for summarizing core extension properties and features
         physical_device_vulkan_1_1_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES};
         physical_device_vulkan_1_1_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
+
+        // VK_KHR_8bit_storage structs
+        physical_device_8bit_storage_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES_KHR};
 
         // VK_KHR_16bit_storage structs
         physical_device_16bit_storage_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR};
@@ -669,6 +675,7 @@ class JsonLoader {
         kUnknown = 0,
         kDevsim100,
         kDevsim110,
+        kDevsim8BitStorageKHR,
         kDevsim16BitStorageKHR,
         kDevsimMaintenance2KHR,
         kDevsimMaintenance3KHR,
@@ -687,6 +694,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice8BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
@@ -1035,6 +1043,16 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsim8BitStorageKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_8BIT_STORAGE_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_8bit_storage, but VK_KHR_8bit_storage is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDevice8BitStorageFeaturesKHR", &pdd_.physical_device_8bit_storage_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsim16BitStorageKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1132,6 +1150,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsim100;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_1_0.json#") == 0) {
         schema_id = SchemaId::kDevsim110;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_8bit_storage_1.json#") == 0) {
+        schema_id = SchemaId::kDevsim8BitStorageKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_16bit_storage_1.json#") == 0) {
         schema_id = SchemaId::kDevsim16BitStorageKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json#") == 0) {
@@ -1403,6 +1423,17 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(sparseResidencyAliased);
     GET_VALUE(variableMultisampleRate);
     GET_VALUE(inheritedQueries);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice8BitStorageFeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevice16BitStorageFeaturesKHR)\n");
+    GET_VALUE_WARN(storageBuffer8BitAccess, WarnIfGreater);
+    GET_VALUE_WARN(uniformAndStorageBuffer8BitAccess, WarnIfGreater);
+    GET_VALUE_WARN(storagePushConstant8, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest) {
@@ -1776,6 +1807,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = psf->pNext;
             *psf = physicalDeviceData->physical_device_portability_subset_features_;
             psf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_8BIT_STORAGE_EXTENSION_NAME)) {
+            VkPhysicalDevice8BitStorageFeaturesKHR *ebsf = (VkPhysicalDevice8BitStorageFeaturesKHR *)place;
+            void *pNext = ebsf->pNext;
+            *ebsf = physicalDeviceData->physical_device_8bit_storage_features_;
+            ebsf->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
             VkPhysicalDevice16BitStorageFeaturesKHR *sbsf = (VkPhysicalDevice16BitStorageFeaturesKHR *)place;
@@ -2164,6 +2201,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                         VK_TRUE,
                         VK_TRUE,
                         VK_TRUE};
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_8BIT_STORAGE_EXTENSION_NAME)) {
+                    pdd.physical_device_8bit_storage_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_8bit_storage_features_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
