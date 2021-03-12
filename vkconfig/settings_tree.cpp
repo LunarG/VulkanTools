@@ -24,7 +24,7 @@
 
 #include "widget_setting.h"
 #include "widget_setting_int.h"
-#include "widget_setting_int_range.h"
+#include "widget_setting_frames.h"
 #include "widget_setting_bool.h"
 #include "widget_setting_enum.h"
 #include "widget_setting_string.h"
@@ -425,11 +425,11 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 }
             } break;
 
-            case SETTING_INT_RANGES: {
-                const SettingMetaIntRanges &meta = static_cast<const SettingMetaIntRanges &>(layer_setting_metas[setting_index]);
-                SettingDataIntRanges &data = *parameter.settings.Get<SettingDataIntRanges>(meta.key.c_str());
+            case SETTING_FRAMES: {
+                const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(layer_setting_metas[setting_index]);
+                SettingDataFrames &data = *parameter.settings.Get<SettingDataFrames>(meta.key.c_str());
 
-                WidgetSettingIntRange *widget = new WidgetSettingIntRange(item, meta, data);
+                WidgetSettingFrames *widget = new WidgetSettingFrames(item, meta, data);
                 QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                 item->addChild(place_holder);
                 _settings_tree->setItemWidget(place_holder, 0, widget);

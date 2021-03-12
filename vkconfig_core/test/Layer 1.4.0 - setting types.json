@@ -256,22 +256,22 @@
                 "unit": "byte"
             },
             {
-                "key": "int_range_required_only",
-                "type": "INT_RANGES",
-                "label": "Integer Range",
-                "description": "Integer Range Description",
-                "default": "76-82"
+                "key": "frames_required_only",
+                "type": "FRAMES",
+                "label": "Frames",
+                "description": "Frames Description",
+                "default": "76-82,75"
             },
             {
-                "key": "int_range_with_optional",
-                "env": "TEST_INT_RANGES",
-                "type": "INT_RANGES",
-                "label": "Integer Range",
-                "description": "Integer Range Description",
-                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_range",
+                "key": "frames_with_optional",
+                "env": "TEST_FRAMES",
+                "type": "FRAMES",
+                "label": "Frames",
+                "description": "Frames Description",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames",
                 "status": "BETA",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "default": "76-82"
+                "default": "76-82,75"
             },
             {
                 "key": "list_required_only",

@@ -179,7 +179,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     stream << ReplaceBuiltInVariable(static_cast<const SettingDataString&>(setting_data).value.c_str()).c_str();
                     break;
                 }
-                case SETTING_INT_RANGES:
+                case SETTING_FRAMES:
                 case SETTING_ENUM:
                 case SETTING_STRING: {
                     stream << static_cast<const SettingDataString&>(setting_data).value.c_str();

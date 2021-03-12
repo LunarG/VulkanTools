@@ -539,46 +539,46 @@ TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     EXPECT_EQ(76, setting_meta->default_value);
 }
 
-TEST(test_layer, load_1_4_0_setting_int_range_required_only) {
+TEST(test_layer, load_1_4_0_setting_frames_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaIntRanges* setting_meta = layer.settings.Get<SettingMetaIntRanges>("int_range_required_only");
+    SettingMetaFrames* setting_meta = layer.settings.Get<SettingMetaFrames>("frames_required_only");
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("int_range_required_only", setting_meta->key.c_str());
+    EXPECT_STREQ("frames_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
-    EXPECT_EQ(SETTING_INT_RANGES, setting_meta->type);
-    EXPECT_STREQ("Integer Range", setting_meta->label.c_str());
-    EXPECT_STREQ("Integer Range Description", setting_meta->description.c_str());
+    EXPECT_EQ(SETTING_FRAMES, setting_meta->type);
+    EXPECT_STREQ("Frames", setting_meta->label.c_str());
+    EXPECT_STREQ("Frames Description", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
-    EXPECT_STREQ("76-82", setting_meta->default_value.c_str());
+    EXPECT_STREQ("76-82,75", setting_meta->default_value.c_str());
 }
 
-TEST(test_layer, load_1_4_0_setting_int_range_with_optional) {
+TEST(test_layer, load_1_4_0_setting_frames_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
-    SettingMetaIntRanges* setting_meta = layer.settings.Get<SettingMetaIntRanges>("int_range_with_optional");
+    SettingMetaFrames* setting_meta = layer.settings.Get<SettingMetaFrames>("frames_with_optional");
     ASSERT_TRUE(setting_meta);
 
-    EXPECT_STREQ("int_range_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_INT_RANGES", setting_meta->env.c_str());
-    EXPECT_EQ(SETTING_INT_RANGES, setting_meta->type);
-    EXPECT_STREQ("Integer Range", setting_meta->label.c_str());
-    EXPECT_STREQ("Integer Range Description", setting_meta->description.c_str());
-    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_range", setting_meta->url.c_str());
+    EXPECT_STREQ("frames_with_optional", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_FRAMES", setting_meta->env.c_str());
+    EXPECT_EQ(SETTING_FRAMES, setting_meta->type);
+    EXPECT_STREQ("Frames", setting_meta->label.c_str());
+    EXPECT_STREQ("Frames Description", setting_meta->description.c_str());
+    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-    EXPECT_STREQ("76-82", setting_meta->default_value.c_str());
+    EXPECT_STREQ("76-82,75", setting_meta->default_value.c_str());
 }
 
 TEST(test_layer, load_1_4_0_setting_list_required_only) {

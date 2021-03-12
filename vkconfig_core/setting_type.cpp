@@ -25,6 +25,7 @@
 SettingType GetSettingType(const char* token) {
     if (SUPPORT_VKCONFIG_2_1_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;
     if (SUPPORT_VKCONFIG_2_2_0 && ToUpperCase(token) == "VUID_EXCLUDE") return SETTING_LIST;
+    if (SUPPORT_VKCONFIG_2_2_0 && ToUpperCase(token) == "INT_RANGES") return SETTING_FRAMES;
 
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
@@ -48,7 +49,7 @@ const char* GetSettingToken(SettingType type) {
         "BOOL_NUMERIC",  // SETTING_BOOL_NUMERIC_DEPRECATED
         "ENUM",          // SETTING_ENUM
         "FLAGS",         // SETTING_FLAGS
-        "INT_RANGES",    // SETTING_INT_RANGES
+        "FRAMES",        // SETTING_FRAMES
         "LIST"           // SETTING_LIST
     };
     static_assert(countof(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");

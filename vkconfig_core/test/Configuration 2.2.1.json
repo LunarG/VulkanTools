@@ -90,9 +90,9 @@
                         "value": 82
                     },
                     {
-                        "key": "int_range_with_optional",
-                        "type": "INT_RANGES",
-                        "value": "79-82"
+                        "key": "frames_with_optional",
+                        "type": "FRAMES",
+                        "value": "79-82,75"
                     },
                     {
                         "key": "list_with_optional",
