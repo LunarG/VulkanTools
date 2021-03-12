@@ -22,6 +22,7 @@
 #include "configurator.h"
 #include "settings_tree.h"
 
+#include "widget_setting.h"
 #include "widget_setting_int.h"
 #include "widget_setting_int_range.h"
 #include "widget_setting_bool.h"
@@ -43,8 +44,6 @@
 #include <QApplication>
 
 #include <cassert>
-
-static const int ITEM_HEIGHT = 24;
 
 SettingsTreeManager::SettingsTreeManager()
     : _settings_tree(nullptr),

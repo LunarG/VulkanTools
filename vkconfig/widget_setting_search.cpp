@@ -19,11 +19,10 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../vkconfig_core/util.h"
-
 #include "widget_setting_search.h"
+#include "widget_setting.h"
 
-static const int MIN_BUTTON_SIZE = 24;
+#include "../vkconfig_core/util.h"
 
 WidgetSettingSearch::WidgetSettingSearch(const std::vector<std::string> &layer_vuids,
                                          const std::vector<std::string> &selected_vuids)

@@ -21,12 +21,11 @@
  */
 
 #include "widget_setting_filesystem.h"
+#include "widget_setting.h"
 
 #include "../vkconfig_core/path.h"
 
 #include <cassert>
-
-static const int MIN_BUTTON_SIZE = 24;
 
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const SettingMetaFilesystem& setting_meta,
                                                  SettingDataString& setting_data)

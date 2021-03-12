@@ -24,6 +24,9 @@
 #include <QFontMetrics>
 #include <QString>
 
+static const int MIN_BUTTON_SIZE = 24;
+static const int ITEM_HEIGHT = 24;
+
 void EnableItem(QTreeWidgetItem* item, bool enable);
 
 int HorizontalAdvance(const QFontMetrics& fm, const QString& string);

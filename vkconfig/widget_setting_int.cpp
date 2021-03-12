@@ -28,7 +28,6 @@
 #include <cassert>
 
 static const int MIN_FIELD_WIDTH = 48;
-static const int ITEM_HEIGHT = 24;
 
 WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& setting_meta,
                                    SettingDataInt& setting_data)
