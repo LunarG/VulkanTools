@@ -155,8 +155,15 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
                 _gpu_assisted_box->addChild(_gpu_assisted_reserve_box);
             }
 
-            if (settings_meta.Get("gpuav_buffer_oob") != nullptr) {
-                _gpu_assisted_oob_box = CreateSettingWidgetBool(_gpu_assisted_box, "gpuav_buffer_oob");
+            const SettingMetaBool *meta_gpuav_buffer_oob = settings_meta.Get<SettingMetaBool>("gpuav_buffer_oob");
+            if (meta_gpuav_buffer_oob != nullptr) {
+                SettingDataBool *data = settings_data.Get<SettingDataBool>(meta_gpuav_buffer_oob->key.c_str());
+
+                _gpu_assisted_oob_box = new QTreeWidgetItem();
+                _gpu_assisted_oob_box->setText(0, meta_gpuav_buffer_oob->label.c_str());
+                _gpu_assisted_oob_box->setToolTip(0, meta_gpuav_buffer_oob->description.c_str());
+                _gpu_assisted_oob_box->setCheckState(0, data->value ? Qt::Checked : Qt::Unchecked);
+                _gpu_assisted_box->addChild(_gpu_assisted_oob_box);
             }
         }
 
@@ -548,25 +555,6 @@ bool SettingsValidationAreas::HasEnable(const char *token) const {
 
 bool SettingsValidationAreas::HasDisable(const char *token) const {
     return IsStringFound(static_cast<const SettingDataFlags *>(settings_data.Get("disables"))->value, token);
-}
-
-QTreeWidgetItem *SettingsValidationAreas::CreateSettingWidgetBool(QTreeWidgetItem *parent, const char *key) {
-    const SettingMetaBool *setting_meta = static_cast<const SettingMetaBool *>(settings_meta.Get(key));
-    SettingDataBool *setting_data = static_cast<SettingDataBool *>(settings_data.Get(key));
-
-    QTreeWidgetItem *child = nullptr;
-
-    if (setting_data && setting_meta) {
-        assert(setting_meta->type == SETTING_BOOL);
-
-        child = new QTreeWidgetItem();
-        child->setText(0, setting_meta->label.c_str());
-        child->setToolTip(0, setting_meta->description.c_str());
-        child->setCheckState(0, setting_data->value ? Qt::Checked : Qt::Unchecked);
-        parent->addChild(child);
-    }
-
-    return child;
 }
 
 void SettingsValidationAreas::StoreBoolSetting(QTreeWidgetItem *item, const char *key) {

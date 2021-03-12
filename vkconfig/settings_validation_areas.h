@@ -80,8 +80,6 @@ class SettingsValidationAreas : public QObject {
     bool HasEnable(const char *token) const;
     bool HasDisable(const char *token) const;
 
-    QTreeWidgetItem *CreateSettingWidgetBool(QTreeWidgetItem *parent, const char *key);
-
     void StoreBoolSetting(QTreeWidgetItem *setting_data, const char *key);
 
     const Version version;
