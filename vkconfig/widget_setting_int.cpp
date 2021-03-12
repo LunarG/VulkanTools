@@ -59,7 +59,7 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, con
 void WidgetSettingInt::Enable(bool enable) { this->field->setEnabled(enable); }
 
 void WidgetSettingInt::FieldEditedCheck() {
-    if (setting_data.value < setting_meta.min_value || setting_data.value > setting_meta.max_value) {
+    if (this->setting_data.value < setting_meta.min_value || this->setting_data.value > setting_meta.max_value) {
         const std::string text =
             format("'%s' is out of range. Use a value in the [%d, %d].", this->field->text().toStdString().c_str(),
                    this->setting_meta.min_value, this->setting_meta.max_value);
@@ -67,6 +67,7 @@ void WidgetSettingInt::FieldEditedCheck() {
 
         this->setting_data.value = this->setting_meta.default_value;
         this->field->setText(format("%d", this->setting_data.value).c_str());
+        this->Resize();
 
         QMessageBox alert;
         alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
@@ -110,8 +111,8 @@ void WidgetSettingInt::OnTextEdited(const QString& value) {
         this->setting_data.value = std::atoi(value.toStdString().c_str());
     }
 
-    QTimer::singleShot(1000, [this]() { FieldEditedCheck(); });
     this->Resize();
+    QTimer::singleShot(1000, [this]() { FieldEditedCheck(); });
 
     emit itemChanged();
 }
