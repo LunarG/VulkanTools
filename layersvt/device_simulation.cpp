@@ -592,6 +592,9 @@ class PhysicalDeviceData {
     // VK_KHR_buffer_device_address structs
     VkPhysicalDeviceBufferDeviceAddressFeaturesKHR physical_device_buffer_device_address_features_;
 
+    // VK_KHR_depth_stencil_resolve structs
+    VkPhysicalDeviceDepthStencilResolvePropertiesKHR physical_device_depth_stencil_resolve_properties_;
+
     // VK_KHR_maintenance2 structs
     VkPhysicalDevicePointClippingPropertiesKHR physical_device_point_clipping_properties_;
 
@@ -632,6 +635,10 @@ class PhysicalDeviceData {
 
         // VK_KHR_buffer_device_address structs
         physical_device_buffer_device_address_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_KHR};
+
+        // VK_KHR_depth_stencil_resolve structs
+        physical_device_depth_stencil_resolve_properties_ = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES_KHR};
 
         // VK_KHR_maintenance2 structs
         physical_device_point_clipping_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR};
@@ -684,6 +691,7 @@ class JsonLoader {
         kDevsim8BitStorageKHR,
         kDevsim16BitStorageKHR,
         kDevsimBufferDeviceAddressKHR,
+        kDevsimDepthStencilResolveKHR,
         kDevsimMaintenance2KHR,
         kDevsimMaintenance3KHR,
         kDevsimMultiviewKHR,
@@ -694,6 +702,7 @@ class JsonLoader {
 
     SchemaId IdentifySchema(const Json::Value &value);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceProperties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceDepthStencilResolveProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMaintenance3PropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePointClippingPropertiesKHR *dest);
@@ -1082,6 +1091,18 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimDepthStencilResolveKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_depth_stencil_resolve, but "
+                    "VK_KHR_depth_stencil_resolve is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceDepthStencilResolvePropertiesKHR",
+                     &pdd_.physical_device_depth_stencil_resolve_properties_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimMaintenance2KHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1175,6 +1196,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsim16BitStorageKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_buffer_device_address_1.json#") == 0) {
         schema_id = SchemaId::kDevsimBufferDeviceAddressKHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_depth_stencil_resolve_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimDepthStencilResolveKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json#") == 0) {
         schema_id = SchemaId::kDevsimMaintenance2KHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance3_1.json#") == 0) {
@@ -1218,6 +1241,18 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_ARRAY(pipelineCacheUUID);  // size == VK_UUID_SIZE
     GET_VALUE(limits);
     GET_VALUE(sparseProperties);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceDepthStencilResolveProperties *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceDepthStencilResolveProperties)\n");
+    GET_VALUE(supportedDepthResolveModes);
+    GET_VALUE(supportedStencilResolveModes);
+    GET_VALUE_WARN(independentResolveNone, WarnIfGreater);
+    GET_VALUE_WARN(independentResolve, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMaintenance3PropertiesKHR *dest) {
@@ -1857,6 +1892,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = bdaf->pNext;
             *bdaf = physicalDeviceData->physical_device_buffer_device_address_features_;
             bdaf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME)) {
+            VkPhysicalDeviceDepthStencilResolvePropertiesKHR *dsrp = (VkPhysicalDeviceDepthStencilResolvePropertiesKHR *)place;
+            void *pNext = dsrp->pNext;
+            *dsrp = physicalDeviceData->physical_device_depth_stencil_resolve_properties_;
+            dsrp->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {
             VkPhysicalDevicePointClippingPropertiesKHR *pcp = (VkPhysicalDevicePointClippingPropertiesKHR *)place;
@@ -2257,6 +2298,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_buffer_device_address_features_.pNext = feature_chain.pNext;
 
                     feature_chain.pNext = &(pdd.physical_device_buffer_device_address_features_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME)) {
+                    pdd.physical_device_depth_stencil_resolve_properties_.pNext = property_chain.pNext;
+
+                    property_chain.pNext = &(pdd.physical_device_depth_stencil_resolve_properties_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {

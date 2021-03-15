@@ -99,6 +99,7 @@ JSON file formats consumed by the DevSim layer are specified by one of the JSON 
 | VK_KHR_8bit_storage | https://schema.khronos.org/vulkan/devsim_VK_KHR_8bit_storage_1.json# |
 | VK_KHR_16bit_storage | https://schema.khronos.org/vulkan/devsim_VK_KHR_16bit_storage_1.json# |
 | VK_KHR_buffer_device_address | https://schema.khronos.org/vulkan/devsim_VK_KHR_buffer_device_address_1.json# |
+| VK_KHR_depth_stencil_resolve | https://schema.khronos.org/vulkan/devsim_VK_KHR_depth_stencil_resolve_1.json# |
 | VK_KHR_maintenance2 | https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json# |
 | VK_KHR_maintenance3 | https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance3_1.json# |
 | VK_KHR_multiview | https://schema.khronos.org/vulkan/devsim_VK_KHR_multiview_1.json# |
