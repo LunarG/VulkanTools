@@ -615,6 +615,9 @@ class PhysicalDeviceData {
     // VK_KHR_sampler_ycbcr_conversion structs
     VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR physical_device_sampler_ycbcr_conversion_features_;
 
+    // VK_KHR_separate_depth_stencil_layouts structs
+    VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR physical_device_separate_depth_stencil_layouts_features_;
+
     // VK_KHR_variable_pointers structs
     VkPhysicalDeviceVariablePointersFeaturesKHR physical_device_variable_pointers_features_;
 
@@ -664,6 +667,10 @@ class PhysicalDeviceData {
         physical_device_sampler_ycbcr_conversion_features_ = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES_KHR};
 
+        // VK_KHR_separate_depth_stencil_layouts structs
+        physical_device_separate_depth_stencil_layouts_features_ = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES_KHR};
+
         // VK_KHR_variable_pointers structs
         physical_device_variable_pointers_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES_KHR};
     }
@@ -704,6 +711,7 @@ class JsonLoader {
         kDevsimMultiviewKHR,
         kDevsimPortabilitySubsetKHR,
         kDevsimSamplerYcbcrConversionKHR,
+        kDevsimSeparateDepthStencilLayoutsKHR,
         kDevsimVariablePointersKHR
     };
 
@@ -724,6 +732,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVariablePointersFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
@@ -1179,6 +1188,18 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimSeparateDepthStencilLayoutsKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_separate_depth_stencil_layouts, but "
+                    "VK_KHR_separate_depth_stencil_layouts is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR",
+                     &pdd_.physical_device_separate_depth_stencil_layouts_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimVariablePointersKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1231,6 +1252,9 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsimPortabilitySubsetKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_sampler_ycbcr_conversion_1.json#") == 0) {
         schema_id = SchemaId::kDevsimSamplerYcbcrConversionKHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_separate_depth_stencil_layouts_1.json#") ==
+               0) {
+        schema_id = SchemaId::kDevsimSeparateDepthStencilLayoutsKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_variable_pointers_1.json#") == 0) {
         schema_id = SchemaId::kDevsimVariablePointersKHR;
     }
@@ -1587,6 +1611,16 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR)\n");
     GET_VALUE_WARN(samplerYcbcrConversion, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name,
+                          VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR)\n");
+    GET_VALUE_WARN(separateDepthStencilLayouts, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVariablePointersFeaturesKHR *dest) {
@@ -1965,6 +1999,13 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = sycf->pNext;
             *sycf = physicalDeviceData->physical_device_sampler_ycbcr_conversion_features_;
             sycf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
+            VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *sdslf =
+                (VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *)place;
+            void *pNext = sdslf->pNext;
+            *sdslf = physicalDeviceData->physical_device_separate_depth_stencil_layouts_features_;
+            sdslf->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
             VkPhysicalDeviceVariablePointersFeaturesKHR *vpf = (VkPhysicalDeviceVariablePointersFeaturesKHR *)place;
@@ -2343,6 +2384,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     property_chain.pNext = &(pdd.physical_device_depth_stencil_resolve_properties_);
                 }
 
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
+                    pdd.physical_device_imageless_framebuffer_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_imageless_framebuffer_features_);
+                }
+
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {
                     pdd.physical_device_point_clipping_properties_.pNext = property_chain.pNext;
 
@@ -2369,6 +2416,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_sampler_ycbcr_conversion_features_.pNext = feature_chain.pNext;
 
                     feature_chain.pNext = &(pdd.physical_device_sampler_ycbcr_conversion_features_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
+                    pdd.physical_device_separate_depth_stencil_layouts_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_separate_depth_stencil_layouts_features_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
