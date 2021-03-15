@@ -595,6 +595,9 @@ class PhysicalDeviceData {
     // VK_KHR_depth_stencil_resolve structs
     VkPhysicalDeviceDepthStencilResolvePropertiesKHR physical_device_depth_stencil_resolve_properties_;
 
+    // VK_KHR_imageless_framebuffer structs
+    VkPhysicalDeviceImagelessFramebufferFeaturesKHR physical_device_imageless_framebuffer_features_;
+
     // VK_KHR_maintenance2 structs
     VkPhysicalDevicePointClippingPropertiesKHR physical_device_point_clipping_properties_;
 
@@ -639,6 +642,9 @@ class PhysicalDeviceData {
         // VK_KHR_depth_stencil_resolve structs
         physical_device_depth_stencil_resolve_properties_ = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES_KHR};
+
+        // VK_KHR_imageless_framebuffer structs
+        physical_device_imageless_framebuffer_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES_KHR};
 
         // VK_KHR_maintenance2 structs
         physical_device_point_clipping_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR};
@@ -692,6 +698,7 @@ class JsonLoader {
         kDevsim16BitStorageKHR,
         kDevsimBufferDeviceAddressKHR,
         kDevsimDepthStencilResolveKHR,
+        kDevsimImagelessFramebufferKHR,
         kDevsimMaintenance2KHR,
         kDevsimMaintenance3KHR,
         kDevsimMultiviewKHR,
@@ -713,6 +720,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice8BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceBufferDeviceAddressFeaturesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceImagelessFramebufferFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR *dest);
@@ -1103,6 +1111,18 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimImagelessFramebufferKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_imageless_framebuffer, but "
+                    "VK_KHR_imageless_framebuffer is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceImagelessFramebufferFeaturesKHR",
+                     &pdd_.physical_device_imageless_framebuffer_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimMaintenance2KHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1198,6 +1218,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsimBufferDeviceAddressKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_depth_stencil_resolve_1.json#") == 0) {
         schema_id = SchemaId::kDevsimDepthStencilResolveKHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_imageless_framebuffer_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimImagelessFramebufferKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json#") == 0) {
         schema_id = SchemaId::kDevsimMaintenance2KHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance3_1.json#") == 0) {
@@ -1513,6 +1535,15 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE_WARN(bufferDeviceAddress, WarnIfGreater);
     GET_VALUE_WARN(bufferDeviceAddressCaptureReplay, WarnIfGreater);
     GET_VALUE_WARN(bufferDeviceAddressMultiDevice, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceImagelessFramebufferFeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceImagelessFramebufferFeaturesKHR)\n");
+    GET_VALUE_WARN(imagelessFramebuffer, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest) {
@@ -1898,6 +1929,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = dsrp->pNext;
             *dsrp = physicalDeviceData->physical_device_depth_stencil_resolve_properties_;
             dsrp->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
+            VkPhysicalDeviceImagelessFramebufferFeaturesKHR *iff = (VkPhysicalDeviceImagelessFramebufferFeaturesKHR *)place;
+            void *pNext = iff->pNext;
+            *iff = physicalDeviceData->physical_device_imageless_framebuffer_features_;
+            iff->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {
             VkPhysicalDevicePointClippingPropertiesKHR *pcp = (VkPhysicalDevicePointClippingPropertiesKHR *)place;
