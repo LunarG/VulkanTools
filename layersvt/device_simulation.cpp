@@ -621,6 +621,9 @@ class PhysicalDeviceData {
     // VK_KHR_shader_atomic_int64 structs
     VkPhysicalDeviceShaderAtomicInt64FeaturesKHR physical_device_shader_atomic_int64_features_;
 
+    // VK_KHR_shader_float16_int8 structs
+    VkPhysicalDeviceShaderFloat16Int8FeaturesKHR physical_device_shader_float16_int8_features_;
+
     // VK_KHR_variable_pointers structs
     VkPhysicalDeviceVariablePointersFeaturesKHR physical_device_variable_pointers_features_;
 
@@ -677,6 +680,9 @@ class PhysicalDeviceData {
         // VK_KHR_shader_atomic_int64 structs
         physical_device_shader_atomic_int64_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES_KHR};
 
+        // VK_KHR_shader_float16_int8 structs
+        physical_device_shader_float16_int8_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES_KHR};
+
         // VK_KHR_variable_pointers structs
         physical_device_variable_pointers_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES_KHR};
     }
@@ -719,6 +725,7 @@ class JsonLoader {
         kDevsimSamplerYcbcrConversionKHR,
         kDevsimSeparateDepthStencilLayoutsKHR,
         kDevsimShaderAtomicInt64KHR,
+        kDevsimShaderFloat16Int8KHR,
         kDevsimVariablePointersKHR
     };
 
@@ -741,6 +748,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderAtomicInt64FeaturesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderFloat16Int8FeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVariablePointersFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
@@ -1219,6 +1227,17 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimShaderFloat16Int8KHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_shader_float16_int8, but "
+                    "VK_KHR_shader_float16_int8 is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceShaderFloat16Int8FeaturesKHR", &pdd_.physical_device_shader_float16_int8_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimVariablePointersKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1276,6 +1295,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsimSeparateDepthStencilLayoutsKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_shader_atomic_int64_1.json#") == 0) {
         schema_id = SchemaId::kDevsimShaderAtomicInt64KHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_shader_float16_int8_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimShaderFloat16Int8KHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_variable_pointers_1.json#") == 0) {
         schema_id = SchemaId::kDevsimVariablePointersKHR;
     }
@@ -1652,6 +1673,16 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceShaderAtomicInt64FeaturesKHR)\n");
     GET_VALUE_WARN(shaderBufferInt64Atomics, WarnIfGreater);
     GET_VALUE_WARN(shaderSharedInt64Atomics, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderFloat16Int8FeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceShaderFloat16Int8FeaturesKHR)\n");
+    GET_VALUE_WARN(shaderFloat16, WarnIfGreater);
+    GET_VALUE_WARN(shaderInt8, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVariablePointersFeaturesKHR *dest) {
@@ -2043,6 +2074,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = saisf->pNext;
             *saisf = physicalDeviceData->physical_device_shader_atomic_int64_features_;
             saisf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME)) {
+            VkPhysicalDeviceShaderFloat16Int8FeaturesKHR *sfsief = (VkPhysicalDeviceShaderFloat16Int8FeaturesKHR *)place;
+            void *pNext = sfsief->pNext;
+            *sfsief = physicalDeviceData->physical_device_shader_float16_int8_features_;
+            sfsief->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
             VkPhysicalDeviceVariablePointersFeaturesKHR *vpf = (VkPhysicalDeviceVariablePointersFeaturesKHR *)place;
@@ -2465,6 +2502,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_shader_atomic_int64_features_.pNext = feature_chain.pNext;
 
                     feature_chain.pNext = &(pdd.physical_device_shader_atomic_int64_features_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME)) {
+                    pdd.physical_device_shader_float16_int8_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_shader_float16_int8_features_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
