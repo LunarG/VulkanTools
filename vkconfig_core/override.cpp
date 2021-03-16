@@ -203,8 +203,8 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     for (std::size_t i = 0, n = setting_object.value.size(); i < n; ++i) {
                         if (!setting_object.enabled[i]) continue;
 
+                        if (i != 0) stream << ",";
                         stream << setting_object.value[i].c_str();
-                        if (i < n - 1) stream << ",";
                     }
 
                     break;
