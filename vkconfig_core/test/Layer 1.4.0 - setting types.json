@@ -296,7 +296,8 @@
                 "list": [
                     "stringA",
                     "stringB",
-                    "stringC"
+                    "stringC",
+                    "stringD"
                 ],
                 "default": [
                     {
@@ -306,6 +307,10 @@
                     {
                         "key": "stringC",
                         "enabled": false
+                    },
+                    {
+                        "key": "stringD",
+                        "enabled": true
                     }
                 ]
             },
@@ -322,7 +327,8 @@
                 "list": [
                     "stringA",
                     "stringB",
-                    "stringC"
+                    "stringC",
+                    "stringD"
                 ],
                 "default": [
                     {
@@ -332,6 +338,10 @@
                     {
                         "key": "stringC",
                         "enabled": false
+                    },
+                    {
+                        "key": "stringD",
+                        "enabled": true
                     }
                 ]
             }

@@ -245,21 +245,18 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                 }
                 case SETTING_LIST: {
                     SettingDataList& data = static_cast<SettingDataList&>(setting_data);
+                    data.value.clear();
+                    data.enabled.clear();
 
                     const QJsonArray& values = ReadArray(json_setting_object, "value");
                     for (int i = 0, n = values.size(); i < n; ++i) {
                         if (values[i].isObject()) {
                             const QJsonObject& object = values[i].toObject();
-                            const std::string key = ReadStringValue(object, "key");
-                            if (!IsStringFound(data.value, key)) continue;
 
                             data.value.push_back(ReadStringValue(object, "key"));
                             data.enabled.push_back(ReadBoolValue(object, "enabled"));
                         } else {
-                            const std::string key = values[i].toString().toStdString();
-                            if (!IsStringFound(data.value, key)) continue;
-
-                            data.value.push_back(key);
+                            data.value.push_back(values[i].toString().toStdString());
                             data.enabled.push_back(true);
                         }
                     }
