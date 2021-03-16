@@ -238,8 +238,16 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     break;
                 }
                 case SETTING_LIST: {
-                    static_cast<SettingMetaList&>(setting_meta).list = ReadStringArray(json_setting, "list");
-                    static_cast<SettingMetaList&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
+                    SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
+
+                    meta.list = ReadStringArray(json_setting, "list");
+
+                    const QJsonArray& json_default = ReadArray(json_setting, "default");
+                    for (int i = 0, n = json_default.size(); i < n; ++i) {
+                        const QJsonObject& json_object = json_default[i].toObject();
+                        meta.default_value.push_back(ReadStringValue(json_object, "key"));
+                        meta.default_enabled.push_back(ReadBoolValue(json_object, "enabled"));
+                    }
                     break;
                 }
                 default: {
@@ -295,9 +303,19 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
                         break;
                     }
-                    case SETTING_LIST:
+                    case SETTING_LIST: {
+                        SettingDataList& list = static_cast<SettingDataList&>(setting_data);
+
+                        const QJsonArray& array = ReadArray(json_preset_object, "value");
+                        for (int i = 0, n = array.size(); i < n; ++i) {
+                            const QJsonObject& object = array[i].toObject();
+                            list.value.push_back(ReadStringValue(object, "key"));
+                            list.enabled.push_back(ReadBoolValue(object, "enabled"));
+                        }
+                        break;
+                    }
                     case SETTING_FLAGS: {
-                        static_cast<SettingDataVector&>(setting_data).value = ReadStringArray(json_setting_object, "value");
+                        static_cast<SettingDataFlags&>(setting_data).value = ReadStringArray(json_setting_object, "value");
                         break;
                     }
                     default: {
@@ -373,6 +391,7 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
         case SETTING_LIST: {
             const SettingMetaList& meta_object = static_cast<const SettingMetaList&>(setting_meta);
             static_cast<SettingDataList&>(setting_data).value = meta_object.default_value;
+            static_cast<SettingDataList&>(setting_data).enabled = meta_object.default_enabled;
             break;
         }
         default: {

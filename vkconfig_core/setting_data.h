@@ -113,25 +113,25 @@ struct SettingDataFrames : public SettingDataString {
     virtual ~SettingDataFrames() {}
 };
 
-struct SettingDataVector : public SettingData {
-    std::vector<std::string> value;
+struct SettingDataList : public SettingData {
+    SettingDataList(const std::string& key) : SettingData(key, SETTING_LIST) {}
+    virtual ~SettingDataList() {}
 
-   protected:
-    SettingDataVector(const std::string& key, const SettingType type) : SettingData(key, type) {}
-    virtual ~SettingDataVector() {}
+    std::vector<std::string> value;
+    std::vector<bool> enabled;
 
     virtual bool Equal(const SettingData& other) const;
     virtual SettingData& Assign(const SettingData& other);
 };
 
-struct SettingDataList : public SettingDataVector {
-    SettingDataList(const std::string& key) : SettingDataVector(key, SETTING_LIST) {}
-    virtual ~SettingDataList() {}
-};
-
-struct SettingDataFlags : public SettingDataVector {
-    SettingDataFlags(const std::string& key) : SettingDataVector(key, SETTING_FLAGS) {}
+struct SettingDataFlags : public SettingData {
+    SettingDataFlags(const std::string& key) : SettingData(key, SETTING_FLAGS) {}
     virtual ~SettingDataFlags() {}
+
+    std::vector<std::string> value;
+
+    virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other);
 };
 
 typedef SettingSet<SettingData> SettingDataSet;

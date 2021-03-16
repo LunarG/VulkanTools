@@ -76,10 +76,34 @@ SettingData& SettingDataString::Assign(const SettingData& other) {
     return *this;
 }
 
-bool SettingDataVector::Equal(const SettingData& other) const {
+bool SettingDataList::Equal(const SettingData& other) const {
     if (!SettingData::Equal(other)) return false;
 
-    const SettingDataVector& data = static_cast<const SettingDataVector&>(other);
+    const SettingDataList& data = static_cast<const SettingDataList&>(other);
+
+    if (this->value.size() != data.value.size()) return false;
+
+    for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+        if (std::find(data.value.begin(), data.value.end(), this->value[i]) == data.value.end()) return false;
+    }
+
+    return true;
+}
+
+SettingData& SettingDataList::Assign(const SettingData& other) {
+    assert(this->type == other.type);
+
+    const SettingDataList& data = static_cast<const SettingDataList&>(other);
+
+    this->value = data.value;
+    this->enabled = data.enabled;
+    return *this;
+}
+
+bool SettingDataFlags::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    const SettingDataFlags& data = static_cast<const SettingDataFlags&>(other);
 
     if (this->value.size() != data.value.size()) return false;
 
@@ -90,9 +114,9 @@ bool SettingDataVector::Equal(const SettingData& other) const {
     return true;
 }
 
-SettingData& SettingDataVector::Assign(const SettingData& other) {
+SettingData& SettingDataFlags::Assign(const SettingData& other) {
     assert(this->type == other.type);
 
-    this->value = static_cast<const SettingDataVector&>(other).value;
+    this->value = static_cast<const SettingDataFlags&>(other).value;
     return *this;
 }

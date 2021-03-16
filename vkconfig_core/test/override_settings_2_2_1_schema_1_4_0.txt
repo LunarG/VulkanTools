@@ -18,5 +18,5 @@ lunarg_test_1_4_0_setting_types.int_required_only = 76
 lunarg_test_1_4_0_setting_types.int_with_optional = 82
 lunarg_test_1_4_0_setting_types.frames_required_only = 76-82,75
 lunarg_test_1_4_0_setting_types.frames_with_optional = 79-82,75
-lunarg_test_1_4_0_setting_types.list_required_only = stringB,stringC
-lunarg_test_1_4_0_setting_types.list_with_optional = stringA,stringB
+lunarg_test_1_4_0_setting_types.list_required_only = stringB
+lunarg_test_1_4_0_setting_types.list_with_optional = stringA

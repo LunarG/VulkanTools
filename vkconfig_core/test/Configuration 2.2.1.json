@@ -97,7 +97,16 @@
                     {
                         "key": "list_with_optional",
                         "type": "LIST",
-                        "value": [ "stringA", "stringB" ]
+                        "value": [
+                            {
+                                "key": "stringA",
+                                "enabled": true
+                            },
+                            {
+                                "key": "stringB",
+                                "enabled": false
+                            }
+                        ]
                     }
                 ],
                 "state": "OVERRIDDEN"

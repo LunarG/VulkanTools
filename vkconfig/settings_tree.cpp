@@ -317,20 +317,14 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         static_cast<const SettingMetaList &>(*validation_layer->settings.Get("message_id_filter"));
         SettingDataList &data = *parameter.settings.Get<SettingDataList>(meta.key.c_str());
 
-        QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
-        mute_message_item->setText(0, meta.label.c_str());
-        mute_message_item->setToolTip(0, meta.description.c_str());
-        parent->addChild(mute_message_item);
+        QTreeWidgetItem *setting_item = new QTreeWidgetItem;
+        parent->addChild(setting_item);
 
-        WidgetSettingSearch *widget_search = new WidgetSettingSearch(meta.list, data.value);
-
-        QTreeWidgetItem *next_line = new QTreeWidgetItem();
-        next_line->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-        mute_message_item->addChild(next_line);
-        _settings_tree->setItemWidget(next_line, 0, widget_search);
+        WidgetSettingSearch *widget_search = new WidgetSettingSearch(_settings_tree, setting_item, meta, data);
+        _settings_tree->setItemWidget(setting_item, 0, widget_search);
 
         QTreeWidgetItem *list_item = new QTreeWidgetItem();
-        mute_message_item->addChild(list_item);
+        setting_item->addChild(list_item);
         list_item->setSizeHint(0, QSize(0, 200));
         WidgetSettingList *widget_list = new WidgetSettingList(meta, data);
         _settings_tree->setItemWidget(list_item, 0, widget_list);
@@ -461,26 +455,28 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
                 QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
                 mute_message_item->setText(0, meta.label.c_str());
+                mute_message_item->setFont(0, _settings_tree->font());
+                mute_message_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                 mute_message_item->setToolTip(0, meta.description.c_str());
                 parent->addChild(mute_message_item);
 
-                WidgetSettingSearch *widget_search = new WidgetSettingSearch(meta.list, data.value);
+                WidgetSettingSearch *widget_search = new WidgetSettingSearch(_settings_tree, item, meta, data);
+                _settings_tree->setItemWidget(mute_message_item, 0, widget_search);
 
-                QTreeWidgetItem *next_line = new QTreeWidgetItem();
-                next_line->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-                mute_message_item->addChild(next_line);
-                _settings_tree->setItemWidget(next_line, 0, widget_search);
+                for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+                    QTreeWidgetItem *list_item = new QTreeWidgetItem();
+                    list_item->setText(0, data.value[i].c_str());
+                    list_item->setFont(0, _settings_tree->font());
+                    list_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                    list_item->setToolTip(0, data.value[i].c_str());
+                    list_item->setCheckState(0, data.enabled[i] ? Qt::Checked : Qt::Unchecked);
+                    mute_message_item->addChild(list_item);
+                }
 
-                QTreeWidgetItem *list_item = new QTreeWidgetItem();
-                mute_message_item->addChild(list_item);
-                list_item->setSizeHint(0, QSize(0, 200));
-                WidgetSettingList *widget_list = new WidgetSettingList(meta, data);
-                _settings_tree->setItemWidget(list_item, 0, widget_list);
-
-                connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
+                // connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));
                 connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-                connect(widget_list, SIGNAL(itemRemoved(const QString &)), widget_search, SLOT(addToSearchList(const QString &)));
-                connect(widget_list, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
+                // connect(widget_list, SIGNAL(itemRemoved(const QString &)), widget_search, SLOT(addToSearchList(const QString
+                // &))); connect(widget_list, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()), Qt::QueuedConnection);
             } break;
 
             default: {
