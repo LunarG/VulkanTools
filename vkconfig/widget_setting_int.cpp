@@ -29,24 +29,23 @@
 
 static const int MIN_FIELD_WIDTH = 48;
 
-WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& setting_meta,
-                                   SettingDataInt& setting_data)
-    : setting_meta(setting_meta), setting_data(setting_data), field(new QLineEdit(this)) {
+WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataInt& data)
+    : setting_meta(setting_meta), setting_data(data), field(new QLineEdit(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
-    assert(&setting_meta);
-    assert(&setting_data);
+    assert(&meta);
+    assert(&data);
 
-    const std::string unit = setting_meta.unit.empty() ? "" : format(" (%s)", setting_meta.unit.c_str());
+    const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
 
-    item->setText(0, (setting_meta.label + unit).c_str());
+    item->setText(0, (meta.label + unit).c_str());
     item->setFont(0, tree->font());
-    item->setToolTip(0, setting_meta.description.c_str());
+    item->setToolTip(0, meta.description.c_str());
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    this->field->setText(format("%d", setting_data.value).c_str());
+    this->field->setText(format("%d", data.value).c_str());
     this->field->setFont(tree->font());
-    this->field->setToolTip(format("[%d, %d]", setting_meta.min_value, setting_meta.max_value).c_str());
+    this->field->setToolTip(format("[%d, %d]", meta.min_value, meta.max_value).c_str());
     this->field->setAlignment(Qt::AlignRight);
     this->field->show();
 

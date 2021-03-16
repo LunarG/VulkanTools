@@ -298,7 +298,16 @@
                     "stringB",
                     "stringC"
                 ],
-                "default": [ "stringB", "stringC" ]
+                "default": [
+                    {
+                        "key": "stringB",
+                        "enabled": true
+                    },
+                    {
+                        "key": "stringC",
+                        "enabled": false
+                    }
+                ]
             },
             {
                 "key": "list_with_optional",
@@ -315,7 +324,16 @@
                     "stringB",
                     "stringC"
                 ],
-                "default": [ "stringB", "stringC" ]
+                "default": [
+                    {
+                        "key": "stringB",
+                        "enabled": true
+                    },
+                    {
+                        "key": "stringC",
+                        "enabled": false
+                    }
+                ]
             }
         ]
     }

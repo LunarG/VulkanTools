@@ -21,7 +21,11 @@
 
 #pragma once
 
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
+
 #include <QWidget>
+#include <QTreeWidgetItem>
 #include <QResizeEvent>
 #include <QStringList>
 #include <QCompleter>
@@ -32,7 +36,7 @@ class WidgetSettingSearch : public QWidget {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingSearch(const std::vector<std::string> &layer_vuids, const std::vector<std::string> &selected_vuids);
+    explicit WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data);
 
    public Q_SLOTS:
     void addButtonPressed();
@@ -51,9 +55,16 @@ class WidgetSettingSearch : public QWidget {
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     void ResetCompleter();
+    void AddChildItem(const char *label, bool checked);
 
-    std::vector<std::string> layer_vuids;
-    QCompleter *_search_vuid;
-    QLineEdit *_user_box;
-    QPushButton *_add_button;
+    const SettingMetaList &meta;
+    SettingDataList &data;
+
+    QTreeWidgetItem *item;
+    QCompleter *search;
+    QLineEdit *field;
+    QPushButton *add_button;
+
+    std::vector<std::string> list;
+    std::vector<bool> enabled;
 };

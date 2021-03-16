@@ -713,13 +713,23 @@
                             "list": {
                                 "type": "array",
                                 "contains": {
-                                    "type": "string"
+                                    "type": "object"
                                 }
                             },
                             "default": {
                                 "type": "array",
-                                "contains": {
-                                    "type": "string"
+                                "items": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "key": {
+                                            "description": "The unique identifier of a setting",
+                                            "type": "string"
+                                        },
+                                        "enabled": {
+                                            "description": "Is the listed value enabled",
+                                            "type": "boolean"
+                                        }
+                                    }
                                 }
                             }
                         }

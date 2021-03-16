@@ -243,9 +243,30 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                     static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
                     break;
                 }
-                case SETTING_LIST:
+                case SETTING_LIST: {
+                    SettingDataList& data = static_cast<SettingDataList&>(setting_data);
+
+                    const QJsonArray& values = ReadArray(json_setting_object, "value");
+                    for (int i = 0, n = values.size(); i < n; ++i) {
+                        if (values[i].isObject()) {
+                            const QJsonObject& object = values[i].toObject();
+                            const std::string key = ReadStringValue(object, "key");
+                            if (!IsStringFound(data.value, key)) continue;
+
+                            data.value.push_back(ReadStringValue(object, "key"));
+                            data.enabled.push_back(ReadBoolValue(object, "enabled"));
+                        } else {
+                            const std::string key = values[i].toString().toStdString();
+                            if (!IsStringFound(data.value, key)) continue;
+
+                            data.value.push_back(key);
+                            data.enabled.push_back(true);
+                        }
+                    }
+                    break;
+                }
                 case SETTING_FLAGS: {
-                    static_cast<SettingDataVector&>(setting_data).value = ReadStringArray(json_setting_object, "value");
+                    static_cast<SettingDataFlags&>(setting_data).value = ReadStringArray(json_setting_object, "value");
                     break;
                 }
                 default: {
@@ -348,12 +369,28 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
                     json_setting.insert("value", static_cast<const SettingDataBool&>(setting_data).value);
                     break;
                 }
-                case SETTING_LIST:
-                case SETTING_FLAGS: {
+                case SETTING_LIST: {
+                    const SettingDataList& list = static_cast<const SettingDataList&>(setting_data);
+
                     QJsonArray json_array;
 
-                    for (std::size_t i = 0, n = static_cast<const SettingDataVector&>(setting_data).value.size(); i < n; ++i) {
-                        json_array.append(static_cast<const SettingDataVector&>(setting_data).value[i].c_str());
+                    for (std::size_t i = 0, n = list.value.size(); i < n; ++i) {
+                        QJsonObject object;
+                        object.insert("key", list.value[i].c_str());
+                        object.insert("enabled", list.enabled[i]);
+                        json_array.append(object);
+                    }
+
+                    json_setting.insert("value", json_array);
+                    break;
+                }
+                case SETTING_FLAGS: {
+                    const SettingDataFlags& data = static_cast<const SettingDataFlags&>(setting_data);
+
+                    QJsonArray json_array;
+
+                    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+                        json_array.append(data.value[i].c_str());
                     }
 
                     json_setting.insert("value", json_array);

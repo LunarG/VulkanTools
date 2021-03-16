@@ -20,6 +20,7 @@
  */
 
 #include "widget_setting_list.h"
+#include "widget_setting.h"
 
 #include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/util.h"
@@ -41,7 +42,12 @@ WidgetSettingList::WidgetSettingList(const SettingMetaList &setting_meta, Settin
 
     // Load with existing settings
     if (!this->setting_data.value.empty()) {
-        _list_widget->addItems(ConvertString(this->setting_data.value));
+        QStringList list;
+        for (std::size_t i = 0, n = this->setting_data.value.size(); i < n; ++i) {
+            list.append(this->setting_data.value[i].c_str());
+        }
+
+        _list_widget->addItems(list);
         _list_widget->setCurrentRow(_list_widget->count() - 1);
     } else
         _remove_button->setEnabled(false);
@@ -52,7 +58,7 @@ WidgetSettingList::WidgetSettingList(const SettingMetaList &setting_meta, Settin
 void WidgetSettingList::resizeEvent(QResizeEvent *event) {
     assert(event);
 
-    const int button_height = 26;
+    const int button_height = ITEM_HEIGHT;
     QSize parent_size = event->size();
     _list_widget->setGeometry(0, 0, parent_size.width(), parent_size.height() - button_height);
     _remove_button->setGeometry(0, parent_size.height() - button_height, parent_size.width(), button_height);

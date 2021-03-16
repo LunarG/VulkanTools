@@ -24,72 +24,100 @@
 
 #include "../vkconfig_core/util.h"
 
-WidgetSettingSearch::WidgetSettingSearch(const std::vector<std::string> &layer_vuids,
-                                         const std::vector<std::string> &selected_vuids)
-    : QWidget(nullptr), layer_vuids(layer_vuids) {
-    // We always want the list presented sorted. Note: This is not
-    // strictly necessary.
-    std::sort(this->layer_vuids.begin(), this->layer_vuids.end());
+#include <cassert>
 
-    for (std::size_t i = 0, n = selected_vuids.size(); i < n; ++i) {
-        RemoveString(this->layer_vuids, selected_vuids[i]);
+WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta,
+                                         SettingDataList &data)
+    : meta(meta),
+      data(data),
+      item(item),
+      search(nullptr),
+      field(new QLineEdit(this)),
+      add_button(new QPushButton(this)),
+      list(meta.list) {
+    assert(tree != nullptr);
+    assert(item != nullptr);
+    assert(&meta);
+    assert(&data);
+
+    item->setText(0, meta.label.c_str());
+    item->setFont(0, tree->font());
+    item->setToolTip(0, meta.description.c_str());
+    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+
+    // std::sort(this->list.begin(), this->list.end());
+    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+        // RemoveString(this->list, data.value[i].key.c_str());
     }
 
-    _user_box = new QLineEdit(this);
-    _user_box->setFocusPolicy(Qt::StrongFocus);
+    field->setFocusPolicy(Qt::StrongFocus);
 
-    _add_button = new QPushButton(this);
-    _add_button->setText("+");
+    add_button->setText("+");
+    add_button->setFont(tree->font());
 
-    _user_box->show();
-    _user_box->setText("");
-    _user_box->installEventFilter(this);
+    field->show();
+    field->setText("");
+    field->setFont(tree->font());
+    field->installEventFilter(this);
 
-    _search_vuid = nullptr;  // Safe to delete a pointer
     ResetCompleter();
 
-    connect(_add_button, SIGNAL(pressed()), this, SLOT(addButtonPressed()));
+    connect(add_button, SIGNAL(pressed()), this, SLOT(addButtonPressed()));
 }
 
 void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
     const int button_size = MIN_BUTTON_SIZE;
-    QSize parentSize = event->size();
-    _user_box->setGeometry(0, 0, parentSize.width() - 2 - button_size, parentSize.height());
-    _add_button->setGeometry(parentSize.width() - button_size, 0, button_size, parentSize.height());
+    const QSize parent_size = event->size();
+
+    field->setGeometry(0, 0, parent_size.width() - button_size, parent_size.height());
+    add_button->setGeometry(parent_size.width() - button_size, 0, button_size, parent_size.height());
 }
 
 /// Reload the completer with a revised list of VUID's.
 /// I'm quite impressed with how fast this brute force implementation
 /// runs in release mode.
 void WidgetSettingSearch::ResetCompleter() {
-    if (_search_vuid != nullptr) _search_vuid->deleteLater();
+    if (search != nullptr) search->deleteLater();
 
-    _search_vuid = new QCompleter(ConvertString(layer_vuids), this);
-    _search_vuid->setCaseSensitivity(Qt::CaseSensitive);
-    _search_vuid->setCompletionMode(QCompleter::PopupCompletion);
-    _search_vuid->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-    _search_vuid->setFilterMode(Qt::MatchContains);
-    _search_vuid->setMaxVisibleItems(15);
-    _search_vuid->setCaseSensitivity(Qt::CaseInsensitive);
-    _user_box->setCompleter(_search_vuid);
-    connect(_search_vuid, SIGNAL(activated(const QString &)), this, SLOT(addCompleted(const QString &)), Qt::QueuedConnection);
+    // ConvertString(this->list);
+
+    search = new QCompleter(QStringList(), this);
+    search->setCaseSensitivity(Qt::CaseSensitive);
+    search->setCompletionMode(QCompleter::PopupCompletion);
+    search->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    search->setFilterMode(Qt::MatchContains);
+    search->setMaxVisibleItems(15);
+    search->setCaseSensitivity(Qt::CaseInsensitive);
+    field->setCompleter(search);
+
+    connect(search, SIGNAL(activated(const QString &)), this, SLOT(addCompleted(const QString &)), Qt::QueuedConnection);
+}
+
+void WidgetSettingSearch::AddChildItem(const char *label, bool checked) {
+    QTreeWidgetItem *child = new QTreeWidgetItem();
+    child->setText(0, label);
+    child->setFont(0, item->font(0));
+    child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    child->setToolTip(0, label);
+    child->setCheckState(0, checked ? Qt::Checked : Qt::Unchecked);
+    item->addChild(child);
 }
 
 // Add the text in the edit control to the list, and clear the control
 // This is not really used much, only if they want to add something
 // that is not in the completer list.
 void WidgetSettingSearch::addButtonPressed() {
-    QString entry = _user_box->text();
+    QString entry = field->text();
     if (entry.isEmpty()) return;
 
     emit itemSelected(entry);  // Triggers update of GUI
-    emit itemChanged();        // Triggers save of profile
-    _user_box->setText("");
+    emit itemChanged();        // Triggers save of configuration
+    field->setText("");
 
     // Remove the just added item from the search list
-    std::size_t ref_size = layer_vuids.size();
-    RemoveString(layer_vuids, entry.toStdString());
-    if (ref_size > layer_vuids.size()) {
+    std::size_t ref_size = list.size();
+    RemoveString(list, entry.toStdString());
+    if (ref_size > list.size()) {
         ResetCompleter();
     }
 }
@@ -106,9 +134,9 @@ void WidgetSettingSearch::addCompleted(const QString &addedItem) {
 
 // Item was removed from master list, so add it back to the search
 // list.
-void WidgetSettingSearch::addToSearchList(const QString &new_vuid) {
-    this->layer_vuids.push_back(new_vuid.toStdString());
-    std::sort(this->layer_vuids.begin(), this->layer_vuids.end());
+void WidgetSettingSearch::addToSearchList(const QString &value) {
+    this->list.push_back(value.toStdString());
+    std::sort(this->list.begin(), this->list.end());
     ResetCompleter();
 }
 
@@ -120,5 +148,5 @@ bool WidgetSettingSearch::eventFilter(QObject *target, QEvent *event) {
         return true;
     }
 
-    return _user_box->eventFilter(target, event);
+    return field->eventFilter(target, event);
 }
