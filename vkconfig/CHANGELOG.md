@@ -22,6 +22,9 @@
 
 ## [Vulkan Configurator 2.2.1 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools/tree/master) - April 2021
 
+### Features:
+- Add Vulkan loader debug message to application launcher #1372
+
 ### Improvements:
 - Add display of layer execution order in the setting tree #1390
 
