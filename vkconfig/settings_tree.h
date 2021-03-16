@@ -47,10 +47,8 @@ class SettingsTreeManager : QObject {
 
    public Q_SLOTS:
     void khronosDebugChanged(int index);
-    void OnPresetChanged(int index);  // Okay, is this a custom guy HERE, or do we move it out
-                                      // It really forces a reload of the entire branch of this tree
-                                      // Reset layer defaults for the profile, and then call BuildKhronosTree again
-    void OnSettingChanged();          // The profile has been edited and should be saved
+    void OnPresetChanged(int index);
+    void OnSettingChanged();
 
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;

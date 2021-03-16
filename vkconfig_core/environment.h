@@ -89,6 +89,20 @@ enum UserDefinedLayersPaths {
 
 enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_DEFINED_LAYERS_PATHS_FIRST + 1 };
 
+enum LoaderMessageLevel {
+    LAODER_MESSAGE_NONE = 0,
+    LAODER_MESSAGE_ERROR,
+    LAODER_MESSAGE_WARN,
+    LAODER_MESSAGE_INFO,
+    LAODER_MESSAGE_DEBUG,
+    LAODER_MESSAGE_ALL,
+
+    LAODER_MESSAGE_FIRST = LAODER_MESSAGE_NONE,
+    LAODER_MESSAGE_LAST = LAODER_MESSAGE_ALL,
+};
+
+enum { LAODER_MESSAGE_COUNT = LAODER_MESSAGE_LAST - LAODER_MESSAGE_FIRST + 1 };
+
 class Environment {
    public:
     Environment(PathManager& paths, const Version& api_version = Version::VKHEADER);
@@ -128,6 +142,9 @@ class Environment {
 
     void SetMode(OverrideMode mode, bool enabled);
 
+    LoaderMessageLevel GetLoaderMessage() const { return this->loader_message_level; }
+    void SetLoaderMessage(LoaderMessageLevel level) { this->loader_message_level = level; }
+
     const bool running_as_administrator;  // Are we being "Run as Administrator"
 
     bool first_run;
@@ -149,6 +166,7 @@ class Environment {
 
     Version version;
     OverrideState override_state;
+    LoaderMessageLevel loader_message_level;
 
     std::array<std::string, ACTIVE_COUNT> actives;
     std::array<bool, NOTIFICATION_COUNT> hidden_notifications;
@@ -174,3 +192,6 @@ std::vector<Application> CreateDefaultApplications();
 
 // Update default applications path to use relative path (really useful only on Windows)
 std::vector<Application> UpdateDefaultApplications(const std::vector<Application>& applications);
+
+LoaderMessageLevel GetLoaderDebug(const std::string& value);
+std::string GetLoaderDebugToken(LoaderMessageLevel level);

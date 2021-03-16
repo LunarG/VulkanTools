@@ -296,6 +296,7 @@
           <widget class="QCheckBox" name="check_box_clear_on_launch">
            <property name="font">
             <font>
+             <family>Arial</family>
              <pointsize>10</pointsize>
             </font>
            </property>
@@ -307,7 +308,76 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="4">
+         <item row="1" column="4">
+          <widget class="QComboBox" name="launcher_loader_debug">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable Vulkan loader debug messages using the &lt;span style=&quot; font-family:'-apple-system','BlinkMacSystemFont','Segoe UI','Helvetica','Arial','sans-serif','Apple Color Emoji','Segoe UI Emoji'; font-size:16px; color:#24292e; background-color:#ffffff;&quot;&gt;VK_LOADER_DEBUG environment variable on launch&lt;/span&gt;. &lt;br/&gt;&lt;br/&gt;Options are:&lt;/p&gt;&lt;p&gt;- error (only errors)&lt;br/&gt;- warn (warnings and errors)&lt;br/&gt;- info (info, warning, and errors)&lt;br/&gt;- debug (debug + all before)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>none</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="Only Errors">error</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>warn</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>info</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>debug</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>all</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="5">
+          <widget class="QPushButton" name="push_button_launcher">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Launch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="6">
           <widget class="QTextBrowser" name="log_browser">
            <property name="font">
             <font>
@@ -317,7 +387,20 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="4">
+         <item row="1" column="1">
+          <widget class="QPushButton" name="push_button_clear_log">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="6">
           <widget class="QTreeWidget" name="launcher_tree">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -379,41 +462,11 @@
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="QPushButton" name="push_button_launcher">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
+          <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Launch</string>
+            <string>Vulkan Loader Messages:</string>
            </property>
           </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="push_button_clear_log">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Clear</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -627,7 +680,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
@@ -733,7 +786,7 @@
    <property name="text">
     <string>Vulkan GPU Info Reports</string>
    </property>
-  </action>     
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>

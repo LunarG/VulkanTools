@@ -36,6 +36,7 @@
 #include <QProcess>
 
 #include <memory>
+#include <string>
 
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
@@ -147,6 +148,7 @@ class MainWindow : public QMainWindow {
     void OnConfigurationItemChanged(QTreeWidgetItem *item, int column);
     void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
     void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
+    void OnLauncherLoaderMessageChanged(int level);
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
@@ -160,6 +162,7 @@ class MainWindow : public QMainWindow {
     bool SelectConfigurationItem(const std::string &configuration_name);
     void ResetLaunchApplication();
     void StartTool(Tool tool);
+    QStringList BuildEnvVariables() const;
 
     std::unique_ptr<Ui::MainWindow> ui;
     bool been_warned_about_old_loader;

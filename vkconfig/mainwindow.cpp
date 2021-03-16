@@ -109,6 +109,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->launcher_tree, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this, SLOT(launchItemCollapsed(QTreeWidgetItem *)));
     connect(ui->launcher_tree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(launchItemExpanded(QTreeWidgetItem *)));
 
+    connect(ui->launcher_loader_debug, SIGNAL(currentIndexChanged(int)), this, SLOT(OnLauncherLoaderMessageChanged(int)));
+
     Configurator &configurator = Configurator::Get();
     const Environment &environment = configurator.environment;
 
@@ -226,6 +228,9 @@ void MainWindow::UpdateUI() {
     ui->push_button_launcher->setEnabled(has_application_list);
     ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
     ui->check_box_clear_on_launch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
+    ui->launcher_loader_debug->setCurrentIndex(environment.GetLoaderMessage());
+
+    // ui->launcher_loader_debug
     if (_launcher_working_browse_button) {
         _launcher_working_browse_button->setEnabled(has_application_list);
     }
@@ -1061,6 +1066,10 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
     Configurator::Get().environment.Set(LAYOUT_LAUNCHER_COLLAPSED, QByteArray("true"));
 }
 
+void MainWindow::OnLauncherLoaderMessageChanged(int level) {
+    Configurator::Get().environment.SetLoaderMessage(static_cast<LoaderMessageLevel>(level));
+}
+
 void MainWindow::launchSetLogFile() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
@@ -1290,6 +1299,14 @@ void MainWindow::ResetLaunchApplication() {
     }
 }
 
+QStringList MainWindow::BuildEnvVariables() const {
+    Configurator &configurator = Configurator::Get();
+
+    QStringList env = QProcess::systemEnvironment();
+    env << (QString("VK_LOADER_DEBUG=") + GetLoaderDebugToken(configurator.environment.GetLoaderMessage()).c_str());
+    return env;
+}
+
 void MainWindow::on_push_button_launcher_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
@@ -1361,6 +1378,7 @@ void MainWindow::on_push_button_launcher_clicked() {
 
     _launch_application->setProgram(active_application.executable_path.c_str());
     _launch_application->setWorkingDirectory(active_application.working_folder.c_str());
+    _launch_application->setEnvironment(BuildEnvVariables());
 
     if (!active_application.arguments.empty()) {
         const QStringList args = QString(active_application.arguments.c_str()).split(" ");
