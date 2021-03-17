@@ -15,11 +15,10 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_setting_flags.h"
+#include "widget_setting_list_element.h"
 #include "widget_setting.h"
 
 #include "../vkconfig_core/layer.h"
@@ -27,20 +26,18 @@
 
 #include <cassert>
 
-WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
-                                     const std::string& setting_flag)
-    : setting_meta(setting_meta), setting_data(setting_data), setting_flag(setting_flag), button(new QPushButton(this)) {
-    assert(&setting_data);
-    assert(!setting_flag.empty());
+WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, const SettingMetaList& meta, SettingDataList& data,
+                                                   const std::string& element)
+    : meta(meta), data(data), element(element), button(new QPushButton(this)) {
+    assert(&meta);
+    assert(&data);
+    assert(!element.empty());
 
-    const SettingEnumValue* enum_value = FindByKey(setting_meta.enum_values, setting_flag.c_str());
-    assert(enum_value);
-    this->setText(enum_value->label.c_str());
+    this->setText(element.c_str());
     this->setFont(tree->font());
-    this->setToolTip(enum_value->description.c_str());
-
-    if (std::find(setting_data.value.begin(), setting_data.value.end(), setting_flag) != setting_data.value.end())
-        this->setChecked(true);
+    this->setToolTip(element.c_str());
+    this->setCheckable(true);
+    this->setChecked(true);
 
     this->connect(this, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
 
@@ -50,21 +47,21 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& 
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnButtonClicked()));
 }
 
-void WidgetSettingFlag::resizeEvent(QResizeEvent* event) {
+void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
     const QSize parent_size = event->size();
 
     const QRect button_rect = QRect(parent_size.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, parent_size.height());
     this->button->setGeometry(button_rect);
 }
 
-void WidgetSettingFlag::OnItemChecked(bool checked) {
+void WidgetSettingListElement::OnItemChecked(bool checked) {
     if (checked) {
-        AppendString(setting_data.value, setting_flag);
+        // AppendString(setting_data.value, this->element);
     } else {
-        RemoveString(setting_data.value, setting_flag);
+        // RemoveString(setting_data.value, this->element);
     }
 
     emit itemChanged();
 }
 
-void WidgetSettingFlag::OnButtonClicked() { emit itemChanged(); }
+void WidgetSettingListElement::OnButtonClicked() { emit itemChanged(); }

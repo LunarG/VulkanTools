@@ -40,6 +40,8 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
     assert(&meta);
     assert(&data);
 
+    this->setFont(tree->font());
+
     item->setText(0, meta.label.c_str());
     item->setFont(0, tree->font());
     item->setToolTip(0, meta.description.c_str());
@@ -69,7 +71,10 @@ void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
     const int button_size = MIN_BUTTON_SIZE;
     const QSize parent_size = event->size();
 
-    field->setGeometry(0, 0, parent_size.width() - button_size, parent_size.height());
+    const QFontMetrics fm = this->fontMetrics();
+    const int text_width = HorizontalAdvance(fm, QString(meta.label.c_str()) + "00");
+
+    field->setGeometry(text_width, 0, parent_size.width() - button_size - text_width, parent_size.height());
     add_button->setGeometry(parent_size.width() - button_size, 0, button_size, parent_size.height());
 }
 
