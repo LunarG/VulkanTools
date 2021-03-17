@@ -113,6 +113,7 @@ JSON file formats consumed by the DevSim layer are specified by one of the JSON 
 | VK_KHR_timeline_semaphore | https://schema.khronos.org/vulkan/devsim_VK_KHR_timeline_semaphore_1.json# |
 | VK_KHR_uniform_buffer_standard_layout | https://schema.khronos.org/vulkan/devsim_VK_KHR_uniform_buffer_standard_layout_1.json# |
 | VK_KHR_variable_pointers | https://schema.khronos.org/vulkan/devsim_VK_KHR_variable_pointers_1.json# |
+| VK_KHR_vulkan_memory_model | https://schema.khronos.org/vulkan/devsim_VK_KHR_vulkan_memory_model_1.json# |
 
 Usually you will be using configuration files validated with the Vulkan v1.1 schema.
 
