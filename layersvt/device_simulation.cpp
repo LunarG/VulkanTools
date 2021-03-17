@@ -630,6 +630,10 @@ class PhysicalDeviceData {
     // VK_KHR_shader_subgroup_extended_types structs
     VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR physical_device_shader_subgroup_extended_types_features_;
 
+    // VK_KHR_timeline_semaphore structs
+    VkPhysicalDeviceTimelineSemaphorePropertiesKHR physical_device_timeline_semaphore_properties_;
+    VkPhysicalDeviceTimelineSemaphoreFeaturesKHR physical_device_timeline_semaphore_features_;
+
     // VK_KHR_variable_pointers structs
     VkPhysicalDeviceVariablePointersFeaturesKHR physical_device_variable_pointers_features_;
 
@@ -696,6 +700,10 @@ class PhysicalDeviceData {
         physical_device_shader_subgroup_extended_types_features_ = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES_KHR};
 
+        // VK_KHR_timeline_semaphore structs
+        physical_device_timeline_semaphore_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES_KHR};
+        physical_device_timeline_semaphore_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES_KHR};
+
         // VK_KHR_variable_pointers structs
         physical_device_variable_pointers_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES_KHR};
     }
@@ -741,6 +749,7 @@ class JsonLoader {
         kDevsimShaderFloatControlsKHR,
         kDevsimShaderFloat16Int8KHR,
         kDevsimShaderSubgroupExtendedTypesKHR,
+        kDevsimTimelineSemaphoreKHR,
         kDevsimVariablePointersKHR
     };
 
@@ -752,6 +761,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePointClippingPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetPropertiesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceTimelineSemaphorePropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
@@ -766,6 +776,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderAtomicInt64FeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderFloat16Int8FeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceTimelineSemaphoreFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVariablePointersFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
@@ -1278,6 +1289,18 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimTimelineSemaphoreKHR:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_KHR_timeline_semaphore, but "
+                    "VK_KHR_timeline_semaphore is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceTimelineSemaphorePropertiesKHR", &pdd_.physical_device_timeline_semaphore_properties_);
+            GetValue(root, "VkPhysicalDeviceTimelineSemaphoreFeaturesKHR", &pdd_.physical_device_timeline_semaphore_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimVariablePointersKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1342,6 +1365,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_shader_subgroup_extended_types_1.json#") ==
                0) {
         schema_id = SchemaId::kDevsimShaderSubgroupExtendedTypesKHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_timeline_semaphore_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimTimelineSemaphoreKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_variable_pointers_1.json#") == 0) {
         schema_id = SchemaId::kDevsimVariablePointersKHR;
     }
@@ -1449,6 +1474,15 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevicePortabilitySubsetPropertiesKHR)\n");
     GET_VALUE_WARN(minVertexInputBindingStrideAlignment, WarnIfLesser);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceTimelineSemaphorePropertiesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceTimelineSemaphorePropertiesKHR)\n");
+    GET_VALUE_WARN(maxTimelineSemaphoreValueDifference, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest) {
@@ -1763,6 +1797,15 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name,
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceFeatures)\n");
     GET_VALUE_WARN(shaderSubgroupExtendedTypes, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceTimelineSemaphoreFeaturesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceTimelineSemaphoreFeaturesKHR)\n");
+    GET_VALUE_WARN(timelineSemaphore, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVariablePointersFeaturesKHR *dest) {
@@ -2173,6 +2216,18 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = ssetf->pNext;
             *ssetf = physicalDeviceData->physical_device_shader_subgroup_extended_types_features_;
             ssetf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME)) {
+            VkPhysicalDeviceTimelineSemaphorePropertiesKHR *tsp = (VkPhysicalDeviceTimelineSemaphorePropertiesKHR *)place;
+            void *pNext = tsp->pNext;
+            *tsp = physicalDeviceData->physical_device_timeline_semaphore_properties_;
+            tsp->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES_KHR &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME)) {
+            VkPhysicalDeviceTimelineSemaphoreFeaturesKHR *tsf = (VkPhysicalDeviceTimelineSemaphoreFeaturesKHR *)place;
+            void *pNext = tsf->pNext;
+            *tsf = physicalDeviceData->physical_device_timeline_semaphore_features_;
+            tsf->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
             VkPhysicalDeviceVariablePointersFeaturesKHR *vpf = (VkPhysicalDeviceVariablePointersFeaturesKHR *)place;
@@ -2613,6 +2668,16 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_shader_subgroup_extended_types_features_.pNext = feature_chain.pNext;
 
                     feature_chain.pNext = &(pdd.physical_device_shader_subgroup_extended_types_features_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME)) {
+                    pdd.physical_device_timeline_semaphore_properties_.pNext = property_chain.pNext;
+
+                    property_chain.pNext = &(pdd.physical_device_timeline_semaphore_properties_);
+
+                    pdd.physical_device_timeline_semaphore_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_timeline_semaphore_features_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
