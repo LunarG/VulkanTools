@@ -161,7 +161,7 @@ struct SettingMetaList : public SettingMeta {
     virtual ~SettingMetaList() {}
 
     std::vector<std::string> list;
-    std::vector<EnabledString> default_values;
+    std::vector<EnabledString> default_value;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;

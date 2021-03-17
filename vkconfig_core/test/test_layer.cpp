@@ -628,10 +628,10 @@ TEST(test_layer, load_1_4_0_setting_list_required_only) {
     EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
     EXPECT_STREQ("stringC", setting_meta->list[2].c_str());
 
-    EXPECT_STREQ("stringB", setting_meta->default_value[0].c_str());
-    EXPECT_EQ(true, setting_meta->default_enabled[0]);
-    EXPECT_STREQ("stringC", setting_meta->default_value[1].c_str());
-    EXPECT_EQ(false, setting_meta->default_enabled[1]);
+    EXPECT_STREQ("stringB", setting_meta->default_value[0].key.c_str());
+    EXPECT_EQ(true, setting_meta->default_value[0].enabled);
+    EXPECT_STREQ("stringC", setting_meta->default_value[1].key.c_str());
+    EXPECT_EQ(false, setting_meta->default_value[1].enabled);
 }
 
 TEST(test_layer, load_1_4_0_setting_list_with_optional) {
@@ -657,9 +657,8 @@ TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
     EXPECT_STREQ("stringC", setting_meta->list[2].c_str());
 
-    EXPECT_EQ(setting_meta->default_value.size(), setting_meta->default_enabled.size());
-    EXPECT_STREQ("stringB", setting_meta->default_value[0].c_str());
-    EXPECT_EQ(true, setting_meta->default_enabled[0]);
-    EXPECT_STREQ("stringC", setting_meta->default_value[1].c_str());
-    EXPECT_EQ(false, setting_meta->default_enabled[1]);
+    EXPECT_STREQ("stringB", setting_meta->default_value[0].key.c_str());
+    EXPECT_EQ(true, setting_meta->default_value[0].enabled);
+    EXPECT_STREQ("stringC", setting_meta->default_value[1].key.c_str());
+    EXPECT_EQ(false, setting_meta->default_value[1].enabled);
 }
