@@ -245,8 +245,11 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     const QJsonArray& json_default = ReadArray(json_setting, "default");
                     for (int i = 0, n = json_default.size(); i < n; ++i) {
                         const QJsonObject& json_object = json_default[i].toObject();
-                        meta.default_value.push_back(ReadStringValue(json_object, "key"));
-                        meta.default_enabled.push_back(ReadBoolValue(json_object, "enabled"));
+
+                        EnabledString enabled_string;
+                        enabled_string.key = ReadStringValue(json_object, "key");
+                        enabled_string.enabled = ReadBoolValue(json_object, "enabled");
+                        meta.default_values.push_back(enabled_string);
                     }
                     break;
                 }
@@ -309,8 +312,11 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         const QJsonArray& array = ReadArray(json_preset_object, "value");
                         for (int i = 0, n = array.size(); i < n; ++i) {
                             const QJsonObject& object = array[i].toObject();
-                            list.value.push_back(ReadStringValue(object, "key"));
-                            list.enabled.push_back(ReadBoolValue(object, "enabled"));
+
+                            EnabledString enabled_string;
+                            enabled_string.key = ReadStringValue(object, "key");
+                            enabled_string.enabled = ReadBoolValue(object, "enabled");
+                            list.values.push_back(enabled_string);
                         }
                         break;
                     }
@@ -390,8 +396,7 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
         }
         case SETTING_LIST: {
             const SettingMetaList& meta_object = static_cast<const SettingMetaList&>(setting_meta);
-            static_cast<SettingDataList&>(setting_data).value = meta_object.default_value;
-            static_cast<SettingDataList&>(setting_data).enabled = meta_object.default_enabled;
+            static_cast<SettingDataList&>(setting_data).values = meta_object.default_values;
             break;
         }
         default: {

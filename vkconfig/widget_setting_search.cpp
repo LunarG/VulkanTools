@@ -48,7 +48,7 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     // std::sort(this->list.begin(), this->list.end());
-    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
         // RemoveString(this->list, data.value[i].key.c_str());
     }
 
