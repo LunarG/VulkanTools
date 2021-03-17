@@ -37,7 +37,7 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, const Sett
     this->setFont(tree->font());
     this->setToolTip(element.c_str());
     this->setCheckable(true);
-    this->setChecked(true);
+    this->setChecked(this->GetChecked());
 
     this->connect(this, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
 
@@ -67,9 +67,22 @@ void WidgetSettingListElement::OnButtonClicked() {
     value.enabled = true;
 
     auto it = std::find(this->data.values.begin(), this->data.values.end(), value);
+    assert(it != this->data.values.end());
+
     if (it != this->data.values.end()) {
         this->data.values.erase(it);
     }
 
     emit itemChanged();
+}
+
+bool WidgetSettingListElement::GetChecked() const {
+    EnabledString value;
+    value.key = this->element;
+    value.enabled = true;
+
+    auto it = std::find(this->data.values.begin(), this->data.values.end(), value);
+    assert(it != this->data.values.end());
+
+    return it->enabled;
 }

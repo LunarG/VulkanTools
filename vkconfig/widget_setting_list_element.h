@@ -48,6 +48,8 @@ class WidgetSettingListElement : public QCheckBox {
 
     void resizeEvent(QResizeEvent* event) override;
 
+    bool GetChecked() const;
+
     const SettingMetaList& meta;
     SettingDataList& data;
     std::string element;
