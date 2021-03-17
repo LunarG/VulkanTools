@@ -31,6 +31,7 @@
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
 #include "widget_setting_list.h"
+#include "widget_setting_list_element.h"
 #include "widget_setting_search.h"
 
 #include "../vkconfig_core/version.h"
@@ -251,10 +252,9 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
         child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-        WidgetSettingFlag *widget = new WidgetSettingFlag(*meta_debug, *data_debug, meta_debug->enum_values[i].key);
+        WidgetSettingFlag *widget = new WidgetSettingFlag(_settings_tree, *meta_debug, *data_debug, meta_debug->enum_values[i].key);
         debug_action_branch->addChild(child);
         _settings_tree->setItemWidget(child, 0, widget);
-        widget->setFont(_settings_tree->font());
         connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
         // The log message action also has a child; the log file selection setting/widget
@@ -292,10 +292,9 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            WidgetSettingFlag *widget = new WidgetSettingFlag(meta, data, meta.enum_values[i].key.c_str());
+            WidgetSettingFlag *widget = new WidgetSettingFlag(_settings_tree, meta, data, meta.enum_values[i].key.c_str());
             sub_category->addChild(child);
             _settings_tree->setItemWidget(child, 0, widget);
-            widget->setFont(_settings_tree->font());
             connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         }
     }
@@ -418,11 +417,10 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                     if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;
                     if (meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
 
-                    WidgetSettingFlag *widget = new WidgetSettingFlag(meta, data, meta.enum_values[i].key.c_str());
+                    WidgetSettingFlag *widget = new WidgetSettingFlag(_settings_tree, meta, data, meta.enum_values[i].key.c_str());
                     QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                     item->addChild(place_holder);
                     _settings_tree->setItemWidget(place_holder, 0, widget);
-                    widget->setFont(_settings_tree->font());
                     connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 }
             } break;
@@ -453,24 +451,18 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 const SettingMetaList &meta = static_cast<const SettingMetaList &>(layer_setting_metas[setting_index]);
                 SettingDataList &data = *parameter.settings.Get<SettingDataList>(meta.key.c_str());
 
-                QTreeWidgetItem *mute_message_item = new QTreeWidgetItem;
-                mute_message_item->setText(0, meta.label.c_str());
-                mute_message_item->setFont(0, _settings_tree->font());
-                mute_message_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-                mute_message_item->setToolTip(0, meta.description.c_str());
-                parent->addChild(mute_message_item);
-
                 WidgetSettingSearch *widget_search = new WidgetSettingSearch(_settings_tree, item, meta, data);
-                _settings_tree->setItemWidget(mute_message_item, 0, widget_search);
+                _settings_tree->setItemWidget(item, 0, widget_search);
 
                 for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
                     QTreeWidgetItem *list_item = new QTreeWidgetItem();
-                    list_item->setText(0, data.value[i].c_str());
-                    list_item->setFont(0, _settings_tree->font());
                     list_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-                    list_item->setToolTip(0, data.value[i].c_str());
-                    list_item->setCheckState(0, data.enabled[i] ? Qt::Checked : Qt::Unchecked);
-                    mute_message_item->addChild(list_item);
+                    item->addChild(list_item);
+
+                    WidgetSettingListElement *widget =
+                        new WidgetSettingListElement(_settings_tree, meta, data, data.value[i].c_str());
+                    _settings_tree->setItemWidget(list_item, 0, widget);
+                    connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 }
 
                 // connect(widget_search, SIGNAL(itemSelected(const QString &)), widget_list, SLOT(addItem(const QString &)));

@@ -15,43 +15,41 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
 
 #include <QWidget>
-#include <QTreeWidgetItem>
-#include <QLineEdit>
-#include <QPushButton>
 #include <QResizeEvent>
-#include <QFileDialog>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QTreeWidgetItem>
 
-class WidgetSettingFilesystem : public QWidget {
+class WidgetSettingListElement : public QCheckBox {
     Q_OBJECT
-
    public:
-    explicit WidgetSettingFilesystem(QTreeWidgetItem *item, const SettingMetaFilesystem &setting_meta,
-                                     SettingDataString &setting_data);
+    explicit WidgetSettingListElement(QTreeWidget* tree, const SettingMetaList& meta, SettingDataList& data,
+                                      const std::string& element);
 
    public Q_SLOTS:
-    void browseButtonClicked();
-    void textFieldChanged(const QString &value);
+    void OnButtonClicked();
+    void OnItemChecked(bool checked);
 
    Q_SIGNALS:
     void itemChanged();
 
    private:
-    WidgetSettingFilesystem(const WidgetSettingFilesystem &) = delete;
-    WidgetSettingFilesystem &operator=(const WidgetSettingFilesystem &) = delete;
+    WidgetSettingListElement(const WidgetSettingListElement&) = delete;
+    WidgetSettingListElement& operator=(const WidgetSettingListElement&) = delete;
 
-    void resizeEvent(QResizeEvent *event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
-    const SettingMetaFilesystem &setting_meta;
-    SettingDataString &setting_data;
-    QLineEdit *field;
-    QPushButton *button;
+    const SettingMetaList& meta;
+    SettingDataList& data;
+    std::string element;
+    QPushButton* button;
 };

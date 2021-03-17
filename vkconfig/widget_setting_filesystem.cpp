@@ -29,7 +29,11 @@
 
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const SettingMetaFilesystem& setting_meta,
                                                  SettingDataString& setting_data)
-    : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data), field(nullptr), button(nullptr) {
+    : QWidget(nullptr),
+      setting_meta(setting_meta),
+      setting_data(setting_data),
+      field(new QLineEdit(this)),
+      button(new QPushButton(this)) {
     assert(item);
     assert(&setting_meta);
     assert(&setting_data);
@@ -37,21 +41,16 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const Se
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
 
-    this->field = new QLineEdit(this);
     this->field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
     this->field->show();
+    this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 
-    this->button = new QPushButton(this);
     this->button->setText("...");
     this->button->show();
-
-    connect(this->button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
-    connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
+    this->connect(this->button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
 }
 
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
-    if (this->field == nullptr) return;
-
     const QSize parent_size = event->size();
 
     // Button takes up the last 32 pixels
