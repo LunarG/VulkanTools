@@ -55,13 +55,21 @@ void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingListElement::OnItemChecked(bool checked) {
-    if (checked) {
-        // AppendString(setting_data.value, this->element);
-    } else {
-        // RemoveString(setting_data.value, this->element);
-    }
+    EnabledString* enabled_string = FindByKey(data.values, this->element.c_str());
+    enabled_string->enabled = checked;
 
     emit itemChanged();
 }
 
-void WidgetSettingListElement::OnButtonClicked() { emit itemChanged(); }
+void WidgetSettingListElement::OnButtonClicked() {
+    EnabledString value;
+    value.key = this->element;
+    value.enabled = true;
+
+    auto it = std::find(this->data.values.begin(), this->data.values.end(), value);
+    if (it != this->data.values.end()) {
+        this->data.values.erase(it);
+    }
+
+    emit itemChanged();
+}

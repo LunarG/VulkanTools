@@ -53,5 +53,4 @@ class WidgetSettingList : public QWidget {
     const SettingMetaList &setting_meta;
     SettingDataList &setting_data;
     QListWidget *_list_widget;
-    QPushButton *_remove_button;
 };

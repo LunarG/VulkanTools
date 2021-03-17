@@ -245,20 +245,22 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                 }
                 case SETTING_LIST: {
                     SettingDataList& data = static_cast<SettingDataList&>(setting_data);
-                    data.value.clear();
-                    data.enabled.clear();
+                    data.values.clear();
 
                     const QJsonArray& values = ReadArray(json_setting_object, "value");
                     for (int i = 0, n = values.size(); i < n; ++i) {
+                        EnabledString enabled_string;
+
                         if (values[i].isObject()) {
                             const QJsonObject& object = values[i].toObject();
 
-                            data.value.push_back(ReadStringValue(object, "key"));
-                            data.enabled.push_back(ReadBoolValue(object, "enabled"));
+                            enabled_string.key = ReadStringValue(object, "key");
+                            enabled_string.enabled = ReadBoolValue(object, "enabled");
                         } else {
-                            data.value.push_back(values[i].toString().toStdString());
-                            data.enabled.push_back(true);
+                            enabled_string.key = values[i].toString().toStdString();
+                            enabled_string.enabled = true;
                         }
+                        data.values.push_back(enabled_string);
                     }
                     break;
                 }
@@ -371,10 +373,10 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
                     QJsonArray json_array;
 
-                    for (std::size_t i = 0, n = list.value.size(); i < n; ++i) {
+                    for (std::size_t i = 0, n = list.values.size(); i < n; ++i) {
                         QJsonObject object;
-                        object.insert("key", list.value[i].c_str());
-                        object.insert("enabled", list.enabled[i]);
+                        object.insert("key", list.values[i].key.c_str());
+                        object.insert("enabled", list.values[i].enabled);
                         json_array.append(object);
                     }
 

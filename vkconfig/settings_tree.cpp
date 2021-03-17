@@ -454,13 +454,13 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 WidgetSettingSearch *widget_search = new WidgetSettingSearch(_settings_tree, item, meta, data);
                 _settings_tree->setItemWidget(item, 0, widget_search);
 
-                for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+                for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
                     QTreeWidgetItem *list_item = new QTreeWidgetItem();
                     list_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                     item->addChild(list_item);
 
                     WidgetSettingListElement *widget =
-                        new WidgetSettingListElement(_settings_tree, meta, data, data.value[i].c_str());
+                        new WidgetSettingListElement(_settings_tree, meta, data, data.values[i].key.c_str());
                     _settings_tree->setItemWidget(list_item, 0, widget);
                     connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 }

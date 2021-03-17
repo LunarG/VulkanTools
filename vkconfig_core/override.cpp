@@ -200,11 +200,11 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 case SETTING_LIST: {
                     const SettingDataList& setting_object = static_cast<const SettingDataList&>(setting_data);
 
-                    for (std::size_t i = 0, n = setting_object.value.size(); i < n; ++i) {
-                        if (!setting_object.enabled[i]) continue;
+                    for (std::size_t i = 0, n = setting_object.values.size(); i < n; ++i) {
+                        if (!setting_object.values[i].enabled) continue;
 
                         if (i != 0) stream << ",";
-                        stream << setting_object.value[i].c_str();
+                        stream << setting_object.values[i].key.c_str();
                     }
 
                     break;

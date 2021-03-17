@@ -28,31 +28,24 @@
 #include <cassert>
 
 WidgetSettingList::WidgetSettingList(const SettingMetaList &setting_meta, SettingDataList &setting_data)
-    : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data) {
+    : QWidget(nullptr), setting_meta(setting_meta), setting_data(setting_data), _list_widget(new QListWidget(this)) {
     assert(&setting_meta);
     assert(&setting_data);
 
-    _list_widget = new QListWidget(this);
     _list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     _list_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     _list_widget->show();
-    _remove_button = new QPushButton(this);
-    _remove_button->setText("Remove");
-    _remove_button->show();
 
     // Load with existing settings
-    if (!this->setting_data.value.empty()) {
+    if (!this->setting_data.values.empty()) {
         QStringList list;
-        for (std::size_t i = 0, n = this->setting_data.value.size(); i < n; ++i) {
-            list.append(this->setting_data.value[i].c_str());
+        for (std::size_t i = 0, n = this->setting_data.values.size(); i < n; ++i) {
+            list.append(this->setting_data.values[i].key.c_str());
         }
 
         _list_widget->addItems(list);
         _list_widget->setCurrentRow(_list_widget->count() - 1);
-    } else
-        _remove_button->setEnabled(false);
-
-    connect(_remove_button, SIGNAL(pressed()), this, SLOT(removePushed()));
+    }
 }
 
 void WidgetSettingList::resizeEvent(QResizeEvent *event) {
@@ -61,7 +54,6 @@ void WidgetSettingList::resizeEvent(QResizeEvent *event) {
     const int button_height = ITEM_HEIGHT;
     QSize parent_size = event->size();
     _list_widget->setGeometry(0, 0, parent_size.width(), parent_size.height() - button_height);
-    _remove_button->setGeometry(0, parent_size.height() - button_height, parent_size.width(), button_height);
 }
 
 void WidgetSettingList::addItem(const QString &item) {
@@ -69,8 +61,7 @@ void WidgetSettingList::addItem(const QString &item) {
     _list_widget->setCurrentRow(_list_widget->count() - 1);
 
     // Update Setting
-    AppendString(this->setting_data.value, item.toStdString());
-    _remove_button->setEnabled(true);
+    // AppendString(this->setting_data.value, item.toStdString());
     emit itemChanged();
 }
 
@@ -82,7 +73,7 @@ void WidgetSettingList::removePushed() {
     _list_widget->takeItem(row);
 
     // Update Setting
-    RemoveString(this->setting_data.value, item_name.toStdString());
+    // RemoveString(this->setting_data.value, item_name.toStdString());
     emit itemChanged();
     emit itemRemoved(item_name);
 }

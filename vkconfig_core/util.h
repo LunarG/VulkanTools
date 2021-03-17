@@ -103,3 +103,11 @@ QStringList ConvertString(const std::vector<std::string>& strings);
 std::string ToLowerCase(const std::string& value);
 
 std::string ToUpperCase(const std::string& value);
+
+struct EnabledString {
+    std::string key;
+    bool enabled;
+};
+
+inline bool operator==(const EnabledString& a, const EnabledString& b) { return a.key == b.key; }
+inline bool operator<(const EnabledString& a, const EnabledString& b) { return a.key < b.key; }
