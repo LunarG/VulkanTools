@@ -595,6 +595,10 @@ class PhysicalDeviceData {
     // VK_KHR_depth_stencil_resolve structs
     VkPhysicalDeviceDepthStencilResolvePropertiesKHR physical_device_depth_stencil_resolve_properties_;
 
+    // VK_EXT_descriptor_indexing structs
+    VkPhysicalDeviceDescriptorIndexingPropertiesEXT physical_device_descriptor_indexing_properties_;
+    VkPhysicalDeviceDescriptorIndexingFeaturesEXT physical_device_descriptor_indexing_features_;
+
     // VK_KHR_imageless_framebuffer structs
     VkPhysicalDeviceImagelessFramebufferFeaturesKHR physical_device_imageless_framebuffer_features_;
 
@@ -667,6 +671,10 @@ class PhysicalDeviceData {
         // VK_KHR_depth_stencil_resolve structs
         physical_device_depth_stencil_resolve_properties_ = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES_KHR};
+
+        // VK_EXT_descriptor_indexing structs
+        physical_device_descriptor_indexing_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT};
+        physical_device_descriptor_indexing_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT};
 
         // VK_KHR_imageless_framebuffer structs
         physical_device_imageless_framebuffer_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES_KHR};
@@ -751,6 +759,7 @@ class JsonLoader {
         kDevsim16BitStorageKHR,
         kDevsimBufferDeviceAddressKHR,
         kDevsimDepthStencilResolveKHR,
+        kDevsimDescriptorIndexingEXT,
         kDevsimImagelessFramebufferKHR,
         kDevsimMaintenance2KHR,
         kDevsimMaintenance3KHR,
@@ -771,6 +780,7 @@ class JsonLoader {
     SchemaId IdentifySchema(const Json::Value &value);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceDepthStencilResolveProperties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceDescriptorIndexingPropertiesEXT *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFloatControlsPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMaintenance3PropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewPropertiesKHR *dest);
@@ -783,6 +793,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice8BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceBufferDeviceAddressFeaturesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceDescriptorIndexingFeaturesEXT *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceImagelessFramebufferFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
@@ -1181,6 +1192,19 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimDescriptorIndexingEXT:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_EXT_descriptor_indexing, but "
+                    "VK_EXT_descriptor_indexing is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceDescriptorIndexingPropertiesEXT",
+                     &pdd_.physical_device_descriptor_indexing_properties_);
+            GetValue(root, "VkPhysicalDeviceDescriptorIndexingFeaturesEXT", &pdd_.physical_device_descriptor_indexing_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimImagelessFramebufferKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1380,6 +1404,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsimBufferDeviceAddressKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_depth_stencil_resolve_1.json#") == 0) {
         schema_id = SchemaId::kDevsimDepthStencilResolveKHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_EXT_descriptor_indexing_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimDescriptorIndexingEXT;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_imageless_framebuffer_1.json#") == 0) {
         schema_id = SchemaId::kDevsimImagelessFramebufferKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_maintenance2_1.json#") == 0) {
@@ -1456,6 +1482,37 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(supportedStencilResolveModes);
     GET_VALUE_WARN(independentResolveNone, WarnIfGreater);
     GET_VALUE_WARN(independentResolve, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceDescriptorIndexingPropertiesEXT *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceDescriptorIndexingPropertiesEXT)\n");
+    GET_VALUE_WARN(maxUpdateAfterBindDescriptorsInAllPools, WarnIfGreater);
+    GET_VALUE_WARN(shaderUniformBufferArrayNonUniformIndexingNative, WarnIfGreater);
+    GET_VALUE_WARN(shaderSampledImageArrayNonUniformIndexingNative, WarnIfGreater);
+    GET_VALUE_WARN(shaderStorageBufferArrayNonUniformIndexingNative, WarnIfGreater);
+    GET_VALUE_WARN(shaderStorageImageArrayNonUniformIndexingNative, WarnIfGreater);
+    GET_VALUE_WARN(shaderInputAttachmentArrayNonUniformIndexingNative, WarnIfGreater);
+    GET_VALUE_WARN(robustBufferAccessUpdateAfterBind, WarnIfGreater);
+    GET_VALUE_WARN(quadDivergentImplicitLod, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorUpdateAfterBindSamplers, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorUpdateAfterBindUniformBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorUpdateAfterBindStorageBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorUpdateAfterBindSampledImages, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorUpdateAfterBindStorageImages, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorUpdateAfterBindInputAttachments, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageUpdateAfterBindResources, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindSamplers, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindUniformBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindUniformBuffersDynamic, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindStorageBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindStorageBuffersDynamic, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindSampledImages, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindStorageImages, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUpdateAfterBindInputAttachments, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFloatControlsPropertiesKHR *dest) {
@@ -1750,6 +1807,34 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE_WARN(bufferDeviceAddress, WarnIfGreater);
     GET_VALUE_WARN(bufferDeviceAddressCaptureReplay, WarnIfGreater);
     GET_VALUE_WARN(bufferDeviceAddressMultiDevice, WarnIfGreater);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceDescriptorIndexingFeaturesEXT *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceDescriptorIndexingFeaturesEXT)\n");
+    GET_VALUE_WARN(shaderInputAttachmentArrayDynamicIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderUniformTexelBufferArrayDynamicIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderStorageTexelBufferArrayDynamicIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderUniformBufferArrayNonUniformIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderSampledImageArrayNonUniformIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderStorageBufferArrayNonUniformIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderStorageImageArrayNonUniformIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderInputAttachmentArrayNonUniformIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderUniformTexelBufferArrayNonUniformIndexing, WarnIfGreater);
+    GET_VALUE_WARN(shaderStorageTexelBufferArrayNonUniformIndexing, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingUniformBufferUpdateAfterBind, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingSampledImageUpdateAfterBind, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingStorageImageUpdateAfterBind, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingStorageBufferUpdateAfterBind, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingUniformTexelBufferUpdateAfterBind, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingStorageTexelBufferUpdateAfterBind, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingUpdateUnusedWhilePending, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingPartiallyBound, WarnIfGreater);
+    GET_VALUE_WARN(descriptorBindingVariableDescriptorCount, WarnIfGreater);
+    GET_VALUE_WARN(runtimeDescriptorArray, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceImagelessFramebufferFeaturesKHR *dest) {
@@ -2214,6 +2299,18 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = dsrp->pNext;
             *dsrp = physicalDeviceData->physical_device_depth_stencil_resolve_properties_;
             dsrp->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME)) {
+            VkPhysicalDeviceDescriptorIndexingPropertiesEXT *dip = (VkPhysicalDeviceDescriptorIndexingPropertiesEXT *)place;
+            void *pNext = dip->pNext;
+            *dip = physicalDeviceData->physical_device_descriptor_indexing_properties_;
+            dip->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME)) {
+            VkPhysicalDeviceDescriptorIndexingFeaturesEXT *dif = (VkPhysicalDeviceDescriptorIndexingFeaturesEXT *)place;
+            void *pNext = dif->pNext;
+            *dif = physicalDeviceData->physical_device_descriptor_indexing_features_;
+            dif->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
             VkPhysicalDeviceImagelessFramebufferFeaturesKHR *iff = (VkPhysicalDeviceImagelessFramebufferFeaturesKHR *)place;
@@ -2683,6 +2780,16 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_depth_stencil_resolve_properties_.pNext = property_chain.pNext;
 
                     property_chain.pNext = &(pdd.physical_device_depth_stencil_resolve_properties_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME)) {
+                    pdd.physical_device_descriptor_indexing_properties_.pNext = property_chain.pNext;
+
+                    property_chain.pNext = &(pdd.physical_device_descriptor_indexing_properties_);
+
+                    pdd.physical_device_descriptor_indexing_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_descriptor_indexing_features_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
