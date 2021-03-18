@@ -108,6 +108,7 @@ JSON file formats consumed by the DevSim layer are specified by one of the JSON 
 | VK_KHR_multiview | https://schema.khronos.org/vulkan/devsim_VK_KHR_multiview_1.json# |
 | VK_EXT_sampler_filter_minmax | https://schema.khronos.org/vulkan/devsim_VK_EXT_sampler_filter_minmax_1.json# |
 | VK_KHR_sampler_ycbcr_conversion | https://schema.khronos.org/vulkan/devsim_VK_KHR_sampler_ycbcr_conversion_1.json# |
+| VK_EXT_scalar_block_layout | https://schema.khronos.org/vulkan/devsim_VK_EXT_scalar_block_layout_1.json# |
 | VK_KHR_separate_depth_stencil_layouts | https://schema.khronos.org/vulkan/devsim_VK_KHR_separate_depth_stencil_layouts_1.json# |
 | VK_KHR_shader_atomic_int64 | https://schema.khronos.org/vulkan/devsim_VK_KHR_shader_atomic_int64_1.json# |
 | VK_KHR_shader_float_controls | https://schema.khronos.org/vulkan/devsim_VK_KHR_shader_float_controls_1.json# |

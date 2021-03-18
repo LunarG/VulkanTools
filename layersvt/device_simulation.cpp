@@ -625,6 +625,9 @@ class PhysicalDeviceData {
     // VK_KHR_sampler_ycbcr_conversion structs
     VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR physical_device_sampler_ycbcr_conversion_features_;
 
+    // VK_EXT_scalar_block_layout structs
+    VkPhysicalDeviceScalarBlockLayoutFeaturesEXT physical_device_scalar_block_layout_features_;
+
     // VK_KHR_separate_depth_stencil_layouts structs
     VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR physical_device_separate_depth_stencil_layouts_features_;
 
@@ -714,6 +717,9 @@ class PhysicalDeviceData {
         physical_device_separate_depth_stencil_layouts_features_ = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES_KHR};
 
+        // VK_EXT_scalar_block_layout structs
+        physical_device_scalar_block_layout_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES_EXT};
+
         // VK_KHR_shader_atomic_int64 structs
         physical_device_shader_atomic_int64_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES_KHR};
 
@@ -781,6 +787,7 @@ class JsonLoader {
         kDevsimPortabilitySubsetKHR,
         kDevsimSamplerFilterMinmaxEXT,
         kDevsimSamplerYcbcrConversionKHR,
+        kDevsimScalarBlockLayoutEXT,
         kDevsimSeparateDepthStencilLayoutsKHR,
         kDevsimShaderAtomicInt64KHR,
         kDevsimShaderFloatControlsKHR,
@@ -815,6 +822,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceScalarBlockLayoutFeaturesEXT *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderAtomicInt64FeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceShaderFloat16Int8FeaturesKHR *dest);
@@ -1313,6 +1321,17 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimScalarBlockLayoutEXT:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_EXT_scalar_block_layout, but "
+                    "VK_EXT_scalar_block_layout is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceScalarBlockLayoutFeaturesEXT", &pdd_.physical_device_scalar_block_layout_features_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimSeparateDepthStencilLayoutsKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1463,6 +1482,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsimSamplerFilterMinmaxEXT;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_sampler_ycbcr_conversion_1.json#") == 0) {
         schema_id = SchemaId::kDevsimSamplerYcbcrConversionKHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_EXT_scalar_block_layout_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimScalarBlockLayoutEXT;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_separate_depth_stencil_layouts_1.json#") ==
                0) {
         schema_id = SchemaId::kDevsimSeparateDepthStencilLayoutsKHR;
@@ -1952,6 +1973,15 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE_WARN(samplerYcbcrConversion, WarnIfGreater);
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceScalarBlockLayoutFeaturesEXT *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceScalarBlockLayoutFeaturesEXT)\n");
+    GET_VALUE_WARN(scalarBlockLayout, WarnIfGreater);
+}
+
 void JsonLoader::GetValue(const Json::Value &parent, const char *name,
                           VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *dest) {
     const Json::Value value = parent[name];
@@ -2422,6 +2452,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = sycf->pNext;
             *sycf = physicalDeviceData->physical_device_sampler_ycbcr_conversion_features_;
             sycf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES_EXT &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME)) {
+            VkPhysicalDeviceScalarBlockLayoutFeaturesEXT *sblf = (VkPhysicalDeviceScalarBlockLayoutFeaturesEXT *)place;
+            void *pNext = sblf->pNext;
+            *sblf = physicalDeviceData->physical_device_scalar_block_layout_features_;
+            sblf->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
             VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *sdslf =
@@ -2911,6 +2947,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_sampler_ycbcr_conversion_features_.pNext = feature_chain.pNext;
 
                     feature_chain.pNext = &(pdd.physical_device_sampler_ycbcr_conversion_features_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME)) {
+                    pdd.physical_device_scalar_block_layout_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_scalar_block_layout_features_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
