@@ -619,6 +619,9 @@ class PhysicalDeviceData {
     VkPhysicalDevicePortabilitySubsetPropertiesKHR physical_device_portability_subset_properties_;
     VkPhysicalDevicePortabilitySubsetFeaturesKHR physical_device_portability_subset_features_;
 
+    // VK_EXT_sampler_filter_minmax structs
+    VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT physical_device_sampler_filter_minmax_properties_;
+
     // VK_KHR_sampler_ycbcr_conversion structs
     VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR physical_device_sampler_ycbcr_conversion_features_;
 
@@ -699,6 +702,10 @@ class PhysicalDeviceData {
         physical_device_portability_subset_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR};
         physical_device_portability_subset_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR};
 
+        // VK_EXT_sampler_filter_minmax structs
+        physical_device_sampler_filter_minmax_properties_ = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES_EXT};
+
         // VK_KHR_sampler_ycbcr_conversion structs
         physical_device_sampler_ycbcr_conversion_features_ = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES_KHR};
@@ -772,6 +779,7 @@ class JsonLoader {
         kDevsimMaintenance3KHR,
         kDevsimMultiviewKHR,
         kDevsimPortabilitySubsetKHR,
+        kDevsimSamplerFilterMinmaxEXT,
         kDevsimSamplerYcbcrConversionKHR,
         kDevsimSeparateDepthStencilLayoutsKHR,
         kDevsimShaderAtomicInt64KHR,
@@ -793,6 +801,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMultiviewPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePointClippingPropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetPropertiesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceTimelineSemaphorePropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
@@ -1280,6 +1289,18 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsimSamplerFilterMinmaxEXT:
+            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME)) {
+                ErrorPrintf(
+                    "JSON file sets variables for structs provided by VK_EXT_sampler_filter_minmax, but "
+                    "VK_EXT_sampler_filter_minmax is "
+                    "not supported by the device.\n");
+            }
+            GetValue(root, "VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT",
+                     &pdd_.physical_device_sampler_filter_minmax_properties_);
+            result = true;
+            break;
+
         case SchemaId::kDevsimSamplerYcbcrConversionKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1438,6 +1459,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_portability_subset-provisional-1.json#") ==
                0) {
         schema_id = SchemaId::kDevsimPortabilitySubsetKHR;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_EXT_sampler_filter_minmax_1.json#") == 0) {
+        schema_id = SchemaId::kDevsimSamplerFilterMinmaxEXT;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_sampler_ycbcr_conversion_1.json#") == 0) {
         schema_id = SchemaId::kDevsimSamplerYcbcrConversionKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_separate_depth_stencil_layouts_1.json#") ==
@@ -1597,6 +1620,16 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevicePortabilitySubsetPropertiesKHR)\n");
     GET_VALUE_WARN(minVertexInputBindingStrideAlignment, WarnIfLesser);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT)\n");
+    GET_VALUE_WARN(filterMinmaxSingleComponentFormats, WarnIfGreater);
+    GET_VALUE_WARN(filterMinmaxImageComponentMapping, WarnIfGreater);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceTimelineSemaphorePropertiesKHR *dest) {
@@ -2377,6 +2410,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = mf->pNext;
             *mf = physicalDeviceData->physical_device_multiview_features_;
             mf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES_EXT &&
+                   PhysicalDeviceData::HasExtension(physicalDeviceData, VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME)) {
+            VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT *sfmp = (VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT *)place;
+            void *pNext = sfmp->pNext;
+            *sfmp = physicalDeviceData->physical_device_sampler_filter_minmax_properties_;
+            sfmp->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES_KHR &&
                    PhysicalDeviceData::HasExtension(physicalDeviceData, VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME)) {
             VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR *sycf = (VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR *)place;
@@ -2860,6 +2899,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_multiview_features_.pNext = feature_chain.pNext;
 
                     feature_chain.pNext = &(pdd.physical_device_multiview_features_);
+                }
+
+                if (PhysicalDeviceData::HasExtension(physical_device, VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME)) {
+                    pdd.physical_device_sampler_filter_minmax_properties_.pNext = property_chain.pNext;
+
+                    property_chain.pNext = &(pdd.physical_device_sampler_filter_minmax_properties_);
                 }
 
                 if (PhysicalDeviceData::HasExtension(physical_device, VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME)) {
