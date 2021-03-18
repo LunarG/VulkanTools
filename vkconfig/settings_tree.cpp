@@ -228,49 +228,48 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     _validation_areas = new SettingsValidationAreas(_settings_tree, validation_areas_item, validation_layer->_api_version,
                                                     validation_layer->settings, parameter.settings);
 
-    // Get the Debug Action and log file settings (and they must exist)
     const SettingMetaFlags *meta_debug = validation_layer->settings.Get<SettingMetaFlags>("debug_action");
-    assert(meta_debug != nullptr);
-    SettingDataFlags *data_debug = parameter.settings.Get<SettingDataFlags>("debug_action");
-    assert(data_debug != nullptr);
+    if (meta_debug != nullptr) {
+        // The debug action set of settings has it's own branch
+        QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
+        debug_action_branch->setText(0, meta_debug->label.c_str());
+        parent->addChild(debug_action_branch);
 
-    const SettingMetaFileSave *meta_log_file = validation_layer->settings.Get<SettingMetaFileSave>("log_filename");
-    assert(meta_log_file != nullptr);
-    SettingDataFileSave *data_log_file = parameter.settings.Get<SettingDataFileSave>("log_filename");
-    assert(data_log_file != nullptr);
+        SettingDataFlags *data_debug = parameter.settings.Get<SettingDataFlags>("debug_action");
 
-    // The debug action set of settings has it's own branch
-    QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
-    debug_action_branch->setText(0, meta_debug->label.c_str());
-    parent->addChild(debug_action_branch);
+        // Each debug action has it's own checkbox
+        for (std::size_t i = 0, n = meta_debug->enum_values.size(); i < n; ++i) {
+            if (!IsPlatformSupported(meta_debug->enum_values[i].platform_flags)) continue;
+            if (meta_debug->enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
 
-    // Each debug action has it's own checkbox
-    for (std::size_t i = 0, n = meta_debug->enum_values.size(); i < n; ++i) {
-        if (!IsPlatformSupported(meta_debug->enum_values[i].platform_flags)) continue;
-        if (meta_debug->enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+            WidgetSettingFlag *widget =
+                new WidgetSettingFlag(_settings_tree, *meta_debug, *data_debug, meta_debug->enum_values[i].key);
+            debug_action_branch->addChild(child);
+            _settings_tree->setItemWidget(child, 0, widget);
+            connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
-        QTreeWidgetItem *child = new QTreeWidgetItem();
-        child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-        WidgetSettingFlag *widget = new WidgetSettingFlag(_settings_tree, *meta_debug, *data_debug, meta_debug->enum_values[i].key);
-        debug_action_branch->addChild(child);
-        _settings_tree->setItemWidget(child, 0, widget);
-        connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            // The log message action also has a child; the log file selection setting/widget
+            // Note, this is usually last, but I'll check for it any way in case other new items are added
+            if (meta_debug->enum_values[i].key == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
+                const SettingMetaFileSave *meta_log_file = validation_layer->settings.Get<SettingMetaFileSave>("log_filename");
+                SettingDataFileSave *data_log_file = parameter.settings.Get<SettingDataFileSave>("log_filename");
 
-        // The log message action also has a child; the log file selection setting/widget
-        // Note, this is usually last, but I'll check for it any way in case other new items are added
-        if (meta_debug->enum_values[i].key == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
-            _validation_debug_action = widget;
-            _validation_log_file_item = new QTreeWidgetItem();
-            child->addChild(_validation_log_file_item);
-            _validation_log_file_widget = new WidgetSettingFilesystem(_validation_log_file_item, *meta_log_file, *data_log_file);
-            _validation_log_file_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            _settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
+                _validation_debug_action = widget;
+                _validation_log_file_item = new QTreeWidgetItem();
+                child->addChild(_validation_log_file_item);
+                _validation_log_file_widget =
+                    new WidgetSettingFilesystem(_validation_log_file_item, *meta_log_file, *data_log_file);
+                _validation_log_file_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                _settings_tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
 
-            connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-            connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(khronosDebugChanged(int)));
+                connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(khronosDebugChanged(int)));
 
-            // Capture initial state, which reflects enabled/disabled
-            _validation_log_file_widget->setDisabled(!_validation_debug_action->isChecked());
+                // Capture initial state, which reflects enabled/disabled
+                _validation_log_file_widget->setDisabled(!_validation_debug_action->isChecked());
+            }
         }
     }
 
@@ -298,17 +297,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         }
     }
 
-    const SettingMetaInt *meta_duplicate = validation_layer->settings.Get<SettingMetaInt>("duplicate_message_limit");
-    if (meta_duplicate != nullptr) {
-        const SettingMetaInt &meta = *meta_duplicate;
-        SettingDataInt &data = *parameter.settings.Get<SettingDataInt>(meta.key.c_str());
-
-        QTreeWidgetItem *setting_item = new QTreeWidgetItem();
-        parent->addChild(setting_item);
-        WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, setting_item, meta, data);
-        this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-    }
-
     const SettingMetaList *meta_filter = validation_layer->settings.Get<SettingMetaList>("message_id_filter");
     if (meta_filter != nullptr) {
         const SettingMetaList &meta = *meta_filter;
@@ -332,6 +320,17 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         }
 
         this->connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+    }
+
+    const SettingMetaInt *meta_duplicate = validation_layer->settings.Get<SettingMetaInt>("duplicate_message_limit");
+    if (meta_duplicate != nullptr) {
+        const SettingMetaInt &meta = *meta_duplicate;
+        SettingDataInt &data = *parameter.settings.Get<SettingDataInt>(meta.key.c_str());
+
+        QTreeWidgetItem *setting_item = new QTreeWidgetItem();
+        parent->addChild(setting_item);
+        WidgetSettingInt *widget = new WidgetSettingInt(_settings_tree, setting_item, meta, data);
+        this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
 
     this->connect(_validation_areas, SIGNAL(settingChanged()), this, SLOT(OnSettingChanged()));
