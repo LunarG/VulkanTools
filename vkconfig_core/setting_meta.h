@@ -157,11 +157,12 @@ struct SettingMetaFlags : public SettingMetaEnumeration {
 };
 
 struct SettingMetaList : public SettingMeta {
-    SettingMetaList(const std::string& key) : SettingMeta(key, SETTING_LIST) {}
+    SettingMetaList(const std::string& key) : SettingMeta(key, SETTING_LIST), list_only(false) {}
     virtual ~SettingMetaList() {}
 
     std::vector<std::string> list;
     std::vector<EnabledString> default_value;
+    bool list_only;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;

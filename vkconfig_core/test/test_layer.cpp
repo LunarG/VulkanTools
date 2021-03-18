@@ -624,6 +624,7 @@ TEST(test_layer, load_1_4_0_setting_list_required_only) {
     EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
+    EXPECT_TRUE(!setting_meta->list_only);
     EXPECT_STREQ("stringA", setting_meta->list[0].c_str());
     EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
     EXPECT_STREQ("stringC", setting_meta->list[2].c_str());
@@ -653,6 +654,7 @@ TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
+    EXPECT_TRUE(setting_meta->list_only);
     EXPECT_STREQ("stringA", setting_meta->list[0].c_str());
     EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
     EXPECT_STREQ("stringC", setting_meta->list[2].c_str());

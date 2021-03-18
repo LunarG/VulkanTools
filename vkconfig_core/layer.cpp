@@ -205,11 +205,11 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                 case SETTING_SAVE_FOLDER:
                 case SETTING_SAVE_FILE:
                 case SETTING_LOAD_FILE: {
-                    SettingMetaFilesystem& setting_meta_filesystem = static_cast<SettingMetaFilesystem&>(setting_meta);
+                    SettingMetaFilesystem& meta = static_cast<SettingMetaFilesystem&>(setting_meta);
                     if (json_setting.value("filter") != QJsonValue::Undefined) {
-                        setting_meta_filesystem.filter = ReadStringValue(json_setting, "filter");
+                        meta.filter = ReadStringValue(json_setting, "filter");
                     }
-                    setting_meta_filesystem.default_value = ReadStringValue(json_setting, "default");
+                    meta.default_value = ReadStringValue(json_setting, "default");
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED:
@@ -219,7 +219,8 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                 }
                 case SETTING_FLAGS:
                 case SETTING_ENUM: {
-                    SettingMetaEnumeration& setting_meta_enumeration = static_cast<SettingMetaEnumeration&>(setting_meta);
+                    SettingMetaEnumeration& meta = static_cast<SettingMetaEnumeration&>(setting_meta);
+
                     const QJsonArray& json_array_flags = ReadArray(json_setting, "flags");
                     for (int i = 0, n = json_array_flags.size(); i < n; ++i) {
                         const QJsonObject& json_object = json_array_flags[i].toObject();
@@ -228,7 +229,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         setting_enum_value.key = ReadStringValue(json_object, "key");
                         LoadMetaHeader(setting_enum_value, json_object);
 
-                        setting_meta_enumeration.enum_values.push_back(setting_enum_value);
+                        meta.enum_values.push_back(setting_enum_value);
                     }
                     if (type == SETTING_FLAGS) {
                         static_cast<SettingMetaFlags&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
@@ -241,6 +242,9 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
 
                     meta.list = ReadStringArray(json_setting, "list");
+                    if (json_setting.value("list_only") != QJsonValue::Undefined) {
+                        meta.list_only = ReadBoolValue(json_setting, "list_only");
+                    }
 
                     const QJsonArray& json_default = ReadArray(json_setting, "default");
                     for (int i = 0, n = json_default.size(); i < n; ++i) {

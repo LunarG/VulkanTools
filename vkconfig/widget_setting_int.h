@@ -38,7 +38,7 @@ class WidgetSettingInt : public QWidget {
     QLineEdit* GetField() const { return this->field; }
 
    public Q_SLOTS:
-    void OnTextEdited(const QString& newString);
+    void OnTextEdited(const QString& value);
     void FieldEditedCheck();
 
    Q_SIGNALS:

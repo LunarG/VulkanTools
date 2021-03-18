@@ -24,8 +24,6 @@
 #include "../vkconfig_core/setting_data.h"
 #include "../vkconfig_core/setting_meta.h"
 
-#include <QWidget>
-#include <QResizeEvent>
 #include <QCheckBox>
 #include <QPushButton>
 #include <QTreeWidgetItem>
@@ -37,7 +35,6 @@ class WidgetSettingFlag : public QCheckBox {
                                const std::string& setting_flag);
 
    public Q_SLOTS:
-    void OnButtonClicked();
     void OnItemChecked(bool checked);
 
    Q_SIGNALS:
@@ -47,10 +44,7 @@ class WidgetSettingFlag : public QCheckBox {
     WidgetSettingFlag(const WidgetSettingFlag&) = delete;
     WidgetSettingFlag& operator=(const WidgetSettingFlag&) = delete;
 
-    void resizeEvent(QResizeEvent* event) override;
-
     const SettingMetaFlags& setting_meta;
     SettingDataFlags& setting_data;
     std::string setting_flag;
-    QPushButton* button;
 };
