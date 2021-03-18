@@ -29,7 +29,7 @@
 
 WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
                                      const std::string& setting_flag)
-    : setting_meta(setting_meta), setting_data(setting_data), setting_flag(setting_flag), button(new QPushButton(this)) {
+    : setting_meta(setting_meta), setting_data(setting_data), setting_flag(setting_flag) {
     assert(&setting_data);
     assert(!setting_flag.empty());
 
@@ -43,18 +43,6 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& 
         this->setChecked(true);
 
     this->connect(this, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
-
-    this->button->setText("-");
-    this->button->setFont(tree->font());
-    this->button->show();
-    this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnButtonClicked()));
-}
-
-void WidgetSettingFlag::resizeEvent(QResizeEvent* event) {
-    const QSize parent_size = event->size();
-
-    const QRect button_rect = QRect(parent_size.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, parent_size.height());
-    this->button->setGeometry(button_rect);
 }
 
 void WidgetSettingFlag::OnItemChecked(bool checked) {
@@ -66,5 +54,3 @@ void WidgetSettingFlag::OnItemChecked(bool checked) {
 
     emit itemChanged();
 }
-
-void WidgetSettingFlag::OnButtonClicked() { emit itemChanged(); }

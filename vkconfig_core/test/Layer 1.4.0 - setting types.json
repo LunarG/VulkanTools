@@ -330,6 +330,7 @@
                     "stringC",
                     "stringD"
                 ],
+                "list_only" : true, 
                 "default": [
                     {
                         "key": "stringB",

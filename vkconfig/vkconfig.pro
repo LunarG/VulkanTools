@@ -61,7 +61,6 @@ SOURCES += \
     widget_setting_int.cpp \
     widget_setting_frames.cpp \
     widget_setting_string.cpp \
-    widget_setting_list.cpp \
     widget_setting_list_element.cpp \
     widget_setting_search.cpp \
     widget_tree_friendly_combobox.cpp \
@@ -119,7 +118,6 @@ HEADERS += \
     widget_setting_int.h \
     widget_setting_frames.h \
     widget_setting_string.h \
-    widget_setting_list.h \
     widget_setting_list_element.h \
     widget_setting_search.h \
     widget_tree_friendly_combobox.h \

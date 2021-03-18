@@ -716,6 +716,10 @@
                                     "type": "object"
                                 }
                             },
+                            "list_only": {
+                                "description": "To exclude any additional values that the values in the list",
+                                "type": "boolean"
+                            },
                             "default": {
                                 "type": "array",
                                 "items": {

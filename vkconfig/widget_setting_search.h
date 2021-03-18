@@ -39,12 +39,13 @@ class WidgetSettingSearch : public QWidget {
     explicit WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data);
 
    public Q_SLOTS:
-    void addButtonPressed();
-    void addCompleted(const QString &addedItem);
-    void addToSearchList(const QString &newItem);
+    void OnAddCompleted(const QString &value);
+    void OnButtonPressed();
+    void OnItemSelected(const QString &value);
+    void OnTextEdited(const QString &value);
 
    Q_SIGNALS:
-    void itemSelected(const QString &textSelected);
+    void itemSelected(const QString &selected_text);
     void itemChanged();
 
    private:
@@ -55,7 +56,6 @@ class WidgetSettingSearch : public QWidget {
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     void ResetCompleter();
-    void AddChildItem(const char *label, bool checked);
 
     const SettingMetaList &meta;
     SettingDataList &data;
