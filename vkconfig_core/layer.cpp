@@ -242,6 +242,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
 
                     meta.list = ReadStringArray(json_setting, "list");
+                    std::sort(meta.list.begin(), meta.list.end());
                     if (json_setting.value("list_only") != QJsonValue::Undefined) {
                         meta.list_only = ReadBoolValue(json_setting, "list_only");
                     }

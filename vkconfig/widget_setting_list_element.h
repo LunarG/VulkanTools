@@ -40,6 +40,7 @@ class WidgetSettingListElement : public QCheckBox {
     void OnItemChecked(bool checked);
 
    Q_SIGNALS:
+    void itemSelected(const QString& value);
     void itemChanged();
 
    private:

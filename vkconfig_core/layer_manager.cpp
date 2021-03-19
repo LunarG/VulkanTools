@@ -111,11 +111,14 @@ void LayerManager::LoadAllInstalledLayers() {
         LoadLayersFromPath(SEARCH_PATHS[i]);
     }
 
-    // FOURTH: Finally, see if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
+    // FOURTH: See if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
     const std::string vulkan_sdk(qgetenv("VULKAN_SDK").toStdString());
     if (!vulkan_sdk.empty()) {
         LoadLayersFromPath(vulkan_sdk + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS));
     }
+
+    // FIFTH: load test layers in debug build
+    LoadLayersFromPath(":/layers/test");
 }
 
 /// Search a folder and load up all the layers found there. This does NOT

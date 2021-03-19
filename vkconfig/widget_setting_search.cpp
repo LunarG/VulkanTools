@@ -20,6 +20,7 @@
  */
 
 #include "widget_setting_search.h"
+#include "widget_setting_list_element.h"
 #include "widget_setting.h"
 
 #include "../vkconfig_core/util.h"
@@ -32,6 +33,7 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
                                          SettingDataList &data)
     : meta(meta),
       data(data),
+      tree(tree),
       item(item),
       search(nullptr),
       field(new QLineEdit(this)),
@@ -42,7 +44,6 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
     assert(&meta);
     assert(&data);
 
-    std::sort(this->list.begin(), this->list.end());
     for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
         RemoveString(this->list, data.values[i].key.c_str());
     }
@@ -65,7 +66,6 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
     this->field->installEventFilter(this);
     this->field->setEnabled(!this->list.empty());
 
-    this->connect(this->field, SIGNAL(itemSelected(const QString &)), this, SLOT(OnItemSelected(const QString &)));
     this->connect(this->field, SIGNAL(textEdited(const QString &)), this, SLOT(OnTextEdited(const QString &)),
                   Qt::QueuedConnection);
 
@@ -74,6 +74,8 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
     this->add_button->setEnabled(!this->field->text().isEmpty());
 
     this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnButtonPressed()));
+
+    this->OnItemSelected("");
 
     ResetCompleter();
 }
@@ -89,13 +91,18 @@ void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
     this->add_button->setGeometry(parent_size.width() - button_size, 0, button_size, parent_size.height());
 }
 
-/// Reload the completer with a revised list of VUID's.
-/// I'm quite impressed with how fast this brute force implementation
-/// runs in release mode.
+bool WidgetSettingSearch::eventFilter(QObject *target, QEvent *event) {
+    (void)target;
+    if (event->type() == QEvent::Wheel) {
+        event->ignore();
+        return true;
+    }
+
+    return field->eventFilter(target, event);
+}
+
 void WidgetSettingSearch::ResetCompleter() {
     if (this->search != nullptr) this->search->deleteLater();
-
-    // ConvertString(this->list);
 
     this->search = new QCompleter(QStringList(ConvertString(list)), this);
     this->search->setCaseSensitivity(Qt::CaseSensitive);
@@ -109,6 +116,18 @@ void WidgetSettingSearch::ResetCompleter() {
 
     this->connect(this->search, SIGNAL(activated(const QString &)), this, SLOT(OnAddCompleted(const QString &)),
                   Qt::QueuedConnection);
+}
+
+void WidgetSettingSearch::AddElement(const std::string &key) {
+    QTreeWidgetItem *child = new QTreeWidgetItem();
+    child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->addChild(child);
+
+    WidgetSettingListElement *widget = new WidgetSettingListElement(tree, meta, data, key);
+    this->tree->setItemWidget(child, 0, widget);
+
+    this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+    this->connect(widget, SIGNAL(itemSelected(const QString &)), this, SLOT(OnItemSelected(const QString &)));
 }
 
 // Clear the edit control after the completer is finished.
@@ -130,7 +149,7 @@ void WidgetSettingSearch::OnButtonPressed() {
 
     this->field->setText("");
 
-    if (meta.list_only && IsStringFound(this->meta.list, entry.toStdString())) {
+    if (meta.list_only && !IsStringFound(this->meta.list, entry.toStdString())) {
         QMessageBox alert;
         alert.setWindowTitle("Invalid value");
         alert.setText(
@@ -146,18 +165,10 @@ void WidgetSettingSearch::OnButtonPressed() {
     enabled_string.enabled = true;
     this->data.values.push_back(enabled_string);
 
-    RemoveString(this->list, entry.toStdString());
-    ResetCompleter();
-}
+    ::RemoveString(this->list, entry.toStdString());
 
-void WidgetSettingSearch::OnItemSelected(const QString &value) {
-    QTreeWidgetItem *child = new QTreeWidgetItem();
-    child->setText(0, value);
-    child->setFont(0, this->item->font(0));
-    child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    child->setToolTip(0, value);
-    child->setCheckState(0, Qt::Checked);
-    this->item->addChild(child);
+    this->OnItemSelected("");
+    this->ResetCompleter();
 }
 
 void WidgetSettingSearch::OnTextEdited(const QString &value) {
@@ -167,13 +178,35 @@ void WidgetSettingSearch::OnTextEdited(const QString &value) {
     this->add_button->setEnabled(!value.isEmpty());
 }
 
-// Ignore mouse wheel events in combo box, otherwise, it fills the list box with ID's
-bool WidgetSettingSearch::eventFilter(QObject *target, QEvent *event) {
-    (void)target;
-    if (event->type() == QEvent::Wheel) {
-        event->ignore();
-        return true;
+void WidgetSettingSearch::OnItemSelected(const QString &value) {
+    (void)value;
+
+    this->list = meta.list;
+    for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
+        ::RemoveString(this->list, data.values[i].key.c_str());
     }
 
-    return field->eventFilter(target, event);
+    while (this->item->childCount() > 0) {
+        this->item->removeChild(this->item->child(0));
+    }
+
+    std::sort(data.values.begin(), data.values.end());
+
+    for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
+        this->AddElement(data.values[i].key);
+    }
+
+    if (this->list.empty()) {
+        this->field->hide();
+        this->add_button->hide();
+    } else {
+        this->field->show();
+        this->add_button->show();
+    }
+
+    this->ResetCompleter();
+
+    emit itemChanged();
 }
+
+void WidgetSettingSearch::OnSettingChanged() { emit itemChanged(); }

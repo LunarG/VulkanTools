@@ -41,11 +41,12 @@ class WidgetSettingSearch : public QWidget {
    public Q_SLOTS:
     void OnAddCompleted(const QString &value);
     void OnButtonPressed();
-    void OnItemSelected(const QString &value);
     void OnTextEdited(const QString &value);
+    void OnSettingChanged();
+    void OnItemSelected(const QString &value);
 
    Q_SIGNALS:
-    void itemSelected(const QString &selected_text);
+    void itemSelected(const QString &value);
     void itemChanged();
 
    private:
@@ -55,11 +56,14 @@ class WidgetSettingSearch : public QWidget {
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
+    void AddElement(const std::string &key);
+
     void ResetCompleter();
 
     const SettingMetaList &meta;
     SettingDataList &data;
 
+    QTreeWidget *tree;
     QTreeWidgetItem *item;
     QCompleter *search;
     QLineEdit *field;

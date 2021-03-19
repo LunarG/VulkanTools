@@ -33,6 +33,7 @@
 #include <QComboBox>
 
 #include <vector>
+#include <memory>
 
 class SettingsTreeManager : QObject {
     Q_OBJECT
@@ -46,7 +47,7 @@ class SettingsTreeManager : QObject {
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
    public Q_SLOTS:
-    void khronosDebugChanged(int index);
+    void OnDebugChanged(int index);
     void OnPresetChanged(int index);
     void OnSettingChanged();
 
@@ -57,11 +58,11 @@ class SettingsTreeManager : QObject {
     void BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
 
-    QTreeWidget *_settings_tree;
-    std::vector<WidgetPreset *> _presets_comboboxes;
+    QTreeWidget *tree;
+    std::vector<WidgetPreset *> presets;
 
     QTreeWidgetItem *_validation_log_file_item;
     WidgetSettingFilesystem *_validation_log_file_widget;
     WidgetSettingFlag *_validation_debug_action;
-    SettingsValidationAreas *_validation_areas;
+    std::unique_ptr<SettingsValidationAreas> validation;
 };
