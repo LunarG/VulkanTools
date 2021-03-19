@@ -56,8 +56,8 @@ class WidgetSettingSearch : public QWidget {
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
+    void Resize();
     void AddElement(const std::string &key);
-
     void ResetCompleter();
 
     const SettingMetaList &meta;
@@ -68,6 +68,7 @@ class WidgetSettingSearch : public QWidget {
     QCompleter *search;
     QLineEdit *field;
     QPushButton *add_button;
+    QSize size;
 
     std::vector<std::string> list;
     std::vector<bool> enabled;
