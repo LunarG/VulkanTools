@@ -63,7 +63,8 @@ class SettingsValidationAreas : public QObject {
     QTreeWidgetItem *_best_practices_box;
     QTreeWidgetItem *_best_practices_arm_box;
 
-    QTreeWidgetItem *AddTreeWidgetItem(QTreeWidgetItem *parent, const SettingEnumValue &enum_value);
+    QTreeWidgetItem *AddItem(QTreeWidgetItem *parent, const SettingEnumValue *enum_value, bool enabled);
+    QTreeWidgetItem *AddItem(QTreeWidgetItem *parent, const SettingMetaBool *setting);
 
    public Q_SLOTS:
     void itemChanged(QTreeWidgetItem *item, int column);
