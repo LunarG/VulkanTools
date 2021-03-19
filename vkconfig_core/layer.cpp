@@ -83,6 +83,9 @@ static void LoadMetaHeader(Header& header, const QJsonObject& json_object) {
     if (json_object.value("status") != QJsonValue::Undefined) {
         header.status = GetStatusType(ReadStringValue(json_object, "status").c_str());
     }
+    if (json_object.value("view") != QJsonValue::Undefined) {
+        header.view = GetSettingView(ReadStringValue(json_object, "view").c_str());
+    }
     if (json_object.value("platforms") != QJsonValue::Undefined) {
         header.platform_flags = GetPlatformFlags(ReadStringArray(json_object, "platforms"));
     }

@@ -28,7 +28,7 @@ TEST(test_setting_type, is_enum_true2) { EXPECT_EQ(true, IsEnum(SETTING_FLAGS));
 
 TEST(test_setting_type, is_enum_false) { EXPECT_EQ(false, IsEnum(SETTING_STRING)); }
 
-TEST(test_setting_type, get_setting_token) { EXPECT_STREQ("STRING", GetSettingToken(SETTING_STRING)); }
+TEST(test_setting_type, get_setting_token) { EXPECT_STREQ("STRING", GetSettingTypeToken(SETTING_STRING)); }
 
 TEST(test_setting_type, get_setting_type) { EXPECT_EQ(SETTING_STRING, GetSettingType("STRING")); }
 
@@ -41,3 +41,13 @@ TEST(test_setting_type, get_setting_save_folder) { EXPECT_TRUE(IsPath(SETTING_SA
 TEST(test_setting_type, get_setting_string) { EXPECT_TRUE(!IsPath(SETTING_STRING)); }
 
 TEST(test_setting_type, get_setting_bool) { EXPECT_TRUE(!IsPath(SETTING_BOOL)); }
+
+TEST(test_setting_type, get_setting_state_hidden) {
+    EXPECT_EQ(SETTING_VIEW_HIDDEN, GetSettingView("HIDDEN"));
+    EXPECT_STREQ("HIDDEN", GetSettingViewToken(SETTING_VIEW_HIDDEN));
+}
+
+TEST(test_setting_type, get_setting_state_standard) {
+    EXPECT_EQ(SETTING_VIEW_STANDARD, GetSettingView("STANDARD"));
+    EXPECT_STREQ("STANDARD", GetSettingViewToken(SETTING_VIEW_STANDARD));
+}

@@ -21,15 +21,17 @@
 #pragma once
 
 #include "platform.h"
+#include "setting_type.h"
 
 #include <string>
 
 struct Header {
-    Header() : status(STATUS_STABLE), platform_flags(PLATFORM_ALL_BIT) {}
+    Header() : status(STATUS_STABLE), view(SETTING_VIEW_STANDARD), platform_flags(PLATFORM_ALL_BIT) {}
 
     std::string label;
     std::string description;
     std::string url;
     StatusType status;
+    SettingView view;
     int platform_flags;
 };

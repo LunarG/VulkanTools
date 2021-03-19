@@ -181,7 +181,8 @@
                     {
                         "key": "VK_DBG_LAYER_ACTION_CALLBACK",
                         "label": "Callback",
-                        "description": "Call user defined callback function(s) that have been registered via the VK_EXT_debug_report extension. Since application must register callback, this is a NOOP for the settings file."
+                        "description": "Call user defined callback function(s) that have been registered via the VK_EXT_debug_report extension. Since application must register callback, this is a NOOP for the settings file.",
+                        "view": "HIDDEN"
                     },
                     {
                         "key": "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT",
@@ -6750,37 +6751,44 @@
                     {
                         "key": "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT",
                         "label": "Disable Shaders",
-                        "description": ""
+                        "description": "",
+                        "view": "ADVANCED"
                     },
                     {
                         "key": "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
                         "label": "Command Buffer State",
-                        "description": ""
+                        "description": "",
+                        "view": "ADVANCED"
                     },
                     {
                         "key": "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
                         "label": "Image Layout",
-                        "description": ""
+                        "description": "",
+                        "view": "ADVANCED"
                     },
                     {
                         "key": "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
                         "label": "Query",
-                        "description": ""
+                        "description": "",
+                        "view": "ADVANCED"
                     },
                     {
                         "key": "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE",
                         "label": "Push Constant Range",
-                        "description": ""
+                        "description": "",
+                        "view": "ADVANCED"
                     },
                     {
                         "key": "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
                         "label": "Object in Use",
-                        "description": ""
+                        "description": "",
+                        "view": "ADVANCED"
                     },
                     {
                         "key": "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
                         "label": "Idle Descritor Set",
-                        "description": ""
+                        "description": "",
+                        "view": "ADVANCED"
                     }
                 ],
                 "default": []
