@@ -268,9 +268,9 @@
             {
                 "key": "duplicate_message_limit",
                 "label": "Duplicated Messages Limit",
-                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
+                "description": "Limit the number of times any single validation message would be reported. 0 is unlimited.",
                 "type": "INT",
-                "default": 10,
+                "default": 0,
                 "range": {
                     "min": 0
                 }
