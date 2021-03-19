@@ -73,7 +73,9 @@ void WidgetSettingListElement::OnButtonClicked() {
         this->data.values.erase(it);
     }
 
-    emit itemChanged();
+    this->setEnabled(false);
+
+    emit itemSelected(this->element.c_str());
 }
 
 bool WidgetSettingListElement::GetChecked() const {

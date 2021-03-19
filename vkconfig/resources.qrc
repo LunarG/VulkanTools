@@ -11,7 +11,11 @@
         <file alias="Synchronization.json">../vkconfig_core/configurations/2.2.1/Synchronization.json</file>
         <file alias="Validation.json">../vkconfig_core/configurations/2.2.1/Validation.json</file>
     </qresource>
-    
+  
+    <qresource prefix="/layers/test">
+		<file alias="VK_LAYER_LUNARG_test_1_4_0.json">../vkconfig_core/test/Layer 1.4.0 - setting types.json</file>
+    </qresource>
+
     <qresource prefix="/layers/130">
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/130/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/130/VK_LAYER_LUNARG_api_dump.json</file>
