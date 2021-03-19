@@ -33,6 +33,9 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnu
 
     int selection = 0;
     for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
+        if (!IsPlatformSupported(setting_meta.enum_values[i].platform_flags)) continue;
+        if (setting_meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
+
         this->addItem(setting_meta.enum_values[i].label.c_str());
         if (setting_meta.enum_values[i].key == setting_data.value) {
             selection = static_cast<int>(i);

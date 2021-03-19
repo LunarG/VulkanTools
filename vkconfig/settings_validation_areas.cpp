@@ -89,7 +89,11 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
         for (std::size_t i = 0, n = countof(CORE_KEYS); i < n; i++) {
             const SettingEnumValue *enum_core_child = FindByKey(setting_meta_disables->enum_values, CORE_KEYS[i]);
-            const bool core_child_enabled = !HasDisable(CORE_KEYS[i]);
+            if (enum_core_child == nullptr) continue;
+            if (enum_core_child->view == SETTING_VIEW_HIDDEN) continue;
+            if (!IsPlatformSupported(enum_core_child->platform_flags)) continue;
+
+            const bool core_child_enabled = !HasDisable(enum_core_child->key.c_str());
 
             QTreeWidgetItem *core_child_item = new QTreeWidgetItem();
             core_child_item->setText(0, enum_core_child->label.c_str());
@@ -103,13 +107,15 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
     // Miscellaneous disables
     for (std::size_t i = 0, n = countof(MISC_KEYS); i < n; ++i) {
-        const SettingEnumValue *enum_misc = FindByKey(setting_meta_disables->enum_values, MISC_KEYS[i]);
-        const bool misc_child_enabled = !HasDisable(MISC_KEYS[i]);
+        const SettingEnumValue *enum_value = FindByKey(setting_meta_disables->enum_values, MISC_KEYS[i]);
+        if (enum_value == nullptr) continue;
+        if (enum_value->view == SETTING_VIEW_HIDDEN) continue;
+        if (!IsPlatformSupported(enum_value->platform_flags)) continue;
 
         QTreeWidgetItem *misc_child_item = new QTreeWidgetItem();
-        misc_child_item->setText(0, enum_misc->label.c_str());
-        misc_child_item->setToolTip(0, enum_misc->description.c_str());
-        misc_child_item->setCheckState(0, misc_child_enabled ? Qt::Checked : Qt::Unchecked);
+        misc_child_item->setText(0, enum_value->label.c_str());
+        misc_child_item->setToolTip(0, enum_value->description.c_str());
+        misc_child_item->setCheckState(0, !HasDisable(enum_value->key.c_str()) ? Qt::Checked : Qt::Unchecked);
         parent->addChild(misc_child_item);
         _misc_boxes.push_back(misc_child_item);
     }
@@ -146,13 +152,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
                 FindByKey(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
 
             if (enum_gpu_assisted_slot != nullptr) {
-                const bool reserve_binding_slot = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
-
-                _gpu_assisted_reserve_box = new QTreeWidgetItem();
-                _gpu_assisted_reserve_box->setText(0, enum_gpu_assisted_slot->label.c_str());
-                _gpu_assisted_reserve_box->setToolTip(0, enum_gpu_assisted_slot->description.c_str());
-                _gpu_assisted_reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
-                _gpu_assisted_box->addChild(_gpu_assisted_reserve_box);
+                _gpu_assisted_reserve_box = this->AddTreeWidgetItem(_gpu_assisted_box, *enum_gpu_assisted_slot);
             }
 
             const SettingMetaBool *meta_gpuav_buffer_oob = settings_meta.Get<SettingMetaBool>("gpuav_buffer_oob");
@@ -246,24 +246,13 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         connect(_debug_printf_buffer_size_value, SIGNAL(textEdited(const QString &)), this,
                 SLOT(printfBufferSizeEdited(const QString &)));
     } else if (enum_gpu_assisted != nullptr) {
-        _gpu_assisted_box = new QTreeWidgetItem();
-        _gpu_assisted_box->setText(0, enum_gpu_assisted->label.c_str());
-        _gpu_assisted_box->setToolTip(0, enum_gpu_assisted->description.c_str());
-        _gpu_assisted_box->setCheckState(0, has_gpu_assisted ? Qt::Checked : Qt::Unchecked);
-        parent->addChild(_gpu_assisted_box);
+        _gpu_assisted_box = this->AddTreeWidgetItem(parent, *enum_gpu_assisted);
 
         const SettingEnumValue *enum_gpu_assisted_slot =
             FindByKey(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
 
         if (enum_gpu_assisted_slot != nullptr) {
-            const bool reserve_binding_slot = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
-
-            _gpu_assisted_reserve_box = new QTreeWidgetItem();
-            _gpu_assisted_reserve_box->setText(0, enum_gpu_assisted_slot->label.c_str());
-            _gpu_assisted_reserve_box->setToolTip(0, enum_gpu_assisted_slot->description.c_str());
-            _gpu_assisted_reserve_box->setCheckState(0, reserve_binding_slot ? Qt::Checked : Qt::Unchecked);
-            _gpu_assisted_box->addChild(_gpu_assisted_reserve_box);
-
+            _gpu_assisted_reserve_box = this->AddTreeWidgetItem(_gpu_assisted_box, *enum_gpu_assisted_slot);
             ::EnableItem(_gpu_assisted_reserve_box, _gpu_assisted_box->checkState(0) == Qt::Checked);
         }
     }
@@ -273,13 +262,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         FindByKey(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT");
 
     if (enum_synchronization != nullptr) {
-        const bool enable_best_practices = HasEnable(enum_synchronization->key.c_str());
-
-        _synchronization_box = new QTreeWidgetItem();
-        _synchronization_box->setText(0, enum_synchronization->label.c_str());
-        _synchronization_box->setToolTip(0, enum_synchronization->description.c_str());
-        _synchronization_box->setCheckState(0, enable_best_practices ? Qt::Checked : Qt::Unchecked);
-        parent->addChild(_synchronization_box);
+        _synchronization_box = this->AddTreeWidgetItem(parent, *enum_synchronization);
     }
 
     // Best Practices - one parent/child, but we want to be able to go back to these
@@ -287,26 +270,14 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         FindByKey(setting_meta_enables->enum_values, "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT");
 
     if (enum_best_practices != nullptr) {
-        const bool enable_best_practices = HasEnable(enum_best_practices->key.c_str());
-
-        _best_practices_box = new QTreeWidgetItem();
-        _best_practices_box->setText(0, enum_best_practices->label.c_str());
-        _best_practices_box->setToolTip(0, enum_best_practices->description.c_str());
-        _best_practices_box->setCheckState(0, enable_best_practices ? Qt::Checked : Qt::Unchecked);
-        parent->addChild(_best_practices_box);
+        _best_practices_box = this->AddTreeWidgetItem(parent, *enum_best_practices);
 
         // ARM best practices
         const SettingEnumValue *enum_best_practices_arm =
             FindByKey(setting_meta_enables->enum_values, "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM");
 
         if (enum_best_practices_arm != nullptr) {
-            const bool enable_best_practices_arm = HasEnable(enum_best_practices_arm->key.c_str());
-
-            _best_practices_arm_box = new QTreeWidgetItem();
-            _best_practices_arm_box->setText(0, enum_best_practices_arm->label.c_str());
-            _best_practices_arm_box->setToolTip(0, enum_best_practices_arm->description.c_str());
-            _best_practices_arm_box->setCheckState(0, enable_best_practices_arm ? Qt::Checked : Qt::Unchecked);
-            _best_practices_box->addChild(_best_practices_arm_box);
+            _best_practices_arm_box = this->AddTreeWidgetItem(_best_practices_box, *enum_best_practices_arm);
             ::EnableItem(_best_practices_arm_box, _best_practices_box->checkState(0) == Qt::Checked);
         }
     }
@@ -315,6 +286,19 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
     connect(_main_tree_widget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
     connect(_main_tree_widget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(itemClicked(QTreeWidgetItem *, int)));
+}
+
+QTreeWidgetItem *SettingsValidationAreas::AddTreeWidgetItem(QTreeWidgetItem *parent, const SettingEnumValue &enum_value) {
+    if (!IsPlatformSupported(enum_value.platform_flags)) return nullptr;
+    if (enum_value.view == SETTING_VIEW_HIDDEN) return nullptr;
+
+    QTreeWidgetItem *child = new QTreeWidgetItem();
+    child->setText(0, enum_value.label.c_str());
+    child->setToolTip(0, enum_value.description.c_str());
+    child->setCheckState(0, HasEnable(enum_value.key.c_str()) ? Qt::Checked : Qt::Unchecked);
+    parent->addChild(child);
+
+    return child;
 }
 
 void SettingsValidationAreas::itemClicked(QTreeWidgetItem *item, int column) {
@@ -529,14 +513,12 @@ bool SettingsValidationAreas::CollectSettings() {
     }
 
     // Misc disables
-    assert(_misc_boxes.size() == countof(MISC_KEYS));
     for (std::size_t i = 0, n = this->_misc_boxes.size(); i < n; ++i) {
         if (this->_misc_boxes[i]->checkState(0) == Qt::Unchecked) AppendString(disables, MISC_KEYS[i]);
     }
 
     // Core disables. If unchecked, then individual ones might still be checked
     if (this->_core_box->checkState(0) == Qt::Checked) {
-        assert(this->_core_children_boxes.size() == countof(CORE_KEYS));
         for (std::size_t i = 0, n = this->_core_children_boxes.size(); i < n; ++i)
             if (this->_core_children_boxes[i]->checkState(0) == Qt::Unchecked) AppendString(disables, CORE_KEYS[i]);
     } else {  // Not checked, turn them all off

@@ -50,6 +50,7 @@
                 "description": "enum case",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS" ],
                 "flags": [
                     {
@@ -58,6 +59,7 @@
                         "description": "My value0",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value0",
                         "status": "STABLE",
+                        "view": "STANDARD",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
@@ -66,6 +68,7 @@
                         "description": "My value1",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value1",
                         "status": "BETA",
+                        "view": "ADVANCED",
                         "platforms": [ "WINDOWS", "LINUX" ]
                     },
                     {
@@ -74,6 +77,7 @@
                         "description": "My value2",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value2",
                         "status": "ALPHA",
+                        "view": "HIDDEN",
                         "platforms": [ "WINDOWS" ]
                     }
                 ],
@@ -111,6 +115,7 @@
                 "description": "flags case",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "flags": [
                     {
@@ -119,6 +124,7 @@
                         "description": "My flag0",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag0",
                         "status": "STABLE",
+                        "view": "STANDARD",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
@@ -127,6 +133,7 @@
                         "description": "My flag1",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag1",
                         "status": "BETA",
+                        "view": "ADVANCED",
                         "platforms": [ "WINDOWS", "LINUX" ]
                     },
                     {
@@ -135,6 +142,7 @@
                         "description": "My flag2",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag2",
                         "status": "ALPHA",
+                        "view": "HIDDEN",
                         "platforms": [ "WINDOWS" ]
                     }
                 ],
@@ -155,6 +163,7 @@
                 "description": "string",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "default": "A string"
             },
@@ -173,6 +182,7 @@
                 "description": "true or false",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "default": true
             },
@@ -191,6 +201,7 @@
                 "description": "Load file path",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "filter": "*.txt",
                 "default": "./test.txt"
@@ -210,6 +221,7 @@
                 "description": "Save file path",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "filter": "*.json",
                 "default": "./test.json"
@@ -229,6 +241,7 @@
                 "description": "Save folder path",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "default": "./test"
             },
@@ -247,6 +260,7 @@
                 "description": "Integer Description",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "default": 76,
                 "range": {
@@ -270,6 +284,7 @@
                 "description": "Frames Description",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "default": "76-82,75"
             },
@@ -293,6 +308,7 @@
                 "description": "List description",
                 "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list",
                 "status": "BETA",
+                "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "list": [
                     "stringA",

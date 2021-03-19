@@ -20,12 +20,17 @@
 
 #include "setting_meta.h"
 
-SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
+SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type) {
+    assert(!this->key.empty());
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+}
 
 bool SettingMeta::Equal(const SettingMeta& other) const {
     if (this->key != other.key)
         return false;
     else if (this->type != other.type)
+        return false;
+    else if (this->view != other.view)
         return false;
     else if (this->env != other.env)
         return false;
@@ -108,6 +113,7 @@ bool operator==(const SettingEnumValue& a, const SettingEnumValue& b) {
     if (a.description != b.description) return false;
     if (a.url != b.url) return false;
     if (a.status != b.status) return false;
+    if (a.view != b.view) return false;
     if (a.platform_flags != b.platform_flags) return false;
     return true;
 }

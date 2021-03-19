@@ -327,7 +327,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
             QJsonObject json_setting;
             json_setting.insert("key", parameter.settings[j].key.c_str());
-            json_setting.insert("type", GetSettingToken(setting_data.type));
+            json_setting.insert("type", GetSettingTypeToken(setting_data.type));
 
             switch (setting_data.type) {
                 case SETTING_LOAD_FILE:

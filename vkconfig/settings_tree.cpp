@@ -247,6 +247,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     // Each debug action has it's own checkbox
     for (std::size_t i = 0, n = meta_debug->enum_values.size(); i < n; ++i) {
         if (!IsPlatformSupported(meta_debug->enum_values[i].platform_flags)) continue;
+        if (meta_debug->enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
 
         QTreeWidgetItem *child = new QTreeWidgetItem();
         child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -286,6 +287,9 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         parent->addChild(sub_category);
 
         for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
+            if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;
+            if (meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
+
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             WidgetSettingFlag *widget = new WidgetSettingFlag(meta, data, meta.enum_values[i].key.c_str());
@@ -357,6 +361,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
     for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
         if (!IsPlatformSupported(layer_setting_metas[setting_index].platform_flags)) continue;
+        if (layer_setting_metas[setting_index].view == SETTING_VIEW_HIDDEN) continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -416,6 +421,9 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 item->setToolTip(0, meta.description.c_str());
 
                 for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
+                    if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;
+                    if (meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
+
                     WidgetSettingFlag *widget = new WidgetSettingFlag(meta, data, meta.enum_values[i].key.c_str());
                     QTreeWidgetItem *place_holder = new QTreeWidgetItem();
                     item->addChild(place_holder);

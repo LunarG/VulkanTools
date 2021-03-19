@@ -113,6 +113,7 @@ TEST(test_layer, load_1_4_0_setting_enum_required_only) {
     EXPECT_STREQ("enum case", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
     EXPECT_EQ(3, setting_meta->enum_values.size());
 
@@ -153,6 +154,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     EXPECT_STREQ("enum case", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT, setting_meta->platform_flags);
     EXPECT_EQ(3, setting_meta->enum_values.size());
 
@@ -162,6 +164,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     value0.description = "My value0";
     value0.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value0";
     value0.status = STATUS_STABLE;
+    value0.view = SETTING_VIEW_STANDARD;
     value0.platform_flags = PLATFORM_ALL_BIT;
     EXPECT_EQ(value0, setting_meta->enum_values[0]);
 
@@ -171,6 +174,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     value1.description = "My value1";
     value1.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value1";
     value1.status = STATUS_BETA;
+    value1.view = SETTING_VIEW_ADVANCED;
     value1.platform_flags = PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT;
     EXPECT_EQ(value1, setting_meta->enum_values[1]);
 
@@ -180,6 +184,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     value2.description = "My value2";
     value2.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value2";
     value2.status = STATUS_ALPHA;
+    value2.view = SETTING_VIEW_HIDDEN;
     value2.platform_flags = PLATFORM_WINDOWS_BIT;
     EXPECT_EQ(value2, setting_meta->enum_values[2]);
 
@@ -202,6 +207,7 @@ TEST(test_layer, load_1_4_0_setting_flags_required_only) {
     EXPECT_STREQ("flags case", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
     EXPECT_EQ(3, setting_meta->enum_values.size());
 
@@ -243,6 +249,7 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     EXPECT_STREQ("flags case", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
     EXPECT_EQ(3, setting_meta->enum_values.size());
 
@@ -252,6 +259,7 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     value0.description = "My flag0";
     value0.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag0";
     value0.status = STATUS_STABLE;
+    value0.view = SETTING_VIEW_STANDARD;
     value0.platform_flags = PLATFORM_ALL_BIT;
     EXPECT_EQ(value0, setting_meta->enum_values[0]);
 
@@ -261,6 +269,7 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     value1.description = "My flag1";
     value1.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag1";
     value1.status = STATUS_BETA;
+    value1.view = SETTING_VIEW_ADVANCED;
     value1.platform_flags = PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT;
     EXPECT_EQ(value1, setting_meta->enum_values[1]);
 
@@ -270,6 +279,7 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     value2.description = "My flag2";
     value2.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag2";
     value2.status = STATUS_ALPHA;
+    value2.view = SETTING_VIEW_HIDDEN;
     value2.platform_flags = PLATFORM_WINDOWS_BIT;
     EXPECT_EQ(value2, setting_meta->enum_values[2]);
 
@@ -293,6 +303,7 @@ TEST(test_layer, load_1_4_0_setting_string_required_only) {
     EXPECT_STREQ("string", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("A string", setting_meta->default_value.c_str());
@@ -314,6 +325,7 @@ TEST(test_layer, load_1_4_0_setting_string_with_optional) {
     EXPECT_STREQ("string", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("A string", setting_meta->default_value.c_str());
@@ -335,6 +347,7 @@ TEST(test_layer, load_1_4_0_setting_bool_required_only) {
     EXPECT_STREQ("true or false", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
     EXPECT_EQ(true, setting_meta->default_value);
@@ -356,6 +369,7 @@ TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
     EXPECT_STREQ("true or false", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
     EXPECT_EQ(true, setting_meta->default_value);
@@ -377,6 +391,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
     EXPECT_STREQ("Load file path", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
     EXPECT_TRUE(setting_meta->filter.empty());
 
@@ -399,6 +414,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
     EXPECT_STREQ("Load file path", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
     EXPECT_STREQ("*.txt", setting_meta->filter.c_str());
 
@@ -421,6 +437,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
     EXPECT_STREQ("Save file path", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
     EXPECT_TRUE(setting_meta->filter.empty());
 
@@ -443,6 +460,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
     EXPECT_STREQ("Save file path", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
     EXPECT_STREQ("*.json", setting_meta->filter.c_str());
 
@@ -465,6 +483,7 @@ TEST(test_layer, load_1_4_0_setting_save_folder_required_only) {
     EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("./test", setting_meta->default_value.c_str());
@@ -486,6 +505,7 @@ TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
     EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("./test", setting_meta->default_value.c_str());
@@ -507,6 +527,7 @@ TEST(test_layer, load_1_4_0_setting_int_required_only) {
     EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
     EXPECT_EQ(std::numeric_limits<int>::min(), setting_meta->min_value);
     EXPECT_EQ(std::numeric_limits<int>::max(), setting_meta->max_value);
@@ -531,6 +552,7 @@ TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
     EXPECT_EQ(75, setting_meta->min_value);
     EXPECT_EQ(82, setting_meta->max_value);
@@ -555,6 +577,7 @@ TEST(test_layer, load_1_4_0_setting_frames_required_only) {
     EXPECT_STREQ("Frames Description", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("76-82,75", setting_meta->default_value.c_str());
@@ -576,6 +599,7 @@ TEST(test_layer, load_1_4_0_setting_frames_with_optional) {
     EXPECT_STREQ("Frames Description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("76-82,75", setting_meta->default_value.c_str());
@@ -597,6 +621,7 @@ TEST(test_layer, load_1_4_0_setting_list_required_only) {
     EXPECT_STREQ("List description", setting_meta->description.c_str());
     EXPECT_TRUE(setting_meta->url.empty());
     EXPECT_EQ(STATUS_STABLE, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("stringA", setting_meta->list[0].c_str());
@@ -623,6 +648,7 @@ TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     EXPECT_STREQ("List description", setting_meta->description.c_str());
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list", setting_meta->url.c_str());
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
     EXPECT_STREQ("stringA", setting_meta->list[0].c_str());
