@@ -317,7 +317,7 @@
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable Vulkan loader debug messages using the &lt;span style=&quot; font-family:'-apple-system','BlinkMacSystemFont','Segoe UI','Helvetica','Arial','sans-serif','Apple Color Emoji','Segoe UI Emoji'; font-size:16px; color:#24292e; background-color:#ffffff;&quot;&gt;VK_LOADER_DEBUG environment variable on launch&lt;/span&gt;. &lt;br/&gt;&lt;br/&gt;Options are:&lt;/p&gt;&lt;p&gt;- error (only errors)&lt;br/&gt;- warn (warnings and errors)&lt;br/&gt;- info (info, warning, and errors)&lt;br/&gt;- debug (debug + all before)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error (only errors)&lt;br/&gt;- warn (warnings and errors)&lt;br/&gt;- info (info, warning, and errors)&lt;br/&gt;- debug (debug + all before)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <item>
             <property name="text">
