@@ -50,7 +50,7 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
 
     this->setFont(tree->font());
 
-    item->setText(0, meta.label.c_str());
+    item->setText(0, (meta.label + "  ").c_str());
     item->setFont(0, tree->font());
     item->setToolTip(0, meta.description.c_str());
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -80,15 +80,20 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
     ResetCompleter();
 }
 
-void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
+void WidgetSettingSearch::Resize() {
     const int button_size = MIN_BUTTON_SIZE;
-    const QSize parent_size = event->size();
 
     const QFontMetrics fm = this->fontMetrics();
-    const int text_width = HorizontalAdvance(fm, QString(meta.label.c_str()) + "00");
+    const int text_width = HorizontalAdvance(fm, item->text(0));
 
-    this->field->setGeometry(text_width, 0, parent_size.width() - button_size - text_width, parent_size.height());
-    this->add_button->setGeometry(parent_size.width() - button_size, 0, button_size, parent_size.height());
+    this->field->setGeometry(text_width, 0, this->size.width() - button_size - text_width, this->size.height());
+    this->add_button->setGeometry(this->size.width() - button_size, 0, button_size, this->size.height());
+}
+
+void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
+    this->size = event->size();
+
+    this->Resize();
 }
 
 bool WidgetSettingSearch::eventFilter(QObject *target, QEvent *event) {
@@ -147,6 +152,7 @@ void WidgetSettingSearch::OnButtonPressed() {
     emit itemSelected(entry);  // Triggers update of GUI
     emit itemChanged();        // Triggers save of configuration
 
+    this->item->setText(0, (meta.label + "  ").c_str());
     this->field->setText("");
 
     if (meta.list_only && !IsStringFound(this->meta.list, entry.toStdString())) {
@@ -169,11 +175,20 @@ void WidgetSettingSearch::OnButtonPressed() {
 
     this->OnItemSelected("");
     this->ResetCompleter();
+    this->Resize();
 }
 
 void WidgetSettingSearch::OnTextEdited(const QString &value) {
     assert(this->add_button);
     assert(this->field);
+
+    if (value.isEmpty()) {
+        this->item->setText(0, (meta.label + "  ").c_str());
+        this->Resize();
+    } else {
+        this->item->setText(0, "");
+        this->Resize();
+    }
 
     this->add_button->setEnabled(!value.isEmpty());
 }
