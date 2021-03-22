@@ -69,7 +69,7 @@ namespace {
 // layersvt/VkLayer_device_simulation.json.in
 
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 6;
+const uint32_t kVersionDevsimMinor = 7;
 const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
@@ -583,6 +583,9 @@ class PhysicalDeviceData {
     VkPhysicalDeviceVulkan11Properties physical_device_vulkan_1_1_properties_;
     VkPhysicalDeviceVulkan11Features physical_device_vulkan_1_1_features_;
 
+    VkPhysicalDeviceVulkan12Properties physical_device_vulkan_1_2_properties_;
+    VkPhysicalDeviceVulkan12Features physical_device_vulkan_1_2_features_;
+
     // VK_KHR_8bit_storage structs
     VkPhysicalDevice8BitStorageFeaturesKHR physical_device_8bit_storage_features_;
 
@@ -667,6 +670,9 @@ class PhysicalDeviceData {
         // Vulkan 1.2 structs for summarizing core extension properties and features
         physical_device_vulkan_1_1_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES};
         physical_device_vulkan_1_1_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
+
+        physical_device_vulkan_1_2_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES};
+        physical_device_vulkan_1_2_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
 
         // VK_KHR_8bit_storage structs
         physical_device_8bit_storage_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES_KHR};
@@ -774,6 +780,7 @@ class JsonLoader {
         kUnknown = 0,
         kDevsim100,
         kDevsim110,
+        kDevsim120,
         kDevsim8BitStorageKHR,
         kDevsim16BitStorageKHR,
         kDevsimBufferDeviceAddressKHR,
@@ -839,6 +846,9 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, int index, DevsimFormatProperties *dest);
     void GetValue(const Json::Value &parent, int index, VkLayerProperties *dest);
     void GetValue(const Json::Value &parent, int index, VkExtensionProperties *dest);
+
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Properties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Features *dest);
 
     // For use as warn_func in GET_VALUE_WARN().  Return true if warning occurred.
     static bool WarnIfGreater(const char *name, const uint64_t new_value, const uint64_t old_value) {
@@ -1174,6 +1184,51 @@ bool JsonLoader::LoadFile(const char *filename) {
             result = true;
             break;
 
+        case SchemaId::kDevsim120:
+            GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
+            GetValue(root, "VkPhysicalDeviceDepthStencilResolveProperties",
+                     &pdd_.physical_device_depth_stencil_resolve_properties_);
+            GetValue(root, "VkPhysicalDeviceDescriptorIndexingProperties", &pdd_.physical_device_descriptor_indexing_properties_);
+            GetValue(root, "VkPhysicalDeviceFloatControlsProperties", &pdd_.physical_device_float_controls_properties_);
+            GetValue(root, "VkPhysicalDeviceHostQueryResetFeatures", &pdd_.physical_device_host_query_reset_features_);
+            GetValue(root, "VkPhysicalDeviceMaintenance3Properties", &pdd_.physical_device_maintenance_3_properties_);
+            GetValue(root, "VkPhysicalDeviceMultiviewProperties", &pdd_.physical_device_multiview_properties_);
+            GetValue(root, "VkPhysicalDevicePointClippingProperties", &pdd_.physical_device_point_clipping_properties_);
+            GetValue(root, "VkPhysicalDeviceTimelineSemaphoreProperties", &pdd_.physical_device_timeline_semaphore_properties_);
+            GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
+            GetValue(root, "VkPhysicalDevice16BitStorageFeatures", &pdd_.physical_device_16bit_storage_features_);
+            GetValue(root, "VkPhysicalDevice8BitStorageFeatures", &pdd_.physical_device_8bit_storage_features_);
+            GetValue(root, "VkPhysicalDeviceBufferDeviceAddressFeatures", &pdd_.physical_device_buffer_device_address_features_);
+            GetValue(root, "VkPhysicalDeviceDescriptorIndexingFeatures", &pdd_.physical_device_descriptor_indexing_features_);
+            GetValue(root, "VkPhysicalDeviceImagelessFramebufferFeatures", &pdd_.physical_device_imageless_framebuffer_features_);
+            GetValue(root, "VkPhysicalDeviceMultiviewFeatures", &pdd_.physical_device_multiview_features_);
+            GetValue(root, "VkPhysicalDeviceSamplerFilterMinmaxProperties",
+                     &pdd_.physical_device_sampler_filter_minmax_properties_);
+            GetValue(root, "VkPhysicalDeviceSamplerYcbcrConversionFeatures",
+                     &pdd_.physical_device_sampler_ycbcr_conversion_features_);
+            GetValue(root, "VkPhysicalDeviceScalarBlockLayoutFeatures", &pdd_.physical_device_scalar_block_layout_features_);
+            GetValue(root, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures",
+                     &pdd_.physical_device_separate_depth_stencil_layouts_features_);
+            GetValue(root, "VkPhysicalDeviceShaderAtomicInt64Features", &pdd_.physical_device_shader_atomic_int64_features_);
+            GetValue(root, "VkPhysicalDeviceShaderFloat16Int8Features", &pdd_.physical_device_shader_float16_int8_features_);
+            GetValue(root, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures",
+                     &pdd_.physical_device_shader_subgroup_extended_types_features_);
+            GetValue(root, "VkPhysicalDeviceTimelineSemaphoreFeatures", &pdd_.physical_device_timeline_semaphore_features_);
+            GetValue(root, "VkPhysicalDeviceUniformBufferStandardLayoutFeatures",
+                     &pdd_.physical_device_uniform_buffer_standard_layout_features_);
+            GetValue(root, "VkPhysicalDeviceVariablePointersFeatures", &pdd_.physical_device_variable_pointers_features_);
+            GetValue(root, "VkPhysicalDeviceVulkanMemoryModelFeatures", &pdd_.physical_device_vulkan_memory_model_features_);
+            GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
+            GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
+            GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
+            GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
+            GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
+
+            GetValue(root, "Vulkan12Features", &pdd_.physical_device_vulkan_1_2_features_);
+            GetValue(root, "Vulkan12Properties", &pdd_.physical_device_vulkan_1_2_properties_);
+            result = true;
+            break;
+
         case SchemaId::kDevsim8BitStorageKHR:
             if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_8BIT_STORAGE_EXTENSION_NAME)) {
                 ErrorPrintf(
@@ -1455,6 +1510,8 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
         schema_id = SchemaId::kDevsim100;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_1_0.json#") == 0) {
         schema_id = SchemaId::kDevsim110;
+    } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_2_0.json#") == 0) {
+        schema_id = SchemaId::kDevsim120;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_8bit_storage_1.json#") == 0) {
         schema_id = SchemaId::kDevsim8BitStorageKHR;
     } else if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_VK_KHR_16bit_storage_1.json#") == 0) {
@@ -2154,6 +2211,28 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, VkExtensionPrope
     GET_VALUE(specVersion);
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Properties *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(framebufferIntegerColorSampleCounts);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Features *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE_WARN(samplerMirrorClampToEdge, WarnIfGreater);
+    GET_VALUE_WARN(shaderOutputViewportIndex, WarnIfGreater);
+    GET_VALUE_WARN(shaderOutputLayer, WarnIfGreater);
+    GET_VALUE_WARN(subgroupBroadcastDynamicId, WarnIfGreater);
+    GET_VALUE_WARN(drawIndirectCount, WarnIfGreater);
+    GET_VALUE_WARN(descriptorIndexing, WarnIfGreater);
+    GET_VALUE_WARN(samplerFilterMinmax, WarnIfGreater);
+}
+
 #undef GET_VALUE
 #undef GET_ARRAY
 
@@ -2289,8 +2368,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
     const VkApplicationInfo *app_info = pCreateInfo->pApplicationInfo;
     const uint32_t requested_version = (app_info && app_info->apiVersion) ? app_info->apiVersion : VK_API_VERSION_1_0;
-    if (requested_version > VK_API_VERSION_1_1) {
-        DebugPrintf("%s currently only supports VK_API_VERSION_1_1 and lower.\n", kOurLayerName);
+    if (requested_version > VK_API_VERSION_1_2) {
+        DebugPrintf("%s currently only supports VK_API_VERSION_1_2 and lower.\n", kOurLayerName);
     }
 
     std::lock_guard<std::mutex> lock(global_lock);
@@ -2533,6 +2612,18 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = v11f->pNext;
             *v11f = physicalDeviceData->physical_device_vulkan_1_1_features_;
             v11f->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES &&
+                   physicalDeviceData->physical_device_properties_.apiVersion >= VK_API_VERSION_1_2) {
+            VkPhysicalDeviceVulkan12Properties *v12p = (VkPhysicalDeviceVulkan12Properties *)place;
+            void *pNext = v12p->pNext;
+            *v12p = physicalDeviceData->physical_device_vulkan_1_2_properties_;
+            v12p->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES &&
+                   physicalDeviceData->physical_device_properties_.apiVersion >= VK_API_VERSION_1_2) {
+            VkPhysicalDeviceVulkan12Features *v12f = (VkPhysicalDeviceVulkan12Features *)place;
+            void *pNext = v12f->pNext;
+            *v12f = physicalDeviceData->physical_device_vulkan_1_2_features_;
+            v12f->pNext = pNext;
         }
 
         place = structure->pNext;
@@ -2804,6 +2895,195 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
     return result;
 }
 
+#define TRANSFER_VALUE(name) dest->name = src->name
+
+// VK_VULKAN_1_1
+
+// Properties
+void TransferValue(VkPhysicalDeviceVulkan11Properties *dest, VkPhysicalDevicePointClippingPropertiesKHR *src) {
+    TRANSFER_VALUE(pointClippingBehavior);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan11Properties *dest, VkPhysicalDeviceMultiviewPropertiesKHR *src) {
+    TRANSFER_VALUE(maxMultiviewViewCount);
+    TRANSFER_VALUE(maxMultiviewInstanceIndex);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan11Properties *dest, VkPhysicalDeviceMaintenance3PropertiesKHR *src) {
+    TRANSFER_VALUE(maxPerSetDescriptors);
+    TRANSFER_VALUE(maxMemoryAllocationSize);
+}
+
+// Features
+void TransferValue(VkPhysicalDeviceVulkan11Features *dest, VkPhysicalDevice16BitStorageFeaturesKHR *src) {
+    TRANSFER_VALUE(storageBuffer16BitAccess);
+    TRANSFER_VALUE(uniformAndStorageBuffer16BitAccess);
+    TRANSFER_VALUE(storagePushConstant16);
+    TRANSFER_VALUE(storageInputOutput16);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan11Features *dest, VkPhysicalDeviceMultiviewFeaturesKHR *src) {
+    TRANSFER_VALUE(multiview);
+    TRANSFER_VALUE(multiviewGeometryShader);
+    TRANSFER_VALUE(multiviewTessellationShader);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan11Features *dest, VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR *src) {
+    TRANSFER_VALUE(samplerYcbcrConversion);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan11Features *dest, VkPhysicalDeviceVariablePointersFeaturesKHR *src) {
+    TRANSFER_VALUE(variablePointersStorageBuffer);
+    TRANSFER_VALUE(variablePointers);
+}
+
+// VK_VULKAN_1_2
+
+// Properties
+void TransferValue(VkPhysicalDeviceVulkan12Properties *dest, VkPhysicalDeviceDepthStencilResolvePropertiesKHR *src) {
+    TRANSFER_VALUE(supportedDepthResolveModes);
+    TRANSFER_VALUE(supportedStencilResolveModes);
+    TRANSFER_VALUE(independentResolveNone);
+    TRANSFER_VALUE(independentResolve);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Properties *dest, VkPhysicalDeviceDescriptorIndexingPropertiesEXT *src) {
+    TRANSFER_VALUE(maxUpdateAfterBindDescriptorsInAllPools);
+    TRANSFER_VALUE(shaderUniformBufferArrayNonUniformIndexingNative);
+    TRANSFER_VALUE(shaderSampledImageArrayNonUniformIndexingNative);
+    TRANSFER_VALUE(shaderStorageBufferArrayNonUniformIndexingNative);
+    TRANSFER_VALUE(shaderStorageImageArrayNonUniformIndexingNative);
+    TRANSFER_VALUE(shaderInputAttachmentArrayNonUniformIndexingNative);
+    TRANSFER_VALUE(robustBufferAccessUpdateAfterBind);
+    TRANSFER_VALUE(quadDivergentImplicitLod);
+    TRANSFER_VALUE(maxPerStageDescriptorUpdateAfterBindSamplers);
+    TRANSFER_VALUE(maxPerStageDescriptorUpdateAfterBindUniformBuffers);
+    TRANSFER_VALUE(maxPerStageDescriptorUpdateAfterBindStorageBuffers);
+    TRANSFER_VALUE(maxPerStageDescriptorUpdateAfterBindSampledImages);
+    TRANSFER_VALUE(maxPerStageDescriptorUpdateAfterBindStorageImages);
+    TRANSFER_VALUE(maxPerStageDescriptorUpdateAfterBindInputAttachments);
+    TRANSFER_VALUE(maxPerStageUpdateAfterBindResources);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindSamplers);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindUniformBuffers);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindUniformBuffersDynamic);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindStorageBuffers);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindStorageBuffersDynamic);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindSampledImages);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindStorageImages);
+    TRANSFER_VALUE(maxDescriptorSetUpdateAfterBindInputAttachments);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Properties *dest, VkPhysicalDeviceFloatControlsPropertiesKHR *src) {
+    TRANSFER_VALUE(denormBehaviorIndependence);
+    TRANSFER_VALUE(roundingModeIndependence);
+    TRANSFER_VALUE(shaderSignedZeroInfNanPreserveFloat16);
+    TRANSFER_VALUE(shaderSignedZeroInfNanPreserveFloat32);
+    TRANSFER_VALUE(shaderSignedZeroInfNanPreserveFloat64);
+    TRANSFER_VALUE(shaderDenormPreserveFloat16);
+    TRANSFER_VALUE(shaderDenormPreserveFloat32);
+    TRANSFER_VALUE(shaderDenormPreserveFloat64);
+    TRANSFER_VALUE(shaderDenormFlushToZeroFloat16);
+    TRANSFER_VALUE(shaderDenormFlushToZeroFloat32);
+    TRANSFER_VALUE(shaderDenormFlushToZeroFloat64);
+    TRANSFER_VALUE(shaderRoundingModeRTEFloat16);
+    TRANSFER_VALUE(shaderRoundingModeRTEFloat32);
+    TRANSFER_VALUE(shaderRoundingModeRTEFloat64);
+    TRANSFER_VALUE(shaderRoundingModeRTZFloat16);
+    TRANSFER_VALUE(shaderRoundingModeRTZFloat32);
+    TRANSFER_VALUE(shaderRoundingModeRTZFloat64);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Properties *dest, VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT *src) {
+    TRANSFER_VALUE(filterMinmaxSingleComponentFormats);
+    TRANSFER_VALUE(filterMinmaxImageComponentMapping);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Properties *dest, VkPhysicalDeviceTimelineSemaphorePropertiesKHR *src) {
+    TRANSFER_VALUE(maxTimelineSemaphoreValueDifference);
+}
+
+// Features
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDevice8BitStorageFeaturesKHR *src) {
+    TRANSFER_VALUE(storageBuffer8BitAccess);
+    TRANSFER_VALUE(uniformAndStorageBuffer8BitAccess);
+    TRANSFER_VALUE(storagePushConstant8);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceBufferDeviceAddressFeaturesKHR *src) {
+    TRANSFER_VALUE(bufferDeviceAddress);
+    TRANSFER_VALUE(bufferDeviceAddressCaptureReplay);
+    TRANSFER_VALUE(bufferDeviceAddressMultiDevice);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceDescriptorIndexingFeaturesEXT *src) {
+    TRANSFER_VALUE(shaderInputAttachmentArrayDynamicIndexing);
+    TRANSFER_VALUE(shaderUniformTexelBufferArrayDynamicIndexing);
+    TRANSFER_VALUE(shaderStorageTexelBufferArrayDynamicIndexing);
+    TRANSFER_VALUE(shaderUniformBufferArrayNonUniformIndexing);
+    TRANSFER_VALUE(shaderSampledImageArrayNonUniformIndexing);
+    TRANSFER_VALUE(shaderStorageBufferArrayNonUniformIndexing);
+    TRANSFER_VALUE(shaderStorageImageArrayNonUniformIndexing);
+    TRANSFER_VALUE(shaderInputAttachmentArrayNonUniformIndexing);
+    TRANSFER_VALUE(shaderUniformTexelBufferArrayNonUniformIndexing);
+    TRANSFER_VALUE(shaderStorageTexelBufferArrayNonUniformIndexing);
+    TRANSFER_VALUE(descriptorBindingUniformBufferUpdateAfterBind);
+    TRANSFER_VALUE(descriptorBindingSampledImageUpdateAfterBind);
+    TRANSFER_VALUE(descriptorBindingStorageImageUpdateAfterBind);
+    TRANSFER_VALUE(descriptorBindingStorageBufferUpdateAfterBind);
+    TRANSFER_VALUE(descriptorBindingUniformTexelBufferUpdateAfterBind);
+    TRANSFER_VALUE(descriptorBindingStorageTexelBufferUpdateAfterBind);
+    TRANSFER_VALUE(descriptorBindingUpdateUnusedWhilePending);
+    TRANSFER_VALUE(descriptorBindingPartiallyBound);
+    TRANSFER_VALUE(descriptorBindingVariableDescriptorCount);
+    TRANSFER_VALUE(runtimeDescriptorArray);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceHostQueryResetFeaturesEXT *src) {
+    TRANSFER_VALUE(hostQueryReset);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceImagelessFramebufferFeaturesKHR *src) {
+    TRANSFER_VALUE(imagelessFramebuffer);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceScalarBlockLayoutFeaturesEXT *src) {
+    TRANSFER_VALUE(scalarBlockLayout);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR *src) {
+    TRANSFER_VALUE(separateDepthStencilLayouts);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceShaderAtomicInt64FeaturesKHR *src) {
+    TRANSFER_VALUE(shaderBufferInt64Atomics);
+    TRANSFER_VALUE(shaderSharedInt64Atomics);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceShaderFloat16Int8FeaturesKHR *src) {
+    TRANSFER_VALUE(shaderFloat16);
+    TRANSFER_VALUE(shaderInt8);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR *src) {
+    TRANSFER_VALUE(shaderSubgroupExtendedTypes);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceTimelineSemaphoreFeaturesKHR *src) {
+    TRANSFER_VALUE(timelineSemaphore);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR *src) {
+    TRANSFER_VALUE(uniformBufferStandardLayout);
+}
+
+void TransferValue(VkPhysicalDeviceVulkan12Features *dest, VkPhysicalDeviceVulkanMemoryModelFeaturesKHR *src) {
+    TRANSFER_VALUE(vulkanMemoryModel);
+    TRANSFER_VALUE(vulkanMemoryModelDeviceScope);
+    TRANSFER_VALUE(vulkanMemoryModelAvailabilityVisibilityChains);
+}
+
+#undef TRANSFER_VALUE
+
 VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
                                                         VkPhysicalDevice *pPhysicalDevices) {
     // Our layer-specific initialization...
@@ -3014,6 +3294,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                 }
 
                 if (api_version_above_1_2) {
+                    // VK_VULKAN_1_1
                     pdd.physical_device_vulkan_1_1_properties_.pNext = property_chain.pNext;
 
                     property_chain.pNext = &(pdd.physical_device_vulkan_1_1_properties_);
@@ -3021,6 +3302,15 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                     pdd.physical_device_vulkan_1_1_features_.pNext = feature_chain.pNext;
 
                     feature_chain.pNext = &(pdd.physical_device_vulkan_1_1_features_);
+
+                    // VK_VULKAN_1_2
+                    pdd.physical_device_vulkan_1_2_properties_.pNext = property_chain.pNext;
+
+                    property_chain.pNext = &(pdd.physical_device_vulkan_1_2_properties_);
+
+                    pdd.physical_device_vulkan_1_2_features_.pNext = feature_chain.pNext;
+
+                    feature_chain.pNext = &(pdd.physical_device_vulkan_1_2_features_);
                 }
 
                 dt->GetPhysicalDeviceProperties2KHR(physical_device, &property_chain);
@@ -3041,36 +3331,39 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
             JsonLoader json_loader(pdd);
             json_loader.LoadFiles();
 
-            pdd.physical_device_vulkan_1_1_properties_.pointClippingBehavior =
-                pdd.physical_device_point_clipping_properties_.pointClippingBehavior;
-            pdd.physical_device_vulkan_1_1_properties_.maxMultiviewViewCount =
-                pdd.physical_device_multiview_properties_.maxMultiviewViewCount;
-            pdd.physical_device_vulkan_1_1_properties_.maxMultiviewInstanceIndex =
-                pdd.physical_device_multiview_properties_.maxMultiviewInstanceIndex;
-            pdd.physical_device_vulkan_1_1_properties_.maxPerSetDescriptors =
-                pdd.physical_device_maintenance_3_properties_.maxPerSetDescriptors;
-            pdd.physical_device_vulkan_1_1_properties_.maxMemoryAllocationSize =
-                pdd.physical_device_maintenance_3_properties_.maxMemoryAllocationSize;
+            // VK_VULKAN_1_1
+            TransferValue(&(pdd.physical_device_vulkan_1_1_properties_), &(pdd.physical_device_point_clipping_properties_));
+            TransferValue(&(pdd.physical_device_vulkan_1_1_properties_), &(pdd.physical_device_multiview_properties_));
+            TransferValue(&(pdd.physical_device_vulkan_1_1_properties_), &(pdd.physical_device_maintenance_3_properties_));
 
-            pdd.physical_device_vulkan_1_1_features_.storageBuffer16BitAccess =
-                pdd.physical_device_16bit_storage_features_.storageBuffer16BitAccess;
-            pdd.physical_device_vulkan_1_1_features_.uniformAndStorageBuffer16BitAccess =
-                pdd.physical_device_16bit_storage_features_.uniformAndStorageBuffer16BitAccess;
-            pdd.physical_device_vulkan_1_1_features_.storagePushConstant16 =
-                pdd.physical_device_16bit_storage_features_.storagePushConstant16;
-            pdd.physical_device_vulkan_1_1_features_.storageInputOutput16 =
-                pdd.physical_device_16bit_storage_features_.storageInputOutput16;
-            pdd.physical_device_vulkan_1_1_features_.multiview = pdd.physical_device_multiview_features_.multiview;
-            pdd.physical_device_vulkan_1_1_features_.multiviewGeometryShader =
-                pdd.physical_device_multiview_features_.multiviewGeometryShader;
-            pdd.physical_device_vulkan_1_1_features_.multiviewTessellationShader =
-                pdd.physical_device_multiview_features_.multiviewTessellationShader;
-            pdd.physical_device_vulkan_1_1_features_.variablePointersStorageBuffer =
-                pdd.physical_device_variable_pointers_features_.variablePointersStorageBuffer;
-            pdd.physical_device_vulkan_1_1_features_.variablePointers =
-                pdd.physical_device_variable_pointers_features_.variablePointers;
-            pdd.physical_device_vulkan_1_1_features_.samplerYcbcrConversion =
-                pdd.physical_device_sampler_ycbcr_conversion_features_.samplerYcbcrConversion;
+            TransferValue(&(pdd.physical_device_vulkan_1_1_features_), &(pdd.physical_device_16bit_storage_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_1_features_), &(pdd.physical_device_multiview_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_1_features_), &(pdd.physical_device_sampler_ycbcr_conversion_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_1_features_), &(pdd.physical_device_variable_pointers_features_));
+
+            // VK_VULKAN_1_2
+            TransferValue(&(pdd.physical_device_vulkan_1_2_properties_), &(pdd.physical_device_depth_stencil_resolve_properties_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_properties_), &(pdd.physical_device_descriptor_indexing_properties_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_properties_), &(pdd.physical_device_float_controls_properties_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_properties_), &(pdd.physical_device_sampler_filter_minmax_properties_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_properties_), &(pdd.physical_device_timeline_semaphore_properties_));
+
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_8bit_storage_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_buffer_device_address_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_descriptor_indexing_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_host_query_reset_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_imageless_framebuffer_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_scalar_block_layout_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_),
+                          &(pdd.physical_device_separate_depth_stencil_layouts_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_shader_atomic_int64_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_shader_float16_int8_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_),
+                          &(pdd.physical_device_shader_subgroup_extended_types_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_timeline_semaphore_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_),
+                          &(pdd.physical_device_uniform_buffer_standard_layout_features_));
+            TransferValue(&(pdd.physical_device_vulkan_1_2_features_), &(pdd.physical_device_vulkan_memory_model_features_));
         }
         pdd_initialized = true;
     }
