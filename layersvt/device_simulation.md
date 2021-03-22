@@ -132,19 +132,22 @@ The top-level sections of such configuration files are processed as follows:
 * `VkPhysicalDeviceMaintenance3Properties` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceMultiviewProperties` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDevicePointClippingProperties` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceProtectedMemoryProperties` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceSamplerFilterMinmaxProperties` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceTimelineSemaphoreProperties` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDevice16BitStorageFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDevice8BitStorageFeatures` - Optional.  Only values specified in the JSON will be modified.
-* `VkPhysicalDeviceDescriptorIndexingFeatures`
+* `VkPhysicalDeviceDescriptorIndexingFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceHostQueryResetFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceImagelessFramebufferFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceMultiviewFeatures` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceProtectedMemoryFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceSamplerYcbcrConversionFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceScalarBlockLayoutFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceShaderAtomicInt64Features` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceShaderDrawParametersFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceShaderFloat16Int8Features` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceTimelineSemaphoreFeatures` - Optional.  Only values specified in the JSON will be modified.
