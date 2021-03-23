@@ -79,8 +79,23 @@
                 "enum": [ "WINDOWS", "LINUX", "MACOS" ]
             }
         },
-        "range": {
+        "int_range": {
             "description": "A range of integer values",
+            "type": "object",
+            "items": {
+                "additionalProperties": false,
+                "properties": {
+                    "min": {
+                        "type": "integer"
+                    },
+                    "max": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "float_range": {
+            "description": "A range of floating-point values",
             "type": "object",
             "items": {
                 "additionalProperties": false,
@@ -452,7 +467,7 @@
                             },
                             "type": {
                                 "type": "string",
-                                "enum": [ "INT" ]
+                                "enum": [ "FLOAT" ]
                             },
                             "default": {
                                 "type": "number"
@@ -483,7 +498,63 @@
                                 "$ref": "#/definitions/view"
                             },
                             "range": {
-                                "$ref": "#/definitions/range"
+                                "$ref": "#/definitions/float_range"
+                            },
+                            "unit": {
+                                "description": "The unit of measurement",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "label",
+                            "description",
+                            "type",
+                            "default"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "description": "The unique identifier of a setting",
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [ "INT" ]
+                            },
+                            "default": {
+                                "type": "integer"
+                            },
+                            "env": {
+                                "description": "The environment variable that may be used to set this setting",
+                                "type": "string"
+                            },
+                            "label": {
+                                "description": "The string used to identify the setting to the user",
+                                "type": "string"
+                            },
+                            "description": {
+                                "description": "The description of the setting",
+                                "type": "string"
+                            },
+                            "url": {
+                                "description": "The URL to find more information about the setting",
+                                "type": "string"
+                            },
+                            "platforms": {
+                                "$ref": "#/definitions/platforms"
+                            },
+                            "status": {
+                                "$ref": "#/definitions/status"
+                            },
+                            "view": {
+                                "$ref": "#/definitions/view"
+                            },
+                            "range": {
+                                "$ref": "#/definitions/int_range"
                             },
                             "unit": {
                                 "description": "The unit of measurement",
