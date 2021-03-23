@@ -738,8 +738,15 @@
                             },
                             "list": {
                                 "type": "array",
-                                "contains": {
-                                    "type": "string"
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "number"
+                                        }
+                                    ]
                                 }
                             },
                             "list_only": {
