@@ -55,9 +55,9 @@ inline constexpr std::size_t countof(C<T, Alloc> const& data) noexcept {
 
 std::string format(const char* message, ...);
 
-bool IsNumber(const std::string& s);
+bool IsFrames(const std::string& s);
 
-bool IsUIntRanges(const std::string& s);
+bool IsNumber(const std::string& s);
 
 template <typename T>
 T* FindByKey(std::vector<T>& container, const char* key) {

@@ -42,7 +42,7 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidgetItem* item, const SettingMet
 }
 
 void WidgetSettingFrames::FieldEditedCheck() {
-    if (!IsUIntRanges(setting_data.value)) {
+    if (!IsFrames(setting_data.value)) {
         const std::string text = format("'%s' is an invalid value. Use list of comma separated integer ranges. Example: '0-2,16'.",
                                         this->text().toStdString().c_str());
         const std::string into = format("Resetting to the setting default value: '%s'.", this->setting_meta.default_value.c_str());

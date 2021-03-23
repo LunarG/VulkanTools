@@ -32,6 +32,7 @@
 #include <QStringList>
 
 #include <cctype>
+#include <regex>
 
 std::string format(const char* message, ...) {
     std::size_t const STRING_BUFFER(4096);
@@ -49,28 +50,18 @@ std::string format(const char* message, ...) {
     return buffer;
 }
 
+bool IsFrames(const std::string& s) {
+    static const std::regex FRAME_REGEX(
+        "^([0-9]+|([0-9]+-[0-9]+)|([0-9]+-[0-9]+-[0-9]+))(,(([0-9]+)|([0-9]+-[0-9]+)|([0-9]+-[0-9]+-[0-9]+)))*$");
+
+    return std::regex_search(s, FRAME_REGEX);
+}
+
 bool IsNumber(const std::string& s) {
     if (s.empty()) return false;
 
     for (std::size_t i = 0, n = s.length(); i < n; ++i) {
         if (std::isdigit(s[i])) continue;
-
-        return false;
-    }
-
-    return true;
-}
-
-bool IsUIntRanges(const std::string& s) {
-    if (s.find("--") != std::string::npos) return false;
-    if (s.find(",,") != std::string::npos) return false;
-    if (s.find("-,") != std::string::npos) return false;
-    if (s.find(",-") != std::string::npos) return false;
-
-    for (std::size_t i = 0, n = s.length(); i < n; ++i) {
-        if (std::isdigit(s[i])) continue;
-
-        if (i > 0 && (i < n - 1) && (s[i] == '-' || s[i] == ',')) continue;
 
         return false;
     }
