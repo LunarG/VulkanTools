@@ -11,7 +11,7 @@
     "properties": {
         "file_format_version": {
             "type": "string",
-            "pattern": "^1.[0-9]+.[0-9]+"
+            "pattern": "^1.[0-9]+.[0-9]+$"
         },
         "layer": {
             "type": "object",
@@ -32,8 +32,7 @@
                     "type": "string"
                 },
                 "api_version": {
-                    "type": "string",
-                    "pattern": "^1.[0-9]+.[0-9]+"
+                    "$ref": "#/definitions/version",
                 },
                 "implementation_version": {
                     "type": "string"
@@ -61,6 +60,11 @@
         }
     },
     "definitions": {
+        "version": {
+            "description": "Version with a 'major', 'minor' and 'patch' format",
+            "type": "string",
+            "pattern": "^[0-9]+.[0-9]+.[0-9]+$"
+        },
         "status": {
             "description": "The development status of the setting ('STABLE' by default)",
             "type": "string",
@@ -372,7 +376,8 @@
                             },
                             "default": {
                                 "type": "string",
-                                "pattern": "^[-,0-9]+"
+                                "pattern": "^(([0-9]+-[0-9]+)|[0-9]+)(,(([0-9]+-[0-9]+)|([0-9]+)))*$",
+                                "example": "0,6-7,75-76,82"
                             },
                             "env": {
                                 "description": "The environment variable that may be used to set this setting",
