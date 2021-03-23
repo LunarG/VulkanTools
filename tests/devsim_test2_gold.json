@@ -88,44 +88,6 @@
     "vertexPipelineStoresAndAtomics": 1,
     "wideLines": 1
   },
-  "VkPhysicalDeviceMemoryProperties": {
-    "memoryHeaps": [
-      {
-        "flags": 900002000,
-        "size": 80000002001
-      },
-      {
-        "flags": 900002002,
-        "size": 80000002003
-      },
-      {
-        "flags": 900002004,
-        "size": 80000002005
-      }
-    ],
-    "memoryTypes": [
-      {
-        "heapIndex": 900003001,
-        "propertyFlags": 900003002
-      },
-      {
-        "heapIndex": 900003003,
-        "propertyFlags": 900003004
-      },
-      {
-        "heapIndex": 900003005,
-        "propertyFlags": 900003006
-      },
-      {
-        "heapIndex": 900003007,
-        "propertyFlags": 900003008
-      },
-      {
-        "heapIndex": 900003009,
-        "propertyFlags": 900003010
-      }
-    ]
-  },
   "VkPhysicalDeviceProperties": {
     "apiVersion": 4194304,
     "deviceID": 0,
