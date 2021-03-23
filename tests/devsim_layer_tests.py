@@ -159,6 +159,7 @@ class BaseTest:
     exit_on_error = 0
     portability = 0
     extension_list = 0
+    memory_flags = 0
 
     def __init__(self,
                  vulkaninfo_path,
@@ -186,6 +187,7 @@ class BaseTest:
             "VK_DEVSIM_FILENAME": os.pathsep.join(devsim_absolute_files),
             "VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION": str(self.portability),
             "VK_DEVSIM_MODIFY_EXTENSION_LIST": str(self.extension_list),
+            "VK_DEVSIM_MODIFY_MEMORY_FLAGS": str(self.memory_flags),
         }
 
         # Get the expected subset dictionary output for use later.
@@ -221,7 +223,8 @@ class BaseTest:
         # Prepare the environment needed for running this instance.
         # We want to make sure that we don't modify the environment
         # for any of the other test instances.
-        env = os.environ.copy().update(self.test_environment)
+        env = os.environ.copy()
+        env.update(self.test_environment)
 
         stdout, stderr = self.run(command_list, env=env)
         log.debug("stderr from %s: %s", command_list, stderr)
@@ -240,7 +243,6 @@ class DevsimTestReadMultipleInputFiles(BaseTest):
     devsim_input_files = [
         "devsim_test2_in1.json",
         "devsim_test2_in2.json",
-        "devsim_test2_in3.json",
         "devsim_test2_in4.json",
         "devsim_test2_in5.json"
     ]
@@ -253,11 +255,10 @@ class PortabilityExtensionPresentEmulationOffTest(BaseTest):
     devsim_input_files = [
         "devsim_dummy_in.json"
     ]
-    vulkaninfo_output = "port_extent_test_vulkaninfo_out.json"
-    vulkaninfo_args = ['--portability']
+    vulkaninfo_output = {}
 
     def checkJson(self, json_object):
-        return checkPortabilityPresent(json_object)
+        return not checkPortabilityPresent(json_object)
 
 class PortabilityExtensionPresentEmulationOnTest(BaseTest):
     """
@@ -268,7 +269,6 @@ class PortabilityExtensionPresentEmulationOnTest(BaseTest):
         "devsim_dummy_in.json"
     ]
     vulkaninfo_output = {}
-    vulkaninfo_args = ['--portability']
     portability = 1
 
     def checkJson(self, json_object):
