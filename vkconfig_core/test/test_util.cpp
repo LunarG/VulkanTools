@@ -192,18 +192,31 @@ TEST(test_util, is_number) {
     EXPECT_EQ(false, IsNumber("$%#&@()-_[]{}"));
 }
 
-TEST(test_util, is_uint_ranges) {
-    EXPECT_EQ(true, IsUIntRanges("0-2,6,7"));
-    EXPECT_EQ(true, IsUIntRanges("0-2,6-7"));
-    EXPECT_EQ(true, IsUIntRanges("0,2,6,7"));
+TEST(test_util, is_frames) {
+    EXPECT_EQ(true, IsFrames("0"));
+    EXPECT_EQ(true, IsFrames("0-2"));
+    EXPECT_EQ(true, IsFrames("0,2"));
+    EXPECT_EQ(true, IsFrames("0-2,6,7"));
+    EXPECT_EQ(true, IsFrames("0-2,6-7"));
+    EXPECT_EQ(true, IsFrames("0,2,6,7"));
+    EXPECT_EQ(true, IsFrames("1-2,60,70"));
+    EXPECT_EQ(true, IsFrames("10-20,60,70"));
+    EXPECT_EQ(true, IsFrames("1-8-2"));
+    EXPECT_EQ(true, IsFrames("1-8-2,0"));
+    EXPECT_EQ(true, IsFrames("1-8-2,10-20-5"));
+    EXPECT_EQ(true, IsFrames("1-8,10-20-5"));
+    EXPECT_EQ(true, IsFrames("1-8-2,10-20-1"));
+    EXPECT_EQ(true, IsFrames("1,2,3,4"));
 
-    EXPECT_EQ(false, IsUIntRanges("1,"));
-    EXPECT_EQ(false, IsUIntRanges("-1"));
-    EXPECT_EQ(false, IsUIntRanges("1-"));
-    EXPECT_EQ(false, IsUIntRanges("1--4"));
-    EXPECT_EQ(false, IsUIntRanges("1,,4"));
-    EXPECT_EQ(false, IsUIntRanges("1,-4"));
-    EXPECT_EQ(false, IsUIntRanges(",-76"));
-    EXPECT_EQ(false, IsUIntRanges("76,-"));
-    EXPECT_EQ(false, IsUIntRanges("76,-82"));
+    EXPECT_EQ(false, IsFrames("1,"));
+    EXPECT_EQ(false, IsFrames("-1"));
+    EXPECT_EQ(false, IsFrames("1-"));
+    EXPECT_EQ(false, IsFrames("1--4"));
+    EXPECT_EQ(false, IsFrames("1-4-"));
+    EXPECT_EQ(false, IsFrames("1,,4"));
+    EXPECT_EQ(false, IsFrames("1,-4"));
+    EXPECT_EQ(false, IsFrames(",-76"));
+    EXPECT_EQ(false, IsFrames("76,-"));
+    EXPECT_EQ(false, IsFrames("76,-82"));
+    EXPECT_EQ(false, IsFrames("1-8-2-1"));
 }

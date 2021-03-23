@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+#include <regex>
+
 TEST(test_layer, collect_settings) {
     SettingMetaSet meta;
 
@@ -601,6 +603,7 @@ TEST(test_layer, load_1_4_0_setting_frames_with_optional) {
     EXPECT_EQ(STATUS_BETA, setting_meta->status);
     EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
+    EXPECT_TRUE(IsFrames(setting_meta->default_value));
 
     EXPECT_STREQ("76-82,75", setting_meta->default_value.c_str());
 }
