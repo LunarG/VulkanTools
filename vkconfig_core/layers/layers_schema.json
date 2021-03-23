@@ -15,7 +15,7 @@
         },
         "layer": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "required": [
                 "name",
                 "library_path",
@@ -46,71 +46,6 @@
                 },
                 "url": {
                     "type": "string"
-                },
-                "instance_extensions": {
-                    "type": "array",
-                    "items": {
-                        "required": [
-                            "name",
-                            "spec_version"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "pattern": "^VK_[A-Z0-9]+_[a-z0-9_]+"
-                            },
-                            "spec_version": {
-                                "type": "string",
-                                "format": "integer"
-                            }
-                        }
-                    }
-                },
-                "device_extensions": {
-                    "type": "array",
-                    "items": {
-                        "required": [
-                            "name",
-                            "spec_version"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "pattern": "^VK_[A-Z0-9]+_[a-z0-9_]+"
-                            },
-                            "spec_version": {
-                                "type": "string",
-                                "format": "integer"
-                            },
-                            "entrypoints": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "pattern": "^vk[A-Z]+[a-zA-Z0-9]+[A-Z]+"
-                                }
-                            }
-                        }
-                    }
-                },
-                "functions": {
-                    "additionalProperties": false,
-                    "patternProperties": {
-                        "^vk[A-Z]+[a-zA-Z0-9]+[A-Z]+": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "enable_environment": {
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "disable_environment": {
-                    "additionalProperties": {
-                        "type": "string"
-                    }
                 },
                 "settings": {
                     "type": "array",
