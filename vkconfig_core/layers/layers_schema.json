@@ -10,8 +10,7 @@
     ],
     "properties": {
         "file_format_version": {
-            "type": "string",
-            "pattern": "^1.[0-9]+.[0-9]+$"
+            "$ref": "#/definitions/version"
         },
         "layer": {
             "type": "object",
@@ -32,7 +31,7 @@
                     "type": "string"
                 },
                 "api_version": {
-                    "$ref": "#/definitions/version",
+                    "$ref": "#/definitions/version"
                 },
                 "implementation_version": {
                     "type": "string"
@@ -134,7 +133,16 @@
             "additionalProperties": false,
             "properties": {
                 "key": {
-                    "$ref": "#/definitions/number_or_string"
+                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "number"
+                            }
+                        ]
+                    }
                 },
                 "enabled": {
                     "description": "Is the listed value enabled",
@@ -205,6 +213,7 @@
         },
         "preset_settings": {
             "description": "The different kind of settings stored in a preset",
+            "additionalProperties": false,
             "type": "array",
             "items": {
                 "oneOf": [
@@ -269,17 +278,18 @@
                             },
                             "value": {
                                 "type": "array",
-                                "contains": {
-                                    "type": "string"
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "number"
+                                        }
+                                    ]
                                 }
                             }
                         }
-                    },
-                    {
-                        "$ref": "#/definitions/number_or_string"
-                    },
-                    {
-                        "$ref": "#/definitions/enabled_number_or_string"
                     }
                 ]
             }
