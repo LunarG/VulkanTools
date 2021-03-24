@@ -65,7 +65,7 @@ TEST(test_configuration, load_and_save_v2_0_1) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_api_dump");
     EXPECT_TRUE(parameter != nullptr);
 
     configuration_loaded.key = "Api Dump";
@@ -84,7 +84,7 @@ TEST(test_configuration, load_and_save_v2_0_2) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_gfxreconstruct");
     EXPECT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Frame Capture - Range (F5 to start and to stop)", configuration_loaded.key.c_str());
@@ -103,7 +103,7 @@ TEST(test_configuration, load_and_save_v2_0_3) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_KHRONOS_validation");
     EXPECT_TRUE(parameter != nullptr);
 
     EXPECT_STREQ("Validation - Best Practices", configuration_loaded.key.c_str());
@@ -122,7 +122,7 @@ TEST(test_configuration, load_and_save_v2_1_0) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_test_1_4_0_setting_types");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_4_0");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter->state);
 
@@ -141,7 +141,7 @@ TEST(test_configuration, load_and_save_v2_2_0) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_test_1_4_0_setting_types");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_4_0");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter->state);
 
@@ -160,7 +160,7 @@ TEST(test_configuration, load_and_save_v2_2_1) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    auto parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_test_1_4_0_setting_types");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_4_0");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter->state);
 

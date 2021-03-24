@@ -3,7 +3,7 @@
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
     </qresource>
-    
+
     <qresource prefix="/configurations">
         <file alias="API dump.json">../vkconfig_core/configurations/2.2.1/API dump.json</file>
         <file alias="Frame Capture.json">../vkconfig_core/configurations/2.2.1/Frame Capture.json</file>
@@ -11,9 +11,9 @@
         <file alias="Synchronization.json">../vkconfig_core/configurations/2.2.1/Synchronization.json</file>
         <file alias="Validation.json">../vkconfig_core/configurations/2.2.1/Validation.json</file>
     </qresource>
-  
+
     <qresource prefix="/layers/test">
-		<file alias="VK_LAYER_LUNARG_test_1_4_0.json">../vkconfig_core/test/Layer 1.4.0 - setting types.json</file>
+		<file alias="VK_LAYER_LUNARG_reference_1_4_0.json">../vkconfig_core/test/VK_LAYER_LUNARG_reference_1_4_0.json</file>
     </qresource>
 
     <qresource prefix="/layers/130">
@@ -23,7 +23,7 @@
         <file alias="VK_LAYER_LUNARG_monitor.json">../vkconfig_core/layers/130/VK_LAYER_LUNARG_monitor.json</file>
         <file alias="VK_LAYER_LUNARG_screenshot.json">../vkconfig_core/layers/130/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
-    
+
     <qresource prefix="/layers/135">
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/135/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/135/VK_LAYER_LUNARG_api_dump.json</file>
@@ -31,7 +31,7 @@
         <file alias="VK_LAYER_LUNARG_monitor.json">../vkconfig_core/layers/135/VK_LAYER_LUNARG_monitor.json</file>
         <file alias="VK_LAYER_LUNARG_screenshot.json">../vkconfig_core/layers/135/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
-    
+
     <qresource prefix="/layers/141">
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/141/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/141/VK_LAYER_LUNARG_api_dump.json</file>
@@ -40,7 +40,7 @@
         <file alias="VK_LAYER_LUNARG_monitor.json">../vkconfig_core/layers/141/VK_LAYER_LUNARG_monitor.json</file>
         <file alias="VK_LAYER_LUNARG_screenshot.json">../vkconfig_core/layers/141/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
-    
+
     <qresource prefix="/layers/148">
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/148/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/148/VK_LAYER_LUNARG_api_dump.json</file>
@@ -49,7 +49,7 @@
         <file alias="VK_LAYER_LUNARG_monitor.json">../vkconfig_core/layers/148/VK_LAYER_LUNARG_monitor.json</file>
         <file alias="VK_LAYER_LUNARG_screenshot.json">../vkconfig_core/layers/148/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
-    
+
     <qresource prefix="/layers/154">
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/154/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/154/VK_LAYER_LUNARG_api_dump.json</file>
@@ -58,7 +58,7 @@
         <file alias="VK_LAYER_LUNARG_monitor.json">../vkconfig_core/layers/154/VK_LAYER_LUNARG_monitor.json</file>
         <file alias="VK_LAYER_LUNARG_screenshot.json">../vkconfig_core/layers/154/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
-    
+
     <qresource prefix="/layers/162">
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/162/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/162/VK_LAYER_LUNARG_api_dump.json</file>
@@ -67,7 +67,7 @@
         <file alias="VK_LAYER_LUNARG_monitor.json">../vkconfig_core/layers/162/VK_LAYER_LUNARG_monitor.json</file>
         <file alias="VK_LAYER_LUNARG_screenshot.json">../vkconfig_core/layers/162/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>  
-    
+
     <qresource prefix="/layers/170">
         <file alias="VK_LAYER_KHRONOS_synchronization2.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_synchronization2.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_validation.json</file>
@@ -77,7 +77,7 @@
         <file alias="VK_LAYER_LUNARG_monitor.json">../vkconfig_core/layers/latest/VK_LAYER_LUNARG_monitor.json</file>
         <file alias="VK_LAYER_LUNARG_screenshot.json">../vkconfig_core/layers/latest/VK_LAYER_LUNARG_screenshot.json</file>
     </qresource>
-    
+
     <qresource prefix="/layers/latest">
         <file alias="VK_LAYER_KHRONOS_synchronization2.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_synchronization2.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_validation.json</file>
