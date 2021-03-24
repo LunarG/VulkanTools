@@ -81,6 +81,22 @@
                         "value": false
                     }
                 ]
+            },
+            {
+                "label": "Preset Int",
+                "description": "Description Int",
+                "platforms": [ "LINUX", "MACOS" ],
+                "status": "DEPRECATED",
+                "settings": [
+                    {
+                        "key": "int_required_only",
+                        "value": 75
+                    },
+                    {
+                        "key": "int_with_optional",
+                        "value": 77
+                    }
+                ]
             }
         ],
         "settings": [
