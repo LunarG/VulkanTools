@@ -39,69 +39,102 @@ TEST(test_layer, collect_settings) {
     EXPECT_STREQ("value0", data0.value.c_str());
 }
 
-TEST(test_layer, load_1_X_0_layer_header) {
-    static const char* SOURCES[] = {":/Layer 1.3.0.json", ":/Layer 1.4.0 - setting platforms.json"};
+TEST(test_layer, load_1_3_0_header) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_3_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 3, 0), layer.file_format_version);
+    EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_3_0", layer.key.c_str());
+    EXPECT_STREQ(".\\VkLayer_reference.dll", layer._library_path.c_str());
+    EXPECT_EQ(Version(1, 2, 162), layer._api_version);
+    EXPECT_STREQ("Build 75", layer._implementation_version.c_str());
+    EXPECT_STREQ("reference layer", layer.description.c_str());
+    EXPECT_EQ(STATUS_STABLE, layer.status);
+    EXPECT_TRUE(layer.url.empty());
+    EXPECT_TRUE(layer.settings.Empty());
+    EXPECT_TRUE(layer.presets.empty());
+}
+
+TEST(test_layer, load_1_4_0_header) {
+    static const char* SOURCES[] = {":/VK_LAYER_LUNARG_reference_1_3_0.json", ":/VK_LAYER_LUNARG_reference_1_4_0.json"};
 
     static const char* FILE_FORMAT_VERSIONS[] = {"1.3.0", "1.4.0"};
-    static const char* KEYS[] = {"VK_LAYER_LUNARG_test_1_3_0", "VK_LAYER_LUNARG_test_1_4_0_setting_platforms"};
+    static const char* KEYS[] = {"VK_LAYER_LUNARG_reference_1_3_0", "VK_LAYER_LUNARG_reference_1_4_0"};
 
-    for (std::size_t i = 0, n = countof(SOURCES); i < n; ++i) {
-        Layer layer;
-        const bool load_loaded = layer.Load(SOURCES[i], LAYER_TYPE_EXPLICIT);
-        ASSERT_TRUE(load_loaded);
-
-        EXPECT_STREQ(FILE_FORMAT_VERSIONS[i], layer.file_format_version.str().c_str());
-
-        EXPECT_STREQ(KEYS[i], layer.key.c_str());
-        EXPECT_STREQ(".\\VkLayer_test.dll", layer._library_path.c_str());
-        EXPECT_STREQ("1.2.162", layer._api_version.str().c_str());
-        EXPECT_STREQ("2", layer._implementation_version.c_str());
-        EXPECT_STREQ("test layer", layer.description.c_str());
-        if (layer._api_version > Version(1, 3, 0)) {
-            EXPECT_EQ(STATUS_BETA, layer.status);
-            EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
-        }
-
-        EXPECT_EQ(0, layer.presets.size());
-    }
-}
-
-TEST(test_layer, load_1_4_0_layer_setting_platform) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting platforms.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.settings.Get("case0")->platform_flags);
-    EXPECT_EQ(PLATFORM_LINUX_BIT, layer.settings.Get("case1")->platform_flags);
-    EXPECT_EQ(PLATFORM_MACOS_BIT, layer.settings.Get("case2")->platform_flags);
-    EXPECT_EQ(PLATFORM_ALL_BIT, layer.settings.Get("case3")->platform_flags);
-    EXPECT_EQ(PLATFORM_ALL_BIT, layer.settings.Get("case4")->platform_flags);
-    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.settings.Get("case5")->platform_flags);
+    EXPECT_EQ(Version(1, 4, 0), layer.file_format_version);
+    EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_4_0", layer.key.c_str());
+    EXPECT_STREQ(".\\VkLayer_reference.dll", layer._library_path.c_str());
+    EXPECT_EQ(Version(1, 2, 170), layer._api_version);
+    EXPECT_STREQ("Build 76", layer._implementation_version.c_str());
+    EXPECT_STREQ("reference layer", layer.description.c_str());
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
+    EXPECT_TRUE(!layer.settings.Empty());
+    EXPECT_TRUE(!layer.presets.empty());
 }
 
-TEST(test_layer, load_1_4_0_layer_preset) {
+TEST(test_layer, load_1_4_0_preset_enum) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - presets.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_EQ(2, layer.presets.size());
-
-    EXPECT_STREQ("Preset0", layer.presets[0].label.c_str());
-    EXPECT_STREQ("Description0", layer.presets[0].description.c_str());
+    EXPECT_STREQ("Preset Enum", layer.presets[0].label.c_str());
+    EXPECT_STREQ("Description Enum", layer.presets[0].description.c_str());
     EXPECT_EQ(PLATFORM_ALL_BIT, layer.presets[0].platform_flags);
     EXPECT_EQ(STATUS_STABLE, layer.presets[0].status);
-    EXPECT_STREQ("A string0", layer.presets[0].settings.Get<SettingDataString>("stringA")->value.c_str());
+    EXPECT_STREQ("value2", layer.presets[0].settings.Get<SettingDataEnum>("enum_required_only")->value.c_str());
+    EXPECT_STREQ("value2", layer.presets[0].settings.Get<SettingDataEnum>("enum_with_optional")->value.c_str());
+}
 
-    EXPECT_STREQ("Preset1", layer.presets[1].label.c_str());
-    EXPECT_STREQ("Description1", layer.presets[1].description.c_str());
+TEST(test_layer, load_1_4_0_preset_flags) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_STREQ("Preset Flags", layer.presets[1].label.c_str());
+    EXPECT_STREQ("Description Flags", layer.presets[1].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.presets[1].platform_flags);
     EXPECT_EQ(STATUS_BETA, layer.presets[1].status);
-    EXPECT_STREQ("A string1", layer.presets[1].settings.Get<SettingDataString>("stringA")->value.c_str());
+    EXPECT_STREQ("flag0", layer.presets[1].settings.Get<SettingDataFlags>("flags_required_only")->value[0].c_str());
+    EXPECT_STREQ("flag2", layer.presets[1].settings.Get<SettingDataFlags>("flags_required_only")->value[1].c_str());
+    EXPECT_STREQ("flag0", layer.presets[1].settings.Get<SettingDataFlags>("flags_with_optional")->value[0].c_str());
+    EXPECT_STREQ("flag2", layer.presets[1].settings.Get<SettingDataFlags>("flags_with_optional")->value[1].c_str());
+}
+
+TEST(test_layer, load_1_4_0_preset_string) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_STREQ("Preset String", layer.presets[2].label.c_str());
+    EXPECT_STREQ("Description String", layer.presets[2].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT, layer.presets[2].platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, layer.presets[2].status);
+    EXPECT_STREQ("Required Only", layer.presets[2].settings.Get<SettingDataString>("string_required_only")->value.c_str());
+    EXPECT_STREQ("With Optional", layer.presets[2].settings.Get<SettingDataString>("string_with_optional")->value.c_str());
+}
+
+TEST(test_layer, load_1_4_0_preset_bool) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_STREQ("Preset Bool", layer.presets[3].label.c_str());
+    EXPECT_STREQ("Description Bool", layer.presets[3].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[3].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[3].status);
+    EXPECT_EQ(true, layer.presets[3].settings.Get<SettingDataBool>("bool_required_only")->value);
+    EXPECT_EQ(false, layer.presets[3].settings.Get<SettingDataBool>("bool_with_optional")->value);
 }
 
 TEST(test_layer, load_1_4_0_setting_enum_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -142,7 +175,7 @@ TEST(test_layer, load_1_4_0_setting_enum_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -195,7 +228,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_flags_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -237,7 +270,7 @@ TEST(test_layer, load_1_4_0_setting_flags_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -291,7 +324,7 @@ TEST(test_layer, load_1_4_0_setting_flags_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_string_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -313,7 +346,7 @@ TEST(test_layer, load_1_4_0_setting_string_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_string_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -335,7 +368,7 @@ TEST(test_layer, load_1_4_0_setting_string_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_bool_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -357,7 +390,7 @@ TEST(test_layer, load_1_4_0_setting_bool_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -379,7 +412,7 @@ TEST(test_layer, load_1_4_0_setting_bool_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -402,7 +435,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -425,7 +458,7 @@ TEST(test_layer, load_1_4_0_setting_load_file_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -448,7 +481,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -471,7 +504,7 @@ TEST(test_layer, load_1_4_0_setting_save_file_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_save_folder_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -493,7 +526,7 @@ TEST(test_layer, load_1_4_0_setting_save_folder_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -515,7 +548,7 @@ TEST(test_layer, load_1_4_0_setting_save_folder_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_int_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -540,7 +573,7 @@ TEST(test_layer, load_1_4_0_setting_int_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_int_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -565,7 +598,7 @@ TEST(test_layer, load_1_4_0_setting_int_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_frames_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -587,7 +620,7 @@ TEST(test_layer, load_1_4_0_setting_frames_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_frames_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -610,7 +643,7 @@ TEST(test_layer, load_1_4_0_setting_frames_with_optional) {
 
 TEST(test_layer, load_1_4_0_setting_list_required_only) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 
@@ -640,7 +673,7 @@ TEST(test_layer, load_1_4_0_setting_list_required_only) {
 
 TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     Layer layer;
-    const bool load_loaded = layer.Load(":/Layer 1.4.0 - setting types.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
     ASSERT_TRUE(!layer.settings.Empty());
 

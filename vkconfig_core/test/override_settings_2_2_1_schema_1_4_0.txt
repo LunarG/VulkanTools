@@ -1,5 +1,5 @@
 
-# VK_LAYER_LUNARG_test_1_4_0_setting_types
+# VK_LAYER_LUNARG_reference_1_4_0
 lunarg_test_1_4_0_setting_types.enum_required_only = value2
 lunarg_test_1_4_0_setting_types.enum_with_optional = value0
 lunarg_test_1_4_0_setting_types.flags_required_only = flag0,flag2
