@@ -81,13 +81,13 @@ bool SettingDataList::Equal(const SettingData& other) const {
 
     const SettingDataList& data = static_cast<const SettingDataList&>(other);
 
-    if (this->values.size() != data.values.size()) return false;
+    if (this->value.size() != data.value.size()) return false;
 
-    for (std::size_t i = 0, n = this->values.size(); i < n; ++i) {
-        const EnabledString& value = this->values[i];
+    for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+        const EnabledString& value = this->value[i];
 
-        auto it = std::find(data.values.begin(), data.values.end(), value);
-        if (it == data.values.end()) return false;
+        auto it = std::find(data.value.begin(), data.value.end(), value);
+        if (it == data.value.end()) return false;
     }
 
     return true;
@@ -98,7 +98,7 @@ SettingData& SettingDataList::Assign(const SettingData& other) {
 
     const SettingDataList& data = static_cast<const SettingDataList&>(other);
 
-    this->values = data.values;
+    this->value = data.value;
     return *this;
 }
 

@@ -53,8 +53,8 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     assert(&meta);
     assert(&data);
 
-    for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
-        RemoveString(this->list, data.values[i].key.c_str());
+    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+        RemoveString(this->list, data.value[i].key.c_str());
     }
 
     this->setFont(tree->font());
@@ -178,7 +178,7 @@ void WidgetSettingList::OnButtonPressed() {
     EnabledString enabled_string;
     enabled_string.key = entry.toStdString();
     enabled_string.enabled = true;
-    this->data.values.push_back(enabled_string);
+    this->data.value.push_back(enabled_string);
 
     ::RemoveString(this->list, entry.toStdString());
 
@@ -206,18 +206,18 @@ void WidgetSettingList::OnItemSelected(const QString &value) {
     (void)value;
 
     this->list = meta.list;
-    for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
-        ::RemoveString(this->list, data.values[i].key.c_str());
+    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+        ::RemoveString(this->list, data.value[i].key.c_str());
     }
 
     while (this->item->childCount() > 0) {
         this->item->removeChild(this->item->child(0));
     }
 
-    std::sort(data.values.begin(), data.values.end());
+    std::sort(data.value.begin(), data.value.end());
 
-    for (std::size_t i = 0, n = data.values.size(); i < n; ++i) {
-        this->AddElement(data.values[i].key);
+    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
+        this->AddElement(data.value[i].key);
     }
 
     if (this->meta.list_only && this->list.empty()) {

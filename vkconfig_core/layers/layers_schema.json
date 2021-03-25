@@ -218,6 +218,7 @@
             "items": {
                 "oneOf": [
                     {
+                        "description": "For preset STRING, ENUM, FRAMES, LOAD_FILE, SAVE_FILE, SAVE_FOLDER setting type values",
                         "type": "object",
                         "required": [
                             "key",
@@ -234,6 +235,7 @@
                         }
                     },
                     {
+                        "description": "For preset BOOL setting type values",
                         "type": "object",
                         "required": [
                             "key",
@@ -250,6 +252,7 @@
                         }
                     },
                     {
+                        "description": "For preset INT setting type values",
                         "type": "object",
                         "required": [
                             "key",
@@ -266,6 +269,27 @@
                         }
                     },
                     {
+                        "description": "For preset FLAGS setting type values",
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "description": "For preset LIST setting type values",
                         "type": "object",
                         "required": [
                             "key",
@@ -281,10 +305,36 @@
                                 "items": {
                                     "oneOf": [
                                         {
-                                            "type": "string"
+                                            "type": "object",
+                                            "required": [
+                                                "key",
+                                                "enabled"
+                                            ],
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "key": {
+                                                    "type": "string"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
                                         },
                                         {
-                                            "type": "number"
+                                            "type": "object",
+                                            "required": [
+                                                "key",
+                                                "enabled"
+                                            ],
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "key": {
+                                                    "type": "number"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
                                         }
                                     ]
                                 }
