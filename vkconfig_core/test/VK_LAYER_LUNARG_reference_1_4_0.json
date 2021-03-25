@@ -83,6 +83,54 @@
                 ]
             },
             {
+                "label": "Preset Load File",
+                "description": "Description Load File",
+                "platforms": [ "LINUX", "MACOS" ],
+                "status": "DEPRECATED",
+                "settings": [
+                    {
+                        "key": "load_file_required_only",
+                        "value": "./text.log"
+                    },
+                    {
+                        "key": "load_file_with_optional",
+                        "value": "./text.log"
+                    }
+                ]
+            },
+            {
+                "label": "Preset Save File",
+                "description": "Description Save File",
+                "platforms": [ "LINUX", "MACOS" ],
+                "status": "DEPRECATED",
+                "settings": [
+                    {
+                        "key": "save_file_required_only",
+                        "value": "./text.log"
+                    },
+                    {
+                        "key": "save_file_with_optional",
+                        "value": "./text.log"
+                    }
+                ]
+            },
+            {
+                "label": "Preset Save Folder",
+                "description": "Description Save Folder",
+                "platforms": [ "LINUX", "MACOS" ],
+                "status": "DEPRECATED",
+                "settings": [
+                    {
+                        "key": "save_folder_required_only",
+                        "value": "./text.log"
+                    },
+                    {
+                        "key": "save_folder_with_optional",
+                        "value": "./text.log"
+                    }
+                ]
+            },
+            {
                 "label": "Preset Int",
                 "description": "Description Int",
                 "platforms": [ "LINUX", "MACOS" ],
@@ -95,6 +143,56 @@
                     {
                         "key": "int_with_optional",
                         "value": 77
+                    }
+                ]
+            },
+            {
+                "label": "Preset Frames",
+                "description": "Description Frames",
+                "platforms": [ "LINUX", "MACOS" ],
+                "status": "DEPRECATED",
+                "settings": [
+                    {
+                        "key": "frames_required_only",
+                        "value": "13-17,24-32"
+                    },
+                    {
+                        "key": "frames_with_optional",
+                        "value": "13-17,24,32"
+                    }
+                ]
+            },
+            {
+                "label": "Preset List",
+                "description": "Description List",
+                "platforms": [ "LINUX", "MACOS" ],
+                "status": "DEPRECATED",
+                "settings": [
+                    {
+                        "key": "list_required_only",
+                        "value": [
+                            {
+                                "key": "stringA",
+                                "enabled": true
+                            },
+                            {
+                                "key": "stringB",
+                                "enabled": false
+                            }
+                        ]
+                    },
+                    {
+                        "key": "list_with_optional",
+                        "value": [
+                            {
+                                "key": "stringA",
+                                "enabled": true
+                            },
+                            {
+                                "key": "stringB",
+                                "enabled": false
+                            }
+                        ]
                     }
                 ]
             }
