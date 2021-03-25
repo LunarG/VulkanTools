@@ -81,13 +81,17 @@ bool SettingDataList::Equal(const SettingData& other) const {
 
     const SettingDataList& data = static_cast<const SettingDataList&>(other);
 
-    if (this->value.size() != data.value.size()) return false;
+    if (this->value.size() != data.value.size()) {
+        return false;
+    }
 
     for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-        const EnabledString& value = this->value[i];
+        const EnabledNumberOrString& value = this->value[i];
 
         auto it = std::find(data.value.begin(), data.value.end(), value);
-        if (it == data.value.end()) return false;
+        if (it == data.value.end()) {
+            return false;
+        }
     }
 
     return true;
@@ -107,13 +111,17 @@ bool SettingDataFlags::Equal(const SettingData& other) const {
 
     const SettingDataFlags& data = static_cast<const SettingDataFlags&>(other);
 
-    if (this->value.size() != data.value.size()) return false;
+    if (this->value.size() != data.value.size()) {
+        return false;
+    }
 
     for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
         const std::string& value = this->value[i];
 
         auto it = std::find(data.value.begin(), data.value.end(), value);
-        if (it == data.value.end()) return false;
+        if (it == data.value.end()) {
+            return false;
+        }
     }
 
     return true;

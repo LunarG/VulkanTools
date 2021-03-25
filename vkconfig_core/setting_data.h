@@ -117,7 +117,7 @@ struct SettingDataList : public SettingData {
     SettingDataList(const std::string& key) : SettingData(key, SETTING_LIST) {}
     virtual ~SettingDataList() {}
 
-    std::vector<EnabledString> value;
+    std::vector<EnabledNumberOrString> value;
 
     virtual bool Equal(const SettingData& other) const;
     virtual SettingData& Assign(const SettingData& other);

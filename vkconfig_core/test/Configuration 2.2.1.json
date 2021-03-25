@@ -99,6 +99,10 @@
                         "type": "LIST",
                         "value": [
                             {
+                                "key": 76,
+                                "enabled": true
+                            },
+                            {
                                 "key": "stringA",
                                 "enabled": true
                             },

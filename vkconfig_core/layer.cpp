@@ -242,7 +242,19 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
 
                     if (json_setting.value("list") != QJsonValue::Undefined) {
-                        meta.list = ReadStringArray(json_setting, "list");
+                        const QJsonArray& json_list_array = ReadArray(json_setting, "list");
+                        for (int i = 0, n = json_list_array.size(); i < n; ++i) {
+                            NumberOrString key;
+
+                            if (json_list_array[i].isString()) {
+                                key.key = json_list_array[i].toString().toStdString();
+                            } else {
+                                key.number = json_list_array[i].toInt();
+                            }
+
+                            meta.list.push_back(key);
+                        }
+
                         std::sort(meta.list.begin(), meta.list.end());
                         if (json_setting.value("list_only") != QJsonValue::Undefined) {
                             meta.list_only = ReadBoolValue(json_setting, "list_only");
@@ -253,8 +265,11 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     for (int i = 0, n = json_default.size(); i < n; ++i) {
                         const QJsonObject& json_object = json_default[i].toObject();
 
-                        EnabledString enabled_string;
-                        enabled_string.key = ReadStringValue(json_object, "key");
+                        const NumberOrString& number_or_string = ReadNumberOrStringValue(json_object, "key");
+
+                        EnabledNumberOrString enabled_string;
+                        enabled_string.key = number_or_string.key;
+                        enabled_string.number = number_or_string.number;
                         enabled_string.enabled = ReadBoolValue(json_object, "enabled");
                         meta.default_value.push_back(enabled_string);
                     }
@@ -320,9 +335,13 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                         for (int i = 0, n = array.size(); i < n; ++i) {
                             const QJsonObject& object = array[i].toObject();
 
-                            EnabledString enabled_string;
-                            enabled_string.key = ReadStringValue(object, "key");
+                            const NumberOrString& number_or_string = ReadNumberOrStringValue(object, "key");
+
+                            EnabledNumberOrString enabled_string;
+                            enabled_string.key = number_or_string.key;
+                            enabled_string.number = number_or_string.number;
                             enabled_string.enabled = ReadBoolValue(object, "enabled");
+
                             list.value.push_back(enabled_string);
                         }
                         break;

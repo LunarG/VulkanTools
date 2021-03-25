@@ -54,7 +54,7 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     assert(&data);
 
     for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
-        RemoveString(this->list, data.value[i].key.c_str());
+        RemoveValue(this->list, data.value[i]);
     }
 
     this->setFont(tree->font());
@@ -118,7 +118,7 @@ bool WidgetSettingList::eventFilter(QObject *target, QEvent *event) {
 void WidgetSettingList::ResetCompleter() {
     if (this->search != nullptr) this->search->deleteLater();
 
-    this->search = new QCompleter(QStringList(ConvertString(list)), this);
+    this->search = new QCompleter(ConvertValues(list), this);
     this->search->setCaseSensitivity(Qt::CaseSensitive);
     this->search->setCompletionMode(QCompleter::PopupCompletion);
     this->search->setModelSorting(QCompleter::CaseSensitivelySortedModel);
@@ -164,7 +164,15 @@ void WidgetSettingList::OnButtonPressed() {
     this->item->setText(0, (meta.label + "  ").c_str());
     this->field->setText("");
 
-    if (meta.list_only && !IsStringFound(this->meta.list, entry.toStdString())) {
+    const std::string string_value = entry.toStdString();
+    const bool is_number = IsNumber(string_value);
+
+    EnabledNumberOrString value;
+    value.key = is_number ? "" : string_value;
+    value.number = is_number ? std::atoi(string_value.c_str()) : 0;
+    value.enabled = true;
+
+    if (meta.list_only && !IsValueFound(this->meta.list, value)) {
         QMessageBox alert;
         alert.setWindowTitle("Invalid value");
         alert.setText(
@@ -175,12 +183,9 @@ void WidgetSettingList::OnButtonPressed() {
         return;
     }
 
-    EnabledString enabled_string;
-    enabled_string.key = entry.toStdString();
-    enabled_string.enabled = true;
-    this->data.value.push_back(enabled_string);
+    this->data.value.push_back(value);
 
-    ::RemoveString(this->list, entry.toStdString());
+    ::RemoveValue(this->list, value);
 
     this->OnItemSelected("");
     this->ResetCompleter();
@@ -207,7 +212,7 @@ void WidgetSettingList::OnItemSelected(const QString &value) {
 
     this->list = meta.list;
     for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
-        ::RemoveString(this->list, data.value[i].key.c_str());
+        ::RemoveValue(this->list, data.value[i]);
     }
 
     while (this->item->childCount() > 0) {

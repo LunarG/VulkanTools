@@ -96,6 +96,47 @@ bool IsStringFound(const std::vector<std::string>& list, const std::string& valu
     return false;
 }
 
+void RemoveValue(std::vector<NumberOrString>& list, const NumberOrString& value) {
+    std::vector<NumberOrString> new_list;
+    new_list.reserve(list.size());
+
+    for (std::size_t i = 0, n = list.size(); i < n; ++i) {
+        if (list[i] != value) {
+            new_list.push_back(list[i]);
+        }
+    }
+
+    std::swap(list, new_list);
+}
+
+void AppendValue(std::vector<NumberOrString>& list, const NumberOrString& value) {
+    if (std::find(list.begin(), list.end(), value) == list.end()) {
+        list.push_back(value);
+    }
+}
+
+bool IsValueFound(const std::vector<NumberOrString>& list, const NumberOrString& value) {
+    for (std::size_t i = 0, n = list.size(); i < n; ++i) {
+        if (list[i] == value) return true;
+    }
+
+    return false;
+}
+
+QStringList ConvertValues(const std::vector<NumberOrString>& values) {
+    QStringList string_list;
+
+    for (std::size_t i = 0, n = values.size(); i < n; ++i) {
+        if (values[i].key.empty()) {
+            string_list.append(format("%d", values[i].number).c_str());
+        } else {
+            string_list.append(values[i].key.c_str());
+        }
+    }
+
+    return string_list;
+}
+
 std::vector<std::string> ConvertString(const QStringList& string_list) {
     std::vector<std::string> strings;
 

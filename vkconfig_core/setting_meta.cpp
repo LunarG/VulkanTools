@@ -102,9 +102,15 @@ bool SettingMetaList::Equal(const SettingMeta& other) const {
 
     const SettingMetaList& meta = static_cast<const SettingMetaList&>(other);
 
-    if (this->list != meta.list) return false;
+    if (this->list != meta.list) {
+        return false;
+    }
 
-    return this->default_value == meta.default_value;
+    if (this->default_value != meta.default_value) {
+        return false;
+    }
+
+    return true;
 }
 
 bool operator==(const SettingEnumValue& a, const SettingEnumValue& b) {

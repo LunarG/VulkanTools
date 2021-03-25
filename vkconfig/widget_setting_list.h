@@ -70,6 +70,5 @@ class WidgetSettingList : public QWidget {
     QPushButton *add_button;
     QSize size;
 
-    std::vector<std::string> list;
-    std::vector<bool> enabled;
+    std::vector<NumberOrString> list;
 };

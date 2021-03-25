@@ -473,13 +473,15 @@
                 "type": "LIST",
                 "label": "List",
                 "description": "List description",
-                "list": [
-                    "stringA",
-                    "stringB",
-                    "stringC",
-                    "stringD"
-                ],
                 "default": [
+                    {
+                        "key": 76,
+                        "enabled": true
+                    },
+                    {
+                        "key": 82,
+                        "enabled": true
+                    },
                     {
                         "key": "stringB",
                         "enabled": true
@@ -505,13 +507,22 @@
                 "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "list": [
+                    75,
+                    76,
                     "stringA",
                     "stringB",
-                    "stringC",
-                    "stringD"
+                    "stringC"
                 ],
                 "list_only": true,
                 "default": [
+                    {
+                        "key": 76,
+                        "enabled": true
+                    },
+                    {
+                        "key": 82,
+                        "enabled": true
+                    },
                     {
                         "key": "stringB",
                         "enabled": true

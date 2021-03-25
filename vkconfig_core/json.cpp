@@ -45,6 +45,22 @@ std::string ReadStringValue(const QJsonObject& json_object, const char* key) {
     return json_value.toString().toStdString();
 }
 
+NumberOrString ReadNumberOrStringValue(const QJsonObject& json_object, const char* key) {
+    const QJsonValue& json_value = json_object.value(key);
+    assert(json_value != QJsonValue::Undefined);
+
+    NumberOrString value;
+    value.number = 0;
+
+    if (json_value.isString()) {
+        value.key = json_value.toString().toStdString();
+    } else {
+        value.number = json_value.toInt();
+    }
+
+    return value;
+}
+
 std::vector<std::string> ReadStringArray(const QJsonObject& json_object, const char* key) {
     const QJsonValue& json_value = json_object.value(key);
     assert(json_value != QJsonValue::Undefined);
