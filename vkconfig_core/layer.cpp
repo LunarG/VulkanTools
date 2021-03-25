@@ -241,10 +241,12 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                 case SETTING_LIST: {
                     SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
 
-                    meta.list = ReadStringArray(json_setting, "list");
-                    std::sort(meta.list.begin(), meta.list.end());
-                    if (json_setting.value("list_only") != QJsonValue::Undefined) {
-                        meta.list_only = ReadBoolValue(json_setting, "list_only");
+                    if (json_setting.value("list") != QJsonValue::Undefined) {
+                        meta.list = ReadStringArray(json_setting, "list");
+                        std::sort(meta.list.begin(), meta.list.end());
+                        if (json_setting.value("list_only") != QJsonValue::Undefined) {
+                            meta.list_only = ReadBoolValue(json_setting, "list_only");
+                        }
                     }
 
                     const QJsonArray& json_default = ReadArray(json_setting, "default");
@@ -314,7 +316,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     case SETTING_LIST: {
                         SettingDataList& list = static_cast<SettingDataList&>(setting_data);
 
-                        const QJsonArray& array = ReadArray(json_preset_object, "value");
+                        const QJsonArray& array = ReadArray(json_setting_object, "value");
                         for (int i = 0, n = array.size(); i < n; ++i) {
                             const QJsonObject& object = array[i].toObject();
 
