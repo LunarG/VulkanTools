@@ -29,6 +29,16 @@
 
 #include <cassert>
 
+const char *GetFieldToolTip(const SettingMetaList &meta, bool current_list_empty) {
+    if (meta.list.empty()) {
+        return "Start tapping to add a new value";
+    } else if (meta.list_only && current_list_empty) {
+        return "All the accepted values are already listed";
+    } else {
+        return "Start tapping to search for available values";
+    }
+}
+
 WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data)
     : meta(meta),
       data(data),
@@ -54,16 +64,15 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     item->setToolTip(0, meta.description.c_str());
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    const std::string tooltip = meta.list_only && this->list.empty() ? "All the accepted values are already listed"
-                                                                     : "Start tapping to search for available values";
+    const char *tooltip = GetFieldToolTip(meta, this->list.empty());
 
     this->field->show();
     this->field->setText("");
-    this->field->setToolTip(tooltip.c_str());
+    this->field->setToolTip(tooltip);
     this->field->setFont(tree->font());
     this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->installEventFilter(this);
-    this->field->setEnabled(!this->list.empty());
+    this->field->setEnabled(!meta.list_only || !this->list.empty());
 
     this->connect(this->field, SIGNAL(textEdited(const QString &)), this, SLOT(OnTextEdited(const QString &)),
                   Qt::QueuedConnection);
@@ -210,7 +219,7 @@ void WidgetSettingList::OnItemSelected(const QString &value) {
         this->AddElement(data.values[i].key);
     }
 
-    if (this->list.empty()) {
+    if (this->meta.list_only && this->list.empty()) {
         this->field->hide();
         this->add_button->hide();
     } else {
