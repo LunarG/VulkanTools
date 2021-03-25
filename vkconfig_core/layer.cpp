@@ -323,7 +323,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                             EnabledString enabled_string;
                             enabled_string.key = ReadStringValue(object, "key");
                             enabled_string.enabled = ReadBoolValue(object, "enabled");
-                            list.values.push_back(enabled_string);
+                            list.value.push_back(enabled_string);
                         }
                         break;
                     }
@@ -403,7 +403,7 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
         }
         case SETTING_LIST: {
             const SettingMetaList& meta_object = static_cast<const SettingMetaList&>(setting_meta);
-            static_cast<SettingDataList&>(setting_data).values = meta_object.default_value;
+            static_cast<SettingDataList&>(setting_data).value = meta_object.default_value;
             break;
         }
         default: {

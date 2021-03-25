@@ -55,7 +55,7 @@ void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingListElement::OnItemChecked(bool checked) {
-    EnabledString* enabled_string = FindByKey(data.values, this->element.c_str());
+    EnabledString* enabled_string = FindByKey(data.value, this->element.c_str());
     enabled_string->enabled = checked;
 
     emit itemChanged();
@@ -66,11 +66,11 @@ void WidgetSettingListElement::OnButtonClicked() {
     value.key = this->element;
     value.enabled = true;
 
-    auto it = std::find(this->data.values.begin(), this->data.values.end(), value);
-    assert(it != this->data.values.end());
+    auto it = std::find(this->data.value.begin(), this->data.value.end(), value);
+    assert(it != this->data.value.end());
 
-    if (it != this->data.values.end()) {
-        this->data.values.erase(it);
+    if (it != this->data.value.end()) {
+        this->data.value.erase(it);
     }
 
     this->setEnabled(false);
@@ -83,8 +83,8 @@ bool WidgetSettingListElement::GetChecked() const {
     value.key = this->element;
     value.enabled = true;
 
-    auto it = std::find(this->data.values.begin(), this->data.values.end(), value);
-    assert(it != this->data.values.end());
+    auto it = std::find(this->data.value.begin(), this->data.value.end(), value);
+    assert(it != this->data.value.end());
 
     return it->enabled;
 }

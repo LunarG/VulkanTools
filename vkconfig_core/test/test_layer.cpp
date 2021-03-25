@@ -220,14 +220,14 @@ TEST(test_layer, load_1_4_0_preset_list) {
     EXPECT_STREQ("Description List", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[0].key.c_str());
-    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[1].key.c_str());
-    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[0].enabled);
-    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[1].enabled);
-    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[0].key.c_str());
-    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[1].key.c_str());
-    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[0].enabled);
-    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[1].enabled);
+    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[0].key.c_str());
+    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[1].key.c_str());
+    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[0].enabled);
+    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[1].enabled);
+    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[0].key.c_str());
+    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[1].key.c_str());
+    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[0].enabled);
+    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[1].enabled);
 }
 
 TEST(test_layer, load_1_4_0_setting_enum_required_only) {
