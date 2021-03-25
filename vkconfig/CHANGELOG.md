@@ -9,15 +9,6 @@
 
 <p align="center"><img src="./images/vulkan_configurator.png" width="400" /></p>
 
-# Known issues:
-
-- *Using Vulkan Configurator is exclusive from using layer environment variables. Choose one or the other method.*
-- Layers will use the override layer settings and ignore the local file with no warning to the user.
-- Layers settings fields are not checked for syntax errors.
-- Layer changes are not autodetected. If changes are made to the layer environment, *Vulkan Configurator* must be restarted to take into account these changes.
-- On *macOS*, *vkcube* and *vkcubepp* need to be run at least once to get past the security checks before they can be used from *Vulkan Configurator*.
-- The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
-
 # Release notes
 
 ## [Vulkan Configurator 2.2.1 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools/tree/master) - April 2021
@@ -28,6 +19,7 @@
 ### Improvements:
 - Add display of layer execution order in the setting tree #1390
 - Improve 'list' UI in setting tree #1397
+- Add UI input values checking
 
 ### Fixes:
 - Hide 'Callback' from validation layer 'Debug Action' debug action that is NOOP

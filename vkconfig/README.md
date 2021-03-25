@@ -151,3 +151,10 @@ The short answer is that environment variables and *Vulkan Configurator* layers 
 This is because the interaction between environment variables and *Vulkan* Configuration layers settings are handled by the layers directly so the responsability of the layers developers.
 
 We are working on defining layers development conventions to resolve this issue properly but in the meantime we highly recommend to use exclusively either environment variables or Vulkan Configurator.
+
+## Known issues:
+
+- Layers settings fields are not checked for syntax errors.
+- Layer changes are not autodetected. If changes are made to the layer environment, *Vulkan Configurator* must be restarted to take into account these changes.
+- On *macOS*, *vkcube* and *vkcubepp* need to be run at least once to get past the security checks before they can be used from *Vulkan Configurator*.
+- The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
