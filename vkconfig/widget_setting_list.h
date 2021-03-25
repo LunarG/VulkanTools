@@ -32,11 +32,11 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-class WidgetSettingSearch : public QWidget {
+class WidgetSettingList : public QWidget {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data);
+    explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data);
 
    public Q_SLOTS:
     void OnAddCompleted(const QString &value);
@@ -50,8 +50,8 @@ class WidgetSettingSearch : public QWidget {
     void itemChanged();
 
    private:
-    WidgetSettingSearch(const WidgetSettingSearch &) = delete;
-    WidgetSettingSearch &operator=(const WidgetSettingSearch &) = delete;
+    WidgetSettingList(const WidgetSettingList &) = delete;
+    WidgetSettingList &operator=(const WidgetSettingList &) = delete;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual bool eventFilter(QObject *target, QEvent *event) override;

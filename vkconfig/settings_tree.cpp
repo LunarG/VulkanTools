@@ -31,7 +31,7 @@
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
 #include "widget_setting_list_element.h"
-#include "widget_setting_search.h"
+#include "widget_setting_list.h"
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
@@ -298,7 +298,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         QTreeWidgetItem *item = new QTreeWidgetItem;
         parent->addChild(item);
 
-        WidgetSettingSearch *widget_search = new WidgetSettingSearch(tree, item, meta, data);
+        WidgetSettingList *widget_search = new WidgetSettingList(tree, item, meta, data);
         this->tree->setItemWidget(item, 0, widget_search);
         this->connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
     }
@@ -436,7 +436,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 const SettingMetaList &meta = static_cast<const SettingMetaList &>(layer_setting_metas[setting_index]);
                 SettingDataList &data = *parameter.settings.Get<SettingDataList>(meta.key.c_str());
 
-                WidgetSettingSearch *widget_search = new WidgetSettingSearch(tree, item, meta, data);
+                WidgetSettingList *widget_search = new WidgetSettingList(tree, item, meta, data);
 
                 this->tree->setItemWidget(item, 0, widget_search);
                 this->connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
