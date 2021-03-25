@@ -27,6 +27,7 @@
 
 ### Improvements:
 - Add display of layer execution order in the setting tree #1390
+- Improve 'list' UI in setting tree #1397
 
 ### Fixes:
 - Hide 'Callback' from validation layer 'Debug Action' debug action that is NOOP

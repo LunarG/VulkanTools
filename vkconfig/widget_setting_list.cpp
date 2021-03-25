@@ -76,6 +76,7 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
 
     this->connect(this->field, SIGNAL(textEdited(const QString &)), this, SLOT(OnTextEdited(const QString &)),
                   Qt::QueuedConnection);
+    this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(OnButtonPressed()), Qt::QueuedConnection);
 
     this->add_button->setText("+");
     this->add_button->setFont(tree->font());
