@@ -113,7 +113,7 @@ TEST(test_layer, load_1_4_0_preset_string) {
 
     EXPECT_STREQ("Preset String", layer.presets[2].label.c_str());
     EXPECT_STREQ("Description String", layer.presets[2].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT, layer.presets[2].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.presets[2].platform_flags);
     EXPECT_EQ(STATUS_ALPHA, layer.presets[2].status);
     EXPECT_STREQ("Required Only", layer.presets[2].settings.Get<SettingDataString>("string_required_only")->value.c_str());
     EXPECT_STREQ("With Optional", layer.presets[2].settings.Get<SettingDataString>("string_with_optional")->value.c_str());
@@ -128,7 +128,7 @@ TEST(test_layer, load_1_4_0_preset_bool) {
 
     EXPECT_STREQ("Preset Bool", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Bool", layer.presets[index].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
     EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataBool>("bool_required_only")->value);
     EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataBool>("bool_with_optional")->value);
@@ -143,7 +143,7 @@ TEST(test_layer, load_1_4_0_preset_load_file) {
 
     EXPECT_STREQ("Preset Load File", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Load File", layer.presets[index].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
     EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataString>("load_file_required_only")->value.c_str());
     EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataString>("load_file_with_optional")->value.c_str());
@@ -158,7 +158,7 @@ TEST(test_layer, load_1_4_0_preset_save_file) {
 
     EXPECT_STREQ("Preset Save File", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Save File", layer.presets[index].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
     EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_file_required_only")->value.c_str());
     EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_file_with_optional")->value.c_str());
@@ -173,7 +173,7 @@ TEST(test_layer, load_1_4_0_preset_save_folder) {
 
     EXPECT_STREQ("Preset Save Folder", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Save Folder", layer.presets[index].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
     EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_folder_required_only")->value.c_str());
     EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_folder_with_optional")->value.c_str());
@@ -188,7 +188,7 @@ TEST(test_layer, load_1_4_0_preset_int) {
 
     EXPECT_STREQ("Preset Int", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Int", layer.presets[index].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
     EXPECT_EQ(75, layer.presets[index].settings.Get<SettingDataInt>("int_required_only")->value);
     EXPECT_EQ(77, layer.presets[index].settings.Get<SettingDataInt>("int_with_optional")->value);
@@ -203,7 +203,7 @@ TEST(test_layer, load_1_4_0_preset_frames) {
 
     EXPECT_STREQ("Preset Frames", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Frames", layer.presets[index].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
     EXPECT_STREQ("13-17,24-32", layer.presets[index].settings.Get<SettingDataFrames>("frames_required_only")->value.c_str());
     EXPECT_STREQ("13-17,24,32", layer.presets[index].settings.Get<SettingDataFrames>("frames_with_optional")->value.c_str());
@@ -218,7 +218,7 @@ TEST(test_layer, load_1_4_0_preset_list) {
 
     EXPECT_STREQ("Preset List", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description List", layer.presets[index].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
     EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[0].key.c_str());
     EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[1].key.c_str());

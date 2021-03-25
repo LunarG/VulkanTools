@@ -53,7 +53,7 @@
             {
                 "label": "Preset String",
                 "description": "Description String",
-                "platforms": [ "LINUX" ],
+                "platforms": [ "WINDOWS", "LINUX" ],
                 "status": "ALPHA",
                 "settings": [
                     {
@@ -69,7 +69,7 @@
             {
                 "label": "Preset Bool",
                 "description": "Description Bool",
-                "platforms": [ "LINUX", "MACOS" ],
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "DEPRECATED",
                 "settings": [
                     {
@@ -85,7 +85,7 @@
             {
                 "label": "Preset Load File",
                 "description": "Description Load File",
-                "platforms": [ "LINUX", "MACOS" ],
+                "platforms": [ "WINDOWS", "MACOS" ],
                 "status": "DEPRECATED",
                 "settings": [
                     {
@@ -101,7 +101,7 @@
             {
                 "label": "Preset Save File",
                 "description": "Description Save File",
-                "platforms": [ "LINUX", "MACOS" ],
+                "platforms": [ "WINDOWS", "MACOS" ],
                 "status": "DEPRECATED",
                 "settings": [
                     {
@@ -117,7 +117,7 @@
             {
                 "label": "Preset Save Folder",
                 "description": "Description Save Folder",
-                "platforms": [ "LINUX", "MACOS" ],
+                "platforms": [ "WINDOWS", "MACOS" ],
                 "status": "DEPRECATED",
                 "settings": [
                     {
@@ -133,7 +133,7 @@
             {
                 "label": "Preset Int",
                 "description": "Description Int",
-                "platforms": [ "LINUX", "MACOS" ],
+                "platforms": [ "WINDOWS", "MACOS" ],
                 "status": "DEPRECATED",
                 "settings": [
                     {
@@ -149,7 +149,7 @@
             {
                 "label": "Preset Frames",
                 "description": "Description Frames",
-                "platforms": [ "LINUX", "MACOS" ],
+                "platforms": [ "WINDOWS", "MACOS" ],
                 "status": "DEPRECATED",
                 "settings": [
                     {
@@ -165,7 +165,7 @@
             {
                 "label": "Preset List",
                 "description": "Description List",
-                "platforms": [ "LINUX", "MACOS" ],
+                "platforms": [ "WINDOWS", "MACOS" ],
                 "status": "DEPRECATED",
                 "settings": [
                     {
