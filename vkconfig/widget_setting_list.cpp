@@ -19,7 +19,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_setting_search.h"
+#include "widget_setting_list.h"
 #include "widget_setting_list_element.h"
 #include "widget_setting.h"
 
@@ -29,8 +29,7 @@
 
 #include <cassert>
 
-WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta,
-                                         SettingDataList &data)
+WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data)
     : meta(meta),
       data(data),
       tree(tree),
@@ -80,7 +79,7 @@ WidgetSettingSearch::WidgetSettingSearch(QTreeWidget *tree, QTreeWidgetItem *ite
     ResetCompleter();
 }
 
-void WidgetSettingSearch::Resize() {
+void WidgetSettingList::Resize() {
     const int button_size = MIN_BUTTON_SIZE;
 
     const QFontMetrics fm = this->fontMetrics();
@@ -90,13 +89,13 @@ void WidgetSettingSearch::Resize() {
     this->add_button->setGeometry(this->size.width() - button_size, 0, button_size, this->size.height());
 }
 
-void WidgetSettingSearch::resizeEvent(QResizeEvent *event) {
+void WidgetSettingList::resizeEvent(QResizeEvent *event) {
     this->size = event->size();
 
     this->Resize();
 }
 
-bool WidgetSettingSearch::eventFilter(QObject *target, QEvent *event) {
+bool WidgetSettingList::eventFilter(QObject *target, QEvent *event) {
     (void)target;
     if (event->type() == QEvent::Wheel) {
         event->ignore();
@@ -106,7 +105,7 @@ bool WidgetSettingSearch::eventFilter(QObject *target, QEvent *event) {
     return field->eventFilter(target, event);
 }
 
-void WidgetSettingSearch::ResetCompleter() {
+void WidgetSettingList::ResetCompleter() {
     if (this->search != nullptr) this->search->deleteLater();
 
     this->search = new QCompleter(QStringList(ConvertString(list)), this);
@@ -123,7 +122,7 @@ void WidgetSettingSearch::ResetCompleter() {
                   Qt::QueuedConnection);
 }
 
-void WidgetSettingSearch::AddElement(const std::string &key) {
+void WidgetSettingList::AddElement(const std::string &key) {
     QTreeWidgetItem *child = new QTreeWidgetItem();
     child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->item->addChild(child);
@@ -136,7 +135,7 @@ void WidgetSettingSearch::AddElement(const std::string &key) {
 }
 
 // Clear the edit control after the completer is finished.
-void WidgetSettingSearch::OnAddCompleted(const QString &added_value) {
+void WidgetSettingList::OnAddCompleted(const QString &added_value) {
     (void)added_value;
     // We can't do this right away, the completer emits it's signal
     // before it's really "complete". If we clear the control too soon
@@ -145,7 +144,7 @@ void WidgetSettingSearch::OnAddCompleted(const QString &added_value) {
     OnButtonPressed();
 }
 
-void WidgetSettingSearch::OnButtonPressed() {
+void WidgetSettingList::OnButtonPressed() {
     QString entry = this->field->text();
     if (entry.isEmpty()) return;
 
@@ -178,7 +177,7 @@ void WidgetSettingSearch::OnButtonPressed() {
     this->Resize();
 }
 
-void WidgetSettingSearch::OnTextEdited(const QString &value) {
+void WidgetSettingList::OnTextEdited(const QString &value) {
     assert(this->add_button);
     assert(this->field);
 
@@ -193,7 +192,7 @@ void WidgetSettingSearch::OnTextEdited(const QString &value) {
     this->add_button->setEnabled(!value.isEmpty());
 }
 
-void WidgetSettingSearch::OnItemSelected(const QString &value) {
+void WidgetSettingList::OnItemSelected(const QString &value) {
     (void)value;
 
     this->list = meta.list;
@@ -224,4 +223,4 @@ void WidgetSettingSearch::OnItemSelected(const QString &value) {
     emit itemChanged();
 }
 
-void WidgetSettingSearch::OnSettingChanged() { emit itemChanged(); }
+void WidgetSettingList::OnSettingChanged() { emit itemChanged(); }
