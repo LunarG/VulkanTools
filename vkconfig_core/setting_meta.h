@@ -160,8 +160,8 @@ struct SettingMetaList : public SettingMeta {
     SettingMetaList(const std::string& key) : SettingMeta(key, SETTING_LIST), list_only(false) {}
     virtual ~SettingMetaList() {}
 
-    std::vector<std::string> list;
-    std::vector<EnabledString> default_value;
+    std::vector<NumberOrString> list;
+    std::vector<EnabledNumberOrString> default_value;
     bool list_only;
 
    protected:

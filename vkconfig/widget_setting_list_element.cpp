@@ -55,14 +55,14 @@ void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingListElement::OnItemChecked(bool checked) {
-    EnabledString* enabled_string = FindByKey(data.value, this->element.c_str());
+    EnabledNumberOrString* enabled_string = FindByKey(data.value, this->element.c_str());
     enabled_string->enabled = checked;
 
     emit itemChanged();
 }
 
 void WidgetSettingListElement::OnButtonClicked() {
-    EnabledString value;
+    EnabledNumberOrString value;
     value.key = this->element;
     value.enabled = true;
 
@@ -79,7 +79,7 @@ void WidgetSettingListElement::OnButtonClicked() {
 }
 
 bool WidgetSettingListElement::GetChecked() const {
-    EnabledString value;
+    EnabledNumberOrString value;
     value.key = this->element;
     value.enabled = true;
 

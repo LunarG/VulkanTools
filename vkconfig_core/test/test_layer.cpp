@@ -759,14 +759,30 @@ TEST(test_layer, load_1_4_0_setting_list_required_only) {
     EXPECT_EQ(PLATFORM_ALL_BIT, setting_meta->platform_flags);
 
     EXPECT_TRUE(!setting_meta->list_only);
-    EXPECT_STREQ("stringA", setting_meta->list[0].c_str());
-    EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
-    EXPECT_STREQ("stringC", setting_meta->list[2].c_str());
 
-    EXPECT_STREQ("stringB", setting_meta->default_value[0].key.c_str());
+    EXPECT_TRUE(setting_meta->list.empty());
+
+    EXPECT_EQ(5, setting_meta->default_value.size());
+
+    EXPECT_EQ(76, setting_meta->default_value[0].number);
+    EXPECT_TRUE(setting_meta->default_value[0].key.empty());
     EXPECT_EQ(true, setting_meta->default_value[0].enabled);
-    EXPECT_STREQ("stringC", setting_meta->default_value[1].key.c_str());
-    EXPECT_EQ(false, setting_meta->default_value[1].enabled);
+
+    EXPECT_EQ(82, setting_meta->default_value[1].number);
+    EXPECT_TRUE(setting_meta->default_value[1].key.empty());
+    EXPECT_EQ(true, setting_meta->default_value[1].enabled);
+
+    EXPECT_EQ(0, setting_meta->default_value[2].number);
+    EXPECT_STREQ("stringB", setting_meta->default_value[2].key.c_str());
+    EXPECT_EQ(true, setting_meta->default_value[2].enabled);
+
+    EXPECT_EQ(0, setting_meta->default_value[3].number);
+    EXPECT_STREQ("stringC", setting_meta->default_value[3].key.c_str());
+    EXPECT_EQ(false, setting_meta->default_value[3].enabled);
+
+    EXPECT_EQ(0, setting_meta->default_value[4].number);
+    EXPECT_STREQ("stringD", setting_meta->default_value[4].key.c_str());
+    EXPECT_EQ(true, setting_meta->default_value[4].enabled);
 }
 
 TEST(test_layer, load_1_4_0_setting_list_with_optional) {
@@ -789,14 +805,36 @@ TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
     EXPECT_TRUE(setting_meta->list_only);
-    EXPECT_STREQ("stringA", setting_meta->list[0].c_str());
-    EXPECT_STREQ("stringB", setting_meta->list[1].c_str());
-    EXPECT_STREQ("stringC", setting_meta->list[2].c_str());
 
-    EXPECT_STREQ("stringB", setting_meta->default_value[0].key.c_str());
+    EXPECT_EQ(5, setting_meta->list.size());
+
+    EXPECT_EQ(75, setting_meta->list[0].number);
+    EXPECT_EQ(76, setting_meta->list[1].number);
+    EXPECT_STREQ("stringA", setting_meta->list[2].key.c_str());
+    EXPECT_STREQ("stringB", setting_meta->list[3].key.c_str());
+    EXPECT_STREQ("stringC", setting_meta->list[4].key.c_str());
+
+    EXPECT_EQ(5, setting_meta->default_value.size());
+
+    EXPECT_EQ(76, setting_meta->default_value[0].number);
+    EXPECT_TRUE(setting_meta->default_value[0].key.empty());
     EXPECT_EQ(true, setting_meta->default_value[0].enabled);
-    EXPECT_STREQ("stringC", setting_meta->default_value[1].key.c_str());
-    EXPECT_EQ(false, setting_meta->default_value[1].enabled);
+
+    EXPECT_EQ(82, setting_meta->default_value[1].number);
+    EXPECT_TRUE(setting_meta->default_value[1].key.empty());
+    EXPECT_EQ(true, setting_meta->default_value[1].enabled);
+
+    EXPECT_EQ(0, setting_meta->default_value[2].number);
+    EXPECT_STREQ("stringB", setting_meta->default_value[2].key.c_str());
+    EXPECT_EQ(true, setting_meta->default_value[2].enabled);
+
+    EXPECT_EQ(0, setting_meta->default_value[3].number);
+    EXPECT_STREQ("stringC", setting_meta->default_value[3].key.c_str());
+    EXPECT_EQ(false, setting_meta->default_value[3].enabled);
+
+    EXPECT_EQ(0, setting_meta->default_value[4].number);
+    EXPECT_STREQ("stringD", setting_meta->default_value[4].key.c_str());
+    EXPECT_EQ(true, setting_meta->default_value[4].enabled);
 }
 
 TEST(test_layer, load_1_4_0_setting_list_empty) {

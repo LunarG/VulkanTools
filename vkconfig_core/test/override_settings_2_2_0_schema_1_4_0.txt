@@ -18,6 +18,6 @@ lunarg_reference_1_4_0.int_required_only = 76
 lunarg_reference_1_4_0.int_with_optional = 82
 lunarg_reference_1_4_0.frames_required_only = 76-82,75
 lunarg_reference_1_4_0.frames_with_optional = 79-82,75
-lunarg_reference_1_4_0.list_required_only = stringB,stringD
+lunarg_reference_1_4_0.list_required_only = 76,82,stringB,stringD
 lunarg_reference_1_4_0.list_with_optional = stringA,stringB
 lunarg_reference_1_4_0.list_empty = 
