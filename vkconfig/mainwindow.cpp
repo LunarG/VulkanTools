@@ -958,7 +958,7 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     configurator.environment.Notify(NOTIFICATION_RESTART);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
-    UpdateUI();
+    this->UpdateUI();
 }
 
 void MainWindow::SetupLauncherTree() {
@@ -1067,7 +1067,12 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
 }
 
 void MainWindow::OnLauncherLoaderMessageChanged(int level) {
-    Configurator::Get().environment.SetLoaderMessage(static_cast<LoaderMessageLevel>(level));
+    Configurator &configurator = Configurator::Get();
+
+    configurator.environment.SetLoaderMessage(static_cast<LoaderMessageLevel>(level));
+    configurator.request_vulkan_status = true;
+
+    this->UpdateUI();
 }
 
 void MainWindow::launchSetLogFile() {
