@@ -124,12 +124,110 @@ TEST(test_layer, load_1_4_0_preset_bool) {
     const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_STREQ("Preset Bool", layer.presets[3].label.c_str());
-    EXPECT_STREQ("Description Bool", layer.presets[3].description.c_str());
-    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[3].platform_flags);
-    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[3].status);
-    EXPECT_EQ(true, layer.presets[3].settings.Get<SettingDataBool>("bool_required_only")->value);
-    EXPECT_EQ(false, layer.presets[3].settings.Get<SettingDataBool>("bool_with_optional")->value);
+    const std::size_t index = 3;
+
+    EXPECT_STREQ("Preset Bool", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Bool", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataBool>("bool_required_only")->value);
+    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataBool>("bool_with_optional")->value);
+}
+
+TEST(test_layer, load_1_4_0_preset_load_file) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    const std::size_t index = 4;
+
+    EXPECT_STREQ("Preset Load File", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Load File", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataString>("load_file_required_only")->value.c_str());
+    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataString>("load_file_with_optional")->value.c_str());
+}
+
+TEST(test_layer, load_1_4_0_preset_save_file) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    const std::size_t index = 5;
+
+    EXPECT_STREQ("Preset Save File", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Save File", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_file_required_only")->value.c_str());
+    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_file_with_optional")->value.c_str());
+}
+
+TEST(test_layer, load_1_4_0_preset_save_folder) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    const std::size_t index = 6;
+
+    EXPECT_STREQ("Preset Save Folder", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Save Folder", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_folder_required_only")->value.c_str());
+    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_folder_with_optional")->value.c_str());
+}
+
+TEST(test_layer, load_1_4_0_preset_int) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    const std::size_t index = 7;
+
+    EXPECT_STREQ("Preset Int", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Int", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+    EXPECT_EQ(75, layer.presets[index].settings.Get<SettingDataInt>("int_required_only")->value);
+    EXPECT_EQ(77, layer.presets[index].settings.Get<SettingDataInt>("int_with_optional")->value);
+}
+
+TEST(test_layer, load_1_4_0_preset_frames) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    const std::size_t index = 8;
+
+    EXPECT_STREQ("Preset Frames", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Frames", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+    EXPECT_STREQ("13-17,24-32", layer.presets[index].settings.Get<SettingDataFrames>("frames_required_only")->value.c_str());
+    EXPECT_STREQ("13-17,24,32", layer.presets[index].settings.Get<SettingDataFrames>("frames_with_optional")->value.c_str());
+}
+
+TEST(test_layer, load_1_4_0_preset_list) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    const std::size_t index = 9;
+
+    EXPECT_STREQ("Preset List", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description List", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[0].key.c_str());
+    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[1].key.c_str());
+    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[0].enabled);
+    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->values[1].enabled);
+    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[0].key.c_str());
+    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[1].key.c_str());
+    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[0].enabled);
+    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->values[1].enabled);
 }
 
 TEST(test_layer, load_1_4_0_setting_enum_required_only) {
@@ -699,4 +797,27 @@ TEST(test_layer, load_1_4_0_setting_list_with_optional) {
     EXPECT_EQ(true, setting_meta->default_value[0].enabled);
     EXPECT_STREQ("stringC", setting_meta->default_value[1].key.c_str());
     EXPECT_EQ(false, setting_meta->default_value[1].enabled);
+}
+
+TEST(test_layer, load_1_4_0_setting_list_empty) {
+    Layer layer;
+    const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+    ASSERT_TRUE(!layer.settings.Empty());
+
+    SettingMetaList* setting_meta = layer.settings.Get<SettingMetaList>("list_empty");
+    ASSERT_TRUE(setting_meta);
+
+    EXPECT_STREQ("list_empty", setting_meta->key.c_str());
+    EXPECT_STREQ("TEST_LIST", setting_meta->env.c_str());
+    EXPECT_EQ(SETTING_LIST, setting_meta->type);
+    EXPECT_STREQ("List", setting_meta->label.c_str());
+    EXPECT_STREQ("List description", setting_meta->description.c_str());
+    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list", setting_meta->url.c_str());
+    EXPECT_EQ(STATUS_BETA, setting_meta->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
+
+    EXPECT_FALSE(setting_meta->list_only);
+    EXPECT_TRUE(setting_meta->list.empty());
 }

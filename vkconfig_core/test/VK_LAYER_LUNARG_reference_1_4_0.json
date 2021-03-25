@@ -525,6 +525,18 @@
                         "enabled": true
                     }
                 ]
+            },
+            {
+                "key": "list_empty",
+                "env": "TEST_LIST",
+                "type": "LIST",
+                "label": "List",
+                "description": "List description",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list",
+                "status": "BETA",
+                "view": "ADVANCED",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "default": []
             }
         ]
     }
