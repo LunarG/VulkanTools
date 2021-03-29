@@ -48,6 +48,7 @@ def RunShellCmd(command, start_dir = PROJECT_ROOT):
 # TODO: Pass this in as arg, may be useful for running locally
 EXTERNAL_DIR_NAME = "external"
 BUILD_DIR_NAME = "build"
+INSTALL_DIR_NAME = "install"
 EXTERNAL_DIR = repo_relative(EXTERNAL_DIR_NAME)
 VT_BUILD_DIR = repo_relative(BUILD_DIR_NAME)
 CONFIGURATIONS = ['release', 'debug']
@@ -114,7 +115,7 @@ def RunVTTests(args):
     RunATest(vt_cmd, vt_env)
     vt_cmd = '%s/tests/apidump_test.sh -t %s/Vulkan-Tools/%s' % (BUILD_DIR_NAME, EXTERNAL_DIR, BUILD_DIR_NAME)
     RunATest(vt_cmd, vt_env)
-    vt_cmd = '%s/tests/devsim_layer_test.sh -t %s/Vulkan-Tools/%s' % (BUILD_DIR_NAME, EXTERNAL_DIR, BUILD_DIR_NAME)
+    vt_cmd = 'python tests/devsim_layer_tests.py %s/Vulkan-Tools/%s/%s --dir=tests' % (EXTERNAL_DIR, BUILD_DIR_NAME, INSTALL_DIR_NAME)
     RunATest(vt_cmd, vt_env)
 
 #
