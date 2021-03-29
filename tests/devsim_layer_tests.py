@@ -363,10 +363,21 @@ def main():
         "vulkan_tools_install_dir",
         help="Path to the install directory of the KhronosGroup/Vulkan-Tools repo."
     )
+    parser.add_argument(
+        "--dir",
+        help="Specify the directory to run the tests in.  Defaults to current working directory.",
+        dest="directory",
+        default=os.getcwd()
+    )
 
     args = parser.parse_args()
 
     vulkaninfo_path = args.vulkan_tools_install_dir
+    working_directory = os.path.abspath(args.directory)
+
+    starting_working_directory = os.getcwd()
+    os.chdir(working_directory)
+        
 
     if sys.platform.startswith("win32"):
         vulkaninfo_path = os.path.join(vulkaninfo_path, "bin", "vulkaninfo.exe")
@@ -376,6 +387,8 @@ def main():
         vulkaninfo_path = os.path.join(vulkaninfo_path, "vulkaninfo", "vulkaninfo")
 
     RunTests(vulkaninfo_path)
+
+    os.chdir(starting_working_directory)
 
 
 if __name__ == '__main__':
