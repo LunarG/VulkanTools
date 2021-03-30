@@ -33,6 +33,7 @@ SOURCES += \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
     ../vkconfig_core/json.cpp \
+    ../vkconfig_core/json_validator.cpp \
     ../vkconfig_core/layer.cpp \
     ../vkconfig_core/layer_manager.cpp \
     ../vkconfig_core/layer_preset.cpp \
@@ -90,6 +91,7 @@ HEADERS += \
     ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \
     ../vkconfig_core/json.h \
+    ../vkconfig_core/json_validator.h \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
 	../vkconfig_core/layer_preset.h \
