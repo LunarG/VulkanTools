@@ -66,13 +66,39 @@ if(Qt5_FOUND)
 
     add_library(vkconfig_core STATIC ${FILES_ALL})
 
+    # Include JSON for Modern C++
+    include(FetchContent)
+
+    FetchContent_Declare(json
+      GIT_REPOSITORY https://github.com/nlohmann/json.git
+      GIT_TAG v3.9.1)
+
+    FetchContent_GetProperties(json)
+    if(NOT json_POPULATED)
+      FetchContent_Populate(json)
+      add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
+
+    # Include JSON Schema for Modern C++
+    include(FetchContent)
+
+    FetchContent_Declare(json_schema
+      GIT_REPOSITORY https://github.com/pboettch/json-schema-validator.git
+      GIT_TAG 2.1.0)
+
+    FetchContent_GetProperties(json_schema)
+    if(NOT json_schema_POPULATED)
+      FetchContent_Populate(json_schema)
+      add_subdirectory(${json_schema_SOURCE_DIR} ${json_schema_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
+
     if(WIN32)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         target_link_libraries(vkconfig_core Cfgmgr32)
     endif()
 
     target_include_directories(vkconfig_core PRIVATE "${Vulkan_INCLUDE_DIR}")
-    target_link_libraries(vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+    target_link_libraries(vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network nlohmann_json::nlohmann_json nlohmann_json_schema_validator)
     target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
 
     add_subdirectory(test)
