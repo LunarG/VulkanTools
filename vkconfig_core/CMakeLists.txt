@@ -67,6 +67,8 @@ if(Qt5_FOUND)
     add_library(vkconfig_core STATIC ${FILES_ALL})
 
     set(JSON_BuildTests OFF CACHE INTERNAL "")
+    set(BUILD_TESTS OFF CACHE INTERNAL "Build tests")
+    set(BUILD_EXAMPLES OFF CACHE INTERNAL "Build examples")
 
     # Include JSON for Modern C++
     include(FetchContent)
@@ -93,7 +95,7 @@ if(Qt5_FOUND)
       FetchContent_Populate(json_schema)
       add_subdirectory(${json_schema_SOURCE_DIR} ${json_schema_BINARY_DIR} EXCLUDE_FROM_ALL)
     endif()
-
+    
     if(WIN32)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         target_link_libraries(vkconfig_core Cfgmgr32)
