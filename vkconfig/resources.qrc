@@ -2,6 +2,8 @@
     <qresource prefix="/">
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
+
+        <file alias="layers_schema.json">../vkconfig_core/layers/layers_schema.json</file>
     </qresource>
 
     <qresource prefix="/configurations">
@@ -13,7 +15,7 @@
     </qresource>
 
     <qresource prefix="/layers/test">
-		<file alias="VK_LAYER_LUNARG_reference_1_4_0.json">../vkconfig_core/test/VK_LAYER_LUNARG_reference_1_4_0.json</file>
+        <file alias="VK_LAYER_LUNARG_reference_1_4_0.json">../vkconfig_core/test/VK_LAYER_LUNARG_reference_1_4_0.json</file>
     </qresource>
 
     <qresource prefix="/layers/130">
