@@ -66,6 +66,8 @@ if(Qt5_FOUND)
 
     add_library(vkconfig_core STATIC ${FILES_ALL})
 
+    set(JSON_BuildTests OFF CACHE INTERNAL "")
+
     # Include JSON for Modern C++
     include(FetchContent)
 
