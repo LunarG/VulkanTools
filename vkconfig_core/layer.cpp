@@ -24,6 +24,7 @@
 #include "util.h"
 #include "path.h"
 #include "json.h"
+#include "json_validator.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -99,6 +100,10 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     QFile file(full_path_to_file.c_str());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    if (!::IsValid(full_path_to_file.c_str())) {
         return false;
     }
 

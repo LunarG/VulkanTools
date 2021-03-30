@@ -19,3 +19,67 @@
  */
 
 #include "json_validator.h"
+#include "util.h"
+
+#include <nlohmann/json-schema.hpp>
+
+#include <QMessageBox>
+#include <QFile>
+
+using json = nlohmann::json;
+using json_validator = nlohmann::json_schema::json_validator;
+
+static json ParseFile(const char *file) {
+    QFile file_schema(file);
+    const bool result = file_schema.open(QIODevice::ReadOnly | QIODevice::Text);
+    assert(result);
+    json json_schema(json::parse(file_schema.readAll().toStdString()));
+    file_schema.close();
+
+    return json_schema;
+}
+
+class custom_error_handler : public nlohmann::json_schema::basic_error_handler {
+   public:
+    custom_error_handler(const char *filename) : filename(filename) {}
+
+   private:
+    void error(const nlohmann::json_pointer<nlohmann::basic_json<>> &pointer, const json &instance,
+               const std::string &message) override {
+        nlohmann::json_schema::basic_error_handler::error(pointer, instance, message);
+
+        QMessageBox alert;
+        alert.setWindowTitle(format("Failed to validate a layer manifest. The layer will be ignored.", filename.c_str()).c_str());
+        alert.setText(format("'%s' is not valid.", filename.c_str()).c_str());
+        alert.setInformativeText(message.c_str());
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
+    }
+
+    std::string filename;
+};
+
+bool IsValid(const char *json_filename) {
+    json json_schema = ParseFile(":/layers_schema.json");
+
+    json_validator validator;
+
+    try {
+        validator.set_root_schema(json_schema);
+    } catch (const std::exception &e) {
+        QMessageBox alert;
+        alert.setWindowTitle("'layers_schema.json' is not valid.");
+        alert.setText(e.what());
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
+
+        return false;
+    }
+
+    json json_file = ParseFile(json_filename);
+    custom_error_handler json_err(json_filename);
+
+    validator.validate(json_file, json_err);
+
+    return true;
+}

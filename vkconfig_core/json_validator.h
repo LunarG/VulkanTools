@@ -17,3 +17,7 @@
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
  */
+
+#pragma once
+
+bool IsValid(const char* json_filename);
