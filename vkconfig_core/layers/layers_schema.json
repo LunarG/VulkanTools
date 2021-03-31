@@ -776,7 +776,6 @@
                             "list": {
                                 "description": "Default value of the setting",
                                 "type": "array",
-                                "uniqueItems": true,
                                 "items": {
                                     "$ref": "#/definitions/number_or_string"
                                 }
