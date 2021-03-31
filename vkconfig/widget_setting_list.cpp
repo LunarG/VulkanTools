@@ -180,6 +180,8 @@ void WidgetSettingList::OnButtonPressed() {
         alert.setInformativeText("Please select a value from the list.");
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
+
+        this->OnTextEdited("");
         return;
     }
 
