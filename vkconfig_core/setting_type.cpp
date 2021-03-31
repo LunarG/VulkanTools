@@ -47,6 +47,7 @@ const char* GetSettingTypeToken(SettingType type) {
     static const char* table[] = {
         "STRING",        // SETTING_STRING
         "INT",           // SETTING_INT
+        "FLOAT",         // SETTING_FLOAT
         "SAVE_FILE",     // SETTING_SAVE_FILE
         "LOAD_FILE",     // SETTING_LOAD_FILE
         "SAVE_FOLDER",   // SETTING_SAVE_FOLDER

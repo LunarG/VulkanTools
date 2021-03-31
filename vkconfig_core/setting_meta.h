@@ -71,6 +71,27 @@ struct SettingMetaInt : public SettingMeta {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
+struct SettingMetaFloat : public SettingMeta {
+    SettingMetaFloat(const std::string& key)
+        : SettingMeta(key, SETTING_FLOAT),
+          default_value(0.0f),
+          min_value(std::numeric_limits<float>::min()),
+          max_value(std::numeric_limits<float>::max()),
+          precision(6),
+          width(8) {}
+    virtual ~SettingMetaFloat() {}
+
+    float default_value;
+    float min_value;
+    float max_value;
+    int precision;
+    int width;
+    std::string unit;
+
+   protected:
+    virtual bool Equal(const SettingMeta& other) const;
+};
+
 struct SettingMetaBool : public SettingMeta {
     SettingMetaBool(const std::string& key) : SettingMeta(key, SETTING_BOOL), default_value(false) {}
     virtual ~SettingMetaBool() {}

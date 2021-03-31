@@ -69,6 +69,18 @@ bool IsNumber(const std::string& s) {
     return true;
 }
 
+bool IsFloat(const std::string& s) {
+    if (s.empty()) return false;
+
+    for (std::size_t i = 0, n = s.length(); i < n; ++i) {
+        if (std::isdigit(s[i]) || s[i] == '.') continue;
+
+        return false;
+    }
+
+    return true;
+}
+
 void RemoveString(std::vector<std::string>& list, const std::string& value) {
     std::vector<std::string> new_list;
     new_list.reserve(list.size());

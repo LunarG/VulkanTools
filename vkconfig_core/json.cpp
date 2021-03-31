@@ -101,7 +101,16 @@ int ReadIntValue(const QJsonObject& json_object, const char* key) {
     const QJsonValue& json_value = json_object.value(key);
     assert(json_value != QJsonValue::Undefined);
     assert(!json_value.isArray());
+    assert(!json_value.isString());
     return json_value.toInt();
+}
+
+float ReadFloatValue(const QJsonObject& json_object, const char* key) {
+    const QJsonValue& json_value = json_object.value(key);
+    assert(json_value != QJsonValue::Undefined);
+    assert(!json_value.isArray());
+    assert(!json_value.isString());
+    return static_cast<float>(json_value.toDouble());
 }
 
 bool ReadBoolValue(const QJsonObject& json_object, const char* key) {

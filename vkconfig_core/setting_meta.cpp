@@ -53,6 +53,20 @@ bool SettingMetaString::Equal(const SettingMeta& other) const {
     return this->default_value == static_cast<const SettingMetaString&>(other).default_value;
 }
 
+bool SettingMetaFloat::Equal(const SettingMeta& other) const {
+    if (!SettingMeta::Equal(other)) return false;
+
+    const SettingMetaFloat& meta = static_cast<const SettingMetaFloat&>(other);
+
+    if (std::abs(this->min_value - meta.min_value) < std::numeric_limits<float>::epsilon()) return false;
+    if (std::abs(this->max_value - meta.max_value) < std::numeric_limits<float>::epsilon()) return false;
+    if (this->precision != meta.precision) return false;
+    if (this->width != meta.width) return false;
+    if (this->unit != meta.unit) return false;
+
+    return std::abs(this->default_value - meta.default_value) < std::numeric_limits<float>::epsilon();
+}
+
 bool SettingMetaInt::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
 

@@ -450,6 +450,32 @@
                 "unit": "byte"
             },
             {
+                "key": "float_required_only",
+                "type": "FLOAT",
+                "label": "Float",
+                "description": "Float Description",
+                "default": 76.5
+            },
+            {
+                "key": "float_with_optional",
+                "env": "TEST_FLOAT",
+                "type": "FLOAT",
+                "label": "Float",
+                "description": "Float Description",
+                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#float",
+                "status": "BETA",
+                "view": "ADVANCED",
+                "platforms": [ "WINDOWS", "LINUX" ],
+                "default": 76.5,
+                "range": {
+                    "min": 75.1,
+                    "max": 82.2,
+                    "width": 2,
+                    "precision": 3
+                },
+                "unit": "second"
+            },
+            {
                 "key": "frames_required_only",
                 "type": "FRAMES",
                 "label": "Frames",
