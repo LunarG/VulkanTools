@@ -189,7 +189,7 @@
                 ]
             }
         ],
-        "settings" : [
+        "settings": [
             {
                 "key": "debug_action",
                 "label": "Debug Action",
@@ -6692,11 +6692,6 @@
                     "UNASSIGNED-BestPractices-vkCreateSampler-unnormalized-coordinates",
                     "UNASSIGNED-BestPractices-vkCreateSwapchainKHR-suboptimal-swapchain-image-count",
                     "UNASSIGNED-BestPractices-vkCreateSwapchainKHR-swapchain-presentmode-not-fifo",
-                    "UNASSIGNED-CoreValidation-BoundResourceFreedMemoryAccess",
-                    "UNASSIGNED-CoreValidation-DrawState-DescriptorSetNotBound",
-                    "UNASSIGNED-CoreValidation-DrawState-DescriptorSetNotUpdated",
-                    "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffe",
-                    "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffer-VkAccelerationStructureNV",
                     "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffer-VkBuffer",
                     "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffer-VkBufferView",
                     "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffer-VkDescriptorSet",
@@ -6706,24 +6701,8 @@
                     "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffer-VkPipeline",
                     "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffer-VkQueryPool",
                     "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBuffer-VkSampler",
-                    "UNASSIGNED-CoreValidation-DrawState-InvalidCommandBufferSimultaneousUse",
-                    "UNASSIGNED-CoreValidation-DrawState-InvalidImageAspect",
-                    "UNASSIGNED-CoreValidation-DrawState-InvalidImageLayout",
-                    "UNASSIGNED-CoreValidation-DrawState-InvalidImageView",
-                    "UNASSIGNED-CoreValidation-DrawState-InvalidQuery",
-                    "UNASSIGNED-CoreValidation-DrawState-MismatchedImageType",
-                    "UNASSIGNED-CoreValidation-DrawState-PipelineLayoutsIncompatible",
-                    "UNASSIGNED-CoreValidation-DrawState-QueueForwardProgress",
                     "UNASSIGNED-CoreValidation-Image-FormatNotSupported",
-                    "UNASSIGNED-CoreValidation-MemTrack-InvalidUsageFlag",
-                    "UNASSIGNED-CoreValidation-Shader-CooperativeMatrixMulAdd",
-                    "UNASSIGNED-CoreValidation-Shader-CooperativeMatrixType",
-                    "UNASSIGNED-CoreValidation-Shader-InputNotProduced",
-                    "UNASSIGNED-CoreValidation-SwapchainPreTransform",
-                    "UNASSIGNED-CoreValidation-vkBufferMemoryBarrier-sharing-mode-exclusive-same-family",
-                    "UNASSIGNED-CoreValidation-vkImageMemoryBarrier-sharing-mode-exclusive-same-family",
                     "UNASSIGNED-Khronos-validation-createinstance-status-message-not-found",
-                    "UNASSIGNED-ObjectTracker-ObjectLeak",
                     "UNASSIGNED-VkBufferMemoryBarrier-buffer-00001",
                     "UNASSIGNED-VkBufferMemoryBarrier-buffer-00002",
                     "UNASSIGNED-VkBufferMemoryBarrier-buffer-00003",
@@ -6734,9 +6713,7 @@
                     "UNASSIGNED-VkImageMemoryBarrier-image-00004",
                     "UNASSIGNED-khronos-Validation-debug-build-warning-message",
                     "UNASSIGNED-khronos-validation-createinstance-debug-warning-message-not-found",
-                    "UNASSIGNED-khronos-validation-createinstance-status-message",
-                    "UNASSIGNED-vkCmdExecuteCommands-commandBuffer-00001",
-                    "UNASSIGNED-vkGetAccelerationStructureHandleNV-accelerationStructure-XXXX"
+                    "UNASSIGNED-khronos-validation-createinstance-status-message"
                 ],
                 "default": []
             },
@@ -6865,7 +6842,7 @@
                     }
                 ],
                 "default": []
-            }            
+            }
         ]
     }
 }
