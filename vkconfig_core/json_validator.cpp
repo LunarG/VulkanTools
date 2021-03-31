@@ -21,9 +21,25 @@
 #include "json_validator.h"
 #include "util.h"
 
-#include <nlohmann/json-schema.hpp>
-
 #include <QFile>
+
+#ifdef JSON_VALIDATION_OFF
+Validator::Validator() : error(0) {
+}
+
+bool Validator::Check(const std::string &json_data) {
+    (void)json_data;
+
+    return true;
+}
+
+void Validator::Reset() {
+    this->message.clear();
+    this->error = 0;
+}
+#else
+
+#include <nlohmann/json-schema.hpp>
 
 using json = nlohmann::json;
 using json_validator = nlohmann::json_schema::json_validator;
@@ -84,3 +100,5 @@ void Validator::Reset() {
     this->message.clear();
     this->error = 0;
 }
+
+#endif  // JSON_VALIDATION_OFF

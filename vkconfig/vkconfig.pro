@@ -14,6 +14,9 @@ INCLUDEPATH += ../Build/Vulkan-Headers/include
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
+# Ignore JSON validation
+DEFINES += JSON_VALIDATION_OFF
+
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
@@ -94,7 +97,7 @@ HEADERS += \
     ../vkconfig_core/json_validator.h \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
-	../vkconfig_core/layer_preset.h \
+    ../vkconfig_core/layer_preset.h \
     ../vkconfig_core/layer_state.h \
     ../vkconfig_core/layer_type.h \
     ../vkconfig_core/override.h \
