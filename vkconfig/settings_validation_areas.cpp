@@ -223,8 +223,6 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
         connect(_gpu_assisted_radio, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
         connect(_debug_printf_radio, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
-        connect(_debug_printf_buffer_size_value, SIGNAL(textEdited(const QString &)), this,
-                SLOT(printfBufferSizeEdited(const QString &)));
     } else if (enum_gpu_assisted != nullptr) {
         const bool enabled = HasEnable(enum_gpu_assisted->key.c_str());
         _gpu_assisted_box = this->AddItem(parent, enum_gpu_assisted, enabled);
