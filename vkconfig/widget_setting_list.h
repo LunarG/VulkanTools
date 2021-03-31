@@ -44,6 +44,7 @@ class WidgetSettingList : public QWidget {
     void OnTextEdited(const QString &value);
     void OnSettingChanged();
     void OnItemSelected(const QString &value);
+    void OnItemRejected();
 
    Q_SIGNALS:
     void itemSelected(const QString &value);
