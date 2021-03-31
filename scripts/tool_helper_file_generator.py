@@ -157,17 +157,26 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
         copyright += ' *\n'
         copyright += ' ****************************************************************************/\n'
         write(copyright, file=self.outFile)
+        
+        # begin include guards
+        include_guards = "#ifndef VK_{}_H".format(filename)
+        include_guards+= "#define VK_{}_H".format(filename)
+        write(include_guards, file=self.outFile)
     #
     # Write generated file content to output file
     def endFile(self):
+        # end include guards
+        include_guards = "#endif//VK_{}_H".format(filename)
+        write(include_guards, file=self.outFile)
         dest_file = ''
         dest_file += self.OutputDestFile()
         # Remove blank lines at EOF
         if dest_file.endswith('\n'):
             dest_file = dest_file[:-1]
-        write(dest_file, file=self.outFile);
+        write(dest_file, file=self.outFile);        
         # Finish processing in superclass
         OutputGenerator.endFile(self)
+        
     #
     # Override parent class to be notified of the beginning of an extension
     def beginFeature(self, interface, emit):
