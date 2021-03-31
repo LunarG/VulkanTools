@@ -234,6 +234,10 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
                     static_cast<SettingDataInt&>(setting_data).value = ReadIntValue(json_setting_object, "value");
                     break;
                 }
+                case SETTING_FLOAT: {
+                    static_cast<SettingDataFloat&>(setting_data).value = ReadFloatValue(json_setting_object, "value");
+                    break;
+                }
                 case SETTING_FRAMES: {
                     static_cast<SettingDataFrames&>(setting_data).value = ReadStringValue(json_setting_object, "value");
                     break;
@@ -364,6 +368,10 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
                 }
                 case SETTING_INT: {
                     json_setting.insert("value", static_cast<const SettingDataInt&>(setting_data).value);
+                    break;
+                }
+                case SETTING_FLOAT: {
+                    json_setting.insert("value", static_cast<const SettingDataFloat&>(setting_data).value);
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED:

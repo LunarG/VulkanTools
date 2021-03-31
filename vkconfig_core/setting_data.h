@@ -75,6 +75,17 @@ struct SettingDataInt : public SettingData {
     virtual SettingData& Assign(const SettingData& other);
 };
 
+struct SettingDataFloat : public SettingData {
+    SettingDataFloat(const std::string& key) : SettingData(key, SETTING_FLOAT), value(0) {}
+    virtual ~SettingDataFloat() {}
+
+    float value;
+
+   protected:
+    virtual bool Equal(const SettingData& other) const;
+    virtual SettingData& Assign(const SettingData& other);
+};
+
 struct SettingDataString : public SettingData {
     SettingDataString(const std::string& key) : SettingDataString(key, SETTING_STRING) {}
     virtual ~SettingDataString() {}

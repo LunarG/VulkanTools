@@ -59,6 +59,8 @@ bool IsFrames(const std::string& s);
 
 bool IsNumber(const std::string& s);
 
+bool IsFloat(const std::string& s);
+
 template <typename T>
 T* FindByKey(std::vector<T>& container, const char* key) {
     assert(key != nullptr);

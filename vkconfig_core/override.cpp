@@ -189,6 +189,14 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     stream << static_cast<const SettingDataInt&>(setting_data).value;
                     break;
                 }
+                case SETTING_FLOAT: {
+                    const SettingMetaFloat* meta = layer->settings.Get<SettingMetaFloat>(setting_data.key.c_str());
+
+                    std::string formatted_float = format("%d.%df", meta->width, meta->precision);
+                    stream << format(("%" + formatted_float).c_str(), static_cast<const SettingDataFloat&>(setting_data).value)
+                                  .c_str();
+                    break;
+                }
                 case SETTING_BOOL_NUMERIC_DEPRECATED: {
                     stream << (static_cast<const SettingDataBool&>(setting_data).value ? "1" : "0");
                     break;

@@ -58,6 +58,7 @@ SOURCES += \
     widget_setting_enum.cpp \
     widget_setting_filesystem.cpp \
     widget_setting_flags.cpp \
+    widget_setting_float.cpp \
     widget_setting_int.cpp \
     widget_setting_frames.cpp \
     widget_setting_string.cpp \
@@ -115,6 +116,7 @@ HEADERS += \
     widget_setting_enum.h \
     widget_setting_filesystem.h \
     widget_setting_flags.h \
+    widget_setting_float.h \
     widget_setting_int.h \
     widget_setting_frames.h \
     widget_setting_string.h \

@@ -21,6 +21,7 @@
 #include "setting_data.h"
 
 #include <cassert>
+#include <limits>
 
 SettingData::SettingData(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
 
@@ -57,6 +58,19 @@ bool SettingDataInt::Equal(const SettingData& other) const {
 }
 
 SettingData& SettingDataInt::Assign(const SettingData& other) {
+    assert(this->type == other.type);
+
+    this->value = static_cast<const SettingDataInt&>(other).value;
+    return *this;
+}
+
+bool SettingDataFloat::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    return std::abs(this->value - static_cast<const SettingDataFloat&>(other).value) <= std::numeric_limits<float>::epsilon();
+}
+
+SettingData& SettingDataFloat::Assign(const SettingData& other) {
     assert(this->type == other.type);
 
     this->value = static_cast<const SettingDataInt&>(other).value;
