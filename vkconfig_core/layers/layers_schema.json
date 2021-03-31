@@ -58,6 +58,12 @@
                     },
                     "max": {
                         "type": "number"
+                    },
+                    "width": {
+                        "type": "integer"
+                    },
+                    "precision": {
+                        "type": "integer"
                     }
                 }
             }
