@@ -23,21 +23,7 @@
 
 #include <QFile>
 
-#ifdef JSON_VALIDATION_OFF
-Validator::Validator() : error(0) {
-}
-
-bool Validator::Check(const std::string &json_data) {
-    (void)json_data;
-
-    return true;
-}
-
-void Validator::Reset() {
-    this->message.clear();
-    this->error = 0;
-}
-#else
+#ifndef JSON_VALIDATION_OFF
 
 #include <nlohmann/json-schema.hpp>
 
@@ -94,6 +80,20 @@ bool Validator::Check(const std::string &json_data) {
     }
 
     return !json_err;
+}
+
+void Validator::Reset() {
+    this->message.clear();
+    this->error = 0;
+}
+#else
+
+Validator::Validator() : error(0) {}
+
+bool Validator::Check(const std::string &json_data) {
+    (void)json_data;
+
+    return true;
 }
 
 void Validator::Reset() {
