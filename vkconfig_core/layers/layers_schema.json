@@ -108,6 +108,7 @@
                     "label",
                     "description"
                 ],
+                "additionalProperties": false,
                 "properties": {
                     "key": {
                         "type": "string"
@@ -300,6 +301,7 @@
             "items": {
                 "oneOf": [
                     {
+                        "description": "layer setting for STRING and SAVE_FOLDER types",
                         "type": "object",
                         "required": [
                             "key",
@@ -349,6 +351,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for SAVE_FILE and LOAD_FILE types",
                         "type": "object",
                         "required": [
                             "key",
@@ -401,6 +404,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for FRAMES type",
                         "type": "object",
                         "required": [
                             "key",
@@ -451,6 +455,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for BOOL type",
                         "type": "object",
                         "required": [
                             "key",
@@ -500,6 +505,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for FLOAT type",
                         "type": "object",
                         "required": [
                             "key",
@@ -556,6 +562,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for INT type",
                         "type": "object",
                         "required": [
                             "key",
@@ -612,6 +619,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for ENUM type",
                         "type": "object",
                         "required": [
                             "key",
@@ -665,6 +673,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for FLAGS type",
                         "type": "object",
                         "required": [
                             "key",
@@ -722,6 +731,7 @@
                         }
                     },
                     {
+                        "description": "layer setting for LIST type",
                         "type": "object",
                         "required": [
                             "key",
