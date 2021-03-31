@@ -103,12 +103,11 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
         return false;
     }
 
-    if (!::IsValid(full_path_to_file.c_str())) {
-        return false;
-    }
-
     QString json_text = file.readAll();
     file.close();
+
+    Validator validator;
+    const bool is_valid = validator.Check(json_text.toStdString());
 
     _layer_path = full_path_to_file;
 
@@ -151,6 +150,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     }
 
     this->_api_version = ReadVersionValue(json_layer_object, "api_version");
+
     this->_implementation_version = ReadStringValue(json_layer_object, "implementation_version");
     if (json_layer_object.value("status") != QJsonValue::Undefined) {
         this->status = GetStatusType(ReadStringValue(json_layer_object, "status").c_str());
@@ -165,6 +165,21 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
         json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
     const bool is_builtin_layer_file =
         full_path_to_file.rfind(":/") == 0;  // Check whether the path start with ":/" for resource file paths.
+
+    if (!is_valid) {
+        if (!is_builtin_layer_file || (is_builtin_layer_file && this->_api_version >= Version(1, 2, 170))) {
+            const std::string title =
+                format("Failed to validate a layer manifest. The layer will be ignored.", full_path_to_file.c_str());
+
+            QMessageBox alert;
+            alert.setWindowTitle(title.c_str());
+            alert.setText(format("'%s' is not valid.", full_path_to_file.c_str()).c_str());
+            alert.setInformativeText(validator.message.c_str());
+            alert.setIcon(QMessageBox::Critical);
+            alert.exec();
+            return false;
+        }
+    }
 
     Layer default_layer;
     if (is_missing_layer_data && !is_builtin_layer_file) {

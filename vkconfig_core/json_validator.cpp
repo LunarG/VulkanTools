@@ -23,11 +23,13 @@
 
 #include <nlohmann/json-schema.hpp>
 
-#include <QMessageBox>
 #include <QFile>
 
 using json = nlohmann::json;
 using json_validator = nlohmann::json_schema::json_validator;
+
+static bool validator_initialized = false;
+static json_validator validator_instance;
 
 static json ParseFile(const char *file) {
     QFile file_schema(file);
@@ -39,47 +41,46 @@ static json ParseFile(const char *file) {
     return json_schema;
 }
 
-class custom_error_handler : public nlohmann::json_schema::basic_error_handler {
-   public:
-    custom_error_handler(const char *filename) : filename(filename) {}
+struct custom_error_handler : public nlohmann::json_schema::basic_error_handler {
+    custom_error_handler() : error_count(0) {}
 
-   private:
     void error(const nlohmann::json_pointer<nlohmann::basic_json<>> &pointer, const json &instance,
                const std::string &message) override {
         nlohmann::json_schema::basic_error_handler::error(pointer, instance, message);
 
-        QMessageBox alert;
-        alert.setWindowTitle(format("Failed to validate a layer manifest. The layer will be ignored.", filename.c_str()).c_str());
-        alert.setText(format("'%s' is not valid.", filename.c_str()).c_str());
-        alert.setInformativeText(message.c_str());
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
+        this->message += message;
+        ++this->error_count;
     }
 
-    std::string filename;
+    int error_count;
+    std::string message;
 };
 
-bool IsValid(const char *json_filename) {
-    json json_schema = ParseFile(":/layers_schema.json");
+Validator::Validator() : error(0) {
+    if (!::validator_initialized) {
+        ::validator_instance = ParseFile(":/layers_schema.json");
+        ::validator_initialized = true;
+    }
+}
 
-    json_validator validator;
+bool Validator::Check(const std::string &json_data) {
+    assert(!json_data.empty());
 
-    try {
-        validator.set_root_schema(json_schema);
-    } catch (const std::exception &e) {
-        QMessageBox alert;
-        alert.setWindowTitle("'layers_schema.json' is not valid.");
-        alert.setText(e.what());
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
+    json json_file = json::parse(json_data);
 
-        return false;
+    custom_error_handler json_err;
+
+    ::validator_instance.validate(json_file, json_err);
+
+    if (json_err.error_count > 0) {
+        this->message += json_err.message;
+        this->error += json_err.error_count;
     }
 
-    json json_file = ParseFile(json_filename);
-    custom_error_handler json_err(json_filename);
+    return !json_err;
+}
 
-    validator.validate(json_file, json_err);
-
-    return true;
+void Validator::Reset() {
+    this->message.clear();
+    this->error = 0;
 }

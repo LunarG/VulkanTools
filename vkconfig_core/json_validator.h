@@ -20,4 +20,14 @@
 
 #pragma once
 
-bool IsValid(const char* json_filename);
+#include <string>
+
+struct Validator {
+    Validator();
+
+    bool Check(const std::string& json_data);
+    void Reset();
+
+    std::string message;
+    int error;
+};
