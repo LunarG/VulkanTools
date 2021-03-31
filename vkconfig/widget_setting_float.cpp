@@ -103,13 +103,14 @@ void WidgetSettingFloat::OnTextEdited(const QString& value) {
         this->setting_data.value = this->setting_meta.default_value;
         this->field->setText(format(GetFloatFormat(this->setting_meta).c_str(), setting_data.value).c_str());
 
+        const std::string info =
+            format(("Resetting to the setting default value: " + GetFloatFormat(this->setting_meta) + ".").c_str(),
+                   this->setting_meta.default_value);
+
         QMessageBox alert;
         alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
         alert.setText("The setting input value is not a floating point number.");
-        alert.setInformativeText(
-            format(("Resetting to the setting default value: " + GetFloatFormat(this->setting_meta) + ".").c_str(),
-                   this->setting_meta.default_value)
-                .c_str());
+        alert.setInformativeText(info.c_str());
         alert.setStandardButtons(QMessageBox::Ok);
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
