@@ -688,12 +688,6 @@
                                 "type": "string",
                                 "enum": [ "FLAGS" ]
                             },
-                            "default": {
-                                "type": "array",
-                                "contains": {
-                                    "type": "string"
-                                }
-                            },
                             "label": {
                                 "description": "The string used to identify the setting to the user",
                                 "type": "string"
@@ -717,6 +711,13 @@
                             },
                             "flags": {
                                 "$ref": "#/definitions/flags"
+                            },
+                            "default": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string"
+                                }
                             }
                         }
                     },
@@ -746,6 +747,7 @@
                             "default": {
                                 "description": "Default value of the setting",
                                 "type": "array",
+                                "uniqueItems": true,
                                 "items": {
                                     "$ref": "#/definitions/enabled_number_or_string"
                                 }
@@ -774,6 +776,7 @@
                             "list": {
                                 "description": "Default value of the setting",
                                 "type": "array",
+                                "uniqueItems": true,
                                 "items": {
                                     "$ref": "#/definitions/number_or_string"
                                 }
