@@ -163,6 +163,7 @@ void WidgetSettingList::OnButtonPressed() {
 
     this->item->setText(0, (meta.label + "  ").c_str());
     this->field->setText("");
+    this->add_button->setEnabled(false);
 
     const std::string string_value = entry.toStdString();
     const bool is_number = IsNumber(string_value);
