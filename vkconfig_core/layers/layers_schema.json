@@ -1,63 +1,13 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://github.com/LunarG/VulkanTools/blob/vkconfig-layers-schema/vkconfig_core/layers/layers_schema.json",
-    "$title": "Vulkan Layer Manifest File JSON Schema",
-    "$description": "JSON Schema for validating the Vulkan Layer Manifest Files",
-    "additionalProperties": false,
+    "title": "Vulkan Layer Manifest File JSON Schema",
+    "description": "JSON Schema for validating the Vulkan Layer Manifest Files",
+    "additionalProperties": true,
     "required": [
         "file_format_version",
         "layer"
     ],
-    "properties": {
-        "file_format_version": {
-            "$ref": "#/definitions/version"
-        },
-        "layer": {
-            "type": "object",
-            "additionalProperties": true,
-            "required": [
-                "name",
-                "library_path",
-                "api_version",
-                "implementation_version",
-                "description"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "pattern": "^VK_LAYER_[A-Z0-9]+_[a-z0-9_]+"
-                },
-                "library_path": {
-                    "type": "string"
-                },
-                "api_version": {
-                    "$ref": "#/definitions/version"
-                },
-                "implementation_version": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/status"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "settings": {
-                    "type": "array",
-                    "$ref": "#/definitions/layer_settings"
-                },
-                "presets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/preset"
-                    }
-                }
-            }
-        }
-    },
     "definitions": {
         "version": {
             "description": "Version with a 'major', 'minor' and 'patch' format",
@@ -189,7 +139,7 @@
                 "description",
                 "settings"
             ],
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "label": {
                     "type": "string"
@@ -738,12 +688,6 @@
                                 "type": "string",
                                 "enum": [ "FLAGS" ]
                             },
-                            "default": {
-                                "type": "array",
-                                "contains": {
-                                    "type": "string"
-                                }
-                            },
                             "label": {
                                 "description": "The string used to identify the setting to the user",
                                 "type": "string"
@@ -767,6 +711,13 @@
                             },
                             "flags": {
                                 "$ref": "#/definitions/flags"
+                            },
+                            "default": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string"
+                                }
                             }
                         }
                     },
@@ -796,6 +747,7 @@
                             "default": {
                                 "description": "Default value of the setting",
                                 "type": "array",
+                                "uniqueItems": true,
                                 "items": {
                                     "$ref": "#/definitions/enabled_number_or_string"
                                 }
@@ -835,6 +787,56 @@
                         }
                     }
                 ]
+            }
+        }
+    },
+    "properties": {
+        "file_format_version": {
+            "$ref": "#/definitions/version"
+        },
+        "layer": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+                "name",
+                "library_path",
+                "api_version",
+                "implementation_version",
+                "description"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^VK_LAYER_[A-Z0-9]+_[A-Za-z0-9_]+"
+                },
+                "library_path": {
+                    "type": "string"
+                },
+                "api_version": {
+                    "$ref": "#/definitions/version"
+                },
+                "implementation_version": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/status"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "settings": {
+                    "type": "array",
+                    "$ref": "#/definitions/layer_settings"
+                },
+                "presets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/preset"
+                    }
+                }
             }
         }
     }
