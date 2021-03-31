@@ -3,7 +3,7 @@
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
 
-        <file alias="layers_schema.json">../layers/layers_schema.json</file>
+        <file alias="layers_schema.json">../vkconfig_core/layers/layers_schema.json</file>
     </qresource>
 
     <qresource prefix="/configurations">
