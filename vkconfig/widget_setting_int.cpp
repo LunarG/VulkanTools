@@ -30,7 +30,7 @@
 static const int MIN_FIELD_WIDTH = 48;
 
 WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataInt& data)
-    : setting_meta(setting_meta), setting_data(data), field(new QLineEdit(this)) {
+    : setting_meta(meta), setting_data(data), field(new QLineEdit(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
     assert(&meta);

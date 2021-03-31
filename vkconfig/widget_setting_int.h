@@ -32,7 +32,7 @@ class WidgetSettingInt : public QWidget {
     Q_OBJECT
 
    public:
-    WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& setting_meta, SettingDataInt& setting_data);
+    WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataInt& data);
 
     void Enable(bool enable);
     QLineEdit* GetField() const { return this->field; }
