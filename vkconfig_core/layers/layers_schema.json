@@ -808,7 +808,7 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "pattern": "^VK_LAYER_[A-Z0-9]+_[a-z0-9_]+"
+                    "pattern": "^VK_LAYER_[A-Z0-9]+_[A-Za-z0-9_]+"
                 },
                 "library_path": {
                     "type": "string"
