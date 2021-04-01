@@ -209,12 +209,12 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     const SettingDataFloat& data = static_cast<const SettingDataFloat&>(setting_data);
                     const SettingMetaFloat* meta = layer->settings.Get<SettingMetaFloat>(setting_data.key.c_str());
 
-                    const std::string formatted_float = "%" + format("%d.%df", meta->width, meta->precision);
+                    const std::string float_format = meta->GetFloatFormat();
 
                     if (meta->IsValid(data)) {
-                        stream << format(formatted_float.c_str(), data.value).c_str();
+                        stream << format(float_format.c_str(), data.value).c_str();
                     } else {
-                        stream << format(formatted_float.c_str(), meta->default_value).c_str();
+                        stream << format(float_format.c_str(), meta->default_value).c_str();
                     }
 
                     break;

@@ -30,14 +30,6 @@
 
 static const int MIN_FIELD_WIDTH = 80;
 
-std::string GetFloatFormat(const SettingMetaFloat& meta) {
-    if (meta.HasPrecision()) {
-        return "%" + format("%d.%df", meta.width, meta.precision);
-    } else {
-        return "%f";
-    }
-}
-
 WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFloat& meta,
                                        SettingDataFloat& data)
     : meta(meta), data(data), field(new QLineEdit(this)), timer(new QTimer(this)) {
@@ -47,13 +39,14 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
     assert(&data);
 
     const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
+    const std::string float_format = meta.GetFloatFormat();
 
     item->setText(0, (meta.label + unit).c_str());
     item->setFont(0, tree->font());
     item->setToolTip(0, meta.description.c_str());
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    this->field->setText(format(GetFloatFormat(meta).c_str(), data.value).c_str());
+    this->field->setText(format(float_format.c_str(), data.value).c_str());
     this->field->setFont(tree->font());
     this->field->setToolTip(format("[%f, %f]", meta.min_value, meta.max_value).c_str());
     this->field->setAlignment(Qt::AlignRight);
@@ -81,7 +74,7 @@ void WidgetSettingFloat::OnInvalidValue() {
 
     QSettings settings;
     if (settings.value("VKCONFIG_WIDGET_SETTING_FLOAT").toBool() == false) {
-        const std::string float_format = this->meta.HasPrecision() ? GetFloatFormat(this->meta) : "%f";
+        const std::string float_format = this->meta.GetFloatFormat();
         const std::string info = format("Do you want to reset to the setting default value? '%s'", float_format.c_str());
         const std::string range = this->meta.HasRange()
                                       ? format("Enter a number in the range [%s, %s].", float_format.c_str(), float_format.c_str())
@@ -108,7 +101,7 @@ void WidgetSettingFloat::OnInvalidValue() {
         alert.setIcon(QMessageBox::Critical);
         alert.setCheckBox(new QCheckBox("Do not show again."));
         if (alert.exec() == QMessageBox::Yes) {
-            const std::string field_value = format(GetFloatFormat(this->meta).c_str(), this->meta.default_value);
+            const std::string field_value = format(this->meta.GetFloatFormat().c_str(), this->meta.default_value);
 
             this->data.value = this->meta.default_value;
             this->field->setText(field_value.c_str());
