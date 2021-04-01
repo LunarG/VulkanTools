@@ -159,14 +159,14 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
         write(copyright, file=self.outFile)
         
         # begin include guards
-        include_guards = "#ifndef VK_{}_H".format(filename)
-        include_guards+= "#define VK_{}_H".format(filename)
+        include_guards = '#ifndef VK_{}_H\n'.format(filename)
+        include_guards+= '#define VK_{}_H\n'.format(filename)
         write(include_guards, file=self.outFile)
     #
     # Write generated file content to output file
     def endFile(self):
         # end include guards
-        include_guards = "#endif//VK_{}_H".format(filename)
+        include_guards = '#endif//VK_{}_H\n'.format(filename)
         write(include_guards, file=self.outFile)
         dest_file = ''
         dest_file += self.OutputDestFile()
