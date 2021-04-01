@@ -367,6 +367,14 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
+            case SETTING_FRAMES: {
+                const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(layer_setting_metas[setting_index]);
+                SettingDataFrames &data = *parameter.settings.Get<SettingDataFrames>(meta.key.c_str());
+
+                WidgetSettingFrames *widget = new WidgetSettingFrames(tree, item, meta, data);
+                this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            } break;
+
             case SETTING_SAVE_FILE:
             case SETTING_LOAD_FILE:
             case SETTING_SAVE_FOLDER: {
@@ -415,18 +423,6 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                     this->tree->setItemWidget(child, 0, widget);
                     this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 }
-            } break;
-
-            case SETTING_FRAMES: {
-                const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(layer_setting_metas[setting_index]);
-                SettingDataFrames &data = *parameter.settings.Get<SettingDataFrames>(meta.key.c_str());
-
-                WidgetSettingFrames *widget = new WidgetSettingFrames(item, meta, data);
-                QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-                item->addChild(place_holder);
-
-                this->tree->setItemWidget(place_holder, 0, widget);
-                this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 
             case SETTING_STRING: {

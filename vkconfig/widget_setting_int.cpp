@@ -30,7 +30,7 @@
 static const int MIN_FIELD_WIDTH = 48;
 
 WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataInt& data)
-    : setting_meta(setting_meta), setting_data(data), field(new QLineEdit(this)) {
+    : meta(meta), data(data), field(new QLineEdit(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
     assert(&meta);
@@ -57,18 +57,17 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, con
 void WidgetSettingInt::Enable(bool enable) { this->field->setEnabled(enable); }
 
 void WidgetSettingInt::FieldEditedCheck() {
-    if (this->setting_data.value < setting_meta.min_value || this->setting_data.value > setting_meta.max_value) {
-        const std::string text =
-            format("'%s' is out of range. Use a value in the [%d, %d].", this->field->text().toStdString().c_str(),
-                   this->setting_meta.min_value, this->setting_meta.max_value);
-        const std::string into = format("Resetting to the setting default value: '%d'.", this->setting_meta.default_value);
+    if (this->data.value < meta.min_value || this->data.value > meta.max_value) {
+        const std::string text = format("'%s' is out of range. Use a value in the [%d, %d].", meta.label.c_str(),
+                                        this->meta.min_value, this->meta.max_value);
+        const std::string into = format("Resetting to the setting default value: '%d'.", this->meta.default_value);
 
-        this->setting_data.value = this->setting_meta.default_value;
-        this->field->setText(format("%d", this->setting_data.value).c_str());
+        this->data.value = this->meta.default_value;
+        this->field->setText(format("%d", this->data.value).c_str());
         this->Resize();
 
         QMessageBox alert;
-        alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
+        alert.setWindowTitle(format("Invalid '%s' setting value", meta.label.c_str()).c_str());
         alert.setText(text.c_str());
         alert.setInformativeText(into.c_str());
         alert.setStandardButtons(QMessageBox::Ok);
@@ -92,21 +91,21 @@ void WidgetSettingInt::resizeEvent(QResizeEvent* event) {
 
 void WidgetSettingInt::OnTextEdited(const QString& value) {
     if (value.isEmpty()) {
-        this->setting_data.value = this->setting_meta.default_value;
-        this->field->setText(format("%d", setting_data.value).c_str());
+        this->data.value = this->meta.default_value;
+        this->field->setText(format("%d", data.value).c_str());
     } else if (!IsNumber(value.toStdString())) {
-        this->setting_data.value = this->setting_meta.default_value;
-        this->field->setText(format("%d", setting_data.value).c_str());
+        this->data.value = this->meta.default_value;
+        this->field->setText(format("%d", data.value).c_str());
 
         QMessageBox alert;
-        alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
+        alert.setWindowTitle(format("Invalid '%s' setting value", meta.label.c_str()).c_str());
         alert.setText("The setting input value is not a number. Please use digits [1-9] only.");
-        alert.setInformativeText(format("Resetting to the setting default value: '%d'.", this->setting_meta.default_value).c_str());
+        alert.setInformativeText(format("Resetting to the setting default value: '%d'.", this->meta.default_value).c_str());
         alert.setStandardButtons(QMessageBox::Ok);
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
     } else {
-        this->setting_data.value = std::atoi(value.toStdString().c_str());
+        this->data.value = std::atoi(value.toStdString().c_str());
     }
 
     this->Resize();

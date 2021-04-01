@@ -26,16 +26,20 @@
 #include <QString>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
+#include <QResizeEvent>
 
-class WidgetSettingFrames : public QLineEdit {
+class WidgetSettingFrames : public QWidget {
     Q_OBJECT
 
    public:
-    WidgetSettingFrames(QTreeWidgetItem* item, const SettingMetaFrames& setting_meta, SettingDataFrames& setting_data);
+    WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta, SettingDataFrames& data);
+    virtual ~WidgetSettingFrames();
+
+    void Enable(bool enable);
 
    public Q_SLOTS:
-    void itemEdited(const QString& value);
-    void FieldEditedCheck();
+    void OnTextEdited(const QString& value);
+    void OnInvalidValue();
 
    Q_SIGNALS:
     void itemChanged();
@@ -44,6 +48,14 @@ class WidgetSettingFrames : public QLineEdit {
     WidgetSettingFrames(const WidgetSettingFrames&) = delete;
     WidgetSettingFrames& operator=(const WidgetSettingFrames&) = delete;
 
-    const SettingMetaFrames& setting_meta;
-    SettingDataFrames& setting_data;
+    void resizeEvent(QResizeEvent* event) override;
+
+    void Resize();
+
+    const SettingMetaFrames& meta;
+    SettingDataFrames& data;
+    QLineEdit* field;
+    QTimer* timer;
+    QSize resize;
+    QPalette default_palette;
 };
