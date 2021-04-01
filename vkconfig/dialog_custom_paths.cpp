@@ -24,7 +24,6 @@
 #include "configurator.h"
 
 #include <QFileDialog>
-#include <QMessageBox>
 
 CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths) {
     ui->setupUi(this);
