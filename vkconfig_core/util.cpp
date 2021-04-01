@@ -51,34 +51,21 @@ std::string format(const char* message, ...) {
 }
 
 bool IsFrames(const std::string& s) {
-    static const std::regex FRAME_REGEX(
-        "^([0-9]+|([0-9]+-[0-9]+)|([0-9]+-[0-9]+-[0-9]+))(,(([0-9]+)|([0-9]+-[0-9]+)|([0-9]+-[0-9]+-[0-9]+)))*$");
+    static const std::regex FRAME_REGEX("^([0-9]+([-][0-9]+){0,2})(,([0-9]+([-][0-9]+){0,2}))*$");
 
     return std::regex_search(s, FRAME_REGEX);
 }
 
 bool IsNumber(const std::string& s) {
-    if (s.empty()) return false;
+    static const std::regex FRAME_REGEX("^-?[0-9]*$");
 
-    for (std::size_t i = 0, n = s.length(); i < n; ++i) {
-        if (std::isdigit(s[i])) continue;
-
-        return false;
-    }
-
-    return true;
+    return std::regex_search(s, FRAME_REGEX);
 }
 
 bool IsFloat(const std::string& s) {
-    if (s.empty()) return false;
+    static const std::regex FRAME_REGEX("^-?[0-9]*([.][0-9]*)?$");
 
-    for (std::size_t i = 0, n = s.length(); i < n; ++i) {
-        if (std::isdigit(s[i]) || s[i] == '.') continue;
-
-        return false;
-    }
-
-    return true;
+    return std::regex_search(s, FRAME_REGEX);
 }
 
 void RemoveString(std::vector<std::string>& list, const std::string& value) {
