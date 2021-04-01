@@ -89,6 +89,14 @@ struct SettingMetaFloat : public SettingMeta {
 
     bool HasPrecision() const { return this->precision != 0 || this->width != 0; }
 
+    std::string GetFloatFormat() const {
+        if (this->HasPrecision()) {
+            return "%" + format("%d.%df", this->width, this->precision);
+        } else {
+            return "%f";
+        }
+    }
+
     bool IsValid(const SettingDataFloat& data) const {
         if (this->HasRange())
             return data.value >= this->min_value && data.value <= this->max_value;
