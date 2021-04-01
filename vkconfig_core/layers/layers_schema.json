@@ -66,6 +66,7 @@
                         "type": "integer"
                     }
                 }
+            }
         },
         "number_or_string": {
             "items": {
@@ -174,7 +175,7 @@
             "items": {
                 "oneOf": [
                     {
-                        "description": "For preset STRING, ENUM, FRAMES, LOAD_FILE, SAVE_FILE, SAVE_FOLDER setting type values",
+                        "description": "For preset STRING, FRAMES, ENUM, LOAD_FILE, SAVE_FILE, SAVE_FOLDER setting type values",
                         "type": "object",
                         "required": [
                             "key",
@@ -434,7 +435,7 @@
                             },
                             "default": {
                                 "type": "string",
-                                "pattern": "^([0-9]+|([0-9]+-[0-9]+)|([0-9]+-[0-9]+-[0-9]+))(,(([0-9]+)|([0-9]+-[0-9]+)|([0-9]+-[0-9]+-[0-9]+)))*$"
+                                "pattern": "^([0-9]+([-][0-9]+){0,2})(,([0-9]+([-][0-9]+){0,2}))*$"
                             },
                             "label": {
                                 "description": "The string used to identify the setting to the user",
