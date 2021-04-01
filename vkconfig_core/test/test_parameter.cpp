@@ -246,6 +246,6 @@ TEST(test_parameter, apply_settings) {
     EXPECT_EQ(1, preset.settings.Size());
     EXPECT_EQ(2, parameter.settings.Size());
 
-    EXPECT_STREQ("preset value", static_cast<SettingDataString&>(*parameter.settings.Get("A")).value.c_str());
-    EXPECT_STREQ("setting value", static_cast<SettingDataString&>(*parameter.settings.Get("B")).value.c_str());
+    EXPECT_STREQ("preset value", parameter.settings.Get<SettingDataString>("A")->value.c_str());
+    EXPECT_STREQ("setting value", parameter.settings.Get<SettingDataString>("B")->value.c_str());
 }

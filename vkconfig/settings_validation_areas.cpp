@@ -71,7 +71,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
       settings_data(settings_data) {
     assert(main_tree && parent);
 
-    const SettingMetaFlags *setting_meta_disables = static_cast<const SettingMetaFlags *>(settings_meta.Get("disables"));
+    const SettingMetaFlags *setting_meta_disables = settings_meta.Get<SettingMetaFlags>("disables");
     assert(setting_meta_disables);
 
     // Core
@@ -116,7 +116,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
         _misc_boxes.push_back(item);
     }
 
-    const SettingMetaFlags *setting_meta_enables = static_cast<const SettingMetaFlags *>(settings_meta.Get("enables"));
+    const SettingMetaFlags *setting_meta_enables = settings_meta.Get<SettingMetaFlags>("enables");
     assert(setting_meta_enables);
 
     // Shader-based enables
@@ -525,18 +525,18 @@ bool SettingsValidationAreas::CollectSettings() {
         AppendString(disables, "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT");
     }
 
-    static_cast<SettingDataFlags *>(settings_data.Get("disables"))->value = disables;
-    static_cast<SettingDataFlags *>(settings_data.Get("enables"))->value = enables;
+    settings_data.Get<SettingDataFlags>("disables")->value = disables;
+    settings_data.Get<SettingDataFlags>("enables")->value = enables;
 
     return true;
 }
 
 bool SettingsValidationAreas::HasEnable(const char *token) const {
-    return IsStringFound(static_cast<const SettingDataFlags *>(settings_data.Get("enables"))->value, token);
+    return IsStringFound(settings_data.Get<SettingDataFlags>("enables")->value, token);
 }
 
 bool SettingsValidationAreas::HasDisable(const char *token) const {
-    return IsStringFound(static_cast<const SettingDataFlags *>(settings_data.Get("disables"))->value, token);
+    return IsStringFound(settings_data.Get<SettingDataFlags>("disables")->value, token);
 }
 
 void SettingsValidationAreas::StoreBoolSetting(QTreeWidgetItem *item, const char *key) {
@@ -545,5 +545,5 @@ void SettingsValidationAreas::StoreBoolSetting(QTreeWidgetItem *item, const char
 
     if (item == nullptr) return;
 
-    static_cast<SettingDataBool &>(*settings_data.Get(key)).value = item->checkState(0) == Qt::Checked;
+    settings_data.Get<SettingDataBool>(key)->value = item->checkState(0) == Qt::Checked;
 }
