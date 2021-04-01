@@ -2,8 +2,6 @@
     <qresource prefix="/">
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
-
-        <file alias="layers_schema.json">../vkconfig_core/layers/layers_schema.json</file>
     </qresource>
 
     <qresource prefix="/configurations">
@@ -12,6 +10,10 @@
         <file alias="Portability.json">../vkconfig_core/configurations/2.2.1/Portability.json</file>
         <file alias="Synchronization.json">../vkconfig_core/configurations/2.2.1/Synchronization.json</file>
         <file alias="Validation.json">../vkconfig_core/configurations/2.2.1/Validation.json</file>
+    </qresource>
+
+    <qresource prefix="/layers">
+        <file alias="schema.json">../vkconfig_core/layers/layers_schema.json</file>
     </qresource>
 
     <qresource prefix="/layers/test">
