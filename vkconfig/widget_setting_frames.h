@@ -27,6 +27,7 @@
 #include <QTreeWidgetItem>
 #include <QLineEdit>
 #include <QResizeEvent>
+#include <QTimer>
 
 class WidgetSettingFrames : public QWidget {
     Q_OBJECT

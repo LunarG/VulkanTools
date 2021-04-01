@@ -27,19 +27,21 @@
 #include <QTreeWidgetItem>
 #include <QLineEdit>
 #include <QResizeEvent>
+#include <QTimer>
 
 class WidgetSettingFloat : public QWidget {
     Q_OBJECT
 
    public:
     WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFloat& meta, SettingDataFloat& data);
+    virtual ~WidgetSettingFloat();
 
     void Enable(bool enable);
     QLineEdit* GetField() const { return this->field; }
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
-    void FieldEditedCheck();
+    void OnInvalidValue();
 
    Q_SIGNALS:
     void itemChanged();
@@ -49,11 +51,14 @@ class WidgetSettingFloat : public QWidget {
     WidgetSettingFloat& operator=(const WidgetSettingFloat&) = delete;
 
     void resizeEvent(QResizeEvent* event) override;
-
     void Resize();
+    bool ValidateInputValue();
 
-    const SettingMetaFloat& setting_meta;
-    SettingDataFloat& setting_data;
+    const SettingMetaFloat& meta;
+    SettingDataFloat& data;
+    std::string value;
     QLineEdit* field;
+    QTimer* timer;
     QSize resize;
+    QPalette default_palette;
 };

@@ -24,14 +24,13 @@
 #include "../vkconfig_core/util.h"
 
 #include <QMessageBox>
-#include <QTimer>
 #include <QFontMetrics>
 #include <QCheckBox>
 #include <QSettings>
 
 #include <cassert>
 
-static const int MIN_FIELD_WIDTH = 48;
+static const int MIN_FIELD_WIDTH = 80;
 
 WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta,
                                          SettingDataFrames& data)
@@ -54,13 +53,13 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* ite
     this->default_palette = this->field->palette();
 
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
-    this->connect(timer, &QTimer::timeout, this, &WidgetSettingFrames::OnInvalidValue);
+    this->connect(this->timer, &QTimer::timeout, this, &WidgetSettingFrames::OnInvalidValue);
 
     tree->setItemWidget(item, 0, this);
 }
 
 WidgetSettingFrames::~WidgetSettingFrames() {
-    if (!IsFrames(this->data.value)) {
+    if (this->meta.IsValid(this->data)) {
         this->data.value = this->meta.default_value;
     }
 }
@@ -68,42 +67,35 @@ WidgetSettingFrames::~WidgetSettingFrames() {
 void WidgetSettingFrames::Enable(bool enable) { this->field->setEnabled(enable); }
 
 void WidgetSettingFrames::OnInvalidValue() {
-    if (!IsFrames(this->data.value)) {
-        QSettings settings;
-        if (settings.value("VKCONFIG_WIDGET_SETTING_FRAMES").toBool() == false) {
-            const std::string text =
-                format("The setting input '%s' is invalid. Use list of comma separated integer ranges. Example: '0-2,16'.",
-                       this->data.value.c_str());
-            const std::string info =
-                format("Do you want to reset to the setting default value? '%s'", this->meta.default_value.c_str());
+    QPalette palette;
+    palette.setColor(QPalette::Base, QColor(255, 192, 192));
+    this->field->setPalette(palette);
 
-            QMessageBox alert;
-            alert.setWindowTitle(format("Invalid '%s' setting value", meta.label.c_str()).c_str());
-            alert.setText(text.c_str());
-            alert.setInformativeText(info.c_str());
-            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            alert.setDefaultButton(QMessageBox::Yes);
-            alert.setIcon(QMessageBox::Critical);
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-            if (alert.exec() == QMessageBox::No) {
-                QPalette palette;
-                palette.setColor(QPalette::Base, Qt::red);
-                this->field->setPalette(palette);
-            } else {
-                this->data.value = this->meta.default_value;
-                this->field->setText(data.value.c_str());
-                this->Resize();
-            }
-            if (alert.checkBox()->isChecked()) {
-                settings.setValue("VKCONFIG_WIDGET_SETTING_FRAMES", true);
-            }
-        } else {
-            QPalette palette;
-            palette.setColor(QPalette::Base, Qt::red);
-            this->field->setPalette(palette);
+    QSettings settings;
+    if (settings.value("VKCONFIG_WIDGET_SETTING_FRAMES").toBool() == false) {
+        const std::string text =
+            format("The setting input '%s' is invalid. Use list of comma separated integer ranges. Example: '0-2,16'.",
+                   this->data.value.c_str());
+        const std::string info =
+            format("Do you want to reset to the setting default value? '%s'", this->meta.default_value.c_str());
+
+        QMessageBox alert;
+        alert.setWindowTitle(format("Invalid '%s' setting value", meta.label.c_str()).c_str());
+        alert.setText(text.c_str());
+        alert.setInformativeText(info.c_str());
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::Yes);
+        alert.setIcon(QMessageBox::Critical);
+        alert.setCheckBox(new QCheckBox("Do not show again."));
+        if (alert.exec() == QMessageBox::Yes) {
+            this->data.value = this->meta.default_value;
+            this->field->setText(data.value.c_str());
+            this->field->setPalette(default_palette);
+            this->Resize();
         }
-    } else {
-        this->field->setPalette(default_palette);
+        if (alert.checkBox()->isChecked()) {
+            settings.setValue("VKCONFIG_WIDGET_SETTING_FRAMES", true);
+        }
     }
 
     this->timer->stop();
@@ -123,13 +115,13 @@ void WidgetSettingFrames::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingFrames::OnTextEdited(const QString& value) {
-    this->data.value = value.toStdString().c_str();
+    this->data.value = value.toStdString();
     this->Resize();
 
-    if (!IsFrames(this->data.value)) {
-        if (this->timer->isActive()) {
-            this->timer->stop();
-        }
+    this->timer->stop();
+
+    // Process the input value, notify an error is invalid, give time for the user to correct it
+    if (!this->meta.IsValid(this->data)) {
         this->timer->start(3000);
     } else {
         this->field->setPalette(default_palette);

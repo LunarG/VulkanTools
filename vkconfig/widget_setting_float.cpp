@@ -22,18 +22,25 @@
 #include "widget_setting.h"
 
 #include <QMessageBox>
-#include <QTimer>
 #include <QFontMetrics>
+#include <QCheckBox>
+#include <QSettings>
 
 #include <cassert>
 
-static const int MIN_FIELD_WIDTH = 48;
+static const int MIN_FIELD_WIDTH = 80;
 
-std::string GetFloatFormat(const SettingMetaFloat& meta) { return "%" + format("%d.%df", meta.width, meta.precision); }
+std::string GetFloatFormat(const SettingMetaFloat& meta) {
+    if (meta.HasPrecision()) {
+        return "%" + format("%d.%df", meta.width, meta.precision);
+    } else {
+        return "%f";
+    }
+}
 
 WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFloat& meta,
                                        SettingDataFloat& data)
-    : setting_meta(meta), setting_data(data), field(new QLineEdit(this)) {
+    : meta(meta), data(data), field(new QLineEdit(this)), timer(new QTimer(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
     assert(&meta);
@@ -51,35 +58,69 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
     this->field->setToolTip(format("[%f, %f]", meta.min_value, meta.max_value).c_str());
     this->field->setAlignment(Qt::AlignRight);
     this->field->show();
+    this->default_palette = this->field->palette();
 
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
+    this->connect(this->timer, &QTimer::timeout, this, &WidgetSettingFloat::OnInvalidValue);
 
     tree->setItemWidget(item, 0, this);
 }
 
+WidgetSettingFloat::~WidgetSettingFloat() {
+    if (this->meta.IsValid(this->data)) {
+        this->data.value = this->meta.default_value;
+    }
+}
+
 void WidgetSettingFloat::Enable(bool enable) { this->field->setEnabled(enable); }
 
-void WidgetSettingFloat::FieldEditedCheck() {
-    if (this->setting_data.value < setting_meta.min_value || this->setting_data.value > setting_meta.max_value) {
-        const std::string text =
-            format("'%s' is out of range. Use a value in the [%d, %d].", this->field->text().toStdString().c_str(),
-                   this->setting_meta.min_value, this->setting_meta.max_value);
-        const std::string into =
-            format(("Resetting to the setting default value: " + GetFloatFormat(this->setting_meta) + ".").c_str(),
-                   this->setting_meta.default_value);
+void WidgetSettingFloat::OnInvalidValue() {
+    QPalette palette;
+    palette.setColor(QPalette::Base, QColor(255, 192, 192));
+    this->field->setPalette(palette);
 
-        this->setting_data.value = this->setting_meta.default_value;
-        this->field->setText(format(GetFloatFormat(this->setting_meta).c_str(), this->setting_data.value).c_str());
-        this->Resize();
+    QSettings settings;
+    if (settings.value("VKCONFIG_WIDGET_SETTING_FLOAT").toBool() == false) {
+        const std::string float_format = this->meta.HasPrecision() ? GetFloatFormat(this->meta) : "%f";
+        const std::string info = format("Do you want to reset to the setting default value? '%s'", float_format.c_str());
+        const std::string range = this->meta.HasRange()
+                                      ? format("Enter a number in the range [%s, %s].", float_format.c_str(), float_format.c_str())
+                                      : std::string("Enter a floating point number.");
+
+        std::string text;
+        if (this->value.empty()) {
+            text = format(("'%s' value is empty. " + range).c_str(), this->meta.label.c_str(), this->meta.min_value,
+                          this->meta.max_value);
+        } else if (!IsFloat(this->value)) {
+            text = format(("'%s' value has invalid characters. " + range).c_str(), this->meta.label.c_str(), this->meta.min_value,
+                          this->meta.max_value);
+        } else if (!this->meta.IsValid(this->data)) {
+            text = format(("'%s' value is out of range. " + range).c_str(), this->meta.label.c_str(), this->meta.min_value,
+                          this->meta.max_value);
+        }
 
         QMessageBox alert;
-        alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
+        alert.setWindowTitle(format("Invalid '%s' setting value", meta.label.c_str()).c_str());
         alert.setText(text.c_str());
-        alert.setInformativeText(into.c_str());
-        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setInformativeText(format(info.c_str(), this->meta.default_value).c_str());
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::Yes);
         alert.setIcon(QMessageBox::Critical);
-        alert.exec();
+        alert.setCheckBox(new QCheckBox("Do not show again."));
+        if (alert.exec() == QMessageBox::Yes) {
+            const std::string field_value = format(GetFloatFormat(this->meta).c_str(), this->meta.default_value);
+
+            this->data.value = this->meta.default_value;
+            this->field->setText(field_value.c_str());
+            this->field->setPalette(default_palette);
+            this->Resize();
+        }
+        if (alert.checkBox()->isChecked()) {
+            settings.setValue("VKCONFIG_WIDGET_SETTING_FLOAT", true);
+        }
     }
+
+    this->timer->stop();
 }
 
 void WidgetSettingFloat::Resize() {
@@ -95,31 +136,31 @@ void WidgetSettingFloat::resizeEvent(QResizeEvent* event) {
     this->Resize();
 }
 
-void WidgetSettingFloat::OnTextEdited(const QString& value) {
-    if (value.isEmpty()) {
-        this->setting_data.value = this->setting_meta.default_value;
-        this->field->setText(format(GetFloatFormat(this->setting_meta).c_str(), setting_data.value).c_str());
-    } else if (!IsFloat(value.toStdString())) {
-        this->setting_data.value = this->setting_meta.default_value;
-        this->field->setText(format(GetFloatFormat(this->setting_meta).c_str(), setting_data.value).c_str());
-
-        const std::string info =
-            format(("Resetting to the setting default value: " + GetFloatFormat(this->setting_meta) + ".").c_str(),
-                   this->setting_meta.default_value);
-
-        QMessageBox alert;
-        alert.setWindowTitle(format("Invalid '%s' setting value", setting_meta.label.c_str()).c_str());
-        alert.setText("The setting input value is not a floating point number.");
-        alert.setInformativeText(info.c_str());
-        alert.setStandardButtons(QMessageBox::Ok);
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
+bool WidgetSettingFloat::ValidateInputValue() {
+    if (this->value.empty())
+        return false;
+    else if (IsFloat(this->value)) {
+        this->data.value = std::atof(this->value.c_str());
+        if (!this->meta.IsValid(this->data)) return false;
     } else {
-        this->setting_data.value = std::atof(value.toStdString().c_str());
+        return false;
     }
 
+    return true;
+}
+
+void WidgetSettingFloat::OnTextEdited(const QString& new_value) {
+    this->value = new_value.toStdString();
     this->Resize();
-    QTimer::singleShot(1000, [this]() { FieldEditedCheck(); });
+
+    this->timer->stop();
+
+    // Process the input value, notify an error is invalid, give time for the user to correct it
+    if (!this->ValidateInputValue()) {
+        this->timer->start(1000);
+    } else {
+        this->field->setPalette(default_palette);
+    }
 
     emit itemChanged();
 }

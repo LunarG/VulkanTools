@@ -75,12 +75,7 @@ struct SettingMetaInt : public SettingMeta {
 
 struct SettingMetaFloat : public SettingMeta {
     SettingMetaFloat(const std::string& key)
-        : SettingMeta(key, SETTING_FLOAT),
-          default_value(0.0f),
-          min_value(std::numeric_limits<float>::min()),
-          max_value(std::numeric_limits<float>::max()),
-          precision(6),
-          width(8) {}
+        : SettingMeta(key, SETTING_FLOAT), default_value(0.0f), min_value(0.0f), max_value(0.0f), precision(0), width(0) {}
     virtual ~SettingMetaFloat() {}
 
     float default_value;
@@ -90,7 +85,16 @@ struct SettingMetaFloat : public SettingMeta {
     int width;
     std::string unit;
 
-    bool IsValid(const SettingDataFloat& data) const { return data.value >= this->min_value && data.value <= this->max_value; }
+    bool HasRange() const { return std::abs(this->max_value - this->min_value) > std::numeric_limits<float>::epsilon(); }
+
+    bool HasPrecision() const { return this->precision != 0 || this->width != 0; }
+
+    bool IsValid(const SettingDataFloat& data) const {
+        if (this->HasRange())
+            return data.value >= this->min_value && data.value <= this->max_value;
+        else
+            return true;
+    }
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;
@@ -117,7 +121,7 @@ struct SettingMetaFrames : public SettingMetaString {
     SettingMetaFrames(const std::string& key) : SettingMetaString(key, SETTING_FRAMES) {}
     virtual ~SettingMetaFrames() {}
 
-    bool IsValid(const SettingDataFrames& data) const { return IsFrames(data.value); }
+    bool IsValid(const SettingDataFrames& data) const { return IsFrames(data.value) || data.value.empty(); }
 };
 
 struct SettingMetaFilesystem : public SettingMeta {
