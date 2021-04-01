@@ -67,6 +67,8 @@ struct SettingMetaInt : public SettingMeta {
     int max_value;
     std::string unit;
 
+    bool IsValid(const SettingDataInt& data) const { return data.value >= this->min_value && data.value <= this->max_value; }
+
    protected:
     virtual bool Equal(const SettingMeta& other) const;
 };
@@ -87,6 +89,8 @@ struct SettingMetaFloat : public SettingMeta {
     int precision;
     int width;
     std::string unit;
+
+    bool IsValid(const SettingDataFloat& data) const { return data.value >= this->min_value && data.value <= this->max_value; }
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;
@@ -112,6 +116,8 @@ struct SettingMetaBoolNumeric : public SettingMeta {
 struct SettingMetaFrames : public SettingMetaString {
     SettingMetaFrames(const std::string& key) : SettingMetaString(key, SETTING_FRAMES) {}
     virtual ~SettingMetaFrames() {}
+
+    bool IsValid(const SettingDataFrames& data) const { return IsFrames(data.value); }
 };
 
 struct SettingMetaFilesystem : public SettingMeta {

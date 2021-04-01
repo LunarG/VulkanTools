@@ -179,22 +179,44 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     stream << ReplaceBuiltInVariable(static_cast<const SettingDataString&>(setting_data).value.c_str()).c_str();
                     break;
                 }
-                case SETTING_FRAMES:
+                case SETTING_FRAMES: {
+                    const SettingDataFrames& data = static_cast<const SettingDataFrames&>(setting_data);
+                    const SettingMetaFrames* meta = layer->settings.Get<SettingMetaFrames>(data.key.c_str());
+                    if (meta->IsValid(data)) {
+                        stream << data.value.c_str();
+                    } else {
+                        stream << meta->default_value.c_str();
+                    }
+                    break;
+                }
                 case SETTING_ENUM:
                 case SETTING_STRING: {
                     stream << static_cast<const SettingDataString&>(setting_data).value.c_str();
                     break;
                 }
                 case SETTING_INT: {
-                    stream << static_cast<const SettingDataInt&>(setting_data).value;
+                    const SettingDataInt& data = static_cast<const SettingDataInt&>(setting_data);
+                    const SettingMetaInt* meta = layer->settings.Get<SettingMetaInt>(setting_data.key.c_str());
+
+                    if (meta->IsValid(data)) {
+                        stream << data.value;
+                    } else {
+                        stream << meta->default_value;
+                    }
                     break;
                 }
                 case SETTING_FLOAT: {
+                    const SettingDataFloat& data = static_cast<const SettingDataFloat&>(setting_data);
                     const SettingMetaFloat* meta = layer->settings.Get<SettingMetaFloat>(setting_data.key.c_str());
 
-                    std::string formatted_float = format("%d.%df", meta->width, meta->precision);
-                    stream << format(("%" + formatted_float).c_str(), static_cast<const SettingDataFloat&>(setting_data).value)
-                                  .c_str();
+                    const std::string formatted_float = "%" + format("%d.%df", meta->width, meta->precision);
+
+                    if (meta->IsValid(data)) {
+                        stream << format(formatted_float.c_str(), data.value).c_str();
+                    } else {
+                        stream << format(formatted_float.c_str(), meta->default_value).c_str();
+                    }
+
                     break;
                 }
                 case SETTING_BOOL_NUMERIC_DEPRECATED: {
