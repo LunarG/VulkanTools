@@ -25,6 +25,7 @@
 enum SettingType {  // Enum value can't be changed
     SETTING_STRING = 0,
     SETTING_INT,
+    SETTING_FLOAT,
     SETTING_SAVE_FILE,
     SETTING_LOAD_FILE,
     SETTING_SAVE_FOLDER,

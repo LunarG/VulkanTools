@@ -24,6 +24,7 @@
 
 #include "widget_setting.h"
 #include "widget_setting_int.h"
+#include "widget_setting_float.h"
 #include "widget_setting_frames.h"
 #include "widget_setting_bool.h"
 #include "widget_setting_enum.h"
@@ -355,6 +356,14 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
                 SettingDataInt &data = *parameter.settings.Get<SettingDataInt>(meta.key.c_str());
 
                 WidgetSettingInt *widget = new WidgetSettingInt(tree, item, meta, data);
+                this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            } break;
+
+            case SETTING_FLOAT: {
+                const SettingMetaFloat &meta = static_cast<const SettingMetaFloat &>(layer_setting_metas[setting_index]);
+                SettingDataFloat &data = *parameter.settings.Get<SettingDataFloat>(meta.key.c_str());
+
+                WidgetSettingFloat *widget = new WidgetSettingFloat(tree, item, meta, data);
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             } break;
 

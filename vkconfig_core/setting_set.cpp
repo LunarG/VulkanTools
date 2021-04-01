@@ -31,6 +31,8 @@ std::shared_ptr<SettingData> SettingSet<SettingData>::AllocSetting(const std::st
             return std::shared_ptr<SettingData>(new SettingDataString(key));
         case SETTING_INT:
             return std::shared_ptr<SettingData>(new SettingDataInt(key));
+        case SETTING_FLOAT:
+            return std::shared_ptr<SettingData>(new SettingDataFloat(key));
         case SETTING_SAVE_FILE:
             return std::shared_ptr<SettingData>(new SettingDataFileSave(key));
         case SETTING_LOAD_FILE:
@@ -64,6 +66,8 @@ std::shared_ptr<SettingMeta> SettingSet<SettingMeta>::AllocSetting(const std::st
             return std::shared_ptr<SettingMeta>(new SettingMetaString(key));
         case SETTING_INT:
             return std::shared_ptr<SettingMeta>(new SettingMetaInt(key));
+        case SETTING_FLOAT:
+            return std::shared_ptr<SettingMeta>(new SettingMetaFloat(key));
         case SETTING_SAVE_FILE:
             return std::shared_ptr<SettingMeta>(new SettingMetaFileSave(key));
         case SETTING_LOAD_FILE:

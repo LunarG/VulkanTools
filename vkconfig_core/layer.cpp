@@ -222,6 +222,29 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
                     }
                     break;
                 }
+                case SETTING_FLOAT: {
+                    SettingMetaFloat& meta = static_cast<SettingMetaFloat&>(setting_meta);
+                    meta.default_value = ReadFloatValue(json_setting, "default");
+                    if (json_setting.value("range") != QJsonValue::Undefined) {
+                        const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
+                        if (json_setting_range.value("min") != QJsonValue::Undefined) {
+                            meta.min_value = ReadFloatValue(json_setting_range, "min");
+                        }
+                        if (json_setting_range.value("max") != QJsonValue::Undefined) {
+                            meta.max_value = ReadFloatValue(json_setting_range, "max");
+                        }
+                        if (json_setting_range.value("precision") != QJsonValue::Undefined) {
+                            meta.precision = ReadIntValue(json_setting_range, "precision");
+                        }
+                        if (json_setting_range.value("width") != QJsonValue::Undefined) {
+                            meta.width = ReadIntValue(json_setting_range, "width");
+                        }
+                    }
+                    if (json_setting.value("unit") != QJsonValue::Undefined) {
+                        meta.unit = ReadStringValue(json_setting, "unit");
+                    }
+                    break;
+                }
                 case SETTING_SAVE_FOLDER:
                 case SETTING_SAVE_FILE:
                 case SETTING_LOAD_FILE: {
@@ -398,6 +421,11 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
         case SETTING_INT: {
             const SettingMetaInt& meta_object = static_cast<const SettingMetaInt&>(setting_meta);
             static_cast<SettingDataInt&>(setting_data).value = meta_object.default_value;
+            break;
+        }
+        case SETTING_FLOAT: {
+            const SettingMetaFloat& meta_object = static_cast<const SettingMetaFloat&>(setting_meta);
+            static_cast<SettingDataFloat&>(setting_data).value = meta_object.default_value;
             break;
         }
         case SETTING_SAVE_FILE: {
