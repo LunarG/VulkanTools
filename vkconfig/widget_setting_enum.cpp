@@ -44,7 +44,7 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
 
         this->field->addItem(meta.enum_values[i].label.c_str());
         if (meta.enum_values[i].key == data.value) {
-            selection = static_cast<int>(i);
+            selection = static_cast<int>(this->enum_indexes.size());
         }
         this->enum_indexes.push_back(i);
     }
