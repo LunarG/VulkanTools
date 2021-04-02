@@ -88,6 +88,8 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     this->OnItemSelected("");
 
     ResetCompleter();
+
+    tree->setItemWidget(item, 0, this);
 }
 
 void WidgetSettingList::Resize() {

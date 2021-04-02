@@ -33,7 +33,8 @@ WidgetSettingString::WidgetSettingString(QTreeWidgetItem* item, const SettingMet
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
     this->setText(setting_data.value.c_str());
-    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
+
+    this->connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(itemEdited(const QString&)));
 }
 
 void WidgetSettingString::itemEdited(const QString& new_string) {
