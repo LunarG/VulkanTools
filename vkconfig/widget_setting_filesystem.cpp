@@ -89,7 +89,9 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     }
 }
 
-void WidgetSettingFilesystem::textFieldChanged(const QString& new_text) {
-    this->data.value = new_text.toStdString();
+void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
+    this->data.value = value.toStdString();
+    this->field->setToolTip(this->field->text());
+
     emit itemChanged();
 }
