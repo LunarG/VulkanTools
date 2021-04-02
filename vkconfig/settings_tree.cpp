@@ -383,11 +383,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
             const SettingMetaString &meta = static_cast<const SettingMetaString &>(setting_meta);
             SettingDataString &data = *parameter.settings.Get<SettingDataString>(meta.key.c_str());
 
-            WidgetSettingString *widget = new WidgetSettingString(item, meta, data);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            item->addChild(place_holder);
-
-            this->tree->setItemWidget(place_holder, 0, widget);
+            WidgetSettingString *widget = new WidgetSettingString(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
