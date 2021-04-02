@@ -268,9 +268,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
                 _validation_log_file_item = new QTreeWidgetItem();
                 child->addChild(_validation_log_file_item);
                 _validation_log_file_widget =
-                    new WidgetSettingFilesystem(_validation_log_file_item, *meta_log_file, *data_log_file);
+                    new WidgetSettingFilesystem(tree, _validation_log_file_item, *meta_log_file, *data_log_file);
                 _validation_log_file_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-                tree->setItemWidget(_validation_log_file_item, 0, _validation_log_file_widget);
 
                 connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(OnDebugChanged(int)));
@@ -348,12 +347,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
             const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(setting_meta);
             SettingDataString &data = *parameter.settings.Get<SettingDataString>(meta.key.c_str());
 
-            WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(item, meta, data);
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            place_holder->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            item->addChild(place_holder);
-
-            this->tree->setItemWidget(place_holder, 0, widget);
+            WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -401,10 +395,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
             const SettingMetaList &meta = static_cast<const SettingMetaList &>(setting_meta);
             SettingDataList &data = *parameter.settings.Get<SettingDataList>(meta.key.c_str());
 
-            WidgetSettingList *widget_search = new WidgetSettingList(tree, item, meta, data);
-
-            this->tree->setItemWidget(item, 0, widget_search);
-            this->connect(widget_search, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            WidgetSettingList *widget = new WidgetSettingList(tree, item, meta, data);
+            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         default: {

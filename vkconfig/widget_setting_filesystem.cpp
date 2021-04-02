@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  * Authors:
- * - Lenny Komow  <lenny@lunarg.com>
  * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
@@ -27,13 +26,9 @@
 
 #include <cassert>
 
-WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const SettingMetaFilesystem& setting_meta,
-                                                 SettingDataString& setting_data)
-    : QWidget(nullptr),
-      setting_meta(setting_meta),
-      setting_data(setting_data),
-      field(new QLineEdit(this)),
-      button(new QPushButton(this)) {
+WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetItem* item,
+                                                 const SettingMetaFilesystem& setting_meta, SettingDataString& setting_data)
+    : QWidget(nullptr), meta(setting_meta), data(setting_data), field(new QLineEdit(this)), button(new QPushButton(this)) {
     assert(item);
     assert(&setting_meta);
     assert(&setting_data);
@@ -42,20 +37,24 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidgetItem* item, const Se
     item->setToolTip(0, setting_meta.description.c_str());
 
     this->field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
+    this->field->setToolTip(this->field->text());
     this->field->show();
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 
     this->button->setText("...");
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
+
+    QTreeWidgetItem* child_item = new QTreeWidgetItem();
+    child_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    item->addChild(child_item);
+
+    tree->setItemWidget(item, 0, this);
+    tree->setItemWidget(child_item, 0, this->field);
 }
 
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
     const QSize parent_size = event->size();
-
-    // Button takes up the last 32 pixels
-    const QRect edit_rect = QRect(0, 0, parent_size.width() - MIN_BUTTON_SIZE, parent_size.height());
-    this->field->setGeometry(edit_rect);
 
     const QRect button_rect = QRect(parent_size.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, parent_size.height());
     this->button->setGeometry(button_rect);
@@ -64,10 +63,10 @@ void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
 void WidgetSettingFilesystem::browseButtonClicked() {
     std::string file;
 
-    const char* filter = this->setting_meta.filter.c_str();
-    const char* path = this->setting_data.value.c_str();
+    const char* filter = this->meta.filter.c_str();
+    const char* path = this->data.value.c_str();
 
-    switch (this->setting_meta.type) {
+    switch (this->meta.type) {
         case SETTING_LOAD_FILE:
             file = QFileDialog::getOpenFileName(this->button, "Select file", path, filter).toStdString();
             break;
@@ -85,12 +84,12 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     if (!file.empty()) {
         file = ConvertNativeSeparators(file);
         field->setText(file.c_str());
-        this->setting_data.value = file;
+        this->data.value = file;
         emit itemChanged();
     }
 }
 
 void WidgetSettingFilesystem::textFieldChanged(const QString& new_text) {
-    this->setting_data.value = new_text.toStdString();
+    this->data.value = new_text.toStdString();
     emit itemChanged();
 }
