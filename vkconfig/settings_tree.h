@@ -57,6 +57,7 @@ class SettingsTreeManager : QObject {
 
     void BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
+    void BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta);
 
     QTreeWidget *tree;
     std::vector<WidgetPreset *> presets;
