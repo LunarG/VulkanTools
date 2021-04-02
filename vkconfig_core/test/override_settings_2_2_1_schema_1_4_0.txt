@@ -1,7 +1,7 @@
 
 # VK_LAYER_LUNARG_reference_1_4_0
 lunarg_reference_1_4_0.enum_required_only = value2
-lunarg_reference_1_4_0.enum_with_optional = value0
+lunarg_reference_1_4_0.enum_with_optional = value1
 lunarg_reference_1_4_0.flags_required_only = flag0,flag2
 lunarg_reference_1_4_0.flags_with_optional = flag0,flag2
 lunarg_reference_1_4_0.string_required_only = My string

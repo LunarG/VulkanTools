@@ -297,7 +297,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     value0.description = "My value0";
     value0.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value0";
     value0.status = STATUS_STABLE;
-    value0.view = SETTING_VIEW_STANDARD;
+    value0.view = SETTING_VIEW_HIDDEN;
     value0.platform_flags = PLATFORM_ALL_BIT;
     EXPECT_EQ(value0, setting_meta->enum_values[0]);
 
@@ -317,7 +317,7 @@ TEST(test_layer, load_1_4_0_setting_enum_with_optional) {
     value2.description = "My value2";
     value2.url = "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value2";
     value2.status = STATUS_ALPHA;
-    value2.view = SETTING_VIEW_HIDDEN;
+    value2.view = SETTING_VIEW_STANDARD;
     value2.platform_flags = PLATFORM_WINDOWS_BIT;
     EXPECT_EQ(value2, setting_meta->enum_values[2]);
 

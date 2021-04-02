@@ -35,9 +35,8 @@ WidgetPreset::WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter&
     for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
         const LayerPreset& layer_preset = layer.presets[i];
 
-        if (!IsPlatformSupported(layer_preset.platform_flags)) {
-            continue;
-        }
+        if (!IsPlatformSupported(layer_preset.platform_flags)) continue;
+        if (layer_preset.view == SETTING_VIEW_HIDDEN) continue;
 
         this->addItem((layer_preset.label + " Preset").c_str());
         preset_labels.push_back(layer_preset.label);

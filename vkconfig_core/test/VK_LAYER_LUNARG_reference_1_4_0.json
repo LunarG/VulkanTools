@@ -239,7 +239,7 @@
                         "description": "My value0",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value0",
                         "status": "STABLE",
-                        "view": "STANDARD",
+                        "view": "HIDDEN",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
@@ -257,7 +257,7 @@
                         "description": "My value2",
                         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value2",
                         "status": "ALPHA",
-                        "view": "HIDDEN",
+                        "view": "STANDARD",
                         "platforms": [ "WINDOWS" ]
                     }
                 ],
