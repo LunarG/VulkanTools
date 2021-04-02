@@ -194,7 +194,6 @@ void WidgetSettingList::OnButtonPressed() {
     ::RemoveValue(this->list, value);
 
     this->OnItemSelected("");
-    this->ResetCompleter();
     this->Resize();
 }
 
