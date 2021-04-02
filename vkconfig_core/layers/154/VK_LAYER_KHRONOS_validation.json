@@ -6823,7 +6823,7 @@
                     },
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT",
-                        "label": "Reserve a descriptorSet binding slot for internal use",
+                        "label": "Reserve a descriptorSet binding slot",
                         "description": "Specifies that the validation layers reserve a descriptor set binding slot for their own use. The layer reports a value for VkPhysicalDeviceLimits::maxBoundDescriptorSets that is one less than the value reported by the device. If the device supports the binding of only one descriptor set, the validation layer does not perform GPU-assisted validation.",
                         "platforms": [ "WINDOWS", "LINUX" ]
                     },
@@ -6836,7 +6836,7 @@
                     },
                     {
                         "key": "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM",
-                        "label": "Enables ARM-specific best practices validation",
+                        "label": "ARM-specific best practices",
                         "description": "Enables processing of debug printf instructions in shaders and sending debug strings to the debug callback",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     }

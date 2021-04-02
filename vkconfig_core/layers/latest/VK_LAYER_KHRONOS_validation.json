@@ -6840,7 +6840,7 @@
                     },
                     {
                         "key": "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM",
-                        "label": "Enables ARM-specific best practices validation",
+                        "label": "ARM-specific best practices",
                         "description": "Enables processing of debug printf instructions in shaders and sending debug strings to the debug callback",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     }
