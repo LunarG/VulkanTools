@@ -124,6 +124,7 @@ bool WidgetSettingInt::ValidateInputValue() {
         return false;
     else if (IsNumber(this->value)) {
         this->data.value = std::atoi(this->value.c_str());
+        this->field->setText(format("%d", data.value).c_str());
         if (!this->meta.IsValid(this->data)) return false;
     } else {
         return false;
