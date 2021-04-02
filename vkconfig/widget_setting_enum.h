@@ -24,16 +24,15 @@
 #include "../vkconfig_core/setting_data.h"
 #include "../vkconfig_core/setting_meta.h"
 
-#include <QObject>
-#include <QWidget>
-#include <QComboBox>
 #include <QTreeWidgetItem>
+#include <QResizeEvent>
+#include <QComboBox>
 
-class WidgetSettingEnum : public QComboBox {
+class WidgetSettingEnum : public QWidget {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnum& setting_meta, SettingDataEnum& setting_data);
+    explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataEnum& data);
 
    public Q_SLOTS:
     void indexChanged(int index);
@@ -45,6 +44,10 @@ class WidgetSettingEnum : public QComboBox {
     WidgetSettingEnum(const WidgetSettingEnum&) = delete;
     WidgetSettingEnum& operator=(const WidgetSettingEnum&) = delete;
 
-    const SettingMetaEnum& setting_meta;
-    SettingDataEnum& setting_data;
+    void resizeEvent(QResizeEvent* event) override;
+
+    const SettingMetaEnum& meta;
+    SettingDataEnum& data;
+    QComboBox* field;
+    std::vector<std::size_t> enum_indexes;
 };

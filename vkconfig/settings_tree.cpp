@@ -361,14 +361,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
             const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(setting_meta);
             SettingDataEnum &data = *parameter.settings.Get<SettingDataEnum>(meta.key.c_str());
 
-            QTreeWidgetItem *place_holder = new QTreeWidgetItem();
-            item->setText(0, meta.label.c_str());
-            item->setToolTip(0, meta.description.c_str());
-            item->addChild(place_holder);
-
-            WidgetSettingEnum *enum_widget = new WidgetSettingEnum(item, meta, data);
-
-            this->tree->setItemWidget(place_holder, 0, enum_widget);
+            WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, data);
             this->connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 

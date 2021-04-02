@@ -20,36 +20,58 @@
  */
 
 #include "widget_setting_enum.h"
+#include "widget_setting.h"
 
 #include <cassert>
 
-WidgetSettingEnum::WidgetSettingEnum(QTreeWidgetItem* item, const SettingMetaEnum& setting_meta, SettingDataEnum& setting_data)
-    : setting_meta(setting_meta), setting_data(setting_data) {
-    assert(item);
-    assert(&setting_data);
+static const int MIN_FIELD_WIDTH = 80;
 
-    item->setText(0, setting_meta.label.c_str());
-    item->setToolTip(0, setting_meta.description.c_str());
+WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataEnum& data)
+    : meta(meta), data(data), field(new QComboBox(this)) {
+    assert(item);
+    assert(&meta);
+    assert(&data);
+
+    item->setText(0, meta.label.c_str());
+    item->setFont(0, tree->font());
+    item->setToolTip(0, meta.description.c_str());
+    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     int selection = 0;
-    for (std::size_t i = 0, n = setting_meta.enum_values.size(); i < n; ++i) {
-        if (!IsPlatformSupported(setting_meta.enum_values[i].platform_flags)) continue;
-        if (setting_meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
+    for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
+        if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;
+        if (meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
 
-        this->addItem(setting_meta.enum_values[i].label.c_str());
-        if (setting_meta.enum_values[i].key == setting_data.value) {
+        this->field->addItem(meta.enum_values[i].label.c_str());
+        if (meta.enum_values[i].key == data.value) {
             selection = static_cast<int>(i);
         }
+        this->enum_indexes.push_back(i);
     }
 
-    setCurrentIndex(selection);
+    this->field->setCurrentIndex(selection);
+    this->field->show();
 
-    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
+    this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
+
+    tree->setItemWidget(item, 0, this);
+}
+
+void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
+    int width = MIN_FIELD_WIDTH;
+
+    const QFontMetrics fm = this->field->fontMetrics();
+    for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
+        width = std::max(width, HorizontalAdvance(fm, (this->meta.enum_values[i].label + "0000").c_str()));
+    }
+
+    const QRect button_rect = QRect(event->size().width() - width, 0, width, event->size().height());
+    this->field->setGeometry(button_rect);
 }
 
 void WidgetSettingEnum::indexChanged(int index) {
-    assert(index >= 0 && index < static_cast<int>(setting_meta.enum_values.size()));
+    assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
-    setting_data.value = setting_meta.enum_values[index].key;
+    this->data.value = this->meta.enum_values[enum_indexes[static_cast<std::size_t>(index)]].key;
     emit itemChanged();
 }

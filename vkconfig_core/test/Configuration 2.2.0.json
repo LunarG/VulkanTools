@@ -22,7 +22,7 @@
                     {
                         "key": "enum_with_optional",
                         "type": "ENUM",
-                        "value": "value0"
+                        "value": "value1"
                     },
                     {
                         "key": "flags_required_only",
