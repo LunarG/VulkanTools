@@ -85,7 +85,7 @@
                 "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
                 "type": "STRING",
                 "default": "0-0"
-            }
+            },
             {
                 "key": "output_format",
                 "env": "VK_APIDUMP_OUTPUT_FORMAT",
@@ -94,18 +94,18 @@
                 "type": "enum",
                 "flags": [
                     {
-                        "key": "Text",
+                        "key": "text",
                         "label": "Text",
                         "description": "Plain text"
                     },
                     {
-                        "key": "Html",
+                        "key": "html",
                         "label": "HTML",
                         "description": "HTML"
                     },
                     {
-                        "key": "Json",
-                        "label": "Json",
+                        "key": "json",
+                        "label": "JSON",
                         "description": "Json"
                     }
                 ],

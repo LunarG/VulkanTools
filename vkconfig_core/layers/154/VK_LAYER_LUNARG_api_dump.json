@@ -94,18 +94,18 @@
                 "type": "enum",
                 "flags": [
                     {
-                        "key": "Text",
+                        "key": "text",
                         "label": "Text",
                         "description": "Plain text"
                     },
                     {
-                        "key": "Html",
+                        "key": "html",
                         "label": "HTML",
                         "description": "HTML"
                     },
                     {
-                        "key": "Json",
-                        "label": "Json",
+                        "key": "json",
+                        "label": "JSON",
                         "description": "Json"
                     }
                 ],
