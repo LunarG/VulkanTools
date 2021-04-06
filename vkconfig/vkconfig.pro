@@ -8,6 +8,9 @@ CONFIG += sdk_no_version_check
 INCLUDEPATH += ../Vulkan-Headers/include
 INCLUDEPATH += ../Build/Vulkan-Headers/include
 
+# Ignore JSON validation
+DEFINES += JSON_VALIDATION_OFF
+
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -33,6 +36,7 @@ SOURCES += \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
     ../vkconfig_core/json.cpp \
+    ../vkconfig_core/json_validator.cpp \
     ../vkconfig_core/layer.cpp \
     ../vkconfig_core/layer_manager.cpp \
     ../vkconfig_core/layer_preset.cpp \
@@ -91,9 +95,10 @@ HEADERS += \
     ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \
     ../vkconfig_core/json.h \
+    ../vkconfig_core/json_validator.h \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
-	../vkconfig_core/layer_preset.h \
+    ../vkconfig_core/layer_preset.h \
     ../vkconfig_core/layer_state.h \
     ../vkconfig_core/layer_type.h \
     ../vkconfig_core/override.h \

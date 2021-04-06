@@ -72,7 +72,7 @@ if(Qt5_FOUND)
     endif()
 
     target_include_directories(vkconfig_core PRIVATE "${Vulkan_INCLUDE_DIR}")
-    target_link_libraries(vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+    target_link_libraries(vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network nlohmann_json::nlohmann_json nlohmann_json_schema_validator)
     target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
 
     add_subdirectory(test)

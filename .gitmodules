@@ -1,3 +1,9 @@
 [submodule "submodules/jsoncpp"]
 	path = submodules/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "submodules/json_schema"]
+	path = submodules/json_schema
+	url = https://github.com/pboettch/json-schema-validator.git
+[submodule "submodules/json_parser"]
+	path = submodules/json_parser
+	url = https://github.com/nlohmann/json.git
