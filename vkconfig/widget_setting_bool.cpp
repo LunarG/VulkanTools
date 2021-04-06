@@ -25,7 +25,7 @@
 
 WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& setting_meta,
                                      SettingDataBool& setting_data)
-    : setting_meta(setting_meta), setting_data(setting_data) {
+    : meta(setting_meta), data(setting_data) {
     assert(&setting_meta);
     assert(&setting_data);
 
@@ -40,7 +40,7 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
 }
 
 void WidgetSettingBool::OnClicked() {
-    this->setting_data.value = isChecked();
+    this->data.value = isChecked();
 
     emit itemChanged();
 }

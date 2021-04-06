@@ -29,7 +29,7 @@
 
 WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
                                      const std::string& setting_flag)
-    : setting_meta(setting_meta), setting_data(setting_data), setting_flag(setting_flag) {
+    : meta(setting_meta), data(setting_data), flag(setting_flag) {
     assert(&setting_data);
     assert(!setting_flag.empty());
 
@@ -47,9 +47,9 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& 
 
 void WidgetSettingFlag::OnItemChecked(bool checked) {
     if (checked) {
-        AppendString(setting_data.value, setting_flag);
+        AppendString(data.value, flag);
     } else {
-        RemoveString(setting_data.value, setting_flag);
+        RemoveString(data.value, flag);
     }
 
     emit itemChanged();

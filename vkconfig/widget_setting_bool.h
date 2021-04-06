@@ -35,8 +35,7 @@ class WidgetSettingBool : public QCheckBox {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& setting_meta,
-                               SettingDataBool& setting_data);
+    explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta, SettingDataBool& data);
 
    public Q_SLOTS:
     void OnClicked();
@@ -48,6 +47,6 @@ class WidgetSettingBool : public QCheckBox {
     WidgetSettingBool(const WidgetSettingBool&) = delete;
     WidgetSettingBool& operator=(const WidgetSettingBool&) = delete;
 
-    const SettingMetaBool& setting_meta;
-    SettingDataBool& setting_data;
+    const SettingMetaBool& meta;
+    SettingDataBool& data;
 };

@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QTreeWidgetItem *item) : QComboBox(), _tree_widget(item) {
+WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QTreeWidgetItem *item) : QComboBox(), item(item) {
     assert(item);
 
     setFocusPolicy(Qt::StrongFocus);
@@ -31,4 +31,4 @@ WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QTreeWidgetItem *item) : 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 }
 
-void WidgetTreeFriendlyComboBox::indexChanged(int index) { emit selectionMade(_tree_widget, index); }
+void WidgetTreeFriendlyComboBox::indexChanged(int index) { emit selectionMade(item, index); }
