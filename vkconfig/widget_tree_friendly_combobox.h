@@ -44,5 +44,5 @@ class WidgetTreeFriendlyComboBox : public QComboBox {
     WidgetTreeFriendlyComboBox(const WidgetTreeFriendlyComboBox &) = delete;
     WidgetTreeFriendlyComboBox &operator=(const WidgetTreeFriendlyComboBox &) = delete;
 
-    QTreeWidgetItem *_tree_widget;
+    QTreeWidgetItem *item;
 };
