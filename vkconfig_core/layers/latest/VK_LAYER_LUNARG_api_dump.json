@@ -1,6 +1,6 @@
 {
     "file_format_version" : "1.4.0",
-    "layer" : {
+    "layer": {
         "name": "VK_LAYER_LUNARG_api_dump",
         "library_path": ".\\VkLayer_api_dump.dll",
         "api_version": "1.2.171",
@@ -8,10 +8,73 @@
         "description": "LunarG API dump layer",
         "device_extensions": [
             {
-                 "name": "VK_EXT_tooling_info",
-                 "spec_version": "1",
-                 "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"
-                        ]
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
+            }
+        ],
+        "presets": [
+            {
+                "label": "Text Output",
+                "description": "API dump to a text file.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "value": "text"
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "vk_apidump.txt"
+                    },
+                    {
+                        "key": "file",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "label": "HTML Output",
+                "description": "API dump to a HTNL file.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "value": "html"
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "vk_apidump.html"
+                    },
+                    {
+                        "key": "file",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "label": "JSON Output",
+                "description": "API dump to a JSON file.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "value": "json"
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "vk_apidump.json"
+                    },
+                    {
+                        "key": "file",
+                        "value": true
+                    }
+                ]
             }
         ],
         "settings": [
@@ -27,7 +90,7 @@
                 "key": "output_format",
                 "env": "VK_APIDUMP_OUTPUT_FORMAT",
                 "label": "Output Format",
-                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
+                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), HTML, or JSON",
                 "type": "ENUM",
                 "flags": [
                     {
@@ -42,18 +105,11 @@
                     },
                     {
                         "key": "json",
-                        "label": "Json",
+                        "label": "JSON",
                         "description": "Json"
                     }
                 ],
                 "default": "text"
-            },
-            {
-                "key": "file",
-                "label": "Output to File",
-                "description": "Setting this to true indicates that output should be written to file instead of stdout",
-                "type": "BOOL",
-                "default": false
             },
             {
                 "key": "log_filename",
@@ -61,8 +117,15 @@
                 "label": "Log Filename",
                 "description": "Specifies the file to dump to when output files are enabled",
                 "type": "SAVE_FILE",
-                "filter": "*.txt",
+                "filter": "*.txt,*.html,*.json",
                 "default": "vk_apidump.txt"
+            },
+            {
+                "key": "file",
+                "label": "Output to File",
+                "description": "Setting this to true indicates that output should be written to file instead of stdout",
+                "type": "BOOL",
+                "default": true
             },
             {
                 "key": "flush",
