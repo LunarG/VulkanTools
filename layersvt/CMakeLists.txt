@@ -156,6 +156,11 @@ foreach(TARGET_NAME ${TARGET_NAMES})
 
     add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
 
+    add_definitions(-DJSON_MANIFEST="$<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.json" -DJSON_SCHEMA="${CMAKE_CURRENT_SOURCE_DIR}/../vkconfig_core/layers/layers_schema.json")
+    add_executable(${TARGET_NAME}-test test_validation.cpp)
+    target_link_libraries(${TARGET_NAME}-test nlohmann_json::nlohmann_json nlohmann_json_schema_validator)
+    add_test(NAME ${TARGET_NAME}-test COMMAND ${TARGET_NAME}-test)
+
     # Add target for JSON file install.
     if(NOT WIN32)
         # Add targets for JSON file install on Linux.
