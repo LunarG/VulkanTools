@@ -199,6 +199,9 @@ if (WIN32)
                          IMPORTED_LOCATION_DEBUG "${JSONCPP_DLIB}")
 endif()
 
+add_subdirectory(submodules/json_parser)
+add_subdirectory(submodules/json_schema)
+
 # Define macro used for building vkxml generated files
 macro(run_vulkantools_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
