@@ -16,7 +16,77 @@
                 ]
             }
         ],
+        "presets": [
+            {
+                "label": "Text Output",
+                "description": "API dump to a text file.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "value": "text"
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "vk_apidump.txt"
+                    },
+                    {
+                        "key": "file",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "label": "HTML Output",
+                "description": "API dump to a HTNL file.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "value": "html"
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "vk_apidump.html"
+                    },
+                    {
+                        "key": "file",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "label": "JSON Output",
+                "description": "API dump to a JSON file.",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "value": "json"
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "vk_apidump.json"
+                    },
+                    {
+                        "key": "file",
+                        "value": true
+                    }
+                ]
+            }
+        ],
         "settings": [
+            {
+                "key": "output_range",
+                "env": "VK_APIDUMP_OUTPUT_RANGE",
+                "label": "Output Range",
+                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "STRING",
+                "default": "0-0"
+            },
             {
                 "key": "output_format",
                 "env": "VK_APIDUMP_OUTPUT_FORMAT",
@@ -43,6 +113,22 @@
                 "default": "text"
             },
             {
+                "key": "log_filename",
+                "env": "VK_APIDUMP_LOG_FILENAME",
+                "label": "Log Filename",
+                "description": "Specifies the file to dump to when output files are enabled",
+                "type": "SAVE_FILE",
+                "filter": "*.txt",
+                "default": "vk_apidump.txt"
+            },
+            {
+                "key": "file",
+                "label": "Output to File",
+                "description": "Setting this to true indicates that output should be written to file instead of stdout",
+                "type": "BOOL",
+                "default": true
+            },
+            {
                 "key": "detailed",
                 "env": "VK_APIDUMP_DETAILED",
                 "label": "Detailed Output",
@@ -57,22 +143,6 @@
                 "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
                 "type": "BOOL",
                 "default": false
-            },
-            {
-                "key": "file",
-                "label": "Output to File",
-                "description": "Setting this to true indicates that output should be written to file instead of stdout",
-                "type": "BOOL",
-                "default": false
-            },
-            {
-                "key": "log_filename",
-                "env": "VK_APIDUMP_LOG_FILENAME",
-                "label": "Log Filename",
-                "description": "Specifies the file to dump to when output files are enabled",
-                "type": "SAVE_FILE",
-                "filter": "*.txt",
-                "default": "vk_apidump.txt"
             },
             {
                 "key": "flush",
@@ -131,14 +201,6 @@
                 "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
                 "type": "BOOL",
                 "default": false
-            },
-            {
-                "key": "output_range",
-                "env": "VK_APIDUMP_OUTPUT_RANGE",
-                "label": "Output Range",
-                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
-                "type": "STRING",
-                "default": "0-0"
             }
         ]
     }

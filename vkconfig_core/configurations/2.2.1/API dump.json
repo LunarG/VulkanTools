@@ -32,7 +32,7 @@
                     {
                         "key": "file",
                         "type": "BOOL",
-                        "value": false
+                        "value": true
                     },
                     {
                         "key": "log_filename",
