@@ -57,11 +57,6 @@ TEST(test_layer, load_1_3_0_header) {
 }
 
 TEST(test_layer, load_1_4_0_header) {
-    static const char* SOURCES[] = {":/VK_LAYER_LUNARG_reference_1_3_0.json", ":/VK_LAYER_LUNARG_reference_1_4_0.json"};
-
-    static const char* FILE_FORMAT_VERSIONS[] = {"1.3.0", "1.4.0"};
-    static const char* KEYS[] = {"VK_LAYER_LUNARG_reference_1_3_0", "VK_LAYER_LUNARG_reference_1_4_0"};
-
     Layer layer;
     const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
