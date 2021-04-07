@@ -165,7 +165,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     const bool is_builtin_layer_file =
         full_path_to_file.rfind(":/") == 0;  // Check whether the path start with ":/" for resource file paths.
 
-    if (!is_valid && key != "VK_LAYER_LUNARG_override") {
+    if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
         if (!is_builtin_layer_file || (is_builtin_layer_file && this->_api_version >= Version(1, 2, 170))) {
             const std::string title =
                 format("Failed to validate a layer manifest. The layer will be ignored.", full_path_to_file.c_str());
@@ -182,7 +182,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     Layer default_layer;
     if (is_missing_layer_data && !is_builtin_layer_file) {
-        const std::string path = GetBuiltinFolder(_api_version) + "/" + key + ".json";
+        const std::string path = GetBuiltinFolder(this->_api_version) + "/" + this->key + ".json";
         default_layer.Load(path, _layer_type);
     }
 

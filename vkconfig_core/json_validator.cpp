@@ -37,7 +37,8 @@ static json ParseFile(const char *file) {
     QFile file_schema(file);
     const bool result = file_schema.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
-    json json_schema(json::parse(file_schema.readAll().toStdString()));
+    const std::string &data = file_schema.readAll().toStdString();
+    json json_schema(json::parse(data));
     file_schema.close();
 
     return json_schema;
