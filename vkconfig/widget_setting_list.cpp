@@ -135,12 +135,12 @@ void WidgetSettingList::ResetCompleter() {
                   Qt::QueuedConnection);
 }
 
-void WidgetSettingList::AddElement(const std::string &key) {
+void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
     QTreeWidgetItem *child = new QTreeWidgetItem();
     child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->item->addChild(child);
 
-    WidgetSettingListElement *widget = new WidgetSettingListElement(tree, meta, data, key);
+    WidgetSettingListElement *widget = new WidgetSettingListElement(tree, meta, data, element);
     this->tree->setItemWidget(child, 0, widget);
 
     this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -227,7 +227,7 @@ void WidgetSettingList::OnItemSelected(const QString &value) {
     std::sort(data.value.begin(), data.value.end());
 
     for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
-        this->AddElement(data.value[i].key);
+        this->AddElement(data.value[i]);
     }
 
     if (this->meta.list_only && this->list.empty()) {

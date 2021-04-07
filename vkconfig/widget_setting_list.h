@@ -58,7 +58,7 @@ class WidgetSettingList : public QWidget {
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     void Resize();
-    void AddElement(const std::string &key);
+    void AddElement(EnabledNumberOrString &element);
     void ResetCompleter();
 
     const SettingMetaList &meta;

@@ -33,7 +33,7 @@ class WidgetSettingListElement : public QCheckBox {
     Q_OBJECT
    public:
     explicit WidgetSettingListElement(QTreeWidget* tree, const SettingMetaList& meta, SettingDataList& data,
-                                      const std::string& element);
+                                      EnabledNumberOrString& element);
 
    public Q_SLOTS:
     void OnButtonClicked();
@@ -53,6 +53,6 @@ class WidgetSettingListElement : public QCheckBox {
 
     const SettingMetaList& meta;
     SettingDataList& data;
-    std::string element;
+    EnabledNumberOrString& element;
     QPushButton* button;
 };
