@@ -27,15 +27,16 @@
 #include <cassert>
 
 WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, const SettingMetaList& meta, SettingDataList& data,
-                                                   const std::string& element)
+                                                   EnabledNumberOrString& element)
     : meta(meta), data(data), element(element), button(new QPushButton(this)) {
     assert(&meta);
     assert(&data);
-    assert(!element.empty());
 
-    this->setText(element.c_str());
+    const std::string text = element.key.empty() ? format("%d", element.number) : element.key;
+
+    this->setText(text.c_str());
     this->setFont(tree->font());
-    this->setToolTip(element.c_str());
+    this->setToolTip(text.c_str());
     this->setCheckable(true);
     this->setChecked(this->GetChecked());
 
@@ -55,35 +56,24 @@ void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingListElement::OnItemChecked(bool checked) {
-    EnabledNumberOrString* enabled_string = FindByKey(data.value, this->element.c_str());
-    enabled_string->enabled = checked;
+    this->element.enabled = checked;
 
     emit itemChanged();
 }
 
 void WidgetSettingListElement::OnButtonClicked() {
-    EnabledNumberOrString value;
-    value.key = this->element;
-    value.enabled = true;
-
-    auto it = std::find(this->data.value.begin(), this->data.value.end(), value);
+    auto it = std::find(this->data.value.begin(), this->data.value.end(), this->element);
     assert(it != this->data.value.end());
 
-    if (it != this->data.value.end()) {
-        this->data.value.erase(it);
-    }
+    this->data.value.erase(it);
 
     this->setEnabled(false);
 
-    emit itemSelected(this->element.c_str());
+    emit itemSelected(this->text());
 }
 
 bool WidgetSettingListElement::GetChecked() const {
-    EnabledNumberOrString value;
-    value.key = this->element;
-    value.enabled = true;
-
-    auto it = std::find(this->data.value.begin(), this->data.value.end(), value);
+    auto it = std::find(this->data.value.begin(), this->data.value.end(), this->element);
     assert(it != this->data.value.end());
 
     return it->enabled;

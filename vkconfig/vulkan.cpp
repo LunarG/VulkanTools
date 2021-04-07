@@ -73,7 +73,7 @@ static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLa
 std::string GenerateVulkanStatus() {
     std::string log;
 
-    // return log;  // bug https://github.com/LunarG/VulkanTools/issues/1172
+    return log;  // bug https://github.com/LunarG/VulkanTools/issues/1172
 
     const Configurator &configurator = Configurator::Get();
 
