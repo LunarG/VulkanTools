@@ -106,10 +106,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     QString json_text = file.readAll();
     file.close();
 
-    Validator validator;
-    const bool is_valid = validator.Check(json_text.toStdString());
-
-    _layer_path = full_path_to_file;
+    this->_layer_path = full_path_to_file;
 
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
@@ -139,17 +136,20 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
         return false;  // Not a layer JSON file
     }
 
-    file_format_version = ReadVersionValue(json_root_object, "file_format_version");
+    this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
-    key = ReadStringValue(json_layer_object, "name");
+    this->key = ReadStringValue(json_layer_object, "name");
+    this->_api_version = ReadVersionValue(json_layer_object, "api_version");
+
+    Validator validator;
+    const bool is_valid = this->_api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
         this->_library_path = json_library_path_value.toString().toStdString();
     }
 
-    this->_api_version = ReadVersionValue(json_layer_object, "api_version");
     this->_implementation_version = ReadStringValue(json_layer_object, "implementation_version");
     if (json_layer_object.value("status") != QJsonValue::Undefined) {
         this->status = GetStatusType(ReadStringValue(json_layer_object, "status").c_str());
