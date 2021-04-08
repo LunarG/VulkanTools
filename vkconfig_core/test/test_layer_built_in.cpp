@@ -349,7 +349,7 @@ TEST(test_layer_built_in, layer_latest_synchronization2) {
 TEST(test_layer_built_in, layer_latest_api_dump) {
     Layer layer;
     EXPECT_TRUE(layer.Load(":/layers/latest/VK_LAYER_LUNARG_api_dump.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(14, layer.settings.Size());
+    EXPECT_EQ(14, CountSettings(layer.settings));
     EXPECT_EQ(3, layer.presets.size());
 }
 

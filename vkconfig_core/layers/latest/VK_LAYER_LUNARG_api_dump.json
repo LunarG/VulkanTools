@@ -112,20 +112,22 @@
                 "default": "text"
             },
             {
-                "key": "log_filename",
-                "env": "VK_APIDUMP_LOG_FILENAME",
-                "label": "Log Filename",
-                "description": "Specifies the file to dump to when output files are enabled",
-                "type": "SAVE_FILE",
-                "filter": "*.txt,*.html,*.json",
-                "default": "vk_apidump.txt"
-            },
-            {
                 "key": "file",
                 "label": "Output to File",
                 "description": "Setting this to true indicates that output should be written to file instead of stdout",
                 "type": "BOOL",
-                "default": true
+                "default": true,
+                "settings": [
+                    {
+                        "key": "log_filename",
+                        "env": "VK_APIDUMP_LOG_FILENAME",
+                        "label": "Log Filename",
+                        "description": "Specifies the file to dump to when output files are enabled",
+                        "type": "SAVE_FILE",
+                        "filter": "*.txt,*.html,*.json",
+                        "default": "vk_apidump.txt"
+                    }
+                ]
             },
             {
                 "key": "flush",

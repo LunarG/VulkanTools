@@ -68,6 +68,8 @@ class Layer {
 
     // File based layers
     bool Load(const std::string& full_path_to_file, LayerType layer_type);
+
+    void AddSettings(SettingMetaSet& settings, const QJsonValue& json_settings_value);
 };
 
 void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta);

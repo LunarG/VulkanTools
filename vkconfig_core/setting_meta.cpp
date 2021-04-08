@@ -44,6 +44,13 @@ bool SettingMeta::Equal(const SettingMeta& other) const {
         return false;
     else if (this->platform_flags != other.platform_flags)
         return false;
+    else if (this->children.Size() != other.children.Size())
+        return false;
+    else {
+        for (std::size_t i = 0, n = this->children.Size(); i < n; ++i) {
+            if (this->children[i] != other.children[i]) return false;
+        }
+    }
     return true;
 }
 
@@ -136,4 +143,27 @@ bool operator==(const SettingEnumValue& a, const SettingEnumValue& b) {
     if (a.view != b.view) return false;
     if (a.platform_flags != b.platform_flags) return false;
     return true;
+}
+
+const SettingMeta* FindSettingMeta(const SettingMetaSet& settings, const char* key) {
+    const SettingMeta* setting_meta = settings.Get(key);
+    if (setting_meta != nullptr) return setting_meta;
+
+    for (std::size_t i = 0, n = settings.Size(); i < n; ++i) {
+        const SettingMeta* child = FindSettingMeta(settings[i].children, key);
+
+        if (child != nullptr) return child;
+    }
+
+    return nullptr;
+}
+
+std::size_t CountSettings(const SettingMetaSet& settings) {
+    std::size_t count = settings.Size();
+
+    for (std::size_t i = 0, n = settings.Size(); i < n; ++i) {
+        count += CountSettings(settings[i].children);
+    }
+
+    return count;
 }
