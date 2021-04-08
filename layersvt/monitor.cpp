@@ -198,6 +198,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstance
     layer_init_instance_dispatch_table(*pInstance, my_data->instance_dispatch_table, fpGetInstanceProcAddr);
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
+    // Initialize connection to null in case vkCreateXcbSurfaceKHR is never called
+    my_data->connection = nullptr;
     // Load the xcb library and initialize xcb function pointers
     if (!xcb.xcbLib) {
         xcb.xcbLib = dlopen("libxcb.so", RTLD_NOW | RTLD_LOCAL);
@@ -253,7 +255,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         SetWindowText(my_instance_data->hwnd, str);
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-        if (xcb.xcbLib && my_instance_data->xcb_fps) {
+        if (xcb.xcbLib && my_instance_data->xcb_fps && my_instance_data->connection) {
             xcb.change_property(my_instance_data->connection, XCB_PROP_MODE_REPLACE, my_instance_data->xcb_window, XCB_ATOM_WM_NAME,
                                 XCB_ATOM_STRING, 8, strlen(str), str);
             xcb.flush(my_instance_data->connection);
