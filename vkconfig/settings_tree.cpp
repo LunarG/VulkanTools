@@ -308,6 +308,10 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     parent->addChild(item);
 
+    for (std::size_t i = 0, n = meta_object.children.Size(); i < n; ++i) {
+        this->BuildTreeItem(item, meta_object.children, data_set, meta_object.children[i]);
+    }
+
     switch (meta_object.type) {
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
@@ -400,10 +404,6 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             item->setText(0, "Unknown setting");
             assert(0);  // Unknown setting
         } break;
-    }
-
-    for (std::size_t i = 0, n = meta_object.children.Size(); i < n; ++i) {
-        this->BuildTreeItem(item, meta_object.children, data_set, meta_object.children[i]);
     }
 }
 
