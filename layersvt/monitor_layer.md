@@ -8,4 +8,6 @@
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
 # VK\_LAYER\_LUNARG\_monitor
-The `VK_LAYER_LUNARG_monitor` utility layer prints the real-time frames-per-second value to the application's title bar. The layer can easily be enabled using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK.
+The `VK_LAYER_LUNARG_monitor` utility layer prints the real-time frames-per-second value to the application's title bar. It is only compatible with the Win32 and XCB windowing systems and will not produce output on other platforms.
+
+The layer can easily be enabled using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK.
