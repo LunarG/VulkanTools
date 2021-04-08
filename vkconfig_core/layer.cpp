@@ -143,7 +143,8 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     this->_api_version = ReadVersionValue(json_layer_object, "api_version");
 
     Validator validator;
-    const bool is_valid = this->_api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
+    const bool is_valid = true;
+    // const bool is_valid = this->_api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
@@ -189,145 +190,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     // Load layer settings
     const QJsonValue& json_settings_value = json_layer_object.value("settings");
     if (json_settings_value != QJsonValue::Undefined) {
-        assert(json_settings_value.isArray());
-        const QJsonArray& json_array = json_settings_value.toArray();
-        for (int i = 0, n = json_array.size(); i < n; ++i) {
-            const QJsonObject& json_setting = json_array[i].toObject();
-
-            const std::string key = ReadStringValue(json_setting, "key");
-            const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
-            SettingMeta& setting_meta = settings.Create(key, type);
-
-            switch (type) {
-                case SETTING_FRAMES:
-                case SETTING_STRING: {
-                    static_cast<SettingMetaString&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
-                    break;
-                }
-                case SETTING_INT: {
-                    SettingMetaInt& meta = static_cast<SettingMetaInt&>(setting_meta);
-                    meta.default_value = ReadIntValue(json_setting, "default");
-                    if (json_setting.value("range") != QJsonValue::Undefined) {
-                        const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
-                        if (json_setting_range.value("min") != QJsonValue::Undefined) {
-                            meta.min_value = ReadIntValue(json_setting_range, "min");
-                        }
-                        if (json_setting_range.value("max") != QJsonValue::Undefined) {
-                            meta.max_value = ReadIntValue(json_setting_range, "max");
-                        }
-                    }
-                    if (json_setting.value("unit") != QJsonValue::Undefined) {
-                        meta.unit = ReadStringValue(json_setting, "unit");
-                    }
-                    break;
-                }
-                case SETTING_FLOAT: {
-                    SettingMetaFloat& meta = static_cast<SettingMetaFloat&>(setting_meta);
-                    meta.default_value = ReadFloatValue(json_setting, "default");
-                    if (json_setting.value("range") != QJsonValue::Undefined) {
-                        const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
-                        if (json_setting_range.value("min") != QJsonValue::Undefined) {
-                            meta.min_value = ReadFloatValue(json_setting_range, "min");
-                        }
-                        if (json_setting_range.value("max") != QJsonValue::Undefined) {
-                            meta.max_value = ReadFloatValue(json_setting_range, "max");
-                        }
-                        if (json_setting_range.value("precision") != QJsonValue::Undefined) {
-                            meta.precision = ReadIntValue(json_setting_range, "precision");
-                        }
-                        if (json_setting_range.value("width") != QJsonValue::Undefined) {
-                            meta.width = ReadIntValue(json_setting_range, "width");
-                        }
-                    }
-                    if (json_setting.value("unit") != QJsonValue::Undefined) {
-                        meta.unit = ReadStringValue(json_setting, "unit");
-                    }
-                    break;
-                }
-                case SETTING_SAVE_FOLDER:
-                case SETTING_SAVE_FILE:
-                case SETTING_LOAD_FILE: {
-                    SettingMetaFilesystem& meta = static_cast<SettingMetaFilesystem&>(setting_meta);
-                    if (json_setting.value("filter") != QJsonValue::Undefined) {
-                        meta.filter = ReadStringValue(json_setting, "filter");
-                    }
-                    meta.default_value = ReadStringValue(json_setting, "default");
-                    break;
-                }
-                case SETTING_BOOL_NUMERIC_DEPRECATED:
-                case SETTING_BOOL: {
-                    static_cast<SettingMetaBool&>(setting_meta).default_value = ReadBoolValue(json_setting, "default");
-                    break;
-                }
-                case SETTING_FLAGS:
-                case SETTING_ENUM: {
-                    SettingMetaEnumeration& meta = static_cast<SettingMetaEnumeration&>(setting_meta);
-
-                    const QJsonArray& json_array_flags = ReadArray(json_setting, "flags");
-                    for (int i = 0, n = json_array_flags.size(); i < n; ++i) {
-                        const QJsonObject& json_object = json_array_flags[i].toObject();
-
-                        SettingEnumValue setting_enum_value;
-                        setting_enum_value.key = ReadStringValue(json_object, "key");
-                        LoadMetaHeader(setting_enum_value, json_object);
-
-                        meta.enum_values.push_back(setting_enum_value);
-                    }
-                    if (type == SETTING_FLAGS) {
-                        static_cast<SettingMetaFlags&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
-                    } else {
-                        static_cast<SettingMetaEnum&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
-                    }
-                    break;
-                }
-                case SETTING_LIST: {
-                    SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
-
-                    if (json_setting.value("list") != QJsonValue::Undefined) {
-                        const QJsonArray& json_list_array = ReadArray(json_setting, "list");
-                        for (int i = 0, n = json_list_array.size(); i < n; ++i) {
-                            NumberOrString key;
-
-                            if (json_list_array[i].isString()) {
-                                key.key = json_list_array[i].toString().toStdString();
-                            } else {
-                                key.number = json_list_array[i].toInt();
-                            }
-
-                            meta.list.push_back(key);
-                        }
-
-                        std::sort(meta.list.begin(), meta.list.end());
-                        if (json_setting.value("list_only") != QJsonValue::Undefined) {
-                            meta.list_only = ReadBoolValue(json_setting, "list_only");
-                        }
-                    }
-
-                    const QJsonArray& json_default = ReadArray(json_setting, "default");
-                    for (int i = 0, n = json_default.size(); i < n; ++i) {
-                        const QJsonObject& json_object = json_default[i].toObject();
-
-                        const NumberOrString& number_or_string = ReadNumberOrStringValue(json_object, "key");
-
-                        EnabledNumberOrString enabled_string;
-                        enabled_string.key = number_or_string.key;
-                        enabled_string.number = number_or_string.number;
-                        enabled_string.enabled = ReadBoolValue(json_object, "enabled");
-                        meta.default_value.push_back(enabled_string);
-                    }
-                    break;
-                }
-                default: {
-                    assert(0);
-                    break;
-                }
-            }
-
-            LoadMetaHeader(setting_meta, json_setting);
-            if (json_setting.value("env") != QJsonValue::Undefined) {
-                setting_meta.env = ReadStringValue(json_setting, "env");
-            }
-        }
+        this->AddSettings(this->settings, json_settings_value);
     } else {
         this->settings = default_layer.settings;
         this->status = default_layer.status;
@@ -348,9 +211,12 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
             for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {
                 const QJsonObject& json_setting_object = json_setting_array[setting_index].toObject();
 
-                const std::string key = ReadStringValue(json_setting_object, "key");
+                const std::string& key = ReadStringValue(json_setting_object, "key");
 
-                SettingData& setting_data = preset.settings.Create(key, settings.Get(key.c_str())->type);
+                const SettingMeta* setting_meta = FindSettingMeta(this->settings, key.c_str());
+                assert(setting_meta);
+
+                SettingData& setting_data = preset.settings.Create(key, setting_meta->type);
                 switch (setting_data.type) {
                     case SETTING_LOAD_FILE:
                     case SETTING_SAVE_FILE:
@@ -406,6 +272,153 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     }
 
     return IsValid();  // Not all JSON file are layer JSON valid
+}
+
+void Layer::AddSettings(SettingMetaSet& settings, const QJsonValue& json_settings_value) {
+    assert(json_settings_value.isArray());
+    const QJsonArray& json_array = json_settings_value.toArray();
+    for (int i = 0, n = json_array.size(); i < n; ++i) {
+        const QJsonObject& json_setting = json_array[i].toObject();
+
+        const std::string key = ReadStringValue(json_setting, "key");
+        const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
+        SettingMeta& setting_meta = settings.Create(key, type);
+
+        const QJsonValue& json_children = json_setting.value("settings");
+        if (json_children != QJsonValue::Undefined) {
+            this->AddSettings(setting_meta.children, json_children);
+        }
+
+        switch (type) {
+            case SETTING_FRAMES:
+            case SETTING_STRING: {
+                static_cast<SettingMetaString&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
+                break;
+            }
+            case SETTING_INT: {
+                SettingMetaInt& meta = static_cast<SettingMetaInt&>(setting_meta);
+                meta.default_value = ReadIntValue(json_setting, "default");
+                if (json_setting.value("range") != QJsonValue::Undefined) {
+                    const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
+                    if (json_setting_range.value("min") != QJsonValue::Undefined) {
+                        meta.min_value = ReadIntValue(json_setting_range, "min");
+                    }
+                    if (json_setting_range.value("max") != QJsonValue::Undefined) {
+                        meta.max_value = ReadIntValue(json_setting_range, "max");
+                    }
+                }
+                if (json_setting.value("unit") != QJsonValue::Undefined) {
+                    meta.unit = ReadStringValue(json_setting, "unit");
+                }
+                break;
+            }
+            case SETTING_FLOAT: {
+                SettingMetaFloat& meta = static_cast<SettingMetaFloat&>(setting_meta);
+                meta.default_value = ReadFloatValue(json_setting, "default");
+                if (json_setting.value("range") != QJsonValue::Undefined) {
+                    const QJsonObject& json_setting_range = ReadObject(json_setting, "range");
+                    if (json_setting_range.value("min") != QJsonValue::Undefined) {
+                        meta.min_value = ReadFloatValue(json_setting_range, "min");
+                    }
+                    if (json_setting_range.value("max") != QJsonValue::Undefined) {
+                        meta.max_value = ReadFloatValue(json_setting_range, "max");
+                    }
+                    if (json_setting_range.value("precision") != QJsonValue::Undefined) {
+                        meta.precision = ReadIntValue(json_setting_range, "precision");
+                    }
+                    if (json_setting_range.value("width") != QJsonValue::Undefined) {
+                        meta.width = ReadIntValue(json_setting_range, "width");
+                    }
+                }
+                if (json_setting.value("unit") != QJsonValue::Undefined) {
+                    meta.unit = ReadStringValue(json_setting, "unit");
+                }
+                break;
+            }
+            case SETTING_SAVE_FOLDER:
+            case SETTING_SAVE_FILE:
+            case SETTING_LOAD_FILE: {
+                SettingMetaFilesystem& meta = static_cast<SettingMetaFilesystem&>(setting_meta);
+                if (json_setting.value("filter") != QJsonValue::Undefined) {
+                    meta.filter = ReadStringValue(json_setting, "filter");
+                }
+                meta.default_value = ReadStringValue(json_setting, "default");
+                break;
+            }
+            case SETTING_BOOL_NUMERIC_DEPRECATED:
+            case SETTING_BOOL: {
+                static_cast<SettingMetaBool&>(setting_meta).default_value = ReadBoolValue(json_setting, "default");
+                break;
+            }
+            case SETTING_FLAGS:
+            case SETTING_ENUM: {
+                SettingMetaEnumeration& meta = static_cast<SettingMetaEnumeration&>(setting_meta);
+
+                const QJsonArray& json_array_flags = ReadArray(json_setting, "flags");
+                for (int i = 0, n = json_array_flags.size(); i < n; ++i) {
+                    const QJsonObject& json_object = json_array_flags[i].toObject();
+
+                    SettingEnumValue setting_enum_value;
+                    setting_enum_value.key = ReadStringValue(json_object, "key");
+                    LoadMetaHeader(setting_enum_value, json_object);
+
+                    meta.enum_values.push_back(setting_enum_value);
+                }
+                if (type == SETTING_FLAGS) {
+                    static_cast<SettingMetaFlags&>(setting_meta).default_value = ReadStringArray(json_setting, "default");
+                } else {
+                    static_cast<SettingMetaEnum&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
+                }
+                break;
+            }
+            case SETTING_LIST: {
+                SettingMetaList& meta = static_cast<SettingMetaList&>(setting_meta);
+
+                if (json_setting.value("list") != QJsonValue::Undefined) {
+                    const QJsonArray& json_list_array = ReadArray(json_setting, "list");
+                    for (int i = 0, n = json_list_array.size(); i < n; ++i) {
+                        NumberOrString key;
+
+                        if (json_list_array[i].isString()) {
+                            key.key = json_list_array[i].toString().toStdString();
+                        } else {
+                            key.number = json_list_array[i].toInt();
+                        }
+
+                        meta.list.push_back(key);
+                    }
+
+                    std::sort(meta.list.begin(), meta.list.end());
+                    if (json_setting.value("list_only") != QJsonValue::Undefined) {
+                        meta.list_only = ReadBoolValue(json_setting, "list_only");
+                    }
+                }
+
+                const QJsonArray& json_default = ReadArray(json_setting, "default");
+                for (int i = 0, n = json_default.size(); i < n; ++i) {
+                    const QJsonObject& json_object = json_default[i].toObject();
+
+                    const NumberOrString& number_or_string = ReadNumberOrStringValue(json_object, "key");
+
+                    EnabledNumberOrString enabled_string;
+                    enabled_string.key = number_or_string.key;
+                    enabled_string.number = number_or_string.number;
+                    enabled_string.enabled = ReadBoolValue(json_object, "enabled");
+                    meta.default_value.push_back(enabled_string);
+                }
+                break;
+            }
+            default: {
+                assert(0);
+                break;
+            }
+        }
+
+        LoadMetaHeader(setting_meta, json_setting);
+        if (json_setting.value("env") != QJsonValue::Undefined) {
+            setting_meta.env = ReadStringValue(json_setting, "env");
+        }
+    }
 }
 
 void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta) {

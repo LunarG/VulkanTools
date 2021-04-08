@@ -27,6 +27,10 @@
 #include <vector>
 #include <memory>
 
+struct SettingMeta;
+
+typedef SettingSet<SettingMeta> SettingMetaSet;
+
 struct SettingMeta : public Header {
     SettingMeta(const std::string& key, const SettingType type);
     virtual ~SettingMeta() {}
@@ -37,6 +41,7 @@ struct SettingMeta : public Header {
     const std::string key;
     const SettingType type;
     std::string env;
+    SettingMetaSet children;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;
@@ -207,4 +212,6 @@ struct SettingMetaList : public SettingMeta {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
-typedef SettingSet<SettingMeta> SettingMetaSet;
+const SettingMeta* FindSettingMeta(const SettingMetaSet& settings, const char* key);
+
+std::size_t CountSettings(const SettingMetaSet& settings);

@@ -215,3 +215,18 @@ TEST(test_setting_meta, equal_flags) {
     EXPECT_NE(*ptr0, dataY);
     EXPECT_NE(data0, *ptrY);
 }
+
+TEST(test_setting_meta, children) {
+    SettingMetaSet settings;
+
+    SettingMetaBool& meta_parent0 = settings.Create<SettingMetaBool>("parent0", SETTING_BOOL);
+    SettingMetaBool& meta_parent1 = settings.Create<SettingMetaBool>("parent1", SETTING_BOOL);
+    SettingMetaInt& meta_child1 = meta_parent1.children.Create<SettingMetaInt>("child1", SETTING_INT);
+    meta_child1.default_value = 76;
+
+    EXPECT_TRUE(FindSettingMeta(settings, "child1") != nullptr);
+    EXPECT_EQ(SETTING_INT, FindSettingMeta(settings, "child1")->type);
+
+    const SettingMetaInt& meta_child1 = static_cast<const SettingMetaInt&>(*FindSettingMeta(settings, "child1"));
+    EXPECT_EQ(76, meta_child1.default_value);
+}

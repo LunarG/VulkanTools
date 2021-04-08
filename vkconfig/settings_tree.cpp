@@ -285,7 +285,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         const SettingMeta &setting_meta = layer_setting_metas[setting_index];
         if (IsBuiltinValidation(setting_meta.key)) continue;
 
-        this->BuildTreeItem(parent, parameter, setting_meta);
+        this->BuildTreeItem(parent, layer_setting_metas, parameter.settings, setting_meta);
     }
 }
 
@@ -299,43 +299,44 @@ void SettingsTreeManager::OnDebugChanged(int index) {
     this->OnSettingChanged();
 }
 
-void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &setting_meta) {
-    if (!IsPlatformSupported(setting_meta.platform_flags)) return;
-    if (setting_meta.view == SETTING_VIEW_HIDDEN) return;
+void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMetaSet &meta_set, SettingDataSet &data_set,
+                                        const SettingMeta &meta_object) {
+    if (!IsPlatformSupported(meta_object.platform_flags)) return;
+    if (meta_object.view == SETTING_VIEW_HIDDEN) return;
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     parent->addChild(item);
 
-    switch (setting_meta.type) {
+    switch (meta_object.type) {
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
-            const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(setting_meta);
-            SettingDataBool &data = *parameter.settings.Get<SettingDataBool>(meta.key.c_str());
+            const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(meta_object);
+            SettingDataBool &data = *data_set.Get<SettingDataBool>(meta.key.c_str());
 
             WidgetSettingBool *widget = new WidgetSettingBool(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_INT: {
-            const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(setting_meta);
-            SettingDataInt &data = *parameter.settings.Get<SettingDataInt>(meta.key.c_str());
+            const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(meta_object);
+            SettingDataInt &data = *data_set.Get<SettingDataInt>(meta.key.c_str());
 
             WidgetSettingInt *widget = new WidgetSettingInt(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FLOAT: {
-            const SettingMetaFloat &meta = static_cast<const SettingMetaFloat &>(setting_meta);
-            SettingDataFloat &data = *parameter.settings.Get<SettingDataFloat>(meta.key.c_str());
+            const SettingMetaFloat &meta = static_cast<const SettingMetaFloat &>(meta_object);
+            SettingDataFloat &data = *data_set.Get<SettingDataFloat>(meta.key.c_str());
 
             WidgetSettingFloat *widget = new WidgetSettingFloat(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FRAMES: {
-            const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(setting_meta);
-            SettingDataFrames &data = *parameter.settings.Get<SettingDataFrames>(meta.key.c_str());
+            const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(meta_object);
+            SettingDataFrames &data = *data_set.Get<SettingDataFrames>(meta.key.c_str());
 
             WidgetSettingFrames *widget = new WidgetSettingFrames(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -344,24 +345,24 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
         case SETTING_SAVE_FILE:
         case SETTING_LOAD_FILE:
         case SETTING_SAVE_FOLDER: {
-            const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(setting_meta);
-            SettingDataString &data = *parameter.settings.Get<SettingDataString>(meta.key.c_str());
+            const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(meta_object);
+            SettingDataString &data = *data_set.Get<SettingDataString>(meta.key.c_str());
 
             WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_ENUM: {
-            const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(setting_meta);
-            SettingDataEnum &data = *parameter.settings.Get<SettingDataEnum>(meta.key.c_str());
+            const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(meta_object);
+            SettingDataEnum &data = *data_set.Get<SettingDataEnum>(meta.key.c_str());
 
             WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, data);
             this->connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FLAGS: {
-            const SettingMetaFlags &meta = static_cast<const SettingMetaFlags &>(setting_meta);
-            SettingDataFlags &data = *parameter.settings.Get<SettingDataFlags>(meta.key.c_str());
+            const SettingMetaFlags &meta = static_cast<const SettingMetaFlags &>(meta_object);
+            SettingDataFlags &data = *data_set.Get<SettingDataFlags>(meta.key.c_str());
 
             item->setText(0, meta.label.c_str());
             item->setToolTip(0, meta.description.c_str());
@@ -380,16 +381,16 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
         } break;
 
         case SETTING_STRING: {
-            const SettingMetaString &meta = static_cast<const SettingMetaString &>(setting_meta);
-            SettingDataString &data = *parameter.settings.Get<SettingDataString>(meta.key.c_str());
+            const SettingMetaString &meta = static_cast<const SettingMetaString &>(meta_object);
+            SettingDataString &data = *data_set.Get<SettingDataString>(meta.key.c_str());
 
             WidgetSettingString *widget = new WidgetSettingString(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_LIST: {
-            const SettingMetaList &meta = static_cast<const SettingMetaList &>(setting_meta);
-            SettingDataList &data = *parameter.settings.Get<SettingDataList>(meta.key.c_str());
+            const SettingMetaList &meta = static_cast<const SettingMetaList &>(meta_object);
+            SettingDataList &data = *data_set.Get<SettingDataList>(meta.key.c_str());
 
             WidgetSettingList *widget = new WidgetSettingList(tree, item, meta, data);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -400,6 +401,10 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
             assert(0);  // Unknown setting
         } break;
     }
+
+    for (std::size_t i = 0, n = meta_object.children.Size(); i < n; ++i) {
+        this->BuildTreeItem(item, meta_object.children, data_set, meta_object.children[i]);
+    }
 }
 
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
@@ -408,7 +413,7 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
     const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
 
     for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
-        this->BuildTreeItem(parent, parameter, layer_setting_metas[setting_index]);
+        this->BuildTreeItem(parent, layer_setting_metas, parameter.settings, layer_setting_metas[setting_index]);
     }
 }
 
