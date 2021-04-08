@@ -46,8 +46,7 @@
 
 #include <cassert>
 
-SettingsTreeManager::SettingsTreeManager()
-    : tree(nullptr), _validation_log_file_item(nullptr), _validation_log_file_widget(nullptr) {}
+SettingsTreeManager::SettingsTreeManager() : tree(nullptr), _validation_log_file(nullptr), _validation_debug_action(nullptr) {}
 
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     assert(build_tree);
@@ -205,8 +204,7 @@ void SettingsTreeManager::CleanupGUI() {
     this->tree->clear();
     this->tree = nullptr;
     _validation_debug_action = nullptr;
-    _validation_log_file_widget = nullptr;
-    _validation_log_file_item = nullptr;
+    _validation_log_file = nullptr;
 }
 
 static bool IsBuiltinValidation(const std::string &key) {
@@ -256,7 +254,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             WidgetSettingFlag *widget = new WidgetSettingFlag(tree, *meta_debug, *data_debug, meta_debug->enum_values[i].key);
             debug_action_branch->addChild(child);
             tree->setItemWidget(child, 0, widget);
-            connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
             // The log message action also has a child; the log file selection setting/widget
             // Note, this is usually last, but I'll check for it any way in case other new items are added
@@ -265,17 +263,15 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
                 SettingDataFileSave *data_log_file = parameter.settings.Get<SettingDataFileSave>("log_filename");
 
                 _validation_debug_action = widget;
-                _validation_log_file_item = new QTreeWidgetItem();
-                child->addChild(_validation_log_file_item);
-                _validation_log_file_widget =
-                    new WidgetSettingFilesystem(tree, _validation_log_file_item, *meta_log_file, *data_log_file);
-                _validation_log_file_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                QTreeWidgetItem *child_log = new QTreeWidgetItem();
+                child->addChild(child_log);
+                this->_validation_log_file = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, *data_log_file);
 
-                connect(_validation_log_file_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-                connect(_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(OnDebugChanged(int)));
+                this->connect(this->_validation_log_file, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                this->connect(this->_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(OnDebugChanged(int)));
 
                 // Capture initial state, which reflects enabled/disabled
-                _validation_log_file_widget->setDisabled(!_validation_debug_action->isChecked());
+                this->_validation_log_file->Enable(_validation_debug_action->isChecked());
             }
         }
     }
@@ -291,10 +287,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
 void SettingsTreeManager::OnDebugChanged(int index) {
     (void)index;
-    bool enabled = !(_validation_debug_action->isChecked());
     this->tree->blockSignals(true);
-    this->_validation_log_file_item->setDisabled(enabled);
-    this->_validation_log_file_widget->setDisabled(enabled);
+    this->_validation_log_file->Enable(_validation_debug_action->isChecked());
     this->tree->blockSignals(false);
     this->OnSettingChanged();
 }

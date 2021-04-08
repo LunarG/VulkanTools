@@ -62,8 +62,7 @@ class SettingsTreeManager : QObject {
     QTreeWidget *tree;
     std::vector<WidgetPreset *> presets;
 
-    QTreeWidgetItem *_validation_log_file_item;
-    WidgetSettingFilesystem *_validation_log_file_widget;
+    WidgetSettingFilesystem *_validation_log_file;
     WidgetSettingFlag *_validation_debug_action;
     std::unique_ptr<SettingsValidationAreas> validation;
 };

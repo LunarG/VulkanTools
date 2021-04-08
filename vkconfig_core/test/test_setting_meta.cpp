@@ -227,6 +227,6 @@ TEST(test_setting_meta, children) {
     EXPECT_TRUE(FindSettingMeta(settings, "child1") != nullptr);
     EXPECT_EQ(SETTING_INT, FindSettingMeta(settings, "child1")->type);
 
-    const SettingMetaInt& meta_child1 = static_cast<const SettingMetaInt&>(*FindSettingMeta(settings, "child1"));
-    EXPECT_EQ(76, meta_child1.default_value);
+    const SettingMetaInt& meta_child1_found = static_cast<const SettingMetaInt&>(*FindSettingMeta(settings, "child1"));
+    EXPECT_EQ(76, meta_child1_found.default_value);
 }

@@ -28,13 +28,14 @@
 
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetItem* item,
                                                  const SettingMetaFilesystem& setting_meta, SettingDataString& setting_data)
-    : QWidget(nullptr), meta(setting_meta), data(setting_data), field(new QLineEdit(this)), button(new QPushButton(this)) {
+    : tree(tree), item(item), meta(setting_meta), data(setting_data), field(new QLineEdit(this)), button(new QPushButton(this)) {
     assert(item);
     assert(&setting_meta);
     assert(&setting_data);
 
     item->setText(0, setting_meta.label.c_str());
     item->setToolTip(0, setting_meta.description.c_str());
+    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     this->field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
     this->field->setToolTip(this->field->text());
@@ -51,6 +52,12 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
 
     tree->setItemWidget(item, 0, this);
     tree->setItemWidget(child_item, 0, this->field);
+}
+
+void WidgetSettingFilesystem::Enable(bool enabled) {
+    this->setEnabled(enabled);
+    this->field->setEnabled(enabled);
+    this->button->setEnabled(enabled);
 }
 
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
