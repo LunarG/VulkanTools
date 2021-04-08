@@ -25,7 +25,7 @@
 
 WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& setting_meta,
                                      SettingDataBool& setting_data)
-    : meta(setting_meta), data(setting_data) {
+    : tree(tree), item(item), meta(setting_meta), data(setting_data) {
     assert(&setting_meta);
     assert(&setting_data);
 
@@ -37,10 +37,29 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->connect(this, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
     tree->setItemWidget(item, 0, this);
+    item->setExpanded(true);
+
+    this->UpdateEnable(item, this->data.value);
 }
 
 void WidgetSettingBool::OnClicked() {
     this->data.value = isChecked();
+    this->UpdateEnable(this->item, this->data.value);
 
     emit itemChanged();
+}
+
+void WidgetSettingBool::UpdateEnable(QTreeWidgetItem* parent, bool enabled) {
+    assert(parent != nullptr);
+
+    for (int i = 0, n = parent->childCount(); i < n; ++i) {
+        QTreeWidgetItem* child = parent->child(i);
+        QWidget* widget = tree->itemWidget(child, 0);
+        if (widget != nullptr) {
+            widget->setEnabled(enabled);
+        }
+
+        this->UpdateEnable(child, enabled);
+        child->setDisabled(!enabled);
+    }
 }
