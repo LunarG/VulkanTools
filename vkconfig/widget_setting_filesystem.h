@@ -37,6 +37,8 @@ class WidgetSettingFilesystem : public QWidget {
     explicit WidgetSettingFilesystem(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaFilesystem &meta,
                                      SettingDataString &data);
 
+    void Enable(bool enabled);
+
    public Q_SLOTS:
     void browseButtonClicked();
     void textFieldChanged(const QString &value);
@@ -50,6 +52,8 @@ class WidgetSettingFilesystem : public QWidget {
 
     void resizeEvent(QResizeEvent *event) override;
 
+    QTreeWidget *tree;
+    QTreeWidgetItem *item;
     const SettingMetaFilesystem &meta;
     SettingDataString &data;
     QLineEdit *field;

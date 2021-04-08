@@ -20,6 +20,7 @@
  */
 
 #include "widget_setting_bool.h"
+#include "widget_setting.h"
 
 #include <cassert>
 
@@ -37,16 +38,9 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->connect(this, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
     tree->setItemWidget(item, 0, this);
-    item->setExpanded(true);
+    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     this->UpdateEnable(item, this->data.value);
-}
-
-void WidgetSettingBool::OnClicked() {
-    this->data.value = isChecked();
-    this->UpdateEnable(this->item, this->data.value);
-
-    emit itemChanged();
 }
 
 void WidgetSettingBool::UpdateEnable(QTreeWidgetItem* parent, bool enabled) {
@@ -62,4 +56,11 @@ void WidgetSettingBool::UpdateEnable(QTreeWidgetItem* parent, bool enabled) {
         this->UpdateEnable(child, enabled);
         child->setDisabled(!enabled);
     }
+}
+
+void WidgetSettingBool::OnClicked() {
+    this->data.value = isChecked();
+    this->UpdateEnable(this->item, this->data.value);
+
+    emit itemChanged();
 }
