@@ -39,11 +39,13 @@ const char *GetFieldToolTip(const SettingMetaList &meta, bool current_list_empty
     }
 }
 
-WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data)
-    : meta(meta),
-      data(data),
-      tree(tree),
+WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta,
+                                     SettingDataSet &data_set)
+    : tree(tree),
       item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataList>(meta.key.c_str())),
+      data_set(data_set),
       search(nullptr),
       field(new QLineEdit(this)),
       add_button(new QPushButton(this)),
@@ -92,7 +94,12 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     tree->setItemWidget(item, 0, this);
 }
 
-void WidgetSettingList::Enable(bool enabled) {
+void WidgetSettingList::showEvent(QShowEvent *event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
     this->field->setEnabled(enabled);
     this->add_button->setEnabled(enabled);
 }
