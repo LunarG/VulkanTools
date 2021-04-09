@@ -125,7 +125,16 @@
                         "description": "Specifies the file to dump to when output files are enabled",
                         "type": "SAVE_FILE",
                         "filter": "*.txt,*.html,*.json",
-                        "default": "vk_apidump.txt"
+                        "default": "vk_apidump.txt",
+                        "dependence": {
+                            "mode": "ALL",
+                            "settings": [
+                                {
+                                    "key": "file",
+                                    "value": true
+                                }
+                            ]
+                        }
                     }
                 ]
             },
