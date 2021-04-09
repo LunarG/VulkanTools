@@ -315,9 +315,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
             const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(meta_object);
-            SettingDataBool &data = *data_set.Get<SettingDataBool>(meta.key.c_str());
 
-            WidgetSettingBool *widget = new WidgetSettingBool(tree, item, meta, data);
+            WidgetSettingBool *widget = new WidgetSettingBool(tree, item, meta, data_set);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -458,7 +457,25 @@ void SettingsTreeManager::OnSettingChanged() {
         presets[i]->UpdateCurrentIndex();
     }
 
+    // Refresh settings tree enabled
+    for (int i = 0, n = this->tree->topLevelItemCount(); i < n; ++i) {
+        QTreeWidgetItem *child = this->tree->topLevelItem(i);
+        this->RefreshItem(child);
+    }
+
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+}
+
+void SettingsTreeManager::RefreshItem(QTreeWidgetItem *parent) {
+    QWidget *widget = this->tree->itemWidget(parent, 0);
+    if (widget != nullptr) {
+        widget->hide();
+        widget->show();
+    }
+
+    for (int i = 0, n = parent->childCount(); i < n; ++i) {
+        this->RefreshItem(parent->child(i));
+    }
 }

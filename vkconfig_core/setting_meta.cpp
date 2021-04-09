@@ -175,3 +175,30 @@ std::size_t CountSettings(const SettingMetaSet& settings) {
 
     return count;
 }
+
+bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
+    switch (meta.dependence_mode) {
+        default:
+        case DEPENDENCE_NONE: {
+            return true;
+        }
+        case DEPENDENCE_ALL: {
+            for (std::size_t i = 0, n = meta.dependence.Size(); i < n; ++i) {
+                const SettingData* data = data_set.Get(meta.dependence[i].key.c_str());
+                if (data == nullptr) return false;
+
+                if (*data != meta.dependence[i]) return false;
+            }
+            return true;
+        }
+        case DEPENDENCE_ANY: {
+            for (std::size_t i = 0, n = meta.dependence.Size(); i < n; ++i) {
+                const SettingData* data = data_set.Get(meta.dependence[i].key.c_str());
+                if (data == nullptr) continue;
+
+                if (*data == meta.dependence[i]) return true;
+            }
+            return false;
+        }
+    }
+}

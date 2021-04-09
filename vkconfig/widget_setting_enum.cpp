@@ -27,7 +27,7 @@
 static const int MIN_FIELD_WIDTH = 80;
 
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataEnum& data)
-    : meta(meta), data(data), field(new QComboBox(this)) {
+    : tree(tree), item(item), meta(meta), data(data), field(new QComboBox(this)) {
     assert(item);
     assert(&meta);
     assert(&data);
