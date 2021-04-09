@@ -240,7 +240,16 @@
                 "label": "Log Filename",
                 "description": "Specifies the output filename",
                 "type": "SAVE_FILE",
-                "default": "stdout"
+                "default": "stdout",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "debug_action",
+                            "value": [ "VK_DBG_LAYER_ACTION_LOG_MSG" ]
+                        }
+                    ]
+                }
             },
             {
                 "key": "disables",
@@ -316,7 +325,7 @@
                         "view": "ADVANCED"
                     }
                 ],
-                "default": [ ]
+                "default": []
             },
             {
                 "key": "enables",

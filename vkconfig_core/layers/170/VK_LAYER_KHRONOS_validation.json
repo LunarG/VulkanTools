@@ -264,14 +264,26 @@
                 "label": "Log Filename",
                 "description": "Specifies the output filename",
                 "type": "SAVE_FILE",
-                "default": "stdout"
+                "default": "stdout",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "debug_action",
+                            "value": [ "VK_DBG_LAYER_ACTION_LOG_MSG" ]
+                        }
+                    ]
+                }
             },
             {
                 "key": "duplicate_message_limit",
                 "label": "Duplicated Messages Limit",
                 "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
                 "type": "INT",
-                "default": 10
+                "default": 10,
+                "range": {
+                    "min": 0
+                }
             },
             {
                 "key": "message_id_filter",
@@ -6871,7 +6883,12 @@
                 "label": "Printf buffer size (in bytes)",
                 "description": "The size in bytes of the buffer used by debug printf",
                 "type": "INT",
-                "default": 1024
+                "default": 1024,
+                "range": {
+                    "min": 128,
+                    "max": 1048576
+                },
+                "unit": "bytes"
             }
         ]
     }
