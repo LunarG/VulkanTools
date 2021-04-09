@@ -227,3 +227,5 @@ inline const SETTING_META* FindSettingMeta(const SettingMetaSet& settings, const
 }
 
 std::size_t CountSettings(const SettingMetaSet& settings);
+
+bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set);

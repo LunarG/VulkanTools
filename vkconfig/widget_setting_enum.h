@@ -46,6 +46,8 @@ class WidgetSettingEnum : public QWidget {
 
     void resizeEvent(QResizeEvent* event) override;
 
+    QTreeWidget* tree;
+    QTreeWidgetItem* item;
     const SettingMetaEnum& meta;
     SettingDataEnum& data;
     QComboBox* field;

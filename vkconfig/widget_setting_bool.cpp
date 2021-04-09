@@ -24,16 +24,16 @@
 
 #include <cassert>
 
-WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& setting_meta,
-                                     SettingDataBool& setting_data)
-    : tree(tree), item(item), meta(setting_meta), data(setting_data) {
-    assert(&setting_meta);
-    assert(&setting_data);
+WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta,
+                                     SettingDataSet& data_set)
+    : tree(tree), item(item), meta(meta), data(*data_set.Get<SettingDataBool>(meta.key.c_str())), data_set(data_set) {
+    assert(&meta);
+    assert(&data);
 
-    this->setText(setting_meta.label.c_str());
+    this->setText(meta.label.c_str());
     this->setFont(tree->font());
-    this->setToolTip(setting_meta.description.c_str());
-    this->setChecked(setting_data.value);
+    this->setToolTip(meta.description.c_str());
+    this->setChecked(data.value);
 
     this->connect(this, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
@@ -41,6 +41,12 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     this->UpdateEnable(item, this->data.value);
+}
+
+void WidgetSettingBool::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    this->setEnabled(::CheckDependence(this->meta, data_set));
 }
 
 void WidgetSettingBool::UpdateEnable(QTreeWidgetItem* parent, bool enabled) {
