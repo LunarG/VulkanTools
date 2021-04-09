@@ -91,7 +91,7 @@
                 "key": "output_format",
                 "env": "VK_APIDUMP_OUTPUT_FORMAT",
                 "label": "Output Format",
-                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
+                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), HTML, or JSON",
                 "type": "ENUM",
                 "flags": [
                     {
@@ -113,36 +113,22 @@
                 "default": "text"
             },
             {
-                "key": "log_filename",
-                "env": "VK_APIDUMP_LOG_FILENAME",
-                "label": "Log Filename",
-                "description": "Specifies the file to dump to when output files are enabled",
-                "type": "SAVE_FILE",
-                "filter": "*.txt",
-                "default": "vk_apidump.txt"
-            },
-            {
                 "key": "file",
                 "label": "Output to File",
                 "description": "Setting this to true indicates that output should be written to file instead of stdout",
                 "type": "BOOL",
-                "default": true
-            },
-            {
-                "key": "detailed",
-                "env": "VK_APIDUMP_DETAILED",
-                "label": "Detailed Output",
-                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
-                "type": "BOOL",
-                "default": true
-            },
-            {
-                "key": "no_addr",
-                "env": "VK_APIDUMP_NO_ADDR",
-                "label": "Hide Addresses",
-                "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
-                "type": "BOOL",
-                "default": false
+                "default": true,
+                "settings": [
+                    {
+                        "key": "log_filename",
+                        "env": "VK_APIDUMP_LOG_FILENAME",
+                        "label": "Log Filename",
+                        "description": "Specifies the file to dump to when output files are enabled",
+                        "type": "SAVE_FILE",
+                        "filter": "*.txt,*.html,*.json",
+                        "default": "vk_apidump.txt"
+                    }
+                ]
             },
             {
                 "key": "flush",
@@ -157,35 +143,51 @@
                 "label": "Indent Size",
                 "description": "Specifies the number of spaces that a tab is equal to",
                 "type": "INT",
-                "default": 4
-            },
-            {
-                "key": "show_types",
-                "label": "Show Types",
-                "description": "Setting this to true causes types to be dumped in addition to values",
-                "type": "BOOL",
-                "default": true
+                "default": 4,
+                "range": {
+                    "min": 1,
+                    "max": 16
+                },
+                "unit": "chars",
+                "settings": [
+                    {
+                        "key": "use_spaces",
+                        "label": "Use Spaces",
+                        "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                        "type": "BOOL",
+                        "default": true
+                    }
+                ]
             },
             {
                 "key": "name_size",
                 "label": "Name Size",
                 "description": "The number of characters the name of a variable should consume, assuming more are not required",
                 "type": "INT",
-                "default": 32
+                "default": 32,
+                "range": {
+                    "min": 1
+                },
+                "unit": "chars"
             },
             {
-                "key": "type_size",
-                "label": "Type Size",
-                "description": "The number of characters the name of a type should consume, assuming more are not required",
-                "type": "INT",
-                "default": 0
-            },
-            {
-                "key": "use_spaces",
-                "label": "Use Spaces",
-                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                "key": "show_types",
+                "label": "Show Types",
+                "description": "Dump types in addition to values",
                 "type": "BOOL",
-                "default": true
+                "default": true,
+                "settings": [
+                    {
+                        "key": "type_size",
+                        "label": "Type Size",
+                        "description": "The number of characters the name of a type should consume, assuming more are not required",
+                        "type": "INT",
+                        "default": 32,
+                        "range": {
+                            "min": 0
+                        }
+                    }
+                ]
             },
             {
                 "key": "show_timestamp",
@@ -198,7 +200,23 @@
             {
                 "key": "show_shader",
                 "label": "Show Shader",
-                "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
+                "description": "Dump the shader binary code in pCode",
+                "type": "BOOL",
+                "default": false
+            },
+            {
+                "key": "detailed",
+                "env": "VK_APIDUMP_DETAILED",
+                "label": "Show Parameter Details",
+                "description": "Dump parameter details in addition to API calls",
+                "type": "BOOL",
+                "default": true
+            },
+            {
+                "key": "no_addr",
+                "env": "VK_APIDUMP_NO_ADDR",
+                "label": "Hide Addresses",
+                "description": "Dump \"address\" in place of hex addresses",
                 "type": "BOOL",
                 "default": false
             }

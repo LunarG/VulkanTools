@@ -147,14 +147,16 @@
                     "min": 1,
                     "max": 16
                 },
-                "unit": "chars"
-            },
-            {
-                "key": "use_spaces",
-                "label": "Use Spaces",
-                "description": "Setting this to true causes all tab characters to be replaced with spaces",
-                "type": "BOOL",
-                "default": true
+                "unit": "chars",
+                "settings": [
+                    {
+                        "key": "use_spaces",
+                        "label": "Use Spaces",
+                        "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                        "type": "BOOL",
+                        "default": true
+                    }
+                ]
             },
             {
                 "key": "name_size",
@@ -170,35 +172,21 @@
             {
                 "key": "show_types",
                 "label": "Show Types",
-                "description": "Setting this to true causes types to be dumped in addition to values",
+                "description": "Dump types in addition to values",
                 "type": "BOOL",
-                "default": true
-            },
-            {
-                "key": "type_size",
-                "label": "Type Size",
-                "description": "The number of characters the name of a type should consume, assuming more are not required",
-                "type": "INT",
-                "default": 0,
-                "range": {
-                    "min": 0
-                }
-            },
-            {
-                "key": "detailed",
-                "env": "VK_APIDUMP_DETAILED",
-                "label": "Detailed Output",
-                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
-                "type": "BOOL",
-                "default": true
-            },
-            {
-                "key": "no_addr",
-                "env": "VK_APIDUMP_NO_ADDR",
-                "label": "Hide Addresses",
-                "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
-                "type": "BOOL",
-                "default": false
+                "default": true,
+                "settings": [
+                    {
+                        "key": "type_size",
+                        "label": "Type Size",
+                        "description": "The number of characters the name of a type should consume, assuming more are not required",
+                        "type": "INT",
+                        "default": 32,
+                        "range": {
+                            "min": 0
+                        }
+                    }
+                ]
             },
             {
                 "key": "show_timestamp",
@@ -211,7 +199,23 @@
             {
                 "key": "show_shader",
                 "label": "Show Shader",
-                "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
+                "description": "Dump the shader binary code in pCode",
+                "type": "BOOL",
+                "default": false
+            },
+            {
+                "key": "detailed",
+                "env": "VK_APIDUMP_DETAILED",
+                "label": "Show Parameter Details",
+                "description": "Dump parameter details in addition to API calls",
+                "type": "BOOL",
+                "default": true
+            },
+            {
+                "key": "no_addr",
+                "env": "VK_APIDUMP_NO_ADDR",
+                "label": "Hide Addresses",
+                "description": "Dump \"address\" in place of hex addresses",
                 "type": "BOOL",
                 "default": false
             }
