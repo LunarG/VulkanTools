@@ -53,13 +53,15 @@ void WidgetPreset::UpdateCurrentIndex() {
 
     this->blockSignals(true);
     this->setCurrentIndex(GetComboBoxIndex(preset_label.c_str()));
+
+    if (preset_label != Layer::NO_PRESET) {
+        const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
+        assert(preset != nullptr);
+        this->blockSignals(true);
+        this->setToolTip(preset->description.c_str());
+    }
+
     this->blockSignals(false);
-
-    if (preset_label == Layer::NO_PRESET) return;
-
-    const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
-    assert(preset != nullptr);
-    this->setToolTip(preset->description.c_str());
 }
 
 int WidgetPreset::GetComboBoxIndex(const char* preset_label) const {
