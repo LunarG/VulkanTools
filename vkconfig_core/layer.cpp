@@ -143,8 +143,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     this->_api_version = ReadVersionValue(json_layer_object, "api_version");
 
     Validator validator;
-    const bool is_valid = true;
-    // const bool is_valid = this->_api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
+    const bool is_valid = this->_api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
