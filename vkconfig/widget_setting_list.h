@@ -66,7 +66,7 @@ class WidgetSettingList : public QWidget {
 
     QTreeWidget *tree;
     QTreeWidgetItem *item;
-    const SettingDataSet &data_set;
+    SettingDataSet &data_set;
     SettingDataList &data;
     const SettingMetaList &meta;
 

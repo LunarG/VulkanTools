@@ -26,9 +26,15 @@
 
 #include <cassert>
 
-WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, const SettingMetaList& meta, SettingDataList& data,
-                                                   EnabledNumberOrString& element)
-    : meta(meta), data(data), element(element), button(new QPushButton(this)) {
+WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaList& meta,
+                                                   SettingDataSet& data_set, EnabledNumberOrString& element)
+    : tree(tree),
+      item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataList>(meta.key.c_str())),
+      data_set(data_set),
+      element(element),
+      button(new QPushButton(this)) {
     assert(&meta);
     assert(&data);
 
@@ -46,6 +52,15 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, const Sett
     this->button->setFont(tree->font());
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnButtonClicked()));
+}
+
+void WidgetSettingListElement::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
+    this->button->setEnabled(enabled);
 }
 
 void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {

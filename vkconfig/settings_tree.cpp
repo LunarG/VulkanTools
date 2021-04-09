@@ -247,6 +247,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+
             WidgetSettingFlag *widget =
                 new WidgetSettingFlag(tree, child, *meta_debug, parameter.settings, meta_debug->enum_values[i].key);
             debug_action_branch->addChild(child);
@@ -260,8 +261,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
                 QTreeWidgetItem *child_log = new QTreeWidgetItem();
                 child->addChild(child_log);
-                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, parameter.settings);
 
+                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, parameter.settings);
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             }
         }
