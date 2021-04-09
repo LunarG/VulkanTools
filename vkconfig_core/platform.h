@@ -67,10 +67,11 @@ const char* GetToken(StatusType type);
 StatusType GetStatusType(const char* token);
 
 enum DependenceMode {
-    DEPENDENCE_ALL = 0,
+    DEPENDENCE_NONE = 0,
+    DEPENDENCE_ALL,
     DEPENDENCE_ANY,
 
-    DEPENDENCE_FIRST = DEPENDENCE_ALL,
+    DEPENDENCE_FIRST = DEPENDENCE_NONE,
     DEPENDENCE_LAST = DEPENDENCE_ANY
 };
 
