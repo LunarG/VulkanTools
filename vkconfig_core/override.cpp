@@ -42,6 +42,9 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
     bool has_missing_layers = false;
 
+    const QStringList& path_gui = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI));
+    const QStringList& path_env = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV));
+
     QStringList layer_override_paths;
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter& parameter = configuration.parameters[i];
@@ -64,6 +67,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
         // Make sure the path is not already in the list
         if (layer_override_paths.contains(absolute_path.c_str())) continue;
+
+        if (!path_gui.contains(absolute_path.c_str()) && !path_env.contains(absolute_path.c_str())) continue;
 
         // Okay, add to the list
         layer_override_paths << absolute_path.c_str();
