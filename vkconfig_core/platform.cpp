@@ -91,6 +91,26 @@ StatusType GetStatusType(const char* token) {
     return static_cast<StatusType>(-1);
 }
 
+const char* GetToken(DependenceMode type) {
+    static const char* table[] = {
+        "ALL",  // DEPENDENCE_ALL
+        "ANY"   // DEPENDENCE_ANY
+    };
+    static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return table[type];
+}
+
+DependenceMode GetDependenceMode(const char* token) {
+    for (std::size_t i = 0, n = DEPENDENCE_COUNT; i < n; ++i) {
+        const DependenceMode value = static_cast<DependenceMode>(i);
+        if (std::strcmp(GetToken(value), token) == 0) return value;
+    }
+
+    assert(0);
+    return static_cast<DependenceMode>(-1);
+}
+
 const char* GetPlatformString(PlatformString platform_string) {
     static const char* table[][PLATFORM_COUNT] = {
         {

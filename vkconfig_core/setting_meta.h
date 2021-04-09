@@ -42,6 +42,8 @@ struct SettingMeta : public Header {
     const SettingType type;
     std::string env;
     SettingMetaSet children;
+    SettingDataSet dependence;
+    DependenceMode dependence_mode;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;

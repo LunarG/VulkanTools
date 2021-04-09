@@ -66,6 +66,19 @@ enum { STATUS_COUNT = STATUS_LAST - STATUS_FIRST + 1 };
 const char* GetToken(StatusType type);
 StatusType GetStatusType(const char* token);
 
+enum DependenceMode {
+    DEPENDENCE_ALL = 0,
+    DEPENDENCE_ANY,
+
+    DEPENDENCE_FIRST = DEPENDENCE_ALL,
+    DEPENDENCE_LAST = DEPENDENCE_ANY
+};
+
+enum { DEPENDENCE_COUNT = DEPENDENCE_LAST - DEPENDENCE_FIRST + 1 };
+
+const char* GetToken(DependenceMode type);
+DependenceMode GetDependenceMode(const char* token);
+
 #ifdef _WIN32
 #define VKC_PLATFORM VKC_PLATFORM_WINDOWS
 
