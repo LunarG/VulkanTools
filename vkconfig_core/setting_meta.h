@@ -219,4 +219,9 @@ struct SettingMetaList : public SettingMeta {
 
 const SettingMeta* FindSettingMeta(const SettingMetaSet& settings, const char* key);
 
+template <typename SETTING_META>
+inline const SETTING_META* FindSettingMeta(const SettingMetaSet& settings, const char* key) {
+    return static_cast<const SETTING_META*>(FindSettingMeta(settings, key));
+}
+
 std::size_t CountSettings(const SettingMetaSet& settings);
