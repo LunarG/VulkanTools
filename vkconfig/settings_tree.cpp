@@ -46,7 +46,7 @@
 
 #include <cassert>
 
-SettingsTreeManager::SettingsTreeManager() : tree(nullptr), _validation_log_file(nullptr), _validation_debug_action(nullptr) {}
+SettingsTreeManager::SettingsTreeManager() : tree(nullptr) {}
 
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     assert(build_tree);
@@ -203,8 +203,6 @@ void SettingsTreeManager::CleanupGUI() {
 
     this->tree->clear();
     this->tree = nullptr;
-    _validation_debug_action = nullptr;
-    _validation_log_file = nullptr;
 }
 
 static bool IsBuiltinValidation(const std::string &key) {
@@ -261,16 +259,11 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             if (meta_debug->enum_values[i].key == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
                 const SettingMetaFileSave *meta_log_file = validation_layer->settings.Get<SettingMetaFileSave>("log_filename");
 
-                _validation_debug_action = widget;
                 QTreeWidgetItem *child_log = new QTreeWidgetItem();
                 child->addChild(child_log);
-                this->_validation_log_file = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, parameter.settings);
+                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, parameter.settings);
 
-                this->connect(this->_validation_log_file, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-                this->connect(this->_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(OnDebugChanged(int)));
-
-                // Capture initial state, which reflects enabled/disabled
-                // this->_validation_log_file->Enable(_validation_debug_action->isChecked());
+                this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             }
         }
     }
@@ -282,14 +275,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
         this->BuildTreeItem(parent, layer_setting_metas, parameter.settings, setting_meta);
     }
-}
-
-void SettingsTreeManager::OnDebugChanged(int index) {
-    (void)index;
-    this->tree->blockSignals(true);
-    // this->_validation_log_file->Enable(_validation_debug_action->isChecked());
-    this->tree->blockSignals(false);
-    this->OnSettingChanged();
 }
 
 void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMetaSet &meta_set, SettingDataSet &data_set,
