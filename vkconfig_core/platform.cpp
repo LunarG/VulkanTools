@@ -93,8 +93,9 @@ StatusType GetStatusType(const char* token) {
 
 const char* GetToken(DependenceMode type) {
     static const char* table[] = {
-        "ALL",  // DEPENDENCE_ALL
-        "ANY"   // DEPENDENCE_ANY
+        "NONE",  // DEPENDENCE_NONE
+        "ALL",   // DEPENDENCE_ALL
+        "ANY"    // DEPENDENCE_ANY
     };
     static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
