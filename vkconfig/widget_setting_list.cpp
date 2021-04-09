@@ -74,7 +74,6 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     this->field->setFont(tree->font());
     this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->installEventFilter(this);
-    this->field->setEnabled(!meta.list_only || !this->list.empty());
 
     this->connect(this->field, SIGNAL(textEdited(const QString &)), this, SLOT(OnTextEdited(const QString &)),
                   Qt::QueuedConnection);
@@ -83,7 +82,6 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
 
     this->add_button->setText("+");
     this->add_button->setFont(tree->font());
-    this->add_button->setEnabled(!this->field->text().isEmpty());
 
     this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnButtonPressed()));
 
@@ -100,8 +98,8 @@ void WidgetSettingList::showEvent(QShowEvent *event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->setEnabled(enabled);
-    this->field->setEnabled(enabled);
-    this->add_button->setEnabled(enabled);
+    this->field->setEnabled(enabled && (!meta.list_only || !this->list.empty()));
+    this->add_button->setEnabled(enabled && !this->field->text().isEmpty());
 }
 
 void WidgetSettingList::Resize() {
@@ -152,7 +150,7 @@ void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
     child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->item->addChild(child);
 
-    WidgetSettingListElement *widget = new WidgetSettingListElement(tree, meta, data, element);
+    WidgetSettingListElement *widget = new WidgetSettingListElement(tree, child, meta, data_set, element);
     this->tree->setItemWidget(child, 0, widget);
 
     this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -176,10 +174,6 @@ void WidgetSettingList::OnButtonPressed() {
     emit itemSelected(entry);  // Triggers update of GUI
     emit itemChanged();        // Triggers save of configuration
 
-    this->item->setText(0, (meta.label + "  ").c_str());
-    this->field->setText("");
-    this->add_button->setEnabled(false);
-
     const std::string string_value = entry.toStdString();
     const bool is_number = IsNumber(string_value);
 
@@ -196,10 +190,11 @@ void WidgetSettingList::OnButtonPressed() {
         alert.setInformativeText("Please select a value from the list.");
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
-
-        this->OnTextEdited("");
         return;
     }
+
+    this->item->setText(0, (meta.label + "  ").c_str());
+    this->field->setText("");
 
     this->data.value.push_back(value);
 

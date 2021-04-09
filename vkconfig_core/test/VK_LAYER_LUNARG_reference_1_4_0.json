@@ -199,6 +199,13 @@
         ],
         "settings": [
             {
+                "key": "toogle",
+                "label": "toogle",
+                "type": "BOOL",
+                "description": "true or false",
+                "default": true
+            },
+            {
                 "key": "enum_required_only",
                 "type": "ENUM",
                 "label": "enum",
@@ -261,7 +268,16 @@
                         "platforms": [ "WINDOWS" ]
                     }
                 ],
-                "default": "value1"
+                "default": "value1",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "flags_required_only",
@@ -326,7 +342,16 @@
                         "platforms": [ "WINDOWS" ]
                     }
                 ],
-                "default": [ "flag0", "flag1" ]
+                "default": [ "flag0", "flag1" ],
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "string_required_only",
@@ -345,7 +370,16 @@
                 "status": "BETA",
                 "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "default": "A string"
+                "default": "A string",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "bool_required_only",
@@ -364,7 +398,16 @@
                 "status": "BETA",
                 "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "default": true
+                "default": true,
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "load_file_required_only",
@@ -384,7 +427,16 @@
                 "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "filter": "*.txt",
-                "default": "./test.txt"
+                "default": "./test.txt",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "save_file_required_only",
@@ -404,7 +456,16 @@
                 "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
                 "filter": "*.json",
-                "default": "./test.json"
+                "default": "./test.json",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "save_folder_required_only",
@@ -423,7 +484,16 @@
                 "status": "BETA",
                 "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "default": "./test"
+                "default": "./test",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "int_required_only",
@@ -447,7 +517,16 @@
                     "min": 75,
                     "max": 82
                 },
-                "unit": "byte"
+                "unit": "byte",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "float_required_only",
@@ -473,7 +552,16 @@
                     "width": 2,
                     "precision": 3
                 },
-                "unit": "second"
+                "unit": "second",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "frames_required_only",
@@ -492,7 +580,16 @@
                 "status": "BETA",
                 "view": "ADVANCED",
                 "platforms": [ "WINDOWS", "LINUX" ],
-                "default": "76-82,75"
+                "default": "76-82,75",
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "list_required_only",
@@ -561,7 +658,16 @@
                         "key": "stringD",
                         "enabled": true
                     }
-                ]
+                ],
+                "dependence": {
+                    "mode": "ALL",
+                    "settings": [
+                        {
+                            "key": "toogle",
+                            "value": true
+                        }
+                    ]
+                }
             },
             {
                 "key": "list_empty",
