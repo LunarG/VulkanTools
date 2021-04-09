@@ -42,7 +42,7 @@
 Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_ALL_BIT) {}
 
 static Version GetConfigurationVersion(const QJsonValue& value) {
-    if (SUPPORT_VKCONFIG_2_0_1) {
+    if (SUPPORT_LAYER_CONFIG_2_0_1) {
         return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toStdString().c_str());
     } else {
         assert(value != QJsonValue::Undefined);
@@ -62,7 +62,7 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
     const QJsonValue& configuration_entry_value = json_root_object.value(keys[0]);
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
-    if (SUPPORT_VKCONFIG_2_0_1 && version <= Version("2.0.1")) {
+    if (SUPPORT_LAYER_CONFIG_2_0_1 && version <= Version("2.0.1")) {
         key = filename.left(filename.length() - 5).toStdString();
     } else {
         key = ReadString(configuration_entry_object, "name").c_str();
@@ -310,9 +310,9 @@ bool Configuration::Load(const std::vector<Layer>& available_layers, const std::
     const QJsonObject& json_root_object = json_doc.object();
 
     const Version version(GetConfigurationVersion(json_root_object.value("file_format_version")));
-    if (SUPPORT_VKCONFIG_2_0_3 && version < Version(2, 1, 0)) {
+    if (SUPPORT_LAYER_CONFIG_2_0_3 && version < Version(2, 1, 0)) {
         return Load2_0(available_layers, json_root_object, full_path);
-    } else if (SUPPORT_VKCONFIG_2_1_0 && version < Version(2, 2, 0)) {
+    } else if (SUPPORT_LAYER_CONFIG_2_1_0 && version < Version(2, 2, 0)) {
         return Load2_1(available_layers, json_root_object);
     } else {
         return Load2_2(available_layers, json_root_object);
@@ -323,7 +323,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     assert(!full_path.empty());
 
     QJsonObject root;
-    root.insert("file_format_version", Version::VKCONFIG.str().c_str());
+    root.insert("file_format_version", Version::LAYER_CONFIG.str().c_str());
 
     // Build the json document
     QJsonArray excluded_list;
