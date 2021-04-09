@@ -32,6 +32,25 @@
                 "enum": [ "WINDOWS", "LINUX", "MACOS" ]
             }
         },
+        "dependence": {
+            "type": "object",
+            "items": {
+                "additionalProperties": false,
+                "properties": {
+                    "mode": {
+                        "description": "How dependence need to be repected for the setting to be enable ('NONE' by default)",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [ "NONE", "ALL", "ANY" ]
+                        }
+                    },
+                    "settings": {
+                        "type": "array"
+                    }
+                }
+            }
+        },
         "int_range": {
             "description": "A range of integer values",
             "type": "object",
@@ -242,6 +261,9 @@
                                     "view": {
                                         "$ref": "#/definitions/view"
                                     },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
+                                    },
                                     "settings": {
                                         "type": "array"
                                     }
@@ -294,6 +316,9 @@
                                     },
                                     "view": {
                                         "$ref": "#/definitions/view"
+                                    },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
                                     },
                                     "settings": {
                                         "type": "array"
@@ -351,6 +376,9 @@
                                     "view": {
                                         "$ref": "#/definitions/view"
                                     },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
+                                    },
                                     "settings": {
                                         "type": "array"
                                     }
@@ -405,6 +433,9 @@
                                     "view": {
                                         "$ref": "#/definitions/view"
                                     },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
+                                    },
                                     "settings": {
                                         "type": "array"
                                     }
@@ -457,6 +488,9 @@
                                     },
                                     "view": {
                                         "$ref": "#/definitions/view"
+                                    },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
                                     },
                                     "settings": {
                                         "type": "array"
@@ -518,6 +552,9 @@
                                     "default": {
                                         "type": "number"
                                     },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
+                                    },
                                     "settings": {
                                         "type": "array"
                                     }
@@ -578,6 +615,9 @@
                                     "default": {
                                         "type": "integer"
                                     },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
+                                    },
                                     "settings": {
                                         "type": "array"
                                     }
@@ -634,6 +674,9 @@
                                     },
                                     "default": {
                                         "type": "string"
+                                    },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
                                     },
                                     "settings": {
                                         "type": "array"
@@ -695,6 +738,9 @@
                                         "items": {
                                             "type": "string"
                                         }
+                                    },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
                                     },
                                     "settings": {
                                         "type": "array"
@@ -764,6 +810,9 @@
                                     "list_only": {
                                         "description": "To exclude any additional values that the values in the list",
                                         "type": "boolean"
+                                    },
+                                    "dependence": {
+                                        "$ref": "#/definitions/dependence"
                                     },
                                     "settings": {
                                         "type": "array"
