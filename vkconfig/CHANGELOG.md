@@ -11,16 +11,16 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.2.1 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools/tree/master) - April 2021
+## [Vulkan Configurator 2.3.0 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools/tree/master) - April 2021
 
 ### Features:
 - Add Vulkan loader debug message to application launcher #1372
-- Refactored setting tree UI
+- Redesigned layer settings UI #1420
 
 ### Improvements:
 - Add display of layer execution order in the setting tree #1390
 - Improve 'list' UI in setting tree #1397
-- Add UI input values checking
+- Add layer settings UI inputs checking
 - Add API dump presets #1414
 
 ### Fixes:

@@ -307,6 +307,11 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     }
 
     switch (meta_object.type) {
+        case SETTING_GROUP: {
+            item->setText(0, meta_object.label.c_str());
+            item->setToolTip(0, meta_object.description.c_str());
+            item->setFont(0, tree->font());
+        } break;
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
             const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(meta_object);

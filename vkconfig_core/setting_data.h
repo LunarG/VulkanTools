@@ -46,6 +46,13 @@ struct SettingData {
     virtual SettingData& Assign(const SettingData& other) = 0;
 };
 
+struct SettingDataGroup : public SettingData {
+    SettingDataGroup(const std::string& key) : SettingData(key, SETTING_GROUP) {}
+    virtual ~SettingDataGroup() {}
+
+    virtual SettingData& Assign(const SettingData& other);
+};
+
 struct SettingDataBool : public SettingData {
     SettingDataBool(const std::string& key) : SettingData(key, SETTING_BOOL), value(false) {}
     virtual ~SettingDataBool() {}

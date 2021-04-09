@@ -290,6 +290,9 @@ void Layer::AddSettings(SettingMetaSet& settings, const QJsonValue& json_setting
         }
 
         switch (type) {
+            case SETTING_GROUP: {
+                break;
+            }
             case SETTING_FRAMES:
             case SETTING_STRING: {
                 static_cast<SettingMetaString&>(setting_meta).default_value = ReadStringValue(json_setting, "default");
@@ -425,6 +428,9 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
     assert(setting_data.type == setting_meta.type);
 
     switch (setting_meta.type) {
+        case SETTING_GROUP: {
+            break;
+        }
         case SETTING_STRING: {
             const SettingMetaString& meta_object = static_cast<const SettingMetaString&>(setting_meta);
             static_cast<SettingDataString&>(setting_data).value = meta_object.default_value;

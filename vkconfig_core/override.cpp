@@ -178,6 +178,9 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
 
             stream << lc_layer_name << "." << setting_data.key.c_str() << " = ";
             switch (setting_data.type) {
+                case SETTING_GROUP: {
+                    break;
+                }
                 case SETTING_LOAD_FILE:
                 case SETTING_SAVE_FILE:
                 case SETTING_SAVE_FOLDER: {

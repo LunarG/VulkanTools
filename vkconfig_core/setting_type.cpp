@@ -48,6 +48,7 @@ const char* GetSettingTypeToken(SettingType type) {
         "STRING",        // SETTING_STRING
         "INT",           // SETTING_INT
         "FLOAT",         // SETTING_FLOAT
+        "GROUP",         // SETTING_GROUP
         "SAVE_FILE",     // SETTING_SAVE_FILE
         "LOAD_FILE",     // SETTING_LOAD_FILE
         "SAVE_FOLDER",   // SETTING_SAVE_FOLDER

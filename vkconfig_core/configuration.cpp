@@ -352,6 +352,10 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
         for (std::size_t j = 0, m = parameter.settings.Size(); j < m; ++j) {
             const SettingData& setting_data = parameter.settings[j];
 
+            if (setting_data.type == SETTING_GROUP) {
+                continue;
+            }
+
             QJsonObject json_setting;
             json_setting.insert("key", parameter.settings[j].key.c_str());
             json_setting.insert("type", GetSettingTypeToken(setting_data.type));

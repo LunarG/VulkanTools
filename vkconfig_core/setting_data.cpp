@@ -38,6 +38,11 @@ bool SettingData::Equal(const SettingData& other) const {
     return true;
 }
 
+SettingData& SettingDataGroup::Assign(const SettingData& other) {
+    assert(this->type == other.type);
+    return *this;
+}
+
 bool SettingDataBool::Equal(const SettingData& other) const {
     if (!SettingData::Equal(other)) return false;
 
