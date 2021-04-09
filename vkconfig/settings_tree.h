@@ -47,7 +47,6 @@ class SettingsTreeManager : QObject {
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
    public Q_SLOTS:
-    void OnDebugChanged(int index);
     void OnPresetChanged(int index);
     void OnSettingChanged();
 
@@ -63,8 +62,5 @@ class SettingsTreeManager : QObject {
 
     QTreeWidget *tree;
     std::vector<WidgetPreset *> presets;
-
-    WidgetSettingFilesystem *_validation_log_file;
-    WidgetSettingFlag *_validation_debug_action;
     std::unique_ptr<SettingsValidationAreas> validation;
 };
