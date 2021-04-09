@@ -28,9 +28,9 @@ SettingType GetSettingType(const char* token) {
     assert(token != nullptr);
     assert(std::strcmp(token, "") != 0);
 
-    if (SUPPORT_VKCONFIG_2_1_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;
-    if (SUPPORT_VKCONFIG_2_2_0 && ToUpperCase(token) == "VUID_EXCLUDE") return SETTING_LIST;
-    if (SUPPORT_VKCONFIG_2_2_0 && ToUpperCase(token) == "INT_RANGES") return SETTING_FRAMES;
+    if (SUPPORT_LAYER_CONFIG_2_1_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;
+    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "VUID_EXCLUDE") return SETTING_LIST;
+    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "INT_RANGES") return SETTING_FRAMES;
 
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);

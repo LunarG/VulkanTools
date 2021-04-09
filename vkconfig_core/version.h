@@ -27,18 +27,19 @@
 static const char *VKCONFIG_NAME = "Vulkan Configurator";
 static const char *VKCONFIG_SHORT_NAME = "vkconfig";
 
-#define SUPPORT_VKCONFIG_2_0_0 1
-#define SUPPORT_VKCONFIG_2_0_1 1
-#define SUPPORT_VKCONFIG_2_0_2 1
-#define SUPPORT_VKCONFIG_2_0_3 1
-#define SUPPORT_VKCONFIG_2_1_0 1
-#define SUPPORT_VKCONFIG_2_2_0 1
+#define SUPPORT_LAYER_CONFIG_2_0_0 1
+#define SUPPORT_LAYER_CONFIG_2_0_1 1
+#define SUPPORT_LAYER_CONFIG_2_0_2 1
+#define SUPPORT_LAYER_CONFIG_2_0_3 1
+#define SUPPORT_LAYER_CONFIG_2_1_0 1
+#define SUPPORT_LAYER_CONFIG_2_2_0 1
 
 class Version {
    public:
     static const Version VKCONFIG;
     static const Version VKHEADER;
     static const Version VERSION_NULL;
+    static const Version LAYER_CONFIG;
 
     explicit Version() : _major(0), _minor(0), _patch(0) {}
     explicit Version(uint32_t version_complete);

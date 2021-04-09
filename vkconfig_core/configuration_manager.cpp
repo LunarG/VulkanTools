@@ -112,7 +112,7 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
     const QFileInfoList &configuration_files = GetJSONFiles(path_manager.GetPath(path_type).c_str());
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
         const QFileInfo &info = configuration_files[i];
-        if (SUPPORT_VKCONFIG_2_0_3 && IsConfigurationExcluded(info.fileName().toStdString().c_str())) continue;
+        if (SUPPORT_LAYER_CONFIG_2_0_3 && IsConfigurationExcluded(info.fileName().toStdString().c_str())) continue;
 
         Configuration configuration;
         const bool result = configuration.Load(available_layers, info.absoluteFilePath().toStdString());

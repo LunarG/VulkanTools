@@ -209,7 +209,7 @@ void Environment::Reset(ResetMode mode) {
     switch (mode) {
         case DEFAULT: {
             first_run = true;
-            version = Version::VKCONFIG;
+            version = Version::LAYER_CONFIG;
             override_state = OVERRIDE_STATE_GLOBAL_TEMPORARY;
 
             for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
@@ -244,7 +244,7 @@ bool Environment::Load() {
     first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, QVariant(first_run)).toBool();
 
     // Load "version": If the version doesn't exist of it's an old version of vkconfig
-    const Version default_version(first_run || !SUPPORT_VKCONFIG_2_0_0 ? version : Version("2.0.0"));
+    const Version default_version(first_run || !SUPPORT_LAYER_CONFIG_2_0_0 ? version : Version("2.0.0"));
     version =
         Version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, QVariant(default_version.str().c_str())).toString().toStdString());
 
@@ -254,7 +254,7 @@ bool Environment::Load() {
     }
 
     // Load 'override_mode"
-    if (SUPPORT_VKCONFIG_2_0_1 && version <= Version("2.0.1")) {
+    if (SUPPORT_LAYER_CONFIG_2_0_1 && version <= Version("2.0.1")) {
         const bool active = settings.value("overrideActive", QVariant(first_run)).toBool();
         const bool active_list = settings.value("applyOnlyToList", QVariant(first_run)).toBool();
         const bool active_persistent = settings.value("keepActiveOnExit", QVariant(first_run)).toBool();
@@ -375,7 +375,7 @@ bool Environment::Save() const {
     settings.setValue(VKCONFIG_KEY_INITIALIZE_FILES, first_run);
 
     // Save 'version'
-    settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::VKCONFIG.str().c_str());
+    settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::LAYER_CONFIG.str().c_str());
 
     // Save 'override_mode'
     settings.setValue(VKCONFIG_KEY_OVERRIDE_MODE, override_state);
