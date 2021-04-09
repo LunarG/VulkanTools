@@ -181,12 +181,10 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
 
             const SettingMetaInt *meta_printf_buffer_size = settings_meta.Get<SettingMetaInt>("printf_buffer_size");
             if (meta_printf_buffer_size != nullptr) {
-                SettingDataInt *data = settings_data.Get<SettingDataInt>(meta_printf_buffer_size->key.c_str());
-
                 _debug_printf_buffer_size = new QTreeWidgetItem();
                 _debug_printf_box->addChild(_debug_printf_buffer_size);
                 _debug_printf_buffer_size_value =
-                    new WidgetSettingInt(_main_tree_widget, _debug_printf_buffer_size, *meta_printf_buffer_size, *data);
+                    new WidgetSettingInt(_main_tree_widget, _debug_printf_buffer_size, *meta_printf_buffer_size, settings_data);
 
                 this->connect(_debug_printf_buffer_size_value, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             }

@@ -32,7 +32,10 @@ class WidgetSettingEnum : public QWidget {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataEnum& data);
+    explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataSet& data_set);
+
+   protected:
+    virtual void showEvent(QShowEvent* event);
 
    public Q_SLOTS:
     void indexChanged(int index);
@@ -48,8 +51,9 @@ class WidgetSettingEnum : public QWidget {
 
     QTreeWidget* tree;
     QTreeWidgetItem* item;
-    const SettingMetaEnum& meta;
+    const SettingDataSet& data_set;
     SettingDataEnum& data;
+    const SettingMetaEnum& meta;
     QComboBox* field;
     std::vector<std::size_t> enum_indexes;
 };

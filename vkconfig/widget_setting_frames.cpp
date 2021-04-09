@@ -33,8 +33,14 @@
 static const int MIN_FIELD_WIDTH = 80;
 
 WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta,
-                                         SettingDataFrames& data)
-    : meta(meta), data(data), field(new QLineEdit(this)), timer(new QTimer(this)) {
+                                         SettingDataSet& data_set)
+    : tree(tree),
+      item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataFrames>(meta.key.c_str())),
+      data_set(data_set),
+      field(new QLineEdit(this)),
+      timer(new QTimer(this)) {
     assert(tree);
     assert(item);
     assert(&meta);
@@ -64,7 +70,14 @@ WidgetSettingFrames::~WidgetSettingFrames() {
     }
 }
 
-void WidgetSettingFrames::Enable(bool enable) { this->field->setEnabled(enable); }
+void WidgetSettingFrames::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
+    this->field->setEnabled(enabled);
+}
 
 void WidgetSettingFrames::OnInvalidValue() {
     QPalette palette;

@@ -33,10 +33,12 @@ class WidgetSettingInt : public QWidget {
     Q_OBJECT
 
    public:
-    WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataInt& data);
+    WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingInt();
 
-    void Enable(bool enable);
+   protected:
+    virtual void showEvent(QShowEvent* event);
+
     QLineEdit* GetField() const { return this->field; }
 
    public Q_SLOTS:
@@ -54,8 +56,12 @@ class WidgetSettingInt : public QWidget {
     void Resize();
     bool ValidateInputValue();
 
-    const SettingMetaInt& meta;
+    QTreeWidget* tree;
+    QTreeWidgetItem* item;
+    const SettingDataSet& data_set;
     SettingDataInt& data;
+    const SettingMetaInt& meta;
+
     std::string value;
     QLineEdit* field;
     QTimer* timer;
