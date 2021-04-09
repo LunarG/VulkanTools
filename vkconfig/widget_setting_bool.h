@@ -50,7 +50,7 @@ class WidgetSettingBool : public QCheckBox {
     WidgetSettingBool(const WidgetSettingBool&) = delete;
     WidgetSettingBool& operator=(const WidgetSettingBool&) = delete;
 
-    void UpdateEnable(QTreeWidgetItem* parent, bool enabled);
+    // void UpdateEnable(QTreeWidgetItem* parent, bool enabled);
 
     QTreeWidget* tree;
     QTreeWidgetItem* item;

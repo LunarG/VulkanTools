@@ -40,7 +40,7 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     tree->setItemWidget(item, 0, this);
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    this->UpdateEnable(item, this->data.value);
+    // this->UpdateEnable(item, this->data.value);
 }
 
 void WidgetSettingBool::showEvent(QShowEvent* event) {
@@ -48,7 +48,7 @@ void WidgetSettingBool::showEvent(QShowEvent* event) {
 
     this->setEnabled(::CheckDependence(this->meta, data_set));
 }
-
+/*
 void WidgetSettingBool::UpdateEnable(QTreeWidgetItem* parent, bool enabled) {
     assert(parent != nullptr);
 
@@ -63,10 +63,10 @@ void WidgetSettingBool::UpdateEnable(QTreeWidgetItem* parent, bool enabled) {
         child->setDisabled(!enabled);
     }
 }
-
+*/
 void WidgetSettingBool::OnClicked() {
     this->data.value = isChecked();
-    this->UpdateEnable(this->item, this->data.value);
+    // this->UpdateEnable(this->item, this->data.value);
 
     emit itemChanged();
 }
