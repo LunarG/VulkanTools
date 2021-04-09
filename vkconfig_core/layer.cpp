@@ -292,6 +292,22 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_sett
             this->AddSettingsSet(setting_meta.children, json_children);
         }
 
+        const QJsonValue& json_dependence_value = json_setting.value("dependence");
+        if (json_dependence_value != QJsonValue::Undefined) {
+            const QJsonObject& json_dependence_object = json_dependence_value.toObject();
+
+            if (json_dependence_object.value("mode") != QJsonValue::Undefined)
+                setting_meta.dependence_mode = GetDependenceMode(ReadStringValue(json_dependence_object, "mode").c_str());
+
+            const QJsonValue& json_settings_value = json_dependence_object.value("settings");
+            if (json_settings_value != QJsonValue::Undefined) {
+                const QJsonArray& json_settings_array = json_settings_value.toArray();
+                for (int i = 0, n = json_settings_array.size(); i < n; ++i) {
+                    this->AddSettingData(setting_meta.dependence, json_settings_array[i]);
+                }
+            }
+        }
+
         switch (type) {
             case SETTING_GROUP: {
                 break;

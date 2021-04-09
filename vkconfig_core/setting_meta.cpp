@@ -20,7 +20,7 @@
 
 #include "setting_meta.h"
 
-SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type) {
+SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type), dependence_mode(DEPENDENCE_ALL) {
     assert(!this->key.empty());
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }
@@ -46,9 +46,17 @@ bool SettingMeta::Equal(const SettingMeta& other) const {
         return false;
     else if (this->children.Size() != other.children.Size())
         return false;
+    else if (this->dependence.Size() != other.dependence.Size())
+        return false;
+    else if (this->dependence_mode != other.dependence_mode)
+        return false;
     else {
         for (std::size_t i = 0, n = this->children.Size(); i < n; ++i) {
             if (this->children[i] != other.children[i]) return false;
+        }
+
+        for (std::size_t i = 0, n = this->dependence.Size(); i < n; ++i) {
+            if (this->dependence[i] != other.dependence[i]) return false;
         }
     }
     return true;
