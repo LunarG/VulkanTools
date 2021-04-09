@@ -260,18 +260,17 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             // Note, this is usually last, but I'll check for it any way in case other new items are added
             if (meta_debug->enum_values[i].key == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
                 const SettingMetaFileSave *meta_log_file = validation_layer->settings.Get<SettingMetaFileSave>("log_filename");
-                SettingDataFileSave *data_log_file = parameter.settings.Get<SettingDataFileSave>("log_filename");
 
                 _validation_debug_action = widget;
                 QTreeWidgetItem *child_log = new QTreeWidgetItem();
                 child->addChild(child_log);
-                this->_validation_log_file = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, *data_log_file);
+                this->_validation_log_file = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, parameter.settings);
 
                 this->connect(this->_validation_log_file, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
                 this->connect(this->_validation_debug_action, SIGNAL(stateChanged(int)), this, SLOT(OnDebugChanged(int)));
 
                 // Capture initial state, which reflects enabled/disabled
-                this->_validation_log_file->Enable(_validation_debug_action->isChecked());
+                // this->_validation_log_file->Enable(_validation_debug_action->isChecked());
             }
         }
     }
@@ -288,7 +287,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 void SettingsTreeManager::OnDebugChanged(int index) {
     (void)index;
     this->tree->blockSignals(true);
-    this->_validation_log_file->Enable(_validation_debug_action->isChecked());
+    // this->_validation_log_file->Enable(_validation_debug_action->isChecked());
     this->tree->blockSignals(false);
     this->OnSettingChanged();
 }
@@ -348,9 +347,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
         case SETTING_LOAD_FILE:
         case SETTING_SAVE_FOLDER: {
             const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(meta_object);
-            SettingDataString &data = *data_set.Get<SettingDataString>(meta.key.c_str());
 
-            WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, data);
+            WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, data_set);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -462,20 +460,23 @@ void SettingsTreeManager::OnSettingChanged() {
         QTreeWidgetItem *child = this->tree->topLevelItem(i);
         this->RefreshItem(child);
     }
+    this->tree->clearFocus();
+    this->tree->clearSelection();
 
+    // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 }
 
 void SettingsTreeManager::RefreshItem(QTreeWidgetItem *parent) {
+    for (int i = 0, n = parent->childCount(); i < n; ++i) {
+        this->RefreshItem(parent->child(i));
+    }
+
     QWidget *widget = this->tree->itemWidget(parent, 0);
     if (widget != nullptr) {
         widget->hide();
         widget->show();
-    }
-
-    for (int i = 0, n = parent->childCount(); i < n; ++i) {
-        this->RefreshItem(parent->child(i));
     }
 }

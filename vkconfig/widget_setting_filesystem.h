@@ -35,9 +35,10 @@ class WidgetSettingFilesystem : public QWidget {
 
    public:
     explicit WidgetSettingFilesystem(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaFilesystem &meta,
-                                     SettingDataString &data);
+                                     SettingDataSet &data_set);
 
-    void Enable(bool enabled);
+   protected:
+    virtual void showEvent(QShowEvent *event);
 
    public Q_SLOTS:
     void browseButtonClicked();
@@ -54,8 +55,9 @@ class WidgetSettingFilesystem : public QWidget {
 
     QTreeWidget *tree;
     QTreeWidgetItem *item;
-    const SettingMetaFilesystem &meta;
+    const SettingDataSet &data_set;
     SettingDataString &data;
+    const SettingMetaFilesystem &meta;
     QLineEdit *field;
     QPushButton *button;
 };

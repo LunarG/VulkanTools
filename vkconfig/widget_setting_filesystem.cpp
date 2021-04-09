@@ -26,18 +26,24 @@
 
 #include <cassert>
 
-WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetItem* item,
-                                                 const SettingMetaFilesystem& setting_meta, SettingDataString& setting_data)
-    : tree(tree), item(item), meta(setting_meta), data(setting_data), field(new QLineEdit(this)), button(new QPushButton(this)) {
+WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFilesystem& meta,
+                                                 SettingDataSet& data_set)
+    : tree(tree),
+      item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataString>(meta.key.c_str())),
+      data_set(data_set),
+      field(new QLineEdit(this)),
+      button(new QPushButton(this)) {
     assert(item);
-    assert(&setting_meta);
-    assert(&setting_data);
+    assert(&meta);
+    assert(&data);
 
-    item->setText(0, setting_meta.label.c_str());
-    item->setToolTip(0, setting_meta.description.c_str());
+    item->setText(0, meta.label.c_str());
+    item->setToolTip(0, meta.description.c_str());
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    this->field->setText(ReplaceBuiltInVariable(setting_data.value).c_str());
+    this->field->setText(ReplaceBuiltInVariable(data.value).c_str());
     this->field->setToolTip(this->field->text());
     this->field->show();
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
@@ -54,7 +60,11 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     tree->setItemWidget(child_item, 0, this->field);
 }
 
-void WidgetSettingFilesystem::Enable(bool enabled) {
+void WidgetSettingFilesystem::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
     this->button->setEnabled(enabled);
