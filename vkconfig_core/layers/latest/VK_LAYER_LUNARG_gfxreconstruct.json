@@ -159,23 +159,25 @@
                 "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
                 "type": "SAVE_FILE",
                 "filter": "*.gfxr",
-                "default": "${LOCAL}/gfxrecon_capture.gfxr"
-            },
-            {
-                "key": "capture_file_timestamp",
-                "env": "GFXRECON_CAPTURE_FILE_TIMESTAMP",
-                "label": "Capture File Name with Timestamp",
-                "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
-                "type": "BOOL",
-                "default": true
-            },
-            {
-                "key": "capture_file_flush",
-                "env": "GFXRECON_CAPTURE_FILE_FLUSH",
-                "label": "Capture File Flush After Write",
-                "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
-                "type": "BOOL",
-                "default": true
+                "default": "${LOCAL}/gfxrecon_capture.gfxr",
+                "settings": [
+                    {
+                        "key": "capture_file_timestamp",
+                        "env": "GFXRECON_CAPTURE_FILE_TIMESTAMP",
+                        "label": "Capture File Name with Timestamp",
+                        "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
+                        "type": "BOOL",
+                        "default": true
+                    },
+                    {
+                        "key": "capture_file_flush",
+                        "env": "GFXRECON_CAPTURE_FILE_FLUSH",
+                        "label": "Capture File Flush After Write",
+                        "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
+                        "type": "BOOL",
+                        "default": true
+                    }
+                ]
             },
             {
                 "key": "capture_compression_type",

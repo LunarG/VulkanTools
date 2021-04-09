@@ -170,16 +170,16 @@
                         "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
                         "type": "BOOL",
                         "default": true
+                    },
+                    {
+                        "key": "capture_file_flush",
+                        "env": "GFXRECON_CAPTURE_FILE_FLUSH",
+                        "label": "Capture File Flush After Write",
+                        "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
+                        "type": "BOOL",
+                        "default": true
                     }
                 ]
-            },
-            {
-                "key": "capture_file_flush",
-                "env": "GFXRECON_CAPTURE_FILE_FLUSH",
-                "label": "Capture File Flush After Write",
-                "description": "Flush output stream after each packet is written to the capture file. Default is: false.",
-                "type": "BOOL",
-                "default": true
             },
             {
                 "key": "capture_compression_type",
@@ -242,7 +242,16 @@
                         "label": "Page Guard Copy on Map",
                         "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
                         "type": "BOOL",
-                        "default": true
+                        "default": true,
+                        "dependence": {
+                            "mode": "ALL",
+                            "settings": [
+                                {
+                                    "key": "memory_tracking_mode",
+                                    "value": "page_guard"
+                                }
+                            ]
+                        }
                     },
                     {
                         "key": "page_guard_separate_read",
@@ -250,7 +259,16 @@
                         "label": "Page Guard Separate Read Tracking",
                         "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
                         "type": "BOOL",
-                        "default": true
+                        "default": true,
+                        "dependence": {
+                            "mode": "ALL",
+                            "settings": [
+                                {
+                                    "key": "memory_tracking_mode",
+                                    "value": "page_guard"
+                                }
+                            ]
+                        }
                     },
                     {
                         "key": "page_guard_external_memory",
@@ -258,7 +276,16 @@
                         "label": "Page Guard External Memory",
                         "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
                         "type": "BOOL",
-                        "default": false
+                        "default": false,
+                        "dependence": {
+                            "mode": "ALL",
+                            "settings": [
+                                {
+                                    "key": "memory_tracking_mode",
+                                    "value": "page_guard"
+                                }
+                            ]
+                        }
                     }
                 ]
             },
