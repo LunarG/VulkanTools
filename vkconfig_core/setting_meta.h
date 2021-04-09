@@ -47,6 +47,11 @@ struct SettingMeta : public Header {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
+struct SettingMetaGroup : public SettingMeta {
+    SettingMetaGroup(const std::string& key) : SettingMeta(key, SETTING_GROUP) {}
+    virtual ~SettingMetaGroup() {}
+};
+
 struct SettingMetaString : public SettingMeta {
     SettingMetaString(const std::string& key) : SettingMetaString(key, SETTING_STRING) {}
     virtual ~SettingMetaString() {}

@@ -27,6 +27,8 @@ std::shared_ptr<SettingData> SettingSet<SettingData>::AllocSetting(const std::st
     assert(!key.empty());
 
     switch (type) {
+        case SETTING_GROUP:
+            return std::shared_ptr<SettingData>(new SettingDataGroup(key));
         case SETTING_STRING:
             return std::shared_ptr<SettingData>(new SettingDataString(key));
         case SETTING_INT:
@@ -62,6 +64,8 @@ std::shared_ptr<SettingMeta> SettingSet<SettingMeta>::AllocSetting(const std::st
     assert(!key.empty());
 
     switch (type) {
+        case SETTING_GROUP:
+            return std::shared_ptr<SettingMeta>(new SettingMetaGroup(key));
         case SETTING_STRING:
             return std::shared_ptr<SettingMeta>(new SettingMetaString(key));
         case SETTING_INT:
