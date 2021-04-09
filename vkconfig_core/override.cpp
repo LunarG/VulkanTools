@@ -189,7 +189,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 }
                 case SETTING_FRAMES: {
                     const SettingDataFrames& data = static_cast<const SettingDataFrames&>(setting_data);
-                    const SettingMetaFrames* meta = layer->settings.Get<SettingMetaFrames>(data.key.c_str());
+                    const SettingMetaFrames* meta = FindSettingMeta<SettingMetaFrames>(layer->settings, data.key.c_str());
                     if (meta->IsValid(data)) {
                         stream << data.value.c_str();
                     } else {
@@ -204,7 +204,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 }
                 case SETTING_INT: {
                     const SettingDataInt& data = static_cast<const SettingDataInt&>(setting_data);
-                    const SettingMetaInt* meta = layer->settings.Get<SettingMetaInt>(setting_data.key.c_str());
+                    const SettingMetaInt* meta = FindSettingMeta<SettingMetaInt>(layer->settings, data.key.c_str());
 
                     if (meta->IsValid(data)) {
                         stream << data.value;
@@ -215,7 +215,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 }
                 case SETTING_FLOAT: {
                     const SettingDataFloat& data = static_cast<const SettingDataFloat&>(setting_data);
-                    const SettingMetaFloat* meta = layer->settings.Get<SettingMetaFloat>(setting_data.key.c_str());
+                    const SettingMetaFloat* meta = FindSettingMeta<SettingMetaFloat>(layer->settings, data.key.c_str());
 
                     const std::string float_format = meta->GetFloatFormat();
 
