@@ -36,9 +36,10 @@ class WidgetSettingList : public QWidget {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data);
+    explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataSet &data_set);
 
-    void Enable(bool enabled);
+   protected:
+    virtual void showEvent(QShowEvent *event);
 
    public Q_SLOTS:
     void OnAddCompleted(const QString &value);
@@ -63,11 +64,12 @@ class WidgetSettingList : public QWidget {
     void AddElement(EnabledNumberOrString &element);
     void ResetCompleter();
 
-    const SettingMetaList &meta;
-    SettingDataList &data;
-
     QTreeWidget *tree;
     QTreeWidgetItem *item;
+    const SettingDataSet &data_set;
+    SettingDataList &data;
+    const SettingMetaList &meta;
+
     QCompleter *search;
     QLineEdit *field;
     QPushButton *add_button;

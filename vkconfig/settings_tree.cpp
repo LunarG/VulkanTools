@@ -240,8 +240,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         debug_action_branch->setText(0, meta_debug->label.c_str());
         parent->addChild(debug_action_branch);
 
-        SettingDataFlags *data_debug = parameter.settings.Get<SettingDataFlags>("debug_action");
-
         // Each debug action has it's own checkbox
         for (std::size_t i = 0, n = meta_debug->enum_values.size(); i < n; ++i) {
             if (!IsPlatformSupported(meta_debug->enum_values[i].platform_flags)) continue;
@@ -249,7 +247,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            WidgetSettingFlag *widget = new WidgetSettingFlag(tree, *meta_debug, *data_debug, meta_debug->enum_values[i].key);
+            WidgetSettingFlag *widget =
+                new WidgetSettingFlag(tree, child, *meta_debug, parameter.settings, meta_debug->enum_values[i].key);
             debug_action_branch->addChild(child);
             tree->setItemWidget(child, 0, widget);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -364,9 +363,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
         case SETTING_LIST: {
             const SettingMetaList &meta = static_cast<const SettingMetaList &>(meta_object);
-            SettingDataList &data = *data_set.Get<SettingDataList>(meta.key.c_str());
 
-            WidgetSettingList *widget = new WidgetSettingList(tree, item, meta, data);
+            WidgetSettingList *widget = new WidgetSettingList(tree, item, meta, data_set);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
