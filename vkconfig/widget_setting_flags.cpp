@@ -27,22 +27,30 @@
 
 #include <cassert>
 
-WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& setting_meta, SettingDataFlags& setting_data,
-                                     const std::string& setting_flag)
-    : meta(setting_meta), data(setting_data), flag(setting_flag) {
-    assert(&setting_data);
-    assert(!setting_flag.empty());
+WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta,
+                                     SettingDataSet& data_set, const std::string& flag)
+    : tree(tree), item(item), meta(meta), data(*data_set.Get<SettingDataFlags>(meta.key.c_str())), data_set(data_set), flag(flag) {
+    assert(&data);
+    assert(!flag.empty());
 
-    const SettingEnumValue* enum_value = FindByKey(setting_meta.enum_values, setting_flag.c_str());
+    const SettingEnumValue* enum_value = FindByKey(meta.enum_values, flag.c_str());
     assert(enum_value);
     this->setText(enum_value->label.c_str());
     this->setFont(tree->font());
     this->setToolTip(enum_value->description.c_str());
 
-    if (std::find(setting_data.value.begin(), setting_data.value.end(), setting_flag) != setting_data.value.end())
-        this->setChecked(true);
+    if (std::find(data.value.begin(), data.value.end(), flag) != data.value.end()) this->setChecked(true);
 
     this->connect(this, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
+    tree->setItemWidget(item, 0, this);
+}
+
+void WidgetSettingFlag::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
 }
 
 void WidgetSettingFlag::OnItemChecked(bool checked) {

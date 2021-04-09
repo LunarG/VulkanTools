@@ -339,7 +339,6 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
         case SETTING_FLAGS: {
             const SettingMetaFlags &meta = static_cast<const SettingMetaFlags &>(meta_object);
-            SettingDataFlags &data = *data_set.Get<SettingDataFlags>(meta.key.c_str());
 
             item->setText(0, meta.label.c_str());
             item->setToolTip(0, meta.description.c_str());
@@ -348,11 +347,10 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                 if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;
                 if (meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
 
-                WidgetSettingFlag *widget = new WidgetSettingFlag(tree, meta, data, meta.enum_values[i].key.c_str());
                 QTreeWidgetItem *child = new QTreeWidgetItem();
                 item->addChild(child);
 
-                this->tree->setItemWidget(child, 0, widget);
+                WidgetSettingFlag *widget = new WidgetSettingFlag(tree, child, meta, data_set, meta.enum_values[i].key.c_str());
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             }
         } break;

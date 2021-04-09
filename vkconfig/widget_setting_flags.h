@@ -31,7 +31,11 @@
 class WidgetSettingFlag : public QCheckBox {
     Q_OBJECT
    public:
-    explicit WidgetSettingFlag(QTreeWidget* tree, const SettingMetaFlags& meta, SettingDataFlags& data, const std::string& flag);
+    explicit WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta, SettingDataSet& data_set,
+                               const std::string& flag);
+
+   protected:
+    virtual void showEvent(QShowEvent* event);
 
    public Q_SLOTS:
     void OnItemChecked(bool checked);
@@ -43,7 +47,11 @@ class WidgetSettingFlag : public QCheckBox {
     WidgetSettingFlag(const WidgetSettingFlag&) = delete;
     WidgetSettingFlag& operator=(const WidgetSettingFlag&) = delete;
 
-    const SettingMetaFlags& meta;
+    QTreeWidget* tree;
+    QTreeWidgetItem* item;
+    const SettingDataSet& data_set;
     SettingDataFlags& data;
+    const SettingMetaFlags& meta;
+
     std::string flag;
 };
