@@ -452,7 +452,7 @@ void SettingsTreeManager::OnSettingChanged() {
 void SettingsTreeManager::RefreshItem(QTreeWidgetItem *parent) {
     for (int i = 0, n = parent->childCount(); i < n; ++i) {
         QTreeWidgetItem *child = parent->child(i);
-        if (!child->isExpanded()) {
+        if (!parent->isExpanded()) {
             continue;
         }
         this->RefreshItem(child);

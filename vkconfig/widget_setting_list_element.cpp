@@ -52,6 +52,8 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
     this->button->setFont(tree->font());
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnButtonClicked()));
+
+    tree->setItemWidget(item, 0, this);
 }
 
 void WidgetSettingListElement::showEvent(QShowEvent* event) {
