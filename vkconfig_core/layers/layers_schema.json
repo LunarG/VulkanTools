@@ -203,6 +203,51 @@
                     "items": {
                         "oneOf": [
                             {
+                                "description": "layer setting for GROUP type",
+                                "type": "object",
+                                "required": [
+                                    "key",
+                                    "label",
+                                    "description",
+                                    "type"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "key": {
+                                        "description": "The unique identifier of a setting",
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [ "GROUP" ]
+                                    },
+                                    "label": {
+                                        "description": "The string used to identify the setting to the user",
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "description": "The description of the setting",
+                                        "type": "string"
+                                    },
+                                    "url": {
+                                        "description": "The URL to find more information about the setting",
+                                        "type": "string"
+                                    },
+                                    "platforms": {
+                                        "$ref": "#/definitions/platforms"
+                                    },
+                                    "status": {
+                                        "$ref": "#/definitions/status"
+                                    },
+                                    "view": {
+                                        "$ref": "#/definitions/view"
+                                    },
+                                    "settings": {
+                                        "type": "array"
+                                    }
+                                }
+                            },
+                            {
                                 "description": "layer setting for STRING and SAVE_FOLDER types",
                                 "type": "object",
                                 "required": [
@@ -249,6 +294,9 @@
                                     },
                                     "view": {
                                         "$ref": "#/definitions/view"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -302,6 +350,9 @@
                                     },
                                     "view": {
                                         "$ref": "#/definitions/view"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -353,6 +404,9 @@
                                     },
                                     "view": {
                                         "$ref": "#/definitions/view"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -403,6 +457,9 @@
                                     },
                                     "view": {
                                         "$ref": "#/definitions/view"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -460,6 +517,9 @@
                                     },
                                     "default": {
                                         "type": "number"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -517,6 +577,9 @@
                                     },
                                     "default": {
                                         "type": "integer"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -571,6 +634,9 @@
                                     },
                                     "default": {
                                         "type": "string"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -629,6 +695,9 @@
                                         "items": {
                                             "type": "string"
                                         }
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             },
@@ -695,6 +764,9 @@
                                     "list_only": {
                                         "description": "To exclude any additional values that the values in the list",
                                         "type": "boolean"
+                                    },
+                                    "settings": {
+                                        "type": "array"
                                     }
                                 }
                             }
