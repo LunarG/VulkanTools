@@ -33,7 +33,10 @@ class WidgetSettingString : public QWidget {
     Q_OBJECT
 
    public:
-    WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta, SettingDataString& data);
+    WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta, SettingDataSet& data_set);
+
+   protected:
+    virtual void showEvent(QShowEvent* event);
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
@@ -48,8 +51,12 @@ class WidgetSettingString : public QWidget {
     virtual void resizeEvent(QResizeEvent* event) override;
     void Resize();
 
+    QTreeWidget* tree;
+    QTreeWidgetItem* item;
+    const SettingDataSet& data_set;
     const SettingMetaString& meta;
     SettingDataString& data;
+
     QLineEdit* field;
     QSize resize;
 };

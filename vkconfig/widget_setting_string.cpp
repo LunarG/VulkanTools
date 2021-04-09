@@ -27,8 +27,13 @@
 static const int MIN_FIELD_WIDTH = 120;
 
 WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta,
-                                         SettingDataString& data)
-    : meta(meta), data(data), field(new QLineEdit(this)) {
+                                         SettingDataSet& data_set)
+    : tree(tree),
+      item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataString>(meta.key.c_str())),
+      data_set(data_set),
+      field(new QLineEdit(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
     assert(&meta);
@@ -47,6 +52,15 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* ite
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
 
     tree->setItemWidget(item, 0, this);
+}
+
+void WidgetSettingString::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
+    this->field->setEnabled(enabled);
 }
 
 void WidgetSettingString::Resize() {

@@ -286,10 +286,6 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     parent->addChild(item);
 
-    for (std::size_t i = 0, n = meta_object.children.Size(); i < n; ++i) {
-        this->BuildTreeItem(item, meta_object.children, data_set, meta_object.children[i]);
-    }
-
     switch (meta_object.type) {
         case SETTING_GROUP: {
             item->setText(0, meta_object.label.c_str());
@@ -363,9 +359,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
         case SETTING_STRING: {
             const SettingMetaString &meta = static_cast<const SettingMetaString &>(meta_object);
-            SettingDataString &data = *data_set.Get<SettingDataString>(meta.key.c_str());
 
-            WidgetSettingString *widget = new WidgetSettingString(tree, item, meta, data);
+            WidgetSettingString *widget = new WidgetSettingString(tree, item, meta, data_set);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -381,6 +376,10 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             item->setText(0, "Unknown setting");
             assert(0);  // Unknown setting
         } break;
+    }
+
+    for (std::size_t i = 0, n = meta_object.children.Size(); i < n; ++i) {
+        this->BuildTreeItem(item, meta_object.children, data_set, meta_object.children[i]);
     }
 }
 
