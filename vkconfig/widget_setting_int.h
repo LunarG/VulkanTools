@@ -39,8 +39,6 @@ class WidgetSettingInt : public QWidget {
    protected:
     virtual void showEvent(QShowEvent* event);
 
-    QLineEdit* GetField() const { return this->field; }
-
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
     void OnInvalidValue();
