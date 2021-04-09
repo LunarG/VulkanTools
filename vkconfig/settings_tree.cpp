@@ -443,6 +443,9 @@ void SettingsTreeManager::OnSettingChanged() {
     // Refresh settings tree enabled
     for (int i = 0, n = this->tree->topLevelItemCount(); i < n; ++i) {
         QTreeWidgetItem *child = this->tree->topLevelItem(i);
+        if (!child->isExpanded()) {
+            continue;
+        }
         this->RefreshItem(child);
     }
     this->tree->clearFocus();
@@ -456,7 +459,11 @@ void SettingsTreeManager::OnSettingChanged() {
 
 void SettingsTreeManager::RefreshItem(QTreeWidgetItem *parent) {
     for (int i = 0, n = parent->childCount(); i < n; ++i) {
-        this->RefreshItem(parent->child(i));
+        QTreeWidgetItem *child = parent->child(i);
+        if (!child->isExpanded()) {
+            continue;
+        }
+        this->RefreshItem(child);
     }
 
     QWidget *widget = this->tree->itemWidget(parent, 0);
