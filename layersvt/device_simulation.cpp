@@ -2105,16 +2105,13 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                                                         VkPhysicalDevice *pPhysicalDevices) {
     // Our layer-specific initialization...
 
-    // TODO (ncesario): Probably want to use a different way to check this. Could possibly use (pPhysicalDevices != nullptr)?
-    static bool pdd_initialized = false;
-
     std::lock_guard<std::mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(instance);
     VkResult result = dt->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 
     // HACK!! epd_count is used to ensure the following code only gets called _after_ vkCreateInstance finishes *in the "vkcube +
     // devsim" use case*
-    if (!pdd_initialized && (VK_SUCCESS == result)) {
+    if (pPhysicalDevices && (VK_SUCCESS == result)) {
         std::vector<VkPhysicalDevice> physical_devices;
         result = EnumerateAll<VkPhysicalDevice>(&physical_devices, [&](uint32_t *count, VkPhysicalDevice *results) {
             return dt->EnumeratePhysicalDevices(instance, count, results);
@@ -2125,6 +2122,10 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
 
         // For each physical device, create and populate a PDD instance.
         for (const auto &physical_device : physical_devices) {
+            if (PhysicalDeviceData::Find(physical_device)) {
+                continue;
+            }
+
             PhysicalDeviceData &pdd = PhysicalDeviceData::Create(physical_device, instance);
 
             EnumerateAll<VkExtensionProperties>(&(pdd.device_extensions), [&](uint32_t *count, VkExtensionProperties *results) {
@@ -2265,7 +2266,6 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
             pdd.physical_device_vulkan_1_1_features_.samplerYcbcrConversion =
                 pdd.physical_device_sampler_ycbcr_conversion_features_.samplerYcbcrConversion;
         }
-        pdd_initialized = true;
     }
     return result;
 }
