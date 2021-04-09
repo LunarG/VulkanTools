@@ -20,7 +20,7 @@
 
 #include "setting_meta.h"
 
-SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type), dependence_mode(DEPENDENCE_ALL) {
+SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(key), type(type), dependence_mode(DEPENDENCE_NONE) {
     assert(!this->key.empty());
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }
