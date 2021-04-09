@@ -33,10 +33,11 @@ class WidgetSettingFrames : public QWidget {
     Q_OBJECT
 
    public:
-    WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta, SettingDataFrames& data);
+    WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingFrames();
 
-    void Enable(bool enable);
+   protected:
+    virtual void showEvent(QShowEvent* event);
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
@@ -53,8 +54,12 @@ class WidgetSettingFrames : public QWidget {
 
     void Resize();
 
-    const SettingMetaFrames& meta;
+    QTreeWidget* tree;
+    QTreeWidgetItem* item;
+    const SettingDataSet& data_set;
     SettingDataFrames& data;
+    const SettingMetaFrames& meta;
+
     QLineEdit* field;
     QTimer* timer;
     QSize resize;

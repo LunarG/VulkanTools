@@ -30,8 +30,14 @@
 
 static const int MIN_FIELD_WIDTH = 80;
 
-WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataInt& data)
-    : meta(meta), data(data), field(new QLineEdit(this)), timer(new QTimer(this)) {
+WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set)
+    : tree(tree),
+      item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataInt>(meta.key.c_str())),
+      data_set(data_set),
+      field(new QLineEdit(this)),
+      timer(new QTimer(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
     assert(&meta);
@@ -63,7 +69,14 @@ WidgetSettingInt::~WidgetSettingInt() {
     }
 }
 
-void WidgetSettingInt::Enable(bool enable) { this->field->setEnabled(enable); }
+void WidgetSettingInt::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
+    this->field->setEnabled(enabled);
+}
 
 void WidgetSettingInt::OnInvalidValue() {
     QPalette palette;

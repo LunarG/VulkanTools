@@ -306,25 +306,22 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
         case SETTING_INT: {
             const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(meta_object);
-            SettingDataInt &data = *data_set.Get<SettingDataInt>(meta.key.c_str());
 
-            WidgetSettingInt *widget = new WidgetSettingInt(tree, item, meta, data);
+            WidgetSettingInt *widget = new WidgetSettingInt(tree, item, meta, data_set);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FLOAT: {
             const SettingMetaFloat &meta = static_cast<const SettingMetaFloat &>(meta_object);
-            SettingDataFloat &data = *data_set.Get<SettingDataFloat>(meta.key.c_str());
 
-            WidgetSettingFloat *widget = new WidgetSettingFloat(tree, item, meta, data);
+            WidgetSettingFloat *widget = new WidgetSettingFloat(tree, item, meta, data_set);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FRAMES: {
             const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(meta_object);
-            SettingDataFrames &data = *data_set.Get<SettingDataFrames>(meta.key.c_str());
 
-            WidgetSettingFrames *widget = new WidgetSettingFrames(tree, item, meta, data);
+            WidgetSettingFrames *widget = new WidgetSettingFrames(tree, item, meta, data_set);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -339,9 +336,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
         case SETTING_ENUM: {
             const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(meta_object);
-            SettingDataEnum &data = *data_set.Get<SettingDataEnum>(meta.key.c_str());
 
-            WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, data);
+            WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, data_set);
             this->connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 

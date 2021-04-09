@@ -31,8 +31,14 @@
 static const int MIN_FIELD_WIDTH = 80;
 
 WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFloat& meta,
-                                       SettingDataFloat& data)
-    : meta(meta), data(data), field(new QLineEdit(this)), timer(new QTimer(this)) {
+                                       SettingDataSet& data_set)
+    : tree(tree),
+      item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataFloat>(meta.key.c_str())),
+      data_set(data_set),
+      field(new QLineEdit(this)),
+      timer(new QTimer(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
     assert(&meta);
@@ -65,7 +71,14 @@ WidgetSettingFloat::~WidgetSettingFloat() {
     }
 }
 
-void WidgetSettingFloat::Enable(bool enable) { this->field->setEnabled(enable); }
+void WidgetSettingFloat::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
+    this->field->setEnabled(enabled);
+}
 
 void WidgetSettingFloat::OnInvalidValue() {
     QPalette palette;

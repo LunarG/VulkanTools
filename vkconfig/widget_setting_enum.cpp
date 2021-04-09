@@ -26,8 +26,14 @@
 
 static const int MIN_FIELD_WIDTH = 80;
 
-WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataEnum& data)
-    : tree(tree), item(item), meta(meta), data(data), field(new QComboBox(this)) {
+WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta,
+                                     SettingDataSet& data_set)
+    : tree(tree),
+      item(item),
+      meta(meta),
+      data(*data_set.Get<SettingDataEnum>(meta.key.c_str())),
+      data_set(data_set),
+      field(new QComboBox(this)) {
     assert(item);
     assert(&meta);
     assert(&data);
@@ -55,6 +61,15 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 
     tree->setItemWidget(item, 0, this);
+}
+
+void WidgetSettingEnum::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+
+    const bool enabled = ::CheckDependence(this->meta, data_set);
+
+    this->setEnabled(enabled);
+    this->field->setEnabled(enabled);
 }
 
 void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
