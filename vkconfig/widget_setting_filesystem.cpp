@@ -68,11 +68,9 @@ void WidgetSettingFilesystem::showEvent(QShowEvent* event) {
     this->setEnabled(enabled);
     for (int i = 0, n = this->item->childCount(); i < n; ++i) {
         QTreeWidgetItem* child = this->item->child(i);
-        if (!child->isExpanded()) {
-            continue;
-        }
         child->setDisabled(!enabled);
     }
+
     this->field->setEnabled(enabled);
     this->button->setEnabled(enabled);
 }
