@@ -189,7 +189,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     // Load layer settings
     const QJsonValue& json_settings_value = json_layer_object.value("settings");
     if (json_settings_value != QJsonValue::Undefined) {
-        this->AddSettings(this->settings, json_settings_value);
+        this->AddSettingsSet(this->settings, json_settings_value);
     } else {
         this->settings = default_layer.settings;
         this->status = default_layer.status;
@@ -208,60 +208,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
             const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
             for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {
-                const QJsonObject& json_setting_object = json_setting_array[setting_index].toObject();
-
-                const std::string& key = ReadStringValue(json_setting_object, "key");
-
-                const SettingMeta* setting_meta = FindSettingMeta(this->settings, key.c_str());
-                assert(setting_meta);
-
-                SettingData& setting_data = preset.settings.Create(key, setting_meta->type);
-                switch (setting_data.type) {
-                    case SETTING_LOAD_FILE:
-                    case SETTING_SAVE_FILE:
-                    case SETTING_SAVE_FOLDER:
-                    case SETTING_ENUM:
-                    case SETTING_FRAMES:
-                    case SETTING_STRING: {
-                        static_cast<SettingDataString&>(setting_data).value = ReadStringValue(json_setting_object, "value");
-                        break;
-                    }
-                    case SETTING_INT: {
-                        static_cast<SettingDataInt&>(setting_data).value = ReadIntValue(json_setting_object, "value");
-                        break;
-                    }
-                    case SETTING_BOOL_NUMERIC_DEPRECATED:
-                    case SETTING_BOOL: {
-                        static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
-                        break;
-                    }
-                    case SETTING_LIST: {
-                        SettingDataList& list = static_cast<SettingDataList&>(setting_data);
-
-                        const QJsonArray& array = ReadArray(json_setting_object, "value");
-                        for (int i = 0, n = array.size(); i < n; ++i) {
-                            const QJsonObject& object = array[i].toObject();
-
-                            const NumberOrString& number_or_string = ReadNumberOrStringValue(object, "key");
-
-                            EnabledNumberOrString enabled_string;
-                            enabled_string.key = number_or_string.key;
-                            enabled_string.number = number_or_string.number;
-                            enabled_string.enabled = ReadBoolValue(object, "enabled");
-
-                            list.value.push_back(enabled_string);
-                        }
-                        break;
-                    }
-                    case SETTING_FLAGS: {
-                        static_cast<SettingDataFlags&>(setting_data).value = ReadStringArray(json_setting_object, "value");
-                        break;
-                    }
-                    default: {
-                        assert(0);
-                        break;
-                    }
-                }
+                this->AddSettingData(preset.settings, json_setting_array[setting_index]);
             }
 
             presets.push_back(preset);
@@ -273,7 +220,64 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     return IsValid();  // Not all JSON file are layer JSON valid
 }
 
-void Layer::AddSettings(SettingMetaSet& settings, const QJsonValue& json_settings_value) {
+void Layer::AddSettingData(SettingDataSet& settings, const QJsonValue& json_setting_value) {
+    const QJsonObject& json_setting_object = json_setting_value.toObject();
+
+    const std::string& key = ReadStringValue(json_setting_object, "key");
+
+    const SettingMeta* setting_meta = FindSettingMeta(this->settings, key.c_str());
+    assert(setting_meta);
+
+    SettingData& setting_data = settings.Create(key, setting_meta->type);
+    switch (setting_data.type) {
+        case SETTING_LOAD_FILE:
+        case SETTING_SAVE_FILE:
+        case SETTING_SAVE_FOLDER:
+        case SETTING_ENUM:
+        case SETTING_FRAMES:
+        case SETTING_STRING: {
+            static_cast<SettingDataString&>(setting_data).value = ReadStringValue(json_setting_object, "value");
+            break;
+        }
+        case SETTING_INT: {
+            static_cast<SettingDataInt&>(setting_data).value = ReadIntValue(json_setting_object, "value");
+            break;
+        }
+        case SETTING_BOOL_NUMERIC_DEPRECATED:
+        case SETTING_BOOL: {
+            static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
+            break;
+        }
+        case SETTING_LIST: {
+            SettingDataList& list = static_cast<SettingDataList&>(setting_data);
+
+            const QJsonArray& array = ReadArray(json_setting_object, "value");
+            for (int i = 0, n = array.size(); i < n; ++i) {
+                const QJsonObject& object = array[i].toObject();
+
+                const NumberOrString& number_or_string = ReadNumberOrStringValue(object, "key");
+
+                EnabledNumberOrString enabled_string;
+                enabled_string.key = number_or_string.key;
+                enabled_string.number = number_or_string.number;
+                enabled_string.enabled = ReadBoolValue(object, "enabled");
+
+                list.value.push_back(enabled_string);
+            }
+            break;
+        }
+        case SETTING_FLAGS: {
+            static_cast<SettingDataFlags&>(setting_data).value = ReadStringArray(json_setting_object, "value");
+            break;
+        }
+        default: {
+            assert(0);
+            break;
+        }
+    }
+}
+
+void Layer::AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_settings_value) {
     assert(json_settings_value.isArray());
     const QJsonArray& json_array = json_settings_value.toArray();
     for (int i = 0, n = json_array.size(); i < n; ++i) {
@@ -285,7 +289,7 @@ void Layer::AddSettings(SettingMetaSet& settings, const QJsonValue& json_setting
 
         const QJsonValue& json_children = json_setting.value("settings");
         if (json_children != QJsonValue::Undefined) {
-            this->AddSettings(setting_meta.children, json_children);
+            this->AddSettingsSet(setting_meta.children, json_children);
         }
 
         switch (type) {
