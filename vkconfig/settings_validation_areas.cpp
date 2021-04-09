@@ -312,12 +312,13 @@ void SettingsValidationAreas::itemChanged(QTreeWidgetItem *item, int column) {
 
     emit settingChanged();
 
+    _main_tree_widget->blockSignals(true);
+
     // Anything toggled needs to be selected in order to work well with the
     // information display.
     _main_tree_widget->setCurrentItem(item);
 
     // Best Practices
-    _main_tree_widget->blockSignals(true);
     if (item == _best_practices_box && _best_practices_arm_box != nullptr) {
         if (_best_practices_arm_box && item->checkState(0) == Qt::Checked) {
             _best_practices_arm_box->setFlags(_best_practices_arm_box->flags() | Qt::ItemIsEnabled);
