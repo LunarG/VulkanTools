@@ -38,6 +38,8 @@ class WidgetSettingList : public QWidget {
    public:
     explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataList &data);
 
+    void Enable(bool enabled);
+
    public Q_SLOTS:
     void OnAddCompleted(const QString &value);
     void OnButtonPressed();

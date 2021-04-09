@@ -92,6 +92,11 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     tree->setItemWidget(item, 0, this);
 }
 
+void WidgetSettingList::Enable(bool enabled) {
+    this->field->setEnabled(enabled);
+    this->add_button->setEnabled(enabled);
+}
+
 void WidgetSettingList::Resize() {
     const int button_size = MIN_BUTTON_SIZE;
 
