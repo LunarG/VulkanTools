@@ -251,7 +251,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
             WidgetSettingFlag *widget =
                 new WidgetSettingFlag(tree, child, *meta_debug, parameter.settings, meta_debug->enum_values[i].key);
             debug_action_branch->addChild(child);
-            tree->setItemWidget(child, 0, widget);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
             // The log message action also has a child; the log file selection setting/widget
@@ -352,6 +351,10 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
                 WidgetSettingFlag *widget = new WidgetSettingFlag(tree, child, meta, data_set, meta.enum_values[i].key.c_str());
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+
+                for (std::size_t j = 0, o = meta.enum_values[i].settings.Size(); j < o; ++j) {
+                    this->BuildTreeItem(child, meta.enum_values[i].settings, data_set, meta.enum_values[i].settings[j]);
+                }
             }
         } break;
 

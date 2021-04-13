@@ -178,14 +178,14 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
     const QJsonObject& json_configuration_object = json_configuration_value.toObject();
 
     // Required configuration values
-    key = ReadString(json_configuration_object, "name").c_str();
-    setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
-    description = ReadString(json_configuration_object, "description").c_str();
+    this->key = ReadString(json_configuration_object, "name").c_str();
+    this->setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
+    this->description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
     const QJsonValue& json_platform_value = json_configuration_object.value("platforms");
     if (json_platform_value != QJsonValue::Undefined) {
-        platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
+        this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
     }
 
     // Required configuration layers values
@@ -283,7 +283,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         }
 
         parameter.settings = settings;
-        parameters.push_back(parameter);
+        this->parameters.push_back(parameter);
     }
 
     return true;
@@ -292,7 +292,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 bool Configuration::Load(const std::vector<Layer>& available_layers, const std::string& full_path) {
     assert(!full_path.empty());
 
-    parameters.clear();
+    this->parameters.clear();
 
     QFile file(full_path.c_str());
     const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);

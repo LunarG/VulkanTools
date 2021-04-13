@@ -384,6 +384,10 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_sett
                     setting_enum_value.key = ReadStringValue(json_object, "key");
                     LoadMetaHeader(setting_enum_value, json_object);
 
+                    if (json_object.value("settings") != QJsonValue::Undefined) {
+                        this->AddSettingsSet(setting_enum_value.settings, json_object.value("settings"));
+                    }
+
                     meta.enum_values.push_back(setting_enum_value);
                 }
                 if (type == SETTING_FLAGS) {
@@ -517,14 +521,23 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
     }
 }
 
+static void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set) {
+    for (std::size_t i = 0, n = meta_set.Size(); i < n; ++i) {
+        const SettingMeta& setting_meta = meta_set[i];
+        SettingData& setting_data = data_set.Create(setting_meta.key, setting_meta.type);
+        InitSettingDefaultValue(setting_data, setting_meta);
+
+        if (setting_meta.type == SETTING_ENUM || setting_meta.type == SETTING_FLAGS) {
+            const SettingMetaEnumeration& setting_meta_enum = static_cast<const SettingMetaEnumeration&>(setting_meta);
+            for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
+                CollectDefaultSettingData(setting_meta_enum.enum_values[j].settings, data_set);
+            }
+        }
+    }
+}
+
 SettingDataSet CollectDefaultSettingData(const SettingMetaSet& meta) {
     SettingDataSet result;
-
-    for (std::size_t i = 0, n = meta.Size(); i < n; ++i) {
-        const SettingMeta& setting_meta = meta[i];
-        SettingData& setting_data = result.Create(setting_meta.key, setting_meta.type);
-        InitSettingDefaultValue(setting_data, setting_meta);
-    }
-
+    CollectDefaultSettingData(meta, result);
     return result;
 }

@@ -172,6 +172,7 @@ struct SettingMetaFolderSave : public SettingMetaFilesystem {
 
 struct SettingEnumValue : public Header {
     std::string key;
+    SettingMetaSet settings;
 };
 
 bool operator==(const SettingEnumValue& a, const SettingEnumValue& b);
