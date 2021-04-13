@@ -1,5 +1,5 @@
 {
-    "file_format_version" : "1.4.0",
+    "file_format_version" : "1.2.0",
     "layer" : {
         "name": "VK_LAYER_KHRONOS_validation",
         "library_path": ".\\VkLayer_khronos_validation.dll",

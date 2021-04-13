@@ -5,7 +5,7 @@
         "blacklisted_layers": [
         ],
         "component_layers": [
-            "VK_LAYER_LUNARG_reference_1_4_0"
+            "VK_LAYER_LUNARG_reference_1_2_0"
         ],
         "description": "LunarG Override Layer",
         "disable_environment": {

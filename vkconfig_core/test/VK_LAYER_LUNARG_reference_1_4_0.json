@@ -1,7 +1,7 @@
 {
-    "file_format_version" : "1.4.0",
+    "file_format_version" : "1.2.0",
     "layer": {
-        "name": "VK_LAYER_LUNARG_reference_1_4_0",
+        "name": "VK_LAYER_LUNARG_reference_1_2_0",
         "library_path": ".\\VkLayer_reference.dll",
         "api_version": "1.2.170",
         "implementation_version": "Build 76",
