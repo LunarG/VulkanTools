@@ -171,6 +171,14 @@ std::size_t CountSettings(const SettingMetaSet& settings) {
 
     for (std::size_t i = 0, n = settings.Size(); i < n; ++i) {
         count += CountSettings(settings[i].children);
+
+        if (IsEnum(settings[i].type)) {
+            const SettingMetaEnumeration& meta_enum = static_cast<const SettingMetaEnumeration&>(settings[i]);
+
+            for (std::size_t j = 0, o = meta_enum.enum_values.size(); j < o; ++j) {
+                count += CountSettings(meta_enum.enum_values[j].settings);
+            }
+        }
     }
 
     return count;

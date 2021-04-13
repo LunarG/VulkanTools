@@ -207,8 +207,7 @@ void SettingsTreeManager::CleanupGUI() {
 
 static bool IsBuiltinValidation(const std::string &key) {
     static const char *VALIDATION_KEYS[] = {"disables",         "enables",        "gpuav_buffer_oob",
-                                            "printf_to_stdout", "printf_verbose", "printf_buffer_size",
-                                            "debug_action",     "log_filename"};
+                                            "printf_to_stdout", "printf_verbose", "printf_buffer_size"};
 
     for (std::size_t i = 0, n = countof(VALIDATION_KEYS); i < n; ++i) {
         if (key == VALIDATION_KEYS[i]) return true;
@@ -231,41 +230,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     this->validation.reset(new SettingsValidationAreas(this->tree, validation_areas_item, validation_layer->_api_version,
                                                        validation_layer->settings, parameter.settings));
     this->connect(this->validation.get(), SIGNAL(settingChanged()), this, SLOT(OnSettingChanged()));
-
-    // Debug area
-    const SettingMetaFlags *meta_debug = validation_layer->settings.Get<SettingMetaFlags>("debug_action");
-    if (meta_debug != nullptr) {
-        // The debug action set of settings has it's own branch
-        QTreeWidgetItem *debug_action_branch = new QTreeWidgetItem();
-        debug_action_branch->setText(0, meta_debug->label.c_str());
-        parent->addChild(debug_action_branch);
-
-        // Each debug action has it's own checkbox
-        for (std::size_t i = 0, n = meta_debug->enum_values.size(); i < n; ++i) {
-            if (!IsPlatformSupported(meta_debug->enum_values[i].platform_flags)) continue;
-            if (meta_debug->enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
-
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-
-            WidgetSettingFlag *widget =
-                new WidgetSettingFlag(tree, child, *meta_debug, parameter.settings, meta_debug->enum_values[i].key);
-            debug_action_branch->addChild(child);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-
-            // The log message action also has a child; the log file selection setting/widget
-            // Note, this is usually last, but I'll check for it any way in case other new items are added
-            if (meta_debug->enum_values[i].key == "VK_DBG_LAYER_ACTION_LOG_MSG") {  // log action?
-                const SettingMetaFileSave *meta_log_file = validation_layer->settings.Get<SettingMetaFileSave>("log_filename");
-
-                QTreeWidgetItem *child_log = new QTreeWidgetItem();
-                child->addChild(child_log);
-
-                WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, child_log, *meta_log_file, parameter.settings);
-                this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-            }
-        }
-    }
 
     const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
     for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {

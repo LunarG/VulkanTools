@@ -199,7 +199,25 @@
                     {
                         "key": "VK_DBG_LAYER_ACTION_LOG_MSG",
                         "label": "Log Message",
-                        "description": "Log a txt message to stdout or to a log filename."
+                        "description": "Log a txt message to stdout or to a log filename.",
+                        "settings": [
+                            {
+                                "key": "log_filename",
+                                "label": "Log Filename",
+                                "description": "Specifies the output filename",
+                                "type": "SAVE_FILE",
+                                "default": "stdout",
+                                "dependence": {
+                                    "mode": "ALL",
+                                    "settings": [
+                                        {
+                                            "key": "debug_action",
+                                            "value": [ "VK_DBG_LAYER_ACTION_LOG_MSG" ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
                     },
                     {
                         "key": "VK_DBG_LAYER_ACTION_CALLBACK",
@@ -257,22 +275,6 @@
                     "warn",
                     "perf"
                 ]
-            },
-            {
-                "key": "log_filename",
-                "label": "Log Filename",
-                "description": "Specifies the output filename",
-                "type": "SAVE_FILE",
-                "default": "stdout",
-                "dependence": {
-                    "mode": "ALL",
-                    "settings": [
-                        {
-                            "key": "debug_action",
-                            "value": [ "VK_DBG_LAYER_ACTION_LOG_MSG" ]
-                        }
-                    ]
-                }
             },
             {
                 "key": "duplicate_message_limit",
