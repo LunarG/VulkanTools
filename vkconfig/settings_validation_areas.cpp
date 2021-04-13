@@ -152,7 +152,7 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
                 _gpu_assisted_reserve_box = this->AddItem(_gpu_assisted_box, enum_gpu_assisted_slot, enabled);
             }
 
-            const SettingMetaBool *meta_gpuav_buffer_oob = settings_meta.Get<SettingMetaBool>("gpuav_buffer_oob");
+            const SettingMetaBool *meta_gpuav_buffer_oob = FindSettingMeta<SettingMetaBool>(settings_meta, "gpuav_buffer_oob");
 
             if (meta_gpuav_buffer_oob != nullptr) {
                 _gpu_assisted_oob_box = this->AddItem(_gpu_assisted_box, meta_gpuav_buffer_oob);
@@ -169,17 +169,17 @@ SettingsValidationAreas::SettingsValidationAreas(QTreeWidget *main_tree, QTreeWi
             _debug_printf_radio = new QRadioButton();
             _main_tree_widget->setItemWidget(_debug_printf_box, 0, _debug_printf_radio);
 
-            const SettingMetaBool *meta_printf_to_stdout = settings_meta.Get<SettingMetaBool>("printf_to_stdout");
+            const SettingMetaBool *meta_printf_to_stdout = FindSettingMeta<SettingMetaBool>(settings_meta, "printf_to_stdout");
             if (meta_printf_to_stdout != nullptr) {
                 _debug_printf_to_stdout = this->AddItem(_debug_printf_box, meta_printf_to_stdout);
             }
 
-            const SettingMetaBool *meta_printf_verbose = settings_meta.Get<SettingMetaBool>("printf_verbose");
+            const SettingMetaBool *meta_printf_verbose = FindSettingMeta<SettingMetaBool>(settings_meta, "printf_verbose");
             if (meta_printf_verbose != nullptr) {
                 _debug_printf_verbose = this->AddItem(_debug_printf_box, meta_printf_verbose);
             }
 
-            const SettingMetaInt *meta_printf_buffer_size = settings_meta.Get<SettingMetaInt>("printf_buffer_size");
+            const SettingMetaInt *meta_printf_buffer_size = FindSettingMeta<SettingMetaInt>(settings_meta, "printf_buffer_size");
             if (meta_printf_buffer_size != nullptr) {
                 _debug_printf_buffer_size = new QTreeWidgetItem();
                 _debug_printf_box->addChild(_debug_printf_buffer_size);
