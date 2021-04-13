@@ -19,7 +19,7 @@
         "presets": [
             {
                 "label": "Text Output",
-                "description": "API dump to a text file.",
+                "description": "Output API dump to a text file",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
@@ -39,7 +39,7 @@
             },
             {
                 "label": "HTML Output",
-                "description": "API dump to a HTNL file.",
+                "description": "Output API dump to a HTML file",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
@@ -59,7 +59,7 @@
             },
             {
                 "label": "JSON Output",
-                "description": "API dump to a JSON file.",
+                "description": "Output API dump to a JSON file",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                 "status": "STABLE",
                 "settings": [
@@ -91,7 +91,7 @@
                 "key": "output_format",
                 "env": "VK_APIDUMP_OUTPUT_FORMAT",
                 "label": "Output Format",
-                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), HTML, or JSON",
+                "description": "Specifies the format used for output; can be HTML, JSON, or  Text (default -- outputs plain text)",
                 "type": "ENUM",
                 "flags": [
                     {
