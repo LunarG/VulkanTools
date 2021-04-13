@@ -147,27 +147,6 @@
                 "default": true
             },
             {
-                "key": "indent_size",
-                "label": "Indent Size",
-                "description": "Specifies the number of spaces that a tab is equal to",
-                "type": "INT",
-                "default": 4,
-                "range": {
-                    "min": 1,
-                    "max": 16
-                },
-                "unit": "chars",
-                "settings": [
-                    {
-                        "key": "use_spaces",
-                        "label": "Use Spaces",
-                        "description": "Setting this to true causes all tab characters to be replaced with spaces",
-                        "type": "BOOL",
-                        "default": true
-                    }
-                ]
-            },
-            {
                 "key": "name_size",
                 "label": "Name Size",
                 "description": "The number of characters the name of a variable should consume, assuming more are not required",
@@ -193,6 +172,15 @@
                         "default": 32,
                         "range": {
                             "min": 0
+                        },
+                        "dependence": {
+                            "mode": "ALL",
+                            "settings": [
+                                {
+                                    "key": "show_types",
+                                    "value": true
+                                }
+                            ]
                         }
                     }
                 ]
@@ -227,6 +215,36 @@
                 "description": "Dump \"address\" in place of hex addresses",
                 "type": "BOOL",
                 "default": false
+            },
+            {
+                "key": "use_spaces",
+                "label": "Use Spaces",
+                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                "type": "BOOL",
+                "default": true,
+                "settings": [
+                    {
+                        "key": "indent_size",
+                        "label": "Indent Size",
+                        "description": "Specifies the number of spaces that a tab is equal to",
+                        "type": "INT",
+                        "default": 4,
+                        "range": {
+                            "min": 1,
+                            "max": 16
+                        },
+                        "unit": "chars",
+                        "dependence": {
+                            "mode": "ALL",
+                            "settings": [
+                                {
+                                    "key": "use_spaces",
+                                    "value": true
+                                }
+                            ]
+                        }
+                    }
+                ]
             }
         ]
     }
