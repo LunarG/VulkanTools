@@ -1,5 +1,5 @@
 {
-    "file_format_version" : "1.3.0",
+    "file_format_version": "1.3.0",
     "layer": {
         "name": "VK_LAYER_KHRONOS_validation",
         "type": "GLOBAL",
@@ -6828,18 +6828,91 @@
                         "description": "Enables processing of debug printf instructions in shaders and sending debug strings to the debug callback",
                         "url": "${LUNARG_SDK}/debug_printf.html",
                         "status": "STABLE",
-                        "platforms": [ "WINDOWS", "LINUX" ]
+                        "platforms": [ "WINDOWS", "LINUX" ],
+                        "settings": [
+                            {
+                                "key": "printf_to_stdout",
+                                "label": "Printf to stdout",
+                                "description": "To redirect Debug Printf messages from the debug callback to stdout",
+                                "type": "BOOL",
+                                "default": true,
+                                "dependence": {
+                                    "mode": "ANY",
+                                    "settings": [
+                                        {
+                                            "key": "enables",
+                                            "value": [ "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT" ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "key": "printf_verbose",
+                                "label": "Verbose",
+                                "description": "Verbosity of debug printf messages",
+                                "type": "BOOL",
+                                "default": false,
+                                "dependence": {
+                                    "mode": "ANY",
+                                    "settings": [
+                                        {
+                                            "key": "enables",
+                                            "value": [ "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT" ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "key": "printf_buffer_size",
+                                "label": "Printf buffer size",
+                                "description": "The size in bytes of the buffer used by debug printf",
+                                "type": "INT",
+                                "default": 1024,
+                                "range": {
+                                    "min": 128,
+                                    "max": 1048576
+                                },
+                                "unit": "bytes",
+                                "dependence": {
+                                    "mode": "ANY",
+                                    "settings": [
+                                        {
+                                            "key": "enables",
+                                            "value": [ "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT" ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
                     },
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
                         "label": "GPU-Assisted",
-                        "description": "Activating this feature instruments shader programs to generate additional diagnostic data.",
+                        "description": "Check for API usage errors at shader execution time",
                         "url": "${LUNARG_SDK}/gpu_validation.html",
-                        "platforms": [ "WINDOWS", "LINUX" ]
+                        "platforms": [ "WINDOWS", "LINUX" ],
+                        "settings": [
+                            {
+                                "key": "gpuav_buffer_oob",
+                                "label": "Check Out of Bounds ",
+                                "description": "Enable buffer out of bounds checking",
+                                "type": "BOOL",
+                                "default": false,
+                                "dependence": {
+                                    "mode": "ANY",
+                                    "settings": [
+                                        {
+                                            "key": "enables",
+                                            "value": [ "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT" ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
                     },
                     {
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT",
-                        "label": "Reserve a descriptorSet binding slot",
+                        "label": "Reserve Descriptor Set Binding Slot",
                         "description": "Specifies that the validation layers reserve a descriptor set binding slot for their own use. The layer reports a value for VkPhysicalDeviceLimits::maxBoundDescriptorSets that is one less than the value reported by the device. If the device supports the binding of only one descriptor set, the validation layer does not perform GPU-assisted validation.",
                         "platforms": [ "WINDOWS", "LINUX" ]
                     },
@@ -6858,39 +6931,6 @@
                     }
                 ],
                 "default": []
-            },
-            {
-                "key": "gpuav_buffer_oob",
-                "label": "Buffer out of bounds check",
-                "description": "Enable buffer out of bounds checking",
-                "type": "BOOL",
-                "default": false
-            },
-            {
-                "key": "printf_to_stdout",
-                "label": "Printf to stdout",
-                "description": "To redirect Debug Printf messages from the debug callback to stdout",
-                "type": "BOOL",
-                "default": true
-            },
-            {
-                "key": "printf_verbose",
-                "label": "Verbose",
-                "description": "Verbosity of debug printf messages",
-                "type": "BOOL",
-                "default": false
-            },
-            {
-                "key": "printf_buffer_size",
-                "label": "Printf buffer size (in bytes)",
-                "description": "The size in bytes of the buffer used by debug printf",
-                "type": "INT",
-                "default": 1024,
-                "range": {
-                    "min": 128,
-                    "max": 1048576
-                },
-                "unit": "bytes"
             }
         ]
     }

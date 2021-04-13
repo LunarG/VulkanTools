@@ -131,7 +131,7 @@ bool WidgetSettingList::eventFilter(QObject *target, QEvent *event) {
 void WidgetSettingList::ResetCompleter() {
     if (this->search != nullptr) this->search->deleteLater();
 
-    this->search = new QCompleter(ConvertValues(list), this);
+    this->search = new QCompleter(ConvertValues(this->list), this);
     this->search->setCaseSensitivity(Qt::CaseSensitive);
     this->search->setCompletionMode(QCompleter::PopupCompletion);
     this->search->setModelSorting(QCompleter::CaseSensitivelySortedModel);

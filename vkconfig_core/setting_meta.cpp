@@ -158,9 +158,19 @@ const SettingMeta* FindSettingMeta(const SettingMetaSet& settings, const char* k
     if (setting_meta != nullptr) return setting_meta;
 
     for (std::size_t i = 0, n = settings.Size(); i < n; ++i) {
-        const SettingMeta* child = FindSettingMeta(settings[i].children, key);
+        if (settings[i].key == key) return &settings[i];
 
+        const SettingMeta* child = FindSettingMeta(settings[i].children, key);
         if (child != nullptr) return child;
+
+        if (IsEnum(settings[i].type)) {
+            const SettingMetaEnum& setting_meta_enum = static_cast<const SettingMetaEnum&>(settings[i]);
+
+            for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
+                const SettingMeta* setting_meta = FindSettingMeta(setting_meta_enum.enum_values[j].settings, key);
+                if (setting_meta != nullptr) return setting_meta;
+            }
+        }
     }
 
     return nullptr;
