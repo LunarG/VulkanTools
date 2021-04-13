@@ -122,7 +122,7 @@ TEST(test_configuration, load_and_save_v2_1_0) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_4_0");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_2_0");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter->state);
 
@@ -141,14 +141,14 @@ TEST(test_configuration, load_and_save_v2_2_0) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_4_0");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_2_0");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter->state);
 
-    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_0_layer_1_4_0.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_0_layer_1_2_0.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_0_layer_1_4_0.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_0_layer_1_2_0.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
@@ -160,14 +160,14 @@ TEST(test_configuration, load_and_save_v2_2_1) {
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_4_0");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_2_0");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter->state);
 
-    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_1_layer_1_4_0.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_1_layer_1_2_0.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_1_layer_1_4_0.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_1_layer_1_2_0.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
