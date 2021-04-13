@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * The vkConfig2 program monitors and adjusts the Vulkan configuration
- * environment. These settings are wrapped in this class, which serves
- * as the "model" of the system.
- *
  * Authors:
  * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
@@ -53,18 +49,17 @@ class Layer {
    public:
     std::string key;
     Version file_format_version;
-    std::string _library_path;  // This is a relative path, straight out of the json
-    Version _api_version;
-    std::string _implementation_version;
+    std::string library_path;  // This is a relative path, straight out of the json
+    Version api_version;
+    std::string implementation_version;
     StatusType status;
     std::string description;
     std::string url;
+    std::string path;  // Actual path to the folder that contains the layer (this is important!)
+    LayerType type;
 
     SettingMetaSet settings;
     std::vector<LayerPreset> presets;
-
-    std::string _layer_path;  // Actual path to the folder that contains the layer (this is important!)
-    LayerType _layer_type;
 
     // File based layers
     bool Load(const std::string& full_path_to_file, LayerType layer_type);

@@ -47,24 +47,24 @@ static std::string GetBuiltinFolder(const Version& version) {
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
-Layer::Layer() : status(STATUS_STABLE), _layer_type(LAYER_TYPE_EXPLICIT) {}
+Layer::Layer() : status(STATUS_STABLE), type(LAYER_TYPE_EXPLICIT) {}
 
-Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), status(STATUS_STABLE), _layer_type(layer_type) {}
+Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), status(STATUS_STABLE), type(layer_type) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const std::string& implementation_version, const std::string& library_path, const std::string& type)
     : key(key),
       file_format_version(file_format_version),
-      _library_path(library_path),
-      _api_version(api_version),
-      _implementation_version(implementation_version),
+      library_path(library_path),
+      api_version(api_version),
+      implementation_version(implementation_version),
       status(STATUS_STABLE),
-      _layer_type(layer_type) {}
+      type(layer_type) {}
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return file_format_version != Version::VERSION_NULL && !key.empty() && !_library_path.empty() &&
-           _api_version != Version::VERSION_NULL && !_implementation_version.empty();
+    return file_format_version != Version::VERSION_NULL && !key.empty() && !library_path.empty() &&
+           api_version != Version::VERSION_NULL && !implementation_version.empty();
 }
 
 std::string Layer::FindPresetLabel(const SettingDataSet& settings) const {
@@ -94,7 +94,7 @@ static void LoadMetaHeader(Header& header, const QJsonObject& json_object) {
 
 /// Reports errors via a message box. This might be a bad idea?
 bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
-    _layer_type = layer_type;  // Set layer type, no way to know this from the json file
+    this->type = layer_type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.empty()) return false;
 
@@ -106,7 +106,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     QString json_text = file.readAll();
     file.close();
 
-    this->_layer_path = full_path_to_file;
+    this->path = full_path_to_file;
 
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
@@ -140,17 +140,17 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
     this->key = ReadStringValue(json_layer_object, "name");
-    this->_api_version = ReadVersionValue(json_layer_object, "api_version");
+    this->api_version = ReadVersionValue(json_layer_object, "api_version");
 
     Validator validator;
-    const bool is_valid = this->_api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
+    const bool is_valid = this->api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
-        this->_library_path = json_library_path_value.toString().toStdString();
+        this->library_path = json_library_path_value.toString().toStdString();
     }
 
-    this->_implementation_version = ReadStringValue(json_layer_object, "implementation_version");
+    this->implementation_version = ReadStringValue(json_layer_object, "implementation_version");
     if (json_layer_object.value("status") != QJsonValue::Undefined) {
         this->status = GetStatusType(ReadStringValue(json_layer_object, "status").c_str());
     }
@@ -166,7 +166,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
         full_path_to_file.rfind(":/") == 0;  // Check whether the path start with ":/" for resource file paths.
 
     if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
-        if (!is_builtin_layer_file || (is_builtin_layer_file && this->_api_version >= Version(1, 2, 170))) {
+        if (!is_builtin_layer_file || (is_builtin_layer_file && this->api_version >= Version(1, 2, 170))) {
             const std::string title =
                 format("Failed to validate a layer manifest. The layer will be ignored.", full_path_to_file.c_str());
 
@@ -182,8 +182,8 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     Layer default_layer;
     if (is_missing_layer_data && !is_builtin_layer_file) {
-        const std::string path = GetBuiltinFolder(this->_api_version) + "/" + this->key + ".json";
-        default_layer.Load(path, _layer_type);
+        const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
+        default_layer.Load(path, this->type);
     }
 
     // Load layer settings

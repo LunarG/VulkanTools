@@ -30,7 +30,7 @@ TEST(test_configuration_manager, create_remove) {
     std::vector<Layer> available_layers;
     Layer layer;
     layer.key = "VK_LAYER_KHRONOS_validation";
-    layer._layer_path = "VK_LAYER_KHRONOS_validation.dummy_path";
+    layer.path = "VK_LAYER_KHRONOS_validation.dummy_path";
     available_layers.push_back(layer);
 
     ConfigurationManager configuration_manager(path_manager, environment);
