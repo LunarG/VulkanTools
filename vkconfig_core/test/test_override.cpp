@@ -36,8 +36,8 @@ extern bool EraseLayersOverride(const std::string& layers_path);
 extern bool EraseSettingsOverride(const std::string& settings_path);
 
 TEST(test_override, write_erase_2_2_0) {
-    const std::string LAYERS("/override_layers_2_2_0_schema_1_4_0.json");
-    const std::string SETTINGS("/override_settings_2_2_0_schema_1_4_0.txt");
+    const std::string LAYERS("/override_layers_2_2_0_schema_1_2_0.json");
+    const std::string SETTINGS("/override_settings_2_2_0_schema_1_2_0.txt");
 
     PathManager paths;
     Environment env(paths, Version(1, 2, 162));
@@ -94,8 +94,8 @@ TEST(test_override, write_erase_2_2_0) {
 }
 
 TEST(test_override, write_erase_2_2_1) {
-    const std::string LAYERS("/override_layers_2_2_1_schema_1_4_0.json");
-    const std::string SETTINGS("/override_settings_2_2_1_schema_1_4_0.txt");
+    const std::string LAYERS("/override_layers_2_2_1_schema_1_2_0.json");
+    const std::string SETTINGS("/override_settings_2_2_1_schema_1_2_0.txt");
 
     PathManager paths;
     Environment env(paths, Version(1, 2, 162));

@@ -7,13 +7,13 @@
         <file>Configuration 2.2.0.json</file>
         <file>Configuration 2.2.1.json</file>
 
-        <file>VK_LAYER_LUNARG_reference_1_3_0.json</file>
-        <file>VK_LAYER_LUNARG_reference_1_4_0.json</file>
+        <file>VK_LAYER_LUNARG_reference_1_1_0.json</file>
+        <file>VK_LAYER_LUNARG_reference_1_2_0.json</file>
 
-        <file>override_layers_2_2_0_schema_1_4_0.json</file>
-        <file>override_layers_2_2_1_schema_1_4_0.json</file>
-        <file>override_settings_2_2_0_schema_1_4_0.txt</file>
-        <file>override_settings_2_2_1_schema_1_4_0.txt</file>
+        <file>override_layers_2_2_0_schema_1_2_0.json</file>
+        <file>override_layers_2_2_1_schema_1_2_0.json</file>
+        <file>override_settings_2_2_0_schema_1_2_0.txt</file>
+        <file>override_settings_2_2_1_schema_1_2_0.txt</file>
     </qresource>
 
     <qresource prefix="/configurations/2.1.0">
