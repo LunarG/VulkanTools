@@ -127,11 +127,11 @@ static int RunLayersVerbose(const CommandLine& command_line) {
     for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
         const Layer& layer = layers.available_layers[i];
 
-        printf("\n%s (%s) %s-%s\n", layer.key.c_str(), GetLayerTypeLabel(layer._layer_type), layer._api_version.str().c_str(),
-               layer._implementation_version.c_str());
+        printf("\n%s (%s) %s-%s\n", layer.key.c_str(), GetLayerTypeLabel(layer.type), layer.api_version.str().c_str(),
+               layer.implementation_version.c_str());
         printf("- %s\n", layer.description.c_str());
-        printf("- %s\n", layer._layer_path.c_str());
-        printf("- %s\n", layer._library_path.c_str());
+        printf("- %s\n", layer.path.c_str());
+        printf("- %s\n", layer.library_path.c_str());
     }
 
     return 0;

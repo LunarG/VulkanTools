@@ -61,8 +61,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         }
 
         // Extract just the path
-        assert(!layer->_layer_path.empty());
-        const QFileInfo file(layer->_layer_path.c_str());
+        assert(!layer->path.empty());
+        const QFileInfo file(layer->path.c_str());
         const std::string absolute_path(ConvertNativeSeparators(file.absolutePath().toStdString()).c_str());
 
         // Make sure the path is not already in the list

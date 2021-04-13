@@ -49,13 +49,13 @@ ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, c
         return PARAMETER_RANK_MISSING;
     } else if (parameter.state == LAYER_STATE_EXCLUDED) {
         return PARAMETER_RANK_EXCLUDED;
-    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->type == LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_IMPLICIT_AVAILABLE;
-    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type == LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->type == LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_IMPLICIT_OVERRIDDEN;
-    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->type != LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
-    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->_layer_type != LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->type != LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_EXPLICIT_AVAILABLE;
     } else {
         assert(0);  // Unknown ordering

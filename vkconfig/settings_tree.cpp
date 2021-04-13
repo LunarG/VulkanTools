@@ -227,7 +227,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
-    this->validation.reset(new SettingsValidationAreas(this->tree, validation_areas_item, validation_layer->_api_version,
+    this->validation.reset(new SettingsValidationAreas(this->tree, validation_areas_item, validation_layer->api_version,
                                                        validation_layer->settings, parameter.settings));
     this->connect(this->validation.get(), SIGNAL(settingChanged()), this, SLOT(OnSettingChanged()));
 

@@ -212,11 +212,11 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 
     bool is_implicit_layer = false;
     if (layer != nullptr) {
-        if (IsDLL32Bit(layer->_layer_path)) decorated_name += " (32-bit)";
+        if (IsDLL32Bit(layer->path)) decorated_name += " (32-bit)";
 
-        if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
+        if (layer->type == LAYER_TYPE_IMPLICIT) {
             is_implicit_layer = true;
-            decorated_name += std::string(" (") + GetLayerTypeLabel(layer->_layer_type) + ")";
+            decorated_name += std::string(" (") + GetLayerTypeLabel(layer->type) + ")";
         }
     } else {
         decorated_name += " (Missing)";
@@ -394,12 +394,12 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
     const Layer *layer = FindByKey(available_layers, layer_item->layer_name.c_str());
     if (layer != nullptr) {
         std::string description = layer->description + "\n";
-        description += std::string("(") + GetLayerTypeLabel(layer->_layer_type) + ")\n";
-        description += layer->_library_path + "\n\n";
-        description += "API Version: " + layer->_api_version.str() + "\n";
-        description += "Implementation Version: " + layer->_implementation_version + "\n";
+        description += std::string("(") + GetLayerTypeLabel(layer->type) + ")\n";
+        description += layer->library_path + "\n\n";
+        description += "API Version: " + layer->api_version.str() + "\n";
+        description += "Implementation Version: " + layer->implementation_version + "\n";
         description += std::string("Status: ") + GetToken(layer->status) + "\n\n";
-        description += layer->_layer_path + "\n";
+        description += layer->path + "\n";
         description += "File format: " + layer->file_format_version.str();
 
         ui->labelLayerDetails->setText(description.c_str());
@@ -420,7 +420,7 @@ void LayersDialog::OverrideAllExplicitLayers() {
         const Layer *layer = FindByKey(available_layers, it->key.c_str());
         if (layer == nullptr) continue;
 
-        if (layer->_layer_type == LAYER_TYPE_IMPLICIT) continue;
+        if (layer->type == LAYER_TYPE_IMPLICIT) continue;
 
         if (it->key == "VK_LAYER_KHRONOS_validation")
             it->state = LAYER_STATE_OVERRIDDEN;
@@ -460,7 +460,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
         const Layer *layer = FindByKey(available_layers, tree_layer_item->layer_name.c_str());
 
         if (layer != nullptr) {
-            if (layer->_layer_type == LAYER_TYPE_IMPLICIT) {
+            if (layer->type == LAYER_TYPE_IMPLICIT) {
                 QMessageBox alert;
                 alert.setWindowTitle("Implicit layer excluded...");
                 alert.setText(
@@ -528,7 +528,7 @@ void LayersDialog::BuildParameters() {
     for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
         const Layer &layer = available_layers[i];
 
-        if (layer._layer_type != LAYER_TYPE_IMPLICIT) continue;
+        if (layer.type != LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is overridden
         if (IsFound(configuration.parameters, layer.key.c_str())) continue;
@@ -551,7 +551,7 @@ void LayersDialog::BuildParameters() {
     for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
         const Layer &layer = available_layers[i];
 
-        if (layer._layer_type == LAYER_TYPE_IMPLICIT) continue;
+        if (layer.type == LAYER_TYPE_IMPLICIT) continue;
 
         // The layer is already in the layer tree
         if (IsFound(configuration.parameters, layer.key.c_str())) continue;
