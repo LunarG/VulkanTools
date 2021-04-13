@@ -39,13 +39,13 @@ TEST(test_layer, collect_settings) {
     EXPECT_STREQ("value0", data0.value.c_str());
 }
 
-TEST(test_layer, load_1_3_0_header) {
+TEST(test_layer, load_1_1_0_header) {
     Layer layer;
     const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_3_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_EQ(Version(1, 3, 0), layer.file_format_version);
-    EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_3_0", layer.key.c_str());
+    EXPECT_EQ(Version(1, 1, 0), layer.file_format_version);
+    EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_1_0", layer.key.c_str());
     EXPECT_STREQ(".\\VkLayer_reference.dll", layer.library_path.c_str());
     EXPECT_EQ(Version(1, 2, 162), layer.api_version);
     EXPECT_STREQ("Build 75", layer.implementation_version.c_str());
@@ -61,8 +61,8 @@ TEST(test_layer, load_1_4_0_header) {
     const bool load_loaded = layer.Load(":/VK_LAYER_LUNARG_reference_1_4_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_EQ(Version(1, 4, 0), layer.file_format_version);
-    EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_4_0", layer.key.c_str());
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_2_0", layer.key.c_str());
     EXPECT_STREQ(".\\VkLayer_reference.dll", layer.library_path.c_str());
     EXPECT_EQ(Version(1, 2, 170), layer.api_version);
     EXPECT_STREQ("Build 76", layer.implementation_version.c_str());

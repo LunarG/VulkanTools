@@ -1,5 +1,5 @@
 {
-    "file_format_version" : "1.4.0",
+    "file_format_version" : "1.2.0",
     "layer": {
         "name": "VK_LAYER_KHRONOS_synchronization2",
         "library_path": "./libVkLayer_khronos_synchronization2.so",
