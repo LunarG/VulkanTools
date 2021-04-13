@@ -17,7 +17,7 @@
     </qresource>
 
     <qresource prefix="/layers/test">
-        <file alias="VK_LAYER_LUNARG_reference_1_4_0.json">../vkconfig_core/test/VK_LAYER_LUNARG_reference_1_4_0.json</file>
+        <file alias="VK_LAYER_LUNARG_reference_1_2_0.json">../vkconfig_core/test/VK_LAYER_LUNARG_reference_1_2_0.json</file>
     </qresource>
 
     <qresource prefix="/layers/130">
