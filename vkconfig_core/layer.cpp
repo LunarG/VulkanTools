@@ -220,7 +220,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     return IsValid();  // Not all JSON file are layer JSON valid
 }
 
-static void LoadVUIDs(const Version& version, std::vector<EnabledNumberOrString>& value) {
+static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value) {
     const std::string path = GetBuiltinFolder(version) + "/validusage.json";
 
     QFile file(path.c_str());
@@ -243,16 +243,27 @@ static void LoadVUIDs(const Version& version, std::vector<EnabledNumberOrString>
 
     const QJsonObject& json_validation_object = json_root_object.value("validation").toObject();
 
-    const QStringList& validation_keys = json_validation_object.keys();
-    for (std::size_t i = 0, n = validation_keys.size(); i < n; ++i) {
-        const QJsonArray& json_array = json_validation_object.value(validation_keys[i]).toArray();
+    const QStringList& keys_depth0 = json_validation_object.keys();
+    for (int i = 0, n = keys_depth0.size(); i < n; ++i) {
+        const QJsonValue& value_depth1 = json_validation_object.value(keys_depth0[i]);
+        assert(value_depth1 != QJsonValue::Undefined);
 
-        for (std::size_t j = 0, o = json_array.size(); j < o; ++j) {
-            const QString vuid_value = json_array[i].toObject().value("vuid").toString();
+        const QJsonObject& object_depth1 = value_depth1.toObject();
+        const QStringList& keys_depth1 = object_depth1.keys();
 
-            EnabledNumberOrString enabled_string;
-            enabled_string.key = vuid_value.toStdString();
-            value.push_back(enabled_string);
+        for (int j = 0, o = keys_depth1.size(); j < o; ++j) {
+            const QJsonValue& value_depth2 = object_depth1.value(keys_depth1[j]);
+            assert(value_depth2 != QJsonValue::Undefined);
+
+            const QJsonArray& json_array = value_depth2.toArray();
+
+            for (int l = 0, q = json_array.size(); l < q; ++l) {
+                const QString vuid_value = json_array[l].toObject().value("vuid").toString();
+
+                NumberOrString data;
+                data.key = vuid_value.toStdString();
+                value.push_back(data);
+            }
         }
     }
 }
@@ -300,10 +311,6 @@ void Layer::AddSettingData(SettingDataSet& settings, const QJsonValue& json_sett
                 enabled_string.enabled = ReadBoolValue(object, "enabled");
 
                 list.value.push_back(enabled_string);
-            }
-
-            if (this->key == "VK_LAYER_KHRONOS_validation") {
-                LoadVUIDs(this->api_version, list.value);
             }
             break;
         }
@@ -454,12 +461,17 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_sett
 
                         meta.list.push_back(key);
                     }
-
-                    std::sort(meta.list.begin(), meta.list.end());
-                    if (json_setting.value("list_only") != QJsonValue::Undefined) {
-                        meta.list_only = ReadBoolValue(json_setting, "list_only");
-                    }
                 }
+
+                if (json_setting.value("list_only") != QJsonValue::Undefined) {
+                    meta.list_only = ReadBoolValue(json_setting, "list_only");
+                }
+
+                if (this->key == "VK_LAYER_KHRONOS_validation") {
+                    ::LoadVUIDs(this->api_version, meta.list);
+                }
+
+                std::sort(meta.list.begin(), meta.list.end());
 
                 const QJsonArray& json_default = ReadArray(json_setting, "default");
                 for (int i = 0, n = json_default.size(); i < n; ++i) {
@@ -473,6 +485,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_sett
                     enabled_string.enabled = ReadBoolValue(json_object, "enabled");
                     meta.default_value.push_back(enabled_string);
                 }
+
                 break;
             }
             default: {
