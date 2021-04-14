@@ -220,6 +220,43 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     return IsValid();  // Not all JSON file are layer JSON valid
 }
 
+static void LoadVUIDs(const Version& version, std::vector<EnabledNumberOrString>& value) {
+    const std::string path = GetBuiltinFolder(version) + "/validusage.json";
+
+    QFile file(path.c_str());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return;
+    }
+
+    QString json_text = file.readAll();
+    file.close();
+
+    // Convert the text to a JSON document & validate it.
+    // It does need to be a valid json formatted file.
+    QJsonParseError json_parse_error;
+    const QJsonDocument& json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
+
+    const QJsonObject& json_root_object = json_document.object();
+    if (json_root_object.value("validation") == QJsonValue::Undefined) {
+        return;
+    }
+
+    const QJsonObject& json_validation_object = json_root_object.value("validation").toObject();
+
+    const QStringList& validation_keys = json_validation_object.keys();
+    for (std::size_t i = 0, n = validation_keys.size(); i < n; ++i) {
+        const QJsonArray& json_array = json_validation_object.value(validation_keys[i]).toArray();
+
+        for (std::size_t j = 0, o = json_array.size(); j < o; ++j) {
+            const QString vuid_value = json_array[i].toObject().value("vuid").toString();
+
+            EnabledNumberOrString enabled_string;
+            enabled_string.key = vuid_value.toStdString();
+            value.push_back(enabled_string);
+        }
+    }
+}
+
 void Layer::AddSettingData(SettingDataSet& settings, const QJsonValue& json_setting_value) {
     const QJsonObject& json_setting_object = json_setting_value.toObject();
 
@@ -263,6 +300,10 @@ void Layer::AddSettingData(SettingDataSet& settings, const QJsonValue& json_sett
                 enabled_string.enabled = ReadBoolValue(object, "enabled");
 
                 list.value.push_back(enabled_string);
+            }
+
+            if (this->key == "VK_LAYER_KHRONOS_validation") {
+                LoadVUIDs(this->api_version, list.value);
             }
             break;
         }
