@@ -92,6 +92,17 @@ static void LoadMetaHeader(Header& header, const QJsonObject& json_object) {
     }
 }
 
+static void AlertInvalidLayer(const std::string& path, const std::string& text) {
+    const std::string title = format("Failed to load %s layer manifest. The layer will be ignored.", path.c_str());
+
+    QMessageBox alert;
+    alert.setWindowTitle(title.c_str());
+    alert.setText(text.c_str());
+    alert.setIcon(QMessageBox::Critical);
+    alert.setInformativeText("The layer is being ignored");
+    alert.exec();
+}
+
 /// Reports errors via a message box. This might be a bad idea?
 bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     this->type = layer_type;  // Set layer type, no way to know this from the json file
@@ -113,17 +124,11 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     QJsonParseError json_parse_error;
     const QJsonDocument& json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
     if (json_parse_error.error != QJsonParseError::NoError) {
-        QMessageBox message_box;
-        message_box.setText(json_parse_error.errorString());
-        message_box.exec();
         return false;
     }
 
     // Make sure it's not empty
     if (json_document.isNull() || json_document.isEmpty()) {
-        QMessageBox message_box;
-        message_box.setText("Json document is empty!");
-        message_box.exec();
         return false;
     }
 
@@ -132,11 +137,16 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     if (json_root_object.value("file_format_version") == QJsonValue::Undefined) {
         return false;  // Not a layer JSON file
     }
+    this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
+    if (this->file_format_version.GetMajor() > 1) {
+        ::AlertInvalidLayer(full_path_to_file,
+                            format("Unsupported layer file format: %s", this->file_format_version.str().c_str()));
+        return false;
+    }
+
     if (json_root_object.value("layer") == QJsonValue::Undefined) {
         return false;  // Not a layer JSON file
     }
-
-    this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
     this->key = ReadStringValue(json_layer_object, "name");
@@ -167,15 +177,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
         if (!is_builtin_layer_file || (is_builtin_layer_file && this->api_version >= Version(1, 2, 170))) {
-            const std::string title =
-                format("Failed to validate a layer manifest. The layer will be ignored.", full_path_to_file.c_str());
-
-            QMessageBox alert;
-            alert.setWindowTitle(title.c_str());
-            alert.setText(format("'%s' is not valid.", full_path_to_file.c_str()).c_str());
-            alert.setInformativeText(validator.message.c_str());
-            alert.setIcon(QMessageBox::Critical);
-            alert.exec();
+            AlertInvalidLayer(full_path_to_file, validator.message.c_str());
             return false;
         }
     }
