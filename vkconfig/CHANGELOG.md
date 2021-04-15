@@ -15,17 +15,18 @@
 
 ### Features:
 - Add Vulkan loader debug message to application launcher #1372
-- Redesigned layer settings UI #1420
+- Redesigned of the full layer settings UI #1420
 
 ### Improvements:
 - Add display of layer execution order in the setting tree #1390
-- Improve 'list' UI in setting tree #1397
 - Add layer settings UI inputs checking
 - Add API dump presets #1414
+- Add validation layer VUIDs loading from Vulkan Header to keep it up to date #1434
 
 ### Fixes:
 - Hide 'Callback' from validation layer 'Debug Action' debug action that is NOOP
-- Fix crash when SDK path is included in 'override_paths' of 'VkLayer_override.json' 
+- Fix crash when SDK path is included in 'override_paths' of 'VkLayer_override.json'
+- Fix default value of validation layer 'Check Out of Bounds #1435
 
 ## [Vulkan Configurator 2.2.0 for Vulkan SDK 1.2.170.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.170.0) - February 2021
 
