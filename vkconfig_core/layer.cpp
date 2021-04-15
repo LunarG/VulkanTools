@@ -237,6 +237,7 @@ static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value
 
     QString json_text;
 
+    // For Linux tar balls
     if (!vulkan_sdk_path.empty() && json_text.isEmpty() && VKC_PLATFORM == VKC_PLATFORM_LINUX) {
         json_text = ReadAll(vulkan_sdk_path + "/x86_64/share/vulkan/registry/validusage.json");
     }
