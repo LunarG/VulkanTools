@@ -455,7 +455,7 @@
                         "settings": [
                             {
                                 "key": "gpuav_buffer_oob",
-                                "label": "Check Out of Bounds ",
+                                "label": "Check Out of Bounds",
                                 "description": "Enable buffer out of bounds checking",
                                 "type": "BOOL",
                                 "default": true,
