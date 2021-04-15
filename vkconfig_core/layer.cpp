@@ -223,25 +223,33 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     return IsValid();  // Not all JSON file are layer JSON valid
 }
 
-static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value) {
-    const std::string vulkan_sdk_path(qgetenv("VULKAN_SDK").toStdString());
-
-    const std::string vulkan_sdk_full_path = vulkan_sdk_path + "/share/vulkan/registry/validusage.json";
-    const std::string builtin_full_path = GetBuiltinFolder(version) + "/validusage.json";
-
+static QString ReadAll(const std::string& path) {
     QString json_text;
-    QFile file(vulkan_sdk_full_path.c_str());
+
+    QFile file(path.c_str());
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         json_text = file.readAll();
         file.close();
     }
 
+    return json_text;
+}
+
+static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value) {
+    const std::string vulkan_sdk_path(qgetenv("VULKAN_SDK").toStdString());
+
+    QString json_text;
+
+    if (!vulkan_sdk_path.empty() && json_text.isEmpty() && VKC_PLATFORM == VKC_PLATFORM_LINUX) {
+        json_text = ReadAll(vulkan_sdk_path + "/x86_64/share/vulkan/registry/validusage.json");
+    }
+
+    if (!vulkan_sdk_path.empty() && json_text.isEmpty()) {
+        json_text = ReadAll(vulkan_sdk_path + "/share/vulkan/registry/validusage.json");
+    }
+
     if (json_text.isEmpty()) {
-        QFile file(builtin_full_path.c_str());
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            json_text = file.readAll();
-            file.close();
-        }
+        json_text = ReadAll(GetBuiltinFolder(version) + "/validusage.json");
     }
 
     if (json_text.isEmpty()) {
