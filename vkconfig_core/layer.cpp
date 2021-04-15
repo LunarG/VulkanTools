@@ -132,11 +132,15 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
         return false;
     }
 
-    // Populate key items about the layer
+    // First check it's a layer manifest, ignore otherwise.
     const QJsonObject& json_root_object = json_document.object();
     if (json_root_object.value("file_format_version") == QJsonValue::Undefined) {
         return false;  // Not a layer JSON file
     }
+    if (json_root_object.value("layer") == QJsonValue::Undefined) {
+        return false;  // Not a layer JSON file
+    }
+
     this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     if (this->file_format_version.GetMajor() > 1) {
         ::AlertInvalidLayer(full_path_to_file,
@@ -144,9 +148,6 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
         return false;
     }
 
-    if (json_root_object.value("layer") == QJsonValue::Undefined) {
-        return false;  // Not a layer JSON file
-    }
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
     this->key = ReadStringValue(json_layer_object, "name");
