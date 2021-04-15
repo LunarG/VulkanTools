@@ -52,7 +52,7 @@
                     {
                         "key": "gpuav_buffer_oob",
                         "type": "BOOL",
-                        "value": false
+                        "value": true
                     },
                     {
                         "key": "printf_to_stdout",
