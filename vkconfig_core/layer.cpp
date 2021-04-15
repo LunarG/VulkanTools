@@ -221,15 +221,29 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 }
 
 static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value) {
-    const std::string path = GetBuiltinFolder(version) + "/validusage.json";
+    const std::string vulkan_sdk_path(qgetenv("VULKAN_SDK").toStdString());
 
-    QFile file(path.c_str());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return;
+    const std::string vulkan_sdk_full_path = vulkan_sdk_path + "/share/vulkan/registry/validusage.json";
+    const std::string builtin_full_path = GetBuiltinFolder(version) + "/validusage.json";
+
+    QString json_text;
+    QFile file(vulkan_sdk_full_path.c_str());
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        json_text = file.readAll();
+        file.close();
     }
 
-    QString json_text = file.readAll();
-    file.close();
+    if (json_text.isEmpty()) {
+        QFile file(builtin_full_path.c_str());
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            json_text = file.readAll();
+            file.close();
+        }
+    }
+
+    if (json_text.isEmpty()) {
+        return;
+    }
 
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
