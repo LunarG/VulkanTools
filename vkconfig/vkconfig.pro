@@ -7,6 +7,7 @@ CONFIG += sdk_no_version_check
 
 INCLUDEPATH += ../Vulkan-Headers/include
 INCLUDEPATH += ../Build/Vulkan-Headers/include
+# INCLUDEPATH += ../external
 
 # Ignore JSON validation
 DEFINES += JSON_VALIDATION_OFF
