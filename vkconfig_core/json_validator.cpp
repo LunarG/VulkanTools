@@ -40,6 +40,9 @@ using valijson::ValidationResults;
 using valijson::Validator;
 using valijson::adapters::QtJsonAdapter;
 
+static std::unique_ptr<Schema> schema;
+static std::unique_ptr<Validator> validator;
+
 static QJsonDocument ParseJsonFile(const char *file) {
     QFile file_schema(file);
     const bool result = file_schema.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -58,7 +61,15 @@ JsonValidator::JsonValidator() {}
 bool JsonValidator::Check(const QString &json_data) {
     assert(!json_data.isEmpty());
 
-    const QJsonDocument schema_document = ParseJsonFile(":/layers/schema.json");
+    if (!schema) {
+        const QJsonDocument schema_document = ParseJsonFile(":/layers/schema.json");
+
+        schema.reset(new Schema);
+
+        SchemaParser parser;
+        QtJsonAdapter schema_adapter(schema_document.object());
+        parser.populateSchema(schema_adapter, *schema);
+    }
 
     QJsonParseError json_parse_error;
     const QJsonDocument json_document = QJsonDocument::fromJson(json_data.toUtf8(), &json_parse_error);
@@ -66,17 +77,11 @@ bool JsonValidator::Check(const QString &json_data) {
         return false;
     }
 
-    Schema schema;
-    SchemaParser parser;
-    QtJsonAdapter schema_adapter(schema_document.object());
-    parser.populateSchema(schema_adapter, schema);
-
     Validator validator(Validator::kWeakTypes);
     QtJsonAdapter document_adapter(json_document.object());
 
     ValidationResults results;
-    if (!validator.validate(schema, document_adapter, &results)) {
-        // std::cerr << "Validation failed." << endl;
+    if (!validator.validate(*schema, document_adapter, &results)) {
         ValidationResults::Error error;
         unsigned int error_num = 1;
         while (results.popError(error)) {
