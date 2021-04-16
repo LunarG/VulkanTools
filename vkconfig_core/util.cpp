@@ -122,6 +122,14 @@ bool IsValueFound(const std::vector<NumberOrString>& list, const NumberOrString&
     return false;
 }
 
+bool IsValueFound(const std::vector<EnabledNumberOrString>& list, const NumberOrString& value) {
+    for (std::size_t i = 0, n = list.size(); i < n; ++i) {
+        if (list[i] == value) return true;
+    }
+
+    return false;
+}
+
 QStringList ConvertValues(const std::vector<NumberOrString>& values) {
     QStringList string_list;
 
