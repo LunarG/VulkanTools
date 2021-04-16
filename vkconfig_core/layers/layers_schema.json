@@ -46,7 +46,7 @@
                         }
                     },
                     "settings": {
-                        "type": "array"
+                        "$ref": "#/definitions/settings_data"
                     }
                 }
             }
@@ -167,12 +167,112 @@
                         "$ref": "#/definitions/view"
                     },
                     "settings": {
-                        "type": "array"
+                        "$ref": "#/definitions/settings_meta"
                     }
                 }
             }
         },
-        "settings": {
+        "settings_data": {
+            "description": "The different kind of settings stored in a preset",
+            "additionalProperties": false,
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "description": "For preset STRING, FRAMES, ENUM, LOAD_FILE, SAVE_FILE, SAVE_FOLDER setting type values",
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "description": "For preset BOOL setting type values",
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    {
+                        "description": "For preset INT setting type values",
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    {
+                        "description": "For preset FLAGS setting type values",
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "array",
+                                "contains": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "description": "For preset LIST setting type values",
+                        "type": "object",
+                        "required": [
+                            "key",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/enabled_number_or_string"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "settings_meta": {
             "description": "The different kind of settings of layers",
             "type": "array",
             "items": {
@@ -221,7 +321,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -277,7 +377,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -336,7 +436,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -393,7 +493,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -449,7 +549,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -512,7 +612,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -575,7 +675,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -635,7 +735,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -699,7 +799,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     },
@@ -771,7 +871,7 @@
                                 "$ref": "#/definitions/dependence"
                             },
                             "settings": {
-                                "$ref": "#/definitions/settings"
+                                "$ref": "#/definitions/settings_meta"
                             }
                         }
                     }
@@ -817,7 +917,7 @@
                     "type": "string"
                 },
                 "settings": {
-                    "$ref": "#/definitions/settings"
+                    "$ref": "#/definitions/settings_meta"
                 },
                 "presets": {
                     "type": "array",
@@ -845,104 +945,7 @@
                                 "$ref": "#/definitions/status"
                             },
                             "settings": {
-                                "description": "The different kind of settings stored in a preset",
-                                "additionalProperties": false,
-                                "type": "array",
-                                "items": {
-                                    "oneOf": [
-                                        {
-                                            "description": "For preset STRING, FRAMES, ENUM, LOAD_FILE, SAVE_FILE, SAVE_FOLDER setting type values",
-                                            "type": "object",
-                                            "required": [
-                                                "key",
-                                                "value"
-                                            ],
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "key": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "description": "For preset BOOL setting type values",
-                                            "type": "object",
-                                            "required": [
-                                                "key",
-                                                "value"
-                                            ],
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "key": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "boolean"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "description": "For preset INT setting type values",
-                                            "type": "object",
-                                            "required": [
-                                                "key",
-                                                "value"
-                                            ],
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "key": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "number"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "description": "For preset FLAGS setting type values",
-                                            "type": "object",
-                                            "required": [
-                                                "key",
-                                                "value"
-                                            ],
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "key": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "array",
-                                                    "contains": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "description": "For preset LIST setting type values",
-                                            "type": "object",
-                                            "required": [
-                                                "key",
-                                                "value"
-                                            ],
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "key": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/definitions/enabled_number_or_string"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
+                                "$ref": "#/definitions/settings_data"
                             }
                         }
                     }
