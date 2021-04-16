@@ -22,84 +22,97 @@
 #include "util.h"
 
 #include <QFile>
+#include <QJsonDocument>
+
+#include <iostream>
 
 #ifndef JSON_VALIDATION_OFF
 
-#include <nlohmann/json-schema.hpp>
+#include <valijson/adapters/qtjson_adapter.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/validation_results.hpp>
+#include <valijson/validator.hpp>
 
-using json = nlohmann::json;
-using json_validator = nlohmann::json_schema::json_validator;
+using valijson::Schema;
+using valijson::SchemaParser;
+using valijson::ValidationResults;
+using valijson::Validator;
+using valijson::adapters::QtJsonAdapter;
 
-static bool validator_initialized = false;
-static json_validator validator_instance;
-
-static json ParseFile(const char *file) {
+static QJsonDocument ParseJsonFile(const char *file) {
     QFile file_schema(file);
     const bool result = file_schema.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
-    const std::string &data = file_schema.readAll().toStdString();
-    json json_schema(json::parse(data));
+    const QString &data = file_schema.readAll();
     file_schema.close();
 
-    return json_schema;
+    QJsonParseError json_parse_error;
+    const QJsonDocument &json_document = QJsonDocument::fromJson(data.toUtf8(), &json_parse_error);
+
+    return json_document;
 }
 
-struct custom_error_handler : public nlohmann::json_schema::basic_error_handler {
-    custom_error_handler() : error_count(0) {}
+JsonValidator::JsonValidator() {}
 
-    void error(const nlohmann::json_pointer<nlohmann::basic_json<>> &pointer, const json &instance,
-               const std::string &message) override {
-        nlohmann::json_schema::basic_error_handler::error(pointer, instance, message);
+bool JsonValidator::Check(const QString &json_data) {
+    assert(!json_data.isEmpty());
 
-        this->message += message;
-        ++this->error_count;
+    const QJsonDocument schema_document = ParseJsonFile(":/layers/schema.json");
+
+    QJsonParseError json_parse_error;
+    const QJsonDocument json_document = QJsonDocument::fromJson(json_data.toUtf8(), &json_parse_error);
+    if (json_parse_error.error != QJsonParseError::NoError) {
+        return false;
     }
 
-    int error_count;
-    std::string message;
-};
+    Schema schema;
+    SchemaParser parser;
+    QtJsonAdapter schema_adapter(schema_document.object());
+    parser.populateSchema(schema_adapter, schema);
 
-Validator::Validator() : error(0) {
-    if (!::validator_initialized) {
-        ::validator_instance = ParseFile(":/layers/schema.json");
-        ::validator_initialized = true;
+    Validator validator(Validator::kWeakTypes);
+    QtJsonAdapter document_adapter(json_document.object());
+
+    ValidationResults results;
+    if (!validator.validate(schema, document_adapter, &results)) {
+        // std::cerr << "Validation failed." << endl;
+        ValidationResults::Error error;
+        unsigned int error_num = 1;
+        while (results.popError(error)) {
+            std::string context;
+            std::vector<std::string>::iterator itr = error.context.begin();
+            for (; itr != error.context.end(); itr++) {
+                context += *itr;
+            }
+
+            if (error_num <= 3) {
+                std::string log = format("Error #%d\n", error_num);
+                log += "\t context: " + context + "\n";
+                log += "\t desc:    " + error.description + "\n\n";
+
+                message += log.c_str();
+            }
+
+            ++error_num;
+        }
+
+        message += format("Total Error Count: %d\n", error_num).c_str();
+
+        return false;
     }
-}
-
-bool Validator::Check(const std::string &json_data) {
-    assert(!json_data.empty());
-
-    json json_file = json::parse(json_data);
-
-    custom_error_handler json_err;
-
-    ::validator_instance.validate(json_file, json_err);
-
-    if (json_err.error_count > 0) {
-        this->message += json_err.message;
-        this->error += json_err.error_count;
-    }
-
-    return !json_err;
-}
-
-void Validator::Reset() {
-    this->message.clear();
-    this->error = 0;
-}
-#else
-
-Validator::Validator() : error(0) {}
-
-bool Validator::Check(const std::string &json_data) {
-    (void)json_data;
 
     return true;
 }
 
-void Validator::Reset() {
-    this->message.clear();
-    this->error = 0;
+#else
+
+JsonValidator::JsonValidator() : error(0) {}
+
+bool JsonValidator::Check(const std::string &json_data) {
+    (void)json_data;
+
+    return true;
 }
 
 #endif  // JSON_VALIDATION_OFF
