@@ -153,8 +153,16 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     this->key = ReadStringValue(json_layer_object, "name");
     this->api_version = ReadVersionValue(json_layer_object, "api_version");
 
+    const bool is_builtin_layer_file =
+        full_path_to_file.rfind(":/") == 0;  // Check whether the path start with ":/" for resource file paths.
+
     JsonValidator validator;
-    const bool is_valid = this->api_version >= Version(1, 2, 170) ? validator.Check(json_text) : true;
+#if defined(_DEBUG)
+    const bool should_validate = (this->api_version >= Version(1, 2, 170) && is_builtin_layer_file) || !is_builtin_layer_file;
+#else
+    const bool should_validate = !is_builtin_layer_file;
+#endif
+    const bool is_valid = should_validate ? validator.Check(json_text) : true;
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
@@ -173,8 +181,6 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     // Load default layer json file if necessary
     const bool is_missing_layer_data =
         json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
-    const bool is_builtin_layer_file =
-        full_path_to_file.rfind(":/") == 0;  // Check whether the path start with ":/" for resource file paths.
 
     if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
         if (!is_builtin_layer_file || (is_builtin_layer_file && this->api_version >= Version(1, 2, 170))) {
