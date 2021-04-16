@@ -117,12 +117,12 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
         Configuration configuration;
         const bool result = configuration.Load(available_layers, info.absoluteFilePath().toStdString());
 
+        if (!result) continue;
+
         if (FindByKey(available_configurations, configuration.key.c_str()) != nullptr) continue;
 
         OrderParameter(configuration.parameters, available_layers);
-        if (result) {
-            available_configurations.push_back(configuration);
-        }
+        available_configurations.push_back(configuration);
     }
 }
 

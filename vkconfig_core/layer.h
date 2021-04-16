@@ -62,7 +62,7 @@ class Layer {
     std::vector<LayerPreset> presets;
 
     // File based layers
-    bool Load(const std::string& full_path_to_file, LayerType layer_type);
+    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
 
     void AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_settings_value);
     void AddSettingData(SettingDataSet& settings, const QJsonValue& json_setting_value);
