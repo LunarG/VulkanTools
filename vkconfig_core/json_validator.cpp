@@ -107,9 +107,9 @@ bool JsonValidator::Check(const QString &json_data) {
 
 #else
 
-JsonValidator::JsonValidator() : error(0) {}
+JsonValidator::JsonValidator() {}
 
-bool JsonValidator::Check(const std::string &json_data) {
+bool JsonValidator::Check(const QString &json_data) {
     (void)json_data;
 
     return true;
