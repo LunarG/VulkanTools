@@ -237,6 +237,7 @@ static QString ReadAll(const std::string& path) {
 
 static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value) {
     const std::string vulkan_sdk_path(qgetenv("VULKAN_SDK").toStdString());
+    const std::string path = vulkan_sdk_path.empty() ? "/usr" : vulkan_sdk_path;
 
     QString json_text;
 
