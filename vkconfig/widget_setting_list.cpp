@@ -55,18 +55,18 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     assert(&meta);
     assert(&data);
 
-    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
-        RemoveValue(this->list, data.value[i]);
+    for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
+        ::RemoveValue(this->list, this->data.value[i]);
     }
 
-    this->setFont(tree->font());
+    this->setFont(this->tree->font());
 
-    item->setText(0, (meta.label + "  ").c_str());
-    item->setFont(0, tree->font());
-    item->setToolTip(0, meta.description.c_str());
-    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->setText(0, (this->meta.label + "  ").c_str());
+    this->item->setFont(0, this->tree->font());
+    this->item->setToolTip(0, this->meta.description.c_str());
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    const char *tooltip = GetFieldToolTip(meta, this->list.empty());
+    const char *tooltip = GetFieldToolTip(this->meta, this->list.empty());
 
     this->field->show();
     this->field->setText("");
@@ -75,21 +75,24 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->installEventFilter(this);
 
-    this->connect(this->field, SIGNAL(textEdited(const QString &)), this, SLOT(OnTextEdited(const QString &)),
-                  Qt::QueuedConnection);
+    this->connect(this->field, SIGNAL(textEdited(const QString &)), this, SLOT(OnTextEdited(const QString &)));
     this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(OnButtonPressed()), Qt::QueuedConnection);
     this->connect(this->field, SIGNAL(inputRejected()), this, SLOT(OnItemRejected()), Qt::QueuedConnection);
 
+    this->add_button->show();
     this->add_button->setText("+");
     this->add_button->setFont(tree->font());
 
-    this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnButtonPressed()));
+    this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnButtonPressed()), Qt::QueuedConnection);
 
-    this->OnItemSelected("");
+    this->ResetCompleter();
 
-    ResetCompleter();
+    std::sort(this->data.value.begin(), this->data.value.end());
+    for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
+        this->AddElement(this->data.value[i]);
+    }
 
-    tree->setItemWidget(item, 0, this);
+    this->tree->setItemWidget(this->item, 0, this);
 }
 
 void WidgetSettingList::showEvent(QShowEvent *event) {
@@ -98,8 +101,16 @@ void WidgetSettingList::showEvent(QShowEvent *event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->setEnabled(enabled);
-    this->field->setEnabled(enabled && (!meta.list_only || !this->list.empty()));
+    this->field->setEnabled(enabled && (!this->meta.list_only || !this->list.empty()));
     this->add_button->setEnabled(enabled && !this->field->text().isEmpty());
+
+    if (this->meta.list_only && this->list.empty()) {
+        this->field->hide();
+        this->add_button->hide();
+    } else {
+        this->field->show();
+        this->add_button->show();
+    }
 }
 
 void WidgetSettingList::Resize() {
@@ -125,24 +136,20 @@ bool WidgetSettingList::eventFilter(QObject *target, QEvent *event) {
         return true;
     }
 
-    return field->eventFilter(target, event);
+    return this->field->eventFilter(target, event);
 }
 
 void WidgetSettingList::ResetCompleter() {
     if (this->search != nullptr) this->search->deleteLater();
 
     this->search = new QCompleter(ConvertValues(this->list), this);
-    this->search->setCaseSensitivity(Qt::CaseSensitive);
     this->search->setCompletionMode(QCompleter::PopupCompletion);
     this->search->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     this->search->setFilterMode(Qt::MatchContains);
-    this->search->setMaxVisibleItems(15);
-    this->search->setCaseSensitivity(Qt::CaseInsensitive);
+    this->search->setCaseSensitivity(Qt::CaseSensitive);
+    this->search->setMaxVisibleItems(20);
 
-    this->field->setCompleter(search);
-
-    this->connect(this->search, SIGNAL(activated(const QString &)), this, SLOT(OnAddCompleted(const QString &)),
-                  Qt::QueuedConnection);
+    this->field->setCompleter(this->search);
 }
 
 void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
@@ -150,7 +157,7 @@ void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
     child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->item->addChild(child);
 
-    WidgetSettingListElement *widget = new WidgetSettingListElement(tree, child, meta, data_set, element);
+    WidgetSettingListElement *widget = new WidgetSettingListElement(this->tree, child, this->meta, this->data_set, element);
     this->tree->setItemWidget(child, 0, widget);
 
     this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
@@ -164,15 +171,12 @@ void WidgetSettingList::OnAddCompleted(const QString &added_value) {
     // before it's really "complete". If we clear the control too soon
     // it clears the completers value too. This might be a Qt bug, but this
     // works really well as a work-a-round
-    OnButtonPressed();
+    this->OnButtonPressed();
 }
 
 void WidgetSettingList::OnButtonPressed() {
-    QString entry = this->field->text();
+    const QString entry = this->field->text();
     if (entry.isEmpty()) return;
-
-    emit itemSelected(entry);  // Triggers update of GUI
-    emit itemChanged();        // Triggers save of configuration
 
     const std::string string_value = entry.toStdString();
     const bool is_number = IsNumber(string_value);
@@ -182,7 +186,7 @@ void WidgetSettingList::OnButtonPressed() {
     value.number = is_number ? std::atoi(string_value.c_str()) : 0;
     value.enabled = true;
 
-    if (meta.list_only && !IsValueFound(this->meta.list, value)) {
+    if (this->meta.list_only && !IsValueFound(this->meta.list, value)) {
         QMessageBox alert;
         alert.setWindowTitle("Invalid value");
         alert.setText(
@@ -193,59 +197,74 @@ void WidgetSettingList::OnButtonPressed() {
         return;
     }
 
-    this->item->setText(0, (meta.label + "  ").c_str());
+    this->item->setText(0, (this->meta.label + "  ").c_str());
     this->field->setText("");
 
-    this->data.value.push_back(value);
+    // Add the value if it's not in the list already
+    if (!IsValueFound(this->data.value, value)) {
+        this->data.value.push_back(value);
+        ::RemoveValue(this->list, value);
+        this->OnItemSelected("");
+    } else {
+        QMessageBox alert;
+        alert.setWindowTitle("Duplicated value");
+        alert.setText(
+            format("'%s' setting already has the value '%s' listed", this->meta.label.c_str(), entry.toStdString().c_str())
+                .c_str());
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+    }
 
-    ::RemoveValue(this->list, value);
-
-    this->OnItemSelected("");
     this->Resize();
+
+    emit itemSelected(entry);  // Triggers update of GUI
+    emit itemChanged();        // Triggers save of configuration
 }
 
 void WidgetSettingList::OnTextEdited(const QString &value) {
     assert(this->add_button);
     assert(this->field);
 
+    this->tree->blockSignals(true);
+
     if (value.isEmpty()) {
-        this->item->setText(0, (meta.label + "  ").c_str());
+        this->item->setText(0, (this->meta.label + "  ").c_str());
         this->Resize();
-    } else {
+    } else if (value.size() == 1) {
         this->item->setText(0, "");
         this->Resize();
     }
 
     this->add_button->setEnabled(!value.isEmpty());
+
+    this->tree->blockSignals(false);
+
+    this->field->setFocus();
 }
 
 void WidgetSettingList::OnItemSelected(const QString &value) {
     (void)value;
 
-    this->list = meta.list;
+    this->tree->blockSignals(true);
+
+    this->list = this->meta.list;
     for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
         ::RemoveValue(this->list, data.value[i]);
     }
+
+    this->ResetCompleter();
 
     while (this->item->childCount() > 0) {
         this->item->removeChild(this->item->child(0));
     }
 
-    std::sort(data.value.begin(), data.value.end());
+    std::sort(this->data.value.begin(), this->data.value.end());
 
-    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
-        this->AddElement(data.value[i]);
+    for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
+        this->AddElement(this->data.value[i]);
     }
 
-    if (this->meta.list_only && this->list.empty()) {
-        this->field->hide();
-        this->add_button->hide();
-    } else {
-        this->field->show();
-        this->add_button->show();
-    }
-
-    this->ResetCompleter();
+    this->tree->blockSignals(false);
 
     emit itemChanged();
 }

@@ -299,7 +299,6 @@ static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value
             assert(value_depth2 != QJsonValue::Undefined);
 
             const QJsonArray& json_array = value_depth2.toArray();
-
             for (int l = 0, q = json_array.size(); l < q; ++l) {
                 const QString vuid_value = json_array[l].toObject().value("vuid").toString();
 
