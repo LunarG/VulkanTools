@@ -39,6 +39,16 @@
 #include <string>
 #include <algorithm>
 
+bool IsBuiltinConfiguration(const std::string& key) {
+    static const char* keys[] = {"API dump", "Frame Capture", "Portability", "Synchronization", "Validation"};
+
+    for (std::size_t i = 0, n = countof(keys); i < n; ++i) {
+        if (keys[i] == key) return true;
+    }
+
+    return false;
+}
+
 Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_ALL_BIT) {}
 
 static Version GetConfigurationVersion(const QJsonValue& value) {
@@ -63,24 +73,24 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
     const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
 
     if (SUPPORT_LAYER_CONFIG_2_0_1 && version <= Version("2.0.1")) {
-        key = filename.left(filename.length() - 5).toStdString();
+        this->key = filename.left(filename.length() - 5).toStdString();
     } else {
-        key = ReadString(configuration_entry_object, "name").c_str();
+        this->key = ReadString(configuration_entry_object, "name").c_str();
     }
 
-    if (key.empty()) {
-        key = "Configuration";
+    if (this->key.empty()) {
+        this->key = "Configuration";
         const int result = std::remove(full_path.c_str());
         assert(result == 0);
     }
 
-    setting_tree_state = configuration_entry_object.value("editor_state").toVariant().toByteArray();
+    this->setting_tree_state = configuration_entry_object.value("editor_state").toVariant().toByteArray();
 
-    description = ReadString(configuration_entry_object, "description").c_str();
+    this->description = ReadString(configuration_entry_object, "description").c_str();
 
     const QJsonValue& json_platform_value = configuration_entry_object.value("platforms");
     if (json_platform_value != QJsonValue::Undefined) {
-        platform_flags = GetPlatformFlags(ReadStringArray(configuration_entry_object, "platforms"));
+        this->platform_flags = GetPlatformFlags(ReadStringArray(configuration_entry_object, "platforms"));
     }
 
     const QJsonObject& layer_objects = ReadObject(configuration_entry_object, "layer_options");
@@ -100,10 +110,12 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
             settings = CollectDefaultSettingData(layer->settings);
+        } else if (IsBuiltinConfiguration(this->key) && parameter.state == LAYER_STATE_OVERRIDDEN) {
+            return false;
         }
 
         parameter.settings = settings;
-        parameters.push_back(parameter);
+        this->parameters.push_back(parameter);
     }
 
     const QJsonValue& excluded_value = configuration_entry_object.value("blacklisted_layers");
@@ -111,7 +123,7 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
 
     const QJsonArray& excluded_array = excluded_value.toArray();
     for (int i = 0, n = excluded_array.size(); i < n; ++i) {
-        Parameter* parameter = FindByKey(parameters, excluded_array[i].toString().toStdString().c_str());
+        Parameter* parameter = FindByKey(this->parameters, excluded_array[i].toString().toStdString().c_str());
         if (parameter != nullptr) {
             parameter->state = LAYER_STATE_EXCLUDED;
         } else {
@@ -119,7 +131,7 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
             parameter.key = excluded_array[i].toString().toStdString();
             parameter.state = LAYER_STATE_EXCLUDED;
 
-            parameters.push_back(parameter);
+            this->parameters.push_back(parameter);
         }
     }
 
@@ -133,14 +145,14 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
     const QJsonObject& json_configuration_object = json_configuration_value.toObject();
 
     // Required configuration values
-    key = ReadString(json_configuration_object, "name").c_str();
-    setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
-    description = ReadString(json_configuration_object, "description").c_str();
+    this->key = ReadString(json_configuration_object, "name").c_str();
+    this->setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
+    this->description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
     const QJsonValue& json_platform_value = json_configuration_object.value("platforms");
     if (json_platform_value != QJsonValue::Undefined) {
-        platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
+        this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
     }
 
     // Required configuration layers values
@@ -162,10 +174,12 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
             settings = CollectDefaultSettingData(layer->settings);
+        } else if (IsBuiltinConfiguration(this->key) && parameter.state == LAYER_STATE_OVERRIDDEN) {
+            return false;
         }
 
         parameter.settings = settings;
-        parameters.push_back(parameter);
+        this->parameters.push_back(parameter);
     }
 
     return true;
@@ -207,6 +221,8 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
             settings = CollectDefaultSettingData(layer->settings);
+        } else if (IsBuiltinConfiguration(this->key) && parameter.state == LAYER_STATE_OVERRIDDEN) {
+            return false;
         }
 
         const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");

@@ -157,9 +157,7 @@ void LayerManager::LoadLayersFromPath(const std::string &path) {
 
     for (int i = 0, n = file_list.FileCount(); i < n; ++i) {
         Layer layer;
-        if (layer.Load(file_list.GetFileName(i).c_str(), type)) {
-            if (layer.key == "VK_LAYER_LUNARG_override") continue;
-
+        if (layer.Load(available_layers, file_list.GetFileName(i).c_str(), type)) {
             // Make sure this layer name has not already been added
             if (FindByKey(available_layers, layer.key.c_str()) != nullptr) continue;
 

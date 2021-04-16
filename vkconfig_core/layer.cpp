@@ -104,7 +104,7 @@ static void AlertInvalidLayer(const std::string& path, const std::string& text) 
 }
 
 /// Reports errors via a message box. This might be a bad idea?
-bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
+bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type) {
     this->type = layer_type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.empty()) return false;
@@ -151,6 +151,16 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
     this->key = ReadStringValue(json_layer_object, "name");
+
+    if (this->key == "VK_LAYER_LUNARG_override") {
+        return false;
+    }
+
+    // Check if a layer with the same name is already in the list
+    if (FindByKey(available_layers, this->key.c_str()) != nullptr) {
+        return false;
+    }
+
     this->api_version = ReadVersionValue(json_layer_object, "api_version");
 
     const bool is_builtin_layer_file =
@@ -158,7 +168,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     JsonValidator validator;
 #if defined(_DEBUG)
-    const bool should_validate = (this->api_version >= Version(1, 2, 170) && is_builtin_layer_file) || !is_builtin_layer_file;
+    const bool should_validate = (this->api_version > Version(1, 2, 170) && is_builtin_layer_file) || !is_builtin_layer_file;
 #else
     const bool should_validate = !is_builtin_layer_file;
 #endif
@@ -192,7 +202,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     Layer default_layer;
     if (is_missing_layer_data && !is_builtin_layer_file) {
         const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
-        default_layer.Load(path, this->type);
+        default_layer.Load(available_layers, path, this->type);
     }
 
     // Load layer settings
