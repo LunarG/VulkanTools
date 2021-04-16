@@ -153,8 +153,8 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
     this->key = ReadStringValue(json_layer_object, "name");
     this->api_version = ReadVersionValue(json_layer_object, "api_version");
 
-    Validator validator;
-    const bool is_valid = this->api_version >= Version(1, 2, 170) ? validator.Check(json_text.toStdString()) : true;
+    JsonValidator validator;
+    const bool is_valid = this->api_version >= Version(1, 2, 170) ? validator.Check(json_text) : true;
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
@@ -178,7 +178,7 @@ bool Layer::Load(const std::string& full_path_to_file, LayerType layer_type) {
 
     if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
         if (!is_builtin_layer_file || (is_builtin_layer_file && this->api_version >= Version(1, 2, 170))) {
-            AlertInvalidLayer(full_path_to_file, validator.message.c_str());
+            AlertInvalidLayer(full_path_to_file, validator.message.toStdString());
             return false;
         }
     }

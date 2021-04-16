@@ -20,14 +20,11 @@
 
 #pragma once
 
-#include <string>
+#include <QString>
 
-struct Validator {
-    Validator();
+struct JsonValidator {
+    JsonValidator();
 
-    bool Check(const std::string& json_data);
-    void Reset();
-
-    std::string message;
-    int error;
+    bool Check(const QString& json_data);
+    QString message;
 };

@@ -199,9 +199,6 @@ if (WIN32)
                          IMPORTED_LOCATION_DEBUG "${JSONCPP_DLIB}")
 endif()
 
-add_subdirectory(submodules/json_parser)
-add_subdirectory(submodules/json_schema)
-
 # Define macro used for building vkxml generated files
 macro(run_vulkantools_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
@@ -227,6 +224,8 @@ if(BUILD_LAYERSVT)
 endif()
 
 if(BUILD_LAYERMGR)
+    include_directories(external)
+
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     add_subdirectory(external/googletest)
 
