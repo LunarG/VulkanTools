@@ -888,7 +888,6 @@
             "additionalProperties": true,
             "required": [
                 "name",
-                "library_path",
                 "api_version",
                 "implementation_version",
                 "description"
