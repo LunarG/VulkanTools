@@ -38,7 +38,7 @@ class WidgetSettingFilesystem : public QWidget {
                                      SettingDataSet &data_set);
 
    protected:
-    virtual void showEvent(QShowEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
 
    public Q_SLOTS:
     void browseButtonClicked();
@@ -55,6 +55,7 @@ class WidgetSettingFilesystem : public QWidget {
 
     QTreeWidget *tree;
     QTreeWidgetItem *item;
+    QTreeWidgetItem *item_child;
     const SettingDataSet &data_set;
     SettingDataString &data;
     const SettingMetaFilesystem &meta;

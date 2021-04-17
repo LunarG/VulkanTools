@@ -56,13 +56,14 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
     tree->setItemWidget(item, 0, this);
 }
 
-void WidgetSettingListElement::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-
+void WidgetSettingListElement::paintEvent(QPaintEvent* event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
+    this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->button->setEnabled(enabled);
+
+    QCheckBox::paintEvent(event);
 }
 
 void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {

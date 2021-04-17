@@ -25,67 +25,147 @@
 
 #include "widget_setting_int.h"
 
-#include <QTreeWidget>
+#include <QResizeEvent>
 #include <QTreeWidgetItem>
 #include <QRadioButton>
+#include <QCheckBox>
 
 #include <vector>
 
-class SettingsValidationAreas : public QObject {
+class WidgetSettingValidation : public QWidget {
     Q_OBJECT
 
    public:
-    explicit SettingsValidationAreas(QTreeWidget *main_tree, QTreeWidgetItem *parent, const Version &version,
-                                     const SettingMetaSet &settings_meta, SettingDataSet &settings_data);
+    explicit WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaSet &meta_set,
+                                     SettingDataSet &data_set);
 
+   protected:
+    virtual void paintEvent(QPaintEvent *event);
+
+   public:
     bool CollectSettings();
 
    private:
-    QTreeWidget *_main_tree_widget;
-    QTreeWidgetItem *_main_parent;
-    QTreeWidgetItem *_core_box;
-    std::vector<QTreeWidgetItem *> _core_children_boxes;
-    std::vector<QTreeWidgetItem *> _misc_boxes;
+    QTreeWidgetItem *item_core;
+    QCheckBox *widget_core;
 
-    QTreeWidgetItem *_synchronization_box;
-    QTreeWidgetItem *_shader_based_box;
-    QTreeWidgetItem *_gpu_assisted_box;
-    QRadioButton *_gpu_assisted_radio;
-    QTreeWidgetItem *_gpu_assisted_reserve_box;
-    QTreeWidgetItem *_gpu_assisted_oob_box;
-    QTreeWidgetItem *_debug_printf_box;
-    QRadioButton *_debug_printf_radio;
-    QTreeWidgetItem *_debug_printf_to_stdout;
-    QTreeWidgetItem *_debug_printf_verbose;
-    QTreeWidgetItem *_debug_printf_buffer_size;
-    WidgetSettingInt *_debug_printf_buffer_size_value;
+    QTreeWidgetItem *item_core_layout;
+    QCheckBox *widget_core_layout;
 
-    QTreeWidgetItem *_best_practices_box;
-    QTreeWidgetItem *_best_practices_arm_box;
+    QTreeWidgetItem *item_core_command;
+    QCheckBox *widget_core_command;
 
-    QTreeWidgetItem *AddItem(QTreeWidgetItem *parent, const SettingEnumValue *enum_value, bool enabled);
-    QTreeWidgetItem *AddItem(QTreeWidgetItem *parent, const SettingMetaBool *setting);
+    QTreeWidgetItem *item_core_object;
+    QCheckBox *widget_core_object;
+
+    QTreeWidgetItem *item_core_query;
+    QCheckBox *widget_core_query;
+
+    QTreeWidgetItem *item_core_desc;
+    QCheckBox *widget_core_desc;
+
+    QTreeWidgetItem *item_core_shaders;
+    QCheckBox *widget_core_shaders;
+
+    QTreeWidgetItem *item_core_push;
+    QCheckBox *widget_core_push;
+
+    QTreeWidgetItem *item_misc_thread;
+    QCheckBox *widget_misc_thread;
+
+    QTreeWidgetItem *item_misc_unique;
+    QCheckBox *widget_misc_unique;
+
+    QTreeWidgetItem *item_misc_lifetimes;
+    QCheckBox *widget_misc_lifetimes;
+
+    QTreeWidgetItem *item_misc_param;
+    QCheckBox *widget_misc_param;
+
+    QTreeWidgetItem *item_shader;
+    QCheckBox *widget_shader;
+
+    QTreeWidgetItem *item_shader_gpu;
+    QRadioButton *widget_shader_gpu;
+
+    QTreeWidgetItem *item_shader_gpu_reserve;
+    QCheckBox *widget_shader_gpu_reserve;
+
+    QTreeWidgetItem *item_shader_gpu_oob;
+    QCheckBox *widget_shader_gpu_oob;
+
+    QTreeWidgetItem *item_shader_printf;
+    QRadioButton *widget_shader_printf;
+
+    QTreeWidgetItem *item_shader_printf_to_stdout;
+    QCheckBox *widget_shader_printf_to_stdout;
+
+    QTreeWidgetItem *item_shader_printf_verbose;
+    QCheckBox *widget_shader_printf_verbose;
+
+    QTreeWidgetItem *item_shader_printf_size;
+    WidgetSettingInt *widget_debug_printf_size;
+
+    QTreeWidgetItem *item_sync;
+    QCheckBox *widget_sync;
+
+    QTreeWidgetItem *item_best;
+    QCheckBox *widget_best;
+
+    QTreeWidgetItem *item_best_arm;
+    QCheckBox *widget_best_arm;
+
+    QCheckBox *AddWidgetSetting(QTreeWidgetItem *parent, QTreeWidgetItem **item, const SettingEnumValue *value, bool enabled);
 
    public Q_SLOTS:
-    void itemChanged(QTreeWidgetItem *item, int column);
-    void itemClicked(QTreeWidgetItem *item, int column);
-    void gpuToggled(bool toggle);
-    void printfToggled(bool toggle);
+    void OnCoreChecked(bool checked);
+
+    void OnCoreLayoutChecked(bool checked);
+    void OnCoreCommandChecked(bool checked);
+    void OnCoreObjectChecked(bool checked);
+    void OnCoreQueryChecked(bool checked);
+    void OnCoreDescChecked(bool checked);
+    void OnCoreShadersChecked(bool checked);
+    void OnCorePushChecked(bool checked);
+
+    void OnMiscThreadChecked(bool checked);
+    void OnMiscUniqueChecked(bool checked);
+    void OnMiscLifetimesChecked(bool checked);
+    void OnMiscParamChecked(bool checked);
+
+    void OnShaderBasedChecked(bool checked);
+
+    void OnShaderGPUChecked(bool checked);
+    void OnShaderGPUReserveChecked(bool checked);
+    void OnShaderGPUOOBChecked(bool checked);
+
+    void OnShaderPrintfChecked(bool checked);
+    void OnShaderPrintfStdoutChecked(bool checked);
+    void OnShaderPrintfVerboseChecked(bool checked);
+
+    void OnSyncChecked(bool checked);
+
+    void OnBestChecked(bool checked);
+    void OnBestArmChecked(bool checked);
+
     void OnSettingChanged();
 
    Q_SIGNALS:
-    void settingChanged();
+    void itemChanged();
 
    private:
-    SettingsValidationAreas(const SettingsValidationAreas &) = delete;
-    SettingsValidationAreas &operator=(const SettingsValidationAreas &) = delete;
+    WidgetSettingValidation(const WidgetSettingValidation &) = delete;
+    WidgetSettingValidation &operator=(const WidgetSettingValidation &) = delete;
 
-    bool HasEnable(const char *token) const;
-    bool HasDisable(const char *token) const;
+    bool HasFlag(const char *key, const char *flag) const;
+    const SettingEnumValue *GetFlag(const char *key, const char *flag) const;
 
-    void StoreBoolSetting(QTreeWidgetItem *setting_data, const char *key);
-
-    const Version version;
-    const SettingMetaSet &settings_meta;
-    SettingDataSet &settings_data;
+    QTreeWidget *tree;
+    QTreeWidgetItem *item;
+    const SettingMetaSet &meta_set;
+    const SettingMetaFlags &meta_enables;
+    const SettingMetaFlags &meta_disables;
+    SettingDataSet &data_set;
+    SettingDataFlags &data_enables;
+    SettingDataFlags &data_disables;
 };

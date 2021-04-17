@@ -227,9 +227,9 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
-    this->validation.reset(new SettingsValidationAreas(this->tree, validation_areas_item, validation_layer->api_version,
-                                                       validation_layer->settings, parameter.settings));
-    this->connect(this->validation.get(), SIGNAL(settingChanged()), this, SLOT(OnSettingChanged()));
+    this->validation.reset(
+        new WidgetSettingValidation(this->tree, validation_areas_item, validation_layer->settings, parameter.settings));
+    this->connect(this->validation.get(), SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
     const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
     for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
@@ -401,37 +401,10 @@ void SettingsTreeManager::OnSettingChanged() {
         presets[i]->UpdateCurrentIndex();
     }
 
-    // Refresh settings tree enabled
-    for (int i = 0, n = this->tree->topLevelItemCount(); i < n; ++i) {
-        QTreeWidgetItem *child = this->tree->topLevelItem(i);
-        if (!child->isExpanded()) {
-            continue;
-        }
-        this->RefreshItem(child);
-    }
-    this->tree->clearFocus();
-    this->tree->clearSelection();
-
     this->tree->blockSignals(false);
 
     // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
-}
-
-void SettingsTreeManager::RefreshItem(QTreeWidgetItem *parent) {
-    for (int i = 0, n = parent->childCount(); i < n; ++i) {
-        QTreeWidgetItem *child = parent->child(i);
-        if (!parent->isExpanded()) {
-            continue;
-        }
-        this->RefreshItem(child);
-    }
-
-    QWidget *widget = this->tree->itemWidget(parent, 0);
-    if (widget != nullptr) {
-        widget->hide();
-        widget->show();
-    }
 }

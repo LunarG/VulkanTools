@@ -36,7 +36,7 @@ class WidgetSettingString : public QWidget {
     WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta, SettingDataSet& data_set);
 
    protected:
-    virtual void showEvent(QShowEvent* event);
+    virtual void paintEvent(QPaintEvent* event);
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);

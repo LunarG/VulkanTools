@@ -41,10 +41,13 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 }
 
-void WidgetSettingBool::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
+void WidgetSettingBool::paintEvent(QPaintEvent* event) {
+    const bool enabled = ::CheckDependence(this->meta, data_set);
 
-    this->setEnabled(::CheckDependence(this->meta, data_set));
+    this->item->setDisabled(!enabled);
+    this->setEnabled(enabled);
+
+    QCheckBox::paintEvent(event);
 }
 
 void WidgetSettingBool::OnClicked() {

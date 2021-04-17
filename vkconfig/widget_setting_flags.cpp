@@ -45,12 +45,13 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, c
     tree->setItemWidget(item, 0, this);
 }
 
-void WidgetSettingFlag::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-
+void WidgetSettingFlag::paintEvent(QPaintEvent* event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
+    this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
+
+    QCheckBox::paintEvent(event);
 }
 
 void WidgetSettingFlag::OnItemChecked(bool checked) {

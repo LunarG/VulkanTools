@@ -54,13 +54,14 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* ite
     tree->setItemWidget(item, 0, this);
 }
 
-void WidgetSettingString::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-
+void WidgetSettingString::paintEvent(QPaintEvent* event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
+    this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
+
+    QWidget::paintEvent(event);
 }
 
 void WidgetSettingString::Resize() {
