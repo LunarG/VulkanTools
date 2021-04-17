@@ -176,6 +176,9 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
         for (std::size_t i = 0, m = parameter.settings.Size(); i < m; ++i) {
             const SettingData& setting_data = parameter.settings[i];
 
+            // Skip missing settings
+            if (FindSettingMeta<SettingMetaInt>(layer->settings, setting_data.key.c_str()) == nullptr) continue;
+
             stream << lc_layer_name << "." << setting_data.key.c_str() << " = ";
             switch (setting_data.type) {
                 case SETTING_GROUP: {
@@ -211,6 +214,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                     } else {
                         stream << meta->default_value;
                     }
+
                     break;
                 }
                 case SETTING_FLOAT: {
