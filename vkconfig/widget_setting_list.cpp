@@ -95,11 +95,10 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     this->tree->setItemWidget(this->item, 0, this);
 }
 
-void WidgetSettingList::showEvent(QShowEvent *event) {
-    QWidget::showEvent(event);
-
+void WidgetSettingList::paintEvent(QPaintEvent *event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
+    this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->field->setEnabled(enabled && (!this->meta.list_only || !this->list.empty()));
     this->add_button->setEnabled(enabled && !this->field->text().isEmpty());
@@ -111,6 +110,8 @@ void WidgetSettingList::showEvent(QShowEvent *event) {
         this->field->show();
         this->add_button->show();
     }
+
+    QWidget::paintEvent(event);
 }
 
 void WidgetSettingList::Resize() {
@@ -150,6 +151,8 @@ void WidgetSettingList::ResetCompleter() {
     this->search->setMaxVisibleItems(20);
 
     this->field->setCompleter(this->search);
+
+    this->connect(this->search, SIGNAL(activated(const QString &)), this, SLOT(OnCompleted(const QString &)), Qt::QueuedConnection);
 }
 
 void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
@@ -164,14 +167,13 @@ void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
     this->connect(widget, SIGNAL(itemSelected(const QString &)), this, SLOT(OnItemSelected(const QString &)));
 }
 
-// Clear the edit control after the completer is finished.
-void WidgetSettingList::OnAddCompleted(const QString &added_value) {
-    (void)added_value;
+void WidgetSettingList::OnCompleted(const QString &value) {
+    (void)value;
     // We can't do this right away, the completer emits it's signal
     // before it's really "complete". If we clear the control too soon
     // it clears the completers value too. This might be a Qt bug, but this
     // works really well as a work-a-round
-    this->OnButtonPressed();
+    OnButtonPressed();
 }
 
 void WidgetSettingList::OnButtonPressed() {

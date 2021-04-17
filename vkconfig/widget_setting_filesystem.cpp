@@ -30,6 +30,7 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
                                                  SettingDataSet& data_set)
     : tree(tree),
       item(item),
+      item_child(new QTreeWidgetItem()),
       meta(meta),
       data(*data_set.Get<SettingDataString>(meta.key.c_str())),
       data_set(data_set),
@@ -39,9 +40,12 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     assert(&meta);
     assert(&data);
 
-    item->setText(0, meta.label.c_str());
-    item->setToolTip(0, meta.description.c_str());
-    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->setText(0, meta.label.c_str());
+    this->item->setToolTip(0, meta.description.c_str());
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->addChild(item_child);
+
+    this->item_child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     this->field->setText(ReplaceBuiltInVariable(data.value).c_str());
     this->field->setToolTip(this->field->text());
@@ -52,27 +56,20 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
 
-    QTreeWidgetItem* child_item = new QTreeWidgetItem();
-    child_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    item->addChild(child_item);
-
-    tree->setItemWidget(item, 0, this);
-    tree->setItemWidget(child_item, 0, this->field);
+    tree->setItemWidget(this->item, 0, this);
+    tree->setItemWidget(this->item_child, 0, this->field);
 }
 
-void WidgetSettingFilesystem::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-
+void WidgetSettingFilesystem::paintEvent(QPaintEvent* event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
+    this->item->setDisabled(!enabled);
+    this->item_child->setDisabled(!enabled);
     this->setEnabled(enabled);
-    for (int i = 0, n = this->item->childCount(); i < n; ++i) {
-        QTreeWidgetItem* child = this->item->child(i);
-        child->setDisabled(!enabled);
-    }
-
     this->field->setEnabled(enabled);
     this->button->setEnabled(enabled);
+
+    QWidget::paintEvent(event);
 }
 
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {

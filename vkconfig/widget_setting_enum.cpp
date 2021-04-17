@@ -63,13 +63,14 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
     tree->setItemWidget(item, 0, this);
 }
 
-void WidgetSettingEnum::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-
+void WidgetSettingEnum::paintEvent(QPaintEvent* event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
+    this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
+
+    QWidget::paintEvent(event);
 }
 
 void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {

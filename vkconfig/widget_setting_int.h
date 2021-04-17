@@ -37,7 +37,7 @@ class WidgetSettingInt : public QWidget {
     virtual ~WidgetSettingInt();
 
    protected:
-    virtual void showEvent(QShowEvent* event);
+    virtual void paintEvent(QPaintEvent* event);
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);

@@ -69,13 +69,14 @@ WidgetSettingInt::~WidgetSettingInt() {
     }
 }
 
-void WidgetSettingInt::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-
+void WidgetSettingInt::paintEvent(QPaintEvent* event) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
+    this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
+
+    QWidget::paintEvent(event);
 }
 
 void WidgetSettingInt::OnInvalidValue() {

@@ -36,7 +36,7 @@ class WidgetSettingListElement : public QCheckBox {
                                       SettingDataSet& data_set, EnabledNumberOrString& element);
 
    protected:
-    virtual void showEvent(QShowEvent* event);
+    virtual void paintEvent(QPaintEvent* event);
 
    public Q_SLOTS:
     void OnButtonClicked();

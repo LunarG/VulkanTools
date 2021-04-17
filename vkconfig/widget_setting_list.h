@@ -39,10 +39,10 @@ class WidgetSettingList : public QWidget {
     explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataSet &data_set);
 
    protected:
-    virtual void showEvent(QShowEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
 
    public Q_SLOTS:
-    void OnAddCompleted(const QString &value);
+    void OnCompleted(const QString &value);
     void OnButtonPressed();
     void OnTextEdited(const QString &value);
     void OnSettingChanged();

@@ -215,6 +215,16 @@ bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
                 if (data == nullptr) continue;
 
                 if (*data == meta.dependence[i]) return true;
+
+                if (meta.dependence[i].type == SETTING_FLAGS) {
+                    const SettingDataFlags& data_flags = static_cast<const SettingDataFlags&>(*data);
+                    const SettingDataFlags& dep_flags = static_cast<const SettingDataFlags&>(meta.dependence[i]);
+                    for (std::size_t j = 0, o = dep_flags.value.size(); j < o; ++j) {
+                        if (IsStringFound(data_flags.value, dep_flags.value[j])) {
+                            return true;
+                        }
+                    }
+                }
             }
             return false;
         }

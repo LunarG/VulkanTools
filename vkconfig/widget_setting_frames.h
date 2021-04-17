@@ -37,7 +37,7 @@ class WidgetSettingFrames : public QWidget {
     virtual ~WidgetSettingFrames();
 
    protected:
-    virtual void showEvent(QShowEvent* event);
+    virtual void paintEvent(QPaintEvent* event);
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);

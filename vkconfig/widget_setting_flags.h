@@ -35,7 +35,7 @@ class WidgetSettingFlag : public QCheckBox {
                                const std::string& flag);
 
    protected:
-    virtual void showEvent(QShowEvent* event);
+    virtual void paintEvent(QPaintEvent* event);
 
    public Q_SLOTS:
     void OnItemChecked(bool checked);
