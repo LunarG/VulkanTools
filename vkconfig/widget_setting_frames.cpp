@@ -40,7 +40,8 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* ite
       data(*data_set.Get<SettingDataFrames>(meta.key.c_str())),
       data_set(data_set),
       field(new QLineEdit(this)),
-      timer(new QTimer(this)) {
+      timer_error(new QTimer(this)),
+      timer_valid(new QTimer(this)) {
     assert(tree);
     assert(item);
     assert(&meta);
@@ -59,15 +60,15 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* ite
     this->default_palette = this->field->palette();
 
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
-    this->connect(this->timer, &QTimer::timeout, this, &WidgetSettingFrames::OnInvalidValue);
+    this->connect(this->timer_error, &QTimer::timeout, this, &WidgetSettingFrames::OnErrorValue);
+    this->connect(this->timer_valid, &QTimer::timeout, this, &WidgetSettingFrames::OnValidValue);
 
     tree->setItemWidget(item, 0, this);
 }
 
 WidgetSettingFrames::~WidgetSettingFrames() {
-    if (this->meta.IsValid(this->data)) {
-        this->data.value = this->meta.default_value;
-    }
+    this->timer_error->stop();
+    this->timer_valid->stop();
 }
 
 void WidgetSettingFrames::paintEvent(QPaintEvent* event) {
@@ -80,7 +81,12 @@ void WidgetSettingFrames::paintEvent(QPaintEvent* event) {
     QWidget::paintEvent(event);
 }
 
-void WidgetSettingFrames::OnInvalidValue() {
+void WidgetSettingFrames::resizeEvent(QResizeEvent* event) {
+    this->resize = event->size();
+    this->Resize();
+}
+
+void WidgetSettingFrames::OnErrorValue() {
     QPalette palette;
     palette.setColor(QPalette::Base, QColor(255, 192, 192));
     this->field->setPalette(palette);
@@ -112,7 +118,13 @@ void WidgetSettingFrames::OnInvalidValue() {
         }
     }
 
-    this->timer->stop();
+    this->timer_error->stop();
+}
+
+void WidgetSettingFrames::OnValidValue() {
+    emit itemChanged();
+
+    this->timer_valid->stop();
 }
 
 void WidgetSettingFrames::Resize() {
@@ -123,22 +135,34 @@ void WidgetSettingFrames::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-void WidgetSettingFrames::resizeEvent(QResizeEvent* event) {
-    this->resize = event->size();
-    this->Resize();
+SettingInputError WidgetSettingFrames::ProcessInputValue() {
+    if (this->value_buffer.empty()) return SETTING_INPUT_ERROR_EMPTY;
+
+    if (!IsFrames(this->value_buffer)) return SETTING_INPUT_ERROR_SYNTAX;
+
+    std::string saved_data = this->data.value;
+    this->data.value = this->value_buffer;
+
+    if (!this->meta.IsValid(this->data)) {
+        this->data.value = saved_data;
+        return SETTING_INPUT_ERROR_SEMENTICS;
+    }
+
+    return SETTING_INPUT_NO_ERROR;
 }
 
-void WidgetSettingFrames::OnTextEdited(const QString& value) {
-    this->data.value = value.toStdString();
+void WidgetSettingFrames::OnTextEdited(const QString& new_value) {
+    this->timer_error->stop();
+    this->timer_valid->stop();
+
+    this->value_buffer = new_value.toStdString();
     this->Resize();
 
-    this->timer->stop();
-
-    // Process the input value, notify an error is invalid, give time for the user to correct it
-    if (!this->meta.IsValid(this->data)) {
-        this->timer->start(3000);
-    } else {
+    if (this->ProcessInputValue() == SETTING_INPUT_NO_ERROR) {
         this->field->setPalette(default_palette);
+        this->timer_valid->start(500);
+    } else {
+        this->timer_error->start(3000);
     }
 
     emit itemChanged();
