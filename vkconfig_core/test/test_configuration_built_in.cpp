@@ -113,7 +113,9 @@ TEST(test_built_in_load, layers_130_with_configuration_210) {
 
     {
         Configuration load_frame_capture = test.Load("Frame Capture");
-        EXPECT_EQ(0, load_frame_capture.Size());
+        EXPECT_EQ(1, load_frame_capture.Size());
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
     }
 
     {
@@ -146,7 +148,9 @@ TEST(test_built_in_load, layers_135_with_configuration_210) {
 
     {
         Configuration load_frame_capture = test.Load("Frame Capture");
-        EXPECT_EQ(0, load_frame_capture.Size());
+        EXPECT_EQ(1, load_frame_capture.Size());
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
     }
 
     {
@@ -389,7 +393,9 @@ TEST(test_built_in_load, layers_130_with_configuration_220) {
 
     {
         Configuration load_frame_capture = test.Load("Frame Capture");
-        EXPECT_EQ(0, load_frame_capture.Size());
+        EXPECT_EQ(1, load_frame_capture.Size());
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
     }
 
     {
@@ -401,7 +407,9 @@ TEST(test_built_in_load, layers_130_with_configuration_220) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -427,7 +435,9 @@ TEST(test_built_in_load, layers_135_with_configuration_220) {
 
     {
         Configuration load_frame_capture = test.Load("Frame Capture");
-        EXPECT_EQ(0, load_frame_capture.Size());
+        EXPECT_EQ(1, load_frame_capture.Size());
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
     }
 
     {
@@ -439,7 +449,9 @@ TEST(test_built_in_load, layers_135_with_configuration_220) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -479,7 +491,9 @@ TEST(test_built_in_load, layers_141_with_configuration_220) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -519,7 +533,9 @@ TEST(test_built_in_load, layers_148_with_configuration_220) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -559,7 +575,9 @@ TEST(test_built_in_load, layers_154_with_configuration_220) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -599,7 +617,9 @@ TEST(test_built_in_load, layers_162_with_configuration_220) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -709,7 +729,9 @@ TEST(test_built_in_load, layers_130_with_configuration_221) {
 
     {
         Configuration load_frame_capture = test.Load("Frame Capture");
-        EXPECT_EQ(0, load_frame_capture.Size());
+        EXPECT_EQ(1, load_frame_capture.Size());
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
     }
 
     {
@@ -721,7 +743,9 @@ TEST(test_built_in_load, layers_130_with_configuration_221) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -747,7 +771,9 @@ TEST(test_built_in_load, layers_135_with_configuration_221) {
 
     {
         Configuration load_frame_capture = test.Load("Frame Capture");
-        EXPECT_EQ(0, load_frame_capture.Size());
+        EXPECT_EQ(1, load_frame_capture.Size());
+        Configuration save_frame_capture = test.Restore(load_frame_capture);
+        EXPECT_EQ(save_frame_capture, load_frame_capture);
     }
 
     {
@@ -759,7 +785,9 @@ TEST(test_built_in_load, layers_135_with_configuration_221) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -799,7 +827,9 @@ TEST(test_built_in_load, layers_141_with_configuration_221) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -839,7 +869,9 @@ TEST(test_built_in_load, layers_148_with_configuration_221) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -879,7 +911,9 @@ TEST(test_built_in_load, layers_154_with_configuration_221) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
@@ -919,7 +953,9 @@ TEST(test_built_in_load, layers_162_with_configuration_221) {
 
     {
         Configuration load_synchronization = test.Load("Synchronization");
-        EXPECT_EQ(0, load_synchronization.Size());
+        EXPECT_EQ(2, load_synchronization.Size());
+        Configuration save_synchronization = test.Restore(load_synchronization);
+        EXPECT_EQ(save_synchronization, load_synchronization);
     }
 
     {
