@@ -140,12 +140,19 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     Configuration new_configuration = duplicate_configuration != nullptr ? *duplicate_configuration : Configuration();
     new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
 
-    this->available_configurations.push_back(new_configuration);
+    const std::string path = path_manager.GetFullPath(PATH_LAST_CONFIGURATION, new_configuration.key.c_str());
+    new_configuration.Save(available_layers, path.c_str());
+
+    // Reload from file to workaround the lack of SettingSet copy support
+    Configuration configuration;
+    const bool result = configuration.Load(available_layers, path.c_str());
+
+    this->available_configurations.push_back(configuration);
     this->SortConfigurations();
 
-    SetActiveConfiguration(available_layers, new_configuration.key);
+    SetActiveConfiguration(available_layers, configuration.key);
 
-    return *FindByKey(this->available_configurations, new_configuration.key.c_str());
+    return *FindByKey(this->available_configurations, configuration.key.c_str());
 }
 
 void ConfigurationManager::RemoveConfigurationFiles() {

@@ -29,6 +29,7 @@
 template <typename T>
 class SettingSet {
    public:
+    SettingSet() {}
     T& Create(const std::string& key, SettingType type) { return this->Alloc(key, type); }
 
     template <typename CONTRETE>
@@ -59,6 +60,8 @@ class SettingSet {
 
         return *data[index];
     }
+
+    void Clear() { this->data.clear(); }
 
    private:
     T& Alloc(const std::string& key, SettingType type) {

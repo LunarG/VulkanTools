@@ -69,4 +69,4 @@ class Layer {
 };
 
 void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta);
-SettingDataSet CollectDefaultSettingData(const SettingMetaSet& layer_settings);
+void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);
