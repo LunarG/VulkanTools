@@ -27,6 +27,7 @@
 #include "json_validator.h"
 
 #include <QFile>
+#include <QDir>
 #include <QMessageBox>
 #include <QJsonArray>
 
@@ -37,12 +38,27 @@
 static std::string GetBuiltinFolder(const Version& version) {
     const std::uint32_t vulkan_version = std::max(static_cast<std::uint32_t>(130), version.GetPatch());
 
-    if (vulkan_version < 135)
-        return ":/layers/130";
-    else if (vulkan_version <= 170)
-        return format(":/layers/%d", vulkan_version).c_str();
-    else
-        return ":/layers/latest";
+    QDir dir(":/layers");
+    dir.setFilter(QDir::Dirs);
+    QFileInfoList list = dir.entryInfoList();
+
+    std::vector<int> version_supported;
+
+    for (int i = 0, n = list.size(); i < n; ++i) {
+        const std::string value = list[i].baseName().toStdString();
+        if (!IsNumber(value)) continue;
+        version_supported.push_back(std::atoi(value.c_str()));
+    }
+
+    std::sort(version_supported.begin(), version_supported.end());
+
+    for (int i = static_cast<int>(version_supported.size()) - 1; i >= 0; --i) {
+        if (vulkan_version > version_supported[i]) continue;
+
+        return format(":/layers/%d", version_supported[i]);
+    }
+
+    return ":/layers/latest";
 }
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
