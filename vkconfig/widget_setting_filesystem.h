@@ -37,9 +37,6 @@ class WidgetSettingFilesystem : public QWidget {
     explicit WidgetSettingFilesystem(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaFilesystem &meta,
                                      SettingDataSet &data_set);
 
-   protected:
-    virtual void paintEvent(QPaintEvent *event);
-
    public Q_SLOTS:
     void browseButtonClicked();
     void textFieldChanged(const QString &value);
@@ -47,11 +44,13 @@ class WidgetSettingFilesystem : public QWidget {
    Q_SIGNALS:
     void itemChanged();
 
+   protected:
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+
    private:
     WidgetSettingFilesystem(const WidgetSettingFilesystem &) = delete;
     WidgetSettingFilesystem &operator=(const WidgetSettingFilesystem &) = delete;
-
-    void resizeEvent(QResizeEvent *event) override;
 
     QTreeWidget *tree;
     QTreeWidgetItem *item;

@@ -35,9 +35,6 @@ class WidgetSettingListElement : public QCheckBox {
     explicit WidgetSettingListElement(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaList& meta,
                                       SettingDataSet& data_set, EnabledNumberOrString& element);
 
-   protected:
-    virtual void paintEvent(QPaintEvent* event);
-
    public Q_SLOTS:
     void OnButtonClicked();
     void OnItemChecked(bool checked);
@@ -46,11 +43,13 @@ class WidgetSettingListElement : public QCheckBox {
     void itemSelected(const QString& value);
     void itemChanged();
 
+   protected:
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+
    private:
     WidgetSettingListElement(const WidgetSettingListElement&) = delete;
     WidgetSettingListElement& operator=(const WidgetSettingListElement&) = delete;
-
-    void resizeEvent(QResizeEvent* event) override;
 
     bool GetChecked() const;
 

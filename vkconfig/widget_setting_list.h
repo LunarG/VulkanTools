@@ -38,9 +38,6 @@ class WidgetSettingList : public QWidget {
    public:
     explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataSet &data_set);
 
-   protected:
-    virtual void paintEvent(QPaintEvent *event);
-
    public Q_SLOTS:
     void OnCompleted(const QString &value);
     void OnButtonPressed();
@@ -53,12 +50,14 @@ class WidgetSettingList : public QWidget {
     void itemSelected(const QString &value);
     void itemChanged();
 
+   protected:
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    bool eventFilter(QObject *target, QEvent *event) override;
+
    private:
     WidgetSettingList(const WidgetSettingList &) = delete;
     WidgetSettingList &operator=(const WidgetSettingList &) = delete;
-
-    virtual void resizeEvent(QResizeEvent *event) override;
-    virtual bool eventFilter(QObject *target, QEvent *event) override;
 
     void Resize();
     void AddElement(EnabledNumberOrString &element);
