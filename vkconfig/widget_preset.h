@@ -36,13 +36,14 @@ class WidgetPreset : public QComboBox {
    public:
     explicit WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter& parameter);
 
-    void UpdateCurrentIndex();
-
    public Q_SLOTS:
     void OnPresetChanged(int index);
 
    Q_SIGNALS:
     void itemChanged();
+
+   protected:
+    void paintEvent(QPaintEvent* event) override;
 
    private:
     WidgetPreset(const WidgetPreset&) = delete;

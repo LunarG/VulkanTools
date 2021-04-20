@@ -396,14 +396,6 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
 
 // The setting has been edited
 void SettingsTreeManager::OnSettingChanged() {
-    this->tree->blockSignals(true);
-
-    for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
-        presets[i]->UpdateCurrentIndex();
-    }
-
-    this->tree->blockSignals(false);
-
     // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
