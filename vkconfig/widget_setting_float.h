@@ -23,6 +23,8 @@
 #include "../vkconfig_core/setting_data.h"
 #include "../vkconfig_core/setting_meta.h"
 
+#include "widget_setting.h"
+
 #include <QString>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
@@ -38,7 +40,8 @@ class WidgetSettingFloat : public QWidget {
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
-    void OnInvalidValue();
+    void OnErrorValue();
+    void OnValidValue();
 
    Q_SIGNALS:
     void itemChanged();
@@ -52,7 +55,7 @@ class WidgetSettingFloat : public QWidget {
     WidgetSettingFloat& operator=(const WidgetSettingFloat&) = delete;
 
     void Resize();
-    bool ValidateInputValue();
+    SettingInputError ProcessInputValue();
 
     QTreeWidget* tree;
     QTreeWidgetItem* item;
@@ -60,9 +63,10 @@ class WidgetSettingFloat : public QWidget {
     SettingDataFloat& data;
     const SettingMetaFloat& meta;
 
-    std::string value;
+    std::string value_buffer;
     QLineEdit* field;
-    QTimer* timer;
+    QTimer* timer_error;
+    QTimer* timer_valid;
     QSize resize;
     QPalette default_palette;
 };

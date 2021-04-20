@@ -19,7 +19,6 @@
  */
 
 #include "widget_setting_int.h"
-#include "widget_setting.h"
 
 #include <QMessageBox>
 #include <QFontMetrics>
@@ -37,7 +36,8 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, con
       data(*data_set.Get<SettingDataInt>(meta.key.c_str())),
       data_set(data_set),
       field(new QLineEdit(this)),
-      timer(new QTimer(this)) {
+      timer_error(new QTimer(this)),
+      timer_valid(new QTimer(this)) {
     assert(tree != nullptr);
     assert(item != nullptr);
     assert(&meta);
@@ -58,15 +58,15 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, con
     this->default_palette = this->field->palette();
 
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
-    this->connect(this->timer, &QTimer::timeout, this, &WidgetSettingInt::OnInvalidValue);
+    this->connect(this->timer_error, &QTimer::timeout, this, &WidgetSettingInt::OnErrorValue);
+    this->connect(this->timer_valid, &QTimer::timeout, this, &WidgetSettingInt::OnValidValue);
 
     tree->setItemWidget(item, 0, this);
 }
 
 WidgetSettingInt::~WidgetSettingInt() {
-    if (this->meta.IsValid(this->data)) {
-        this->data.value = this->meta.default_value;
-    }
+    this->timer_error->stop();
+    this->timer_valid->stop();
 }
 
 void WidgetSettingInt::paintEvent(QPaintEvent* event) {
@@ -79,7 +79,12 @@ void WidgetSettingInt::paintEvent(QPaintEvent* event) {
     QWidget::paintEvent(event);
 }
 
-void WidgetSettingInt::OnInvalidValue() {
+void WidgetSettingInt::resizeEvent(QResizeEvent* event) {
+    this->resize = event->size();
+    this->Resize();
+}
+
+void WidgetSettingInt::OnErrorValue() {
     QPalette palette;
     palette.setColor(QPalette::Base, QColor(255, 192, 192));
     this->field->setPalette(palette);
@@ -90,12 +95,24 @@ void WidgetSettingInt::OnInvalidValue() {
         const std::string range = format("Enter a number in the range [%d, %d].", this->meta.min_value, this->meta.max_value);
 
         std::string text;
-        if (this->value.empty()) {
-            text = format("'%s' value is empty. %s", meta.label.c_str(), range.c_str());
-        } else if (!IsNumber(this->value)) {
-            text = format("'%s' value has invalid characters. %s", meta.label.c_str(), range.c_str());
-        } else if (!this->meta.IsValid(this->data)) {
-            text = format("'%s' value is out of range. %s", meta.label.c_str(), range.c_str());
+        switch (this->ProcessInputValue()) {
+            default:
+            case SETTING_INPUT_NO_ERROR: {
+                assert(0);
+                break;
+            }
+            case SETTING_INPUT_ERROR_EMPTY: {
+                text = format("'%s' value is empty. %s", meta.label.c_str(), range.c_str());
+                break;
+            }
+            case SETTING_INPUT_ERROR_SYNTAX: {
+                text = format("'%s' value has invalid characters. %s", meta.label.c_str(), range.c_str());
+                break;
+            }
+            case SETTING_INPUT_ERROR_SEMENTICS: {
+                text = format("'%s' value is out of range. %s", meta.label.c_str(), range.c_str());
+                break;
+            }
         }
 
         QMessageBox alert;
@@ -117,7 +134,13 @@ void WidgetSettingInt::OnInvalidValue() {
         }
     }
 
-    this->timer->stop();
+    this->timer_error->stop();
+}
+
+void WidgetSettingInt::OnValidValue() {
+    emit itemChanged();
+
+    this->timer_valid->stop();
 }
 
 void WidgetSettingInt::Resize() {
@@ -128,36 +151,34 @@ void WidgetSettingInt::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-void WidgetSettingInt::resizeEvent(QResizeEvent* event) {
-    this->resize = event->size();
-    this->Resize();
-}
+SettingInputError WidgetSettingInt::ProcessInputValue() {
+    if (this->value_buffer.empty()) return SETTING_INPUT_ERROR_EMPTY;
 
-bool WidgetSettingInt::ValidateInputValue() {
-    if (this->value.empty())
-        return false;
-    else if (IsNumber(this->value)) {
-        this->data.value = std::atoi(this->value.c_str());
-        this->field->setText(format("%d", data.value).c_str());
-        if (!this->meta.IsValid(this->data)) return false;
-    } else {
-        return false;
+    if (!IsNumber(this->value_buffer)) return SETTING_INPUT_ERROR_SYNTAX;
+
+    int saved_data = this->data.value;
+    this->data.value = std::atoi(this->value_buffer.c_str());
+
+    if (!this->meta.IsValid(this->data)) {
+        this->data.value = saved_data;
+        return SETTING_INPUT_ERROR_SEMENTICS;
     }
 
-    return true;
+    return SETTING_INPUT_NO_ERROR;
 }
 
 void WidgetSettingInt::OnTextEdited(const QString& new_value) {
-    this->value = new_value.toStdString();
+    this->timer_error->stop();
+    this->timer_valid->stop();
+
+    this->value_buffer = new_value.toStdString();
     this->Resize();
 
-    this->timer->stop();
-
-    // Process the input value, notify an error is invalid, give time for the user to correct it
-    if (!this->ValidateInputValue()) {
-        this->timer->start(1000);
-    } else {
+    if (this->ProcessInputValue() == SETTING_INPUT_NO_ERROR) {
         this->field->setPalette(default_palette);
+        this->timer_valid->start(500);
+    } else {
+        this->timer_error->start(2000);
     }
 
     emit itemChanged();
