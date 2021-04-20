@@ -36,9 +36,6 @@ class WidgetSettingFloat : public QWidget {
     WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFloat& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingFloat();
 
-   protected:
-    virtual void paintEvent(QPaintEvent* event);
-
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
     void OnInvalidValue();
@@ -46,11 +43,14 @@ class WidgetSettingFloat : public QWidget {
    Q_SIGNALS:
     void itemChanged();
 
+   protected:
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+
    private:
     WidgetSettingFloat(const WidgetSettingFloat&) = delete;
     WidgetSettingFloat& operator=(const WidgetSettingFloat&) = delete;
 
-    void resizeEvent(QResizeEvent* event) override;
     void Resize();
     bool ValidateInputValue();
 

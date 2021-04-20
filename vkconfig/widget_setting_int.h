@@ -36,9 +36,6 @@ class WidgetSettingInt : public QWidget {
     WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingInt();
 
-   protected:
-    virtual void paintEvent(QPaintEvent* event);
-
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
     void OnInvalidValue();
@@ -46,11 +43,14 @@ class WidgetSettingInt : public QWidget {
    Q_SIGNALS:
     void itemChanged();
 
+   protected:
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+
    private:
     WidgetSettingInt(const WidgetSettingInt&) = delete;
     WidgetSettingInt& operator=(const WidgetSettingInt&) = delete;
 
-    void resizeEvent(QResizeEvent* event) override;
     void Resize();
     bool ValidateInputValue();
 

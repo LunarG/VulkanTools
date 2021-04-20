@@ -34,14 +34,14 @@ class WidgetSettingFlag : public QCheckBox {
     explicit WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta, SettingDataSet& data_set,
                                const std::string& flag);
 
-   protected:
-    virtual void paintEvent(QPaintEvent* event);
-
    public Q_SLOTS:
     void OnItemChecked(bool checked);
 
    Q_SIGNALS:
     void itemChanged();
+
+   protected:
+    void paintEvent(QPaintEvent* event) override;
 
    private:
     WidgetSettingFlag(const WidgetSettingFlag&) = delete;

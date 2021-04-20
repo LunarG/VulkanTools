@@ -35,7 +35,7 @@ class WidgetSettingEnum : public QWidget {
     explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataSet& data_set);
 
    protected:
-    virtual void paintEvent(QPaintEvent* event);
+    void paintEvent(QPaintEvent* event) override;
 
    public Q_SLOTS:
     void indexChanged(int index);

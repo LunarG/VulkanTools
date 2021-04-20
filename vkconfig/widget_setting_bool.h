@@ -38,7 +38,7 @@ class WidgetSettingBool : public QCheckBox {
     explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta, SettingDataSet& data_set);
 
    protected:
-    virtual void paintEvent(QPaintEvent* event);
+    void paintEvent(QPaintEvent* event) override;
 
    public Q_SLOTS:
     void OnClicked();

@@ -35,20 +35,20 @@ class WidgetSettingString : public QWidget {
    public:
     WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta, SettingDataSet& data_set);
 
-   protected:
-    virtual void paintEvent(QPaintEvent* event);
-
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
 
    Q_SIGNALS:
     void itemChanged();
 
+   protected:
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+
    private:
     WidgetSettingString(const WidgetSettingString&) = delete;
     WidgetSettingString& operator=(const WidgetSettingString&) = delete;
 
-    virtual void resizeEvent(QResizeEvent* event) override;
     void Resize();
 
     QTreeWidget* tree;

@@ -36,9 +36,6 @@ class WidgetSettingFrames : public QWidget {
     WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingFrames();
 
-   protected:
-    virtual void paintEvent(QPaintEvent* event);
-
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
     void OnInvalidValue();
@@ -46,11 +43,13 @@ class WidgetSettingFrames : public QWidget {
    Q_SIGNALS:
     void itemChanged();
 
+   protected:
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+
    private:
     WidgetSettingFrames(const WidgetSettingFrames&) = delete;
     WidgetSettingFrames& operator=(const WidgetSettingFrames&) = delete;
-
-    void resizeEvent(QResizeEvent* event) override;
 
     void Resize();
 
