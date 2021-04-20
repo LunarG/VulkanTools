@@ -280,6 +280,9 @@ void MainWindow::LoadConfigurationList() {
     for (std::size_t i = 0, n = configurator.configurations.available_configurations.size(); i < n; ++i) {
         const Configuration &configuration = configurator.configurations.available_configurations[i];
 
+        // Hide built-in configuration when the layer is missing. The Vulkan user may have not installed the necessary layer
+        if (configuration.IsBuiltIn() && HasMissingLayer(configuration.parameters, configurator.layers.available_layers)) continue;
+
         ConfigurationListItem *item = new ConfigurationListItem(configuration.key);
         item->setToolTip(0, configuration.description.c_str());
         ui->configuration_tree->addTopLevelItem(item);

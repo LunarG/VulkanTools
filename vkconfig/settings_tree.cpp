@@ -220,6 +220,7 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
     Layer *validation_layer = FindByKey(available_layers, "VK_LAYER_KHRONOS_validation");
+    assert(validation_layer != nullptr);
 
     QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
     validation_areas_item->setText(0, "Validation Areas");
