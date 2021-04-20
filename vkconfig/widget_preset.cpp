@@ -43,12 +43,11 @@ WidgetPreset::WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter&
     }
 
     this->blockSignals(false);
-    this->UpdateCurrentIndex();
 
     connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
 }
 
-void WidgetPreset::UpdateCurrentIndex() {
+void WidgetPreset::paintEvent(QPaintEvent* event) {
     const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
     this->blockSignals(true);
@@ -57,11 +56,12 @@ void WidgetPreset::UpdateCurrentIndex() {
     if (preset_label != Layer::NO_PRESET) {
         const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
         assert(preset != nullptr);
-        this->blockSignals(true);
         this->setToolTip(preset->description.c_str());
     }
 
     this->blockSignals(false);
+
+    QComboBox::paintEvent(event);
 }
 
 int WidgetPreset::GetComboBoxIndex(const char* preset_label) const {
