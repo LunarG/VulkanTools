@@ -39,16 +39,6 @@
 #include <string>
 #include <algorithm>
 
-bool IsBuiltinConfiguration(const std::string& key) {
-    static const char* keys[] = {"API dump", "Frame Capture", "Portability", "Synchronization", "Validation"};
-
-    for (std::size_t i = 0, n = countof(keys); i < n; ++i) {
-        if (keys[i] == key) return true;
-    }
-
-    return false;
-}
-
 Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_ALL_BIT) {}
 
 static Version GetConfigurationVersion(const QJsonValue& value) {
@@ -110,8 +100,6 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
             settings = CollectDefaultSettingData(layer->settings);
-        } else if (IsBuiltinConfiguration(this->key) && parameter.state == LAYER_STATE_OVERRIDDEN) {
-            return false;
         }
 
         parameter.settings = settings;
@@ -174,8 +162,6 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
             settings = CollectDefaultSettingData(layer->settings);
-        } else if (IsBuiltinConfiguration(this->key) && parameter.state == LAYER_STATE_OVERRIDDEN) {
-            return false;
         }
 
         parameter.settings = settings;
@@ -221,8 +207,6 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
             settings = CollectDefaultSettingData(layer->settings);
-        } else if (IsBuiltinConfiguration(this->key) && parameter.state == LAYER_STATE_OVERRIDDEN) {
-            return false;
         }
 
         const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");
