@@ -161,7 +161,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_LAYERMGR "Build layer manager" ON)
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    
+
     option(BUILD_LOADER OFF)
     option(BUILD_TESTS OFF)
     option(BUILD_LAYERS OFF)
@@ -203,6 +203,8 @@ endif()
 macro(run_vulkantools_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
     COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} ${output}
+        -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264
+        -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264
     DEPENDS ${VulkanRegistry_DIR}/vk.xml ${VulkanRegistry_DIR}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VulkanRegistry_DIR}/reg.py
     )
 endmacro()
