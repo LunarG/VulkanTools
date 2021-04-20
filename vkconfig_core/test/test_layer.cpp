@@ -26,17 +26,20 @@
 #include <regex>
 
 TEST(test_layer, collect_settings) {
+    SettingDataSet data0;
     SettingMetaSet meta;
 
-    EXPECT_TRUE(CollectDefaultSettingData(meta).Empty());
+    CollectDefaultSettingData(meta, data0);
+    EXPECT_TRUE(data0.Empty());
 
     SettingMetaString& meta0 = static_cast<SettingMetaString&>(meta.Create("key0", SETTING_STRING));
     meta0.default_value = "value0";
 
-    SettingDataSet data = CollectDefaultSettingData(meta);
+    SettingDataSet data1;
+    CollectDefaultSettingData(meta, data1);
 
-    SettingDataString& data0 = *data.Get<SettingDataString>("key0");
-    EXPECT_STREQ("value0", data0.value.c_str());
+    SettingDataString& data_string = *data1.Get<SettingDataString>("key0");
+    EXPECT_STREQ("value0", data_string.value.c_str());
 }
 
 TEST(test_layer, load_1_1_0_header) {
