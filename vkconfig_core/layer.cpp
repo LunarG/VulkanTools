@@ -36,8 +36,6 @@
 #include <algorithm>
 
 static std::string GetBuiltinFolder(const Version& version) {
-    const std::uint32_t vulkan_version = std::max(static_cast<std::uint32_t>(130), version.GetPatch());
-
     QDir dir(":/layers");
     dir.setFilter(QDir::Dirs);
     QFileInfoList list = dir.entryInfoList();
@@ -53,7 +51,7 @@ static std::string GetBuiltinFolder(const Version& version) {
     std::sort(version_supported.begin(), version_supported.end());
 
     for (int i = static_cast<int>(version_supported.size()) - 1; i >= 0; --i) {
-        if (vulkan_version > version_supported[i]) continue;
+        if (version.GetPatch() > version_supported[i]) continue;
 
         return format(":/layers/%d", version_supported[i]);
     }
