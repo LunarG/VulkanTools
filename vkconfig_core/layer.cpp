@@ -612,7 +612,7 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
     }
 }
 
-static void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set) {
+void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set) {
     for (std::size_t i = 0, n = meta_set.Size(); i < n; ++i) {
         const SettingMeta& setting_meta = meta_set[i];
         SettingData& setting_data = data_set.Create(setting_meta.key, setting_meta.type);
@@ -625,10 +625,4 @@ static void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDat
             }
         }
     }
-}
-
-SettingDataSet CollectDefaultSettingData(const SettingMetaSet& meta) {
-    SettingDataSet result;
-    CollectDefaultSettingData(meta, result);
-    return result;
 }

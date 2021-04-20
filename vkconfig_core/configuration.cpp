@@ -96,13 +96,11 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
         parameter.overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::NO_RANK : layer_rank.toInt();
         parameter.state = LAYER_STATE_OVERRIDDEN;
 
-        SettingDataSet settings;
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
-            settings = CollectDefaultSettingData(layer->settings);
+            CollectDefaultSettingData(layer->settings, parameter.settings);
         }
 
-        parameter.settings = settings;
         this->parameters.push_back(parameter);
     }
 
@@ -158,13 +156,11 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
             parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
         }
 
-        SettingDataSet settings;
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
-            settings = CollectDefaultSettingData(layer->settings);
+            CollectDefaultSettingData(layer->settings, parameter.settings);
         }
 
-        parameter.settings = settings;
         this->parameters.push_back(parameter);
     }
 
@@ -203,10 +199,9 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
             parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
         }
 
-        SettingDataSet settings;
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
-            settings = CollectDefaultSettingData(layer->settings);
+            CollectDefaultSettingData(layer->settings, parameter.settings);
         }
 
         const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");
@@ -216,7 +211,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
             const std::string setting_key = ReadStringValue(json_setting_object, "key");
             const SettingType setting_type = GetSettingType(ReadStringValue(json_setting_object, "type").c_str());
 
-            SettingData& setting_data = settings.Create(setting_key, setting_type);
+            SettingData& setting_data = parameter.settings.Create(setting_key, setting_type);
 
             // Configuration type and layer type are differents, use layer default value
             if (setting_data.type != setting_type) continue;
@@ -282,7 +277,6 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
             }
         }
 
-        parameter.settings = settings;
         this->parameters.push_back(parameter);
     }
 
@@ -490,7 +484,8 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
         for (auto it = this->parameters.begin(); it != this->parameters.end(); ++it) {
             it->state = LAYER_STATE_APPLICATION_CONTROLLED;
             it->overridden_rank = Parameter::NO_RANK;
-            it->settings = CollectDefaultSettingData(FindByKey(available_layers, it->key.c_str())->settings);
+            it->settings.Clear();
+            CollectDefaultSettingData(FindByKey(available_layers, it->key.c_str())->settings, it->settings);
         }
 
         OrderParameter(this->parameters, available_layers);

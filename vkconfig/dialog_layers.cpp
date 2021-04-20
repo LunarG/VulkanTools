@@ -559,8 +559,7 @@ void LayersDialog::BuildParameters() {
         Parameter parameter;
         parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        parameter.settings =
-            CollectDefaultSettingData(FindByKey(configurator.layers.available_layers, layer.key.c_str())->settings);
+        CollectDefaultSettingData(FindByKey(configurator.layers.available_layers, layer.key.c_str())->settings, parameter.settings);
 
         parameters.push_back(parameter);
     }

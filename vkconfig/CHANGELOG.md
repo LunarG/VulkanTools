@@ -27,6 +27,7 @@
 - Hide 'Callback' from validation layer 'Debug Action' debug action that is NOOP
 - Fix crash when SDK path is included in 'override_paths' of 'VkLayer_override.json'
 - Fix default value of validation layer 'Check Out of Bounds #1435
+- Fix duplicate configurations #1445
 
 ## [Vulkan Configurator 2.2.0 for Vulkan SDK 1.2.170.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.170.0) - February 2021
 
