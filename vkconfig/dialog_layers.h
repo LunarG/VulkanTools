@@ -73,7 +73,7 @@ class LayersDialog : public QDialog {
     void AddLayerItem(const Parameter &parameter);
     void BuildParameters();
     void OverrideAllExplicitLayers();
-    void OverrideOrder(const std::string &layer_name, const TreeWidgetItemParameter *below, const TreeWidgetItemParameter *above);
+    void OverrideOrder(const std::string layer_name, const TreeWidgetItemParameter *below, const TreeWidgetItemParameter *above);
 
     Configuration configuration;
     std::string selected_available_layer_name;
