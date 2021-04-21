@@ -335,12 +335,17 @@ void LayersDialog::on_pushButtonCustomLayers_clicked() {
     UpdateUI();
 }
 
-void LayersDialog::OverrideOrder(const std::string &layer_name, const TreeWidgetItemParameter *below,
+void LayersDialog::OverrideOrder(const std::string layer_name, const TreeWidgetItemParameter *below,
                                  const TreeWidgetItemParameter *above) {
+    assert(below != nullptr);
+    assert(below != above);
+
     Parameter *below_parameter = FindByKey(configuration.parameters, below->layer_name.c_str());
     assert(below_parameter != nullptr);
     Parameter *above_parameter = FindByKey(configuration.parameters, above->layer_name.c_str());
     assert(above_parameter != nullptr);
+
+    selected_sorted_layer_name = selected_available_layer_name = layer_name;
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
 
@@ -348,7 +353,6 @@ void LayersDialog::OverrideOrder(const std::string &layer_name, const TreeWidget
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
 
-    selected_sorted_layer_name = selected_available_layer_name = layer_name;
     UpdateUI();
 }
 
