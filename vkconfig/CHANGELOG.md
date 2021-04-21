@@ -30,6 +30,7 @@
 - Fix duplicate configurations #1445
 - Fix layer reordering crash #1449
 - Fix Vulkan application crash when updating the Vulkan loader
+- Fix User-Defined layer path window 'Ok' button being disabled incorrectly
 
 ## [Vulkan Configurator 2.2.0 for Vulkan SDK 1.2.170.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.170.0) - February 2021
 
