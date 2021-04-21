@@ -32,8 +32,10 @@ CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new 
     ui->treeWidget->headerItem()->setText(0, "User-Defined Layers Paths");
 
     RepopulateTree();
-    ui->buttonBox->setEnabled(!Configurator::Get().layers.Empty());
-    Configurator::Get().request_vulkan_status = true;
+
+    Configurator &configurator = Configurator::Get();
+    ui->buttonBox->setEnabled(!configurator.layers.Empty());
+    configurator.request_vulkan_status = true;
 }
 
 CustomPathsDialog::~CustomPathsDialog() {}
@@ -94,7 +96,7 @@ void CustomPathsDialog::on_pushButtonAdd_clicked() {
         RepopulateTree();
     }
 
-    ui->buttonBox->setEnabled(!Configurator::Get().layers.Empty());
+    ui->buttonBox->setEnabled(!configurator.layers.Empty());
 }
 
 /// Don't make remove button accessable unless an item has been selected
@@ -123,5 +125,5 @@ void CustomPathsDialog::on_pushButtonRemove_clicked() {
     RepopulateTree();
 
     // Nothing is selected, so disable remove button
-    ui->buttonBox->setEnabled(false);
+    ui->buttonBox->setEnabled(!configurator.layers.Empty());
 }
