@@ -50,10 +50,14 @@ static std::string GetBuiltinFolder(const Version& version) {
 
     std::sort(version_supported.begin(), version_supported.end());
 
-    for (int i = static_cast<int>(version_supported.size()) - 1; i >= 0; --i) {
-        if (version.GetPatch() > version_supported[i]) continue;
+    const int searched_version = version.GetPatch();
 
-        return format(":/layers/%d", version_supported[i]);
+    for (int i = static_cast<int>(version_supported.size()) - 1; i >= 0; --i) {
+        const int current_version = version_supported[i];
+
+        if (searched_version < current_version) continue;
+
+        return format(":/layers/%d", current_version);
     }
 
     return ":/layers/latest";
