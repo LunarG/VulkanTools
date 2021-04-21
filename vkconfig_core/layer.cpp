@@ -632,6 +632,8 @@ void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& d
         SettingData& setting_data = data_set.Create(setting_meta.key, setting_meta.type);
         InitSettingDefaultValue(setting_data, setting_meta);
 
+        CollectDefaultSettingData(setting_meta.children, data_set);
+
         if (setting_meta.type == SETTING_ENUM || setting_meta.type == SETTING_FLAGS) {
             const SettingMetaEnumeration& setting_meta_enum = static_cast<const SettingMetaEnumeration&>(setting_meta);
             for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
