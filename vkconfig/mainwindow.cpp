@@ -256,6 +256,10 @@ void MainWindow::UpdateUI() {
         ui->log_browser->append(GenerateVulkanStatus().c_str());
         ui->push_button_clear_log->setEnabled(true);
         configurator.request_vulkan_status = false;
+
+        if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+            _settings_tree_manager.CreateGUI(ui->settings_tree);
+        }
     }
 
     // Update title bar
