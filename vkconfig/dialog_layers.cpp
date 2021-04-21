@@ -525,21 +525,6 @@ void LayersDialog::BuildParameters() {
 
     std::vector<Parameter> parameters;
 
-    for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
-        const Layer &layer = available_layers[i];
-
-        if (layer.type != LAYER_TYPE_IMPLICIT) continue;
-
-        // The layer is overridden
-        if (IsFound(configuration.parameters, layer.key.c_str())) continue;
-
-        Parameter parameter;
-        parameter.key = layer.key;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-
-        parameters.push_back(parameter);
-    }
-
     // Loop through the layers. They are expected to be in order
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter &parameter = configuration.parameters[i];
@@ -551,15 +536,13 @@ void LayersDialog::BuildParameters() {
     for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
         const Layer &layer = available_layers[i];
 
-        if (layer.type == LAYER_TYPE_IMPLICIT) continue;
-
         // The layer is already in the layer tree
         if (IsFound(configuration.parameters, layer.key.c_str())) continue;
 
         Parameter parameter;
         parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        CollectDefaultSettingData(FindByKey(configurator.layers.available_layers, layer.key.c_str())->settings, parameter.settings);
+        CollectDefaultSettingData(layer.settings, parameter.settings);
 
         parameters.push_back(parameter);
     }
