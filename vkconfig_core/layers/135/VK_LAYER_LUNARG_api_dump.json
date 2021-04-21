@@ -17,6 +17,26 @@
         ],
         "presets": [
             {
+                "label": "Console Output",
+                "description": "Output API dump to stdout",
+                "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                "status": "STABLE",
+                "settings": [
+                    {
+                        "key": "output_format",
+                        "value": "text"
+                    },
+                    {
+                        "key": "log_filename",
+                        "value": "stdout"
+                    },
+                    {
+                        "key": "file",
+                        "value": false
+                    }
+                ]
+            },
+            {
                 "label": "Text Output",
                 "description": "Output API dump to a text file",
                 "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
@@ -116,7 +136,7 @@
                 "label": "Output to File",
                 "description": "Setting this to true indicates that output should be written to file instead of stdout",
                 "type": "BOOL",
-                "default": true,
+                "default": false,
                 "settings": [
                     {
                         "key": "log_filename",
@@ -125,7 +145,7 @@
                         "description": "Specifies the file to dump to when output files are enabled",
                         "type": "SAVE_FILE",
                         "filter": "*.txt,*.html,*.json",
-                        "default": "vk_apidump.txt",
+                        "default": "stdout",
                         "dependence": {
                             "mode": "ALL",
                             "settings": [
