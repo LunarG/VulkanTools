@@ -148,124 +148,6 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     assert(&data_set);
 
     this->tree->setItemWidget(this->item, 0, this);
-    /*
-
-        // Shader-based enables
-        const SettingEnumValue *enum_debug_printf =
-            FindByKey(meta_enables.enum_values, "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
-        const SettingEnumValue *enum_gpu_assisted =
-            FindByKey(meta_enables.enum_values, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
-
-        const bool has_debug_printf = HasEnable("VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT");
-        const bool has_gpu_assisted = HasEnable("VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT");
-
-        if (enum_gpu_assisted != nullptr && enum_debug_printf != nullptr) {
-            item_shader_based = new QTreeWidgetItem();
-            item_shader_based->setText(0, "Shader-Based");
-            item_shader_based->setCheckState(0, has_debug_printf || has_gpu_assisted ? Qt::Checked : Qt::Unchecked);
-            item->addChild(item_shader_based);
-
-            // GPU assisted
-            {
-                item_gpu_assisted = new QTreeWidgetItem();
-                item_gpu_assisted->setText(0, ("     " + enum_gpu_assisted->label).c_str());
-                item_gpu_assisted->setToolTip(0, enum_gpu_assisted->description.c_str());
-                item_shader_based->addChild(item_gpu_assisted);
-
-                widget_gpu_assisted = new QRadioButton();
-                tree->setItemWidget(item_gpu_assisted, 0, widget_gpu_assisted);
-
-                const SettingEnumValue *enum_gpu_assisted_slot =
-                    FindByKey(meta_enables.enum_values, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
-
-                if (enum_gpu_assisted_slot != nullptr) {
-                    const bool enabled = HasEnable(enum_gpu_assisted_slot->key.c_str());
-                    item_gpu_assisted_reserve = this->AddItem(item_gpu_assisted, enum_gpu_assisted_slot, enabled);
-                }
-
-                const SettingMetaBool *meta_gpuav_buffer_oob = FindSettingMeta<SettingMetaBool>(meta_set, "gpuav_buffer_oob");
-
-                if (meta_gpuav_buffer_oob != nullptr) {
-                    item_gpu_assisted_oob = this->AddItem(item_gpu_assisted, meta_gpuav_buffer_oob);
-                }
-            }
-
-            // Debug Printf
-            {
-                item_debug_printf = new QTreeWidgetItem();
-                item_debug_printf->setText(0, ("     " + enum_debug_printf->label).c_str());
-                item_debug_printf->setToolTip(0, enum_debug_printf->description.c_str());
-                item_shader_based->addChild(item_debug_printf);
-
-                widget_debug_printf = new QRadioButton();
-                tree->setItemWidget(item_debug_printf, 0, widget_debug_printf);
-
-                const SettingMetaBool *meta_printf_to_stdout = FindSettingMeta<SettingMetaBool>(meta_set, "printf_to_stdout");
-                if (meta_printf_to_stdout != nullptr) {
-                    item_debug_printf_to_stdout = this->AddItem(item_debug_printf, meta_printf_to_stdout);
-                }
-
-                const SettingMetaBool *meta_printf_verbose = FindSettingMeta<SettingMetaBool>(meta_set, "printf_verbose");
-                if (meta_printf_verbose != nullptr) {
-                    item_debug_printf_verbose = this->AddItem(item_debug_printf, meta_printf_verbose);
-                }
-
-                const SettingMetaInt *meta_printf_buffer_size = FindSettingMeta<SettingMetaInt>(meta_set, "printf_buffer_size");
-                if (meta_printf_buffer_size != nullptr) {
-                    item_debug_printf_buffer_size = new QTreeWidgetItem();
-                    item_debug_printf->addChild(item_debug_printf_buffer_size);
-                    widget_debug_printf_buffer_size =
-                        new WidgetSettingInt(tree, item_debug_printf_buffer_size, *meta_printf_buffer_size, data_set);
-
-                    this->connect(widget_debug_printf_buffer_size, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-                }
-            }
-
-            if (has_debug_printf || has_gpu_assisted) {
-                widget_debug_printf->setChecked(has_debug_printf);
-                ::EnableItem(item_debug_printf_to_stdout, has_debug_printf);
-                ::EnableItem(item_debug_printf_verbose, has_debug_printf);
-
-                ::EnableItem(item_debug_printf_buffer_size, has_debug_printf);
-                if (item_debug_printf_buffer_size != nullptr) {
-                    widget_debug_printf_buffer_size->setEnabled(has_debug_printf);
-                }
-
-                widget_gpu_assisted->setChecked(has_gpu_assisted);
-                ::EnableItem(item_gpu_assisted_reserve, has_gpu_assisted);
-                ::EnableItem(item_gpu_assisted_oob, has_gpu_assisted);
-            } else {
-                widget_debug_printf->setEnabled(false);
-                ::EnableItem(item_debug_printf, false);
-                ::EnableItem(item_debug_printf_to_stdout, false);
-                ::EnableItem(item_debug_printf_verbose, false);
-                ::EnableItem(item_debug_printf_buffer_size, false);
-                if (item_debug_printf_buffer_size != nullptr) {
-                    widget_debug_printf_buffer_size->setEnabled(false);
-                }
-
-                widget_gpu_assisted->setEnabled(false);
-                ::EnableItem(item_gpu_assisted, false);
-                ::EnableItem(item_gpu_assisted_reserve, false);
-                ::EnableItem(item_gpu_assisted_oob, false);
-            }
-
-            connect(widget_gpu_assisted, SIGNAL(toggled(bool)), this, SLOT(gpuToggled(bool)));
-            connect(widget_debug_printf, SIGNAL(toggled(bool)), this, SLOT(printfToggled(bool)));
-        } else if (enum_gpu_assisted != nullptr) {
-            const bool enabled = HasEnable(enum_gpu_assisted->key.c_str());
-            item_gpu_assisted = this->AddItem(item, enum_gpu_assisted, enabled);
-
-            const SettingEnumValue *enum_gpu_assisted_slot =
-                FindByKey(meta_enables.enum_values, "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT");
-
-            if (enum_gpu_assisted_slot != nullptr) {
-                const bool enabled = HasEnable(enum_gpu_assisted_slot->key.c_str());
-                item_gpu_assisted_reserve = this->AddItem(item_gpu_assisted, enum_gpu_assisted_slot, enabled);
-                ::EnableItem(item_gpu_assisted_reserve, item_gpu_assisted->checkState(0) == Qt::Checked);
-            }
-        }
-    */
 
     // Core
     {
@@ -384,7 +266,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     {
         const SettingEnumValue *value_gpu = GetFlag("enables", TOKEN_SHADER_GPU);
         const SettingEnumValue *value_printf = GetFlag("enables", TOKEN_SHADER_PRINTF);
-        if (value_gpu && value_printf) {
+        if (value_gpu != nullptr && value_printf != nullptr) {
             const bool enabled_gpu = HasFlag("enables", value_gpu->key.c_str());
             const bool enabled_printf = HasFlag("enables", value_printf->key.c_str());
 
@@ -496,6 +378,21 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
 
                     this->widget_debug_printf_size = new WidgetSettingInt(tree, this->item_shader_printf_size, *value, data_set);
                     this->connect(this->widget_debug_printf_size, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                }
+            }
+        } else if (value_gpu != nullptr) {
+            const bool enabled_gpu = HasFlag("enables", value_gpu->key.c_str());
+            this->widget_shader = this->AddWidgetSetting(this->item, &this->item_shader, value_gpu, enabled_gpu);
+            this->connect(this->widget_shader, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUChecked(bool)));
+
+            {
+                const SettingEnumValue *value = GetFlag("enables", TOKEN_SHADER_GPU_RESERVE);
+                if (value != nullptr) {
+                    const bool enabled = HasFlag("enables", value->key.c_str());
+                    this->widget_shader_gpu_reserve =
+                        this->AddWidgetSetting(this->item_shader, &this->item_shader_gpu_reserve, value, enabled);
+                    this->connect(this->widget_shader_gpu_reserve, SIGNAL(clicked(bool)), this,
+                                  SLOT(OnShaderGPUReserveChecked(bool)));
                 }
             }
         }
@@ -791,33 +688,40 @@ void WidgetSettingValidation::paintEvent(QPaintEvent *event) {
     if (this->widget_shader != nullptr) {
         const bool shader_gpu = HasFlag("enables", TOKEN_SHADER_GPU);
         const bool shader_printf = HasFlag("enables", TOKEN_SHADER_PRINTF);
-        const bool shader_enabled = this->widget_shader->isChecked() || shader_gpu || shader_printf;
 
-        if (this->widget_shader_gpu != nullptr) {
-            this->widget_shader_gpu->setEnabled(shader_enabled);
+        if (GetFlag("enables", TOKEN_SHADER_GPU) != nullptr && GetFlag("enables", TOKEN_SHADER_PRINTF)) {
+            const bool shader_enabled = this->widget_shader->isChecked() || shader_gpu || shader_printf;
 
+            if (this->widget_shader_gpu != nullptr) {
+                this->widget_shader_gpu->setEnabled(shader_enabled);
+
+                if (this->widget_shader_gpu_reserve != nullptr) {
+                    this->widget_shader_gpu_reserve->setEnabled(shader_gpu);
+                }
+
+                if (this->widget_shader_gpu_oob != nullptr) {
+                    this->widget_shader_gpu_oob->setEnabled(shader_gpu);
+                }
+            }
+
+            if (this->widget_shader_printf != nullptr) {
+                this->widget_shader_printf->setEnabled(shader_enabled);
+
+                if (this->widget_shader_printf_to_stdout != nullptr) {
+                    this->widget_shader_printf_to_stdout->setEnabled(shader_printf);
+                }
+
+                if (this->widget_shader_printf_verbose != nullptr) {
+                    this->widget_shader_printf_verbose->setEnabled(shader_printf);
+                }
+
+                if (this->widget_debug_printf_size != nullptr) {
+                    this->widget_debug_printf_size->setEnabled(shader_printf);
+                }
+            }
+        } else if (GetFlag("enables", TOKEN_SHADER_GPU) != nullptr) {
             if (this->widget_shader_gpu_reserve != nullptr) {
                 this->widget_shader_gpu_reserve->setEnabled(shader_gpu);
-            }
-
-            if (this->widget_shader_gpu_oob != nullptr) {
-                this->widget_shader_gpu_oob->setEnabled(shader_gpu);
-            }
-        }
-
-        if (this->widget_shader_printf != nullptr) {
-            this->widget_shader_printf->setEnabled(shader_enabled);
-
-            if (this->widget_shader_printf_to_stdout != nullptr) {
-                this->widget_shader_printf_to_stdout->setEnabled(shader_printf);
-            }
-
-            if (this->widget_shader_printf_verbose != nullptr) {
-                this->widget_shader_printf_verbose->setEnabled(shader_printf);
-            }
-
-            if (this->widget_debug_printf_size != nullptr) {
-                this->widget_debug_printf_size->setEnabled(shader_printf);
             }
         }
     }
@@ -828,22 +732,3 @@ void WidgetSettingValidation::paintEvent(QPaintEvent *event) {
 
     QWidget::paintEvent(event);
 }
-
-/*
-        QSettings settings;
-        if (settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
-            QMessageBox alert(tree);
-            alert.setWindowTitle("High Validation Layer Overhead");
-            alert.setText(
-                "<i>Core Validation</i>, <i>Shader Based Validation</i>, <i>Synchronization Validation</i> and <i>Best Practices "
-                "Warnings</i> require a state tracking object each.");
-            alert.setInformativeText("Combining two of these options will result in high performance degradation.");
-            alert.setIcon(QMessageBox::Warning);
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-            alert.exec();
-            if (alert.checkBox()->isChecked()) {
-                settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
-            }
-        }
-    }
-*/
