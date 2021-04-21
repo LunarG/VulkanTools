@@ -17,7 +17,7 @@
                     {
                         "key": "output_format",
                         "type": "ENUM",
-                        "value": "Text"
+                        "value": "text"
                     },
                     {
                         "key": "detailed",
@@ -32,7 +32,7 @@
                     {
                         "key": "file",
                         "type": "BOOL",
-                        "value": true
+                        "value": false
                     },
                     {
                         "key": "log_filename",
