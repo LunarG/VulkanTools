@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.3.0 for Vulkan SDK Next](https://github.com/LunarG/VulkanTools/tree/master) - April 2021
+## [Vulkan Configurator 2.3.0 for Vulkan SDK 1.2.176.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - Mai 2021
 
 ### Features:
 - Add Vulkan loader debug message to application launcher #1372
