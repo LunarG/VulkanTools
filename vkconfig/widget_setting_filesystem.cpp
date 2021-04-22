@@ -24,28 +24,21 @@
 
 #include "../vkconfig_core/path.h"
 
+#include <QFileDialog>
+
 #include <cassert>
 
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFilesystem& meta,
                                                  SettingDataSet& data_set)
-    : tree(tree),
-      item(item),
+    : WidgetSettingBase(tree, item),
       item_child(new QTreeWidgetItem()),
       meta(meta),
       data(*data_set.Get<SettingDataString>(meta.key.c_str())),
       data_set(data_set),
       field(new QLineEdit(this)),
       button(new QPushButton(this)) {
-    assert(item);
     assert(&meta);
     assert(&data);
-
-    this->item->setText(0, meta.label.c_str());
-    this->item->setToolTip(0, meta.description.c_str());
-    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    this->item->addChild(item_child);
-
-    this->item_child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     this->field->setText(ReplaceBuiltInVariable(data.value).c_str());
     this->field->setToolTip(this->field->text());
@@ -56,11 +49,19 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
 
+    this->item->setText(0, meta.label.c_str());
+    this->item->setToolTip(0, meta.description.c_str());
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->addChild(item_child);
     tree->setItemWidget(this->item, 0, this);
+
+    this->item_child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     tree->setItemWidget(this->item_child, 0, this->field);
+
+    this->Refresh();
 }
 
-void WidgetSettingFilesystem::paintEvent(QPaintEvent* event) {
+void WidgetSettingFilesystem::Refresh() {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
@@ -68,8 +69,6 @@ void WidgetSettingFilesystem::paintEvent(QPaintEvent* event) {
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
     this->button->setEnabled(enabled);
-
-    QWidget::paintEvent(event);
 }
 
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {

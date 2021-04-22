@@ -25,33 +25,43 @@
 #include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/util.h"
 
+#include <QPushButton>
+
 #include <cassert>
 
 WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta,
                                      SettingDataSet& data_set, const std::string& flag)
-    : tree(tree), item(item), meta(meta), data(*data_set.Get<SettingDataFlags>(meta.key.c_str())), data_set(data_set), flag(flag) {
+    : WidgetSettingBase(tree, item),
+      meta(meta),
+      data(*data_set.Get<SettingDataFlags>(meta.key.c_str())),
+      data_set(data_set),
+      flag(flag),
+      field(new QCheckBox(this)) {
     assert(&data);
     assert(!flag.empty());
 
     const SettingEnumValue* enum_value = FindByKey(meta.enum_values, flag.c_str());
     assert(enum_value);
-    this->setText(enum_value->label.c_str());
-    this->setFont(tree->font());
-    this->setToolTip(enum_value->description.c_str());
 
-    if (std::find(data.value.begin(), data.value.end(), flag) != data.value.end()) this->setChecked(true);
+    this->field->setText(enum_value->label.c_str());
+    this->field->setFont(tree->font());
+    this->field->setToolTip(enum_value->description.c_str());
+    this->field->setChecked(std::find(data.value.begin(), data.value.end(), flag) != data.value.end());
+    this->field->show();
+    this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
 
-    this->connect(this, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
-    tree->setItemWidget(item, 0, this);
+    tree->setItemWidget(this->item, 0, this);
+    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+
+    this->Refresh();
 }
 
-void WidgetSettingFlag::paintEvent(QPaintEvent* event) {
+void WidgetSettingFlag::Refresh() {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
+    this->field->setEnabled(enabled);
     this->setEnabled(enabled);
-
-    QCheckBox::paintEvent(event);
 }
 
 void WidgetSettingFlag::OnItemChecked(bool checked) {

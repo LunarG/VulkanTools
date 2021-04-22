@@ -121,11 +121,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             if (!layer->presets.empty()) {
                 QTreeWidgetItem *presets_item = new QTreeWidgetItem();
-                WidgetPreset *presets_combobox = new WidgetPreset(presets_item, *layer, parameter);
-                connect(presets_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
                 layer_item->addChild(presets_item);
-                this->tree->setItemWidget(presets_item, 0, presets_combobox);
-                presets.push_back(presets_combobox);
+                WidgetPreset *presets_combobox = new WidgetPreset(this->tree, presets_item, *layer, parameter);
+                this->connect(presets_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
             }
 
             if (parameter.key == "VK_LAYER_KHRONOS_validation") {
@@ -198,8 +196,6 @@ void SettingsTreeManager::CleanupGUI() {
     GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
 
     this->validation.reset();
-
-    presets.clear();
 
     this->tree->clear();
     this->tree = nullptr;
@@ -396,8 +392,25 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
 
 // The setting has been edited
 void SettingsTreeManager::OnSettingChanged() {
+    QTreeWidgetItem *root_item = this->tree->invisibleRootItem();
+    for (int i = 0, n = root_item->childCount(); i < n; ++i) {
+        this->UpdateItem(root_item->child(i));
+    }
+
     // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
     configurator.environment.Notify(NOTIFICATION_RESTART);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+}
+
+void SettingsTreeManager::UpdateItem(QTreeWidgetItem *parent) {
+    QWidget *widget = this->tree->itemWidget(parent, 0);
+    if (widget != nullptr) {
+        WidgetSettingBase *widget_base = dynamic_cast<WidgetSettingBase *>(widget);
+        if (widget_base != nullptr) widget_base->Refresh();
+    }
+
+    for (int i = 0, n = parent->childCount(); i < n; ++i) {
+        this->UpdateItem(parent->child(i));
+    }
 }

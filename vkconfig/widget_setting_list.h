@@ -24,19 +24,21 @@
 #include "../vkconfig_core/setting_data.h"
 #include "../vkconfig_core/setting_meta.h"
 
-#include <QWidget>
-#include <QTreeWidgetItem>
+#include "widget_setting.h"
+
 #include <QResizeEvent>
 #include <QStringList>
 #include <QCompleter>
 #include <QLineEdit>
 #include <QPushButton>
 
-class WidgetSettingList : public QWidget {
+class WidgetSettingList : public WidgetSettingBase {
     Q_OBJECT
 
    public:
     explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataSet &data_set);
+
+    void Refresh() override;
 
    public Q_SLOTS:
     void OnCompleted(const QString &value);
@@ -51,20 +53,14 @@ class WidgetSettingList : public QWidget {
     void itemChanged();
 
    protected:
-    void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *target, QEvent *event) override;
 
    private:
-    WidgetSettingList(const WidgetSettingList &) = delete;
-    WidgetSettingList &operator=(const WidgetSettingList &) = delete;
-
     void Resize();
     void AddElement(EnabledNumberOrString &element);
     void ResetCompleter();
 
-    QTreeWidget *tree;
-    QTreeWidgetItem *item;
     SettingDataSet &data_set;
     SettingDataList &data;
     const SettingMetaList &meta;

@@ -23,18 +23,19 @@
 #include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/parameter.h"
 
-#include <QObject>
-#include <QWidget>
+#include "widget_setting.h"
+
 #include <QComboBox>
-#include <QTreeWidgetItem>
 
 #include <vector>
 
-class WidgetPreset : public QComboBox {
+class WidgetPreset : public WidgetSettingBase {
     Q_OBJECT
 
    public:
-    explicit WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter& parameter);
+    explicit WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer& layer, Parameter& parameter);
+
+    void Refresh() override;
 
    public Q_SLOTS:
     void OnPresetChanged(int index);
@@ -42,16 +43,11 @@ class WidgetPreset : public QComboBox {
    Q_SIGNALS:
     void itemChanged();
 
-   protected:
-    void paintEvent(QPaintEvent* event) override;
-
    private:
-    WidgetPreset(const WidgetPreset&) = delete;
-    WidgetPreset& operator=(const WidgetPreset&) = delete;
-
     int GetComboBoxIndex(const char* preset_label) const;
 
     std::vector<std::string> preset_labels;  // The preset in the combobox
     const Layer& layer;
     Parameter& parameter;
+    QComboBox* field;
 };

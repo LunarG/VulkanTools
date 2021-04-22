@@ -28,42 +28,39 @@
 
 WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaList& meta,
                                                    SettingDataSet& data_set, EnabledNumberOrString& element)
-    : tree(tree),
-      item(item),
+    : WidgetSettingBase(tree, item),
       meta(meta),
       data(*data_set.Get<SettingDataList>(meta.key.c_str())),
       data_set(data_set),
       element(element),
-      button(new QPushButton(this)) {
+      button(new QPushButton(this)),
+      field(new QCheckBox(this)) {
     assert(&meta);
     assert(&data);
 
     const std::string text = element.key.empty() ? format("%d", element.number) : element.key;
 
-    this->setText(text.c_str());
-    this->setFont(tree->font());
-    this->setToolTip(text.c_str());
-    this->setCheckable(true);
-    this->setChecked(this->GetChecked());
-
-    this->connect(this, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
+    this->field->setText(text.c_str());
+    this->field->setFont(this->tree->font());
+    this->field->setToolTip(text.c_str());
+    this->field->setCheckable(true);
+    this->field->setChecked(this->GetChecked());
+    this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
 
     this->button->setText("-");
     this->button->setFont(tree->font());
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnButtonClicked()));
 
-    tree->setItemWidget(item, 0, this);
+    this->tree->setItemWidget(this->item, 0, this);
 }
 
-void WidgetSettingListElement::paintEvent(QPaintEvent* event) {
+void WidgetSettingListElement::Refresh() {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->button->setEnabled(enabled);
-
-    QCheckBox::paintEvent(event);
 }
 
 void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
@@ -87,7 +84,7 @@ void WidgetSettingListElement::OnButtonClicked() {
 
     this->setEnabled(false);
 
-    emit itemSelected(this->text());
+    emit itemSelected(this->field->text());
 }
 
 bool WidgetSettingListElement::GetChecked() const {

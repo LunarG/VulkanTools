@@ -28,20 +28,13 @@ static const int MIN_FIELD_WIDTH = 80;
 
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta,
                                      SettingDataSet& data_set)
-    : tree(tree),
-      item(item),
+    : WidgetSettingBase(tree, item),
       meta(meta),
       data(*data_set.Get<SettingDataEnum>(meta.key.c_str())),
       data_set(data_set),
       field(new QComboBox(this)) {
-    assert(item);
     assert(&meta);
     assert(&data);
-
-    item->setText(0, meta.label.c_str());
-    item->setFont(0, tree->font());
-    item->setToolTip(0, meta.description.c_str());
-    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     int selection = 0;
     for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
@@ -57,20 +50,23 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
 
     this->field->setCurrentIndex(selection);
     this->field->show();
-
     this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 
-    tree->setItemWidget(item, 0, this);
+    item->setText(0, meta.label.c_str());
+    item->setFont(0, tree->font());
+    item->setToolTip(0, meta.description.c_str());
+    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    tree->setItemWidget(this->item, 0, this);
+
+    this->Refresh();
 }
 
-void WidgetSettingEnum::paintEvent(QPaintEvent* event) {
+void WidgetSettingEnum::Refresh() {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
-    this->setEnabled(enabled);
     this->field->setEnabled(enabled);
-
-    QWidget::paintEvent(event);
+    this->setEnabled(enabled);
 }
 
 void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {

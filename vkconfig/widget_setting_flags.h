@@ -24,15 +24,18 @@
 #include "../vkconfig_core/setting_data.h"
 #include "../vkconfig_core/setting_meta.h"
 
-#include <QCheckBox>
-#include <QPushButton>
-#include <QTreeWidgetItem>
+#include "widget_setting.h"
 
-class WidgetSettingFlag : public QCheckBox {
+#include <QCheckBox>
+
+class WidgetSettingFlag : public WidgetSettingBase {
     Q_OBJECT
+
    public:
     explicit WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta, SettingDataSet& data_set,
                                const std::string& flag);
+
+    void Refresh() override;
 
    public Q_SLOTS:
     void OnItemChecked(bool checked);
@@ -40,18 +43,11 @@ class WidgetSettingFlag : public QCheckBox {
    Q_SIGNALS:
     void itemChanged();
 
-   protected:
-    void paintEvent(QPaintEvent* event) override;
-
    private:
-    WidgetSettingFlag(const WidgetSettingFlag&) = delete;
-    WidgetSettingFlag& operator=(const WidgetSettingFlag&) = delete;
-
-    QTreeWidget* tree;
-    QTreeWidgetItem* item;
     const SettingDataSet& data_set;
     SettingDataFlags& data;
     const SettingMetaFlags& meta;
 
     std::string flag;
+    QCheckBox* field;
 };

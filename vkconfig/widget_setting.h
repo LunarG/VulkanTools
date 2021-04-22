@@ -21,8 +21,11 @@
 #pragma once
 
 #include <QTreeWidgetItem>
+#include <QWidget>
 #include <QFontMetrics>
 #include <QString>
+
+#include <cassert>
 
 static const int MIN_BUTTON_SIZE = 24;
 static const int ITEM_HEIGHT = 24;
@@ -37,3 +40,23 @@ enum SettingInputError {
 void EnableItem(QTreeWidgetItem* item, bool enable);
 
 int HorizontalAdvance(const QFontMetrics& fm, const QString& string);
+
+class WidgetSettingBase : public QWidget {
+    Q_OBJECT
+
+   public:
+    WidgetSettingBase(QTreeWidget* tree, QTreeWidgetItem* item) : tree(tree), item(item) {
+        assert(tree != nullptr);
+        assert(item != nullptr);
+    }
+
+    virtual void Refresh() = 0;
+
+   private:
+    WidgetSettingBase(const WidgetSettingBase&) = delete;
+    WidgetSettingBase& operator=(const WidgetSettingBase&) = delete;
+
+   protected:
+    QTreeWidget* tree;
+    QTreeWidgetItem* item;
+};
