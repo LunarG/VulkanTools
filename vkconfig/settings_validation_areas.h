@@ -25,25 +25,20 @@
 
 #include "widget_setting_int.h"
 
-#include <QResizeEvent>
-#include <QTreeWidgetItem>
+#include "widget_setting.h"
 #include <QRadioButton>
 #include <QCheckBox>
 
 #include <vector>
 
-class WidgetSettingValidation : public QWidget {
+class WidgetSettingValidation : public WidgetSettingBase {
     Q_OBJECT
 
    public:
     explicit WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaSet &meta_set,
                                      SettingDataSet &data_set);
 
-   protected:
-    virtual void paintEvent(QPaintEvent *event);
-
-   public:
-    bool CollectSettings();
+    void Refresh() override;
 
    private:
     QTreeWidgetItem *item_core;
@@ -115,7 +110,7 @@ class WidgetSettingValidation : public QWidget {
     QTreeWidgetItem *item_best_arm;
     QCheckBox *widget_best_arm;
 
-    QCheckBox *AddWidgetSetting(QTreeWidgetItem *parent, QTreeWidgetItem **item, const SettingEnumValue *value, bool enabled);
+    QCheckBox *AddWidgetSetting(QTreeWidgetItem *parent, QTreeWidgetItem **item, const SettingEnumValue *value);
 
    public Q_SLOTS:
     void OnCoreChecked(bool checked);
@@ -160,8 +155,6 @@ class WidgetSettingValidation : public QWidget {
     bool HasFlag(const char *key, const char *flag) const;
     const SettingEnumValue *GetFlag(const char *key, const char *flag) const;
 
-    QTreeWidget *tree;
-    QTreeWidgetItem *item;
     const SettingMetaSet &meta_set;
     const SettingMetaFlags &meta_enables;
     const SettingMetaFlags &meta_disables;

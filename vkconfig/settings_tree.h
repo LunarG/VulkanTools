@@ -47,7 +47,6 @@ class SettingsTreeManager : QObject {
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
    public Q_SLOTS:
-    void OnPresetChanged(int index);
     void OnSettingChanged();
 
    private:

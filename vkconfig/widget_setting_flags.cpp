@@ -48,7 +48,7 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->field->setToolTip(enum_value->description.c_str());
     this->field->setChecked(std::find(data.value.begin(), data.value.end(), flag) != data.value.end());
     this->field->show();
-    this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
+    this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnClicked(bool)));
 
     tree->setItemWidget(this->item, 0, this);
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -64,7 +64,7 @@ void WidgetSettingFlag::Refresh() {
     this->setEnabled(enabled);
 }
 
-void WidgetSettingFlag::OnItemChecked(bool checked) {
+void WidgetSettingFlag::OnClicked(bool checked) {
     if (checked) {
         AppendString(data.value, flag);
     } else {

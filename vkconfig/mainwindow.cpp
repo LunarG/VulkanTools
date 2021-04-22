@@ -304,7 +304,7 @@ void MainWindow::LoadConfigurationList() {
     ui->configuration_tree->resizeColumnToContents(0);
     ui->configuration_tree->resizeColumnToContents(1);
 
-    UpdateUI();
+    this->UpdateUI();
 }
 
 /// Okay, because we are using custom controls, some of

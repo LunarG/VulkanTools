@@ -26,6 +26,7 @@
 #include "widget_setting.h"
 
 #include <QComboBox>
+#include <QResizeEvent>
 
 #include <vector>
 
@@ -38,10 +39,13 @@ class WidgetPreset : public WidgetSettingBase {
     void Refresh() override;
 
    public Q_SLOTS:
-    void OnPresetChanged(int index);
+    void OnPresetChanged(int combox_preset_index);
 
    Q_SIGNALS:
     void itemChanged();
+
+   protected:
+    void resizeEvent(QResizeEvent* event) override;
 
    private:
     int GetComboBoxIndex(const char* preset_label) const;

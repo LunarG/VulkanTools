@@ -73,6 +73,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, "No overridden or excluded layer");
         item->setFont(0, font_section);
+        item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
         this->tree->addTopLevelItem(item);
     } else {
         const std::size_t overridden_layer_count = CountOverriddenLayers(configuration->parameters);
@@ -106,6 +107,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             layer_item->setText(0, layer_text.c_str());
             layer_item->setFont(0, font_layer);
+            layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
             this->tree->addTopLevelItem(layer_item);
 
@@ -123,7 +125,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 QTreeWidgetItem *presets_item = new QTreeWidgetItem();
                 layer_item->addChild(presets_item);
                 WidgetPreset *presets_combobox = new WidgetPreset(this->tree, presets_item, *layer, parameter);
-                this->connect(presets_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
+                this->connect(presets_combobox, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
             }
 
             if (parameter.key == "VK_LAYER_KHRONOS_validation") {
@@ -150,6 +152,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
             excluded_layers->setText(0, "Excluded Layers:");
             excluded_layers->setFont(0, font_section);
+            excluded_layers->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             this->tree->addTopLevelItem(excluded_layers);
 
             for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
@@ -219,8 +222,6 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     assert(validation_layer != nullptr);
 
     QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
-    validation_areas_item->setText(0, "Validation Areas");
-    validation_areas_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     parent->addChild(validation_areas_item);
 
     // This just finds the enables and disables
@@ -354,16 +355,6 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
     }
 }
 
-void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
-    (void)combox_preset_index;
-
-    CreateGUI(tree);
-
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.Notify(NOTIFICATION_RESTART);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
-}
-
 void SettingsTreeManager::GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item) {
     byte_array.push_back(top_item->isExpanded() ? '1' : '0');
 
@@ -390,12 +381,15 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
     return index;
 }
 
-// The setting has been edited
 void SettingsTreeManager::OnSettingChanged() {
+    this->tree->blockSignals(true);
+
     QTreeWidgetItem *root_item = this->tree->invisibleRootItem();
     for (int i = 0, n = root_item->childCount(); i < n; ++i) {
         this->UpdateItem(root_item->child(i));
     }
+
+    this->tree->blockSignals(false);
 
     // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
@@ -411,6 +405,9 @@ void SettingsTreeManager::UpdateItem(QTreeWidgetItem *parent) {
     }
 
     for (int i = 0, n = parent->childCount(); i < n; ++i) {
-        this->UpdateItem(parent->child(i));
+        QTreeWidgetItem *child = parent->child(i);
+        if (child == nullptr) continue;
+
+        this->UpdateItem(child);
     }
 }

@@ -60,8 +60,8 @@ static bool IsSupported(const std::vector<SettingEnumValue> &values, const char 
     return (value->platform_flags & (1 << VKC_PLATFORM)) != 0;
 }
 
-QCheckBox *WidgetSettingValidation::AddWidgetSetting(QTreeWidgetItem *parent, QTreeWidgetItem **item, const SettingEnumValue *value,
-                                                     bool enabled) {
+QCheckBox *WidgetSettingValidation::AddWidgetSetting(QTreeWidgetItem *parent, QTreeWidgetItem **item,
+                                                     const SettingEnumValue *value) {
     if (!IsPlatformSupported(value->platform_flags)) {
         return nullptr;
     }
@@ -77,15 +77,13 @@ QCheckBox *WidgetSettingValidation::AddWidgetSetting(QTreeWidgetItem *parent, QT
     QCheckBox *widget = new QCheckBox(this);
     widget->setText(value->label.c_str());
     widget->setToolTip(value->description.c_str());
-    widget->setChecked(enabled);
     this->tree->setItemWidget(*item, 0, widget);
     return widget;
 }
 
 WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaSet &meta_set,
                                                  SettingDataSet &data_set)
-    : tree(tree),
-      item(item),
+    : WidgetSettingBase(tree, item),
       item_core(nullptr),
       widget_core(nullptr),
       item_core_layout(nullptr),
@@ -142,26 +140,24 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       data_set(data_set),
       data_enables(*data_set.Get<SettingDataFlags>("enables")),
       data_disables(*data_set.Get<SettingDataFlags>("disables")) {
-    assert(tree != nullptr);
-    assert(item != nullptr);
     assert(&meta_set);
     assert(&data_set);
 
-    this->tree->setItemWidget(this->item, 0, this);
+    this->item->setText(0, "Validation Areas");
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     // Core
     {
         const SettingEnumValue *core_value = GetFlag("disables", TOKEN_CORE);
         if (core_value != nullptr) {
-            const bool core_enabled = !HasFlag("disables", core_value->key.c_str());
-            this->widget_core = this->AddWidgetSetting(this->item, &this->item_core, core_value, core_enabled);
+            this->widget_core = this->AddWidgetSetting(this->item, &this->item_core, core_value);
             this->connect(this->widget_core, SIGNAL(clicked(bool)), this, SLOT(OnCoreChecked(bool)));
 
             {
                 const SettingEnumValue *value = GetFlag("disables", TOKEN_CORE_LAYOUT);
                 if (value != nullptr) {
                     const bool enabled = !HasFlag("disables", value->key.c_str());
-                    this->widget_core_layout = this->AddWidgetSetting(this->item_core, &this->item_core_layout, value, enabled);
+                    this->widget_core_layout = this->AddWidgetSetting(this->item_core, &this->item_core_layout, value);
                     this->connect(this->widget_core_layout, SIGNAL(clicked(bool)), this, SLOT(OnCoreLayoutChecked(bool)));
                 }
             }
@@ -170,7 +166,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                 const SettingEnumValue *value = GetFlag("disables", TOKEN_CORE_COMMAND);
                 if (value != nullptr) {
                     const bool enabled = !HasFlag("disables", value->key.c_str());
-                    this->widget_core_command = this->AddWidgetSetting(this->item_core, &this->item_core_command, value, enabled);
+                    this->widget_core_command = this->AddWidgetSetting(this->item_core, &this->item_core_command, value);
                     this->connect(this->widget_core_command, SIGNAL(clicked(bool)), this, SLOT(OnCoreCommandChecked(bool)));
                 }
             }
@@ -179,7 +175,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                 const SettingEnumValue *value = GetFlag("disables", TOKEN_CORE_OBJECT);
                 if (value != nullptr) {
                     const bool enabled = !HasFlag("disables", value->key.c_str());
-                    this->widget_core_object = this->AddWidgetSetting(this->item_core, &this->item_core_object, value, enabled);
+                    this->widget_core_object = this->AddWidgetSetting(this->item_core, &this->item_core_object, value);
                     this->connect(this->widget_core_object, SIGNAL(clicked(bool)), this, SLOT(OnCoreObjectChecked(bool)));
                 }
             }
@@ -187,8 +183,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             {
                 const SettingEnumValue *value = GetFlag("disables", TOKEN_CORE_QUERY);
                 if (value != nullptr) {
-                    const bool enabled = !HasFlag("disables", value->key.c_str());
-                    this->widget_core_query = this->AddWidgetSetting(this->item_core, &this->item_core_query, value, enabled);
+                    this->widget_core_query = this->AddWidgetSetting(this->item_core, &this->item_core_query, value);
                     this->connect(this->widget_core_query, SIGNAL(clicked(bool)), this, SLOT(OnCoreQueryChecked(bool)));
                 }
             }
@@ -196,8 +191,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             {
                 const SettingEnumValue *value = GetFlag("disables", TOKEN_CORE_DESCRIPTOR);
                 if (value != nullptr) {
-                    const bool enabled = !HasFlag("disables", value->key.c_str());
-                    this->widget_core_desc = this->AddWidgetSetting(this->item_core, &this->item_core_desc, value, enabled);
+                    this->widget_core_desc = this->AddWidgetSetting(this->item_core, &this->item_core_desc, value);
                     this->connect(this->widget_core_desc, SIGNAL(clicked(bool)), this, SLOT(OnCoreDescChecked(bool)));
                 }
             }
@@ -205,8 +199,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             {
                 const SettingEnumValue *value = GetFlag("disables", TOKEN_CORE_SHADERS);
                 if (value != nullptr) {
-                    const bool enabled = !HasFlag("disables", value->key.c_str());
-                    this->widget_core_shaders = this->AddWidgetSetting(this->item_core, &this->item_core_shaders, value, enabled);
+                    this->widget_core_shaders = this->AddWidgetSetting(this->item_core, &this->item_core_shaders, value);
                     this->connect(this->widget_core_shaders, SIGNAL(clicked(bool)), this, SLOT(OnCoreShadersChecked(bool)));
                 }
             }
@@ -214,8 +207,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             {
                 const SettingEnumValue *value = GetFlag("disables", TOKEN_CORE_PUSH);
                 if (value != nullptr) {
-                    const bool enabled = !HasFlag("disables", value->key.c_str());
-                    this->widget_core_push = this->AddWidgetSetting(this->item_core, &this->item_core_push, value, enabled);
+                    this->widget_core_push = this->AddWidgetSetting(this->item_core, &this->item_core_push, value);
                     this->connect(this->widget_core_push, SIGNAL(clicked(bool)), this, SLOT(OnCorePushChecked(bool)));
                 }
             }
@@ -226,8 +218,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     {
         const SettingEnumValue *enum_misc_thread = GetFlag("disables", TOKEN_MISC_THREAD);
         if (enum_misc_thread != nullptr) {
-            const bool enabled = !HasFlag("disables", enum_misc_thread->key.c_str());
-            this->widget_misc_thread = this->AddWidgetSetting(this->item, &this->item_misc_thread, enum_misc_thread, enabled);
+            this->widget_misc_thread = this->AddWidgetSetting(this->item, &this->item_misc_thread, enum_misc_thread);
             this->connect(this->widget_misc_thread, SIGNAL(clicked(bool)), this, SLOT(OnMiscThreadChecked(bool)));
         }
     }
@@ -236,8 +227,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     {
         const SettingEnumValue *enum_misc_unique = GetFlag("disables", TOKEN_MISC_UNIQUE);
         if (enum_misc_unique != nullptr) {
-            const bool enabled = !HasFlag("disables", enum_misc_unique->key.c_str());
-            this->widget_misc_unique = this->AddWidgetSetting(this->item, &this->item_misc_unique, enum_misc_unique, enabled);
+            this->widget_misc_unique = this->AddWidgetSetting(this->item, &this->item_misc_unique, enum_misc_unique);
             this->connect(this->widget_misc_unique, SIGNAL(clicked(bool)), this, SLOT(OnMiscUniqueChecked(bool)));
         }
     }
@@ -246,8 +236,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     {
         const SettingEnumValue *value = GetFlag("disables", TOKEN_MISC_LIFETIMES);
         if (value != nullptr) {
-            const bool enabled = !HasFlag("disables", value->key.c_str());
-            this->widget_misc_lifetimes = this->AddWidgetSetting(this->item, &this->item_misc_lifetimes, value, enabled);
+            this->widget_misc_lifetimes = this->AddWidgetSetting(this->item, &this->item_misc_lifetimes, value);
             this->connect(this->widget_misc_lifetimes, SIGNAL(clicked(bool)), this, SLOT(OnMiscLifetimesChecked(bool)));
         }
     }
@@ -256,8 +245,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     {
         const SettingEnumValue *value = GetFlag("disables", TOKEN_MISC_PARAM);
         if (value != nullptr) {
-            const bool enabled = !HasFlag("disables", value->key.c_str());
-            this->widget_misc_param = this->AddWidgetSetting(this->item, &this->item_misc_param, value, enabled);
+            this->widget_misc_param = this->AddWidgetSetting(this->item, &this->item_misc_param, value);
             this->connect(this->widget_misc_param, SIGNAL(clicked(bool)), this, SLOT(OnMiscParamChecked(bool)));
         }
     }
@@ -267,16 +255,12 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
         const SettingEnumValue *value_gpu = GetFlag("enables", TOKEN_SHADER_GPU);
         const SettingEnumValue *value_printf = GetFlag("enables", TOKEN_SHADER_PRINTF);
         if (value_gpu != nullptr && value_printf != nullptr) {
-            const bool enabled_gpu = HasFlag("enables", value_gpu->key.c_str());
-            const bool enabled_printf = HasFlag("enables", value_printf->key.c_str());
-
             this->item_shader = new QTreeWidgetItem();
             this->item_shader->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             this->item->addChild(this->item_shader);
 
             this->widget_shader = new QCheckBox(this);
             this->widget_shader->setText("Shader-Based");
-            this->widget_shader->setChecked(enabled_gpu || enabled_printf);
             this->tree->setItemWidget(this->item_shader, 0, this->widget_shader);
             this->connect(this->widget_shader, SIGNAL(clicked(bool)), this, SLOT(OnShaderBasedChecked(bool)));
 
@@ -287,16 +271,14 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             this->widget_shader_gpu = new QRadioButton(this);
             this->widget_shader_gpu->setText(value_gpu->label.c_str());
             this->widget_shader_gpu->setToolTip(value_gpu->description.c_str());
-            this->widget_shader_gpu->setChecked(enabled_gpu);
             this->tree->setItemWidget(this->item_shader_gpu, 0, this->widget_shader_gpu);
             this->connect(this->widget_shader_gpu, SIGNAL(toggled(bool)), this, SLOT(OnShaderGPUChecked(bool)));
 
             {
                 const SettingEnumValue *value = GetFlag("enables", TOKEN_SHADER_GPU_RESERVE);
                 if (value != nullptr) {
-                    const bool enabled = HasFlag("enables", value->key.c_str());
                     this->widget_shader_gpu_reserve =
-                        this->AddWidgetSetting(this->item_shader_gpu, &this->item_shader_gpu_reserve, value, enabled);
+                        this->AddWidgetSetting(this->item_shader_gpu, &this->item_shader_gpu_reserve, value);
                     this->connect(this->widget_shader_gpu_reserve, SIGNAL(clicked(bool)), this,
                                   SLOT(OnShaderGPUReserveChecked(bool)));
                 }
@@ -305,8 +287,6 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             {
                 const SettingMetaBool *value = FindSettingMeta<SettingMetaBool>(meta_set, "gpuav_buffer_oob");
                 if (value != nullptr) {
-                    const bool enabled = data_set.Get<SettingDataBool>(value->key.c_str())->value;
-
                     this->item_shader_gpu_oob = new QTreeWidgetItem();
                     this->item_shader_gpu_oob->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                     this->item_shader_gpu->addChild(this->item_shader_gpu_oob);
@@ -314,7 +294,6 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                     this->widget_shader_gpu_oob = new QCheckBox(this);
                     this->widget_shader_gpu_oob->setText(value->label.c_str());
                     this->widget_shader_gpu_oob->setToolTip(value->description.c_str());
-                    this->widget_shader_gpu_oob->setChecked(enabled);
                     this->tree->setItemWidget(this->item_shader_gpu_oob, 0, this->widget_shader_gpu_oob);
                     this->connect(this->widget_shader_gpu_oob, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUOOBChecked(bool)));
                 }
@@ -327,15 +306,12 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             this->widget_shader_printf = new QRadioButton(this);
             this->widget_shader_printf->setText(value_printf->label.c_str());
             this->widget_shader_printf->setToolTip(value_printf->description.c_str());
-            this->widget_shader_printf->setChecked(enabled_printf);
             this->tree->setItemWidget(this->item_shader_printf, 0, this->widget_shader_printf);
             this->connect(this->widget_shader_printf, SIGNAL(toggled(bool)), this, SLOT(OnShaderPrintfChecked(bool)));
 
             {
                 const SettingMetaBool *value = FindSettingMeta<SettingMetaBool>(meta_set, "printf_to_stdout");
                 if (value != nullptr) {
-                    const bool enabled = data_set.Get<SettingDataBool>(value->key.c_str())->value;
-
                     this->item_shader_printf_to_stdout = new QTreeWidgetItem();
                     this->item_shader_printf_to_stdout->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                     this->item_shader_printf->addChild(this->item_shader_printf_to_stdout);
@@ -343,7 +319,6 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                     this->widget_shader_printf_to_stdout = new QCheckBox(this);
                     this->widget_shader_printf_to_stdout->setText(value->label.c_str());
                     this->widget_shader_printf_to_stdout->setToolTip(value->description.c_str());
-                    this->widget_shader_printf_to_stdout->setChecked(enabled);
                     this->tree->setItemWidget(this->item_shader_printf_to_stdout, 0, this->widget_shader_printf_to_stdout);
                     this->connect(this->widget_shader_printf_to_stdout, SIGNAL(clicked(bool)), this,
                                   SLOT(OnShaderPrintfStdoutChecked(bool)));
@@ -353,8 +328,6 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             {
                 const SettingMetaBool *value = FindSettingMeta<SettingMetaBool>(meta_set, "printf_verbose");
                 if (value != nullptr) {
-                    const bool enabled = data_set.Get<SettingDataBool>(value->key.c_str())->value;
-
                     this->item_shader_printf_verbose = new QTreeWidgetItem();
                     this->item_shader_printf_verbose->setSizeHint(0, QSize(0, ITEM_HEIGHT));
                     this->item_shader_printf->addChild(this->item_shader_printf_verbose);
@@ -362,7 +335,6 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                     this->widget_shader_printf_verbose = new QCheckBox(this);
                     this->widget_shader_printf_verbose->setText(value->label.c_str());
                     this->widget_shader_printf_verbose->setToolTip(value->description.c_str());
-                    this->widget_shader_printf_verbose->setChecked(enabled);
                     this->tree->setItemWidget(this->item_shader_printf_verbose, 0, this->widget_shader_printf_verbose);
                     this->connect(this->widget_shader_printf_verbose, SIGNAL(clicked(bool)), this,
                                   SLOT(OnShaderPrintfVerboseChecked(bool)));
@@ -381,16 +353,14 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                 }
             }
         } else if (value_gpu != nullptr) {
-            const bool enabled_gpu = HasFlag("enables", value_gpu->key.c_str());
-            this->widget_shader = this->AddWidgetSetting(this->item, &this->item_shader, value_gpu, enabled_gpu);
+            this->widget_shader = this->AddWidgetSetting(this->item, &this->item_shader, value_gpu);
             this->connect(this->widget_shader, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUChecked(bool)));
 
             {
                 const SettingEnumValue *value = GetFlag("enables", TOKEN_SHADER_GPU_RESERVE);
                 if (value != nullptr) {
-                    const bool enabled = HasFlag("enables", value->key.c_str());
                     this->widget_shader_gpu_reserve =
-                        this->AddWidgetSetting(this->item_shader, &this->item_shader_gpu_reserve, value, enabled);
+                        this->AddWidgetSetting(this->item_shader, &this->item_shader_gpu_reserve, value);
                     this->connect(this->widget_shader_gpu_reserve, SIGNAL(clicked(bool)), this,
                                   SLOT(OnShaderGPUReserveChecked(bool)));
                 }
@@ -402,8 +372,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     {
         const SettingEnumValue *value = GetFlag("enables", TOKEN_SYNC);
         if (value != nullptr) {
-            const bool enabled = HasFlag("enables", value->key.c_str());
-            this->widget_sync = this->AddWidgetSetting(this->item, &this->item_sync, value, enabled);
+            this->widget_sync = this->AddWidgetSetting(this->item, &this->item_sync, value);
             this->connect(this->widget_sync, SIGNAL(clicked(bool)), this, SLOT(OnSyncChecked(bool)));
         }
     }
@@ -412,18 +381,19 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     {
         const SettingEnumValue *enum_best = GetFlag("enables", TOKEN_BEST);
         if (enum_best != nullptr) {
-            const bool enabled = HasFlag("enables", enum_best->key.c_str());
-            this->widget_best = this->AddWidgetSetting(this->item, &this->item_best, enum_best, enabled);
+            this->widget_best = this->AddWidgetSetting(this->item, &this->item_best, enum_best);
             this->connect(this->widget_best, SIGNAL(clicked(bool)), this, SLOT(OnBestChecked(bool)));
 
             const SettingEnumValue *enum_best_arm = GetFlag("enables", TOKEN_BEST_ARM);
             if (enum_best_arm != nullptr) {
-                const bool enabled = HasFlag("enables", enum_best_arm->key.c_str());
-                this->widget_best_arm = this->AddWidgetSetting(this->item_best, &this->item_best_arm, enum_best_arm, enabled);
+                this->widget_best_arm = this->AddWidgetSetting(this->item_best, &this->item_best_arm, enum_best_arm);
                 this->connect(this->widget_best_arm, SIGNAL(clicked(bool)), this, SLOT(OnBestArmChecked(bool)));
             }
         }
     }
+
+    this->tree->setItemWidget(this->item, 0, this);
+    this->Refresh();
 }
 
 void WidgetSettingValidation::OnCoreChecked(bool checked) {
@@ -470,6 +440,7 @@ void WidgetSettingValidation::OnCoreLayoutChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_CORE_LAYOUT);
     else
         RemoveString(this->data_disables.value, TOKEN_CORE_LAYOUT);
+
     emit itemChanged();
 }
 
@@ -478,6 +449,7 @@ void WidgetSettingValidation::OnCoreCommandChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_CORE_COMMAND);
     else
         RemoveString(this->data_disables.value, TOKEN_CORE_COMMAND);
+
     emit itemChanged();
 }
 
@@ -486,6 +458,7 @@ void WidgetSettingValidation::OnCoreObjectChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_CORE_OBJECT);
     else
         RemoveString(this->data_disables.value, TOKEN_CORE_OBJECT);
+
     emit itemChanged();
 }
 
@@ -494,6 +467,7 @@ void WidgetSettingValidation::OnCoreQueryChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_CORE_QUERY);
     else
         RemoveString(this->data_disables.value, TOKEN_CORE_QUERY);
+
     emit itemChanged();
 }
 
@@ -502,6 +476,7 @@ void WidgetSettingValidation::OnCoreDescChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_CORE_DESCRIPTOR);
     else
         RemoveString(this->data_disables.value, TOKEN_CORE_DESCRIPTOR);
+
     emit itemChanged();
 }
 
@@ -510,6 +485,7 @@ void WidgetSettingValidation::OnCoreShadersChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_CORE_SHADERS);
     else
         RemoveString(this->data_disables.value, TOKEN_CORE_SHADERS);
+
     emit itemChanged();
 }
 
@@ -518,6 +494,7 @@ void WidgetSettingValidation::OnCorePushChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_CORE_PUSH);
     else
         RemoveString(this->data_disables.value, TOKEN_CORE_PUSH);
+
     emit itemChanged();
 }
 
@@ -526,6 +503,7 @@ void WidgetSettingValidation::OnMiscThreadChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_MISC_THREAD);
     else
         RemoveString(this->data_disables.value, TOKEN_MISC_THREAD);
+
     emit itemChanged();
 }
 
@@ -534,6 +512,7 @@ void WidgetSettingValidation::OnMiscUniqueChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_MISC_UNIQUE);
     else
         RemoveString(this->data_disables.value, TOKEN_MISC_UNIQUE);
+
     emit itemChanged();
 }
 
@@ -542,6 +521,7 @@ void WidgetSettingValidation::OnMiscLifetimesChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_MISC_LIFETIMES);
     else
         RemoveString(this->data_disables.value, TOKEN_MISC_LIFETIMES);
+
     emit itemChanged();
 }
 
@@ -550,6 +530,7 @@ void WidgetSettingValidation::OnMiscParamChecked(bool checked) {
         AppendString(this->data_disables.value, TOKEN_MISC_PARAM);
     else
         RemoveString(this->data_disables.value, TOKEN_MISC_PARAM);
+
     emit itemChanged();
 }
 
@@ -654,81 +635,129 @@ const SettingEnumValue *WidgetSettingValidation::GetFlag(const char *key, const 
     return FindByKey(meta_set.Get<SettingMetaFlags>(key)->enum_values, flag);
 }
 
-void WidgetSettingValidation::paintEvent(QPaintEvent *event) {
+void WidgetSettingValidation::Refresh() {
     const bool core_enabled = !HasFlag("disables", TOKEN_CORE);
+
+    if (this->widget_core != nullptr) {
+        this->widget_core->setChecked(core_enabled);
+    }
 
     if (this->widget_core_layout != nullptr) {
         this->widget_core_layout->setEnabled(core_enabled);
+        this->widget_core_layout->setChecked(!HasFlag("disables", TOKEN_CORE_LAYOUT));
     }
 
     if (this->widget_core_command != nullptr) {
         this->widget_core_command->setEnabled(core_enabled);
+        this->widget_core_command->setChecked(!HasFlag("disables", TOKEN_CORE_COMMAND));
     }
 
     if (this->widget_core_object != nullptr) {
         this->widget_core_object->setEnabled(core_enabled);
+        this->widget_core_object->setChecked(!HasFlag("disables", TOKEN_CORE_OBJECT));
     }
 
     if (this->widget_core_query != nullptr) {
         this->widget_core_query->setEnabled(core_enabled);
+        this->widget_core_query->setChecked(!HasFlag("disables", TOKEN_CORE_QUERY));
     }
 
     if (this->widget_core_desc != nullptr) {
         this->widget_core_desc->setEnabled(core_enabled);
+        this->widget_core_desc->setChecked(!HasFlag("disables", TOKEN_CORE_DESCRIPTOR));
     }
 
     if (this->widget_core_shaders != nullptr) {
         this->widget_core_shaders->setEnabled(core_enabled);
+        this->widget_core_shaders->setChecked(!HasFlag("disables", TOKEN_CORE_SHADERS));
     }
 
     if (this->widget_core_push != nullptr) {
         this->widget_core_push->setEnabled(core_enabled);
+        this->widget_core_push->setChecked(!HasFlag("disables", TOKEN_CORE_PUSH));
+    }
+
+    if (this->widget_misc_thread != nullptr) {
+        this->widget_misc_thread->setChecked(!HasFlag("disables", TOKEN_MISC_THREAD));
+    }
+
+    if (this->widget_misc_unique != nullptr) {
+        this->widget_misc_unique->setChecked(!HasFlag("disables", TOKEN_MISC_UNIQUE));
+    }
+
+    if (this->widget_misc_lifetimes != nullptr) {
+        this->widget_misc_lifetimes->setChecked(!HasFlag("disables", TOKEN_MISC_LIFETIMES));
+    }
+
+    if (this->widget_misc_param != nullptr) {
+        this->widget_misc_param->setChecked(!HasFlag("disables", TOKEN_MISC_PARAM));
     }
 
     if (this->widget_shader != nullptr) {
         const bool shader_gpu = HasFlag("enables", TOKEN_SHADER_GPU);
         const bool shader_printf = HasFlag("enables", TOKEN_SHADER_PRINTF);
 
-        if (GetFlag("enables", TOKEN_SHADER_GPU) != nullptr && GetFlag("enables", TOKEN_SHADER_PRINTF)) {
+        if (GetFlag("enables", TOKEN_SHADER_GPU) != nullptr && GetFlag("enables", TOKEN_SHADER_PRINTF) != nullptr) {
             const bool shader_enabled = this->widget_shader->isChecked() || shader_gpu || shader_printf;
+            if (shader_gpu || shader_printf) {
+                this->widget_shader->setChecked(shader_gpu || shader_printf);
+            }
 
             if (this->widget_shader_gpu != nullptr) {
                 this->widget_shader_gpu->setEnabled(shader_enabled);
+                this->widget_shader_gpu->setChecked(shader_gpu);
 
                 if (this->widget_shader_gpu_reserve != nullptr) {
                     this->widget_shader_gpu_reserve->setEnabled(shader_gpu);
+                    this->widget_shader_gpu_reserve->setChecked(HasFlag("enables", TOKEN_SHADER_GPU_RESERVE));
                 }
 
                 if (this->widget_shader_gpu_oob != nullptr) {
                     this->widget_shader_gpu_oob->setEnabled(shader_gpu);
+                    this->widget_shader_gpu_oob->setChecked(data_set.Get<SettingDataBool>("gpuav_buffer_oob")->value);
                 }
             }
 
             if (this->widget_shader_printf != nullptr) {
                 this->widget_shader_printf->setEnabled(shader_enabled);
+                this->widget_shader_printf->setChecked(shader_printf);
 
                 if (this->widget_shader_printf_to_stdout != nullptr) {
                     this->widget_shader_printf_to_stdout->setEnabled(shader_printf);
+                    this->widget_shader_printf_to_stdout->setChecked(data_set.Get<SettingDataBool>("printf_to_stdout")->value);
                 }
 
                 if (this->widget_shader_printf_verbose != nullptr) {
                     this->widget_shader_printf_verbose->setEnabled(shader_printf);
+                    this->widget_shader_printf_verbose->setChecked(data_set.Get<SettingDataBool>("printf_verbose")->value);
                 }
 
                 if (this->widget_debug_printf_size != nullptr) {
                     this->widget_debug_printf_size->setEnabled(shader_printf);
+                    this->widget_shader_printf_verbose->setChecked(data_set.Get<SettingDataBool>("printf_verbose")->value);
                 }
             }
         } else if (GetFlag("enables", TOKEN_SHADER_GPU) != nullptr) {
+            if (shader_gpu) {
+                this->widget_shader->setChecked(HasFlag("enables", TOKEN_SHADER_GPU));
+            }
+
             if (this->widget_shader_gpu_reserve != nullptr) {
                 this->widget_shader_gpu_reserve->setEnabled(shader_gpu);
+                this->widget_shader_gpu_reserve->setChecked(HasFlag("enables", TOKEN_SHADER_GPU));
             }
         }
+    }
+
+    if (this->widget_sync != nullptr) {
+        this->widget_sync->setChecked(HasFlag("enables", TOKEN_SYNC));
+    }
+
+    if (this->widget_best != nullptr) {
+        this->widget_best->setChecked(HasFlag("enables", TOKEN_BEST));
     }
 
     if (this->widget_best_arm != nullptr) {
         this->widget_best_arm->setEnabled(HasFlag("enables", TOKEN_BEST));
     }
-
-    QWidget::paintEvent(event);
 }

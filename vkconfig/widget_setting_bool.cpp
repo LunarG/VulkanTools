@@ -20,7 +20,6 @@
  */
 
 #include "widget_setting_bool.h"
-#include "widget_setting.h"
 
 #include <cassert>
 
@@ -31,24 +30,24 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
       data(*data_set.Get<SettingDataBool>(meta.key.c_str())),
       data_set(data_set),
       field(new QCheckBox(this)) {
-    assert(&meta);
-    assert(&data);
+    assert(&this->meta);
+    assert(&this->data);
 
-    this->field->setText(meta.label.c_str());
-    this->field->setFont(tree->font());
-    this->field->setToolTip(meta.description.c_str());
-    this->field->setChecked(data.value);
+    this->field->setText(this->meta.label.c_str());
+    this->field->setFont(this->tree->font());
+    this->field->setToolTip(this->meta.description.c_str());
+    this->field->setChecked(this->data.value);
     this->field->show();
     this->connect(this->field, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
-    tree->setItemWidget(this->item, 0, this);
-    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->tree->setItemWidget(this->item, 0, this);
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     this->Refresh();
 }
 
 void WidgetSettingBool::Refresh() {
-    const bool enabled = ::CheckDependence(this->meta, data_set);
+    const bool enabled = ::CheckDependence(this->meta, this->data_set);
 
     this->item->setDisabled(!enabled);
     this->field->setEnabled(enabled);

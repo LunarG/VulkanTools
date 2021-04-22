@@ -38,7 +38,7 @@ class WidgetSettingFlag : public WidgetSettingBase {
     void Refresh() override;
 
    public Q_SLOTS:
-    void OnItemChecked(bool checked);
+    void OnClicked(bool checked);
 
    Q_SIGNALS:
     void itemChanged();
