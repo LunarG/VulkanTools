@@ -27,7 +27,6 @@ WidgetPreset::WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer
     assert(&layer);
     assert(&parameter);
 
-    this->blockSignals(true);
     this->field->addItem(Layer::NO_PRESET);
 
     preset_labels.push_back(Layer::NO_PRESET);
@@ -42,20 +41,17 @@ WidgetPreset::WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer
         preset_labels.push_back(layer_preset.label);
     }
 
-    this->blockSignals(false);
-
+    // 'Refresh' need to be called before 'connect' to avoid triggering 'currentIndexChanged' in an infinite loop
+    this->Refresh();
     this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
 
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    this->tree->setItemWidget(this->item, 0, this->field);
-
-    this->Refresh();
+    this->tree->setItemWidget(this->item, 0, this);
 }
 
 void WidgetPreset::Refresh() {
     const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
-    this->blockSignals(true);
     this->field->setCurrentIndex(GetComboBoxIndex(preset_label.c_str()));
 
     if (preset_label != Layer::NO_PRESET) {
@@ -63,8 +59,11 @@ void WidgetPreset::Refresh() {
         assert(preset != nullptr);
         this->setToolTip(preset->description.c_str());
     }
+}
 
-    this->blockSignals(false);
+void WidgetPreset::resizeEvent(QResizeEvent* event) {
+    const QRect button_rect = QRect(0, 0, event->size().width(), event->size().height());
+    this->field->setGeometry(button_rect);
 }
 
 int WidgetPreset::GetComboBoxIndex(const char* preset_label) const {
@@ -85,4 +84,6 @@ void WidgetPreset::OnPresetChanged(int combox_preset_index) {
     const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
     assert(preset != nullptr);
     parameter.ApplyPresetSettings(*preset);
+
+    emit itemChanged();
 }

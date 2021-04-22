@@ -37,12 +37,12 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
     assert(&data);
 
     int selection = 0;
-    for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
-        if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;
-        if (meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
+    for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
+        if (!IsPlatformSupported(this->meta.enum_values[i].platform_flags)) continue;
+        if (this->meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
 
-        this->field->addItem(meta.enum_values[i].label.c_str());
-        if (meta.enum_values[i].key == data.value) {
+        this->field->addItem(this->meta.enum_values[i].label.c_str());
+        if (this->meta.enum_values[i].key == data.value) {
             selection = static_cast<int>(this->enum_indexes.size());
         }
         this->enum_indexes.push_back(i);
@@ -52,11 +52,11 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->field->show();
     this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 
-    item->setText(0, meta.label.c_str());
-    item->setFont(0, tree->font());
-    item->setToolTip(0, meta.description.c_str());
-    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    tree->setItemWidget(this->item, 0, this);
+    this->item->setText(0, this->meta.label.c_str());
+    this->item->setFont(0, this->tree->font());
+    this->item->setToolTip(0, this->meta.description.c_str());
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->tree->setItemWidget(this->item, 0, this);
 
     this->Refresh();
 }
