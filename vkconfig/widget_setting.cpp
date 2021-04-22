@@ -20,6 +20,11 @@
 
 #include "widget_setting.h"
 
+WidgetSettingBase::WidgetSettingBase(QTreeWidget* tree, QTreeWidgetItem* item) : tree(tree), item(item) {
+    assert(tree != nullptr);
+    assert(item != nullptr);
+}
+
 void EnableItem(QTreeWidgetItem* item, bool enable) {
     if (item == nullptr) return;
 
