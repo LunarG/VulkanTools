@@ -37,18 +37,11 @@ enum SettingInputError {
     SETTING_INPUT_ERROR_SEMENTICS
 };
 
-void EnableItem(QTreeWidgetItem* item, bool enable);
-
-int HorizontalAdvance(const QFontMetrics& fm, const QString& string);
-
 class WidgetSettingBase : public QWidget {
     Q_OBJECT
 
    public:
-    WidgetSettingBase(QTreeWidget* tree, QTreeWidgetItem* item) : tree(tree), item(item) {
-        assert(tree != nullptr);
-        assert(item != nullptr);
-    }
+    WidgetSettingBase(QTreeWidget* tree, QTreeWidgetItem* item);
 
     virtual void Refresh() = 0;
 
@@ -60,3 +53,7 @@ class WidgetSettingBase : public QWidget {
     QTreeWidget* tree;
     QTreeWidgetItem* item;
 };
+
+void EnableItem(QTreeWidgetItem* item, bool enable);
+
+int HorizontalAdvance(const QFontMetrics& fm, const QString& string);
