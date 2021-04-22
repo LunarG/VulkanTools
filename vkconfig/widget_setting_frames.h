@@ -31,12 +31,14 @@
 #include <QResizeEvent>
 #include <QTimer>
 
-class WidgetSettingFrames : public QWidget {
+class WidgetSettingFrames : public WidgetSettingBase {
     Q_OBJECT
 
    public:
     WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingFrames();
+
+    void Refresh() override;
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
@@ -47,18 +49,12 @@ class WidgetSettingFrames : public QWidget {
     void itemChanged();
 
    protected:
-    void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
    private:
-    WidgetSettingFrames(const WidgetSettingFrames&) = delete;
-    WidgetSettingFrames& operator=(const WidgetSettingFrames&) = delete;
-
     void Resize();
     SettingInputError ProcessInputValue();
 
-    QTreeWidget* tree;
-    QTreeWidgetItem* item;
     const SettingDataSet& data_set;
     SettingDataFrames& data;
     const SettingMetaFrames& meta;

@@ -41,8 +41,7 @@ const char *GetFieldToolTip(const SettingMetaList &meta, bool current_list_empty
 
 WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta,
                                      SettingDataSet &data_set)
-    : tree(tree),
-      item(item),
+    : WidgetSettingBase(tree, item),
       meta(meta),
       data(*data_set.Get<SettingDataList>(meta.key.c_str())),
       data_set(data_set),
@@ -50,8 +49,6 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
       field(new QLineEdit(this)),
       add_button(new QPushButton(this)),
       list(meta.list) {
-    assert(tree != nullptr);
-    assert(item != nullptr);
     assert(&meta);
     assert(&data);
 
@@ -60,11 +57,6 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     }
 
     this->setFont(this->tree->font());
-
-    this->item->setText(0, (this->meta.label + "  ").c_str());
-    this->item->setFont(0, this->tree->font());
-    this->item->setToolTip(0, this->meta.description.c_str());
-    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     const char *tooltip = GetFieldToolTip(this->meta, this->list.empty());
 
@@ -92,10 +84,16 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
         this->AddElement(this->data.value[i]);
     }
 
+    this->item->setText(0, (this->meta.label + "  ").c_str());
+    this->item->setFont(0, this->tree->font());
+    this->item->setToolTip(0, this->meta.description.c_str());
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
+
+    this->Refresh();
 }
 
-void WidgetSettingList::paintEvent(QPaintEvent *event) {
+void WidgetSettingList::Refresh() {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
@@ -110,8 +108,6 @@ void WidgetSettingList::paintEvent(QPaintEvent *event) {
         this->field->show();
         this->add_button->show();
     }
-
-    QWidget::paintEvent(event);
 }
 
 void WidgetSettingList::Resize() {

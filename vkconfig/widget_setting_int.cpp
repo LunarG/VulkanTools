@@ -30,25 +30,17 @@
 static const int MIN_FIELD_WIDTH = 80;
 
 WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set)
-    : tree(tree),
-      item(item),
+    : WidgetSettingBase(tree, item),
       meta(meta),
       data(*data_set.Get<SettingDataInt>(meta.key.c_str())),
       data_set(data_set),
       field(new QLineEdit(this)),
       timer_error(new QTimer(this)),
       timer_valid(new QTimer(this)) {
-    assert(tree != nullptr);
-    assert(item != nullptr);
     assert(&meta);
     assert(&data);
 
     const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
-
-    item->setText(0, (meta.label + unit).c_str());
-    item->setFont(0, tree->font());
-    item->setToolTip(0, meta.description.c_str());
-    item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
     this->field->setText(format("%d", data.value).c_str());
     this->field->setFont(tree->font());
@@ -61,7 +53,13 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, con
     this->connect(this->timer_error, &QTimer::timeout, this, &WidgetSettingInt::OnErrorValue);
     this->connect(this->timer_valid, &QTimer::timeout, this, &WidgetSettingInt::OnValidValue);
 
-    tree->setItemWidget(item, 0, this);
+    this->item->setText(0, (meta.label + unit).c_str());
+    this->item->setFont(0, this->tree->font());
+    this->item->setToolTip(0, meta.description.c_str());
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->tree->setItemWidget(this->item, 0, this);
+
+    this->Refresh();
 }
 
 WidgetSettingInt::~WidgetSettingInt() {
@@ -69,14 +67,12 @@ WidgetSettingInt::~WidgetSettingInt() {
     this->timer_valid->stop();
 }
 
-void WidgetSettingInt::paintEvent(QPaintEvent* event) {
+void WidgetSettingInt::Refresh() {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
-    this->setEnabled(enabled);
     this->field->setEnabled(enabled);
-
-    QWidget::paintEvent(event);
+    this->setEnabled(enabled);
 }
 
 void WidgetSettingInt::resizeEvent(QResizeEvent* event) {

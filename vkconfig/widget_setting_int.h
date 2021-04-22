@@ -25,18 +25,18 @@
 
 #include "widget_setting.h"
 
-#include <QString>
-#include <QTreeWidgetItem>
 #include <QLineEdit>
 #include <QResizeEvent>
 #include <QTimer>
 
-class WidgetSettingInt : public QWidget {
+class WidgetSettingInt : public WidgetSettingBase {
     Q_OBJECT
 
    public:
     WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingInt();
+
+    void Refresh() override;
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
@@ -47,18 +47,12 @@ class WidgetSettingInt : public QWidget {
     void itemChanged();
 
    protected:
-    void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
    private:
-    WidgetSettingInt(const WidgetSettingInt&) = delete;
-    WidgetSettingInt& operator=(const WidgetSettingInt&) = delete;
-
     void Resize();
     SettingInputError ProcessInputValue();
 
-    QTreeWidget* tree;
-    QTreeWidgetItem* item;
     const SettingDataSet& data_set;
     SettingDataInt& data;
     const SettingMetaInt& meta;

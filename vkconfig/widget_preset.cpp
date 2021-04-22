@@ -22,13 +22,13 @@
 
 #include <cassert>
 
-WidgetPreset::WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter& parameter) : layer(layer), parameter(parameter) {
-    assert(item);
+WidgetPreset::WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer& layer, Parameter& parameter)
+    : WidgetSettingBase(tree, item), layer(layer), parameter(parameter), field(new QComboBox(this)) {
     assert(&layer);
     assert(&parameter);
 
     this->blockSignals(true);
-    this->addItem(Layer::NO_PRESET);
+    this->field->addItem(Layer::NO_PRESET);
 
     preset_labels.push_back(Layer::NO_PRESET);
 
@@ -38,20 +38,25 @@ WidgetPreset::WidgetPreset(QTreeWidgetItem* item, const Layer& layer, Parameter&
         if (!IsPlatformSupported(layer_preset.platform_flags)) continue;
         if (layer_preset.view == SETTING_VIEW_HIDDEN) continue;
 
-        this->addItem((layer_preset.label + " Preset").c_str());
+        this->field->addItem((layer_preset.label + " Preset").c_str());
         preset_labels.push_back(layer_preset.label);
     }
 
     this->blockSignals(false);
 
-    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
+    this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
+
+    this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->tree->setItemWidget(this->item, 0, this->field);
+
+    this->Refresh();
 }
 
-void WidgetPreset::paintEvent(QPaintEvent* event) {
+void WidgetPreset::Refresh() {
     const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
     this->blockSignals(true);
-    this->setCurrentIndex(GetComboBoxIndex(preset_label.c_str()));
+    this->field->setCurrentIndex(GetComboBoxIndex(preset_label.c_str()));
 
     if (preset_label != Layer::NO_PRESET) {
         const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
@@ -60,8 +65,6 @@ void WidgetPreset::paintEvent(QPaintEvent* event) {
     }
 
     this->blockSignals(false);
-
-    QComboBox::paintEvent(event);
 }
 
 int WidgetPreset::GetComboBoxIndex(const char* preset_label) const {

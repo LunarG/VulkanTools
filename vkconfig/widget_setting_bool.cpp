@@ -26,31 +26,37 @@
 
 WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta,
                                      SettingDataSet& data_set)
-    : tree(tree), item(item), meta(meta), data(*data_set.Get<SettingDataBool>(meta.key.c_str())), data_set(data_set) {
+    : WidgetSettingBase(tree, item),
+      meta(meta),
+      data(*data_set.Get<SettingDataBool>(meta.key.c_str())),
+      data_set(data_set),
+      field(new QCheckBox(this)) {
     assert(&meta);
     assert(&data);
 
-    this->setText(meta.label.c_str());
-    this->setFont(tree->font());
-    this->setToolTip(meta.description.c_str());
-    this->setChecked(data.value);
+    this->field->setText(meta.label.c_str());
+    this->field->setFont(tree->font());
+    this->field->setToolTip(meta.description.c_str());
+    this->field->setChecked(data.value);
+    this->field->show();
+    this->connect(this->field, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
-    this->connect(this, SIGNAL(clicked()), this, SLOT(OnClicked()));
-
-    tree->setItemWidget(item, 0, this);
+    tree->setItemWidget(this->item, 0, this);
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+
+    this->Refresh();
 }
 
-void WidgetSettingBool::paintEvent(QPaintEvent* event) {
+void WidgetSettingBool::Refresh() {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
+    this->field->setEnabled(enabled);
     this->setEnabled(enabled);
-
-    QCheckBox::paintEvent(event);
 }
 
 void WidgetSettingBool::OnClicked() {
-    this->data.value = isChecked();
+    this->data.value = this->field->isChecked();
+
     emit itemChanged();
 }
