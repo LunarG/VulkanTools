@@ -36,7 +36,7 @@ class WidgetSettingInt : public WidgetSettingBase {
     WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingInt();
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);

@@ -34,7 +34,7 @@ class WidgetSettingBool : public WidgetSettingBase {
    public:
     explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta, SettingDataSet& data_set);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnClicked();

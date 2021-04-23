@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_data.h"
-#include "../vkconfig_core/setting_meta.h"
-
 #include "widget_setting.h"
 
 #include <QString>
@@ -37,7 +34,7 @@ class WidgetSettingFloat : public WidgetSettingBase {
     WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFloat& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingFloat();
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);

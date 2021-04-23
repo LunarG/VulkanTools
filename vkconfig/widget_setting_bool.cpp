@@ -36,22 +36,25 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->field->setText(this->meta.label.c_str());
     this->field->setFont(this->tree->font());
     this->field->setToolTip(this->meta.description.c_str());
-    this->field->setChecked(this->data.value);
     this->field->show();
     this->connect(this->field, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
     this->tree->setItemWidget(this->item, 0, this);
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    this->Refresh();
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
-void WidgetSettingBool::Refresh() {
+void WidgetSettingBool::Refresh(RefreshAreas refresh_areas) {
     const bool enabled = ::CheckDependence(this->meta, this->data_set);
 
     this->item->setDisabled(!enabled);
     this->field->setEnabled(enabled);
     this->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->setChecked(this->data.value);
+    }
 }
 
 void WidgetSettingBool::OnClicked() {

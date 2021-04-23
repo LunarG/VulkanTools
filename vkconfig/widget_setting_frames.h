@@ -38,7 +38,7 @@ class WidgetSettingFrames : public WidgetSettingBase {
     WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFrames& meta, SettingDataSet& data_set);
     virtual ~WidgetSettingFrames();
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);

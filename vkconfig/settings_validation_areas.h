@@ -38,7 +38,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     explicit WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaSet &meta_set,
                                      SettingDataSet &data_set);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    private:
     QTreeWidgetItem *item_core;
@@ -48,7 +48,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QCheckBox *widget_core_layout;
 
     QTreeWidgetItem *item_core_command;
-    QCheckBox *widget_core_command;
+    QCheckBox *widget_core_cmd;
 
     QTreeWidgetItem *item_core_object;
     QCheckBox *widget_core_object;
@@ -59,8 +59,8 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_core_desc;
     QCheckBox *widget_core_desc;
 
-    QTreeWidgetItem *item_core_shaders;
-    QCheckBox *widget_core_shaders;
+    QTreeWidgetItem *item_core_shader;
+    QCheckBox *widget_core_shader;
 
     QTreeWidgetItem *item_core_push;
     QCheckBox *widget_core_push;
@@ -110,7 +110,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_best_arm;
     QCheckBox *widget_best_arm;
 
-    QCheckBox *AddWidgetSetting(QTreeWidgetItem *parent, QTreeWidgetItem **item, const SettingEnumValue *value);
+    QCheckBox *CreateWidget(QTreeWidgetItem *parent, QTreeWidgetItem **item, const char *key, const char *flag);
 
    public Q_SLOTS:
     void OnCoreChecked(bool checked);
@@ -120,7 +120,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     void OnCoreObjectChecked(bool checked);
     void OnCoreQueryChecked(bool checked);
     void OnCoreDescChecked(bool checked);
-    void OnCoreShadersChecked(bool checked);
+    void OnCoreShaderChecked(bool checked);
     void OnCorePushChecked(bool checked);
 
     void OnMiscThreadChecked(bool checked);
@@ -152,13 +152,11 @@ class WidgetSettingValidation : public WidgetSettingBase {
     WidgetSettingValidation(const WidgetSettingValidation &) = delete;
     WidgetSettingValidation &operator=(const WidgetSettingValidation &) = delete;
 
-    bool HasFlag(const char *key, const char *flag) const;
-    const SettingEnumValue *GetFlag(const char *key, const char *flag) const;
+    void UpdateFlag(const char *key, const char *flag, bool append);
+    bool HasDataBool(const char *key) const;
+    bool HasDataFlag(const char *key, const char *flag) const;
+    const SettingEnumValue *GetMetaFlag(const char *key, const char *flag) const;
 
     const SettingMetaSet &meta_set;
-    const SettingMetaFlags &meta_enables;
-    const SettingMetaFlags &meta_disables;
     SettingDataSet &data_set;
-    SettingDataFlags &data_enables;
-    SettingDataFlags &data_disables;
 };

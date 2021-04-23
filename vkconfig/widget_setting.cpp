@@ -25,14 +25,24 @@ WidgetSettingBase::WidgetSettingBase(QTreeWidget* tree, QTreeWidgetItem* item) :
     assert(item != nullptr);
 }
 
-void EnableItem(QTreeWidgetItem* item, bool enable) {
-    if (item == nullptr) return;
+bool IsSupported(const SettingMeta* meta) {
+    if (meta == nullptr) return false;
 
-    if (enable) {
-        item->setFlags(item->flags() | Qt::ItemIsEnabled);
-    } else {
-        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-    }
+    if (meta->view == SETTING_VIEW_HIDDEN) return false;
+
+    if (!IsPlatformSupported(meta->platform_flags)) return false;
+
+    return true;
+}
+
+bool IsSupported(const SettingEnumValue* value) {
+    if (value == nullptr) return false;
+
+    if (value->view == SETTING_VIEW_HIDDEN) return false;
+
+    if (!IsPlatformSupported(value->platform_flags)) return false;
+
+    return true;
 }
 
 int HorizontalAdvance(const QFontMetrics& fm, const QString& string) {

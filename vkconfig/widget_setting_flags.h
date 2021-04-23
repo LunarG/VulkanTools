@@ -35,7 +35,7 @@ class WidgetSettingFlag : public WidgetSettingBase {
     explicit WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta, SettingDataSet& data_set,
                                const std::string& flag);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnClicked(bool checked);

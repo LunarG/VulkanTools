@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include "../vkconfig_core/setting_data.h"
+#include "../vkconfig_core/setting_meta.h"
+
 #include <QTreeWidgetItem>
 #include <QWidget>
 #include <QFontMetrics>
@@ -37,13 +40,15 @@ enum SettingInputError {
     SETTING_INPUT_ERROR_SEMENTICS
 };
 
+enum RefreshAreas { REFRESH_ENABLE_AND_STATE = 0, REFRESH_ENABLE_ONLY };
+
 class WidgetSettingBase : public QWidget {
     Q_OBJECT
 
    public:
     WidgetSettingBase(QTreeWidget* tree, QTreeWidgetItem* item);
 
-    virtual void Refresh() = 0;
+    virtual void Refresh(RefreshAreas refresh_areas) = 0;
 
    private:
     WidgetSettingBase(const WidgetSettingBase&) = delete;
@@ -54,6 +59,7 @@ class WidgetSettingBase : public QWidget {
     QTreeWidgetItem* item;
 };
 
-void EnableItem(QTreeWidgetItem* item, bool enable);
+bool IsSupported(const SettingMeta* meta);
+bool IsSupported(const SettingEnumValue* value);
 
 int HorizontalAdvance(const QFontMetrics& fm, const QString& string);

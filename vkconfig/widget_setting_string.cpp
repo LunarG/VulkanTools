@@ -49,15 +49,19 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* ite
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 
-    this->Refresh();
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
-void WidgetSettingString::Refresh() {
+void WidgetSettingString::Refresh(RefreshAreas refresh_areas) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
     this->field->setEnabled(enabled);
     this->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->setText(data.value.c_str());
+    }
 }
 
 void WidgetSettingString::Resize() {

@@ -21,9 +21,6 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_data.h"
-#include "../vkconfig_core/setting_meta.h"
-
 #include "widget_setting.h"
 
 #include <QComboBox>
@@ -35,10 +32,10 @@ class WidgetSettingEnum : public WidgetSettingBase {
    public:
     explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataSet& data_set);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
-    void indexChanged(int index);
+    void OnIndexChanged(int index);
 
    Q_SIGNALS:
     void itemChanged();
