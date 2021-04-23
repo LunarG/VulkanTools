@@ -38,8 +38,8 @@ class WidgetSettingListElement : public WidgetSettingBase {
     void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
-    void OnButtonClicked();
-    void OnItemChecked(bool checked);
+    void OnElementRemoved();
+    void OnElementChecked(bool checked);
 
    Q_SIGNALS:
     void itemSelected(const QString& value);

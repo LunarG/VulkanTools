@@ -48,41 +48,35 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
       search(nullptr),
       field(new QLineEdit(this)),
       add_button(new QPushButton(this)),
-      list(meta.list) {
-    assert(&meta);
-    assert(&data);
+      list(meta.list),
+      data_cached(data.key) {
+    assert(&this->meta);
+    assert(&this->data);
 
     for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
         ::RemoveValue(this->list, this->data.value[i]);
     }
-
-    this->setFont(this->tree->font());
 
     const char *tooltip = GetFieldToolTip(this->meta, this->list.empty());
 
     this->field->show();
     this->field->setText("");
     this->field->setToolTip(tooltip);
-    this->field->setFont(tree->font());
+    this->field->setFont(this->tree->font());
     this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->installEventFilter(this);
 
-    this->connect(this->field, SIGNAL(textEdited(const QString &)), this, SLOT(OnTextEdited(const QString &)));
-    this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(OnButtonPressed()), Qt::QueuedConnection);
-    this->connect(this->field, SIGNAL(inputRejected()), this, SLOT(OnItemRejected()), Qt::QueuedConnection);
+    this->connect(this->field, SIGNAL(textChanged(const QString &)), this, SLOT(OnTextEdited(const QString &)));
+    this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(OnElementAppended()), Qt::QueuedConnection);
+    this->connect(this->field, SIGNAL(inputRejected()), this, SLOT(OnElementRejected()), Qt::QueuedConnection);
 
     this->add_button->show();
     this->add_button->setText("+");
-    this->add_button->setFont(tree->font());
+    this->add_button->setFont(this->tree->font());
 
-    this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnButtonPressed()), Qt::QueuedConnection);
-
-    this->ResetCompleter();
+    this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnElementAppended()), Qt::QueuedConnection);
 
     std::sort(this->data.value.begin(), this->data.value.end());
-    for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
-        this->AddElement(this->data.value[i]);
-    }
 
     this->item->setText(0, (this->meta.label + "  ").c_str());
     this->item->setFont(0, this->tree->font());
@@ -109,7 +103,22 @@ void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
         this->add_button->show();
     }
 
-    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+    if (this->data != this->data_cached) {
+        this->data_cached = this->data;
+
+        this->tree->blockSignals(true);
+
+        while (this->item->childCount() > 0) {
+            this->item->removeChild(this->item->child(0));
+        }
+
+        for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
+            this->AddElement(this->data.value[i]);
+        }
+
+        this->ResetCompleter();
+
+        this->tree->blockSignals(false);
     }
 }
 
@@ -125,7 +134,6 @@ void WidgetSettingList::Resize() {
 
 void WidgetSettingList::resizeEvent(QResizeEvent *event) {
     this->size = event->size();
-
     this->Resize();
 }
 
@@ -163,7 +171,7 @@ void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
     this->tree->setItemWidget(child, 0, widget);
 
     this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-    this->connect(widget, SIGNAL(itemSelected(const QString &)), this, SLOT(OnItemSelected(const QString &)));
+    this->connect(widget, SIGNAL(itemSelected(const QString &)), this, SLOT(OnElementRemoved(const QString &)));
 }
 
 void WidgetSettingList::OnCompleted(const QString &value) {
@@ -172,10 +180,10 @@ void WidgetSettingList::OnCompleted(const QString &value) {
     // before it's really "complete". If we clear the control too soon
     // it clears the completers value too. This might be a Qt bug, but this
     // works really well as a work-a-round
-    OnButtonPressed();
+    OnElementAppended();
 }
 
-void WidgetSettingList::OnButtonPressed() {
+void WidgetSettingList::OnElementAppended() {
     const QString entry = this->field->text();
     if (entry.isEmpty()) return;
 
@@ -198,15 +206,8 @@ void WidgetSettingList::OnButtonPressed() {
         return;
     }
 
-    this->item->setText(0, (this->meta.label + "  ").c_str());
-    this->field->setText("");
-
     // Add the value if it's not in the list already
-    if (!IsValueFound(this->data.value, value)) {
-        this->data.value.push_back(value);
-        ::RemoveValue(this->list, value);
-        this->OnItemSelected("");
-    } else {
+    if (IsValueFound(this->data.value, value)) {
         QMessageBox alert;
         alert.setWindowTitle("Duplicated value");
         alert.setText(
@@ -214,62 +215,63 @@ void WidgetSettingList::OnButtonPressed() {
                 .c_str());
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
+        return;
     }
 
-    this->Resize();
+    this->field->setText("");
 
-    emit itemSelected(entry);  // Triggers update of GUI
-    emit itemChanged();        // Triggers save of configuration
+    this->data.value.push_back(value);
+    std::sort(this->data.value.begin(), this->data.value.end());
+    ::RemoveValue(this->list, value);
+
+    emit itemChanged();
 }
 
 void WidgetSettingList::OnTextEdited(const QString &value) {
     assert(this->add_button);
     assert(this->field);
 
-    this->tree->blockSignals(true);
+    // this->tree->blockSignals(true);
 
     if (value.isEmpty()) {
         this->item->setText(0, (this->meta.label + "  ").c_str());
-        this->Resize();
     } else if (value.size() == 1) {
         this->item->setText(0, "");
-        this->Resize();
     }
+
+    this->Resize();
 
     this->add_button->setEnabled(!value.isEmpty());
 
-    this->tree->blockSignals(false);
+    // this->tree->blockSignals(false);
 
-    this->field->setFocus();
+    // this->field->setFocus();
 }
 
-void WidgetSettingList::OnItemSelected(const QString &value) {
-    (void)value;
+void WidgetSettingList::OnElementRemoved(const QString &element) {
+    const std::string string_value = element.toStdString();
+    const bool is_number = IsNumber(string_value);
 
-    this->tree->blockSignals(true);
+    NumberOrString list_value;
+    list_value.key = is_number ? "" : string_value;
+    list_value.number = is_number ? std::atoi(string_value.c_str()) : 0;
+    this->list.push_back(list_value);
 
-    this->list = this->meta.list;
-    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
-        ::RemoveValue(this->list, data.value[i]);
-    }
+    EnabledNumberOrString data_value;
+    data_value.key = list_value.key;
+    data_value.number = list_value.number;
+    data_value.enabled = true;
 
-    this->ResetCompleter();
-
-    while (this->item->childCount() > 0) {
-        this->item->removeChild(this->item->child(0));
+    for (auto it = this->data.value.begin(), end = this->data.value.end(); it != end; ++it) {
+        if (*it == data_value) {
+            this->data.value.erase(it);
+            break;
+        }
     }
 
     std::sort(this->data.value.begin(), this->data.value.end());
-
-    for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
-        this->AddElement(this->data.value[i]);
-    }
-
-    this->tree->blockSignals(false);
-
-    emit itemChanged();
 }
 
-void WidgetSettingList::OnItemRejected() { this->OnTextEdited(""); }
+void WidgetSettingList::OnElementRejected() { this->OnTextEdited(""); }
 
 void WidgetSettingList::OnSettingChanged() { emit itemChanged(); }

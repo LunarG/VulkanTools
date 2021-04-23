@@ -44,14 +44,16 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
     this->field->setFont(this->tree->font());
     this->field->setToolTip(text.c_str());
     this->field->setCheckable(true);
-    this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
+    this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnElementChecked(bool)));
 
     this->button->setText("-");
     this->button->setFont(tree->font());
     this->button->show();
-    this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnButtonClicked()));
+    this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnElementRemoved()));
 
     this->tree->setItemWidget(this->item, 0, this);
+
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
 void WidgetSettingListElement::Refresh(RefreshAreas refresh_areas) {
@@ -75,26 +77,18 @@ void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
     this->button->setGeometry(button_rect);
 }
 
-void WidgetSettingListElement::OnItemChecked(bool checked) {
+void WidgetSettingListElement::OnElementChecked(bool checked) {
     this->element.enabled = checked;
 
     emit itemChanged();
 }
 
-void WidgetSettingListElement::OnButtonClicked() {
+void WidgetSettingListElement::OnElementRemoved() {
     auto it = std::find(this->data.value.begin(), this->data.value.end(), this->element);
     assert(it != this->data.value.end());
 
     this->data.value.erase(it);
 
-    this->setEnabled(false);
-
-    emit itemSelected(this->field->text());
-}
-
-bool WidgetSettingListElement::GetChecked() const {
-    auto it = std::find(this->data.value.begin(), this->data.value.end(), this->element);
-    assert(it != this->data.value.end());
-
-    return it->enabled;
+    emit itemSelected(this->field->text());  // Remove the element from the parent WidgetSettingList
+    emit itemChanged();                      // Notify the setting tree that settings have changed
 }

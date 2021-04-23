@@ -42,11 +42,11 @@ class WidgetSettingList : public WidgetSettingBase {
 
    public Q_SLOTS:
     void OnCompleted(const QString &value);
-    void OnButtonPressed();
+    void OnElementAppended();
     void OnTextEdited(const QString &value);
     void OnSettingChanged();
-    void OnItemSelected(const QString &value);
-    void OnItemRejected();
+    void OnElementRemoved(const QString &value);
+    void OnElementRejected();
 
    Q_SIGNALS:
     void itemSelected(const QString &value);
@@ -71,4 +71,5 @@ class WidgetSettingList : public WidgetSettingBase {
     QSize size;
 
     std::vector<NumberOrString> list;
+    SettingDataList data_cached;
 };
