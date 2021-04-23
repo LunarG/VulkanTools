@@ -44,9 +44,8 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, c
     assert(enum_value);
 
     this->field->setText(enum_value->label.c_str());
-    this->field->setFont(tree->font());
     this->field->setToolTip(enum_value->description.c_str());
-    this->field->setChecked(std::find(data.value.begin(), data.value.end(), flag) != data.value.end());
+    this->field->setFont(tree->font());
     this->field->show();
     this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnClicked(bool)));
 
@@ -62,6 +61,12 @@ void WidgetSettingFlag::Refresh(RefreshAreas refresh_areas) {
     this->item->setDisabled(!enabled);
     this->field->setEnabled(enabled);
     this->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->blockSignals(true);
+        this->field->setChecked(std::find(data.value.begin(), data.value.end(), flag) != data.value.end());
+        this->field->blockSignals(false);
+    }
 }
 
 void WidgetSettingFlag::OnClicked(bool checked) {

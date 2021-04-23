@@ -44,7 +44,6 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
     this->field->setFont(this->tree->font());
     this->field->setToolTip(text.c_str());
     this->field->setCheckable(true);
-    this->field->setChecked(this->GetChecked());
     this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnItemChecked(bool)));
 
     this->button->setText("-");
@@ -61,6 +60,12 @@ void WidgetSettingListElement::Refresh(RefreshAreas refresh_areas) {
     this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->button->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->blockSignals(true);
+        this->field->setChecked(std::find(this->data.value.begin(), this->data.value.end(), this->element)->enabled);
+        this->field->blockSignals(false);
+    }
 }
 
 void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {

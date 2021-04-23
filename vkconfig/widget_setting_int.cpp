@@ -42,7 +42,6 @@ WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, con
 
     const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
 
-    this->field->setText(format("%d", data.value).c_str());
     this->field->setFont(tree->font());
     this->field->setToolTip(format("[%d, %d]", meta.min_value, meta.max_value).c_str());
     this->field->setAlignment(Qt::AlignRight);
@@ -73,6 +72,12 @@ void WidgetSettingInt::Refresh(RefreshAreas refresh_areas) {
     this->item->setDisabled(!enabled);
     this->field->setEnabled(enabled);
     this->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->blockSignals(true);
+        this->field->setText(format("%d", this->data.value).c_str());
+        this->field->blockSignals(false);
+    }
 }
 
 void WidgetSettingInt::resizeEvent(QResizeEvent* event) {

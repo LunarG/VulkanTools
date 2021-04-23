@@ -108,6 +108,9 @@ void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
         this->field->show();
         this->add_button->show();
     }
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+    }
 }
 
 void WidgetSettingList::Resize() {

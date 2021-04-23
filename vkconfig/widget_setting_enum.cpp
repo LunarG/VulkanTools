@@ -57,6 +57,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
     this->setEnabled(enabled);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->blockSignals(true);
         this->field->clear();
         this->enum_indexes.clear();
 
@@ -72,6 +73,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         }
 
         this->field->setCurrentIndex(selection);
+        this->field->blockSignals(false);
     }
 }
 

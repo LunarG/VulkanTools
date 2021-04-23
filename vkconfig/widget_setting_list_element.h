@@ -49,8 +49,6 @@ class WidgetSettingListElement : public WidgetSettingBase {
     void resizeEvent(QResizeEvent* event) override;
 
    private:
-    bool GetChecked() const;
-
     const SettingDataSet& data_set;
     SettingDataList& data;
     const SettingMetaList& meta;

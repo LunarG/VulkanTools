@@ -53,7 +53,9 @@ void WidgetSettingBool::Refresh(RefreshAreas refresh_areas) {
     this->setEnabled(enabled);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->blockSignals(true);
         this->field->setChecked(this->data.value);
+        this->field->blockSignals(false);
     }
 }
 

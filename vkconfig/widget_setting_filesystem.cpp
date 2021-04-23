@@ -40,8 +40,6 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     assert(&meta);
     assert(&data);
 
-    this->field->setText(ReplaceBuiltInVariable(data.value).c_str());
-    this->field->setToolTip(this->field->text());
     this->field->show();
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 
@@ -69,6 +67,13 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
     this->button->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->blockSignals(true);
+        this->field->setText(ReplaceBuiltInVariable(data.value).c_str());
+        this->field->setToolTip(this->field->text());
+        this->field->blockSignals(false);
+    }
 }
 
 void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
