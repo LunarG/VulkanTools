@@ -42,9 +42,7 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
     assert(&data);
 
     const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
-    const std::string float_format = meta.GetFloatFormat();
 
-    this->field->setText(format(float_format.c_str(), data.value).c_str());
     this->field->setFont(tree->font());
     this->field->setToolTip(format("[%f, %f]", meta.min_value, meta.max_value).c_str());
     this->field->setAlignment(Qt::AlignRight);
@@ -75,6 +73,14 @@ void WidgetSettingFloat::Refresh(RefreshAreas refresh_areas) {
     this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        const std::string float_format = meta.GetFloatFormat();
+
+        this->field->blockSignals(true);
+        this->field->setText(format(float_format.c_str(), data.value).c_str());
+        this->field->blockSignals(false);
+    }
 }
 
 void WidgetSettingFloat::resizeEvent(QResizeEvent* event) {

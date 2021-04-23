@@ -44,7 +44,6 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* ite
     assert(&meta);
     assert(&data);
 
-    this->field->setText(data.value.c_str());
     this->field->setFont(tree->font());
     this->field->setToolTip("Use list of comma separated integer ranges. Example: '0-2,16'.");
     this->field->setAlignment(Qt::AlignRight);
@@ -75,6 +74,12 @@ void WidgetSettingFrames::Refresh(RefreshAreas refresh_areas) {
     this->item->setDisabled(!enabled);
     this->setEnabled(enabled);
     this->field->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->blockSignals(true);
+        this->field->setText(this->data.value.c_str());
+        this->field->blockSignals(false);
+    }
 }
 
 void WidgetSettingFrames::resizeEvent(QResizeEvent* event) {

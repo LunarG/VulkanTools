@@ -52,7 +52,9 @@ WidgetPreset::WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer
 void WidgetPreset::Refresh(RefreshAreas refresh_areas) {
     const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
+    this->field->blockSignals(true);
     this->field->setCurrentIndex(GetComboBoxIndex(preset_label.c_str()));
+    this->field->blockSignals(false);
 
     if (preset_label != Layer::NO_PRESET) {
         const LayerPreset* preset = GetPreset(layer.presets, preset_label.c_str());
