@@ -37,7 +37,7 @@ class WidgetSettingFilesystem : public WidgetSettingBase {
     explicit WidgetSettingFilesystem(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaFilesystem &meta,
                                      SettingDataSet &data_set);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void browseButtonClicked();

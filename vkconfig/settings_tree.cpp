@@ -125,7 +125,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 QTreeWidgetItem *presets_item = new QTreeWidgetItem();
                 layer_item->addChild(presets_item);
                 WidgetPreset *presets_combobox = new WidgetPreset(this->tree, presets_item, *layer, parameter);
-                this->connect(presets_combobox, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                this->connect(presets_combobox, SIGNAL(itemChanged()), this, SLOT(OnPresetChanged()));
             }
 
             if (parameter.key == "VK_LAYER_KHRONOS_validation") {
@@ -381,12 +381,16 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
     return index;
 }
 
-void SettingsTreeManager::OnSettingChanged() {
+void SettingsTreeManager::OnPresetChanged() { this->Refresh(REFRESH_ENABLE_AND_STATE); }
+
+void SettingsTreeManager::OnSettingChanged() { this->Refresh(REFRESH_ENABLE_ONLY); }
+
+void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     this->tree->blockSignals(true);
 
     QTreeWidgetItem *root_item = this->tree->invisibleRootItem();
     for (int i = 0, n = root_item->childCount(); i < n; ++i) {
-        this->UpdateItem(root_item->child(i));
+        this->RefreshItem(refresh_areas, root_item->child(i));
     }
 
     this->tree->blockSignals(false);
@@ -397,17 +401,17 @@ void SettingsTreeManager::OnSettingChanged() {
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 }
 
-void SettingsTreeManager::UpdateItem(QTreeWidgetItem *parent) {
+void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {
     QWidget *widget = this->tree->itemWidget(parent, 0);
     if (widget != nullptr) {
         WidgetSettingBase *widget_base = dynamic_cast<WidgetSettingBase *>(widget);
-        if (widget_base != nullptr) widget_base->Refresh();
+        if (widget_base != nullptr) widget_base->Refresh(refresh_areas);
     }
 
     for (int i = 0, n = parent->childCount(); i < n; ++i) {
         QTreeWidgetItem *child = parent->child(i);
         if (child == nullptr) continue;
 
-        this->UpdateItem(child);
+        this->RefreshItem(refresh_areas, child);
     }
 }

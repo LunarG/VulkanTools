@@ -61,7 +61,7 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 
-    this->Refresh();
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
 WidgetSettingFloat::~WidgetSettingFloat() {
@@ -69,7 +69,7 @@ WidgetSettingFloat::~WidgetSettingFloat() {
     this->timer_valid->stop();
 }
 
-void WidgetSettingFloat::Refresh() {
+void WidgetSettingFloat::Refresh(RefreshAreas refresh_areas) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);

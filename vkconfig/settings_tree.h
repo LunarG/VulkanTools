@@ -48,6 +48,7 @@ class SettingsTreeManager : QObject {
 
    public Q_SLOTS:
     void OnSettingChanged();
+    void OnPresetChanged();
 
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;
@@ -57,7 +58,8 @@ class SettingsTreeManager : QObject {
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildTreeItem(QTreeWidgetItem *parent, const SettingMetaSet &meta_set, SettingDataSet &data_set, const SettingMeta &meta);
 
-    void UpdateItem(QTreeWidgetItem *parent);
+    void Refresh(RefreshAreas refresh_areas);
+    void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
 
     QTreeWidget *tree;
     std::unique_ptr<WidgetSettingValidation> validation;

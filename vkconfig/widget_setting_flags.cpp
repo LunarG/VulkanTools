@@ -53,10 +53,10 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, c
     tree->setItemWidget(this->item, 0, this);
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
 
-    this->Refresh();
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
-void WidgetSettingFlag::Refresh() {
+void WidgetSettingFlag::Refresh(RefreshAreas refresh_areas) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);

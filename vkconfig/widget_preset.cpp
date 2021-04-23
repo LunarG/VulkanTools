@@ -42,14 +42,14 @@ WidgetPreset::WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer
     }
 
     // 'Refresh' need to be called before 'connect' to avoid triggering 'currentIndexChanged' in an infinite loop
-    this->Refresh();
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
     this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
 
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 }
 
-void WidgetPreset::Refresh() {
+void WidgetPreset::Refresh(RefreshAreas refresh_areas) {
     const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
     this->field->setCurrentIndex(GetComboBoxIndex(preset_label.c_str()));

@@ -35,7 +35,7 @@ class WidgetSettingListElement : public WidgetSettingBase {
     explicit WidgetSettingListElement(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaList& meta,
                                       SettingDataSet& data_set, EnabledNumberOrString& element);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnButtonClicked();

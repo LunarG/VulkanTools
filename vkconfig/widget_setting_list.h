@@ -38,7 +38,7 @@ class WidgetSettingList : public WidgetSettingBase {
    public:
     explicit WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, const SettingMetaList &meta, SettingDataSet &data_set);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnCompleted(const QString &value);

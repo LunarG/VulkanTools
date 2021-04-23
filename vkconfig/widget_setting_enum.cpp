@@ -36,21 +36,7 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
     assert(&meta);
     assert(&data);
 
-    int selection = 0;
-    for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
-        if (!IsPlatformSupported(this->meta.enum_values[i].platform_flags)) continue;
-        if (this->meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
-
-        this->field->addItem(this->meta.enum_values[i].label.c_str());
-        if (this->meta.enum_values[i].key == data.value) {
-            selection = static_cast<int>(this->enum_indexes.size());
-        }
-        this->enum_indexes.push_back(i);
-    }
-
-    this->field->setCurrentIndex(selection);
     this->field->show();
-    this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
 
     this->item->setText(0, this->meta.label.c_str());
     this->item->setFont(0, this->tree->font());
@@ -58,15 +44,35 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 
-    this->Refresh();
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
+
+    this->connect(this->field, SIGNAL(currentIndexChanged(int)), this, SLOT(OnIndexChanged(int)));
 }
 
-void WidgetSettingEnum::Refresh() {
+void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
     this->field->setEnabled(enabled);
     this->setEnabled(enabled);
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->field->clear();
+        this->enum_indexes.clear();
+
+        int selection = 0;
+        for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
+            if (!IsSupported(&this->meta.enum_values[i])) continue;
+
+            this->field->addItem(this->meta.enum_values[i].label.c_str());
+            if (this->meta.enum_values[i].key == data.value) {
+                selection = static_cast<int>(this->enum_indexes.size());
+            }
+            this->enum_indexes.push_back(i);
+        }
+
+        this->field->setCurrentIndex(selection);
+    }
 }
 
 void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
@@ -81,7 +87,7 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
     this->field->setGeometry(button_rect);
 }
 
-void WidgetSettingEnum::indexChanged(int index) {
+void WidgetSettingEnum::OnIndexChanged(int index) {
     assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
     this->data.value = this->meta.enum_values[enum_indexes[static_cast<std::size_t>(index)]].key;

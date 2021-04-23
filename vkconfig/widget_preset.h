@@ -36,7 +36,7 @@ class WidgetPreset : public WidgetSettingBase {
    public:
     explicit WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer& layer, Parameter& parameter);
 
-    void Refresh() override;
+    void Refresh(RefreshAreas refresh_areas) override;
 
    public Q_SLOTS:
     void OnPresetChanged(int combox_preset_index);

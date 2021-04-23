@@ -55,7 +55,7 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
     this->tree->setItemWidget(this->item, 0, this);
 }
 
-void WidgetSettingListElement::Refresh() {
+void WidgetSettingListElement::Refresh(RefreshAreas refresh_areas) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);

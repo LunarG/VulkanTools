@@ -58,10 +58,10 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     this->item_child->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     tree->setItemWidget(this->item_child, 0, this->field);
 
-    this->Refresh();
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
-void WidgetSettingFilesystem::Refresh() {
+void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
     const bool enabled = ::CheckDependence(this->meta, data_set);
 
     this->item->setDisabled(!enabled);
