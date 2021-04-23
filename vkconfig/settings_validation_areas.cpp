@@ -569,7 +569,7 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
 
         if (GetMetaFlag("enables", TOKEN_SHADER_GPU) != nullptr && GetMetaFlag("enables", TOKEN_SHADER_PRINTF) != nullptr) {
             const bool shader_enabled = this->widget_shader->isChecked() || shader_gpu || shader_printf;
-            if ((shader_gpu || shader_printf) && refresh_areas == REFRESH_ENABLE_AND_STATE) {
+            if (shader_enabled && refresh_areas == REFRESH_ENABLE_AND_STATE) {
                 this->widget_shader->setChecked(shader_gpu || shader_printf);
             }
 
@@ -611,7 +611,7 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
                 this->widget_debug_printf_size->setEnabled(shader_printf);
             }
         } else if (GetMetaFlag("enables", TOKEN_SHADER_GPU) != nullptr) {
-            if (shader_gpu && refresh_areas == REFRESH_ENABLE_AND_STATE) {
+            if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
                 this->widget_shader->setChecked(HasDataFlag("enables", TOKEN_SHADER_GPU));
             }
 
