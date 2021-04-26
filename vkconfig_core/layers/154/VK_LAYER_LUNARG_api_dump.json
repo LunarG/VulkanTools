@@ -48,7 +48,7 @@
                     },
                     {
                         "key": "log_filename",
-                        "value": "vk_apidump.txt"
+                        "value": "${LOCAL}/vk_apidump.txt"
                     },
                     {
                         "key": "file",
@@ -68,7 +68,7 @@
                     },
                     {
                         "key": "log_filename",
-                        "value": "vk_apidump.html"
+                        "value": "${LOCAL}/vk_apidump.html"
                     },
                     {
                         "key": "file",
@@ -88,7 +88,7 @@
                     },
                     {
                         "key": "log_filename",
-                        "value": "vk_apidump.json"
+                        "value": "${LOCAL}/vk_apidump.json"
                     },
                     {
                         "key": "file",
