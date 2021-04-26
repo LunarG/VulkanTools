@@ -8,7 +8,7 @@
             "MACOS"
         ],
         "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
-        "editor_state": "011100111111111111111111010111111111100111011111",
+        "editor_state": "011100111111111111111111010111111111100111111",
         "layers": [
             {
                 "name": "VK_LAYER_KHRONOS_validation",
