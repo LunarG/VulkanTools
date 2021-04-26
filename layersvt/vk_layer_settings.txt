@@ -143,6 +143,8 @@ lunarg_device_simulation.exit_on_error = 0
 #    FORMAT:
 #    =======
 #    <LayerIdentifer>.format : This can be set to a color space for the output.
+#    It must be one of the following values: "UNORM", "SNORM", "USCALED", "SSCALED",
+#    "UINT", "SINT", "SRGB" or "USE_SWAPCHAIN_COLORSPACE".
 
 # VK_LAYER_LUNARG_screenshot Settings
 lunarg_screenshot.frames = 0-0
