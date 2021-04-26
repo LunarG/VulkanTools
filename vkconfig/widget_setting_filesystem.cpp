@@ -87,17 +87,17 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     std::string file;
 
     const char* filter = this->meta.filter.c_str();
-    const char* path = this->data.value.c_str();
+    const std::string path = this->data.value.empty() ? ReplaceBuiltInVariable("${LOCAL}") : this->data.value.c_str();
 
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
-            file = QFileDialog::getOpenFileName(this->button, "Select file", path, filter).toStdString();
+            file = QFileDialog::getOpenFileName(this->button, "Select file", path.c_str(), filter).toStdString();
             break;
         case SETTING_SAVE_FILE:
-            file = QFileDialog::getSaveFileName(this->button, "Select File", path, filter).toStdString();
+            file = QFileDialog::getSaveFileName(this->button, "Select File", path.c_str(), filter).toStdString();
             break;
         case SETTING_SAVE_FOLDER:
-            file = QFileDialog::getExistingDirectory(this->button, "Select Folder", path).toStdString();
+            file = QFileDialog::getExistingDirectory(this->button, "Select Folder", path.c_str()).toStdString();
             break;
         default:
             assert(0);
