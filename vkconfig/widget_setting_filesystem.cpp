@@ -87,7 +87,7 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     std::string file;
 
     const char* filter = this->meta.filter.c_str();
-    const std::string path = this->data.value.empty() ? ReplaceBuiltInVariable("${LOCAL}") : this->data.value.c_str();
+    const std::string path = ReplaceBuiltInVariable(this->data.value.empty() ? "${LOCAL}" : this->data.value.c_str());
 
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
