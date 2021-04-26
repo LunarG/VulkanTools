@@ -16,8 +16,8 @@
 #
 #    OUTPUT_FORMAT:
 #    =========
-#    <LayerIdentifer>.output_format : Specifies the format used for output;
-#    can be Text (default -- outputs plain text) or Html.
+#    <LayerIdentifer>.output_format : Specifies the format used for output; 
+#    can be HTML, JSON, or  Text (default -- outputs plain text).
 #
 #    DETAILED:
 #    =========
