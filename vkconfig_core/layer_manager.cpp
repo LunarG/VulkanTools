@@ -116,9 +116,6 @@ void LayerManager::LoadAllInstalledLayers() {
     if (!vulkan_sdk.empty()) {
         LoadLayersFromPath(vulkan_sdk + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS));
     }
-
-    // FIFTH: load test layers in debug build
-    LoadLayersFromPath(":/layers/test");
 }
 
 /// Search a folder and load up all the layers found there. This does NOT
