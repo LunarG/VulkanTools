@@ -108,7 +108,7 @@ class Environment {
     Environment(PathManager& paths, const Version& api_version = Version::VKHEADER);
     ~Environment();
 
-    enum ResetMode { DEFAULT = 0, SYSTEM };
+    enum ResetMode { DEFAULT = 0, CLEAR, SYSTEM };
 
     bool Notify(Notification notification);
 

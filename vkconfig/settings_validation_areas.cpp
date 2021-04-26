@@ -27,10 +27,6 @@
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
 
-#include <QSettings>
-#include <QMessageBox>
-#include <QCheckBox>
-
 static const char *TOKEN_CORE = "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT";
 static const char *TOKEN_CORE_LAYOUT = "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION";
 static const char *TOKEN_CORE_CMD = "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE";
