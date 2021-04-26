@@ -289,13 +289,12 @@ void MainWindow::LoadConfigurationList() {
 
         ConfigurationListItem *item = new ConfigurationListItem(configuration.key);
         item->setToolTip(0, configuration.description.c_str());
-        ui->configuration_tree->addTopLevelItem(item);
         item->radio_button = new QRadioButton();
         item->radio_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         item->radio_button->setFixedSize(QSize(24, 24));
         item->radio_button->setToolTip(configuration.description.c_str());
-
         item->setFlags(item->flags() | Qt::ItemIsEditable);
+        ui->configuration_tree->addTopLevelItem(item);
         ui->configuration_tree->setItemWidget(item, 0, item->radio_button);
         connect(item->radio_button, SIGNAL(clicked(bool)), this, SLOT(OnConfigurationItemClicked(bool)));
     }
@@ -417,6 +416,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
+    configurator.environment.Reset(Environment::CLEAR);
     configurator.environment.ClearCustomLayerPath();
     configurator.configurations.ResetDefaultsConfigurations(configurator.layers.available_layers);
 
