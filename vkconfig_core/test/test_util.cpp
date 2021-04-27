@@ -252,6 +252,16 @@ TEST(test_util, number_or_string_ctr) {
     EXPECT_EQ(expected2, NumberOrString(76));
 }
 
+TEST(test_util, number_or_string_cmp) {
+    EXPECT_TRUE(NumberOrString("B") < NumberOrString("C"));
+    EXPECT_FALSE(NumberOrString("D") < NumberOrString("C"));
+    EXPECT_FALSE(NumberOrString("C") < NumberOrString("C"));
+
+    EXPECT_TRUE(NumberOrString(76) < NumberOrString(82));
+    EXPECT_FALSE(NumberOrString(76) < NumberOrString(75));
+    EXPECT_FALSE(NumberOrString(76) < NumberOrString(76));
+}
+
 TEST(test_util, enabled_number_or_string_ctr) {
     EnabledNumberOrString expected0;
     expected0.key = "key";
@@ -309,6 +319,7 @@ TEST(test_util, enabled_number_or_string_equal) {
     expected2A.enabled = true;
 
     EXPECT_EQ(expected2A, EnabledNumberOrString(76));
+    EXPECT_EQ(expected2A, expected1A);
 
     EnabledNumberOrString expected2B;
     expected2B.key = "";
@@ -317,4 +328,15 @@ TEST(test_util, enabled_number_or_string_equal) {
 
     EXPECT_EQ(expected2B, EnabledNumberOrString(76));
     EXPECT_EQ(expected2B, expected2A);
+    EXPECT_EQ(expected2B, expected1B);
+}
+
+TEST(test_util, enabled_number_or_string_cmp) {
+    EXPECT_TRUE(EnabledNumberOrString("B") < EnabledNumberOrString("C"));
+    EXPECT_FALSE(EnabledNumberOrString("D") < EnabledNumberOrString("C"));
+    EXPECT_FALSE(EnabledNumberOrString("C") < EnabledNumberOrString("C"));
+
+    EXPECT_TRUE(EnabledNumberOrString(76) < EnabledNumberOrString(82));
+    EXPECT_FALSE(EnabledNumberOrString(76) < EnabledNumberOrString(75));
+    EXPECT_FALSE(EnabledNumberOrString(76) < EnabledNumberOrString(76));
 }
