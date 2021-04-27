@@ -29,7 +29,7 @@
                     },
                     {
                         "key": "filename",
-                        "value": "$[VULKAN_CONTENT]/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
+                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
                     }
                 ]
             },
@@ -45,7 +45,7 @@
                     },
                     {
                         "key": "filename",
-                        "value": "$[VULKAN_CONTENT]/VK_LAYER_LUNARG_device_simulation/iOS_gpu_family_3_portability.json"
+                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/iOS_gpu_family_3_portability.json"
                     }
                 ]
             },
@@ -61,7 +61,7 @@
                     },
                     {
                         "key": "filename",
-                        "value": "$[VULKAN_CONTENT]/VK_LAYER_LUNARG_device_simulation/iOS_gpu_family_5_portability.json"
+                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/iOS_gpu_family_5_portability.json"
                     }
                 ]
             }
@@ -74,7 +74,7 @@
                 "description": "Path of a devsim configuration file to load.",
                 "type": "LOAD_FILE",
                 "filter": "*.json",
-                "default": "$[VULKAN_CONTENT]/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
+                "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
             },
             {
                 "key": "debug_enable",
