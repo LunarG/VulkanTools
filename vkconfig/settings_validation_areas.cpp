@@ -27,6 +27,9 @@
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
 
+#include <QSettings>
+#include <QMessageBox>
+
 static const char *TOKEN_CORE = "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT";
 static const char *TOKEN_CORE_LAYOUT = "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION";
 static const char *TOKEN_CORE_CMD = "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE";
@@ -317,6 +320,11 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
 }
 
 void WidgetSettingValidation::OnCoreChecked(bool checked) {
+    if (checked && !CheckOverhead(OVERHEAD_CORE)) {
+        this->widget_core->setChecked(false);
+        return;
+    }
+
     if (!checked)
         this->UpdateFlag("disables", TOKEN_CORE, true);
     else {
@@ -352,124 +360,183 @@ void WidgetSettingValidation::OnCoreChecked(bool checked) {
         widget_core_push->setChecked(!HasDataFlag("disables", TOKEN_CORE_PUSH));
     }
 
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnCoreLayoutChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_LAYOUT, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnCoreCommandChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_CMD, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnCoreObjectChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_OBJECT, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnCoreQueryChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_QUERY, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnCoreDescChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_DESC, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnCoreShaderChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_SHADER, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnCorePushChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_PUSH, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnMiscThreadChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_MISC_THREAD, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnMiscUniqueChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_MISC_UNIQUE, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnMiscLifetimesChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_MISC_LIFETIMES, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnMiscParamChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_MISC_PARAM, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderBasedChecked(bool checked) {
+    if (checked && !CheckOverhead(OVERHEAD_SHADER)) {
+        this->widget_shader->setChecked(false);
+        return;
+    }
+
     if (!checked) {
         this->UpdateFlag("enables", TOKEN_SHADER_GPU, false);
-        this->UpdateFlag("enables", TOKEN_SHADER_PRINTF, false);
-    } else if (this->widget_shader_gpu->isChecked()) {
-        this->UpdateFlag("enables", TOKEN_SHADER_GPU, true);
         this->UpdateFlag("enables", TOKEN_SHADER_PRINTF, false);
     } else if (this->widget_shader_printf->isChecked()) {
         this->UpdateFlag("enables", TOKEN_SHADER_GPU, false);
         this->UpdateFlag("enables", TOKEN_SHADER_PRINTF, true);
+    } else {
+        if (!this->widget_shader_gpu->isChecked()) this->widget_shader_gpu->setChecked(true);
+        this->UpdateFlag("enables", TOKEN_SHADER_GPU, true);
+        this->UpdateFlag("enables", TOKEN_SHADER_PRINTF, false);
     }
 
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderGPUChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_SHADER_GPU, checked);
     this->UpdateFlag("enables", TOKEN_SHADER_PRINTF, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderGPUReserveChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_SHADER_GPU_RESERVE, checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderGPUOOBChecked(bool checked) {
     this->data_set.Get<SettingDataBool>("gpuav_buffer_oob")->value = checked;
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderPrintfChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_SHADER_PRINTF, checked);
     this->UpdateFlag("enables", TOKEN_SHADER_GPU, !checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderPrintfStdoutChecked(bool checked) {
     this->data_set.Get<SettingDataBool>("printf_to_stdout")->value = checked;
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderPrintfVerboseChecked(bool checked) {
     this->data_set.Get<SettingDataBool>("printf_verbose")->value = checked;
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnSyncChecked(bool checked) {
+    if (checked && !CheckOverhead(OVERHEAD_SYNC)) {
+        this->widget_sync->setChecked(false);
+        return;
+    }
+
     this->UpdateFlag("enables", TOKEN_SYNC, checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnBestChecked(bool checked) {
+    if (checked && !CheckOverhead(OVERHEAD_BEST)) {
+        this->widget_best->setChecked(false);
+        return;
+    }
+
     this->UpdateFlag("enables", TOKEN_BEST, checked);
-    emit itemChanged();
+    this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnBestArmChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_BEST_ARM, checked);
-    emit itemChanged();
+    this->OnSettingChanged();
+}
+
+bool WidgetSettingValidation::CheckOverhead(Overhead candidate) const {
+    QSettings settings;
+    if (settings.value("VKCONFIG_WARN_CORE_SHADER_IGNORE").toBool() == false) {
+        const bool features_to_run_alone[] = {
+            this->widget_core != nullptr ? this->widget_core->isChecked() || candidate == OVERHEAD_CORE : false,
+            this->widget_shader != nullptr ? this->widget_shader->isChecked() || candidate == OVERHEAD_SHADER : false,
+            this->widget_sync != nullptr ? this->widget_sync->isChecked() || candidate == OVERHEAD_SYNC : false,
+            this->widget_best != nullptr ? this->widget_best->isChecked() || candidate == OVERHEAD_BEST : false};
+
+        static const char *LABELS[]{
+            "<i>Core Validation</i>",             // OVERHEAD_CORE
+            "<i>Shader Based Validation</i>",     // OVERHEAD_SHADER
+            "<i>Synchronization Validation</i>",  // OVERHEAD_SYNC
+            "<i>Best Practices Warnings</i>"      // OVERHEAD_BEST
+        };
+        static_assert(countof(LABELS) == OVERHEAD_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+        int count_enabled_features = 0;
+        for (std::size_t i = 0, n = countof(features_to_run_alone); i < n; ++i)
+            count_enabled_features += features_to_run_alone[i] ? 1 : 0;
+
+        if (count_enabled_features > 1) {
+            QMessageBox alert(this->tree);
+            alert.setWindowTitle("High Validation Layer Overhead");
+            alert.setText(format("Using %s, %s, %s and %s simultanously results in high performance degradation.",
+                                 LABELS[OVERHEAD_CORE], LABELS[OVERHEAD_SHADER], LABELS[OVERHEAD_SYNC], LABELS[OVERHEAD_BEST])
+                              .c_str());
+            alert.setInformativeText(format("Do you want to add %s anyway?", LABELS[candidate]).c_str());
+            alert.setIcon(QMessageBox::Warning);
+            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            alert.setDefaultButton(QMessageBox::Yes);
+            alert.setCheckBox(new QCheckBox("Do not show again."));
+            const bool result = alert.exec() == QMessageBox::Yes;
+            if (alert.checkBox()->isChecked()) {
+                settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", true);
+            }
+            return result;
+        }
+    }
+
+    return true;
 }
 
 void WidgetSettingValidation::OnSettingChanged() { emit itemChanged(); }

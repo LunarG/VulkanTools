@@ -22,6 +22,7 @@
 - Add layer settings UI inputs checking
 - Add API dump presets #1414
 - Add validation layer VUIDs loading from Vulkan Header to keep it up to date #1434
+- Improve 'High Validation Layer Overhead' warning UI
 
 ### Fixes:
 - Hide 'Callback' from validation layer 'Debug Action' debug action that is NOOP
