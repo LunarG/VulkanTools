@@ -380,7 +380,7 @@
                         "key": "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT",
                         "label": "Synchronization",
                         "description": "This feature reports resource access conflicts due to missing or incorrect synchronization operations between actions (Draw, Copy, Dispatch, Blit) reading or writing the same regions of memory.",
-                        "url": "$[LUNARG_SDK]/synchronization_usage.html",
+                        "url": "${LUNARG_SDK}/synchronization_usage.html",
                         "status": "STABLE",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
@@ -388,7 +388,7 @@
                         "key": "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT",
                         "label": "Debug Printf",
                         "description": "Enables processing of debug printf instructions in shaders and sending debug strings to the debug callback",
-                        "url": "$[LUNARG_SDK]/debug_printf.html",
+                        "url": "${LUNARG_SDK}/debug_printf.html",
                         "status": "STABLE",
                         "platforms": [ "WINDOWS", "LINUX" ],
                         "settings": [
@@ -451,7 +451,7 @@
                         "key": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
                         "label": "GPU-Assisted",
                         "description": "Check for API usage errors at shader execution time",
-                        "url": "$[LUNARG_SDK]/gpu_validation.html",
+                        "url": "${LUNARG_SDK}/gpu_validation.html",
                         "platforms": [ "WINDOWS", "LINUX" ],
                         "settings": [
                             {
@@ -482,7 +482,7 @@
                         "key": "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT",
                         "label": "Best Practices",
                         "description": "Activating this feature enables the output of warnings related to common misuse of the API, but which are not explicitly prohibited by the specification.",
-                        "url": "$[LUNARG_SDK]/best_practices.html",
+                        "url": "${LUNARG_SDK}/best_practices.html",
                         "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
                     },
                     {
