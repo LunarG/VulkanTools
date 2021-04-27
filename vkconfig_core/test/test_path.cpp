@@ -31,22 +31,46 @@
 // Test that GetPath return the home directory when the stored path is empty
 TEST(test_util, get_path) { EXPECT_STRNE(GetPath(BUILTIN_PATH_HOME).c_str(), ""); }
 
+TEST(test_util, replace_path_local) {
+    const std::string replaced_path = ReplaceBuiltInVariable("$[LOCAL]/test.txt");
+
+    EXPECT_TRUE(replaced_path.find("$[LOCAL]") > replaced_path.size());
+}
+
+TEST(test_util, replace_path_local_legacy) {
+    const std::string replaced_path = ReplaceBuiltInVariable("${LOCAL}/test.txt");
+
+    EXPECT_TRUE(replaced_path.find("${LOCAL}") > replaced_path.size());
+}
+
 TEST(test_util, replace_path_home) {
+    const std::string replaced_path = ReplaceBuiltInVariable("$[HOME]/test.txt");
+
+    EXPECT_TRUE(replaced_path.find("$[HOME]") > replaced_path.size());
+}
+
+TEST(test_util, replace_path_legacy) {
     const std::string replaced_path = ReplaceBuiltInVariable("${HOME}/test.txt");
 
     EXPECT_TRUE(replaced_path.find("${HOME}") > replaced_path.size());
 }
 
 TEST(test_util, replace_path_vulkan_sdk) {
+    const std::string replaced_path = ReplaceBuiltInVariable("$[VULKAN_SDK]/test.txt");
+
+    EXPECT_TRUE(replaced_path.find("$[VULKAN_SDK]") > replaced_path.size());
+}
+
+TEST(test_util, replace_path_vulkan_sdk_legacy) {
     const std::string replaced_path = ReplaceBuiltInVariable("${VULKAN_SDK}/test.txt");
 
     EXPECT_TRUE(replaced_path.find("${VULKAN_SDK}") > replaced_path.size());
 }
 
 TEST(test_util, replace_path_unknown) {
-    const std::string replaced_path = ReplaceBuiltInVariable("${UNKNOWN}/test.txt");
+    const std::string replaced_path = ReplaceBuiltInVariable("$[UNKNOWN]/test.txt");
 
-    EXPECT_STREQ("${UNKNOWN}/test.txt", replaced_path.c_str());
+    EXPECT_STREQ("$[UNKNOWN]/test.txt", replaced_path.c_str());
 }
 
 TEST(test_util, convert_native_separator_empty) {
