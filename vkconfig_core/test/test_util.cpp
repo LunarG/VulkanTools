@@ -262,6 +262,28 @@ TEST(test_util, number_or_string_cmp) {
     EXPECT_FALSE(NumberOrString(76) < NumberOrString(76));
 }
 
+TEST(test_util, number_or_string_list) {
+    std::vector<NumberOrString> list;
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(75)));
+    EXPECT_EQ(0, list.size());
+
+    AppendValue(list, NumberOrString(76));
+    EXPECT_TRUE(IsValueFound(list, NumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(75)));
+    EXPECT_EQ(1, list.size());
+
+    AppendValue(list, NumberOrString(76));
+    EXPECT_TRUE(IsValueFound(list, NumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(75)));
+    EXPECT_EQ(1, list.size());
+
+    RemoveValue(list, NumberOrString(76));
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(75)));
+    EXPECT_EQ(0, list.size());
+}
+
 TEST(test_util, enabled_number_or_string_ctr) {
     EnabledNumberOrString expected0;
     expected0.key = "key";
@@ -339,4 +361,35 @@ TEST(test_util, enabled_number_or_string_cmp) {
     EXPECT_TRUE(EnabledNumberOrString(76) < EnabledNumberOrString(82));
     EXPECT_FALSE(EnabledNumberOrString(76) < EnabledNumberOrString(75));
     EXPECT_FALSE(EnabledNumberOrString(76) < EnabledNumberOrString(76));
+}
+
+TEST(test_util, enabled_number_or_string_list) {
+    std::vector<EnabledNumberOrString> list;
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(76)));
+    EXPECT_EQ(0, list.size());
+
+    list.push_back(EnabledNumberOrString(76));
+    EXPECT_TRUE(IsValueFound(list, NumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, NumberOrString(75)));
+    EXPECT_EQ(1, list.size());
+}
+
+TEST(test_util, enabled_number_or_string_convert) {
+    std::vector<NumberOrString> list;
+    AppendValue(list, NumberOrString(76));
+    AppendValue(list, NumberOrString(75));
+    AppendValue(list, NumberOrString("key"));
+    AppendValue(list, NumberOrString(82));
+    EXPECT_EQ(4, list.size());
+
+    QStringList qlist = ConvertValues(list);
+    EXPECT_EQ(4, qlist.size());
+
+    QStringList expected;
+    expected.push_back("76");
+    expected.push_back("75");
+    expected.push_back("key");
+    expected.push_back("82");
+
+    EXPECT_EQ(expected, qlist);
 }
