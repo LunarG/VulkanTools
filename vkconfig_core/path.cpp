@@ -85,17 +85,25 @@ struct BuiltinDesc {
 };
 
 std::string ReplaceBuiltInVariable(const std::string& path) {
-    static const BuiltinDesc VARIABLES[] = {{BUILTIN_PATH_HOME, "$[HOME]"},
-                                            {BUILTIN_PATH_HOME, "${HOME}"},
-                                            {BUILTIN_PATH_LOCAL, "$[LOCAL]"},
-                                            {BUILTIN_PATH_LOCAL, "${LOCAL}"},
-                                            {BUILTIN_PATH_VULKAN_SDK, "$[VULKAN_SDK]"},
-                                            {BUILTIN_PATH_VULKAN_SDK, "${VULKAN_SDK}"},
-                                            {BUILTIN_PATH_VULKAN_LAYER_CONFIG, "$[VULKAN_CONTENT]"},
-                                            {BUILTIN_PATH_VULKAN_LAYER_CONFIG, "${VULKAN_CONTENT}"}};
+    static const BuiltinDesc VARIABLES[] = {
+        {BUILTIN_PATH_HOME, "$[HOME]"},
+        {BUILTIN_PATH_LOCAL, "$[LOCAL]"},
+        {BUILTIN_PATH_VULKAN_SDK, "$[VULKAN_SDK]"},
+        {BUILTIN_PATH_VULKAN_LAYER_CONFIG, "$[VULKAN_CONTENT]"},
+#if SUPPORT_LAYER_CONFIG_2_2_0
+        {BUILTIN_PATH_HOME, "${HOME}"},
+        {BUILTIN_PATH_LOCAL, "${LOCAL}"},
+        {BUILTIN_PATH_VULKAN_SDK, "${VULKAN_SDK}"},
+        {BUILTIN_PATH_VULKAN_LAYER_CONFIG, "${VULKAN_CONTENT}"}
+#endif  // SUPPORT_LAYER_CONFIG_2_2_0
+    };
 
+#if SUPPORT_LAYER_CONFIG_2_2_0
     static_assert(countof(VARIABLES) == BUILTIN_PATH_COUNT * 2,
                   "The tranlation table size doesn't match the enum number of elements");
+#else
+    static_assert(countof(VARIABLES) == BUILTIN_PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
+#endif  // SUPPORT_LAYER_CONFIG_2_2_0
 
     for (std::size_t i = 0, n = countof(VARIABLES); i < n; ++i) {
         const std::size_t found = path.find(VARIABLES[i].name);
