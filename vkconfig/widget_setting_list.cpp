@@ -187,14 +187,6 @@ void WidgetSettingList::OnElementAppended() {
     const QString entry = this->field->text();
     if (entry.isEmpty()) return;
 
-    const std::string string_value = entry.toStdString();
-    const bool is_number = IsNumber(string_value);
-
-    EnabledNumberOrString value;
-    value.key = is_number ? "" : string_value;
-    value.number = is_number ? std::atoi(string_value.c_str()) : 0;
-    value.enabled = true;
-
     if (this->meta.list_only && !IsValueFound(this->meta.list, value)) {
         QMessageBox alert;
         alert.setWindowTitle("Invalid value");
@@ -244,17 +236,11 @@ void WidgetSettingList::OnTextEdited(const QString &value) {
 
 void WidgetSettingList::OnElementRemoved(const QString &element) {
     const std::string string_value = element.toStdString();
-    const bool is_number = IsNumber(string_value);
 
-    NumberOrString list_value;
-    list_value.key = is_number ? "" : string_value;
-    list_value.number = is_number ? std::atoi(string_value.c_str()) : 0;
+    NumberOrString list_value(element.toStdString());
     this->list.push_back(list_value);
 
-    EnabledNumberOrString data_value;
-    data_value.key = list_value.key;
-    data_value.number = list_value.number;
-    data_value.enabled = true;
+    EnabledNumberOrString data_value(list_value);
 
     for (auto it = this->data.value.begin(), end = this->data.value.end(); it != end; ++it) {
         if (*it == data_value) {
