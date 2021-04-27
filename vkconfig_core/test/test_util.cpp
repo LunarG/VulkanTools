@@ -192,6 +192,17 @@ TEST(test_util, is_number) {
     EXPECT_EQ(false, IsNumber("$%#&@()-_[]{}"));
 }
 
+TEST(test_util, is_float) {
+    EXPECT_EQ(true, IsFloat("1.0"));
+    EXPECT_EQ(true, IsFloat("-1.0"));
+    EXPECT_EQ(true, IsFloat("1"));
+    EXPECT_EQ(true, IsFloat("-1"));
+    EXPECT_EQ(true, IsFloat("1."));
+    EXPECT_EQ(true, IsFloat("-1."));
+    EXPECT_EQ(false, IsFloat("1.0f"));
+    EXPECT_EQ(false, IsFloat("-1.0f"));
+}
+
 TEST(test_util, is_frames) {
     EXPECT_EQ(true, IsFrames("0"));
     EXPECT_EQ(true, IsFrames("0-2"));
