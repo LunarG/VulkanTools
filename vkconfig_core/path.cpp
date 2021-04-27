@@ -95,7 +95,7 @@ std::string ReplaceBuiltInVariable(const std::string& path) {
     for (std::size_t i = 0, n = countof(VARIABLES); i < n; ++i) {
         const std::size_t found = path.find(VARIABLES[i].name);
         if (found < path.size()) {
-            assert(found == 0);  // The home variable must be first in the path
+            assert(found == 0);  // The builtin variable must be first part of the path
             const std::size_t offset = found + std::strlen(VARIABLES[i].name);
             const std::string replaced_path = GetPath(VARIABLES[i].type) + path.substr(found + offset, path.size() - offset);
             return ConvertNativeSeparators(replaced_path);
