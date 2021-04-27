@@ -231,8 +231,6 @@ void WidgetSettingList::OnTextEdited(const QString &value) {
     assert(this->add_button);
     assert(this->field);
 
-    // this->tree->blockSignals(true);
-
     if (value.isEmpty()) {
         this->item->setText(0, (this->meta.label + "  ").c_str());
     } else if (value.size() == 1) {
@@ -242,10 +240,6 @@ void WidgetSettingList::OnTextEdited(const QString &value) {
     this->Resize();
 
     this->add_button->setEnabled(!value.isEmpty());
-
-    // this->tree->blockSignals(false);
-
-    // this->field->setFocus();
 }
 
 void WidgetSettingList::OnElementRemoved(const QString &element) {
