@@ -152,6 +152,20 @@ class WidgetSettingValidation : public WidgetSettingBase {
     WidgetSettingValidation(const WidgetSettingValidation &) = delete;
     WidgetSettingValidation &operator=(const WidgetSettingValidation &) = delete;
 
+    enum Overhead {
+        OVERHEAD_CORE = 0,
+        OVERHEAD_SHADER,
+        OVERHEAD_SYNC,
+        OVERHEAD_BEST,
+
+        OVERHEAD_FIRST = OVERHEAD_CORE,
+        OVERHEAD_LAST = OVERHEAD_BEST,
+    };
+
+    enum { OVERHEAD_COUNT = OVERHEAD_LAST - OVERHEAD_FIRST + 1 };
+
+    bool CheckOverhead(Overhead candidate) const;
+
     void UpdateFlag(const char *key, const char *flag, bool append);
     bool HasDataBool(const char *key) const;
     bool HasDataFlag(const char *key, const char *flag) const;

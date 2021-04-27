@@ -229,6 +229,7 @@ void Environment::Reset(ResetMode mode) {
             settings.setValue("VKCONFIG_WIDGET_SETTING_FLOAT", false);
             settings.setValue("VKCONFIG_WIDGET_SETTING_FRAMES", false);
             settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", false);
+            settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", false);
 
             settings.setValue("overrideActive", false);
             settings.setValue("applyOnlyToList", false);
