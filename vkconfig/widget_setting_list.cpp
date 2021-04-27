@@ -65,6 +65,7 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     this->field->setFont(this->tree->font());
     this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->installEventFilter(this);
+    this->ResetCompleter();
 
     this->connect(this->field, SIGNAL(textChanged(const QString &)), this, SLOT(OnTextEdited(const QString &)));
     this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(OnElementAppended()), Qt::QueuedConnection);
@@ -115,8 +116,6 @@ void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
         for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
             this->AddElement(this->data.value[i]);
         }
-
-        this->ResetCompleter();
 
         this->tree->blockSignals(false);
     }
