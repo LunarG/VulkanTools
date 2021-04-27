@@ -88,19 +88,19 @@ set(VulkanHeaders_main_header ${VulkanHeaders_INCLUDE_DIR}/vulkan/vulkan_core.h)
 file(STRINGS
         ${VulkanHeaders_main_header}
         VulkanHeader_lines
-        REGEX "^#define (VK_API_VERSION.*VK_MAKE_VERSION|VK_HEADER_VERSION)")
+        REGEX "^#define VK_HEADER_VERSION(_COMPLETE)? ")
 
 foreach(VulkanHeader_line ${VulkanHeader_lines})
 
     # First, handle the case where we have a major/minor version
     #   Format is:
-    #        #define VK_API_VERSION_X_Y VK_MAKE_VERSION(X, Y, 0)
+    #        #define VK_HEADER_VERSION_COMPLETE VK_MAKE_API_VERSION(0, X, Y, VK_HEADER_VERSION)
     #   We grab the major version (X) and minor version (Y) out of the parentheses
-    string(REGEX MATCH "VK_MAKE_VERSION\\(.*\\)" VulkanHeaders_out ${VulkanHeader_line})
+    string(REGEX MATCH "VK_HEADER_VERSION_COMPLETE VK_MAKE_API_VERSION\\(.*\\)" VulkanHeaders_out ${VulkanHeader_line})
     string(REGEX MATCHALL "[0-9]+" VulkanHeaders_MAJOR_MINOR "${VulkanHeaders_out}")
     if (VulkanHeaders_MAJOR_MINOR)
-        list (GET VulkanHeaders_MAJOR_MINOR 0 VulkanHeaders_cur_major)
-        list (GET VulkanHeaders_MAJOR_MINOR 1 VulkanHeaders_cur_minor)
+        list (GET VulkanHeaders_MAJOR_MINOR 1 VulkanHeaders_cur_major)
+        list (GET VulkanHeaders_MAJOR_MINOR 2 VulkanHeaders_cur_minor)
         if (${VulkanHeaders_cur_major} GREATER ${VulkanHeaders_VERSION_MAJOR})
             set(VulkanHeaders_VERSION_MAJOR ${VulkanHeaders_cur_major})
             set(VulkanHeaders_VERSION_MINOR ${VulkanHeaders_cur_minor})
