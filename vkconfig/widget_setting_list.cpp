@@ -184,14 +184,13 @@ void WidgetSettingList::OnCompleted(const QString &value) {
 }
 
 void WidgetSettingList::OnElementAppended() {
-    const QString entry = this->field->text();
-    if (entry.isEmpty()) return;
+    const std::string entry = this->field->text().toStdString();
+    if (entry.empty()) return;
 
-    if (this->meta.list_only && !IsValueFound(this->meta.list, value)) {
+    if (this->meta.list_only && !IsValueFound(this->meta.list, entry)) {
         QMessageBox alert;
         alert.setWindowTitle("Invalid value");
-        alert.setText(
-            format("'%s' setting doesn't accept '%s' as a value", this->meta.label.c_str(), entry.toStdString().c_str()).c_str());
+        alert.setText(format("'%s' setting doesn't accept '%s' as a value", this->meta.label.c_str(), entry.c_str()).c_str());
         alert.setInformativeText("Please select a value from the list.");
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
@@ -199,12 +198,10 @@ void WidgetSettingList::OnElementAppended() {
     }
 
     // Add the value if it's not in the list already
-    if (IsValueFound(this->data.value, value)) {
+    if (IsValueFound(this->data.value, entry)) {
         QMessageBox alert;
         alert.setWindowTitle("Duplicated value");
-        alert.setText(
-            format("'%s' setting already has the value '%s' listed", this->meta.label.c_str(), entry.toStdString().c_str())
-                .c_str());
+        alert.setText(format("'%s' setting already has the value '%s' listed", this->meta.label.c_str(), entry.c_str()).c_str());
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return;
@@ -212,9 +209,9 @@ void WidgetSettingList::OnElementAppended() {
 
     this->field->setText("");
 
-    this->data.value.push_back(value);
+    this->data.value.push_back(entry);
     std::sort(this->data.value.begin(), this->data.value.end());
-    ::RemoveValue(this->list, value);
+    ::RemoveValue(this->list, entry);
 
     emit itemChanged();
 }
