@@ -221,7 +221,7 @@ void WidgetSettingList::OnTextEdited(const QString &value) {
 
     if (value.isEmpty()) {
         this->item->setText(0, (this->meta.label + "  ").c_str());
-    } else if (value.size() == 1) {
+    } else if (value.size() >= 1 && !this->item->text(0).isEmpty()) {
         this->item->setText(0, "");
     }
 
