@@ -46,6 +46,9 @@
 
 #include <cassert>
 
+static const char *TOOLTIP_ORDER =
+    "Layers are executed between the Vulkan application and driver the specific order represented here";
+
 SettingsTreeManager::SettingsTreeManager() : tree(nullptr) {}
 
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
@@ -81,6 +84,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         if (overridden_layer_count > 1) {
             QTreeWidgetItem *item = new QTreeWidgetItem();
             item->setText(0, "Vulkan Applications");
+            item->setToolTip(0, TOOLTIP_ORDER);
             item->setTextAlignment(0, Qt::AlignCenter);
             item->setFont(0, font_section);
             item->setDisabled(true);
@@ -138,6 +142,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         if (overridden_layer_count > 1) {
             QTreeWidgetItem *item = new QTreeWidgetItem();
             item->setText(0, "Vulkan Drivers");
+            item->setToolTip(0, TOOLTIP_ORDER);
             item->setTextAlignment(0, Qt::AlignCenter);
             item->setFont(0, font_section);
             item->setDisabled(true);
@@ -151,6 +156,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             // The last item is just the excluded layers
             QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
             excluded_layers->setText(0, "Excluded Layers:");
+            excluded_layers->setToolTip(0, "The following layers won't be executed.");
             excluded_layers->setFont(0, font_section);
             excluded_layers->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             this->tree->addTopLevelItem(excluded_layers);
