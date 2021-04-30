@@ -206,10 +206,6 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
         this->url = ReadStringValue(json_layer_object, "url");
     }
 
-    // Load default layer json file if necessary
-    const bool is_missing_layer_data =
-        json_layer_object.value("settings") == QJsonValue::Undefined || json_layer_object.value("presets") == QJsonValue::Undefined;
-
     if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
         if (!is_builtin_layer_file || (is_builtin_layer_file && this->api_version >= Version(1, 2, 170))) {
             AlertInvalidLayer(full_path_to_file, validator.message.toStdString());
@@ -217,44 +213,49 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
         }
     }
 
+    // Load default layer json file if necessary
+    const QJsonValue& json_features_value = json_layer_object.value("features");
+    const bool is_missing_layer_data = json_layer_object.value("features") == QJsonValue::Undefined;
+
     Layer default_layer;
-    if (is_missing_layer_data && !is_builtin_layer_file) {
+    if (json_features_value == QJsonValue::Undefined && !is_builtin_layer_file) {
         const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
         default_layer.Load(available_layers, path, this->type);
-    }
-
-    // Load layer settings
-    const QJsonValue& json_settings_value = json_layer_object.value("settings");
-    if (json_settings_value != QJsonValue::Undefined) {
-        this->AddSettingsSet(this->settings, json_settings_value);
-    } else {
-        this->settings = default_layer.settings;
         this->status = default_layer.status;
-    }
+        this->settings = default_layer.settings;
+        this->presets = default_layer.presets;
+    } else if (json_features_value != QJsonValue::Undefined) {
+        const QJsonObject& json_features_object = json_features_value.toObject();
 
-    // Load layer presets
-    const QJsonValue& json_presets_value = json_layer_object.value("presets");
-    if (json_presets_value != QJsonValue::Undefined) {
-        assert(json_presets_value.isArray());
-        const QJsonArray& json_preset_array = json_presets_value.toArray();
-        for (int preset_index = 0, preset_count = json_preset_array.size(); preset_index < preset_count; ++preset_index) {
-            const QJsonObject& json_preset_object = json_preset_array[preset_index].toObject();
-
-            LayerPreset preset;
-            LoadMetaHeader(preset, json_preset_object);
-
-            const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
-            for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count; ++setting_index) {
-                this->AddSettingData(preset.settings, json_setting_array[setting_index]);
-            }
-
-            presets.push_back(preset);
+        // Load layer settings
+        const QJsonValue& json_settings_value = json_features_object.value("settings");
+        if (json_settings_value != QJsonValue::Undefined) {
+            this->AddSettingsSet(this->settings, json_settings_value);
         }
-    } else {
-        presets = default_layer.presets;
+
+        // Load layer presets
+        const QJsonValue& json_presets_value = json_features_object.value("presets");
+        if (json_presets_value != QJsonValue::Undefined) {
+            assert(json_presets_value.isArray());
+            const QJsonArray& json_preset_array = json_presets_value.toArray();
+            for (int preset_index = 0, preset_count = json_preset_array.size(); preset_index < preset_count; ++preset_index) {
+                const QJsonObject& json_preset_object = json_preset_array[preset_index].toObject();
+
+                LayerPreset preset;
+                LoadMetaHeader(preset, json_preset_object);
+
+                const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
+                for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count;
+                     ++setting_index) {
+                    this->AddSettingData(preset.settings, json_setting_array[setting_index]);
+                }
+
+                presets.push_back(preset);
+            }
+        }
     }
 
-    return IsValid();  // Not all JSON file are layer JSON valid
+    return this->IsValid();  // Not all JSON file are layer JSON valid
 }
 
 static QString ReadAll(const std::string& path) {
