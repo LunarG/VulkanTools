@@ -73,6 +73,9 @@ void WidgetSettingListElement::Refresh(RefreshAreas refresh_areas) {
 void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
     const QSize parent_size = event->size();
 
+    const QRect field_rect = QRect(0, 0, parent_size.width() - MIN_BUTTON_SIZE, parent_size.height());
+    this->field->setGeometry(field_rect);
+
     const QRect button_rect = QRect(parent_size.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, parent_size.height());
     this->button->setGeometry(button_rect);
 }
