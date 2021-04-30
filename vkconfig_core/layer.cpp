@@ -215,7 +215,6 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
 
     // Load default layer json file if necessary
     const QJsonValue& json_features_value = json_layer_object.value("features");
-    const bool is_missing_layer_data = json_layer_object.value("features") == QJsonValue::Undefined;
 
     Layer default_layer;
     if (json_features_value == QJsonValue::Undefined && !is_builtin_layer_file) {
@@ -250,7 +249,7 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
                     this->AddSettingData(preset.settings, json_setting_array[setting_index]);
                 }
 
-                presets.push_back(preset);
+                this->presets.push_back(preset);
             }
         }
     }
