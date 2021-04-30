@@ -47,7 +47,7 @@
 #include <cassert>
 
 static const char *TOOLTIP_ORDER =
-    "Layers are executed between the Vulkan application and driver the specific order represented here";
+    "Layers are executed between the Vulkan application and driver in the specific order represented here";
 
 SettingsTreeManager::SettingsTreeManager() : tree(nullptr) {}
 
