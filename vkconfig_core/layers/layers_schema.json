@@ -54,36 +54,32 @@
         "int_range": {
             "description": "A range of integer values",
             "type": "object",
-            "items": {
-                "additionalProperties": false,
-                "properties": {
-                    "min": {
-                        "type": "integer"
-                    },
-                    "max": {
-                        "type": "integer"
-                    }
+            "additionalProperties": false,
+            "properties": {
+                "min": {
+                    "type": "integer"
+                },
+                "max": {
+                    "type": "integer"
                 }
             }
         },
         "float_range": {
             "description": "A range of floating-point values",
             "type": "object",
-            "items": {
-                "additionalProperties": false,
-                "properties": {
-                    "min": {
-                        "type": "number"
-                    },
-                    "max": {
-                        "type": "number"
-                    },
-                    "width": {
-                        "type": "integer"
-                    },
-                    "precision": {
-                        "type": "integer"
-                    }
+            "additionalProperties": false,
+            "properties": {
+                "min": {
+                    "type": "number"
+                },
+                "max": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "integer"
+                },
+                "precision": {
+                    "type": "integer"
                 }
             }
         },
@@ -915,36 +911,42 @@
                 "url": {
                     "type": "string"
                 },
-                "settings": {
-                    "$ref": "#/definitions/settings_meta"
-                },
-                "presets": {
-                    "type": "array",
-                    "items": {
-                        "required": [
-                            "label",
-                            "description",
-                            "settings"
-                        ],
-                        "additionalProperties": true,
-                        "properties": {
-                            "label": {
-                                "type": "string"
-                            },
-                            "description": {
-                                "type": "string"
-                            },
-                            "url": {
-                                "type": "string"
-                            },
-                            "platforms": {
-                                "$ref": "#/definitions/platforms"
-                            },
-                            "status": {
-                                "$ref": "#/definitions/status"
-                            },
-                            "settings": {
-                                "$ref": "#/definitions/settings_data"
+                "features": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "settings": {
+                            "$ref": "#/definitions/settings_meta"
+                        },
+                        "presets": {
+                            "type": "array",
+                            "items": {
+                                "required": [
+                                    "label",
+                                    "description",
+                                    "settings"
+                                ],
+                                "additionalProperties": true,
+                                "properties": {
+                                    "label": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "url": {
+                                        "type": "string"
+                                    },
+                                    "platforms": {
+                                        "$ref": "#/definitions/platforms"
+                                    },
+                                    "status": {
+                                        "$ref": "#/definitions/status"
+                                    },
+                                    "settings": {
+                                        "$ref": "#/definitions/settings_data"
+                                    }
+                                }
                             }
                         }
                     }
