@@ -779,15 +779,27 @@ void MainWindow::NewClicked() {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
+    const std::string active_configuration = configurator.environment.Get(ACTIVE_CONFIGURATION);
+
     Configuration &new_configuration =
         configurator.configurations.CreateConfiguration(configurator.layers.available_layers, "New Configuration");
 
     LayersDialog dlg(this, new_configuration);
-    dlg.exec();
+    switch (dlg.exec()) {
+        case QDialog::Accepted:
+            configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, new_configuration.key);
+            RestoreLastItem(new_configuration.key.c_str());
+            break;
+        case QDialog::Rejected:
+            configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, new_configuration.key);
+            configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration);
+            RestoreLastItem(active_configuration.c_str());
+            break;
+        default:
+            assert(0);
+            break;
+    }
 
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, new_configuration.key);
-
-    RestoreLastItem(new_configuration.key.c_str());
     LoadConfigurationList();
     _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
