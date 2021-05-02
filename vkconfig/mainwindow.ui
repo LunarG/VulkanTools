@@ -697,10 +697,12 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionHelp"/>
     <addaction name="actionVulkan_specification"/>
     <addaction name="actionVulkan_Layer_Specification"/>
     <addaction name="actionGPU_Info_Reports"/>
+    <addaction name="separator"/>
+    <addaction name="action_readme"/>
+    <addaction name="action_changelog"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -742,9 +744,9 @@
     <string>About Vulkan Configurator</string>
    </property>
   </action>
-  <action name="actionHelp">
+  <action name="action_readme">
    <property name="text">
-    <string>Vulkan Configurator Help</string>
+    <string>Vulkan Configurator Readme</string>
    </property>
   </action>
   <action name="actionSet_Test_Application">
@@ -785,6 +787,11 @@
   <action name="actionGPU_Info_Reports">
    <property name="text">
     <string>Vulkan GPU Info Reports</string>
+   </property>
+  </action>
+  <action name="action_changelog">
+   <property name="text">
+    <string>Vulkan Configurator Changelog</string>
    </property>
   </action>
  </widget>

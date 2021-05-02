@@ -28,13 +28,16 @@
 #include <cassert>
 
 void ShowDoc(DocType doc_type) {
+    const std::string platform = ToLowerCase(GetPlatformString(PLATFORM_STRING_OS));
+
     switch (doc_type) {
         default: {
             assert(0);
             break;
         }
         case DOC_VKCONFIG_README: {
-            QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/doc/view/latest/windows/vkconfig.html"));
+            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/vkconfig.html", platform.c_str());
+            QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
         case DOC_VKCONFIG_CHANGELOG: {
@@ -46,14 +49,14 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_VULKAN_SPEC: {
-            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html",
-                                           GetPlatformString(PLATFORM_STRING_OS));
+            const std::string url =
+                format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html", platform.c_str());
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
         case DOC_VULKAN_LAYERS: {
-            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/layer_configuration.html",
-                                           GetPlatformString(PLATFORM_STRING_OS));
+            const std::string url =
+                format("https://vulkan.lunarg.com/doc/view/latest/%s/layer_configuration.html", platform.c_str());
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
