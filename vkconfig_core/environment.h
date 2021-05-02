@@ -30,16 +30,6 @@
 #include <vector>
 #include <string>
 
-enum Notification {
-    NOTIFICATION_RESTART = 0,
-    NOTIFICATION_EXIT,
-
-    NOTIFICATION_FIRST = NOTIFICATION_RESTART,
-    NOTIFICATION_LAST = NOTIFICATION_EXIT
-};
-
-enum { NOTIFICATION_COUNT = NOTIFICATION_LAST - NOTIFICATION_FIRST + 1 };
-
 enum OverrideFlag { OVERRIDE_FLAG_ACTIVE = (1 << 0), OVERRIDE_FLAG_SELECTED = (1 << 1), OVERRIDE_FLAG_PERSISTENT = (1 << 2) };
 
 enum OverrideState {
@@ -110,8 +100,6 @@ class Environment {
 
     enum ResetMode { DEFAULT = 0, CLEAR, SYSTEM };
 
-    bool Notify(Notification notification);
-
     void Reset(ResetMode mode);
 
     bool Load();
@@ -169,7 +157,6 @@ class Environment {
     LoaderMessageLevel loader_message_level;
 
     std::array<std::string, ACTIVE_COUNT> actives;
-    std::array<bool, NOTIFICATION_COUNT> hidden_notifications;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     std::array<std::vector<std::string>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
     std::vector<Application> applications;

@@ -48,6 +48,7 @@
 #include <QContextMenuEvent>
 #include <QFileDialog>
 #include <QLineEdit>
+#include <QSettings>
 
 #if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
 #include <unistd.h>
@@ -630,14 +631,40 @@ void MainWindow::helpShowGPUInfo(bool checked) {
 /// The only thing we need to do here is clear the configuration if
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
-    Configurator &configurator = Configurator::Get();
+    Environment &environment = Configurator::Get().environment;
 
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
-    const bool exec_event = configurator.environment.Notify(NOTIFICATION_EXIT);
-    if (!exec_event) {
-        event->ignore();
-        return;
+    QSettings settings;
+    if (!settings.value("vkconfig_override", false).toBool()) {
+        std::string shut_down_state;
+
+        if (environment.UsePersistentOverrideMode()) {
+            shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
+
+            if (environment.UseApplicationListOverrideMode())
+                shut_down_state += " Overrides will be applied only to the application list.";
+            else
+                shut_down_state += " Overrides will be applied to ALL Vulkan applications.";
+        } else {
+            shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
+        }
+
+        QMessageBox alert(this);
+        alert.setWindowTitle("Vulkan Layers configuration state on exit");
+        alert.setText(shut_down_state.c_str());
+        alert.setIcon(QMessageBox::Question);
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setCheckBox(new QCheckBox("Do not show again."));
+        alert.setInformativeText("Are you still ready to close Vulkan Configurator?");
+
+        int ret_val = alert.exec();
+        settings.setValue("vkconfig_override", alert.checkBox()->isChecked());
+
+        if (ret_val == QMessageBox::No) {
+            event->ignore();
+            return;
+        }
     }
 
     // If a child process is still running, destroy it
@@ -647,11 +674,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     _settings_tree_manager.CleanupGUI();
 
-    configurator.environment.Set(LAYOUT_MAIN_GEOMETRY, saveGeometry());
-    configurator.environment.Set(LAYOUT_MAIN_WINDOW_STATE, saveState());
-    configurator.environment.Set(LAYOUT_MAIN_SPLITTER1, ui->splitter->saveState());
-    configurator.environment.Set(LAYOUT_MAIN_SPLITTER2, ui->splitter_2->saveState());
-    configurator.environment.Set(LAYOUT_MAIN_SPLITTER3, ui->splitter_3->saveState());
+    environment.Set(LAYOUT_MAIN_GEOMETRY, saveGeometry());
+    environment.Set(LAYOUT_MAIN_WINDOW_STATE, saveState());
+    environment.Set(LAYOUT_MAIN_SPLITTER1, ui->splitter->saveState());
+    environment.Set(LAYOUT_MAIN_SPLITTER2, ui->splitter_2->saveState());
+    environment.Set(LAYOUT_MAIN_SPLITTER3, ui->splitter_3->saveState());
 
     QMainWindow::closeEvent(event);
 }
@@ -981,7 +1008,6 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     SaveLastItem();
 
     Configurator &configurator = Configurator::Get();
-    configurator.environment.Notify(NOTIFICATION_RESTART);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     this->UpdateUI();
