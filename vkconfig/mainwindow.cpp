@@ -85,7 +85,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(aboutVkConfig(bool)));
     connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
-    connect(ui->actionHelp, SIGNAL(triggered(bool)), this, SLOT(helpShowHelp(bool)));
+    connect(ui->action_readme, SIGNAL(triggered(bool)), this, SLOT(helpShowReadme(bool)));
+    connect(ui->action_changelog, SIGNAL(triggered(bool)), this, SLOT(helpShowChangelog(bool)));
     connect(ui->actionVulkan_specification, SIGNAL(triggered(bool)), this, SLOT(helpShowVulkanSpec(bool)));
     connect(ui->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(helpShowLayerSpec(bool)));
     connect(ui->actionGPU_Info_Reports, SIGNAL(triggered(bool)), this, SLOT(helpShowGPUInfo(bool)));
@@ -596,10 +597,16 @@ void MainWindow::toolsVulkanInstallation(bool checked) {
     this->StartTool(TOOL_VULKAN_INSTALL);
 }
 
-void MainWindow::helpShowHelp(bool checked) {
+void MainWindow::helpShowReadme(bool checked) {
     (void)checked;
 
     ShowDoc(DOC_VKCONFIG_README);
+}
+
+void MainWindow::helpShowChangelog(bool checked) {
+    (void)checked;
+
+    ShowDoc(DOC_VKCONFIG_CHANGELOG);
 }
 
 void MainWindow::helpShowVulkanSpec(bool checked) {

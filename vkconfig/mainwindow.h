@@ -114,7 +114,8 @@ class MainWindow : public QMainWindow {
     void toolsSetCustomPaths(bool checked);
     void toolsResetToDefault(bool checked);
 
-    void helpShowHelp(bool checked);
+    void helpShowReadme(bool checked);
+    void helpShowChangelog(bool checked);
     void helpShowVulkanSpec(bool checked);
     void helpShowLayerSpec(bool checked);
     void helpShowGPUInfo(bool checked);
