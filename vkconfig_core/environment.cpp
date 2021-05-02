@@ -44,22 +44,8 @@
 #define VKCONFIG_KEY_OVERRIDE_MODE "OverrideMode"
 #define VKCONFIG_KEY_LOADER_MESSAGE "LoaderMessage"
 
-#define VKCONFIG_KEY_EXIT "warnAboutShutdownState"
-#define VKCONFIG_KEY_RESTART "restartWarning"
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
 #define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
-
-static const char* GetNotificationToken(Notification notification) {
-    assert(notification >= NOTIFICATION_FIRST && notification <= NOTIFICATION_LAST);
-
-    static const char* table[] = {
-        "restartWarning",         // NOTIFICATION_RESTART
-        "warnAboutShutdownState"  // NOTIFICATION_EXIT
-    };
-    static_assert(countof(table) == NOTIFICATION_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return table[notification];
-}
 
 static const char* GetActiveToken(Active active) {
     assert(active >= ACTIVE_FIRST && active <= ACTIVE_LAST);
@@ -149,62 +135,6 @@ Environment::~Environment() {
     assert(result);
 }
 
-bool Environment::Notify(Notification notification) {
-    if (hidden_notifications[notification]) return true;
-
-    bool result = true;
-    bool hide_notification = true;
-
-    switch (notification) {
-        case NOTIFICATION_RESTART: {
-            QMessageBox alert;
-            alert.setText(
-                "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application "
-                "start.\n\n"
-                "For changes to take effect, running Vulkan Applications should be restarted.");
-            alert.setWindowTitle("Any change requires Vulkan Applications restart");
-            alert.setIcon(QMessageBox::Warning);
-            alert.exec();
-        } break;
-
-        case NOTIFICATION_EXIT: {
-            std::string shut_down_state;
-
-            if (override_state & OVERRIDE_FLAG_PERSISTENT) {
-                shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
-
-                if (override_state & OVERRIDE_FLAG_SELECTED)
-                    shut_down_state += " Overrides will be applied only to the application list.";
-                else
-                    shut_down_state += " Overrides will be applied to ALL Vulkan applications.";
-            } else {
-                shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
-            }
-
-            QMessageBox alert;
-            alert.setWindowTitle("Vulkan Layers configuration state on exit");
-            alert.setText(shut_down_state.c_str());
-            alert.setIcon(QMessageBox::Question);
-            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-            alert.setInformativeText("Are you still ready to close Vulkan Configurator?");
-
-            int ret_val = alert.exec();
-            hide_notification = alert.checkBox()->isChecked();
-            if (ret_val == QMessageBox::No) {
-                result = false;
-            }
-        } break;
-
-        default:
-            assert(0);
-            break;
-    }
-
-    hidden_notifications[notification] = hide_notification;
-    return result;
-}
-
 void Environment::Reset(ResetMode mode) {
     switch (mode) {
         case DEFAULT: {
@@ -237,9 +167,6 @@ void Environment::Reset(ResetMode mode) {
 
             settings.setValue("restartWarning", false);
             settings.setValue("warnAboutShutdownState", false);
-
-            settings.setValue(VKCONFIG_KEY_EXIT, false);
-            settings.setValue(VKCONFIG_KEY_RESTART, false);
 
             const std::string loader_debug_message(qgetenv("VK_LOADER_DEBUG"));
             if (loader_debug_message.empty()) {
@@ -311,11 +238,6 @@ bool Environment::Load() {
     // Load active configuration
     for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
         actives[i] = settings.value(GetActiveToken(static_cast<Active>(i)), actives[i].c_str()).toString().toStdString();
-    }
-
-    // Load notifications
-    for (std::size_t i = 0; i < NOTIFICATION_COUNT; ++i) {
-        hidden_notifications[i] = settings.value(GetNotificationToken(static_cast<Notification>(i)), false).toBool();
     }
 
     // Load layout state
@@ -409,11 +331,6 @@ bool Environment::Save() const {
     // Save active state
     for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
         settings.setValue(GetActiveToken(static_cast<Active>(i)), actives[i].c_str());
-    }
-
-    // Save notifications
-    for (std::size_t i = 0; i < NOTIFICATION_COUNT; ++i) {
-        settings.setValue(GetNotificationToken(static_cast<Notification>(i)), hidden_notifications[i]);
     }
 
     // Save layout state
