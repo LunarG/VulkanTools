@@ -352,7 +352,6 @@ bool Environment::Save() const {
 
 bool Environment::SaveApplications() const {
     QJsonObject root;
-    // root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         // Build an array of appnames with associated data
