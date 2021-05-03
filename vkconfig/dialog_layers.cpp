@@ -525,33 +525,5 @@ void LayersDialog::accept() {
 
 void LayersDialog::BuildParameters() {
     Configurator &configurator = Configurator::Get();
-    std::vector<Layer> &available_layers = configurator.layers.available_layers;
-
-    std::vector<Parameter> parameters;
-
-    // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        const Parameter &parameter = configuration.parameters[i];
-        assert(!parameter.key.empty());
-
-        parameters.push_back(parameter);
-    }
-
-    for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
-        const Layer &layer = available_layers[i];
-
-        // The layer is already in the layer tree
-        if (IsFound(configuration.parameters, layer.key.c_str())) continue;
-
-        Parameter parameter;
-        parameter.key = layer.key;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        CollectDefaultSettingData(layer.settings, parameter.settings);
-
-        parameters.push_back(parameter);
-    }
-
-    OrderParameter(parameters, available_layers);
-
-    this->configuration.parameters = parameters;
+    this->configuration.parameters = GatherParameters(this->configuration.parameters, configurator.layers.available_layers);
 }

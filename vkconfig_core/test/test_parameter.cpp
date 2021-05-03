@@ -249,3 +249,61 @@ TEST(test_parameter, apply_settings) {
     EXPECT_STREQ("preset value", parameter.settings.Get<SettingDataString>("A")->value.c_str());
     EXPECT_STREQ("setting value", parameter.settings.Get<SettingDataString>("B")->value.c_str());
 }
+
+TEST(test_parameter, gather_parameters_exist) {
+    std::vector<Parameter> parameters = GatherParameters(GenerateTestParametersExist(), GenerateTestLayers());
+
+    EXPECT_EQ(9, parameters.size());
+
+    EXPECT_STREQ("Layer E1", parameters[0].key.c_str());
+    EXPECT_STREQ("Layer I0", parameters[1].key.c_str());
+    EXPECT_STREQ("Layer I1", parameters[2].key.c_str());
+    EXPECT_STREQ("Layer I2", parameters[3].key.c_str());
+    EXPECT_STREQ("Layer E0", parameters[4].key.c_str());
+    EXPECT_STREQ("Layer C0", parameters[5].key.c_str());
+    EXPECT_STREQ("Layer C1", parameters[6].key.c_str());
+    EXPECT_STREQ("Layer C2", parameters[7].key.c_str());
+    EXPECT_STREQ("Layer E2", parameters[8].key.c_str());
+}
+
+TEST(test_parameter, gather_parameters_missing) {
+    std::vector<Parameter> parameters = GatherParameters(GenerateTestParametersMissing(), GenerateTestLayers());
+
+    EXPECT_EQ(10, parameters.size());
+
+    EXPECT_STREQ("Layer E3", parameters[0].key.c_str());
+    EXPECT_STREQ("Layer E1", parameters[1].key.c_str());
+    EXPECT_STREQ("Layer I0", parameters[2].key.c_str());
+    EXPECT_STREQ("Layer I1", parameters[3].key.c_str());
+    EXPECT_STREQ("Layer I2", parameters[4].key.c_str());
+    EXPECT_STREQ("Layer C0", parameters[5].key.c_str());
+    EXPECT_STREQ("Layer C1", parameters[6].key.c_str());
+    EXPECT_STREQ("Layer C2", parameters[7].key.c_str());
+    EXPECT_STREQ("Layer E0", parameters[8].key.c_str());
+    EXPECT_STREQ("Layer E2", parameters[9].key.c_str());
+}
+
+TEST(test_parameter, gather_parameters_all) {
+    std::vector<Parameter> parameters = GatherParameters(GenerateTestParametersAll(), GenerateTestLayers());
+
+    EXPECT_EQ(18, parameters.size());
+
+    EXPECT_STREQ("Layer C3", parameters[0].key.c_str());
+    EXPECT_STREQ("Layer C4", parameters[1].key.c_str());
+    EXPECT_STREQ("Layer C5", parameters[2].key.c_str());
+    EXPECT_STREQ("Layer E3", parameters[3].key.c_str());
+    EXPECT_STREQ("Layer E4", parameters[4].key.c_str());
+    EXPECT_STREQ("Layer E5", parameters[5].key.c_str());
+    EXPECT_STREQ("Layer I3", parameters[6].key.c_str());
+    EXPECT_STREQ("Layer I4", parameters[7].key.c_str());
+    EXPECT_STREQ("Layer I5", parameters[8].key.c_str());
+    EXPECT_STREQ("Layer C1", parameters[9].key.c_str());
+    EXPECT_STREQ("Layer E1", parameters[10].key.c_str());
+    EXPECT_STREQ("Layer I1", parameters[11].key.c_str());
+    EXPECT_STREQ("Layer I2", parameters[12].key.c_str());
+    EXPECT_STREQ("Layer I0", parameters[13].key.c_str());
+    EXPECT_STREQ("Layer C0", parameters[14].key.c_str());
+    EXPECT_STREQ("Layer E0", parameters[15].key.c_str());
+    EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
+    EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
+}
