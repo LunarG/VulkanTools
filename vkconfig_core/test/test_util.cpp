@@ -365,13 +365,18 @@ TEST(test_util, enabled_number_or_string_cmp) {
 
 TEST(test_util, enabled_number_or_string_list) {
     std::vector<EnabledNumberOrString> list;
-    EXPECT_FALSE(IsValueFound(list, NumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, EnabledNumberOrString(76)));
     EXPECT_EQ(0, list.size());
 
     list.push_back(EnabledNumberOrString(76));
-    EXPECT_TRUE(IsValueFound(list, NumberOrString(76)));
-    EXPECT_FALSE(IsValueFound(list, NumberOrString(75)));
+    EXPECT_TRUE(IsValueFound(list, EnabledNumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, EnabledNumberOrString(75)));
     EXPECT_EQ(1, list.size());
+
+    RemoveValue(list, EnabledNumberOrString(76));
+    EXPECT_FALSE(IsValueFound(list, EnabledNumberOrString(76)));
+    EXPECT_FALSE(IsValueFound(list, EnabledNumberOrString(75)));
+    EXPECT_EQ(0, list.size());
 }
 
 TEST(test_util, enabled_number_or_string_convert) {

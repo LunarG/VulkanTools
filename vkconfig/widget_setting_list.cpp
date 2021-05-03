@@ -231,21 +231,10 @@ void WidgetSettingList::OnTextEdited(const QString &value) {
 }
 
 void WidgetSettingList::OnElementRemoved(const QString &element) {
-    const std::string string_value = element.toStdString();
-
     NumberOrString list_value(element.toStdString());
     this->list.push_back(list_value);
 
-    EnabledNumberOrString data_value(list_value);
-
-    for (auto it = this->data.value.begin(), end = this->data.value.end(); it != end; ++it) {
-        if (*it == data_value) {
-            this->data.value.erase(it);
-            break;
-        }
-    }
-
-    std::sort(this->data.value.begin(), this->data.value.end());
+    RemoveValue(this->data.value, EnabledNumberOrString(list_value));
 }
 
 void WidgetSettingList::OnElementRejected() { this->OnTextEdited(""); }
