@@ -25,6 +25,16 @@ SettingMeta::SettingMeta(const std::string& key, const SettingType type) : key(k
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }
 
+bool IsSupported(const SettingMeta* meta) {
+    if (meta == nullptr) return false;
+
+    if (meta->view == SETTING_VIEW_HIDDEN) return false;
+
+    if (!IsPlatformSupported(meta->platform_flags)) return false;
+
+    return true;
+}
+
 bool SettingMeta::Equal(const SettingMeta& other) const {
     if (this->key != other.key)
         return false;
@@ -150,6 +160,16 @@ bool operator==(const SettingEnumValue& a, const SettingEnumValue& b) {
     if (a.status != b.status) return false;
     if (a.view != b.view) return false;
     if (a.platform_flags != b.platform_flags) return false;
+    return true;
+}
+
+bool IsSupported(const SettingEnumValue* value) {
+    if (value == nullptr) return false;
+
+    if (value->view == SETTING_VIEW_HIDDEN) return false;
+
+    if (!IsPlatformSupported(value->platform_flags)) return false;
+
     return true;
 }
 
