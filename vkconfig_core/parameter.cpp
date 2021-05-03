@@ -163,3 +163,33 @@ std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const 
 
     return count;
 }
+
+std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers) {
+    std::vector<Parameter> gathered_parameters;
+
+    // Loop through the layers. They are expected to be in order
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Parameter& parameter = parameters[i];
+        assert(!parameter.key.empty());
+
+        gathered_parameters.push_back(parameter);
+    }
+
+    for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
+        const Layer& layer = available_layers[i];
+
+        // The layer is already in the layer tree
+        if (IsFound(parameters, layer.key.c_str())) continue;
+
+        Parameter parameter;
+        parameter.key = layer.key;
+        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+        CollectDefaultSettingData(layer.settings, parameter.settings);
+
+        gathered_parameters.push_back(parameter);
+    }
+
+    OrderParameter(gathered_parameters, available_layers);
+
+    return gathered_parameters;
+}
