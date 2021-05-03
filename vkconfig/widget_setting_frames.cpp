@@ -136,21 +136,7 @@ void WidgetSettingFrames::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-SettingInputError WidgetSettingFrames::ProcessInputValue() {
-    if (this->value_buffer.empty()) return SETTING_INPUT_ERROR_EMPTY;
-
-    if (!IsFrames(this->value_buffer)) return SETTING_INPUT_ERROR_SYNTAX;
-
-    std::string saved_data = this->data.value;
-    this->data.value = this->value_buffer;
-
-    if (!this->meta.IsValid(this->data)) {
-        this->data.value = saved_data;
-        return SETTING_INPUT_ERROR_SEMENTICS;
-    }
-
-    return SETTING_INPUT_NO_ERROR;
-}
+SettingInputError WidgetSettingFrames::ProcessInputValue() { return ProcessInput(this->value_buffer, this->meta, this->data); }
 
 void WidgetSettingFrames::OnTextEdited(const QString& new_value) {
     this->timer_error->stop();
