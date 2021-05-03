@@ -59,7 +59,4 @@ class WidgetSettingBase : public QWidget {
     QTreeWidgetItem* item;
 };
 
-bool IsSupported(const SettingMeta* meta);
-bool IsSupported(const SettingEnumValue* value);
-
 int HorizontalAdvance(const QFontMetrics& fm, const QString& string);

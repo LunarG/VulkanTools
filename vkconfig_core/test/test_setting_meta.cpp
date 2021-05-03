@@ -230,3 +230,55 @@ TEST(test_setting_meta, children) {
     const SettingMetaInt& meta_child1_found = static_cast<const SettingMetaInt&>(*FindSettingMeta(settings, "child1"));
     EXPECT_EQ(76, meta_child1_found.default_value);
 }
+
+TEST(test_setting_meta, is_supported_enum_value_default) {
+    SettingEnumValue value;
+
+    EXPECT_EQ(true, IsSupported(&value));
+}
+
+TEST(test_setting_meta, is_supported_enum_value_null) {
+    const SettingEnumValue* value = nullptr;
+
+    EXPECT_EQ(false, IsSupported(value));
+}
+
+TEST(test_setting_meta, is_supported_enum_value_hidden) {
+    SettingEnumValue value;
+    value.view = SETTING_VIEW_HIDDEN;
+
+    EXPECT_EQ(false, IsSupported(&value));
+}
+
+TEST(test_setting_meta, is_supported_enum_value_platform) {
+    SettingEnumValue value;
+    value.platform_flags = 0;
+
+    EXPECT_EQ(false, IsSupported(&value));
+}
+
+TEST(test_setting_meta, is_supported_meta_default) {
+    SettingMeta value("key", SETTING_STRING);
+
+    EXPECT_EQ(true, IsSupported(&value));
+}
+
+TEST(test_setting_meta, is_supported_meta_null) {
+    const SettingMeta* value = nullptr;
+
+    EXPECT_EQ(false, IsSupported(value));
+}
+
+TEST(test_setting_meta, is_supported_value_hidden) {
+    SettingMeta value("key", SETTING_STRING);
+    value.view = SETTING_VIEW_HIDDEN;
+
+    EXPECT_EQ(false, IsSupported(&value));
+}
+
+TEST(test_setting_meta, is_supported_value_platform) {
+    SettingMeta value("key", SETTING_STRING);
+    value.platform_flags = 0;
+
+    EXPECT_EQ(false, IsSupported(&value));
+}

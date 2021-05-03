@@ -49,6 +49,8 @@ struct SettingMeta : public Header {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
+bool IsSupported(const SettingMeta* meta);
+
 struct SettingMetaGroup : public SettingMeta {
     SettingMetaGroup(const std::string& key) : SettingMeta(key, SETTING_GROUP) {}
     virtual ~SettingMetaGroup() {}
@@ -174,6 +176,8 @@ struct SettingEnumValue : public Header {
     std::string key;
     SettingMetaSet settings;
 };
+
+bool IsSupported(const SettingEnumValue* value);
 
 bool operator==(const SettingEnumValue& a, const SettingEnumValue& b);
 inline bool operator!=(const SettingEnumValue& a, const SettingEnumValue& b) { return !(a == b); }
