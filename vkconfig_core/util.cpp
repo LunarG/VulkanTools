@@ -108,6 +108,19 @@ void RemoveValue(std::vector<NumberOrString>& list, const NumberOrString& value)
     std::swap(list, new_list);
 }
 
+void RemoveValue(std::vector<EnabledNumberOrString>& list, const EnabledNumberOrString& value) {
+    std::vector<EnabledNumberOrString> new_list;
+    new_list.reserve(list.size());
+
+    for (std::size_t i = 0, n = list.size(); i < n; ++i) {
+        if (list[i] != value) {
+            new_list.push_back(list[i]);
+        }
+    }
+
+    std::swap(list, new_list);
+}
+
 void AppendValue(std::vector<NumberOrString>& list, const NumberOrString& value) {
     if (std::find(list.begin(), list.end(), value) == list.end()) {
         list.push_back(value);

@@ -141,6 +141,8 @@ inline bool operator<(const NumberOrString& a, const NumberOrString& b) {
 // Remove a value if it's present
 void RemoveValue(std::vector<NumberOrString>& list, const NumberOrString& value);
 
+void RemoveValue(std::vector<EnabledNumberOrString>& list, const EnabledNumberOrString& value);
+
 // Add a value with no duplicate
 void AppendValue(std::vector<NumberOrString>& list, const NumberOrString& value);
 
