@@ -27,6 +27,13 @@
 #include <vector>
 #include <memory>
 
+enum SettingInputError {
+    SETTING_INPUT_NO_ERROR = 0,
+    SETTING_INPUT_ERROR_EMPTY,
+    SETTING_INPUT_ERROR_SYNTAX,
+    SETTING_INPUT_ERROR_SEMENTICS
+};
+
 struct SettingMeta;
 
 typedef SettingSet<SettingMeta> SettingMetaSet;
@@ -87,6 +94,8 @@ struct SettingMetaInt : public SettingMeta {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
+SettingInputError ProcessInput(const std::string& value, const SettingMetaInt& meta, SettingDataInt& data);
+
 struct SettingMetaFloat : public SettingMeta {
     SettingMetaFloat(const std::string& key)
         : SettingMeta(key, SETTING_FLOAT), default_value(0.0f), min_value(0.0f), max_value(0.0f), precision(0), width(0) {}
@@ -122,6 +131,8 @@ struct SettingMetaFloat : public SettingMeta {
     virtual bool Equal(const SettingMeta& other) const;
 };
 
+SettingInputError ProcessInput(const std::string& value, const SettingMetaFloat& meta, SettingDataFloat& data);
+
 struct SettingMetaBool : public SettingMeta {
     SettingMetaBool(const std::string& key) : SettingMeta(key, SETTING_BOOL), default_value(false) {}
     virtual ~SettingMetaBool() {}
@@ -145,6 +156,8 @@ struct SettingMetaFrames : public SettingMetaString {
 
     bool IsValid(const SettingDataFrames& data) const { return IsFrames(data.value) || data.value.empty(); }
 };
+
+SettingInputError ProcessInput(const std::string& value, const SettingMetaFrames& meta, SettingDataFrames& data);
 
 struct SettingMetaFilesystem : public SettingMeta {
     SettingMetaFilesystem(const std::string& key, const SettingType& setting_type) : SettingMeta(key, setting_type) {}

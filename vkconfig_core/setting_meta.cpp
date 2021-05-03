@@ -92,6 +92,22 @@ bool SettingMetaFloat::Equal(const SettingMeta& other) const {
     return std::abs(this->default_value - meta.default_value) < std::numeric_limits<float>::epsilon();
 }
 
+SettingInputError ProcessInput(const std::string& value, const SettingMetaFloat& meta, SettingDataFloat& data) {
+    if (value.empty()) return SETTING_INPUT_ERROR_EMPTY;
+
+    if (!IsFloat(value)) return SETTING_INPUT_ERROR_SYNTAX;
+
+    int saved_data = data.value;
+    data.value = std::atof(value.c_str());
+
+    if (!meta.IsValid(data)) {
+        data.value = saved_data;
+        return SETTING_INPUT_ERROR_SEMENTICS;
+    }
+
+    return SETTING_INPUT_NO_ERROR;
+}
+
 bool SettingMetaInt::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
 
@@ -102,6 +118,38 @@ bool SettingMetaInt::Equal(const SettingMeta& other) const {
     if (this->unit != meta.unit) return false;
 
     return this->default_value == meta.default_value;
+}
+
+SettingInputError ProcessInput(const std::string& value, const SettingMetaInt& meta, SettingDataInt& data) {
+    if (value.empty()) return SETTING_INPUT_ERROR_EMPTY;
+
+    if (!IsNumber(value)) return SETTING_INPUT_ERROR_SYNTAX;
+
+    int saved_data = data.value;
+    data.value = std::atoi(value.c_str());
+
+    if (!meta.IsValid(data)) {
+        data.value = saved_data;
+        return SETTING_INPUT_ERROR_SEMENTICS;
+    }
+
+    return SETTING_INPUT_NO_ERROR;
+}
+
+SettingInputError ProcessInput(const std::string& value, const SettingMetaFrames& meta, SettingDataFrames& data) {
+    if (value.empty()) return SETTING_INPUT_ERROR_EMPTY;
+
+    if (!IsFrames(value)) return SETTING_INPUT_ERROR_SYNTAX;
+
+    std::string saved_data = data.value;
+    data.value = value;
+
+    if (!meta.IsValid(data)) {
+        data.value = saved_data;
+        return SETTING_INPUT_ERROR_SEMENTICS;
+    }
+
+    return SETTING_INPUT_NO_ERROR;
 }
 
 bool SettingMetaBool::Equal(const SettingMeta& other) const {

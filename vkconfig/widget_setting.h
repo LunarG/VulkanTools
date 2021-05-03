@@ -33,13 +33,6 @@
 static const int MIN_BUTTON_SIZE = 24;
 static const int ITEM_HEIGHT = 24;
 
-enum SettingInputError {
-    SETTING_INPUT_NO_ERROR = 0,
-    SETTING_INPUT_ERROR_EMPTY,
-    SETTING_INPUT_ERROR_SYNTAX,
-    SETTING_INPUT_ERROR_SEMENTICS
-};
-
 enum RefreshAreas { REFRESH_ENABLE_AND_STATE = 0, REFRESH_ENABLE_ONLY };
 
 class WidgetSettingBase : public QWidget {

@@ -282,3 +282,55 @@ TEST(test_setting_meta, is_supported_value_platform) {
 
     EXPECT_EQ(false, IsSupported(&value));
 }
+
+TEST(test_setting_meta, process_input_float_no_error) {
+    SettingMetaFloat meta("key");
+    SettingDataFloat data("key");
+
+    EXPECT_EQ(SETTING_INPUT_NO_ERROR, ProcessInput("1.0", meta, data));
+}
+
+TEST(test_setting_meta, process_input_float_error_empty) {
+    SettingMetaFloat meta("key");
+    SettingDataFloat data("key");
+
+    EXPECT_EQ(SETTING_INPUT_ERROR_EMPTY, ProcessInput("", meta, data));
+}
+
+TEST(test_setting_meta, process_input_float_error_syntax) {
+    SettingMetaFloat meta("key");
+    SettingDataFloat data("key");
+
+    EXPECT_EQ(SETTING_INPUT_ERROR_SYNTAX, ProcessInput("1,0", meta, data));
+}
+
+TEST(test_setting_meta, process_input_float_error_sementics) {
+    SettingMetaFloat meta("key");
+    meta.max_value = 2.0;
+    meta.min_value = 1.0;
+
+    SettingDataFloat data("key");
+
+    EXPECT_EQ(SETTING_INPUT_ERROR_SEMENTICS, ProcessInput("4.0", meta, data));
+}
+
+TEST(test_setting_meta, process_input_frames_no_error) {
+    SettingMetaFrames meta("key");
+    SettingDataFrames data("key");
+
+    EXPECT_EQ(SETTING_INPUT_NO_ERROR, ProcessInput("1-2,9", meta, data));
+}
+
+TEST(test_setting_meta, process_input_frames_error_empty) {
+    SettingMetaFrames meta("key");
+    SettingDataFrames data("key");
+
+    EXPECT_EQ(SETTING_INPUT_ERROR_EMPTY, ProcessInput("", meta, data));
+}
+
+TEST(test_setting_meta, process_input_frames_error_syntax) {
+    SettingMetaFrames meta("key");
+    SettingDataFrames data("key");
+
+    EXPECT_EQ(SETTING_INPUT_ERROR_SYNTAX, ProcessInput("a", meta, data));
+}

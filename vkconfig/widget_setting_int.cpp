@@ -152,21 +152,7 @@ void WidgetSettingInt::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-SettingInputError WidgetSettingInt::ProcessInputValue() {
-    if (this->value_buffer.empty()) return SETTING_INPUT_ERROR_EMPTY;
-
-    if (!IsNumber(this->value_buffer)) return SETTING_INPUT_ERROR_SYNTAX;
-
-    int saved_data = this->data.value;
-    this->data.value = std::atoi(this->value_buffer.c_str());
-
-    if (!this->meta.IsValid(this->data)) {
-        this->data.value = saved_data;
-        return SETTING_INPUT_ERROR_SEMENTICS;
-    }
-
-    return SETTING_INPUT_NO_ERROR;
-}
+SettingInputError WidgetSettingInt::ProcessInputValue() { return ProcessInput(this->value_buffer, this->meta, this->data); }
 
 void WidgetSettingInt::OnTextEdited(const QString& new_value) {
     this->timer_error->stop();
