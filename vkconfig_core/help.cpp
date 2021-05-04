@@ -28,7 +28,10 @@
 #include <cassert>
 
 void ShowDoc(DocType doc_type) {
-    const std::string platform = ToLowerCase(GetPlatformString(PLATFORM_STRING_OS));
+    std::string platform = ToLowerCase(GetPlatformString(PLATFORM_STRING_OS));
+    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+        platform = "mac";
+    }
 
     switch (doc_type) {
         default: {
