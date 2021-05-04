@@ -101,8 +101,8 @@ Unix systems store files in the following paths:
 
 Windows systems store files in the following paths:
 
-- `%TEMP%\VulkanLayerManager\VkLayerOverride.json` tells a Vulkan application which layers to use
-- `%TEMP%\VulkanLayerManager\vk_layer_settings.txt` tells Vulkan layers which settings to use
+- `%HOME%\AppData\Local\LunarG\vkconfig\override\VkLayerOverride.json` tells a Vulkan application which layers to use
+- `%HOME%\AppData\Local\LunarG\vkconfig\override\vk_layer_settings.txt` tells Vulkan layers which settings to use
 
 In addition, Windows system create registry entries in the following locations:
 
