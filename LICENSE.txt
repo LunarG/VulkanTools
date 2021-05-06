@@ -1,6 +1,5 @@
 The majority of files in this project use the Apache 2.0 License.
-There are a few exceptions and their license can be found in the source.
-Any license deviations from Apache 2.0 are "more permissive" licenses.
+There are a few exceptions and their license can either be found in the source or their directory homing the source.
 
 ===========================================================================================
 
