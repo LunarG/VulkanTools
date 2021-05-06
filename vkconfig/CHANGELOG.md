@@ -13,6 +13,10 @@
 
 ## [Vulkan Configurator 2.4.0 for Vulkan SDK 1.2.X.0](https://github.com/LunarG/VulkanTools/tree/master) - July 2021
 
+### Features:
+- Add support for `VK_LAYER_SETTINGS_PATH` override for 'vk_layer_settings.txt' path
+- Add 'vk_layer_settings.txt' path in the 'Vulkan Development Status'
+
 ### Improvements:
 - Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers) list within the help menu
 

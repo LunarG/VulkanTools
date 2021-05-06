@@ -66,3 +66,5 @@ std::string ReplaceBuiltInVariable(const std::string& path);
 bool IsPortableFilename(const std::string& path);
 
 QFileInfoList GetJSONFiles(const char* directory);
+
+std::string ExtractAbsoluteDir(const std::string& path);
