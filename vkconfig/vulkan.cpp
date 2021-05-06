@@ -29,6 +29,7 @@
 #include <QLibrary>
 #include <QtGlobal>
 #include <QFileInfo>
+#include <QDir>
 #include <QMessageBox>
 
 #include <cassert>
@@ -114,6 +115,20 @@ std::string GenerateVulkanStatus() {
     log += GetUserDefinedLayersPathsLog("VK_LAYER_PATH environment variable", USER_DEFINED_LAYERS_PATHS_ENV);
     if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers))
         log += GetUserDefinedLayersPathsLog("Vulkan Configurator", USER_DEFINED_LAYERS_PATHS_GUI);
+
+    const std::string layer_settings_path(qgetenv("VK_LAYER_SETTINGS_PATH"));
+    if (!layer_settings_path.empty()) {
+        log += "- Global `vk_layer_settings.txt` location overridden by VK_LAYER_SETTINGS_PATH:\n";
+        if (layer_settings_path.find("vk_layer_settings.txt") == std::string::npos) {
+            log += format("    %s\n", layer_settings_path.c_str());
+        } else {
+            log += format("    %s\n", ExtractAbsoluteDir(layer_settings_path).c_str());
+        }
+    } else {
+        const std::string path = configurator.environment.paths.GetFullPath(PATH_OVERRIDE_SETTINGS);
+        log += "- Global `vk_layer_settings.txt` uses the default platform path:\n";
+        log += format("    %s\n", ExtractAbsoluteDir(path).c_str());
+    }
 
     QLibrary library(GetPlatformString(PLATFORM_STRING_VULKAN_LIBRARY));
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =

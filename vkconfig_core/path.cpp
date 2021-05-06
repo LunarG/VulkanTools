@@ -165,3 +165,9 @@ QFileInfoList GetJSONFiles(const char* directory) {
     dir.setNameFilters(QStringList() << "*.json");
     return dir.entryInfoList();
 }
+
+std::string ExtractAbsoluteDir(const std::string& path) {
+    assert(!path.empty());
+
+    return ConvertNativeSeparators(QFileInfo(path.c_str()).absoluteDir().path().toStdString());
+}
