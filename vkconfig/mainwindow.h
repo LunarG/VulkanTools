@@ -108,17 +108,18 @@ class MainWindow : public QMainWindow {
     void EditCustomPathsClicked(ConfigurationListItem *item);
 
    public Q_SLOTS:
-    void aboutVkConfig(bool checked);
     void toolsVulkanInfo(bool checked);
     void toolsVulkanInstallation(bool checked);
     void toolsSetCustomPaths(bool checked);
     void toolsResetToDefault(bool checked);
 
-    void helpShowReadme(bool checked);
-    void helpShowChangelog(bool checked);
-    void helpShowVulkanSpec(bool checked);
-    void helpShowLayerSpec(bool checked);
-    void helpShowGPUInfo(bool checked);
+    void OnHelpFindLayers(bool checked);
+    void OnHelpAbout(bool checked);
+    void OnHelpReadme(bool checked);
+    void OnHelpChangelog(bool checked);
+    void OnHelpVulkanSpec(bool checked);
+    void OnHelpLayerSpec(bool checked);
+    void OnHelpGPUInfo(bool checked);
 
     void addCustomPaths();
 
