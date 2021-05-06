@@ -84,13 +84,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     SetupLauncherTree();
 
-    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(aboutVkConfig(bool)));
+    connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
+    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
     connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
-    connect(ui->action_readme, SIGNAL(triggered(bool)), this, SLOT(helpShowReadme(bool)));
-    connect(ui->action_changelog, SIGNAL(triggered(bool)), this, SLOT(helpShowChangelog(bool)));
-    connect(ui->actionVulkan_specification, SIGNAL(triggered(bool)), this, SLOT(helpShowVulkanSpec(bool)));
-    connect(ui->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(helpShowLayerSpec(bool)));
-    connect(ui->actionGPU_Info_Reports, SIGNAL(triggered(bool)), this, SLOT(helpShowGPUInfo(bool)));
+    connect(ui->action_readme, SIGNAL(triggered(bool)), this, SLOT(OnHelpReadme(bool)));
+    connect(ui->action_changelog, SIGNAL(triggered(bool)), this, SLOT(OnHelpChangelog(bool)));
+    connect(ui->actionVulkan_specification, SIGNAL(triggered(bool)), this, SLOT(OnHelpVulkanSpec(bool)));
+    connect(ui->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(OnHelpLayerSpec(bool)));
+    connect(ui->actionGPU_Info_Reports, SIGNAL(triggered(bool)), this, SLOT(OnHelpGPUInfo(bool)));
 
     connect(ui->actionCustom_Layer_Paths, SIGNAL(triggered(bool)), this, SLOT(toolsSetCustomPaths(bool)));
 
@@ -554,7 +555,7 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 }
 
 // Unused flag, just display the about Qt dialog
-void MainWindow::aboutVkConfig(bool checked) {
+void MainWindow::OnHelpAbout(bool checked) {
     (void)checked;
 
     AboutDialog dlg(this);
@@ -598,31 +599,37 @@ void MainWindow::toolsVulkanInstallation(bool checked) {
     this->StartTool(TOOL_VULKAN_INSTALL);
 }
 
-void MainWindow::helpShowReadme(bool checked) {
+void MainWindow::OnHelpFindLayers(bool checked) {
+    (void)checked;
+
+    ShowDoc(DOC_FIND_LAYERS);
+}
+
+void MainWindow::OnHelpReadme(bool checked) {
     (void)checked;
 
     ShowDoc(DOC_VKCONFIG_README);
 }
 
-void MainWindow::helpShowChangelog(bool checked) {
+void MainWindow::OnHelpChangelog(bool checked) {
     (void)checked;
 
     ShowDoc(DOC_VKCONFIG_CHANGELOG);
 }
 
-void MainWindow::helpShowVulkanSpec(bool checked) {
+void MainWindow::OnHelpVulkanSpec(bool checked) {
     (void)checked;
 
     ShowDoc(DOC_VULKAN_SPEC);
 }
 
-void MainWindow::helpShowLayerSpec(bool checked) {
+void MainWindow::OnHelpLayerSpec(bool checked) {
     (void)checked;
 
     ShowDoc(DOC_VULKAN_LAYERS);
 }
 
-void MainWindow::helpShowGPUInfo(bool checked) {
+void MainWindow::OnHelpGPUInfo(bool checked) {
     (void)checked;
 
     ShowDoc(DOC_GPU_INFO);

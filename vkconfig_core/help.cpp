@@ -38,6 +38,11 @@ void ShowDoc(DocType doc_type) {
             assert(0);
             break;
         }
+        case DOC_FIND_LAYERS: {
+            QDesktopServices::openUrl(
+                QUrl("https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers"));
+            break;
+        }
         case DOC_VKCONFIG_README: {
             const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/vkconfig.html", platform.c_str());
             QDesktopServices::openUrl(QUrl(url.c_str()));

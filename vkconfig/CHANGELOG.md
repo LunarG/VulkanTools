@@ -11,6 +11,11 @@
 
 # Release notes
 
+## [Vulkan Configurator 2.4.0 for Vulkan SDK 1.2.X.0](https://github.com/LunarG/VulkanTools/tree/master) - July 2021
+
+### Improvements:
+- Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers) list within the help menu
+
 ## [Vulkan Configurator 2.3.0 for Vulkan SDK 1.2.176.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - Mai 2021
 
 ### Features:

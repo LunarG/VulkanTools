@@ -697,6 +697,8 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="action_find_more_layers"/>
+    <addaction name="separator"/>
     <addaction name="actionVulkan_specification"/>
     <addaction name="actionVulkan_Layer_Specification"/>
     <addaction name="actionGPU_Info_Reports"/>
@@ -792,6 +794,11 @@
   <action name="action_changelog">
    <property name="text">
     <string>Vulkan Configurator Changelog</string>
+   </property>
+  </action>
+  <action name="action_find_more_layers">
+   <property name="text">
+    <string>Find More Layers!</string>
    </property>
   </action>
  </widget>
