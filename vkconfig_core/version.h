@@ -33,6 +33,7 @@ static const char *VKCONFIG_SHORT_NAME = "vkconfig";
 #define SUPPORT_LAYER_CONFIG_2_0_3 1
 #define SUPPORT_LAYER_CONFIG_2_1_0 1
 #define SUPPORT_LAYER_CONFIG_2_2_0 1
+#define SUPPORT_LAYER_CONFIG_2_3_0 1
 
 class Version {
    public:
