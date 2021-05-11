@@ -74,7 +74,7 @@
                     "settings": [
                         {
                             "key": "modify_extension_list",
-                            "value": true
+                            "value": "replace"
                         },
                         {
                             "key": "filename",
@@ -90,7 +90,7 @@
                     "settings": [
                         {
                             "key": "modify_extension_list",
-                            "value": true
+                            "value": "replace"
                         },
                         {
                             "key": "filename",
@@ -106,7 +106,7 @@
                     "settings": [
                         {
                             "key": "modify_extension_list",
-                            "value": true
+                            "value": "replace"
                         },
                         {
                             "key": "filename",
@@ -126,7 +126,7 @@
                         },
                         {
                             "key": "modify_extension_list",
-                            "value": true
+                            "value": "replace"
                         },
                         {
                             "key": "filename",
@@ -146,7 +146,7 @@
                         },
                         {
                             "key": "modify_extension_list",
-                            "value": true
+                            "value": "replace"
                         },
                         {
                             "key": "filename",
@@ -166,7 +166,7 @@
                         },
                         {
                             "key": "modify_extension_list",
-                            "value": true
+                            "value": "replace"
                         },
                         {
                             "key": "filename",
@@ -218,8 +218,35 @@
                     "env": "VK_DEVSIM_MODIFY_EXTENSION_LIST",
                     "label": "Modify Device Extension list",
                     "description": "Modify the device extensions list from the layer JSON config file.",
-                    "type": "BOOL",
-                    "default": false
+                    "type": "ENUM",
+                    "flags": [
+                        {
+                            "key": "none",
+                            "label": "None",
+                            "description": "Turns off modification of the device's extension list. Uses the device's real extension list."
+                        },
+                        {
+                            "key": "replace",
+                            "label": "Replace",
+                            "description": "Fully replaces the device's extension list with the extension list provided by the devsim configuration file."
+                        },
+                        {
+                            "key": "whitelist",
+                            "label": "Whitelist",
+                            "description": "Includes extensions from the devsim configuration file only if they are supported by the device."
+                        },
+                        {
+                            "key": "blacklist",
+                            "label": "Blacklist",
+                            "description": "Removes extensions from the device's extension list if they are included in the devsim configuration file's extension list."
+                        },
+                        {
+                            "key": "intersect",
+                            "label": "Intersect",
+                            "description": "Adds the list of extensions from the devsim configuration file to the device's extension list while avoiding repeats."
+                        }
+                    ],
+                    "default": "none"
                 },
                 {
                     "key": "modify_memory_flags",

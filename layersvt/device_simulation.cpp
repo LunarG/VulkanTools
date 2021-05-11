@@ -286,6 +286,14 @@ const VkFormat StandardVkFormatEnumList[] = {
     VK_FORMAT_ASTC_12x12_SRGB_BLOCK,
 };
 
+enum ArrayCombinationMode {
+    ARRAY_COMBINATION_MODE_NONE,
+    ARRAY_COMBINATION_MODE_REPLACE,
+    ARRAY_COMBINATION_MODE_WHITELIST,
+    ARRAY_COMBINATION_MODE_BLACKLIST,
+    ARRAY_COMBINATION_MODE_INTERSECT
+};
+
 // Environment variables defined by this layer ///////////////////////////////////////////////////////////////////////////////////
 
 #if defined(__ANDROID__)
@@ -327,6 +335,11 @@ const char *const kLayerSettingsDevsimModifyExtensionList =
 const char *const kLayerSettingsDevsimModifyMemoryFlags =
     "lunarg_device_simulation.modify_memory_flags";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyMemoryFlags
 
+struct ArrayCombinationModeSetting {
+    ArrayCombinationMode mode;
+    bool fromEnvVar;
+};
+
 struct IntSetting {
     int num;
     bool fromEnvVar;
@@ -341,7 +354,7 @@ struct StringSetting inputFilename;
 struct IntSetting debugLevel;
 struct IntSetting errorLevel;
 struct IntSetting emulatePortability;
-struct IntSetting modifyExtensionList;
+struct ArrayCombinationModeSetting modifyExtensionList;
 struct IntSetting modifyMemoryFlags;
 
 // Various small utility functions ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -538,7 +551,7 @@ class PhysicalDeviceData {
     static bool HasExtension(VkPhysicalDevice pd, const char *extension_name) { return HasExtension(Find(pd), extension_name); }
 
     static bool HasExtension(PhysicalDeviceData *pdd, const char *extension_name) {
-        for (const auto &ext_prop : pdd->device_extensions) {
+        for (const auto &ext_prop : pdd->device_extensions_) {
             if (strncmp(extension_name, ext_prop.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) {
                 return true;
             }
@@ -551,7 +564,7 @@ class PhysicalDeviceData {
     }
 
     static bool HasSimulatedExtension(PhysicalDeviceData *pdd, const char *extension_name) {
-        for (const auto &ext_prop : pdd->arrayof_extension_properties_) {
+        for (const auto &ext_prop : pdd->simulation_extensions_) {
             if (strncmp(extension_name, ext_prop.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) {
                 return true;
             }
@@ -567,9 +580,65 @@ class PhysicalDeviceData {
         return HasSimulatedExtension(pdd, extension_name) || HasExtension(pdd, extension_name);
     }
 
+    uint32_t combineExtensionLists() {
+        switch (extension_list_combination_mode_) {
+            case ARRAY_COMBINATION_MODE_NONE:
+                simulation_extensions_ = device_extensions_;
+                break;
+            case ARRAY_COMBINATION_MODE_REPLACE:
+                simulation_extensions_ = arrayof_extension_properties_;
+                break;
+            case ARRAY_COMBINATION_MODE_WHITELIST:
+                for (VkExtensionProperties dev_props : device_extensions_) {
+                    for (VkExtensionProperties file_props : arrayof_extension_properties_) {
+                        if (strncmp(dev_props.extensionName, file_props.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) {
+                            simulation_extensions_.push_back(dev_props);
+                            break;
+                        }
+                    }
+                }
+                break;
+            case ARRAY_COMBINATION_MODE_BLACKLIST:
+                for (VkExtensionProperties dev_props : device_extensions_) {
+                    bool black_listed = false;
+                    for (VkExtensionProperties file_props : arrayof_extension_properties_) {
+                        if (strncmp(dev_props.extensionName, file_props.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) {
+                            black_listed = true;
+                            break;
+                        }
+                    }
+                    if (!black_listed) simulation_extensions_.push_back(dev_props);
+                }
+                break;
+            case ARRAY_COMBINATION_MODE_INTERSECT:
+                for (VkExtensionProperties dev_props : device_extensions_) {
+                    simulation_extensions_.push_back(dev_props);
+                }
+
+                for (VkExtensionProperties file_props : arrayof_extension_properties_) {
+                    bool intersection = false;
+                    for (VkExtensionProperties dev_props : device_extensions_) {
+                        if (strncmp(dev_props.extensionName, file_props.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) {
+                            intersection = true;
+                            break;
+                        }
+                    }
+                    if (!intersection) simulation_extensions_.push_back(file_props);
+                }
+                break;
+            default:
+                simulation_extensions_ = device_extensions_;
+        }
+
+        return simulation_extensions_.size();
+    }
+
     VkInstance instance() const { return instance_; }
 
-    std::vector<VkExtensionProperties> device_extensions;
+    std::vector<VkExtensionProperties> device_extensions_;
+
+    ArrayCombinationMode extension_list_combination_mode_;
+    std::vector<VkExtensionProperties> simulation_extensions_;
 
     VkPhysicalDeviceProperties physical_device_properties_;
     VkPhysicalDeviceFeatures physical_device_features_;
@@ -669,6 +738,8 @@ class PhysicalDeviceData {
     PhysicalDeviceData() = delete;
     PhysicalDeviceData &operator=(const PhysicalDeviceData &) = delete;
     PhysicalDeviceData(VkInstance instance) : instance_(instance) {
+        extension_list_combination_mode_ = ARRAY_COMBINATION_MODE_REPLACE;
+
         physical_device_properties_ = {};
         physical_device_features_ = {};
         physical_device_memory_properties_ = {};
@@ -2316,6 +2387,25 @@ static int GetBooleanValue(const std::string &value) {
 #endif
 }
 
+static ArrayCombinationMode GetArrayCombinationModeValue(const std::string &value) {
+    std::string temp = value;
+    std::transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+
+    if (value.empty())
+        return ARRAY_COMBINATION_MODE_NONE;
+    else if (temp == "none" || temp == "0")
+        return ARRAY_COMBINATION_MODE_NONE;
+    else if (temp == "replace" || temp == "1")
+        return ARRAY_COMBINATION_MODE_REPLACE;
+    else if (temp == "whitelist" || temp == "2")
+        return ARRAY_COMBINATION_MODE_WHITELIST;
+    else if (temp == "blacklist" || temp == "3")
+        return ARRAY_COMBINATION_MODE_BLACKLIST;
+    else if (temp == "intersect" || temp == "4")
+        return ARRAY_COMBINATION_MODE_INTERSECT;
+    else
+        return ARRAY_COMBINATION_MODE_NONE;
+}
 // Fill the debugLevel variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimDebugLevel() {
@@ -2365,7 +2455,7 @@ static void GetDevSimModifyExtensionList() {
         modify_extension_list = env_var;
         modifyExtensionList.fromEnvVar = true;
     }
-    modifyExtensionList.num = GetBooleanValue(modify_extension_list);
+    modifyExtensionList.mode = GetArrayCombinationModeValue(modify_extension_list);
 }
 
 // Fill the modifyMemoryFlags variable with a value from either vk_layer_settings.txt or environment variables.
@@ -2778,13 +2868,13 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
-    const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_extension_properties_.size()) : 0;
+    const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->simulation_extensions_.size()) : 0;
     if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
         result = EnumerateProperties(kDeviceExtensionPropertiesCount, kDeviceExtensionProperties.data(), pCount, pProperties);
-    } else if (src_count == 0 || modifyExtensionList.num == 0) {
+    } else if (src_count == 0 || pdd->extension_list_combination_mode_ == ARRAY_COMBINATION_MODE_NONE) {
         result = dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
     } else {
-        result = EnumerateProperties(src_count, pdd->arrayof_extension_properties_.data(), pCount, pProperties);
+        result = EnumerateProperties(src_count, pdd->simulation_extensions_.data(), pCount, pProperties);
     }
 
     if (result == VK_SUCCESS && !pLayerName && emulatePortability.num > 0 &&
@@ -3189,7 +3279,9 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
 
             PhysicalDeviceData &pdd = PhysicalDeviceData::Create(physical_device, instance);
 
-            EnumerateAll<VkExtensionProperties>(&(pdd.device_extensions), [&](uint32_t *count, VkExtensionProperties *results) {
+            pdd.extension_list_combination_mode_ = modifyExtensionList.mode;
+
+            EnumerateAll<VkExtensionProperties>(&(pdd.device_extensions_), [&](uint32_t *count, VkExtensionProperties *results) {
                 return dt->EnumerateDeviceExtensionProperties(physical_device, nullptr, count, results);
             });
 
@@ -3422,6 +3514,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
             // Override PDD members with values from configuration file(s).
             JsonLoader json_loader(pdd);
             json_loader.LoadFiles();
+
+            pdd.combineExtensionLists();
 
             // VK_VULKAN_1_1
             TransferValue(&(pdd.physical_device_vulkan_1_1_properties_), &(pdd.physical_device_point_clipping_properties_));
