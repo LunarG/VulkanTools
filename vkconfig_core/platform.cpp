@@ -164,7 +164,7 @@ const char* GetPlatformString(PlatformString platform_string) {
         },
         {
             // PLATFORM_STRING_VULKAN_SDK_DEFAULT
-            "/gni/share/vulkan",        // PLATFORM_WINDOWS
+            "/N/A",                     // PLATFORM_WINDOWS
             "/usr",                     // PLATFORM_LINUX
             "/usr/local/share/vulkan",  // PLATFORM_MACOS
         },
@@ -173,6 +173,12 @@ const char* GetPlatformString(PlatformString platform_string) {
             "/Config",               // PLATFORM_WINDOWS
             "/share/vulkan/config",  // PLATFORM_LINUX
             "/config",               // PLATFORM_MACOS
+        },
+        {
+            // PLATFORM_STRING_APPDATA_DEFAULT
+            "/AppData/Local/LunarG",  // PLATFORM_WINDOWS
+            "/.local/share/vulkan",   // PLATFORM_LINUX
+            "/.local/share/vulkan",   // PLATFORM_MACOS
         },
         {
             // PLATFORM_STRING_EXPLICIT_LAYERS

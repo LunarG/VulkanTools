@@ -161,7 +161,7 @@
                     "description": "Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr",
                     "type": "SAVE_FILE",
                     "filter": "*.gfxr",
-                    "default": "${LOCAL}/gfxrecon_capture.gfxr",
+                    "default": "${VK_LOCAL}/gfxrecon_capture.gfxr",
                     "settings": [
                         {
                             "key": "capture_file_timestamp",
