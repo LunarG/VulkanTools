@@ -208,10 +208,18 @@ DevSim config files that use this feature should validate to the portability spe
 | `VK_DEVSIM_DEBUG_ENABLE` | `lunarg_device_simulation.debug_enable` | debug.vulkan.devsim.debugenable | false | Enables debug message output. |
 | `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | debug.vulkan.devsim.exitonerror | false | Enables exit-on-error. |
 | `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | debug.vulkan.devsim.emulateportability | true | Enables emulation of the `VK_KHR_portability_subset` extension. |
-| `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | debug.vulkan.devsim.modifyextensionlist | false | Enables modification of the device extensions list from the JSON config file. |
+| `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | debug.vulkan.devsim.modifyextensionlist | none | Enables modification of the device extensions list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
 | `VK_DEVSIM_MODIFY_MEMORY_FLAGS` | `lunarg_device_simulation.modify_memory_flags` | debug.vulkan.devsim.modifymemoryflags | false | Enables modification of the device memory heap flags and memory type flags from the JSON config file. |
 
 **Note:** Environment variables take precedence over `vk_layer_settings.txt` options.
+
+#### `VK_DEVSIM_MODIFY_EXTENSION_LIST` Options Descriptions
+
+* none: Turns off modification of the device's extension list. Uses the device's real extension list.
+* replace: Fully replaces the device's extension list with the extension list provided by the DevSim configuration file.
+* whitelist: Includes extensions from the devsim configuration file only if they are supported by the device.
+* blacklist: Removes extensions from the device's extension list if they are included in the devsim configuration file's extension list.
+* intersect: Adds the list of extensions from the devsim configuration file to the device's extension list while avoiding repeats.
 
 ### Example using the DevSim layer using Linux environment variables
 ```bash
