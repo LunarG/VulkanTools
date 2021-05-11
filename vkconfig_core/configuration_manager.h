@@ -66,7 +66,7 @@ class ConfigurationManager {
    private:
     void RemoveConfigurationFiles();
 
-    void LoadConfigurationsPath(const std::vector<Layer>& available_layers, PathType path_type);
+    void LoadConfigurationsPath(const std::vector<Layer>& available_layers, const char* path);
     void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
 
     Configuration* active_configuration;

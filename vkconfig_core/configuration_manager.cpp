@@ -26,6 +26,8 @@
 #include <QMessageBox>
 #include <QFileInfoList>
 
+static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_1", "_2_2", ""};
+
 ConfigurationManager::ConfigurationManager(const PathManager &path_manager, Environment &environment)
     : active_configuration(nullptr), path_manager(path_manager), environment(environment) {}
 
@@ -44,8 +46,11 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
         environment.first_run = false;
     }
 
-    for (int i = PATH_LAST_CONFIGURATION; i >= PATH_FIRST_CONFIGURATION; --i) {
-        LoadConfigurationsPath(available_layers, static_cast<PathType>(i));
+    const std::string base_config_path = GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
+
+    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+        const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i];
+        LoadConfigurationsPath(available_layers, path.c_str());
     }
 
     RefreshConfiguration(available_layers);
@@ -108,8 +113,8 @@ void ConfigurationManager::SortConfigurations() {
     std::sort(this->available_configurations.begin(), this->available_configurations.end(), Compare());
 }
 
-void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers, PathType path_type) {
-    const QFileInfoList &configuration_files = GetJSONFiles(path_manager.GetPath(path_type).c_str());
+void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers, const char *path) {
+    const QFileInfoList &configuration_files = GetJSONFiles(path);
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
         const QFileInfo &info = configuration_files[i];
         if (SUPPORT_LAYER_CONFIG_2_0_3 && IsConfigurationExcluded(info.fileName().toStdString().c_str())) continue;
@@ -128,7 +133,7 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
 
 void ConfigurationManager::SaveAllConfigurations(const std::vector<Layer> &available_layers) {
     for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
-        const std::string path = path_manager.GetFullPath(PATH_LAST_CONFIGURATION, available_configurations[i].key.c_str());
+        const std::string path = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + available_configurations[i].key + ".json";
         available_configurations[i].Save(available_layers, path.c_str());
     }
 }
@@ -140,7 +145,7 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     Configuration new_configuration = duplicate_configuration != nullptr ? *duplicate_configuration : Configuration();
     new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
 
-    const std::string path = path_manager.GetFullPath(PATH_LAST_CONFIGURATION, new_configuration.key.c_str());
+    const std::string path = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + new_configuration.key + ".json";
     new_configuration.Save(available_layers, path.c_str());
 
     // Reload from file to workaround the lack of SettingSet copy support
@@ -156,8 +161,13 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
 }
 
 void ConfigurationManager::RemoveConfigurationFiles() {
-    for (int path_index = PATH_LAST_CONFIGURATION; path_index >= PATH_FIRST_CONFIGURATION; --path_index) {
-        const QFileInfoList &configuration_files = GetJSONFiles(path_manager.GetPath(static_cast<PathType>(path_index)).c_str());
+    const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
+
+    static const char *VERSIONS[] = {"_2_2_1", "_2_2", ""};
+
+    for (std::size_t i = 0, n = countof(VERSIONS); i < n; ++i) {
+        const std::string path = base_config_path + VERSIONS[i];
+        const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
 
         for (int i = 0, n = configuration_files.size(); i < n; ++i) {
             remove(configuration_files[i].filePath().toStdString().c_str());
@@ -173,12 +183,6 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
         if (active_configuration->key == configuration_name.c_str()) {
             SetActiveConfiguration(available_layers, nullptr);
         }
-    }
-
-    // Delete the configuration file if it exists
-    for (int i = PATH_LAST_CONFIGURATION; i >= PATH_FIRST_CONFIGURATION; --i) {
-        const std::string full_path(path_manager.GetFullPath(static_cast<PathType>(i), configuration_name.c_str()));
-        std::remove(full_path.c_str());
     }
 
     // Update the configuration in the list

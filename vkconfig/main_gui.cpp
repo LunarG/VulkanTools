@@ -60,7 +60,7 @@ int run_gui(int argc, char* argv[]) {
     const ApplicationSingleton singleton("vkconfig_single_instance");
     if (!singleton.IsFirstInstance()) {
         QMessageBox alert(nullptr);
-        alert.setWindowTitle("Cannot start another instance of vkconfig");
+        alert.setWindowTitle("Cannot start another instance of Vulkan Configurator");
         alert.setIcon(QMessageBox::Critical);
         alert.setText("Another copy of vkconfig is currently running. Please close the other instance and try again.");
         alert.exec();

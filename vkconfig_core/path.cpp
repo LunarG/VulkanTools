@@ -60,24 +60,41 @@ std::string GetPath(BuiltinPath path) {
         case BUILTIN_PATH_HOME:
             return ConvertNativeSeparators(QDir().homePath().toStdString());
         case BUILTIN_PATH_LOCAL:
-            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL));
-        case BUILTIN_PATH_APPDATA: {
-            QString path(qgetenv("VK_LAYER_SETTINGS_PATH"));
-            if (path.isEmpty()) {
-                path = GetPlatformString(PLATFORM_STRING_APPDATA_DEFAULT);
+            return ConvertNativeSeparators(GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL));
+        case BUILTIN_PATH_CONFIG_REF: {
+            return GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
+        }
+        case BUILTIN_PATH_CONFIG_LAST: {
+            const std::string config = format("_%d_%d_%d", Version::LAYER_CONFIG.GetMajor(), Version::LAYER_CONFIG.GetMinor(),
+                                              Version::LAYER_CONFIG.GetPatch());
+
+            return GetPath(BUILTIN_PATH_CONFIG_REF) + config;
+        }
+        case BUILTIN_PATH_OVERRIDE_SETTINGS: {
+            std::string path(qgetenv("VK_LAYER_SETTINGS_PATH").toStdString());
+            if (path.empty()) {
+                path += GetPath(BUILTIN_PATH_APPDATA);
+                path += GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS);
             }
-            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + path.toStdString());
+            return ConvertNativeSeparators(path);
+        }
+        case BUILTIN_PATH_OVERRIDE_LAYERS: {
+            const std::string path = GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS);
+            return ConvertNativeSeparators(path);
+        }
+        case BUILTIN_PATH_APPDATA: {
+            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_APPDATA));
         }
         case BUILTIN_PATH_VULKAN_SDK: {
-            QString path(qgetenv("VULKAN_SDK"));
-            if (path.isEmpty()) {
-                path = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_DEFAULT);
+            std::string path(qgetenv("VULKAN_SDK"));
+            if (path.empty()) {
+                assert(VKC_PLATFORM != VKC_PLATFORM_WINDOWS);
+                path = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_SYSTEM);
             }
-            return ConvertNativeSeparators(path.toStdString());
+            return ConvertNativeSeparators(path);
         }
-        case BUILTIN_PATH_VULKAN_LAYER_CONFIG: {
-            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) +
-                                           GetPlatformString(PLATFORM_STRING_VULKAN_LAYER_CONFIG));
+        case BUILTIN_PATH_VULKAN_CONTENT: {
+            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) + GetPlatformString(PLATFORM_STRING_VK_CONTENT));
         }
         default: {
             assert(0);
@@ -97,9 +114,7 @@ std::string ReplaceBuiltInVariable(const std::string& path) {
                                             {BUILTIN_PATH_LOCAL, "${VK_LOCAL}"},
                                             {BUILTIN_PATH_APPDATA, "${VK_APPDATA}"},
                                             {BUILTIN_PATH_VULKAN_SDK, "${VULKAN_SDK}"},
-                                            {BUILTIN_PATH_VULKAN_LAYER_CONFIG, "${VULKAN_CONTENT}"}};
-
-    static_assert(countof(VARIABLES) == BUILTIN_PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
+                                            {BUILTIN_PATH_VULKAN_CONTENT, "${VULKAN_CONTENT}"}};
 
     for (std::size_t i = 0, n = countof(VARIABLES); i < n; ++i) {
         const std::size_t found = path.find(VARIABLES[i].name);

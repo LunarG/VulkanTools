@@ -299,7 +299,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
             format("The configuration layers and settings will be restored to default built-in *%s* configuration.",
                    configuration.key.c_str())
                 .c_str());
-    else if (this->configuration.HasSavedFile(Configurator::Get().path))
+    else if (this->configuration.HasFile(Configurator::Get().path))
         alert.setInformativeText(
             format("The configuration layers and settings will be reloaded using the *%s* saved file from previous %s run.",
                    configuration.key.c_str(), VKCONFIG_NAME)
