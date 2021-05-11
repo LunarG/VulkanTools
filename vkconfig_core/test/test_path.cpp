@@ -37,10 +37,16 @@ TEST(test_util, replace_path_home) {
     EXPECT_TRUE(replaced_path.find("${HOME}") > replaced_path.size());
 }
 
-TEST(test_util, replace_path_vulkan_sdk) {
-    const std::string replaced_path = ReplaceBuiltInVariable("${VULKAN_SDK}/test.txt");
+TEST(test_util, replace_path_vk_local) {
+    const std::string replaced_path = ReplaceBuiltInVariable("${VK_LOCAL}/test.txt");
 
-    EXPECT_TRUE(replaced_path.find("${VULKAN_SDK}") > replaced_path.size());
+    EXPECT_TRUE(replaced_path.find("${VK_LOCAL}") > replaced_path.size());
+}
+
+TEST(test_util, replace_path_vk_appdata) {
+    const std::string replaced_path = ReplaceBuiltInVariable("${VK_APPDATA}/test.txt");
+
+    EXPECT_TRUE(replaced_path.find("${VK_APPDATA}") > replaced_path.size());
 }
 
 TEST(test_util, replace_path_unknown) {

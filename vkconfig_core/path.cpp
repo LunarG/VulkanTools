@@ -60,7 +60,14 @@ std::string GetPath(BuiltinPath path) {
         case BUILTIN_PATH_HOME:
             return ConvertNativeSeparators(QDir().homePath().toStdString());
         case BUILTIN_PATH_LOCAL:
-            return GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL);
+            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL));
+        case BUILTIN_PATH_APPDATA: {
+            QString path(qgetenv("VK_LAYER_SETTINGS_PATH"));
+            if (path.isEmpty()) {
+                path = GetPlatformString(PLATFORM_STRING_APPDATA_DEFAULT);
+            }
+            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + path.toStdString());
+        }
         case BUILTIN_PATH_VULKAN_SDK: {
             QString path(qgetenv("VULKAN_SDK"));
             if (path.isEmpty()) {
@@ -86,7 +93,9 @@ struct BuiltinDesc {
 
 std::string ReplaceBuiltInVariable(const std::string& path) {
     static const BuiltinDesc VARIABLES[] = {{BUILTIN_PATH_HOME, "${HOME}"},
-                                            {BUILTIN_PATH_LOCAL, "${LOCAL}"},
+                                            {BUILTIN_PATH_LOCAL_LEGACY, "${LOCAL}"},
+                                            {BUILTIN_PATH_LOCAL, "${VK_LOCAL}"},
+                                            {BUILTIN_PATH_APPDATA, "${VK_APPDATA}"},
                                             {BUILTIN_PATH_VULKAN_SDK, "${VULKAN_SDK}"},
                                             {BUILTIN_PATH_VULKAN_LAYER_CONFIG, "${VULKAN_CONTENT}"}};
 
