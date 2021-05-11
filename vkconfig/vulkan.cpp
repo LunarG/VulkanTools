@@ -125,7 +125,7 @@ std::string GenerateVulkanStatus() {
             log += format("    %s\n", ExtractAbsoluteDir(layer_settings_path).c_str());
         }
     } else {
-        const std::string path = configurator.environment.paths.GetFullPath(PATH_OVERRIDE_SETTINGS);
+        const std::string path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS) + "/vk_layer_settings.txt";
         log += "- Global `vk_layer_settings.txt` uses the default platform path:\n";
         log += format("    %s\n", ExtractAbsoluteDir(path).c_str());
     }

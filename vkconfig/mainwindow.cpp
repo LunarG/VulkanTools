@@ -480,7 +480,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         // We are renaming the file. Things can go wrong here...
         // This is the name of the configuratin we are changing
-        const std::string full_path(configurator.path.GetFullPath(PATH_LAST_CONFIGURATION, configuration_item->configuration_name));
+        const std::string full_path = GetPath(BUILTIN_PATH_CONFIG_LAST) + configuration_item->configuration_name + ".json";
 
         // This is the new name we want to use for the configuration
         const std::string &new_name = configuration_item->text(1).toStdString();
@@ -879,7 +879,7 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
             format("The configuration layers and settings will be restored to default built-in *%s* configuration.",
                    configuration->key.c_str())
                 .c_str());
-    else if (configuration->HasSavedFile(configurator.path))
+    else if (configuration->HasFile(configurator.path))
         alert.setInformativeText(
             format("The configuration layers and settings will be reloaded using the *%s* saved file from previous %s run.",
                    configuration->key.c_str(), VKCONFIG_NAME)

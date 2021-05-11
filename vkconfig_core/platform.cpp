@@ -19,12 +19,15 @@
  */
 
 #include "platform.h"
+#include "path.h"
 #include "util.h"
 
 #include <cstring>
 #include <cassert>
 #include <vector>
 #include <string>
+
+#include <QDir>
 
 int GetPlatformFlags(const std::vector<std::string>& platform_strings) {
     int result = 0;
@@ -113,131 +116,102 @@ DependenceMode GetDependenceMode(const char* token) {
 }
 
 const char* GetPlatformString(PlatformString platform_string) {
-    static const char* table[][PLATFORM_COUNT] = {
-        {
-            // PLATFORM_STRING_OS
-            GetToken(PLATFORM_WINDOWS),  // PLATFORM_WINDOWS
-            GetToken(PLATFORM_LINUX),    // PLATFORM_LINUX
-            GetToken(PLATFORM_MACOS)     // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_APP_SUFFIX
-            ".exe",  // PLATFORM_WINDOWS
-            "",      // PLATFORM_LINUX
-            ".app"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_EXE_SUFFIX
-            ".exe",  // PLATFORM_WINDOWS
-            "",      // PLATFORM_LINUX
-            ""       // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_SDK_BIN_DIR
-            "/Bin",  // PLATFORM_WINDOWS
-            "/bin",  // PLATFORM_LINUX
-            "/bin"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_SEPARATOR
-            ";",  // PLATFORM_WINDOWS
-            ":",  // PLATFORM_LINUX
-            ":"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_FILTER
-            "Applications (*.exe)",    // PLATFORM_WINDOWS
-            "Applications (*)",        // PLATFORM_LINUX
-            "Applications (*.app, *)"  // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_VULKAN_INFO
-            "vulkaninfoSDK",              // PLATFORM_WINDOWS
-            "vulkaninfo",                 // PLATFORM_LINUX
-            "/usr/local/bin/vulkaninfo",  // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_VULKAN_LIBRARY
-            "vulkan-1.dll",              // PLATFORM_WINDOWS
-            "libvulkan",                 // PLATFORM_LINUX
-            "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_VULKAN_SDK_DEFAULT
-            "/N/A",                     // PLATFORM_WINDOWS
-            "/usr",                     // PLATFORM_LINUX
-            "/usr/local/share/vulkan",  // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_VULKAN_LAYER_CONFIG
-            "/Config",               // PLATFORM_WINDOWS
-            "/share/vulkan/config",  // PLATFORM_LINUX
-            "/config",               // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_APPDATA_DEFAULT
-            "/AppData/Local/LunarG",  // PLATFORM_WINDOWS
-            "/.local/share/vulkan",   // PLATFORM_LINUX
-            "/.local/share/vulkan",   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_EXPLICIT_LAYERS
-            "/Bin",                          // PLATFORM_WINDOWS
-            "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
-            "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_VULKAN_SDK_LOCAL
-            "/VulkanSDK",  // PLATFORM_WINDOWS
-            "/VulkanSDK",  // PLATFORM_LINUX
-            "/VulkanSDK",  // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_PATH_VKC_USER_DIR
-            "/AppData/Local/LunarG/vkconfig/",        // PLATFORM_WINDOWS
-            "/.local/share/vulkan/lunarg-vkconfig/",  // PLATFORM_LINUX
-            "/.local/share/vulkan/lunarg-vkconfig/"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_PATH_CONFIGURATION_2_0
-            "/AppData/Local/LunarG/vkconfig/",        // PLATFORM_WINDOWS
-            "/.local/share/vulkan/lunarg-vkconfig/",  // PLATFORM_LINUX
-            "/.local/share/vulkan/lunarg-vkconfig/"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_PATH_CONFIGURATION_2_1
-            "/AppData/Local/LunarG/vkconfig/configurations/",        // PLATFORM_WINDOWS
-            "/.local/share/vulkan/lunarg-vkconfig/configurations/",  // PLATFORM_LINUX
-            "/.local/share/vulkan/lunarg-vkconfig/configurations/"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_PATH_CONFIGURATION_2_2
-            "/AppData/Local/LunarG/vkconfig/configurations_2_2/",        // PLATFORM_WINDOWS
-            "/.local/share/vulkan/lunarg-vkconfig/configurations_2_2/",  // PLATFORM_LINUX
-            "/.local/share/vulkan/lunarg-vkconfig/configurations_2_2/"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_PATH_CONFIGURATION_2_2_1
-            "/AppData/Local/LunarG/vkconfig/configurations_2_2_1/",        // PLATFORM_WINDOWS
-            "/.local/share/vulkan/lunarg-vkconfig/configurations_2_2_1/",  // PLATFORM_LINUX
-            "/.local/share/vulkan/lunarg-vkconfig/configurations_2_2_1/"   // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_PATH_OVERRIDE_LAYERS
-            "/AppData/Local/LunarG/vkconfig/override",  // PLATFORM_WINDOWS
-            "/.local/share/vulkan/implicit_layer.d",    // PLATFORM_LINUX
-            "/.local/share/vulkan/implicit_layer.d"     // PLATFORM_MACOS
-        },
-        {
-            // PLATFORM_STRING_PATH_OVERRIDE_SETTINGS
-            "/AppData/Local/LunarG/vkconfig/override",  // PLATFORM_WINDOWS
-            "/.local/share/vulkan/settings.d",          // PLATFORM_LINUX
-            "/.local/share/vulkan/settings.d"           // PLATFORM_MACOS
-        },
-    };
-    static_assert(countof(table) == PLATFORM_STRING_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static const char* table_platform_string[][PLATFORM_COUNT] = {// PLATFORM_STRING_COUNT
+                                                                  {
+                                                                      // PLATFORM_STRING_APP_SUFFIX
+                                                                      ".exe",  // PLATFORM_WINDOWS
+                                                                      "",      // PLATFORM_LINUX
+                                                                      ".app"   // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_EXE_SUFFIX
+                                                                      ".exe",  // PLATFORM_WINDOWS
+                                                                      "",      // PLATFORM_LINUX
+                                                                      ""       // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_SDK_BIN_DIR
+                                                                      "/Bin",  // PLATFORM_WINDOWS
+                                                                      "/bin",  // PLATFORM_LINUX
+                                                                      "/bin"   // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_SEPARATOR
+                                                                      ";",  // PLATFORM_WINDOWS
+                                                                      ":",  // PLATFORM_LINUX
+                                                                      ":"   // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_FILTER
+                                                                      "Applications (*.exe)",    // PLATFORM_WINDOWS
+                                                                      "Applications (*)",        // PLATFORM_LINUX
+                                                                      "Applications (*.app, *)"  // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_VULKAN_INFO
+                                                                      "vulkaninfoSDK",              // PLATFORM_WINDOWS
+                                                                      "vulkaninfo",                 // PLATFORM_LINUX
+                                                                      "/usr/local/bin/vulkaninfo",  // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_VULKAN_LIBRARY
+                                                                      "vulkan-1.dll",              // PLATFORM_WINDOWS
+                                                                      "libvulkan",                 // PLATFORM_LINUX
+                                                                      "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_VULKAN_SDK_SYSTEM
+                                                                      "/N/A",                     // PLATFORM_WINDOWS
+                                                                      "/usr",                     // PLATFORM_LINUX
+                                                                      "/usr/local/share/vulkan",  // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_VK_CONTENT
+                                                                      "/Config",               // PLATFORM_WINDOWS
+                                                                      "/share/vulkan/config",  // PLATFORM_LINUX
+                                                                      "/config",               // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_APPDATA
+                                                                      "/AppData/Local/LunarG",  // PLATFORM_WINDOWS
+                                                                      "/.local/share/vulkan",   // PLATFORM_LINUX
+                                                                      "/.local/share/vulkan",   // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_VULKAN_SDK_LOCAL
+                                                                      "/VulkanSDK",  // PLATFORM_WINDOWS
+                                                                      "/VulkanSDK",  // PLATFORM_LINUX
+                                                                      "/VulkanSDK",  // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_PATH_CONFIGURATION
+                                                                      "/vkconfig/configurations",         // PLATFORM_WINDOWS
+                                                                      "/lunarg-vkconfig/configurations",  // PLATFORM_LINUX
+                                                                      "/lunarg-vkconfig/configurations"   // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_PATH_OVERRIDE_LAYERS
+                                                                      "/vkconfig/override",  // PLATFORM_WINDOWS
+                                                                      "/implicit_layer.d",   // PLATFORM_LINUX
+                                                                      "/implicit_layer.d"    // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_PATH_OVERRIDE_SETTINGS
+                                                                      "/vkconfig/override",  // PLATFORM_WINDOWS
+                                                                      "/settings.d",         // PLATFORM_LINUX
+                                                                      "/settings.d"          // PLATFORM_MACOS
+                                                                  },
+                                                                  {
+                                                                      // PLATFORM_STRING_EXPLICIT_LAYERS
+                                                                      "/Bin",                          // PLATFORM_WINDOWS
+                                                                      "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
+                                                                      "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
+                                                                  }};
 
-    return table[platform_string][VKC_PLATFORM];
+    static_assert(countof(table_platform_string) == PLATFORM_STRING_COUNT,
+                  "The tranlation table size doesn't match the enum number of elements");
+
+    return table_platform_string[platform_string][VKC_PLATFORM];
 }
 
 bool IsPlatformSupported(int platform_flags) { return platform_flags & (1 << VKC_PLATFORM); }

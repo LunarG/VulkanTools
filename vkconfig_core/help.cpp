@@ -28,10 +28,13 @@
 #include <cassert>
 
 void ShowDoc(DocType doc_type) {
-    std::string platform = ToLowerCase(GetPlatformString(PLATFORM_STRING_OS));
-    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
-        platform = "mac";
-    }
+    static const char* PLATFORM_STRING[] = {
+        "windows",  // PLATFORM_WINDOWS
+        "linux",    // PLATFORM_LINUX
+        "mac"       // PLATFORM_MACOS
+    };
+
+    const char* platform = PLATFORM_STRING[VKC_PLATFORM];
 
     switch (doc_type) {
         default: {
@@ -39,12 +42,13 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_FIND_LAYERS: {
-            QDesktopServices::openUrl(
-                QUrl("https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers"));
+            const std::string url =
+                "https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers";
+            QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
         case DOC_VKCONFIG_README: {
-            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/vkconfig.html", platform.c_str());
+            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/vkconfig.html", platform);
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
@@ -57,14 +61,12 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_VULKAN_SPEC: {
-            const std::string url =
-                format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html", platform.c_str());
+            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html", platform);
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
         case DOC_VULKAN_LAYERS: {
-            const std::string url =
-                format("https://vulkan.lunarg.com/doc/view/latest/%s/layer_configuration.html", platform.c_str());
+            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/layer_configuration.html", platform);
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
