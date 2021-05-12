@@ -64,6 +64,7 @@ std::string GetPath(BuiltinPath path) {
     switch (path) {
         case BUILTIN_PATH_HOME:
             return ConvertNativeSeparators(QDir().homePath().toStdString());
+        case BUILTIN_PATH_LOCAL_LEGACY:
         case BUILTIN_PATH_LOCAL:
             return GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK";
         case BUILTIN_PATH_CONFIG_REF: {
