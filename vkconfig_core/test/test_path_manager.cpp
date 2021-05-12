@@ -81,9 +81,9 @@ TEST(test_path_manager, path_format) {
     for (std::size_t i = 0, n = countof(table); i < n; ++i) {
         PathManager paths;
         paths.Clear();
-        paths.SetPath(PATH_LAST_CONFIGURATION, QDir::homePath().toStdString() + table[i]);
+        paths.SetPath(PATH_EXPORT_CONFIGURATION, QDir::homePath().toStdString() + table[i]);
 
-        const std::string path(paths.GetPath(PATH_LAST_CONFIGURATION).c_str());
+        const std::string path(paths.GetPath(PATH_EXPORT_CONFIGURATION).c_str());
         const std::string home_path(GetPath(BUILTIN_PATH_HOME).c_str());
 
         if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
@@ -119,20 +119,9 @@ TEST(test_path_manager, empty_export) {
 TEST(test_path_manager, check_missing_dir) {
     PathManager paths;
     paths.Clear();
-    paths.SetPath(PATH_LAST_CONFIGURATION, InitPath("check_missing_dir"));
+    paths.SetPath(PATH_EXPORT_CONFIGURATION, InitPath("check_missing_dir"));
 
-    EXPECT_TRUE(strstr(paths.GetPath(PATH_LAST_CONFIGURATION).c_str(), "check_missing_dir") != nullptr);
-
-    paths.Load();
-}
-
-TEST(test_path_manager, check_default_filename) {
-    PathManager paths;
-    paths.Clear();
-
-    const QString string = paths.GetFullPath(PATH_OVERRIDE_SETTINGS).c_str();
-
-    EXPECT_TRUE(string.endsWith("vk_layer_settings.txt"));
+    EXPECT_TRUE(strstr(paths.GetPath(PATH_EXPORT_CONFIGURATION).c_str(), "check_missing_dir") != nullptr);
 
     paths.Load();
 }

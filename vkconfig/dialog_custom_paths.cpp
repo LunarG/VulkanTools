@@ -81,7 +81,7 @@ void CustomPathsDialog::RepopulateTree() {
 
 void CustomPathsDialog::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();
-    const std::string custom_path = configurator.path.SelectPath(this, PATH_USER_DEFINED_LAYERS_PATHS_GUI);
+    const std::string custom_path = configurator.path.SelectPath(this, PATH_USER_DEFINED_LAYERS_GUI);
 
     if (!custom_path.empty()) {
         if (configurator.environment.AppendCustomLayerPath(custom_path)) {

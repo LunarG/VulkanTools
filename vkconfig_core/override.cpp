@@ -281,8 +281,8 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
 
 bool OverrideConfiguration(const Environment& environment, const std::vector<Layer>& available_layers,
                            const Configuration& configuration) {
-    const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS) + "/VkLayer_override.json";
-    const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS) + "/vk_layer_settings.txt";
+    const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS);
+    const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
 
     // Clean up
     SurrenderConfiguration(environment);
@@ -306,8 +306,8 @@ bool EraseLayersOverride(const std::string& layers_path) { return std::remove(la
 bool EraseSettingsOverride(const std::string& settings_path) { return std::remove(settings_path.c_str()) == 0; }
 
 bool SurrenderConfiguration(const Environment& environment) {
-    const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS) + "/VkLayer_override.json";
-    const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS) + "/vk_layer_settings.txt";
+    const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS);
+    const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
 
     const bool result_layers = EraseLayersOverride(layers_path);
     const bool result_settings = EraseSettingsOverride(settings_path);
@@ -320,8 +320,8 @@ bool SurrenderConfiguration(const Environment& environment) {
 }
 
 bool HasOverride(const Environment& environment) {
-    const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS) + "/VkLayer_override.json";
-    const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS) + "/vk_layer_settings.txt";
+    const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS);
+    const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
 
     const QFileInfo override_settings_file_info(layers_path.c_str());
     const QFileInfo override_layers_file_info(settings_path.c_str());
