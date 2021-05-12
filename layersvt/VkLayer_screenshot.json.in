@@ -32,7 +32,7 @@
                     "label": "Directory",
                     "description": "This can be set to specify the directory in which to create the screenshot files.",
                     "type": "SAVE_FOLDER",
-                    "default": ""
+                    "default": "${VK_LOCAL}"
                 },
                 {
                     "key": "format",
