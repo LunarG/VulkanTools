@@ -30,15 +30,15 @@
 #include <string>
 
 enum PathType {
-    PATH_IMPORT_CONFIGURATION = 0,       // The last path used by the user to import a configuration
-    PATH_EXPORT_CONFIGURATION,           // The last path used by the user to export a configuration
-    PATH_EXECUTABLE,                     // The last path used by the user when adding an executable to the application list
-    PATH_WORKING_DIR,                    // The last path used as a working directory
-    PATH_LAUNCHER_LOG_FILE,              // The last path used by the user to set the launcher log file
-    PATH_USER_DEFINED_LAYERS_PATHS_GUI,  // The last user-defined layers path
+    PATH_IMPORT_CONFIGURATION = 0,  // The last path used by the user to import a configuration
+    PATH_EXPORT_CONFIGURATION,      // The last path used by the user to export a configuration
+    PATH_EXECUTABLE,                // The last path used by the user when adding an executable to the application list
+    PATH_WORKING_DIR,               // The last path used as a working directory
+    PATH_LAUNCHER_LOG_FILE,         // The last path used by the user to set the launcher log file
+    PATH_USER_DEFINED_LAYERS_GUI,   // The last user-defined layers path
 
     PATH_FIRST = PATH_IMPORT_CONFIGURATION,
-    PATH_LAST = PATH_USER_DEFINED_LAYERS_PATHS_GUI
+    PATH_LAST = PATH_USER_DEFINED_LAYERS_GUI
 };
 
 enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };

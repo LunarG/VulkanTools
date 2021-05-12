@@ -178,12 +178,6 @@ const char* GetPlatformString(PlatformString platform_string) {
                                                                       "/.local/share/vulkan",   // PLATFORM_MACOS
                                                                   },
                                                                   {
-                                                                      // PLATFORM_STRING_VULKAN_SDK_LOCAL
-                                                                      "/VulkanSDK",  // PLATFORM_WINDOWS
-                                                                      "/VulkanSDK",  // PLATFORM_LINUX
-                                                                      "/VulkanSDK",  // PLATFORM_MACOS
-                                                                  },
-                                                                  {
                                                                       // PLATFORM_STRING_PATH_CONFIGURATION
                                                                       "/vkconfig/configurations",         // PLATFORM_WINDOWS
                                                                       "/lunarg-vkconfig/configurations",  // PLATFORM_LINUX

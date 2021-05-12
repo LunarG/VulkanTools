@@ -62,7 +62,7 @@ std::string ConvertNativeSeparators(const std::string& path);
 const char* GetNativeSeparator();
 
 // Create a directory if it doesn't exist
-void CheckPathsExist(const std::string& path);
+void CheckPathsExist(const std::string& path, bool is_full_path = false);
 
 std::string GetPath(BuiltinPath path);
 

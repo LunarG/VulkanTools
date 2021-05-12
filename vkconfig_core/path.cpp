@@ -45,8 +45,13 @@ const char* Path::c_str() const {
     return data.c_str();
 }
 
-void CheckPathsExist(const std::string& path) {
-    const QString tmp_path(ConvertNativeSeparators(path).c_str());
+void CheckPathsExist(const std::string& path, bool is_full_path) {
+    QString tmp_path(ConvertNativeSeparators(path).c_str());
+
+    if (is_full_path) {
+        QFileInfo file_info(tmp_path);
+        tmp_path = file_info.absoluteDir().absolutePath();
+    }
 
     QDir dir;
     if (!dir.exists(tmp_path)) {
@@ -60,7 +65,7 @@ std::string GetPath(BuiltinPath path) {
         case BUILTIN_PATH_HOME:
             return ConvertNativeSeparators(QDir().homePath().toStdString());
         case BUILTIN_PATH_LOCAL:
-            return ConvertNativeSeparators(GetPlatformString(PLATFORM_STRING_VULKAN_SDK_LOCAL));
+            return GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK";
         case BUILTIN_PATH_CONFIG_REF: {
             return GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
         }
@@ -76,11 +81,14 @@ std::string GetPath(BuiltinPath path) {
                 path += GetPath(BUILTIN_PATH_APPDATA);
                 path += GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS);
             }
+            if (path.find("vk_layer_settings.txt") == std::string::npos) {
+                path += "/vk_layer_settings.txt";
+            }
             return ConvertNativeSeparators(path);
         }
         case BUILTIN_PATH_OVERRIDE_LAYERS: {
             const std::string path = GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS);
-            return ConvertNativeSeparators(path);
+            return ConvertNativeSeparators(path + "/VkLayer_override.json");
         }
         case BUILTIN_PATH_APPDATA: {
             return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_APPDATA));

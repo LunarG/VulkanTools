@@ -34,11 +34,9 @@
 #include <QFileDialog>
 
 struct DirectoryDesc {
-    const char* label;
     const char* default_extension;  // file extension used to path
     const char* setting_data;       // system token to store the path, if empty the directory is not saved
     const char* default_filename;   // a default filename, if empty there is no default filename
-    const bool resettable;
     PathType alternative;
 };
 
@@ -46,17 +44,16 @@ static const DirectoryDesc& GetDesc(PathType directory) {
     assert(directory >= PATH_FIRST && directory <= PATH_LAST);
 
     static const DirectoryDesc table[] = {
-        {"configuration import", ".json", "lastImportPath", nullptr, true, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
-        {"configuration export", ".json", "lastExportPath", nullptr, true, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
+        {".json", "lastImportPath", nullptr, PATH_EXPORT_CONFIGURATION},  // PATH_IMPORT
+        {".json", "lastExportPath", nullptr, PATH_IMPORT_CONFIGURATION},  // PATH_EXPORT
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-        {"executable", ".exe", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
+        {".exe", "lastExecutablePath", nullptr, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #else
-        {"executable", "", "lastExecutablePath", nullptr, true, PATH_WORKING_DIR},  // PATH_EXECUTABLE
+        {"", "lastExecutablePath", nullptr, PATH_WORKING_DIR},  // PATH_EXECUTABLE
 #endif
-        {"working directory", nullptr, "lastWorkingDirPath", nullptr, true, PATH_EXECUTABLE},  // PATH_EXECUTABLE
-        {"log file", ".txt", "lastLauncherLogFile", "log", true, PATH_LAUNCHER_LOG_FILE},      // PATH_LAUNCHER_LOG_FILE
-        {"user-defined layers paths", ".json", "lastCustomLayerPath", nullptr, true,
-         PATH_USER_DEFINED_LAYERS_PATHS_GUI},  // PATH_USER_DEFINED_LAYERS_PATHS_GUI
+        {nullptr, "lastWorkingDirPath", nullptr, PATH_EXECUTABLE},            // PATH_EXECUTABLE
+        {".txt", "lastLauncherLogFile", "log", PATH_LAUNCHER_LOG_FILE},       // PATH_LAUNCHER_LOG_FILE
+        {".json", "lastLayersPaths", nullptr, PATH_USER_DEFINED_LAYERS_GUI},  // PATH_USER_DEFINED_LAYERS_GUI
     };
     static_assert(countof(table) == PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -93,8 +90,9 @@ bool PathManager::Load() {
 
     CheckPathsExist(::GetPath(BUILTIN_PATH_LOCAL));
     CheckPathsExist(::GetPath(BUILTIN_PATH_CONFIG_LAST));
-    CheckPathsExist(::GetPath(BUILTIN_PATH_OVERRIDE_LAYERS));
-    CheckPathsExist(::GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS));
+
+    CheckPathsExist(::GetPath(BUILTIN_PATH_OVERRIDE_LAYERS), true);
+    CheckPathsExist(::GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS), true);
 
     return true;
 }
@@ -119,11 +117,7 @@ void PathManager::Clear() {
 
 void PathManager::Reset() {
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
-        const PathType type = static_cast<PathType>(i);
-
-        if (GetDesc(type).resettable) {
-            paths[type].clear();
-        }
+        paths[static_cast<PathType>(i)].clear();
     }
 }
 
@@ -244,7 +238,7 @@ std::string PathManager::SelectPathImpl(QWidget* parent, PathType path, const st
             SetPath(path, selected_path);
             return GetPath(path).c_str();
         }
-        case PATH_USER_DEFINED_LAYERS_PATHS_GUI: {
+        case PATH_USER_DEFINED_LAYERS_GUI: {
             const std::string selected_path =
                 QFileDialog::getExistingDirectory(parent, "Add User-Defined Layers Folder...", suggested_path.c_str(),
                                                   QFileDialog::DontUseNativeDialog)
