@@ -154,6 +154,7 @@ TEST(test_path, get_path_override_layers) {
 
 TEST(test_path, get_path_vulkan_sdk) {
     {
+        qputenv("VULKAN_SDK", "");
         const std::string value = ::GetPath(BUILTIN_PATH_VULKAN_SDK);
         EXPECT_TRUE(!value.empty());
     }
