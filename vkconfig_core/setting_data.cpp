@@ -23,7 +23,9 @@
 #include <cassert>
 #include <limits>
 
-SettingData::SettingData(const std::string& key, const SettingType type) : key(key), type(type) { assert(!this->key.empty()); }
+SettingData::SettingData(const std::string& key, const SettingType type) : key(key), type(type), expanded(true) {
+    assert(!this->key.empty());
+}
 
 SettingData& SettingData::operator=(const SettingData& other) {
     this->Assign(other);

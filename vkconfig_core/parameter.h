@@ -38,9 +38,10 @@ enum ParameterRank {
 struct Parameter {
     static const int NO_RANK = -1;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), platform_flags(PLATFORM_ALL_BIT), overridden_rank(NO_RANK) {}
+    Parameter()
+        : state(LAYER_STATE_APPLICATION_CONTROLLED), platform_flags(PLATFORM_ALL_BIT), overridden_rank(NO_RANK), expanded(true) {}
     Parameter(const std::string& key, const LayerState state)
-        : key(key), state(state), platform_flags(PLATFORM_ALL_BIT), overridden_rank(NO_RANK) {}
+        : key(key), state(state), platform_flags(PLATFORM_ALL_BIT), overridden_rank(NO_RANK), expanded(true) {}
 
     bool ApplyPresetSettings(const LayerPreset& preset);
 
@@ -49,6 +50,7 @@ struct Parameter {
     int platform_flags;
     SettingDataSet settings;
     int overridden_rank;
+    bool expanded;
 };
 
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);

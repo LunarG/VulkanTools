@@ -206,6 +206,11 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
         parameter.state = GetLayerState(ReadStringValue(json_layer_object, "state").c_str());
 
+        const QJsonValue& json_expanded_value = json_layer_object.value("expanded");
+        if (json_expanded_value != QJsonValue::Undefined) {
+            parameter.expanded = ReadBoolValue(json_layer_object, "expanded");
+        }
+
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
             parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
@@ -224,6 +229,10 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
             const SettingType setting_type = GetSettingType(ReadStringValue(json_setting_object, "type").c_str());
 
             SettingData& setting_data = parameter.settings.Create(setting_key, setting_type);
+
+            if (json_setting_object.value("expanded") != QJsonValue::Undefined) {
+                setting_data.expanded = ReadBoolValue(json_setting_object, "expanded");
+            }
 
             // Configuration type and layer type are differents, use layer default value
             if (setting_data.type != setting_type) continue;
@@ -353,6 +362,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("state", GetToken(parameter.state));
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
+        json_layer.insert("expanded", parameter.expanded);
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.Size(); j < m; ++j) {
@@ -365,6 +375,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
             QJsonObject json_setting;
             json_setting.insert("key", parameter.settings[j].key.c_str());
             json_setting.insert("type", GetSettingTypeToken(setting_data.type));
+            json_setting.insert("expanded", setting_data.expanded);
 
             switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
