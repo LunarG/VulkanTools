@@ -41,6 +41,7 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
 
     this->tree->setItemWidget(this->item, 0, this);
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->setExpanded(data.expanded);
 
     this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
@@ -57,6 +58,8 @@ void WidgetSettingBool::Refresh(RefreshAreas refresh_areas) {
         this->field->setChecked(this->data.value);
         this->field->blockSignals(false);
     }
+
+    this->data.expanded = this->item->isExpanded();
 }
 
 void WidgetSettingBool::OnClicked() {

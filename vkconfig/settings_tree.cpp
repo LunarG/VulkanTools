@@ -115,6 +115,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             layer_item->setFont(0, font_layer);
             layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
+            layer_item->setExpanded(parameter.expanded);
+
             this->tree->addTopLevelItem(layer_item);
 
             if (layer == nullptr) continue;
@@ -188,9 +190,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         }
     }
 
-    // Everyone is expanded.
     this->tree->resizeColumnToContents(0);
-    SetTreeState(configuration->setting_tree_state, 0, this->tree->invisibleRootItem());
+    // SetTreeState(configuration->setting_tree_state, 0, this->tree->invisibleRootItem());
     this->tree->blockSignals(false);
 }
 
