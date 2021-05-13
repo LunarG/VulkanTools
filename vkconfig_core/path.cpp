@@ -97,8 +97,11 @@ std::string GetPath(BuiltinPath path) {
         case BUILTIN_PATH_VULKAN_SDK: {
             std::string path(qgetenv("VULKAN_SDK"));
             if (path.empty()) {
-                assert(VKC_PLATFORM != VKC_PLATFORM_WINDOWS);
-                path = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_SYSTEM);
+                if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS) {
+                    path = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_SYSTEM);
+                } else {
+                    path = GetPath(BUILTIN_PATH_LOCAL);
+                }
             }
             return ConvertNativeSeparators(path);
         }
