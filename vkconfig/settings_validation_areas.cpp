@@ -136,6 +136,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
 
     this->item->setText(0, "Validation Areas");
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->setExpanded(false);
 
     // Core
     this->widget_core = this->CreateWidget(this->item, &this->item_core, "disables", TOKEN_CORE);

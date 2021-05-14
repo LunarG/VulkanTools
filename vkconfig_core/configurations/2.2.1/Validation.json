@@ -8,7 +8,6 @@
             "MACOS"
         ],
         "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
-        "editor_state": "0110011111111111111111110101111111111001110111",
         "layers": [
             {
                 "name": "VK_LAYER_KHRONOS_validation",

@@ -62,6 +62,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     Configurator &configurator = Configurator::Get();
 
     this->tree = build_tree;
+
     Configuration *configuration = configurator.configurations.GetActiveConfiguration();
     assert(configuration != nullptr);
 
@@ -115,9 +116,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             layer_item->setFont(0, font_layer);
             layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
-            layer_item->setExpanded(parameter.expanded);
 
             this->tree->addTopLevelItem(layer_item);
+            // layer_item->setExpanded(true);
 
             if (layer == nullptr) continue;
 
@@ -190,8 +191,17 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         }
     }
 
+    this->connect(this->tree, SIGNAL(expanded(const QModelIndex)), this, SLOT(OnExpandedChanged(const QModelIndex)));
+    this->connect(this->tree, SIGNAL(collapsed(const QModelIndex)), this, SLOT(OnCollapsedChanged(const QModelIndex)));
+
     this->tree->resizeColumnToContents(0);
-    // SetTreeState(configuration->setting_tree_state, 0, this->tree->invisibleRootItem());
+
+    if (!configuration->setting_tree_state.isEmpty()) {
+        this->SetTreeState(configuration->setting_tree_state, 0, this->tree->invisibleRootItem());
+    } else {
+        assert(1);
+    }
+
     this->tree->blockSignals(false);
 }
 
@@ -211,6 +221,32 @@ void SettingsTreeManager::CleanupGUI() {
 
     this->tree->clear();
     this->tree = nullptr;
+}
+
+void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
+    if (this->tree == nullptr)  // Was not initialized
+        return;
+
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    configuration->setting_tree_state.clear();
+    GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
+
+    return;
+}
+
+void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
+    if (this->tree == nullptr)  // Was not initialized
+        return;
+
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    configuration->setting_tree_state.clear();
+    GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
+
+    return;
 }
 
 static bool IsBuiltinValidation(const std::string &key) {
@@ -261,6 +297,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             item->setText(0, meta_object.label.c_str());
             item->setToolTip(0, meta_object.description.c_str());
             item->setFont(0, tree->font());
+            item->setExpanded(meta_object.expanded);
         } break;
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
@@ -312,6 +349,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
             item->setText(0, meta.label.c_str());
             item->setToolTip(0, meta.description.c_str());
+            item->setExpanded(meta.expanded);
 
             for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
                 if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;

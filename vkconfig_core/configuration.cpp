@@ -86,8 +86,6 @@ bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJ
         assert(result == 0);
     }
 
-    this->setting_tree_state = configuration_entry_object.value("editor_state").toVariant().toByteArray();
-
     this->description = ReadString(configuration_entry_object, "description").c_str();
 
     const QJsonValue& json_platform_value = configuration_entry_object.value("platforms");
@@ -144,7 +142,6 @@ bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJ
 
     // Required configuration values
     this->key = ReadString(json_configuration_object, "name").c_str();
-    this->setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
     this->description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
@@ -187,12 +184,14 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 
     // Required configuration values
     this->key = ReadString(json_configuration_object, "name").c_str();
-    this->setting_tree_state = json_configuration_object.value("editor_state").toVariant().toByteArray();
     this->description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
-    const QJsonValue& json_platform_value = json_configuration_object.value("platforms");
-    if (json_platform_value != QJsonValue::Undefined) {
+    if (json_configuration_object.value("expanded_states") != QJsonValue::Undefined) {
+        this->setting_tree_state = json_configuration_object.value("expanded_states").toVariant().toByteArray();
+    }
+
+    if (json_configuration_object.value("platforms") != QJsonValue::Undefined) {
         this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
     }
 
@@ -205,11 +204,6 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         parameter.key = ReadStringValue(json_layer_object, "name").c_str();
         parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
         parameter.state = GetLayerState(ReadStringValue(json_layer_object, "state").c_str());
-
-        const QJsonValue& json_expanded_value = json_layer_object.value("expanded");
-        if (json_expanded_value != QJsonValue::Undefined) {
-            parameter.expanded = ReadBoolValue(json_layer_object, "expanded");
-        }
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
@@ -229,10 +223,6 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
             const SettingType setting_type = GetSettingType(ReadStringValue(json_setting_object, "type").c_str());
 
             SettingData& setting_data = parameter.settings.Create(setting_key, setting_type);
-
-            if (json_setting_object.value("expanded") != QJsonValue::Undefined) {
-                setting_data.expanded = ReadBoolValue(json_setting_object, "expanded");
-            }
 
             // Configuration type and layer type are differents, use layer default value
             if (setting_data.type != setting_type) continue;
@@ -362,7 +352,6 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("state", GetToken(parameter.state));
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
-        json_layer.insert("expanded", parameter.expanded);
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.Size(); j < m; ++j) {
@@ -375,7 +364,6 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
             QJsonObject json_setting;
             json_setting.insert("key", parameter.settings[j].key.c_str());
             json_setting.insert("type", GetSettingTypeToken(setting_data.type));
-            json_setting.insert("expanded", setting_data.expanded);
 
             switch (setting_data.type) {
                 case SETTING_LOAD_FILE:
@@ -449,7 +437,9 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     json_configuration.insert("name", key.c_str());
     json_configuration.insert("description", description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(platform_flags));
-    json_configuration.insert("editor_state", setting_tree_state.data());
+    if (!setting_tree_state.isEmpty()) {
+        json_configuration.insert("expanded_states", setting_tree_state.data());
+    }
     json_configuration.insert("layers", json_layers);
     root.insert("configuration", json_configuration);
 
@@ -569,7 +559,7 @@ void Configuration::RemoveFile(const PathManager& path_manager) const {
 
         const QFileInfoList& configuration_files = GetJSONFiles(path.c_str());
         for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-            remove(configuration_files[i].filePath().toStdString().c_str());
+            std::remove(configuration_files[i].filePath().toStdString().c_str());
         }
     }
 }
