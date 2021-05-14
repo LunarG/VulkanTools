@@ -292,7 +292,7 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
     Configuration *configuration = FindByKey(available_configurations, configuration_name.c_str());
     assert(configuration);
 
-    if (!configuration->Save(available_layers, full_export_path)) {
+    if (!configuration->Save(available_layers, full_export_path, true)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
