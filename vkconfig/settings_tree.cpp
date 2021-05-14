@@ -118,7 +118,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
 
             this->tree->addTopLevelItem(layer_item);
-            // layer_item->setExpanded(true);
+            layer_item->setExpanded(true);
 
             if (layer == nullptr) continue;
 
