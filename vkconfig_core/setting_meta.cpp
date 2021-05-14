@@ -262,6 +262,28 @@ std::size_t CountSettings(const SettingMetaSet& settings) {
     return count;
 }
 
+bool CheckSettingOverridden(const SettingMeta& meta) {
+    // If the setting environment variable is set, then the setting is overridden and can't be modified
+    if (!meta.env.empty()) {
+        if (!qgetenv(meta.env.c_str()).isEmpty()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+std::string GetSettingOverride(const SettingMeta& meta) {
+    std::string result;
+
+    // If the setting environment variable is set, then the setting is overridden and can't be modified
+    if (!meta.env.empty()) {
+        result = qgetenv(meta.env.c_str()).toStdString();
+    }
+
+    return result;
+}
+
 bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
     switch (meta.dependence_mode) {
         default:
