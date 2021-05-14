@@ -291,6 +291,8 @@ void LayersDialog::resizeEvent(QResizeEvent *event) {
 }
 
 void LayersDialog::on_pushButtonResetLayers_clicked() {
+    Configurator &configurator = Configurator::Get();
+
     QMessageBox alert;
     alert.setWindowTitle(format("Resetting *%s* configuration...", this->configuration.key.c_str()).c_str());
     alert.setText(format("Are you sure you want to reset the *%s* configuration?", this->configuration.key.c_str()).c_str());
@@ -299,7 +301,7 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
             format("The configuration layers and settings will be restored to default built-in *%s* configuration.",
                    configuration.key.c_str())
                 .c_str());
-    else if (this->configuration.HasFile(Configurator::Get().path))
+    else if (configurator.configurations.HasFile(this->configuration))
         alert.setInformativeText(
             format("The configuration layers and settings will be reloaded using the *%s* saved file from previous %s run.",
                    configuration.key.c_str(), VKCONFIG_NAME)
@@ -314,7 +316,6 @@ void LayersDialog::on_pushButtonResetLayers_clicked() {
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
 
-    Configurator &configurator = Configurator::Get();
     configuration.Reset(configurator.layers.available_layers, configurator.path);
 
     BuildParameters();

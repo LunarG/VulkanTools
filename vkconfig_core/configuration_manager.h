@@ -61,6 +61,8 @@ class ConfigurationManager {
 
     bool Empty() const { return available_configurations.empty(); }
 
+    bool HasFile(const Configuration& configuration) const;
+
     std::vector<Configuration> available_configurations;
 
    private:

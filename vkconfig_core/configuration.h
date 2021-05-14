@@ -49,8 +49,6 @@ class Configuration {
     std::vector<Parameter> parameters;
 
     bool IsBuiltIn() const;
-    bool HasFile(const PathManager& path_manager) const;
-    void RemoveFile(const PathManager& path_manager) const;
 
    private:
     bool Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object, const std::string& full_path);
