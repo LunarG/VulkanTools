@@ -154,7 +154,7 @@ std::string GetPath(BuiltinPath path) {
             };
             static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
-            result = qgetenv("VULKAN_SDK");
+            result = qgetenv("VULKAN_SDK").toStdString();
             if (result.empty()) {
                 if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS) {
                     result = TABLE[VKC_PLATFORM];
