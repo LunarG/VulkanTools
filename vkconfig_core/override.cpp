@@ -177,7 +177,15 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
             const SettingData& setting_data = parameter.settings[i];
 
             // Skip missing settings
-            if (FindSettingMeta<SettingMetaInt>(layer->settings, setting_data.key.c_str()) == nullptr) continue;
+            const SettingMeta* meta = FindSettingMeta<SettingMeta>(layer->settings, setting_data.key.c_str());
+            if (meta == nullptr) {
+                continue;
+            }
+
+            // Skip overriden settings
+            if (::CheckSettingOverridden(*meta)) {
+                continue;
+            }
 
             stream << lc_layer_name << "." << setting_data.key.c_str() << " = ";
             switch (setting_data.type) {
