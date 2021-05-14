@@ -17,6 +17,7 @@
 - Add support for `VK_LAYER_SETTINGS_PATH` override for 'vk_layer_settings.txt' path
 - Add 'vk_layer_settings.txt' path in the 'Vulkan Development Status'
 - Add ${VK_LOCAL} and ${VK_APPDATA} built-in variables
+- Add 'expanded' property to layer manifest settings and flags #1497
 
 ### Improvements:
 - Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers) list within the help menu
