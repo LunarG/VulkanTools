@@ -108,6 +108,9 @@ static void LoadMetaHeader(Header& header, const QJsonObject& json_object) {
     if (json_object.value("platforms") != QJsonValue::Undefined) {
         header.platform_flags = GetPlatformFlags(ReadStringArray(json_object, "platforms"));
     }
+    if (json_object.value("expanded") != QJsonValue::Undefined) {
+        header.expanded = ReadBoolValue(json_object, "expanded");
+    }
 }
 
 static void AlertInvalidLayer(const std::string& path, const std::string& text) {

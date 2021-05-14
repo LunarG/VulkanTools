@@ -139,6 +139,7 @@
                     "description": "Setting this to true indicates that output should be written to file instead of stdout",
                     "type": "BOOL",
                     "default": false,
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "settings": [
                         {
                             "key": "log_filename",

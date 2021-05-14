@@ -513,7 +513,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             this->SetActiveConfiguration(old_name);
         } else {
             // Rename configuration ; Remove old configuration file ; change the name of the configuration
-            remove(full_path.c_str());
+            std::remove(full_path.c_str());
             configuration->key = configuration_item->configuration_name = new_name;
 
             this->SetActiveConfiguration(new_name);

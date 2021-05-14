@@ -53,10 +53,11 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
     this->connect(this->timer_error, &QTimer::timeout, this, &WidgetSettingFloat::OnErrorValue);
     this->connect(this->timer_valid, &QTimer::timeout, this, &WidgetSettingFloat::OnValidValue);
 
-    this->item->setText(0, (meta.label + unit).c_str());
+    this->item->setText(0, (this->meta.label + unit).c_str());
     this->item->setFont(0, this->tree->font());
     this->item->setToolTip(0, meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+    this->item->setExpanded(this->meta.expanded);
     this->tree->setItemWidget(this->item, 0, this);
 
     this->Refresh(REFRESH_ENABLE_AND_STATE);

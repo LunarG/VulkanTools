@@ -8,7 +8,6 @@
             "MACOS"
         ],
         "description": "A Simple API dump configuration",
-        "editor_state": "011111111111111111111111",
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_api_dump",

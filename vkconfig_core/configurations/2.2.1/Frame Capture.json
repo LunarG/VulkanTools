@@ -7,7 +7,6 @@
             "LINUX"
         ],
         "description": "Capture a range of frames",
-        "editor_state": "0111111111111111111111111110111",
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_gfxreconstruct",

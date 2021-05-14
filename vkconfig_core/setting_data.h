@@ -37,7 +37,6 @@ struct SettingData {
 
     const std::string key;
     const SettingType type;
-    bool expanded;
 
    protected:
     SettingData(const std::string& key, const SettingType type);
