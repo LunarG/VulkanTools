@@ -472,13 +472,12 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
     const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
     for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
-        const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i] + "/" + this->key;
+        const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i] + "/" + this->key + ".json";
 
-        const std::string full_path(path_manager.GetFullPath(static_cast<PathType>(i), this->key.c_str()));
-        std::FILE* file = std::fopen(base_config_path.c_str(), "r");
+        std::FILE* file = std::fopen(path.c_str(), "r");
         if (file) {
             std::fclose(file);
-            const bool result = this->Load(available_layers, full_path);
+            const bool result = this->Load(available_layers, path);
             assert(result);
 
             OrderParameter(this->parameters, available_layers);
@@ -524,34 +523,6 @@ bool Configuration::IsBuiltIn() const {
     }
 
     return false;
-}
-
-bool Configuration::HasFile(const PathManager& path_manager) const {
-    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
-
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
-        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i] + "/" + this->key;
-
-        std::FILE* file = std::fopen(path.c_str(), "r");
-        if (file) {
-            std::fclose(file);
-            return true;
-        }
-    }
-    return false;
-}
-
-void Configuration::RemoveFile(const PathManager& path_manager) const {
-    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
-
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
-        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i];
-
-        const QFileInfoList& configuration_files = GetJSONFiles(path.c_str());
-        for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-            std::remove(configuration_files[i].filePath().toStdString().c_str());
-        }
-    }
 }
 
 static const size_t NOT_FOUND = static_cast<size_t>(-1);

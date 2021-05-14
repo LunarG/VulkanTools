@@ -160,9 +160,31 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     return *FindByKey(this->available_configurations, configuration.key.c_str());
 }
 
+bool ConfigurationManager::HasFile(const Configuration &configuration) const {
+    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
+
+    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i] + "/" + configuration.key + ".json";
+
+        std::FILE *file = std::fopen(path.c_str(), "r");
+        if (file) {
+            std::fclose(file);
+            return true;
+        }
+    }
+    return false;
+}
+
 void ConfigurationManager::RemoveConfigurationFiles() {
-    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
-        this->available_configurations[i].RemoveFile(environment.paths);
+    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
+
+    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i];
+
+        const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
+        for (int i = 0, n = configuration_files.size(); i < n; ++i) {
+            std::remove(configuration_files[i].filePath().toStdString().c_str());
+        }
     }
 }
 

@@ -879,7 +879,7 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
             format("The configuration layers and settings will be restored to default built-in *%s* configuration.",
                    configuration->key.c_str())
                 .c_str());
-    else if (configuration->HasFile(configurator.path))
+    else if (configurator.configurations.HasFile(*configuration))
         alert.setInformativeText(
             format("The configuration layers and settings will be reloaded using the *%s* saved file from previous %s run.",
                    configuration->key.c_str(), VKCONFIG_NAME)
