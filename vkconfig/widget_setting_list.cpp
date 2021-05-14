@@ -120,6 +120,12 @@ void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
 
         this->tree->blockSignals(false);
     }
+
+    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        if (::CheckSettingOverridden(this->meta)) {
+            this->DisplayOverride(this->field, this->meta);
+        }
+    }
 }
 
 void WidgetSettingList::Resize() {

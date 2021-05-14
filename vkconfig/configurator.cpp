@@ -142,7 +142,19 @@ bool Configurator::Init() {
         }
     }
 
-    qputenv("VK_APIDUMP_LOG_FILENAME", "log.txt");
+    /*
+    qputenv("VK_REF_ENUM", "value2");
+    qputenv("VK_REF_FLAGS", "flag0,flag2");
+    qputenv("VK_REF_STRING", "Hello world");
+    qputenv("VK_REF_BOOL", "true");
+    qputenv("VK_REF_LOAD_FILE", "Pouet.txt");
+    qputenv("VK_REF_SAVE_FILE", "Pouet.txt");
+    qputenv("VK_REF_SAVE_FOLDER", "~/VulkanSDK/Pouet");
+    qputenv("VK_REF_INT", "76");
+    qputenv("VK_REF_FLOAT", "0.9999");
+    qputenv("VK_REF_FRAMES", "75-76,82");
+    qputenv("VK_REF_LIST", "76,stringB");
+    */
 
     return true;
 }

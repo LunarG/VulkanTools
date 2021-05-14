@@ -64,6 +64,10 @@ void WidgetSettingFlag::Refresh(RefreshAreas refresh_areas) {
     this->setEnabled(enabled);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        if (::CheckSettingOverridden(this->meta)) {
+            this->DisplayOverride(this->field, this->meta);
+        }
+
         this->field->blockSignals(true);
         this->field->setChecked(std::find(data.value.begin(), data.value.end(), flag) != data.value.end());
         this->field->blockSignals(false);

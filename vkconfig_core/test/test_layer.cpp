@@ -279,7 +279,7 @@ TEST(test_layer, load_1_2_0_setting_enum_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("enum_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_ENUM", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_ENUM", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_ENUM, setting_meta->type);
     EXPECT_STREQ("enum", setting_meta->label.c_str());
     EXPECT_STREQ("enum case", setting_meta->description.c_str());
@@ -374,7 +374,7 @@ TEST(test_layer, load_1_2_0_setting_flags_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("flags_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_FLAGS", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_FLAGS", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_FLAGS, setting_meta->type);
     EXPECT_STREQ("flags", setting_meta->label.c_str());
     EXPECT_STREQ("flags case", setting_meta->description.c_str());
@@ -450,7 +450,7 @@ TEST(test_layer, load_1_2_0_setting_string_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("string_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_STRING", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_STRING", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_STRING, setting_meta->type);
     EXPECT_STREQ("String", setting_meta->label.c_str());
     EXPECT_STREQ("string", setting_meta->description.c_str());
@@ -494,7 +494,7 @@ TEST(test_layer, load_1_2_0_setting_bool_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("bool_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_BOOL", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_BOOL", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_BOOL, setting_meta->type);
     EXPECT_STREQ("bool", setting_meta->label.c_str());
     EXPECT_STREQ("true or false", setting_meta->description.c_str());
@@ -539,7 +539,7 @@ TEST(test_layer, load_1_2_0_setting_load_file_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("load_file_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_LOAD_FILE", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_LOAD_FILE", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->type);
     EXPECT_STREQ("Load file", setting_meta->label.c_str());
     EXPECT_STREQ("Load file path", setting_meta->description.c_str());
@@ -585,7 +585,7 @@ TEST(test_layer, load_1_2_0_setting_save_file_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_file_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_SAVE_FILE", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_SAVE_FILE", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->type);
     EXPECT_STREQ("Save file", setting_meta->label.c_str());
     EXPECT_STREQ("Save file path", setting_meta->description.c_str());
@@ -630,7 +630,7 @@ TEST(test_layer, load_1_2_0_setting_save_folder_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("save_folder_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_SAVE_FOLDER", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_SAVE_FOLDER", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_SAVE_FOLDER, setting_meta->type);
     EXPECT_STREQ("Save folder", setting_meta->label.c_str());
     EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
@@ -677,7 +677,7 @@ TEST(test_layer, load_1_2_0_setting_int_with_optional) {
     ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("int_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_INT", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_INT", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_INT, setting_meta->type);
     EXPECT_STREQ("Integer", setting_meta->label.c_str());
     EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
@@ -724,7 +724,7 @@ TEST(test_layer, load_1_2_0_setting_frames_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("frames_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_FRAMES", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_FRAMES", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_FRAMES, setting_meta->type);
     EXPECT_STREQ("Frames", setting_meta->label.c_str());
     EXPECT_STREQ("Frames Description", setting_meta->description.c_str());
@@ -793,7 +793,7 @@ TEST(test_layer, load_1_2_0_setting_list_with_optional) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("list_with_optional", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_LIST", setting_meta->env.c_str());
+    EXPECT_STREQ("VK_REF_LIST", setting_meta->env.c_str());
     EXPECT_EQ(SETTING_LIST, setting_meta->type);
     EXPECT_STREQ("List", setting_meta->label.c_str());
     EXPECT_STREQ("List description", setting_meta->description.c_str());
@@ -845,7 +845,7 @@ TEST(test_layer, load_1_2_0_setting_list_empty) {
     ASSERT_TRUE(setting_meta);
 
     EXPECT_STREQ("list_empty", setting_meta->key.c_str());
-    EXPECT_STREQ("TEST_LIST", setting_meta->env.c_str());
+    EXPECT_TRUE(setting_meta->env.empty());
     EXPECT_EQ(SETTING_LIST, setting_meta->type);
     EXPECT_STREQ("List", setting_meta->label.c_str());
     EXPECT_STREQ("List description", setting_meta->description.c_str());

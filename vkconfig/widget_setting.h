@@ -48,6 +48,8 @@ class WidgetSettingBase : public QWidget {
     WidgetSettingBase& operator=(const WidgetSettingBase&) = delete;
 
    protected:
+    void DisplayOverride(QWidget* widget, const SettingMeta& meta) const;
+
     QTreeWidget* tree;
     QTreeWidgetItem* item;
 };

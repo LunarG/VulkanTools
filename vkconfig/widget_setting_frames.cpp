@@ -77,6 +77,10 @@ void WidgetSettingFrames::Refresh(RefreshAreas refresh_areas) {
     this->field->setEnabled(enabled);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        if (::CheckSettingOverridden(this->meta)) {
+            this->DisplayOverride(this->field, this->meta);
+        }
+
         this->field->blockSignals(true);
         this->field->setText(this->data.value.c_str());
         this->field->blockSignals(false);
