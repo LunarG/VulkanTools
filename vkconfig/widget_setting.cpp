@@ -25,6 +25,27 @@ WidgetSettingBase::WidgetSettingBase(QTreeWidget* tree, QTreeWidgetItem* item) :
     assert(item != nullptr);
 }
 
+void WidgetSettingBase::DisplayOverride(QWidget* widget, const SettingMeta& meta) const {
+    QCursor cursor = widget->cursor();
+    cursor.setShape(Qt::WhatsThisCursor);
+    widget->setCursor(cursor);
+
+    QPalette palette;
+    palette.setColor(QPalette::Active, QPalette::WindowText, QColor(255, 0, 0));
+    palette.setColor(QPalette::Active, QPalette::Text, QColor(255, 0, 0));
+    palette.setColor(QPalette::Inactive, QPalette::WindowText, QColor(255, 0, 0));
+    palette.setColor(QPalette::Inactive, QPalette::Text, QColor(255, 0, 0));
+    palette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(192, 128, 128));
+    palette.setColor(QPalette::Disabled, QPalette::Text, QColor(192, 128, 128));
+
+    widget->setPalette(palette);
+
+    const std::string tip =
+        format("Overridden by '%s' environment variable set to: '%s'", meta.env.c_str(), GetSettingOverride(meta).c_str());
+
+    widget->setToolTip(tip.c_str());
+}
+
 int HorizontalAdvance(const QFontMetrics& fm, const QString& string) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     return fm.horizontalAdvance(string);

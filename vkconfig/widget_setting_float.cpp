@@ -76,6 +76,10 @@ void WidgetSettingFloat::Refresh(RefreshAreas refresh_areas) {
     this->field->setEnabled(enabled);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        if (::CheckSettingOverridden(this->meta)) {
+            this->DisplayOverride(this->field, this->meta);
+        }
+
         const std::string float_format = meta.GetFloatFormat();
 
         this->field->blockSignals(true);
