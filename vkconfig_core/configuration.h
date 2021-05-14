@@ -32,7 +32,6 @@
 class Configuration {
    public:
     Configuration();
-    ~Configuration();
 
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
     bool Save(const std::vector<Layer>& available_layers, const std::string& full_path) const;

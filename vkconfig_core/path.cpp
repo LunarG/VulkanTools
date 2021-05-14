@@ -61,58 +61,71 @@ void CheckPathsExist(const std::string& path, bool is_full_path) {
 }
 
 std::string GetPath(BuiltinPath path) {
+    std::string result;
+
     switch (path) {
-        case BUILTIN_PATH_HOME:
-            return ConvertNativeSeparators(QDir().homePath().toStdString());
+        case BUILTIN_PATH_HOME: {
+            result = QDir().homePath().toStdString();
+            break;
+        }
         case BUILTIN_PATH_LOCAL_LEGACY:
-        case BUILTIN_PATH_LOCAL:
-            return GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK";
+        case BUILTIN_PATH_LOCAL: {
+            result = GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK";
+            break;
+        }
         case BUILTIN_PATH_CONFIG_REF: {
-            return GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
+            result = GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
+            break;
         }
         case BUILTIN_PATH_CONFIG_LAST: {
             const std::string config = format("_%d_%d_%d", Version::LAYER_CONFIG.GetMajor(), Version::LAYER_CONFIG.GetMinor(),
                                               Version::LAYER_CONFIG.GetPatch());
 
-            return GetPath(BUILTIN_PATH_CONFIG_REF) + config;
+            result = GetPath(BUILTIN_PATH_CONFIG_REF) + config;
+            break;
         }
         case BUILTIN_PATH_OVERRIDE_SETTINGS: {
-            std::string path(qgetenv("VK_LAYER_SETTINGS_PATH").toStdString());
-            if (path.empty()) {
-                path += GetPath(BUILTIN_PATH_APPDATA);
-                path += GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS);
+            result = qgetenv("VK_LAYER_SETTINGS_PATH").toStdString();
+            if (result.empty()) {
+                result += GetPath(BUILTIN_PATH_APPDATA);
+                result += GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS);
             }
-            if (path.find("vk_layer_settings.txt") == std::string::npos) {
-                path += "/vk_layer_settings.txt";
+            if (result.find("vk_layer_settings.txt") == std::string::npos) {
+                result += "/vk_layer_settings.txt";
             }
-            return ConvertNativeSeparators(path);
+            break;
         }
         case BUILTIN_PATH_OVERRIDE_LAYERS: {
-            const std::string path = GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS);
-            return ConvertNativeSeparators(path + "/VkLayer_override.json");
+            result = GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS);
+            result += "/VkLayer_override.json";
+            break;
         }
         case BUILTIN_PATH_APPDATA: {
-            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_APPDATA));
+            result = GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_APPDATA);
+            break;
         }
         case BUILTIN_PATH_VULKAN_SDK: {
-            std::string path(qgetenv("VULKAN_SDK"));
-            if (path.empty()) {
+            result = qgetenv("VULKAN_SDK");
+            if (result.empty()) {
                 if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS) {
-                    path = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_SYSTEM);
+                    result = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_SYSTEM);
                 } else {
-                    path = GetPath(BUILTIN_PATH_LOCAL);
+                    result = GetPath(BUILTIN_PATH_LOCAL);
                 }
             }
-            return ConvertNativeSeparators(path);
+            break;
         }
         case BUILTIN_PATH_VULKAN_CONTENT: {
-            return ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) + GetPlatformString(PLATFORM_STRING_VK_CONTENT));
+            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + GetPlatformString(PLATFORM_STRING_VK_CONTENT);
+            break;
         }
         default: {
             assert(0);
             return "";
         }
     }
+
+    return ConvertNativeSeparators(result);
 }
 
 struct BuiltinDesc {

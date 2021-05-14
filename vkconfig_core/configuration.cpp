@@ -43,16 +43,6 @@ static const char* SUPPORTED_CONFIG_FILES[] = {"_2_2_1", "_2_2", ""};
 
 Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_ALL_BIT) {}
 
-Configuration::~Configuration() {
-    // Delete the configuration file if it exists
-    const std::string base_config_path = GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
-
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
-        const std::string full_path = base_config_path + SUPPORTED_CONFIG_FILES[i] + "/" + this->key;
-        std::remove(full_path.c_str());
-    }
-}
-
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_LAYER_CONFIG_2_0_1) {
         return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toStdString().c_str());

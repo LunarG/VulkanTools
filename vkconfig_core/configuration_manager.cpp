@@ -46,7 +46,7 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
         environment.first_run = false;
     }
 
-    const std::string base_config_path = GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
+    const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
     for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
         const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i];
@@ -161,17 +161,8 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
 }
 
 void ConfigurationManager::RemoveConfigurationFiles() {
-    const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
-
-    static const char *VERSIONS[] = {"_2_2_1", "_2_2", ""};
-
-    for (std::size_t i = 0, n = countof(VERSIONS); i < n; ++i) {
-        const std::string path = base_config_path + VERSIONS[i];
-        const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
-
-        for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-            remove(configuration_files[i].filePath().toStdString().c_str());
-        }
+    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
+        this->available_configurations[i].RemoveFile(environment.paths);
     }
 }
 
