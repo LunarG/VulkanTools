@@ -34,7 +34,7 @@ class Configuration {
     Configuration();
 
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
-    bool Save(const std::vector<Layer>& available_layers, const std::string& full_path) const;
+    bool Save(const std::vector<Layer>& available_layers, const std::string& full_path, bool exporter = false) const;
     bool HasOverride() const;
 
     void Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager);

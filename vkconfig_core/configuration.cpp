@@ -314,7 +314,7 @@ bool Configuration::Load(const std::vector<Layer>& available_layers, const std::
     }
 }
 
-bool Configuration::Save(const std::vector<Layer>& available_layers, const std::string& full_path) const {
+bool Configuration::Save(const std::vector<Layer>& available_layers, const std::string& full_path, bool exporter) const {
     assert(!full_path.empty());
 
     QJsonObject root;
@@ -427,7 +427,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     json_configuration.insert("name", key.c_str());
     json_configuration.insert("description", description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(platform_flags));
-    if (!setting_tree_state.isEmpty()) {
+    if (!exporter && !setting_tree_state.isEmpty()) {
         json_configuration.insert("expanded_states", setting_tree_state.data());
     }
     json_configuration.insert("layers", json_layers);
