@@ -64,9 +64,3 @@ TEST(test_platform, status_type) {
     EXPECT_STREQ("STABLE", GetToken(STATUS_STABLE));
     EXPECT_EQ(STATUS_STABLE, GetStatusType("STABLE"));
 }
-
-TEST(test_platform, platform_string) {
-    EXPECT_TRUE(std::strcmp("vulkaninfoSDK", GetPlatformString(PLATFORM_STRING_VULKAN_INFO)) == 0 ||
-                std::strcmp("vulkaninfo", GetPlatformString(PLATFORM_STRING_VULKAN_INFO)) == 0 ||
-                std::strcmp("/usr/local/bin/vulkaninfo", GetPlatformString(PLATFORM_STRING_VULKAN_INFO)) == 0);
-}

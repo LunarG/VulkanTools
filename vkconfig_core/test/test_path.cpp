@@ -111,7 +111,7 @@ TEST(test_path, is_portable_filename_invalid) {
 TEST(test_path, get_path_local) {
     const QString value(::GetPath(BUILTIN_PATH_LOCAL).c_str());
 
-    EXPECT_TRUE(value.endsWith("/VulkanSDK"));
+    EXPECT_TRUE(value.endsWith("VulkanSDK"));
 }
 
 TEST(test_path, get_path_appdata) {
