@@ -23,9 +23,6 @@
 #include "path.h"
 #include "version.h"
 
-#include <QString>
-#include <QWidget>
-
 #include <array>
 #include <string>
 
@@ -42,14 +39,6 @@ enum PathType {
 };
 
 enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };
-
-enum PathMode {
-    PATH_MODE_OPEN_DIRECTORY = 0,
-    PATH_MODE_OPEN_FILENAME,
-    PATH_MODE_SAVE_FILENAME,
-};
-
-enum Filename { FILENAME_APPLIST };
 
 class PathManager {
    public:
@@ -70,9 +59,6 @@ class PathManager {
     // When filename is set to nullptr, the function will try to use the default filename if there is one for the DirectoryType
     std::string GetFullPath(PathType path, const char* filename = nullptr) const;
     std::string GetFullPath(PathType path, const std::string& filename) const;
-    std::string GetFullPath(Filename filename) const;
-
-    std::string GetFilename(const char* full_path) const;
 
     std::string SelectPath(QWidget* parent, PathType path);
     std::string SelectPath(QWidget* parent, PathType path, const std::string& suggested_path);

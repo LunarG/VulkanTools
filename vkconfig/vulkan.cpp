@@ -34,6 +34,17 @@
 
 #include <cassert>
 
+static const char *GetVulkanLibrary() {
+    static const char *TABLE[] = {
+        "vulkan-1.dll",              // PLATFORM_WINDOWS
+        "libvulkan",                 // PLATFORM_LINUX
+        "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
+    };
+    static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[VKC_PLATFORM];
+}
+
 static const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
     const char *translation[] = {"Other", "Integrated GPU", "Discrete GPU", "Virtual GPU", "CPU"};
     return translation[type];
@@ -41,7 +52,7 @@ static const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
 
 Version GetVulkanLoaderVersion() {
     // Check loader version
-    QLibrary library(GetPlatformString(PLATFORM_STRING_VULKAN_LIBRARY));
+    QLibrary library(GetVulkanLibrary());
 
     if (!library.load()) return Version::VERSION_NULL;
 
@@ -130,7 +141,7 @@ std::string GenerateVulkanStatus() {
         log += format("    %s\n", ExtractAbsoluteDir(path).c_str());
     }
 
-    QLibrary library(GetPlatformString(PLATFORM_STRING_VULKAN_LIBRARY));
+    QLibrary library(GetVulkanLibrary());
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
         (PFN_vkEnumerateInstanceLayerProperties)library.resolve("vkEnumerateInstanceLayerProperties");
     assert(vkEnumerateInstanceLayerProperties);

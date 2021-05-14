@@ -21,6 +21,7 @@
 
 #include "dialog_vulkan_info.h"
 
+#include "../vkconfig_core/util.h"
 #include "../vkconfig_core/platform.h"
 
 #include <QProcess>
@@ -47,10 +48,18 @@ VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(new Ui
 }
 
 void VulkanInfoDialog::Run() {
+    static const char *VULKAN_INFO_PATH[] = {
+        "vulkaninfoSDK",              // PLATFORM_WINDOWS
+        "vulkaninfo",                 // PLATFORM_LINUX
+        "/usr/local/bin/vulkaninfo",  // PLATFORM_MACOS
+    };
+    static_assert(countof(VULKAN_INFO_PATH) == PLATFORM_COUNT,
+                  "The tranlation table size doesn't match the enum number of elements");
+
     ui->treeWidget->clear();
 
     QProcess *vulkan_info = new QProcess(this);
-    vulkan_info->setProgram(GetPlatformString(PLATFORM_STRING_VULKAN_INFO));
+    vulkan_info->setProgram(VULKAN_INFO_PATH[VKC_PLATFORM]);
 
     QString filePath = QDir::temp().path();
 
