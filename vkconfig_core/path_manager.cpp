@@ -60,16 +60,6 @@ static const DirectoryDesc& GetDesc(PathType directory) {
     return table[directory];
 }
 
-struct FilenameDesc {
-    const char* filename;
-};
-
-static const FilenameDesc& GetDesc(Filename filename) {
-    static const FilenameDesc table[] = {"../applist.json"};
-
-    return table[filename];
-}
-
 PathManager::PathManager() {
     const bool result = Load();
     assert(result);
@@ -173,19 +163,6 @@ std::string PathManager::GetFullPath(PathType path, const std::string& filename)
     return GetFullPath(path, filename.c_str());
 }
 
-std::string PathManager::GetFullPath(Filename filename) const {
-    const std::string path(::GetPath(BUILTIN_PATH_CONFIG_LAST).c_str());
-
-    const std::string full_path(ConvertNativeSeparators(path + GetNativeSeparator() + GetDesc(filename).filename).c_str());
-    return full_path;
-}
-
-std::string PathManager::GetFilename(const char* full_path) const {
-    assert(full_path);
-
-    return QFileInfo(full_path).fileName().toStdString();
-}
-
 std::string PathManager::SelectPath(QWidget* parent, PathType path) {
     assert(parent);
     assert(path >= PATH_FIRST && path <= PATH_LAST);
@@ -219,7 +196,14 @@ std::string PathManager::SelectPathImpl(QWidget* parent, PathType path, const st
             return GetFullPath(path, QFileInfo(selected_path.c_str()).baseName().toStdString());
         } break;
         case PATH_EXECUTABLE: {
-            const std::string filter = GetPlatformString(PLATFORM_STRING_FILTER);
+            static const char* TABLE[] = {
+                "Applications (*.exe)",    // PLATFORM_WINDOWS
+                "Applications (*)",        // PLATFORM_LINUX
+                "Applications (*.app, *)"  // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+            const std::string filter = TABLE[VKC_PLATFORM];
             const std::string selected_path =
                 QFileDialog::getOpenFileName(parent, "Select a Vulkan Executable...", suggested_path.c_str(), filter.c_str())
                     .toStdString();

@@ -112,9 +112,8 @@ void LayerManager::LoadAllInstalledLayers() {
     }
 
     // FOURTH: See if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
-    const std::string vulkan_sdk(qgetenv("VULKAN_SDK").toStdString());
-    if (!vulkan_sdk.empty()) {
-        LoadLayersFromPath(vulkan_sdk + GetPlatformString(PLATFORM_STRING_EXPLICIT_LAYERS));
+    if (!qgetenv("VULKAN_SDK").isEmpty()) {
+        LoadLayersFromPath(GetPath(BUILTIN_PATH_EXPLICIT_LAYERS));
     }
 }
 

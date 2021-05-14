@@ -47,6 +47,17 @@
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
 #define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
 
+static const char* GetApplicationSuffix() {
+    static const char* TABLE[] = {
+        ".exe",  // PLATFORM_WINDOWS
+        "",      // PLATFORM_LINUX
+        ".app"   // PLATFORM_MACOS
+    };
+    static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[VKC_PLATFORM];
+}
+
 static const char* GetActiveToken(Active active) {
     assert(active >= ACTIVE_FIRST && active <= ACTIVE_LAST);
 
@@ -256,8 +267,15 @@ bool Environment::Load() {
     // assemble a list of paths that take precidence for layer discovery.
     const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
     if (!VK_LAYER_PATH.isEmpty()) {
+        static const char* TABLE[] = {
+            ";",  // PLATFORM_WINDOWS
+            ":",  // PLATFORM_LINUX
+            ":"   // PLATFORM_MACOS
+        };
+        static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV] =
-            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(GetPlatformString(PLATFORM_STRING_SEPARATOR)));
+            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(TABLE[VKC_PLATFORM]));
     } else {
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV].clear();
     }
@@ -270,7 +288,7 @@ bool Environment::Load() {
 }
 
 bool Environment::LoadApplications() {
-    const std::string& application_list_json = paths.GetFullPath(FILENAME_APPLIST);
+    const std::string& application_list_json = GetPath(BUILTIN_PATH_APPLIST);
     QFile file(application_list_json.c_str());
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {  // if applist.json exist, load saved applications
         QString data = file.readAll();
@@ -369,7 +387,7 @@ bool Environment::SaveApplications() const {
         root.insert(QFileInfo(applications[i].executable_path.c_str()).fileName(), application_object);
     }
 
-    const std::string& app_list_json = paths.GetFullPath(FILENAME_APPLIST);
+    const std::string& app_list_json = GetPath(BUILTIN_PATH_APPLIST);
     assert(QFileInfo(app_list_json.c_str()).absoluteDir().exists());
 
     QFile file(app_list_json.c_str());
@@ -612,8 +630,14 @@ static std::string GetDefaultExecutablePath(const std::string& executable_name) 
     // Using VULKAN_SDK environement variable
     const QString env(qgetenv("VULKAN_SDK"));
     if (!env.isEmpty()) {
-        const std::string search_path =
-            env.toStdString() + GetPlatformString(PLATFORM_STRING_SDK_BIN_DIR) + DEFAULT_PATH + executable_name.c_str();
+        static const char* TABLE[] = {
+            "/Bin",  // PLATFORM_WINDOWS
+            "/bin",  // PLATFORM_LINUX
+            "/bin"   // PLATFORM_MACOS
+        };
+        static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+        const std::string search_path = env.toStdString() + TABLE[VKC_PLATFORM] + DEFAULT_PATH + executable_name.c_str();
         const QFileInfo file_info(search_path.c_str());
         if (file_info.exists()) {
             return file_info.absoluteFilePath().toStdString();
@@ -662,8 +686,7 @@ static const DefaultApplication defaults_applications[] = {{ConvertNativeSeparat
                                                            {ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
 
 static Application CreateDefaultApplication(const DefaultApplication& default_application) {
-    const std::string executable_path =
-        GetDefaultExecutablePath((default_application.key + GetPlatformString(PLATFORM_STRING_APP_SUFFIX)).c_str());
+    const std::string executable_path = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
     if (executable_path.empty()) Application();  // application could not be found..
 
     Application application(executable_path, "--suppress_popups");
@@ -714,7 +737,7 @@ std::vector<Application> UpdateDefaultApplications(const std::vector<Application
 
     for (std::size_t default_index = 0, default_count = countof(defaults_applications); default_index < default_count;
          ++default_index) {
-        std::string const defaults_name = defaults_applications[default_index].key + GetPlatformString(PLATFORM_STRING_APP_SUFFIX);
+        const std::string defaults_name = defaults_applications[default_index].key + GetApplicationSuffix();
 
         std::swap(updated_applications, search_applications);
         updated_applications.clear();

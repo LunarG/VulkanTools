@@ -74,7 +74,14 @@ std::string GetPath(BuiltinPath path) {
             break;
         }
         case BUILTIN_PATH_CONFIG_REF: {
-            result = GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_CONFIGURATION);
+            static const char* TABLE[] = {
+                "/vkconfig/configurations",         // PLATFORM_WINDOWS
+                "/lunarg-vkconfig/configurations",  // PLATFORM_LINUX
+                "/lunarg-vkconfig/configurations"   // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_PLATFORM];
             break;
         }
         case BUILTIN_PATH_CONFIG_LAST: {
@@ -84,11 +91,21 @@ std::string GetPath(BuiltinPath path) {
             result = GetPath(BUILTIN_PATH_CONFIG_REF) + config;
             break;
         }
+        case BUILTIN_PATH_APPLIST: {
+            result = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/../applist.json";
+            break;
+        }
         case BUILTIN_PATH_OVERRIDE_SETTINGS: {
+            static const char* TABLE[] = {
+                "/vkconfig/override",  // PLATFORM_WINDOWS
+                "/settings.d",         // PLATFORM_LINUX
+                "/settings.d"          // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
             result = qgetenv("VK_LAYER_SETTINGS_PATH").toStdString();
             if (result.empty()) {
-                result += GetPath(BUILTIN_PATH_APPDATA);
-                result += GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_SETTINGS);
+                result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_PLATFORM];
             }
             if (result.find("vk_layer_settings.txt") == std::string::npos) {
                 result += "/vk_layer_settings.txt";
@@ -96,19 +113,51 @@ std::string GetPath(BuiltinPath path) {
             break;
         }
         case BUILTIN_PATH_OVERRIDE_LAYERS: {
-            result = GetPath(BUILTIN_PATH_APPDATA) + GetPlatformString(PLATFORM_STRING_PATH_OVERRIDE_LAYERS);
+            static const char* TABLE[] = {
+                "/Bin",                          // PLATFORM_WINDOWS
+                "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
+                "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_PLATFORM];
             result += "/VkLayer_override.json";
             break;
         }
         case BUILTIN_PATH_APPDATA: {
-            result = GetPath(BUILTIN_PATH_HOME) + GetPlatformString(PLATFORM_STRING_APPDATA);
+            static const char* TABLE[] = {
+                "/AppData/Local/LunarG",  // PLATFORM_WINDOWS
+                "/.local/share/vulkan",   // PLATFORM_LINUX
+                "/.local/share/vulkan",   // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+            result = GetPath(BUILTIN_PATH_HOME) + TABLE[VKC_PLATFORM];
+            break;
+        }
+        case BUILTIN_PATH_EXPLICIT_LAYERS: {
+            static const char* TABLE[] = {
+                "/Bin",                          // PLATFORM_WINDOWS
+                "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
+                "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + TABLE[VKC_PLATFORM];
             break;
         }
         case BUILTIN_PATH_VULKAN_SDK: {
+            static const char* TABLE[] = {
+                "/N/A",                     // PLATFORM_WINDOWS
+                "/usr",                     // PLATFORM_LINUX
+                "/usr/local/share/vulkan",  // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
             result = qgetenv("VULKAN_SDK");
             if (result.empty()) {
                 if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS) {
-                    result = GetPlatformString(PLATFORM_STRING_VULKAN_SDK_SYSTEM);
+                    result = TABLE[VKC_PLATFORM];
                 } else {
                     result = GetPath(BUILTIN_PATH_LOCAL);
                 }
@@ -116,7 +165,14 @@ std::string GetPath(BuiltinPath path) {
             break;
         }
         case BUILTIN_PATH_VULKAN_CONTENT: {
-            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + GetPlatformString(PLATFORM_STRING_VK_CONTENT);
+            static const char* TABLE[] = {
+                "/Config",               // PLATFORM_WINDOWS
+                "/share/vulkan/config",  // PLATFORM_LINUX
+                "/config",               // PLATFORM_MACOS
+            };
+            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + TABLE[VKC_PLATFORM];
             break;
         }
         default: {
