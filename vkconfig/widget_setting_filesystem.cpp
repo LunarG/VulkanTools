@@ -71,9 +71,24 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
     this->button->setEnabled(enabled);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        if (::CheckSettingOverridden(this->meta)) {
+            QCursor cursor = this->field->cursor();
+            cursor.setShape(Qt::WhatsThisCursor);
+            this->field->setCursor(cursor);
+
+            QPalette palette;
+            palette.setColor(QPalette::Base, QColor(255, 192, 192));
+            this->field->setPalette(palette);
+
+            const std::string tip = format("Overridden by '%s' environment variable set to: '%s'", this->meta.env.c_str(),
+                                           GetSettingOverride(this->meta).c_str());
+            this->field->setToolTip(tip.c_str());
+        } else {
+            this->field->setToolTip(this->field->text());
+        }
+
         this->field->blockSignals(true);
         this->field->setText(ReplaceBuiltInVariable(data.value).c_str());
-        this->field->setToolTip(this->field->text());
         this->field->blockSignals(false);
     }
 }

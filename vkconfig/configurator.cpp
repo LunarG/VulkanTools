@@ -142,6 +142,8 @@ bool Configurator::Init() {
         }
     }
 
+    qputenv("VK_APIDUMP_LOG_FILENAME", "log.txt");
+
     return true;
 }
 
