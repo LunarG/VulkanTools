@@ -1310,7 +1310,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QAction *show_advanced_setting_action = new QAction("View Advanced Settings", nullptr);
             show_advanced_setting_action->setEnabled(true);
             show_advanced_setting_action->setCheckable(true);
-            show_advanced_setting_action->setChecked(true);
+            show_advanced_setting_action->setChecked(configuration->view_advanced_settings);
             menu.addAction(show_advanced_setting_action);
 
             QPoint point(right_click->globalX(), right_click->globalY());
@@ -1350,6 +1350,10 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                         assert(0);
                         break;
                 }
+                configuration->setting_tree_state.clear();
+                _settings_tree_manager.CreateGUI(ui->settings_tree);
+            } else if (action == show_advanced_setting_action) {
+                configuration->view_advanced_settings = action->isChecked();
                 configuration->setting_tree_state.clear();
                 _settings_tree_manager.CreateGUI(ui->settings_tree);
             } else {

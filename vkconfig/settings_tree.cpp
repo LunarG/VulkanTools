@@ -288,6 +288,9 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                                         const SettingMeta &meta_object) {
     if (!IsPlatformSupported(meta_object.platform_flags)) return;
     if (meta_object.view == SETTING_VIEW_HIDDEN) return;
+    if (meta_object.view == SETTING_VIEW_ADVANCED &&
+        !Configurator::Get().configurations.GetActiveConfiguration()->view_advanced_settings)
+        return;
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
