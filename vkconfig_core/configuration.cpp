@@ -41,7 +41,7 @@
 
 static const char* SUPPORTED_CONFIG_FILES[] = {"_2_2_1", "_2_2", ""};
 
-Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_ALL_BIT) {}
+Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_ALL_BIT), view_advanced_settings(false) {}
 
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_LAYER_CONFIG_2_0_1) {
@@ -179,6 +179,10 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
     // Optional configuration values
     if (json_configuration_object.value("expanded_states") != QJsonValue::Undefined) {
         this->setting_tree_state = json_configuration_object.value("expanded_states").toVariant().toByteArray();
+    }
+
+    if (json_configuration_object.value("view_advanced_settings") != QJsonValue::Undefined) {
+        this->view_advanced_settings = ReadBoolValue(json_configuration_object, "view_advanced_settings");
     }
 
     if (json_configuration_object.value("platforms") != QJsonValue::Undefined) {
@@ -322,17 +326,17 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
     // Build the json document
     QJsonArray excluded_list;
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].state != LAYER_STATE_EXCLUDED) {
+    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+        if (this->parameters[i].state != LAYER_STATE_EXCLUDED) {
             continue;
         }
-        excluded_list.append(parameters[i].key.c_str());
+        excluded_list.append(this->parameters[i].key.c_str());
     }
 
     QJsonArray json_layers;  // This list of layers
 
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
+    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+        const Parameter& parameter = this->parameters[i];
         if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED) {
             continue;
         }
@@ -424,12 +428,13 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     }
 
     QJsonObject json_configuration;
-    json_configuration.insert("name", key.c_str());
-    json_configuration.insert("description", description.c_str());
-    SaveStringArray(json_configuration, "platforms", GetPlatformTokens(platform_flags));
-    if (!exporter && !setting_tree_state.isEmpty()) {
-        json_configuration.insert("expanded_states", setting_tree_state.data());
+    json_configuration.insert("name", this->key.c_str());
+    json_configuration.insert("description", this->description.c_str());
+    SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
+    if (!exporter && !this->setting_tree_state.isEmpty()) {
+        json_configuration.insert("expanded_states", this->setting_tree_state.data());
     }
+    json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
     json_configuration.insert("layers", json_layers);
     root.insert("configuration", json_configuration);
 
@@ -442,7 +447,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     if (!result) {
         QMessageBox alert;
         alert.setText("Could not save the configuration file!");
-        alert.setWindowTitle(key.c_str());
+        alert.setWindowTitle(this->key.c_str());
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
         return false;

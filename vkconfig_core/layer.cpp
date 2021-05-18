@@ -205,6 +205,9 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
         this->status = GetStatusType(ReadStringValue(json_layer_object, "status").c_str());
     }
     this->description = ReadStringValue(json_layer_object, "description");
+    if (json_layer_object.value("introduction") != QJsonValue::Undefined) {
+        this->introduction = ReadStringValue(json_layer_object, "introduction");
+    }
     if (json_layer_object.value("url") != QJsonValue::Undefined) {
         this->url = ReadStringValue(json_layer_object, "url");
     }
@@ -224,6 +227,9 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
         const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
         default_layer.Load(available_layers, path, this->type);
         this->status = default_layer.status;
+        this->description = default_layer.description;
+        this->introduction = default_layer.introduction;
+        this->url = default_layer.url;
         this->settings = default_layer.settings;
         this->presets = default_layer.presets;
     } else if (json_features_value != QJsonValue::Undefined) {
@@ -648,4 +654,18 @@ void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& d
             }
         }
     }
+}
+
+std::string BuildPropertiesLog(const Layer& layer) {
+    std::string description = layer.description + "\n";
+    description += std::string("(") + GetLayerTypeLabel(layer.type) + ")\n\n";
+    description += "API Version: " + layer.api_version.str() + "\n";
+    description += "Implementation Version: " + layer.implementation_version + "\n";
+    description += std::string("Status: ") + GetToken(layer.status) + "\n\n";
+    description += layer.path + "\n";
+    description += "- File Format: " + layer.file_format_version.str() + "\n";
+    description += "- Layer Binary Path:\n    " + layer.library_path + "\n\n";
+    description += format("Total Settings Count: %d\n", CountSettings(layer.settings));
+    description += format("Total Presets Count: %d", layer.presets.size());
+    return description;
 }
