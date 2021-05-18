@@ -143,33 +143,38 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     if (this->widget_core != nullptr) {
         this->connect(this->widget_core, SIGNAL(clicked(bool)), this, SLOT(OnCoreChecked(bool)));
 
-        this->widget_core_layout = this->CreateWidget(this->item_core, &this->item_core_layout, "disables", TOKEN_CORE_LAYOUT);
-        if (this->widget_core_layout != nullptr)
-            this->connect(this->widget_core_layout, SIGNAL(clicked(bool)), this, SLOT(OnCoreLayoutChecked(bool)));
+        Configurator &configurator = Configurator::Get();
+        Configuration *configuration = configurator.configurations.GetActiveConfiguration();
 
-        this->widget_core_cmd = this->CreateWidget(this->item_core, &this->item_core_command, "disables", TOKEN_CORE_CMD);
-        if (this->widget_core_cmd != nullptr)
-            this->connect(this->widget_core_cmd, SIGNAL(clicked(bool)), this, SLOT(OnCoreCommandChecked(bool)));
+        if (configuration->view_advanced_settings) {
+            this->widget_core_layout = this->CreateWidget(this->item_core, &this->item_core_layout, "disables", TOKEN_CORE_LAYOUT);
+            if (this->widget_core_layout != nullptr)
+                this->connect(this->widget_core_layout, SIGNAL(clicked(bool)), this, SLOT(OnCoreLayoutChecked(bool)));
 
-        this->widget_core_object = this->CreateWidget(this->item_core, &this->item_core_object, "disables", TOKEN_CORE_OBJECT);
-        if (this->widget_core_object != nullptr)
-            this->connect(this->widget_core_object, SIGNAL(clicked(bool)), this, SLOT(OnCoreObjectChecked(bool)));
+            this->widget_core_cmd = this->CreateWidget(this->item_core, &this->item_core_command, "disables", TOKEN_CORE_CMD);
+            if (this->widget_core_cmd != nullptr)
+                this->connect(this->widget_core_cmd, SIGNAL(clicked(bool)), this, SLOT(OnCoreCommandChecked(bool)));
 
-        this->widget_core_query = this->CreateWidget(this->item_core, &this->item_core_query, "disables", TOKEN_CORE_QUERY);
-        if (this->widget_core_query != nullptr)
-            this->connect(this->widget_core_query, SIGNAL(clicked(bool)), this, SLOT(OnCoreQueryChecked(bool)));
+            this->widget_core_object = this->CreateWidget(this->item_core, &this->item_core_object, "disables", TOKEN_CORE_OBJECT);
+            if (this->widget_core_object != nullptr)
+                this->connect(this->widget_core_object, SIGNAL(clicked(bool)), this, SLOT(OnCoreObjectChecked(bool)));
 
-        this->widget_core_desc = this->CreateWidget(this->item_core, &this->item_core_desc, "disables", TOKEN_CORE_DESC);
-        if (this->widget_core_desc != nullptr)
-            this->connect(this->widget_core_desc, SIGNAL(clicked(bool)), this, SLOT(OnCoreDescChecked(bool)));
+            this->widget_core_query = this->CreateWidget(this->item_core, &this->item_core_query, "disables", TOKEN_CORE_QUERY);
+            if (this->widget_core_query != nullptr)
+                this->connect(this->widget_core_query, SIGNAL(clicked(bool)), this, SLOT(OnCoreQueryChecked(bool)));
 
-        this->widget_core_shader = this->CreateWidget(this->item_core, &this->item_core_shader, "disables", TOKEN_CORE_SHADER);
-        if (this->widget_core_shader != nullptr)
-            this->connect(this->widget_core_shader, SIGNAL(clicked(bool)), this, SLOT(OnCoreShaderChecked(bool)));
+            this->widget_core_desc = this->CreateWidget(this->item_core, &this->item_core_desc, "disables", TOKEN_CORE_DESC);
+            if (this->widget_core_desc != nullptr)
+                this->connect(this->widget_core_desc, SIGNAL(clicked(bool)), this, SLOT(OnCoreDescChecked(bool)));
 
-        this->widget_core_push = this->CreateWidget(this->item_core, &this->item_core_push, "disables", TOKEN_CORE_PUSH);
-        if (this->widget_core_push != nullptr)
-            this->connect(this->widget_core_push, SIGNAL(clicked(bool)), this, SLOT(OnCorePushChecked(bool)));
+            this->widget_core_shader = this->CreateWidget(this->item_core, &this->item_core_shader, "disables", TOKEN_CORE_SHADER);
+            if (this->widget_core_shader != nullptr)
+                this->connect(this->widget_core_shader, SIGNAL(clicked(bool)), this, SLOT(OnCoreShaderChecked(bool)));
+
+            this->widget_core_push = this->CreateWidget(this->item_core, &this->item_core_push, "disables", TOKEN_CORE_PUSH);
+            if (this->widget_core_push != nullptr)
+                this->connect(this->widget_core_push, SIGNAL(clicked(bool)), this, SLOT(OnCorePushChecked(bool)));
+        }
     }
 
     // Misc: VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT
