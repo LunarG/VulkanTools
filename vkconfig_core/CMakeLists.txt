@@ -61,13 +61,11 @@ if(Qt5_FOUND)
 
     set(FILES_ALL ${FILES_SOURCE} ${FILES_HEADER} ${FILES_RESOURCES})
 
-    add_definitions(-DQT_NO_DEBUG_OUTPUT)
-    add_definitions(-DQT_NO_WARNING_OUTPUT)
-
     add_library(vkconfig_core STATIC ${FILES_ALL})
+    target_compile_definitions(vkconfig_core PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
 
     if(WIN32)
-        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+        target_compile_definitions(vkconfig_core PRIVATE _CRT_SECURE_NO_WARNINGS)
         target_link_libraries(vkconfig_core Cfgmgr32)
     endif()
 
