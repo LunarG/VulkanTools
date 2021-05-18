@@ -160,11 +160,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         if (excluded_layer_count > 0) {
             // The last item is just the excluded layers
             QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
+            this->tree->addTopLevelItem(excluded_layers);
             excluded_layers->setText(0, "Excluded Layers:");
             excluded_layers->setToolTip(0, "The following layers won't be executed.");
             excluded_layers->setFont(0, font_section);
             excluded_layers->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            this->tree->addTopLevelItem(excluded_layers);
+            excluded_layers->setExpanded(true);
 
             for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
                 Parameter &parameter = configuration->parameters[i];

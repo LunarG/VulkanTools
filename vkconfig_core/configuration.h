@@ -45,6 +45,7 @@ class Configuration {
     int platform_flags;
     std::string description;        // A friendly description of what this profile does
     QByteArray setting_tree_state;  // Recall editor tree state
+    bool view_advanced_settings;
 
     std::vector<Parameter> parameters;
 

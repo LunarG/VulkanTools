@@ -54,6 +54,7 @@ class Layer {
     std::string implementation_version;
     StatusType status;
     std::string description;
+    std::string introduction;
     std::string url;
     std::string path;  // Actual path to the folder that contains the layer (this is important!)
     LayerType type;
@@ -70,3 +71,5 @@ class Layer {
 
 void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta);
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);
+
+std::string BuildPropertiesLog(const Layer& layer);

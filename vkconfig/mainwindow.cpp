@@ -49,6 +49,7 @@
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QSettings>
+#include <QDesktopServices>
 
 #if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
 #include <unistd.h>
@@ -81,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->launcher_tree->installEventFilter(this);
     ui->configuration_tree->installEventFilter(this);
+    ui->settings_tree->installEventFilter(this);
 
     SetupLauncherTree();
 
@@ -176,6 +178,7 @@ void MainWindow::UpdateUI() {
 
         if (!HasMissingLayer(configuration->parameters, configurator.layers.available_layers)) {
             item->setText(1, item->configuration_name.c_str());
+            item->setToolTip(1, configuration->description.c_str());
             item->radio_button->setToolTip(configuration->description.c_str());
         } else {
             item->setText(1, (item->configuration_name + " (Invalid)").c_str());
@@ -1211,6 +1214,23 @@ void MainWindow::on_push_button_clear_log_clicked() {
     ui->push_button_clear_log->setEnabled(false);
 }
 
+const Layer *MainWindow::GetLayer(QTreeWidgetItem *item) const {
+    if (item == ui->settings_tree->invisibleRootItem()) return nullptr;
+    if (item == nullptr) return nullptr;
+
+    const std::string &text = item->text(0).toStdString().c_str();
+    if (!text.empty()) {
+        Configurator &configurator = Configurator::Get();
+
+        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; ++i) {
+            const Layer &layer = configurator.layers.available_layers[i];
+            if (text.find(layer.key) != std::string::npos) return &layer;
+        }
+    }
+
+    return GetLayer(item->parent());
+}
+
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method
@@ -1224,15 +1244,129 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         return false;
     }
 
+    Configurator &configurator = Configurator::Get();
+
     // Context menus for layer configuration files
-    if (target == ui->configuration_tree) {
+    if (target == ui->settings_tree) {
+        QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
+        if (right_click) {
+            QTreeWidgetItem *setting_item = ui->settings_tree->itemAt(right_click->pos());
+
+            const Layer *layer = GetLayer(setting_item);
+            if (layer == nullptr) {
+                return false;  // Unhandled action
+            }
+
+            // Create context menu here
+            QMenu menu(ui->settings_tree);
+
+            const std::string view_layer_desc_label = layer->introduction.empty()
+                                                          ? "No Description avaiable for in the manifest."
+                                                          : format("Open '%s' Documentation...", layer->key.c_str());
+
+            QAction *view_layer_desc_action = new QAction(view_layer_desc_label.c_str(), nullptr);
+            view_layer_desc_action->setEnabled(!layer->introduction.empty());
+            menu.addAction(view_layer_desc_action);
+
+            QAction *view_layer_prop_action = new QAction(format("View '%s' Properties...", layer->key.c_str()).c_str(), nullptr);
+            menu.addAction(view_layer_prop_action);
+
+            const std::string open_layer_doc_label = layer->url.empty() ? "No URL available for the documentation in the manifest"
+                                                                        : format("Open '%s' Documentation...", layer->key.c_str());
+
+            QAction *open_layer_doc_action = new QAction(open_layer_doc_label.c_str(), nullptr);
+            open_layer_doc_action->setEnabled(!layer->url.empty());
+            menu.addAction(open_layer_doc_action);
+
+            menu.addSeparator();
+
+            static const char *table[] = {
+                "N/A",                 // LAYER_STATE_APPLICATION_CONTROLLED
+                "Exclude '%s' layer",  // LAYER_STATE_OVERRIDDEN
+                "Override '%s' layer"  // LAYER_STATE_EXCLUDED
+            };
+            static_assert(countof(table) == LAYER_STATE_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+            Parameter *parameter = FindByKey(configuration->parameters, layer->key.c_str());
+
+            QAction *layer_state_action = new QAction(format(table[parameter->state], layer->key.c_str()).c_str(), nullptr);
+            layer_state_action->setEnabled(true);
+            menu.addAction(layer_state_action);
+
+            menu.addSeparator();
+
+            QAction *open_setting_doc_action = new QAction("Open Setting Documentation...", nullptr);
+            open_setting_doc_action->setEnabled(false);
+            menu.addAction(open_setting_doc_action);
+
+            QAction *reset_setting_action = new QAction("Reset Default value", nullptr);
+            reset_setting_action->setEnabled(false);
+            menu.addAction(reset_setting_action);
+
+            menu.addSeparator();
+
+            QAction *show_advanced_setting_action = new QAction("View Advanced Settings", nullptr);
+            show_advanced_setting_action->setEnabled(true);
+            show_advanced_setting_action->setCheckable(true);
+            show_advanced_setting_action->setChecked(true);
+            menu.addAction(show_advanced_setting_action);
+
+            QPoint point(right_click->globalX(), right_click->globalY());
+            QAction *action = menu.exec(point);
+
+            if (action == view_layer_desc_action) {
+                QMessageBox alert;
+                alert.setWindowTitle(format("'%s' Layer Description", layer->key.c_str()).c_str());
+                alert.setText(layer->introduction.c_str());
+                alert.setStandardButtons(QMessageBox::Ok);
+                alert.setDefaultButton(QMessageBox::Ok);
+                alert.setIcon(QMessageBox::Information);
+                alert.exec();
+            } else if (action == view_layer_prop_action) {
+                std::string text;
+                text += format("Status: '%s'\n", GetToken(layer->status)).c_str();
+                text += format("Path: '%s'\n", layer->library_path.c_str()).c_str();
+
+                QMessageBox alert;
+                alert.setWindowTitle(format("'%s' Layer Properties", layer->key.c_str()).c_str());
+                alert.setText(BuildPropertiesLog(*layer).c_str());
+                alert.setStandardButtons(QMessageBox::Ok);
+                alert.setDefaultButton(QMessageBox::Ok);
+                alert.setIcon(QMessageBox::Information);
+                alert.exec();
+            } else if (action == open_layer_doc_action) {
+                QDesktopServices::openUrl(QUrl(layer->url.c_str()));
+            } else if (action == layer_state_action) {
+                switch (parameter->state) {
+                    case LAYER_STATE_OVERRIDDEN:
+                        parameter->state = LAYER_STATE_EXCLUDED;
+                        break;
+                    case LAYER_STATE_EXCLUDED:
+                        parameter->state = LAYER_STATE_OVERRIDDEN;
+                        break;
+                    default:
+                        assert(0);
+                        break;
+                }
+                configuration->setting_tree_state.clear();
+                _settings_tree_manager.CreateGUI(ui->settings_tree);
+            } else {
+                return false;  // Unknown action
+            }
+
+            // Do not pass on
+            return true;
+        }
+    } else if (target == ui->configuration_tree) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {  // && event->type() == QEvent::ContextMenu) {
             // Which item were we over?
             QTreeWidgetItem *configuration_item = ui->configuration_tree->itemAt(right_click->pos());
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
-            const Environment &environment = Configurator::Get().environment;
+            const Environment &environment = configurator.environment;
             const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
             const bool active = environment.UseOverride() && !active_contiguration_name.empty();

@@ -398,16 +398,7 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
 
     const Layer *layer = FindByKey(available_layers, layer_item->layer_name.c_str());
     if (layer != nullptr) {
-        std::string description = layer->description + "\n";
-        description += std::string("(") + GetLayerTypeLabel(layer->type) + ")\n";
-        description += layer->library_path + "\n\n";
-        description += "API Version: " + layer->api_version.str() + "\n";
-        description += "Implementation Version: " + layer->implementation_version + "\n";
-        description += std::string("Status: ") + GetToken(layer->status) + "\n\n";
-        description += layer->path + "\n";
-        description += "File format: " + layer->file_format_version.str();
-
-        ui->labelLayerDetails->setText(description.c_str());
+        ui->labelLayerDetails->setText(BuildPropertiesLog(*layer).c_str());
     } else {
         ui->labelLayerDetails->setText("Missing layer");
     }
