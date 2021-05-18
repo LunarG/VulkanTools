@@ -114,9 +114,9 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_OVERRIDE_LAYERS: {
             static const char* TABLE[] = {
-                "/Bin",                          // PLATFORM_WINDOWS
-                "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
-                "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
+                "/vkconfig/override",  // PLATFORM_WINDOWS
+                "/implicit_layer.d",   // PLATFORM_LINUX
+                "/implicit_layer.d"    // PLATFORM_MACOS
             };
             static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
