@@ -39,14 +39,11 @@
 #include "../vkconfig_core/help.h"
 
 #include <QProcess>
-#include <QDir>
 #include <QMessageBox>
-#include <QFile>
 #include <QFrame>
 #include <QComboBox>
 #include <QVariant>
 #include <QContextMenuEvent>
-#include <QFileDialog>
 #include <QLineEdit>
 #include <QSettings>
 #include <QDesktopServices>
@@ -1339,6 +1336,10 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 configuration->view_advanced_settings = action->isChecked();
                 configuration->setting_tree_state.clear();
                 _settings_tree_manager.CreateGUI(ui->settings_tree);
+            } else if (action == open_layer_doc_action) {
+                ExportDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+            } else if (action == export_doc_action) {
+                ExportDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
             } else {
                 return false;  // Unknown action
             }

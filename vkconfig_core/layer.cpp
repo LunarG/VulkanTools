@@ -669,3 +669,42 @@ std::string BuildPropertiesLog(const Layer& layer) {
     description += format("Total Presets Count: %d", layer.presets.size());
     return description;
 }
+
+void ExportDoc(const Layer& layer, const std::string& path) {
+    std::string text;
+
+    text += "<!DOCTYPE html>\n";
+    text += "<html>\n";
+    text += format("<head><title></title></head>\n", layer.key.c_str());
+    text += "<body>\n";
+
+    if (layer.url.empty()) {
+        text += format("<h1>%s</h1>\n", layer.key.c_str());
+    } else {
+        text += format("<h1><a href=\"%s\">%s</a></h1>\n", layer.url.c_str(), layer.key.c_str());
+    }
+
+    text += format("<p>%s</p>\n", layer.introduction.c_str());
+
+    text += "<h2>Settings</h2>\n";
+    for (std::size_t i = 0, n = layer.settings.Size(); i < n; ++i) {
+        text += format("<h3><a id=\"%s\">%s</a></h3>\n", layer.settings[i].key.c_str(), layer.settings[i].label.c_str());
+        text += format("<p>%s</p>", layer.settings[i].description.c_str());
+    }
+
+    text += "<h2>Presets</h2>\n";
+    for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
+        text += format("<h3><a id=\"%s\">%s</a></h3>\n", layer.presets[i].label.c_str(), layer.presets[i].label.c_str());
+        text += format("<p>%s</p>", layer.presets[i].description.c_str());
+    }
+
+    text += "</body>\n";
+    text += "</html>\n";
+
+    std::string full_path = format("%s/%s.html", path.c_str(), layer.key.c_str());
+    QFile file(full_path.c_str());
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        file.write(text.c_str());
+        file.close();
+    }
+}
