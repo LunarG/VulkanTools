@@ -124,7 +124,7 @@ void LayerManager::LoadAllInstalledLayers() {
 void LayerManager::LoadLayersFromPath(const std::string &path) {
     // On Windows custom files are in the file system. On non Windows all layers are
     // searched this way
-    LayerType type = LAYER_TYPE_CUSTOM;
+    LayerType type = LAYER_TYPE_USER_DEFINED;
     if (QString(path.c_str()).contains("explicit", Qt::CaseInsensitive)) type = LAYER_TYPE_EXPLICIT;
     if (QString(path.c_str()).contains("implicit", Qt::CaseInsensitive)) type = LAYER_TYPE_IMPLICIT;
 
@@ -138,7 +138,7 @@ void LayerManager::LoadLayersFromPath(const std::string &path) {
             return;
         }
 
-        file_list = PathFinder(path, (type == LAYER_TYPE_CUSTOM));
+        file_list = PathFinder(path, (type == LAYER_TYPE_USER_DEFINED));
     } else if (VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS) {
         // On Linux/Mac, we also need the home folder
         std::string search_path = path;

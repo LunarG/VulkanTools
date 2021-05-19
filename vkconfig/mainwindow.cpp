@@ -183,7 +183,7 @@ void MainWindow::UpdateUI() {
         } else {
             item->setText(1, (item->configuration_name + " (Invalid)").c_str());
             item->radio_button->setToolTip(
-                "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
+                "Missing Vulkan Layer to use this configuration, try to add User-Defined Layers Path to locate the layers");
         }
 
         if (item->configuration_name == active_contiguration_name) {
@@ -276,7 +276,7 @@ void MainWindow::UpdateUI() {
 
 void MainWindow::UpdateConfiguration() {}
 
-// Load or refresh the list of configuration. Any profile that uses a layer that
+// Load or refresh the list of configuration. Any configuration that uses a layer that
 // is not detected on the system is disabled.
 void MainWindow::LoadConfigurationList() {
     // There are lots of ways into this, and in none of them
@@ -1259,31 +1259,31 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             // Create context menu here
             QMenu menu(ui->settings_tree);
+            QFont subtitle_font = menu.font();
+            subtitle_font.setBold(true);
 
-            const std::string view_layer_desc_label = layer->introduction.empty()
-                                                          ? "No Description avaiable for in the manifest."
-                                                          : format("Open '%s' Documentation...", layer->key.c_str());
+            QAction *title_action = new QAction(layer->key.c_str(), nullptr);
+            title_action->setFont(subtitle_font);
+            menu.addAction(title_action);
 
-            QAction *view_layer_desc_action = new QAction(view_layer_desc_label.c_str(), nullptr);
-            view_layer_desc_action->setEnabled(!layer->introduction.empty());
-            menu.addAction(view_layer_desc_action);
+            menu.addSeparator();
 
-            QAction *view_layer_prop_action = new QAction(format("View '%s' Properties...", layer->key.c_str()).c_str(), nullptr);
-            menu.addAction(view_layer_prop_action);
-
-            const std::string open_layer_doc_label = layer->url.empty() ? "No URL available for the documentation in the manifest"
-                                                                        : format("Open '%s' Documentation...", layer->key.c_str());
-
-            QAction *open_layer_doc_action = new QAction(open_layer_doc_label.c_str(), nullptr);
-            open_layer_doc_action->setEnabled(!layer->url.empty());
+            QAction *open_layer_doc_action = new QAction("Open Layer Documentation...", nullptr);
             menu.addAction(open_layer_doc_action);
+
+            QAction *export_doc_action = new QAction("Export Layer Documentation...", nullptr);
+            menu.addAction(export_doc_action);
+
+            QAction *visit_layer_website_action = new QAction("Visit Layer Website...", nullptr);
+            visit_layer_website_action->setEnabled(!layer->url.empty());
+            menu.addAction(visit_layer_website_action);
 
             menu.addSeparator();
 
             static const char *table[] = {
-                "N/A",                 // LAYER_STATE_APPLICATION_CONTROLLED
-                "Exclude '%s' layer",  // LAYER_STATE_OVERRIDDEN
-                "Override '%s' layer"  // LAYER_STATE_EXCLUDED
+                "N/A",            // LAYER_STATE_APPLICATION_CONTROLLED
+                "Exclude Layer",  // LAYER_STATE_OVERRIDDEN
+                "Override Layer"  // LAYER_STATE_EXCLUDED
             };
             static_assert(countof(table) == LAYER_STATE_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
@@ -1291,19 +1291,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             Configuration *configuration = configurator.configurations.GetActiveConfiguration();
             Parameter *parameter = FindByKey(configuration->parameters, layer->key.c_str());
 
-            QAction *layer_state_action = new QAction(format(table[parameter->state], layer->key.c_str()).c_str(), nullptr);
-            layer_state_action->setEnabled(true);
+            QAction *layer_state_action = new QAction(table[parameter->state], nullptr);
             menu.addAction(layer_state_action);
-
-            menu.addSeparator();
-
-            QAction *open_setting_doc_action = new QAction("Open Setting Documentation...", nullptr);
-            open_setting_doc_action->setEnabled(false);
-            menu.addAction(open_setting_doc_action);
-
-            QAction *reset_setting_action = new QAction("Reset Default value", nullptr);
-            reset_setting_action->setEnabled(false);
-            menu.addAction(reset_setting_action);
 
             menu.addSeparator();
 
@@ -1316,27 +1305,21 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
 
-            if (action == view_layer_desc_action) {
-                QMessageBox alert;
-                alert.setWindowTitle(format("'%s' Layer Description", layer->key.c_str()).c_str());
-                alert.setText(layer->introduction.c_str());
-                alert.setStandardButtons(QMessageBox::Ok);
-                alert.setDefaultButton(QMessageBox::Ok);
-                alert.setIcon(QMessageBox::Information);
-                alert.exec();
-            } else if (action == view_layer_prop_action) {
+            if (action == title_action) {
                 std::string text;
-                text += format("Status: '%s'\n", GetToken(layer->status)).c_str();
-                text += format("Path: '%s'\n", layer->library_path.c_str()).c_str();
+                if (!layer->introduction.empty()) {
+                    text += layer->introduction + "\n\n";
+                }
+                text += BuildPropertiesLog(*layer);
 
                 QMessageBox alert;
-                alert.setWindowTitle(format("'%s' Layer Properties", layer->key.c_str()).c_str());
-                alert.setText(BuildPropertiesLog(*layer).c_str());
+                alert.setWindowTitle(format("%s", layer->key.c_str()).c_str());
+                alert.setText(text.c_str());
                 alert.setStandardButtons(QMessageBox::Ok);
                 alert.setDefaultButton(QMessageBox::Ok);
                 alert.setIcon(QMessageBox::Information);
                 alert.exec();
-            } else if (action == open_layer_doc_action) {
+            } else if (action == visit_layer_website_action) {
                 QDesktopServices::openUrl(QUrl(layer->url.c_str()));
             } else if (action == layer_state_action) {
                 switch (parameter->state) {
@@ -1424,7 +1407,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *custom_path_action = new QAction("Edit Layers Custom Path...", nullptr);
+            QAction *custom_path_action = new QAction("Edit User-Defined Layers Paths...", nullptr);
             custom_path_action->setEnabled(true);
             menu.addAction(custom_path_action);
 
