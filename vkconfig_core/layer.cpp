@@ -677,6 +677,13 @@ void ExportDoc(const Layer& layer, const std::string& path) {
     text += "<html>\n";
     text += format("<head><title></title></head>\n", layer.key.c_str());
     text += "<body>\n";
+    text += "<style>\n";
+    text += "\ta {color: #C00000;}\n";
+    text += "\th1 {color: #C00000;}\n";
+    text += "\th2 {color: #C00000;}\n";
+    text += "\ttable {border: 1px solid;}\n";
+    text += "\ttd {border: 1px dotted;}\n";
+    text += "</style>\n";
 
     if (layer.url.empty()) {
         text += format("<h1>%s</h1>\n", layer.key.c_str());
@@ -687,10 +694,33 @@ void ExportDoc(const Layer& layer, const std::string& path) {
     text += format("<p>%s</p>\n", layer.introduction.c_str());
 
     text += "<h2>Settings</h2>\n";
+    text +=
+        "<table><thead><tr><th>Setting</th><th>Environment Variable</th><th>Settings File Value</th><th>Default "
+        "Value</th><th>Development Status</th><th>Setting View</th><th>Platform Supported</th></tr></thead><tbody>\n";
     for (std::size_t i = 0, n = layer.settings.Size(); i < n; ++i) {
-        text += format("<h3><a id=\"%s\">%s</a></h3>\n", layer.settings[i].key.c_str(), layer.settings[i].label.c_str());
-        text += format("<p>%s</p>", layer.settings[i].description.c_str());
+        text += "<tr>\n";
+        text += format("\t<td>%s</td>\n", layer.settings[i].label.c_str());
+        text += format("\t<td>%s</td>\n", layer.settings[i].env.c_str());
+        text += format("\t<td>%s</td>\n", (std::string("todo.") + layer.settings[i].key).c_str());
+        text += format("\t<td>%s</td>\n", "Default TODO");
+        text += format("\t<td>%s</td>\n", GetToken(layer.settings[i].status));
+        text += format("\t<td>%s</td>\n", GetSettingViewToken(layer.settings[i].view));
+        text += "\t<td>";
+        std::vector<std::string>& platforms = GetPlatformTokens(layer.settings[i].platform_flags);
+        for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
+            text += platforms[i];
+            if (i < n - 1) {
+                text += ", ";
+            }
+        }
+        text += "</td>\n";
+        text += "</tr>\n";
+        text += "<tr>\n";
+        text += format("\t<td colspan=\"7\">%s</td>\n", layer.settings[i].description.c_str());
+        text += "</tr>\n";
+        text += "<tr><td colspan=\"7\"> </td></tr>\n";
     }
+    text += "</tbody></table>\n";
 
     text += "<h2>Presets</h2>\n";
     for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
