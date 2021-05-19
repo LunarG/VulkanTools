@@ -658,11 +658,11 @@ void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& d
 
 std::string BuildPropertiesLog(const Layer& layer) {
     std::string description = layer.description + "\n";
-    description += std::string("(") + GetLayerTypeLabel(layer.type) + ")\n\n";
     description += "API Version: " + layer.api_version.str() + "\n";
     description += "Implementation Version: " + layer.implementation_version + "\n";
     description += std::string("Status: ") + GetToken(layer.status) + "\n\n";
     description += layer.path + "\n";
+    description += format("- %s Layers Path \n", GetLayerTypeLabel(layer.type));
     description += "- File Format: " + layer.file_format_version.str() + "\n";
     description += "- Layer Binary Path:\n    " + layer.library_path + "\n\n";
     description += format("Total Settings Count: %d\n", CountSettings(layer.settings));
