@@ -1265,15 +1265,18 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *open_layer_doc_action = new QAction("Open Layer Documentation...", nullptr);
-            menu.addAction(open_layer_doc_action);
-
-            QAction *export_doc_action = new QAction("Export Layer Documentation...", nullptr);
-            menu.addAction(export_doc_action);
-
             QAction *visit_layer_website_action = new QAction("Visit Layer Website...", nullptr);
             visit_layer_website_action->setEnabled(!layer->url.empty());
             menu.addAction(visit_layer_website_action);
+
+            QAction *export_html_action = new QAction("Export Layer HTML Documentation...", nullptr);
+            menu.addAction(export_html_action);
+
+            QAction *export_default_settings_action = new QAction("Export Layer Default vk_layer_settings.txt...", nullptr);
+            menu.addAction(export_default_settings_action);
+
+            QAction *export_active_settings_action = new QAction("Export Layer Active vk_layer_settings.txt...", nullptr);
+            menu.addAction(export_active_settings_action);
 
             menu.addSeparator();
 
@@ -1336,10 +1339,12 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 configuration->view_advanced_settings = action->isChecked();
                 configuration->setting_tree_state.clear();
                 _settings_tree_manager.CreateGUI(ui->settings_tree);
-            } else if (action == open_layer_doc_action) {
-                ExportDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
-            } else if (action == export_doc_action) {
-                ExportDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+            } else if (action == export_html_action) {
+                ExportHtmlDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+            } else if (action == export_default_settings_action) {
+                ExportSettingsDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+            } else if (action == export_active_settings_action) {
+                ExportSettingsDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
             } else {
                 return false;  // Unknown action
             }

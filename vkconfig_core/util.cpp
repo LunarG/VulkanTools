@@ -196,3 +196,9 @@ std::string ToUpperCase(const std::string& value) {
 
     return result;
 }
+
+std::string GetLayerSettingPrefix(const std::string& key) {
+    QString result(key.c_str());
+    result.remove("VK_LAYER_");
+    return ToLowerCase(result.toStdString()) + ".";
+}

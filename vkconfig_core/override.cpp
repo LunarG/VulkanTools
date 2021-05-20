@@ -169,9 +169,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
         stream << "\n";
         stream << "# " << layer->key.c_str() << "\n";
 
-        QString short_layer_name(layer->key.c_str());
-        short_layer_name.remove("VK_LAYER_");
-        QString lc_layer_name = short_layer_name.toLower();
+        std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
 
         for (std::size_t i = 0, m = parameter.settings.Size(); i < m; ++i) {
             const SettingData& setting_data = parameter.settings[i];
@@ -187,7 +185,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 continue;
             }
 
-            stream << lc_layer_name << "." << setting_data.key.c_str() << " = ";
+            stream << lc_layer_name.c_str() << setting_data.key.c_str() << " = ";
             switch (setting_data.type) {
                 case SETTING_GROUP: {
                     break;
