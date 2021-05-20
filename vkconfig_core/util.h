@@ -151,3 +151,5 @@ bool IsValueFound(const std::vector<NumberOrString>& list, const NumberOrString&
 bool IsValueFound(const std::vector<EnabledNumberOrString>& list, const NumberOrString& value);
 
 QStringList ConvertValues(const std::vector<NumberOrString>& values);
+
+std::string GetLayerSettingPrefix(const std::string& key);
