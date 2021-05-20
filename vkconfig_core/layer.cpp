@@ -726,7 +726,7 @@ static void WriteSettingsDetails(std::string& text, const std::string& layer_key
                            (GetLayerSettingPrefix(layer_key) + settings[i].key).c_str());
 
             text += "\t<li>Platforms Supported: ";
-            std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
+            const std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
             for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
                 text += "<span class=\"code\">" + platforms[i] + "</span>";
                 if (i < n - 1) {
@@ -793,10 +793,10 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "\ta {color: #A41E22;}\n";
     text += "\th1 {color: #A41E22;}\n";
     text += "\th2 {color: #A41E22;}\n";
-    text += "\ttable {border: 1px solid;}\n";
+    text += "\ttable {border: 1px solid; width: 100%; margin-left: auto; margin-right: auto;}\n";
     text += "\ttd {border: 1px dotted;}\n";
     text += "\t.code {color: #008000; font-family: consolas; }\n";
-    text += "\t.desc {width:40%; max-width:600px;}\n";
+    text += "\t.desc {width:50%;}\n";
     text += "</style>\n";
 
     text += "<h1>";
