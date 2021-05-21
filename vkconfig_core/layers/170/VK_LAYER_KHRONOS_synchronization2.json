@@ -7,7 +7,8 @@
         "api_version": "1.2.170",
         "implementation_version": "1",
         "description": "Khronos Synchronization2 layer",
-        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/synchronization_usage.html",
+        "introduction": "The VK_LAYER_KHRONOS_synchronization2 extension layer implements the VK_KHR_synchronization2 extension.",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/synchronization2_layer.html",
         "status": "BETA",
         "device_extensions": [
             {
