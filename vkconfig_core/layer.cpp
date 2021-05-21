@@ -283,7 +283,7 @@ static void LoadVUIDs(const Version& version, std::vector<NumberOrString>& value
     }
 
     if (json_text.isEmpty()) {
-        json_text = ReadAll(GetBuiltinFolder(version) + "/validusage.json");
+        json_text = ReadAll(":/layers/validusage.json");
     }
 
     if (json_text.isEmpty()) {
