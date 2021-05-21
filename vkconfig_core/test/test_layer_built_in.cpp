@@ -357,7 +357,7 @@ TEST(test_layer_built_in, layer_latest_device_simulation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/latest/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
     EXPECT_EQ(6, CountSettings(layer.settings));
-    EXPECT_EQ(3, layer.presets.size());
+    EXPECT_EQ(9, layer.presets.size());
 }
 
 TEST(test_layer_built_in, layer_latest_gfxreconstruct) {
