@@ -6,6 +6,8 @@
         "api_version": "1.2.148",
         "implementation_version": "2",
         "description": "LunarG API dump layer",
+        "introduction": "The API Dump utility layer prints API calls, parameters, and values to the identified output stream.",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/api_dump_layer.html",
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",
