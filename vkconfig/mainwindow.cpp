@@ -37,6 +37,7 @@
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/help.h"
+#include "../vkconfig_core/doc.h"
 
 #include <QProcess>
 #include <QMessageBox>
