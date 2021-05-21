@@ -994,13 +994,14 @@ static void writePPM(const char *filename, VkImage image1) {
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = NULL;
 
+    // Wait for operations on all queues to complete before performing the image copy.
+    err = pTableDevice->DeviceWaitIdle(device);
+    assert(!err);
+
     err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, nullFence);
     assert(!err);
 
     err = pTableQueue->QueueWaitIdle(queue);
-    assert(!err);
-
-    err = pTableDevice->DeviceWaitIdle(device);
     assert(!err);
 
     // Map the final image so that the CPU can read it.
