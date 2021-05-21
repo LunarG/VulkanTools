@@ -190,8 +190,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "</body>\n";
     text += "</html>\n";
 
-    std::string full_path = format("%s/%s.html", path.c_str(), layer.key.c_str());
-    QFile file(full_path.c_str());
+    QFile file(path.c_str());
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         file.write(text.c_str());
         file.close();
