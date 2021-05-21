@@ -20,6 +20,8 @@
 
 #include "doc.h"
 
+#include <QFileInfo>
+
 static std::string GetProcessedDefaultValue(const SettingMeta& meta) {
     switch (meta.type) {
         case SETTING_GROUP: {
@@ -221,6 +223,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     } else {
         text += format("<a href=\"%s\">%s</a>\n", layer.url.c_str(), layer.key.c_str());
     }
+    text += " - " + layer.description;
     if (layer.status != STATUS_STABLE) {
         text += format(" (%s)", GetToken(layer.status));
     }
@@ -231,22 +234,32 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     }
 
     text += "<h2>Layer Properties</h2>\n";
-    text += "<p>TODO</p>";
+    text += "<ul>\n";
+    text += format("\t<li>API Version: %s</li>\n", layer.api_version.str().c_str());
+    text += format("\t<li>Implementation Version: %s</li>\n", layer.implementation_version.c_str());
+    if (layer.status != STATUS_STABLE) {
+        text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
+    }
+    text += format("\t<li>%s<ul>\n", QFileInfo(layer.path.c_str()).fileName().toStdString().c_str());
+    text += format("\t\t<li>File Format: %s</li>\n", layer.file_format_version.str().c_str());
+    text += format("\t\t<li>Layer Binary Path: %s</li>\n", layer.library_path.c_str());
+    text += "\t</ul></li>\n";
+    text += "</ul>\n";
 
     if (!layer.settings.Empty()) {
-        text += "<h2>Settings Overview</h2>\n";
+        text += "<h2>Layer Settings Overview</h2>\n";
         text +=
             "<table><thead><tr><th>Setting</th><th>Environment Variable</th><th>vk_layer_settings.txt Variable</th><th>Setting "
             "Type</th><th>Default Value</th><th>Platforms Supported</th></tr></thead><tbody>\n";
         WriteSettingsOverview(text, layer.key, layer.settings);
         text += "</tbody></table>\n";
 
-        text += "<h2>Settings Details</h2>\n";
+        text += "<h2>Layer Settings Details</h2>\n";
         WriteSettingsDetails(text, layer.key, layer.settings);
     }
 
     if (!layer.presets.empty()) {
-        text += "<h2>Presets</h2>\n";
+        text += "<h2>Layer Presets</h2>\n";
         for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
             text += format("<h3>%s</h3>\n", layer.presets[i].label.c_str());
             text += format("<p>%s</p>", layer.presets[i].description.c_str());
