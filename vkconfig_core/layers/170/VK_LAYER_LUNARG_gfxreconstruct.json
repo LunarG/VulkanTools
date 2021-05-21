@@ -7,6 +7,7 @@
         "api_version": "1.2.170",
         "implementation_version": "36870",
         "description": "GFXReconstruct Capture Layer Version 0.9.6",
+        "introduction": "A software for capturing and replaying Vulkan API calls on Desktop systems",
         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html",
         "device_extensions": [
             {
