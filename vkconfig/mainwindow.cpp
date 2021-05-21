@@ -1268,14 +1268,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             visit_layer_website_action->setEnabled(!layer->url.empty());
             menu.addAction(visit_layer_website_action);
 
-            QAction *export_html_action = new QAction("Export Layer HTML Documentation...", nullptr);
-            //            menu.addAction(export_html_action);
-
-            QAction *export_default_settings_action = new QAction("Export Layer Default vk_layer_settings.txt...", nullptr);
-            //           menu.addAction(export_default_settings_action);
-
-            QAction *export_active_settings_action = new QAction("Export Layer Active vk_layer_settings.txt...", nullptr);
-            //            menu.addAction(export_active_settings_action);
+            QAction *export_html_action = new QAction("Open Layer HTML Documentation...", nullptr);
+            menu.addAction(export_html_action);
 
             static const char *table[] = {
                 "N/A",            // LAYER_STATE_APPLICATION_CONTROLLED
@@ -1337,11 +1331,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 configuration->setting_tree_state.clear();
                 _settings_tree_manager.CreateGUI(ui->settings_tree);
             } else if (action == export_html_action) {
-                ExportHtmlDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
-            } else if (action == export_default_settings_action) {
-                ExportSettingsDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
-            } else if (action == export_active_settings_action) {
-                ExportSettingsDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+                const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
+                ExportHtmlDoc(*layer, path);
+                QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
             } else {
                 return false;  // Unknown action
             }
