@@ -73,5 +73,3 @@ void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setti
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);
 
 std::string BuildPropertiesLog(const Layer& layer);
-void ExportHtmlDoc(const Layer& layer, const std::string& path);
-void ExportSettingsDoc(const Layer& layer, const std::string& path);
