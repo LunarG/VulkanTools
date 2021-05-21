@@ -14,6 +14,7 @@
 
     <qresource prefix="/layers">
         <file alias="schema.json">../vkconfig_core/layers/layers_schema.json</file>
+        <file alias="validusage.json">../vkconfig_core/layers/validusage.json</file>
     </qresource>
 
     <qresource prefix="/layers/test">
@@ -46,7 +47,6 @@
     </qresource>
 
     <qresource prefix="/layers/148">
-        <file alias="validusage.json">../vkconfig_core/layers/148/validusage.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/148/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/148/VK_LAYER_LUNARG_api_dump.json</file>
         <file alias="VK_LAYER_LUNARG_device_simulation.json">../vkconfig_core/layers/148/VK_LAYER_LUNARG_device_simulation.json</file>
@@ -56,7 +56,6 @@
     </qresource>
 
     <qresource prefix="/layers/154">
-        <file alias="validusage.json">../vkconfig_core/layers/154/validusage.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/154/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/154/VK_LAYER_LUNARG_api_dump.json</file>
         <file alias="VK_LAYER_LUNARG_device_simulation.json">../vkconfig_core/layers/154/VK_LAYER_LUNARG_device_simulation.json</file>
@@ -66,7 +65,6 @@
     </qresource>
 
     <qresource prefix="/layers/162">
-        <file alias="validusage.json">../vkconfig_core/layers/162/validusage.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/162/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/162/VK_LAYER_LUNARG_api_dump.json</file>
         <file alias="VK_LAYER_LUNARG_device_simulation.json">../vkconfig_core/layers/162/VK_LAYER_LUNARG_device_simulation.json</file>
@@ -76,7 +74,6 @@
     </qresource>  
 
     <qresource prefix="/layers/170">
-        <file alias="validusage.json">../vkconfig_core/layers/170/validusage.json</file>
         <file alias="VK_LAYER_KHRONOS_synchronization2.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_synchronization2.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/latest/VK_LAYER_LUNARG_api_dump.json</file>
@@ -87,7 +84,6 @@
     </qresource>
 
     <qresource prefix="/layers/latest">
-        <file alias="validusage.json">../vkconfig_core/layers/latest/validusage.json</file>
         <file alias="VK_LAYER_KHRONOS_synchronization2.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_synchronization2.json</file>
         <file alias="VK_LAYER_KHRONOS_validation.json">../vkconfig_core/layers/latest/VK_LAYER_KHRONOS_validation.json</file>
         <file alias="VK_LAYER_LUNARG_api_dump.json">../vkconfig_core/layers/latest/VK_LAYER_LUNARG_api_dump.json</file>
