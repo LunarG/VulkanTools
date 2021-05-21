@@ -7,6 +7,8 @@
         "api_version": "@VK_VERSION@",
         "implementation_version": "1",
         "description": "Execution Monitoring Layer",
+        "introduction": "The monitor utility layer prints the real-time frames-per-second value to the application's title bar.",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/monitor_layer.html",
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",
