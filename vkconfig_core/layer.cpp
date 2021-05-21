@@ -765,7 +765,7 @@ static void WriteSettingsDetails(std::string& text, const std::string& layer_key
                         text += format("\t<td class=\"desc\">%s</td>\n", value.description.c_str());
                     }
                     text += "\t<td>";
-                    std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
+                    const std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
                     for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
                         text += "<span class=\"code\">" + platforms[i] + "</ span>";
                         if (i < n - 1) {
