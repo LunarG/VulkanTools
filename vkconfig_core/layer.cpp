@@ -687,7 +687,7 @@ static void WriteSettingsOverview(std::string& text, const std::string& layer_ke
             text += format("\t<td><span class=\"code\">%s</span></td>\n", GetSettingTypeToken(settings[i].type));
             text += format("\t<td>%s</td>\n", "TODO");
             text += "\t<td>";
-            std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
+            const std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
             for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
                 text += "<span class=\"code\">" + platforms[i] + "</ span>";
                 if (i < n - 1) {
