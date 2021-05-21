@@ -6,6 +6,8 @@
         "api_version": "1.2.162",
         "implementation_version": "1.4.1",
         "description": "LunarG device simulation layer",
+        "introduction": "The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device.",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/device_simulation_layer.html",
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",
