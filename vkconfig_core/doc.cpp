@@ -20,6 +20,93 @@
 
 #include "doc.h"
 
+static std::string GetProcessedDefaultValue(const SettingMeta& meta) {
+    switch (meta.type) {
+        case SETTING_GROUP: {
+            return "";
+        }
+        case SETTING_LOAD_FILE:
+        case SETTING_SAVE_FILE:
+        case SETTING_SAVE_FOLDER: {
+            return static_cast<const SettingMetaFilesystem&>(meta).default_value.c_str();
+        }
+        case SETTING_STRING:
+        case SETTING_FRAMES: {
+            return static_cast<const SettingMetaString&>(meta).default_value;
+        }
+        case SETTING_INT: {
+            return format("%d", static_cast<const SettingMetaInt&>(meta).default_value);
+        }
+        case SETTING_FLOAT: {
+            const SettingMetaFloat& meta_float = static_cast<const SettingMetaFloat&>(meta);
+            const std::string float_format = meta_float.GetFloatFormat();
+
+            return format(float_format.c_str(), meta_float.default_value).c_str();
+        }
+        case SETTING_BOOL_NUMERIC_DEPRECATED: {
+            return static_cast<const SettingMetaBoolNumeric&>(meta).default_value ? "1" : "0";
+        }
+        case SETTING_BOOL: {
+            return static_cast<const SettingMetaBool&>(meta).default_value ? "TRUE" : "FALSE";
+        }
+        case SETTING_LIST: {
+            const SettingMetaList& meta_list = static_cast<const SettingMetaList&>(meta);
+
+            std::string result;
+
+            for (std::size_t i = 0, n = meta_list.default_value.size(); i < n; ++i) {
+                if (!meta_list.default_value[i].enabled) continue;
+
+                if (i != 0) {
+                    result += ",";
+                }
+                if (meta_list.default_value[i].key.empty()) {
+                    result += meta_list.default_value[i].number;
+                } else {
+                    result += meta_list.default_value[i].key.c_str();
+                }
+            }
+
+            return result;
+        }
+        case SETTING_ENUM: {
+            return static_cast<const SettingMetaEnum&>(meta).default_value;
+        }
+        case SETTING_FLAGS: {
+            const SettingMetaFlags& meta_list = static_cast<const SettingMetaFlags&>(meta);
+
+            std::string result;
+
+            for (std::size_t i = 0, n = meta_list.default_value.size(); i < n; ++i) {
+                result += meta_list.default_value[i].c_str();
+                if (i < n - 1) {
+                    result += ",";
+                }
+            }
+
+            return result;
+        }
+        default: {
+            assert(0);
+            return "";
+        }
+    }
+}
+
+static std::string BuildPlatformsHTML(int platform_flags) {
+    std::string text;
+
+    const std::vector<std::string>& platforms = GetPlatformTokens(platform_flags);
+    for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
+        text += "<span class=\"code\">" + platforms[i] + "</ span>";
+        if (i < n - 1) {
+            text += ", ";
+        }
+    }
+
+    return text;
+}
+
 static void WriteSettingsOverview(std::string& text, const std::string& layer_key, const SettingMetaSet& settings) {
     for (std::size_t i = 0, n = settings.Size(); i < n; ++i) {
         if (settings[i].type != SETTING_GROUP && settings[i].view != SETTING_VIEW_HIDDEN) {
@@ -35,16 +122,8 @@ static void WriteSettingsOverview(std::string& text, const std::string& layer_ke
             text +=
                 format("\t<td><span class=\"code\">%s</span></td>\n", (GetLayerSettingPrefix(layer_key) + settings[i].key).c_str());
             text += format("\t<td><span class=\"code\">%s</span></td>\n", GetSettingTypeToken(settings[i].type));
-            text += format("\t<td>%s</td>\n", "TODO");
-            text += "\t<td>";
-            const std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
-            for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
-                text += "<span class=\"code\">" + platforms[i] + "</ span>";
-                if (i < n - 1) {
-                    text += ", ";
-                }
-            }
-            text += "</td>\n";
+            text += format("\t<td><span class=\"code\">%s</span></td>\n", GetProcessedDefaultValue(settings[i]).c_str());
+            text += format("\t<td>%s</td>\n", BuildPlatformsHTML(settings[i].platform_flags).c_str());
             text += "</tr>\n";
         }
 
@@ -74,16 +153,8 @@ static void WriteSettingsDetails(std::string& text, const std::string& layer_key
             }
             text += format("\t<li>vk_layer_settings.txt Variable: <span class=\"code\">%s</span></li>\n",
                            (GetLayerSettingPrefix(layer_key) + settings[i].key).c_str());
+            text += format("\t<li>Platforms Supported: %s</li>\n", BuildPlatformsHTML(settings[i].platform_flags).c_str());
 
-            text += "\t<li>Platforms Supported: ";
-            const std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
-            for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
-                text += "<span class=\"code\">" + platforms[i] + "</span>";
-                if (i < n - 1) {
-                    text += ", ";
-                }
-            }
-            text += "</li>\n";
             if (settings[i].view != SETTING_VIEW_STANDARD) {
                 text += format("\t<li>Setting Level: %s</li>\n", GetSettingViewToken(settings[i].view));
             }
@@ -92,14 +163,16 @@ static void WriteSettingsDetails(std::string& text, const std::string& layer_key
 
             text += format(
                 "\t<p>Setting Type: <span class=\"code\">%s</span> - Setting Default Value: <span class=\"code\">%s</span></p>\n",
-                GetSettingTypeToken(settings[i].type), "TODO");
+                GetSettingTypeToken(settings[i].type), GetProcessedDefaultValue(settings[i]).c_str());
 
             if (IsEnum(settings[i].type)) {
                 const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(settings[i]);
 
+                text += "<table>\n";
                 text +=
-                    "<table><thead><tr><th>Enum Value</th><th>Label</th><th class=\"desc\">Description</th><th>Platforms "
-                    "Supported</th></tr></thead><tbody>\n";
+                    "<thead><tr><th>Enum Value</th><th>Label</th><th class=\"desc\">Description</th><th>Platforms "
+                    "Supported</th></tr></thead>\n";
+                text += "<tbody>\n";
                 for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
                     const SettingEnumValue& value = setting_enum.enum_values[j];
 
@@ -114,17 +187,10 @@ static void WriteSettingsDetails(std::string& text, const std::string& layer_key
                     } else {
                         text += format("\t<td class=\"desc\">%s</td>\n", value.description.c_str());
                     }
-                    text += "\t<td>";
-                    const std::vector<std::string>& platforms = GetPlatformTokens(settings[i].platform_flags);
-                    for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
-                        text += "<span class=\"code\">" + platforms[i] + "</ span>";
-                        if (i < n - 1) {
-                            text += ", ";
-                        }
-                    }
-                    text += "</td>\n";
+                    text += format("\t<td>%s</td>\n", BuildPlatformsHTML(settings[i].platform_flags).c_str());
                     text += "</tr>\n";
                 }
+                text += "</tbody></table>\n";
             }
         }
 
