@@ -326,3 +326,4 @@ TEST(test_layer_built_in, layer_170_screenshot) {
     EXPECT_EQ(3, CountSettings(layer.settings));
     EXPECT_EQ(0, layer.presets.size());
 }
+

@@ -259,7 +259,7 @@ bool Environment::Load() {
     // Load default configuration already init
     this->default_configuration_filenames = ConvertString(settings.value("default_configuration_files").toStringList());
 
-    // Load custom paths
+    // Load user-defined paths
     user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI] =
         ConvertString(settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList());
 
@@ -356,7 +356,7 @@ bool Environment::Save() const {
         settings.setValue(GetLayoutStateToken(static_cast<LayoutState>(i)), layout_states[i]);
     }
 
-    // Save custom paths
+    // Save user-defined paths
     settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, ConvertString(user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI]));
 
     // Save default configuration initizalized

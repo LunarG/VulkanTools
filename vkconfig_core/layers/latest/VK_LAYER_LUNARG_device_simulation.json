@@ -64,6 +64,114 @@
                             "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/iOS_gpu_family_5_portability.json"
                         }
                     ]
+                },
+                {
+                    "label": "Vulkan 1.2 minimum requirements",
+                    "description": "Check the application for Vulkan 1.2 minimum requirements.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "modify_extension_list",
+                            "value": true
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/spec_minimum_vulkan_1_2.json"
+                        }
+                    ]
+                },
+                {
+                    "label": "Vulkan 1.1 minimum requirements",
+                    "description": "Check the application for Vulkan 1.1 minimum requirements.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "modify_extension_list",
+                            "value": true
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/spec_minimum_vulkan_1_1.json"
+                        }
+                    ]
+                },
+                {
+                    "label": "Vulkan 1.0 minimum requirements",
+                    "description": "Check the application for Vulkan 1.0 minimum requirements.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "modify_extension_list",
+                            "value": true
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/spec_minimum_vulkan_1_0.json"
+                        }
+                    ]
+                },
+                {
+                    "label": "Vulkan 1.2 minimum requirements portability",
+                    "description": "Check the application for Vulkan 1.2 minimum requirements.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "emulate_portability",
+                            "value": true
+                        },
+                        {
+                            "key": "modify_extension_list",
+                            "value": true
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/portability_minimum_vulkan_1_2.json"
+                        }
+                    ]
+                },
+                {
+                    "label": "Vulkan 1.1 minimum requirements portability",
+                    "description": "Check the application for Vulkan 1.1 minimum requirements.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "emulate_portability",
+                            "value": true
+                        },
+                        {
+                            "key": "modify_extension_list",
+                            "value": true
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/portability_minimum_vulkan_1_1.json"
+                        }
+                    ]
+                },
+                {
+                    "label": "Vulkan 1.0 minimum requirements portability",
+                    "description": "Check the application for Vulkan 1.0 minimum requirements.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "emulate_portability",
+                            "value": true
+                        },
+                        {
+                            "key": "modify_extension_list",
+                            "value": true
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/portability_minimum_vulkan_1_0.json"
+                        }
+                    ]
                 }
             ],
             "settings": [

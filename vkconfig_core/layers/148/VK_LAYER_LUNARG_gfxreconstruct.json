@@ -275,6 +275,7 @@
                             "env": "GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY",
                             "label": "Page Guard External Memory",
                             "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
+                            "platforms": [ "WINDOWS" ],
                             "type": "BOOL",
                             "default": false,
                             "dependence": {
@@ -359,6 +360,7 @@
                             "env": "GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING",
                             "label": "Log Output to Debug Console",
                             "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
+                            "platforms": [ "WINDOWS" ],
                             "type": "BOOL",
                             "default": false
                         },

@@ -29,9 +29,9 @@ const char* GetLayerTypeLabel(LayerType type) {
     assert(type >= LAYER_TYPE_FIRST && type <= LAYER_TYPE_LAST);
 
     static const char* table[] = {
-        "Explicit",    // LAYER_TYPE_EXPLICIT
-        "Implicit",    // LAYER_TYPE_IMPLICIT
-        "Custom Path"  // LAYER_TYPE_CUSTOM
+        "Explicit",     // LAYER_TYPE_EXPLICIT
+        "Implicit",     // LAYER_TYPE_IMPLICIT
+        "User-Defined"  // LAYER_TYPE_USER_DEFINED
     };
     static_assert(countof(table) == LAYER_TYPE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

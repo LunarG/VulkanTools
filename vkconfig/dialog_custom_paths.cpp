@@ -57,10 +57,10 @@ void CustomPathsDialog::RepopulateTree() {
 
     for (std::size_t custom_path_index = 0, n = user_defined_layers_paths.size(); custom_path_index < n; ++custom_path_index) {
         // Custom path is the parent tree item
-        const std::string custom_path(ConvertNativeSeparators(user_defined_layers_paths[custom_path_index]));
+        const std::string user_defined_path(ConvertNativeSeparators(user_defined_layers_paths[custom_path_index]));
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, custom_path.c_str());
+        item->setText(0, user_defined_path.c_str());
         ui->treeWidget->addTopLevelItem(item);
 
         // Look for layers that are loaded that are also from this folder
@@ -69,7 +69,7 @@ void CustomPathsDialog::RepopulateTree() {
 
             const QFileInfo file_info(layer.path.c_str());
             const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
-            if (path != custom_path) continue;
+            if (path != user_defined_path) continue;
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
             child->setText(0, layer.key.c_str());
@@ -102,7 +102,7 @@ void CustomPathsDialog::on_pushButtonAdd_clicked() {
 /// Don't make remove button accessable unless an item has been selected
 void CustomPathsDialog::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
 
-/// Remove the selected custom search path
+/// Remove the selected user-defined search path
 void CustomPathsDialog::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
     QTreeWidgetItem *selected = ui->treeWidget->currentItem();

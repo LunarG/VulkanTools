@@ -5,8 +5,9 @@
         "type": "GLOBAL",
         "library_path": ".\\VkLayer_gfxreconstruct.dll",
         "api_version": "1.2.170",
-        "implementation_version": "36868",
-        "description": "GFXReconstruct Capture Layer Version 0.9.4",
+        "implementation_version": "36870",
+        "description": "GFXReconstruct Capture Layer Version 0.9.6",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html",
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",
@@ -275,6 +276,7 @@
                             "env": "GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY",
                             "label": "Page Guard External Memory",
                             "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
+                            "platforms": [ "WINDOWS" ],
                             "type": "BOOL",
                             "default": false,
                             "dependence": {
@@ -359,6 +361,7 @@
                             "env": "GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING",
                             "label": "Log Output to Debug Console",
                             "description": "Windows only option. Log messages will be written to the Debug Console with OutputDebugStringA",
+                            "platforms": [ "WINDOWS" ],
                             "type": "BOOL",
                             "default": false
                         },

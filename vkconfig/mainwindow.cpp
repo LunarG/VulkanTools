@@ -39,16 +39,14 @@
 #include "../vkconfig_core/help.h"
 
 #include <QProcess>
-#include <QDir>
 #include <QMessageBox>
-#include <QFile>
 #include <QFrame>
 #include <QComboBox>
 #include <QVariant>
 #include <QContextMenuEvent>
-#include <QFileDialog>
 #include <QLineEdit>
 #include <QSettings>
+#include <QDesktopServices>
 
 #if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
 #include <unistd.h>
@@ -81,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->launcher_tree->installEventFilter(this);
     ui->configuration_tree->installEventFilter(this);
+    ui->settings_tree->installEventFilter(this);
 
     SetupLauncherTree();
 
@@ -176,11 +175,12 @@ void MainWindow::UpdateUI() {
 
         if (!HasMissingLayer(configuration->parameters, configurator.layers.available_layers)) {
             item->setText(1, item->configuration_name.c_str());
+            item->setToolTip(1, configuration->description.c_str());
             item->radio_button->setToolTip(configuration->description.c_str());
         } else {
             item->setText(1, (item->configuration_name + " (Invalid)").c_str());
             item->radio_button->setToolTip(
-                "Missing Vulkan Layer to use this configuration, try to add Custom Path to locate the layers");
+                "Missing Vulkan Layer to use this configuration, try to add User-Defined Layers Path to locate the layers");
         }
 
         if (item->configuration_name == active_contiguration_name) {
@@ -273,7 +273,7 @@ void MainWindow::UpdateUI() {
 
 void MainWindow::UpdateConfiguration() {}
 
-// Load or refresh the list of configuration. Any profile that uses a layer that
+// Load or refresh the list of configuration. Any configuration that uses a layer that
 // is not detected on the system is disabled.
 void MainWindow::LoadConfigurationList() {
     // There are lots of ways into this, and in none of them
@@ -1211,6 +1211,23 @@ void MainWindow::on_push_button_clear_log_clicked() {
     ui->push_button_clear_log->setEnabled(false);
 }
 
+const Layer *MainWindow::GetLayer(QTreeWidgetItem *item) const {
+    if (item == ui->settings_tree->invisibleRootItem()) return nullptr;
+    if (item == nullptr) return nullptr;
+
+    const std::string &text = item->text(0).toStdString().c_str();
+    if (!text.empty()) {
+        Configurator &configurator = Configurator::Get();
+
+        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; ++i) {
+            const Layer &layer = configurator.layers.available_layers[i];
+            if (text.find(layer.key) != std::string::npos) return &layer;
+        }
+    }
+
+    return GetLayer(item->parent());
+}
+
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method
@@ -1224,15 +1241,121 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         return false;
     }
 
+    Configurator &configurator = Configurator::Get();
+
     // Context menus for layer configuration files
-    if (target == ui->configuration_tree) {
+    if (target == ui->settings_tree) {
+        QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
+        if (right_click) {
+            QTreeWidgetItem *setting_item = ui->settings_tree->itemAt(right_click->pos());
+
+            const Layer *layer = GetLayer(setting_item);
+            if (layer == nullptr) {
+                return false;  // Unhandled action
+            }
+
+            // Create context menu here
+            QMenu menu(ui->settings_tree);
+            QFont subtitle_font = menu.font();
+            subtitle_font.setBold(true);
+
+            QAction *title_action = new QAction(layer->key.c_str(), nullptr);
+            title_action->setFont(subtitle_font);
+            menu.addAction(title_action);
+
+            QAction *visit_layer_website_action = new QAction("Visit Layer Website...", nullptr);
+            visit_layer_website_action->setEnabled(!layer->url.empty());
+            menu.addAction(visit_layer_website_action);
+
+            QAction *export_html_action = new QAction("Export Layer HTML Documentation...", nullptr);
+            //            menu.addAction(export_html_action);
+
+            QAction *export_default_settings_action = new QAction("Export Layer Default vk_layer_settings.txt...", nullptr);
+            //           menu.addAction(export_default_settings_action);
+
+            QAction *export_active_settings_action = new QAction("Export Layer Active vk_layer_settings.txt...", nullptr);
+            //            menu.addAction(export_active_settings_action);
+
+            static const char *table[] = {
+                "N/A",            // LAYER_STATE_APPLICATION_CONTROLLED
+                "Exclude Layer",  // LAYER_STATE_OVERRIDDEN
+                "Override Layer"  // LAYER_STATE_EXCLUDED
+            };
+            static_assert(countof(table) == LAYER_STATE_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+            Parameter *parameter = FindByKey(configuration->parameters, layer->key.c_str());
+
+            QAction *layer_state_action = new QAction(table[parameter->state], nullptr);
+            menu.addAction(layer_state_action);
+
+            menu.addSeparator();
+
+            QAction *show_advanced_setting_action = new QAction("View Advanced Settings", nullptr);
+            show_advanced_setting_action->setEnabled(true);
+            show_advanced_setting_action->setCheckable(true);
+            show_advanced_setting_action->setChecked(configuration->view_advanced_settings);
+            menu.addAction(show_advanced_setting_action);
+
+            QPoint point(right_click->globalX(), right_click->globalY());
+            QAction *action = menu.exec(point);
+
+            if (action == title_action) {
+                std::string text;
+                if (!layer->introduction.empty()) {
+                    text += layer->introduction + "\n\n";
+                }
+                text += BuildPropertiesLog(*layer);
+
+                QMessageBox alert;
+                alert.setWindowTitle(format("%s", layer->key.c_str()).c_str());
+                alert.setText(text.c_str());
+                alert.setStandardButtons(QMessageBox::Ok);
+                alert.setDefaultButton(QMessageBox::Ok);
+                alert.setIcon(QMessageBox::Information);
+                alert.exec();
+            } else if (action == visit_layer_website_action) {
+                QDesktopServices::openUrl(QUrl(layer->url.c_str()));
+            } else if (action == layer_state_action) {
+                switch (parameter->state) {
+                    case LAYER_STATE_OVERRIDDEN:
+                        parameter->state = LAYER_STATE_EXCLUDED;
+                        break;
+                    case LAYER_STATE_EXCLUDED:
+                        parameter->state = LAYER_STATE_OVERRIDDEN;
+                        break;
+                    default:
+                        assert(0);
+                        break;
+                }
+                configuration->setting_tree_state.clear();
+                _settings_tree_manager.CreateGUI(ui->settings_tree);
+            } else if (action == show_advanced_setting_action) {
+                configuration->view_advanced_settings = action->isChecked();
+                configuration->setting_tree_state.clear();
+                _settings_tree_manager.CreateGUI(ui->settings_tree);
+            } else if (action == export_html_action) {
+                ExportHtmlDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+            } else if (action == export_default_settings_action) {
+                ExportSettingsDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+            } else if (action == export_active_settings_action) {
+                ExportSettingsDoc(*layer, GetPath(BUILTIN_PATH_APPDATA));
+            } else {
+                return false;  // Unknown action
+            }
+
+            // Do not pass on
+            return true;
+        }
+    } else if (target == ui->configuration_tree) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {  // && event->type() == QEvent::ContextMenu) {
             // Which item were we over?
             QTreeWidgetItem *configuration_item = ui->configuration_tree->itemAt(right_click->pos());
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
-            const Environment &environment = Configurator::Get().environment;
+            const Environment &environment = configurator.environment;
             const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
             const bool active = environment.UseOverride() && !active_contiguration_name.empty();
@@ -1286,7 +1409,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *custom_path_action = new QAction("Edit Layers Custom Path...", nullptr);
+            QAction *custom_path_action = new QAction("Edit User-Defined Layers Paths...", nullptr);
             custom_path_action->setEnabled(true);
             menu.addAction(custom_path_action);
 
