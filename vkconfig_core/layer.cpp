@@ -60,7 +60,7 @@ static std::string GetBuiltinFolder(const Version& version) {
         return format(":/layers/%d", current_version);
     }
 
-    return ":/layers/latest";
+    return ":/layers/170";
 }
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
