@@ -15,10 +15,9 @@ A Vulkan application may configure layers when creating a Vulkan Instance. This 
 
 Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
-* **[Change Log and Known Issues](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CHANGELOG.md)**
+* **[Change Log](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CHANGELOG.md)**
 * **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
-* **Information for contributors**: [All contribution information](https://github.com/LunarG/VulkanTools/blob/master/CONTRIBUTING.md), [FAQ](#faq), [Roadmap](https://github.com/LunarG/VulkanTools/projects/2)
-* **Build instruction**: It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
+* [**Contributing**](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CONTRIBUTING.md)
 
 --------------
 ## Platform Support
@@ -83,21 +82,25 @@ Vulkan Configurator may be used with command line arguments to averride layers. 
 
 For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md) document.
 
---------------
-## OS user-specific modifications
+## Vulkan Layers Settings
 
-The *Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
+### `vk_layer_settings.txt`
+
+The layer settings are stored into the `vk_layer_settings.txt` file and read directly by the layers.
+
+When *Vulkan Configurator is used to override layers, the Vulkan application local `vk_layer_settings.txt` file is ignored by layer ecosystem convention.
+
+*Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
 
-### Linux and macOS
+#### Linux and macOS
 
 Unix systems store files in the following paths:
 
 - `$HOME/.local/share/vulkan/implicit_layer.d/VkLayer_override.json` tells a Vulkan application which layers to use
 - `$HOME/.local/share/vulkan/settings.d/vk_layer_settings.txt` tells Vulkan layers which settings to use
-- `$HOME/.config/LunarG/vkconfig.conf` stores the application settings for `vkconfig`
 
-### Windows
+#### Windows
 
 Windows systems store files in the following paths:
 
@@ -110,34 +113,7 @@ In addition, Windows system create registry entries in the following locations:
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
 
---------------
-## Tests
+### Environment Variables (Deprecated)
 
-### Unit Tests
+OS Environment Variables are the legacy approach to configure layers however they should be considered deprecated in favor of using `vk_layer_settings.txt` either locally, next to the Vulkan Applications or globally, generated from *Vulkan Configurator*.
 
-On Windows, from the build directory:
-```
-ctest -C Debug --output-on-failure --parallel 16
-ctest -C Release  --output-on-failure --parallel 16
-```
-
-On Linux and macOS, from the build directory:
-```
-ctest --output-on-failure --parallel 16
-```
-
-### Manual Tests
-
-With each release of the Vulkan SDK some [manual tests](https://docs.google.com/document/d/1z0WqfMp2IBko1fvDICkjDE_3JKnf8SrU5APQTqKRR-U/edit) based on use cases are done.
-
---------------
-## FAQ
-
-### 1/ How does my application vk_layer_settings.txt file interacts with Vulkan Configurator?
-
-When *Vulkan Configurator is used to override layers, the local `vk_layer_settings.txt` file is ignored.
-
-## Known issues:
-
-- On *macOS*, *vkcube* and *vkcubepp* need to be run at least once to get past the security checks before they can be used from *Vulkan Configurator*.
-- The screenshot layer can crash if you do not specify a working directory that is writable by the current user.
