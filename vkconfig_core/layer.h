@@ -56,6 +56,7 @@ class Layer {
     std::string description;
     std::string introduction;
     std::string url;
+    int platforms;
     std::string path;  // Actual path to the folder that contains the layer (this is important!)
     LayerType type;
 
