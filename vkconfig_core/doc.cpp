@@ -188,7 +188,7 @@ static std::string BuildPlatformsHTML(int platform_flags) {
     return text;
 }
 
-static void WriteSettingsOverview(std::string& text, const std::string& layer_key, const SettingMetaSet& settings) {
+static void WriteSettingsOverview(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
     for (std::size_t i = 0, n = settings.Size(); i < n; ++i) {
         if (settings[i].type != SETTING_GROUP && settings[i].view != SETTING_VIEW_HIDDEN) {
             text += "<tr>\n";
@@ -199,7 +199,7 @@ static void WriteSettingsOverview(std::string& text, const std::string& layer_ke
             text += format("\t<td><span class=\"code\">%s</span></td>\n", GetProcessedDefaultValue(settings[i]).c_str());
 
             text +=
-                format("\t<td><span class=\"code\">%s</span></td>\n", (GetLayerSettingPrefix(layer_key) + settings[i].key).c_str());
+                format("\t<td><span class=\"code\">%s</span></td>\n", (GetLayerSettingPrefix(layer.key) + settings[i].key).c_str());
             if (settings[i].env.empty()) {
                 text += format("\t<td>N/A</td>\n", settings[i].env.c_str());
             } else {
@@ -210,11 +210,20 @@ static void WriteSettingsOverview(std::string& text, const std::string& layer_ke
             text += "</tr>\n";
         }
 
-        WriteSettingsOverview(text, layer_key, settings[i].children);
+        WriteSettingsOverview(text, layer, settings[i].children);
     }
 }
 
-static void WriteSettingsDetails(std::string& text, const std::string& layer_key, const SettingMetaSet& settings) {
+static const std::string GetLayerSettingsDocURL(const Layer& layer) {
+    if (layer.api_version > Version(1, 7, 176)) {
+        return format("https://github.com/LunarG/VulkanTools/tree/sdk-%s.0/vkconfig#vulkan-layers-settings",
+                      layer.api_version.str().c_str());
+    } else {
+        return "https://github.com/LunarG/VulkanTools/tree/master/vkconfig#vulkan-layers-settings";
+    }
+}
+
+static void WriteSettingsDetails(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
     for (std::size_t i = 0, n = settings.Size(); i < n; ++i) {
         if (settings[i].type != SETTING_GROUP && settings[i].view != SETTING_VIEW_HIDDEN) {
             if (settings[i].status == STATUS_STABLE) {
@@ -229,8 +238,8 @@ static void WriteSettingsDetails(std::string& text, const std::string& layer_key
 
             text += "<h4>Setting Properties:</h4>\n";
             text += "<ul>\n";
-            text += format("\t<li>vk_layer_settings.txt Variable: <span class=\"code\">%s</span></li>\n",
-                           (GetLayerSettingPrefix(layer_key) + settings[i].key).c_str());
+            text += format("\t<li><a href=\"%s\">vk_layer_settings.txt</a> Variable: <span class=\"code\">%s</span></li>\n",
+                           GetLayerSettingsDocURL(layer).c_str(), (GetLayerSettingPrefix(layer.key) + settings[i].key).c_str());
             if (settings[i].env.empty()) {
                 text += format("\t<li>Environment Variable: <span class=\"code\">%s</span></li>\n", "N/A");
             } else {
@@ -276,7 +285,7 @@ static void WriteSettingsDetails(std::string& text, const std::string& layer_key
             }
         }
 
-        WriteSettingsDetails(text, layer_key, settings[i].children);
+        WriteSettingsDetails(text, layer, settings[i].children);
     }
 }
 
@@ -335,14 +344,17 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
 
     if (!layer.settings.Empty()) {
         text += "<h2><a href=\"#top\" id=\"settings\">Layer Settings Overview</a></h2>\n";
-        text +=
-            "<table><thead><tr><th>Setting</th><th>Type</th><th>Default Value</th><th>vk_layer_settings.txt "
-            "Variable</th><th>Environment Variable</th><th>Platforms Supported</th></tr></thead><tbody>\n";
-        WriteSettingsOverview(text, layer.key, layer.settings);
+        text += "<table><thead><tr>";
+        text += format(
+            "<th>Setting</th><th>Type</th><th>Default Value</th><th><a href=\"%s\">vk_layer_settings.txt</a> Variable</th>"
+            "<th>Environment Variable</th><th>Platforms Supported</th>",
+            GetLayerSettingsDocURL(layer).c_str());
+        text += "</tr></thead><tbody>\n";
+        WriteSettingsOverview(text, layer, layer.settings);
         text += "</tbody></table>\n";
 
         text += "<h2><a href=\"#top\">Layer Settings Details</a></h2>\n";
-        WriteSettingsDetails(text, layer.key, layer.settings);
+        WriteSettingsDetails(text, layer, layer.settings);
     }
 
     if (!layer.presets.empty()) {
