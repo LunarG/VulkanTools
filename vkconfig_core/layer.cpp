@@ -65,9 +65,10 @@ static std::string GetBuiltinFolder(const Version& version) {
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
-Layer::Layer() : status(STATUS_STABLE), type(LAYER_TYPE_EXPLICIT) {}
+Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_ALL_BIT), type(LAYER_TYPE_EXPLICIT) {}
 
-Layer::Layer(const std::string& key, const LayerType layer_type) : key(key), status(STATUS_STABLE), type(layer_type) {}
+Layer::Layer(const std::string& key, const LayerType layer_type)
+    : key(key), status(STATUS_STABLE), platforms(PLATFORM_ALL_BIT), type(layer_type) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const std::string& implementation_version, const std::string& library_path, const std::string& type)
@@ -77,6 +78,7 @@ Layer::Layer(const std::string& key, const LayerType layer_type, const Version& 
       api_version(api_version),
       implementation_version(implementation_version),
       status(STATUS_STABLE),
+      platforms(PLATFORM_ALL_BIT),
       type(layer_type) {}
 
 // Todo: Load the layer with Vulkan API
@@ -204,6 +206,9 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
     if (json_layer_object.value("status") != QJsonValue::Undefined) {
         this->status = GetStatusType(ReadStringValue(json_layer_object, "status").c_str());
     }
+    if (json_layer_object.value("platforms") != QJsonValue::Undefined) {
+        this->platforms = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
+    }
     this->description = ReadStringValue(json_layer_object, "description");
     if (json_layer_object.value("introduction") != QJsonValue::Undefined) {
         this->introduction = ReadStringValue(json_layer_object, "introduction");
@@ -226,10 +231,11 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
     if (json_features_value == QJsonValue::Undefined && !is_builtin_layer_file) {
         const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
         default_layer.Load(available_layers, path, this->type);
-        this->status = default_layer.status;
         this->description = default_layer.description;
         this->introduction = default_layer.introduction;
         this->url = default_layer.url;
+        this->platforms = default_layer.platforms;
+        this->status = default_layer.status;
         this->settings = default_layer.settings;
         this->presets = default_layer.presets;
     } else if (json_features_value != QJsonValue::Undefined) {
