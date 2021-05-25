@@ -22,17 +22,11 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 --------------
 ## Platform Support
 
+| OS                       | Support |
+| ------------------------ | ------------------------ |
 | Windows                  | :heavy_check_mark:       |
-| ------------------------ | ------------------------ |
-| [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-icon-windows.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-windows.png) | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-icon-windows.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-windows.png)
-
 | Linux                    | :heavy_check_mark:       |
-| ------------------------ | ------------------------ |
-| [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-icon-linux.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-linux.png) | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-icon-linux.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-linux.png)
-
 | macOS                    | :heavy_check_mark:       |
-| ------------------------ | ------------------------ |
-| [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-icon-mac.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-main-mac.png) | [ ![Main Window](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-icon-mac.png) ](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig-layers-mac.png)
 
 --------------
 ## Downloads
@@ -51,6 +45,8 @@ The tool is distributed differently, depending on the platform:
 - macOS: The tool is provided as an application bundle. Run it by double-clicking the bundle from a Finder window.
 
 Vulkan Configurator may be used with command line arguments to averride layers. Use `vkconfig --help` in the console for more information.
+
+![Vulkan Configurator Animated Presentation](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/presentation.gif)
 
 --------------
 ## Terminology
