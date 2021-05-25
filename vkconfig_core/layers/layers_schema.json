@@ -949,11 +949,15 @@
                 "description": {
                     "type": "string"
                 },
-                "status": {
-                    "$ref": "#/definitions/status"
-                },
                 "url": {
                     "type": "string"
+                },
+
+                "platforms": {
+                    "$ref": "#/definitions/platforms"
+                },
+                "status": {
+                    "$ref": "#/definitions/status"
                 },
                 "features": {
                     "type": "object",

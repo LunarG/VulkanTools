@@ -9,6 +9,7 @@
         "description": "Khronos Synchronization2 layer",
         "introduction": "The VK_LAYER_KHRONOS_synchronization2 extension layer implements the VK_KHR_synchronization2 extension.",
         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/synchronization2_layer.html",
+        "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
         "status": "BETA",
         "device_extensions": [
             {
