@@ -20,6 +20,7 @@
 - Add 'expanded' property to layer manifest settings and flags #1497
 - Add settings environment variables checking #1498
 - Add settings tree context menu #1501
+- Add layer generated user documentation #1510
 
 ### Improvements:
 - Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers) list within the help menu
