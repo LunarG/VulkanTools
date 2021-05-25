@@ -26,7 +26,7 @@
 #include <string>
 
 struct Header {
-    Header() : status(STATUS_STABLE), view(SETTING_VIEW_STANDARD), platform_flags(PLATFORM_ALL_BIT), expanded(true) {}
+    Header() : status(STATUS_STABLE), view(SETTING_VIEW_STANDARD), platform_flags(PLATFORM_DESKTOP_BIT), expanded(true) {}
 
     std::string label;
     std::string description;

@@ -197,9 +197,10 @@ std::string PathManager::SelectPathImpl(QWidget* parent, PathType path, const st
         } break;
         case PATH_EXECUTABLE: {
             static const char* TABLE[] = {
-                "Applications (*.exe)",    // PLATFORM_WINDOWS
-                "Applications (*)",        // PLATFORM_LINUX
-                "Applications (*.app, *)"  // PLATFORM_MACOS
+                "Applications (*.exe)",     // PLATFORM_WINDOWS
+                "Applications (*)",         // PLATFORM_LINUX
+                "Applications (*.app, *)",  // PLATFORM_MACOS
+                "N/A"                       // PLATFORM_ANDROID
             };
             static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

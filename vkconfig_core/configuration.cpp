@@ -41,7 +41,7 @@
 
 static const char* SUPPORTED_CONFIG_FILES[] = {"_2_2_1", "_2_2", ""};
 
-Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_ALL_BIT), view_advanced_settings(false) {}
+Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
 
 static Version GetConfigurationVersion(const QJsonValue& value) {
     if (SUPPORT_LAYER_CONFIG_2_0_1) {

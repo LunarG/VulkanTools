@@ -29,7 +29,7 @@
             "type": "array",
             "items": {
                 "type": "string",
-                "enum": [ "WINDOWS", "LINUX", "MACOS" ]
+                "enum": [ "WINDOWS", "LINUX", "MACOS", "ANDROID" ]
             }
         },
         "dependence": {
