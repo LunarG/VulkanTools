@@ -46,18 +46,33 @@ TEST(test_platform, platform_flags_all) {
         platform_strings.push_back(GetToken(platform_type));
     }
 
-    EXPECT_EQ(PLATFORM_ALL_BIT, GetPlatformFlags(platform_strings));
+    EXPECT_EQ(PLATFORM_DESKTOP_BIT | PLATFORM_ANDROID_BIT, GetPlatformFlags(platform_strings));
 }
 
 TEST(test_platform, platform_to_tokens) {
     EXPECT_EQ(0, GetPlatformFlags(GetPlatformTokens(0)));
     EXPECT_EQ(PLATFORM_LINUX_BIT, GetPlatformFlags(GetPlatformTokens(PLATFORM_LINUX_BIT)));
-    EXPECT_EQ(PLATFORM_ALL_BIT, GetPlatformFlags(GetPlatformTokens(PLATFORM_ALL_BIT)));
+    EXPECT_EQ(PLATFORM_DESKTOP_BIT, GetPlatformFlags(GetPlatformTokens(PLATFORM_DESKTOP_BIT)));
 }
 
-TEST(test_platform, platform_type) {
+TEST(test_platform, platform_type_windows) {
+    EXPECT_STREQ("WINDOWS", GetToken(PLATFORM_WINDOWS));
+    EXPECT_EQ(PLATFORM_WINDOWS, GetPlatformType("WINDOWS"));
+}
+
+TEST(test_platform, platform_type_linux) {
     EXPECT_STREQ("LINUX", GetToken(PLATFORM_LINUX));
     EXPECT_EQ(PLATFORM_LINUX, GetPlatformType("LINUX"));
+}
+
+TEST(test_platform, platform_type_macos) {
+    EXPECT_STREQ("MACOS", GetToken(PLATFORM_MACOS));
+    EXPECT_EQ(PLATFORM_MACOS, GetPlatformType("MACOS"));
+}
+
+TEST(test_platform, platform_type_android) {
+    EXPECT_STREQ("ANDROID", GetToken(PLATFORM_ANDROID));
+    EXPECT_EQ(PLATFORM_ANDROID, GetPlatformType("ANDROID"));
 }
 
 TEST(test_platform, status_type) {

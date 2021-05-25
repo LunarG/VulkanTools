@@ -39,6 +39,7 @@ static const char *GetVulkanLibrary() {
         "vulkan-1.dll",              // PLATFORM_WINDOWS
         "libvulkan",                 // PLATFORM_LINUX
         "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
+        "N/A",                       // PLATFORM_ANDROID
     };
     static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

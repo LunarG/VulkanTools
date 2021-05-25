@@ -65,10 +65,10 @@ static std::string GetBuiltinFolder(const Version& version) {
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
-Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_ALL_BIT), type(LAYER_TYPE_EXPLICIT) {}
+Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT), type(LAYER_TYPE_EXPLICIT) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type)
-    : key(key), status(STATUS_STABLE), platforms(PLATFORM_ALL_BIT), type(layer_type) {}
+    : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT), type(layer_type) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const std::string& implementation_version, const std::string& library_path, const std::string& type)
@@ -78,7 +78,7 @@ Layer::Layer(const std::string& key, const LayerType layer_type, const Version& 
       api_version(api_version),
       implementation_version(implementation_version),
       status(STATUS_STABLE),
-      platforms(PLATFORM_ALL_BIT),
+      platforms(PLATFORM_DESKTOP_BIT),
       type(layer_type) {}
 
 // Todo: Load the layer with Vulkan API

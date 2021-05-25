@@ -51,7 +51,8 @@ static const char* GetApplicationSuffix() {
     static const char* TABLE[] = {
         ".exe",  // PLATFORM_WINDOWS
         "",      // PLATFORM_LINUX
-        ".app"   // PLATFORM_MACOS
+        ".app",  // PLATFORM_MACOS
+        "N/A"    // PLATFORM_ANDROID
     };
     static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -268,14 +269,13 @@ bool Environment::Load() {
     const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
     if (!VK_LAYER_PATH.isEmpty()) {
         static const char* TABLE[] = {
-            ";",  // PLATFORM_WINDOWS
-            ":",  // PLATFORM_LINUX
-            ":"   // PLATFORM_MACOS
+            ";",  // ENVIRONMENT_WIN32
+            ":"   // ENVIRONMENT_UNIX
         };
-        static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+        static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV] =
-            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(TABLE[VKC_PLATFORM]));
+            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(TABLE[VKC_ENV]));
     } else {
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV].clear();
     }
@@ -631,13 +631,12 @@ static std::string GetDefaultExecutablePath(const std::string& executable_name) 
     const QString env(qgetenv("VULKAN_SDK"));
     if (!env.isEmpty()) {
         static const char* TABLE[] = {
-            "/Bin",  // PLATFORM_WINDOWS
-            "/bin",  // PLATFORM_LINUX
-            "/bin"   // PLATFORM_MACOS
+            "/Bin",  // ENVIRONMENT_WIN32
+            "/bin",  // ENVIRONMENT_UNIX
         };
-        static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+        static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
-        const std::string search_path = env.toStdString() + TABLE[VKC_PLATFORM] + DEFAULT_PATH + executable_name.c_str();
+        const std::string search_path = env.toStdString() + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str();
         const QFileInfo file_info(search_path.c_str());
         if (file_info.exists()) {
             return file_info.absoluteFilePath().toStdString();

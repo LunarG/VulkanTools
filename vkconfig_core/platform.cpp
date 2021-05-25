@@ -55,7 +55,8 @@ const char* GetToken(PlatformType type) {
     static const char* table[] = {
         "WINDOWS",  // PLATFORM_WINDOWS
         "LINUX",    // PLATFORM_LINUX
-        "MACOS"     // PLATFORM_MACOS
+        "MACOS",    // PLATFORM_MACOS
+        "ANDROID",  // PLATFORM_ANDROID
     };
     static_assert(countof(table) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

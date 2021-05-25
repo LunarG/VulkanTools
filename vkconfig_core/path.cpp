@@ -75,13 +75,13 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_CONFIG_REF: {
             static const char* TABLE[] = {
-                "/vkconfig/configurations",         // PLATFORM_WINDOWS
-                "/lunarg-vkconfig/configurations",  // PLATFORM_LINUX
-                "/lunarg-vkconfig/configurations"   // PLATFORM_MACOS
+                "/vkconfig/configurations",        // ENVIRONMENT_WIN32
+                "/lunarg-vkconfig/configurations"  // ENVIRONMENT_UNIX
             };
-            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
 
-            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_PLATFORM];
+            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_ENV];
             break;
         }
         case BUILTIN_PATH_CONFIG_LAST: {
@@ -97,15 +97,15 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_OVERRIDE_SETTINGS: {
             static const char* TABLE[] = {
-                "/vkconfig/override",  // PLATFORM_WINDOWS
-                "/settings.d",         // PLATFORM_LINUX
-                "/settings.d"          // PLATFORM_MACOS
+                "/vkconfig/override",  // ENVIRONMENT_WIN32
+                "/settings.d"          // ENVIRONMENT_UNIX
             };
-            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
 
             result = qgetenv("VK_LAYER_SETTINGS_PATH").toStdString();
             if (result.empty()) {
-                result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_PLATFORM];
+                result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_ENV];
             }
             if (result.find("vk_layer_settings.txt") == std::string::npos) {
                 result += "/vk_layer_settings.txt";
@@ -114,43 +114,44 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_OVERRIDE_LAYERS: {
             static const char* TABLE[] = {
-                "/vkconfig/override",  // PLATFORM_WINDOWS
-                "/implicit_layer.d",   // PLATFORM_LINUX
-                "/implicit_layer.d"    // PLATFORM_MACOS
+                "/vkconfig/override",  // ENVIRONMENT_WIN32
+                "/implicit_layer.d"    // ENVIRONMENT_UNIX
             };
-            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
 
-            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_PLATFORM];
+            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_ENV];
             result += "/VkLayer_override.json";
             break;
         }
         case BUILTIN_PATH_APPDATA: {
             static const char* TABLE[] = {
-                "/AppData/Local/LunarG",  // PLATFORM_WINDOWS
-                "/.local/share/vulkan",   // PLATFORM_LINUX
-                "/.local/share/vulkan",   // PLATFORM_MACOS
+                "/AppData/Local/LunarG",  // ENVIRONMENT_WIN32
+                "/.local/share/vulkan"    // ENVIRONMENT_UNIX
             };
-            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
 
-            result = GetPath(BUILTIN_PATH_HOME) + TABLE[VKC_PLATFORM];
+            result = GetPath(BUILTIN_PATH_HOME) + TABLE[VKC_ENV];
             break;
         }
         case BUILTIN_PATH_EXPLICIT_LAYERS: {
             static const char* TABLE[] = {
-                "/Bin",                          // PLATFORM_WINDOWS
-                "/etc/vulkan/explicit_layer.d",  // PLATFORM_LINUX
-                "/etc/vulkan/explicit_layer.d",  // PLATFORM_MACOS
+                "/Bin",                         // ENVIRONMENT_WIN32
+                "/etc/vulkan/explicit_layer.d"  // ENVIRONMENT_UNIX
             };
-            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
 
-            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + TABLE[VKC_PLATFORM];
+            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + TABLE[VKC_ENV];
             break;
         }
         case BUILTIN_PATH_VULKAN_SDK: {
             static const char* TABLE[] = {
-                "/N/A",                     // PLATFORM_WINDOWS
+                "N/A",                      // PLATFORM_WINDOWS
                 "/usr",                     // PLATFORM_LINUX
                 "/usr/local/share/vulkan",  // PLATFORM_MACOS
+                "N/A"                       // PLATFORM_ANDROID
             };
             static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -169,6 +170,7 @@ std::string GetPath(BuiltinPath path) {
                 "/Config",               // PLATFORM_WINDOWS
                 "/share/vulkan/config",  // PLATFORM_LINUX
                 "/config",               // PLATFORM_MACOS
+                "N/A"                    // PLATFORM_ANDROID
             };
             static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -214,7 +216,7 @@ std::string ReplaceBuiltInVariable(const std::string& path) {
 std::string ConvertNativeSeparators(const std::string& path) {
     const char* native_separator = GetNativeSeparator();
     const std::size_t native_separator_size = std::strlen(native_separator);
-    const char* alien_separator = VKC_PLATFORM != VKC_PLATFORM_WINDOWS ? "\\" : "/";
+    const char* alien_separator = VKC_ENV != VKC_ENV_WIN32 ? "\\" : "/";
     const std::size_t alien_separator_size = std::strlen(alien_separator);
 
     std::string current_path = path;
@@ -238,7 +240,7 @@ std::string ConvertNativeSeparators(const std::string& path) {
 }
 
 const char* GetNativeSeparator() {
-    static const char* native_separator = VKC_PLATFORM == VKC_PLATFORM_WINDOWS ? "\\" : "/";
+    static const char* native_separator = VKC_ENV == VKC_ENV_WIN32 ? "\\" : "/";
     return native_separator;
 }
 

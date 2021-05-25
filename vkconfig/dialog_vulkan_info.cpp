@@ -52,6 +52,7 @@ void VulkanInfoDialog::Run() {
         "vulkaninfoSDK",              // PLATFORM_WINDOWS
         "vulkaninfo",                 // PLATFORM_LINUX
         "/usr/local/bin/vulkaninfo",  // PLATFORM_MACOS
+        "N/A",                        // PLATFORM_ANDROID
     };
     static_assert(countof(VULKAN_INFO_PATH) == PLATFORM_COUNT,
                   "The tranlation table size doesn't match the enum number of elements");
