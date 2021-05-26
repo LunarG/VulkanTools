@@ -191,7 +191,7 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
 
     JsonValidator validator;
 #if defined(_DEBUG)
-    const bool should_validate = (this->api_version > Version(1, 2, 170) && is_builtin_layer_file) || !is_builtin_layer_file;
+    const bool should_validate = (this->api_version >= Version(1, 2, 170) && is_builtin_layer_file) || !is_builtin_layer_file;
 #else
     const bool should_validate = !is_builtin_layer_file;
 #endif
@@ -227,17 +227,18 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
     // Load default layer json file if necessary
     const QJsonValue& json_features_value = json_layer_object.value("features");
 
-    Layer default_layer;
-    if (json_features_value == QJsonValue::Undefined && !is_builtin_layer_file) {
+    if (!is_builtin_layer_file && this->api_version <= Version(1, 2, 176)) {
         const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
-        default_layer.Load(available_layers, path, this->type);
-        this->description = default_layer.description;
-        this->introduction = default_layer.introduction;
-        this->url = default_layer.url;
-        this->platforms = default_layer.platforms;
-        this->status = default_layer.status;
-        this->settings = default_layer.settings;
-        this->presets = default_layer.presets;
+
+        Layer default_layer;
+        if (default_layer.Load(available_layers, path, this->type)) {
+            this->introduction = default_layer.introduction;
+            this->url = default_layer.url;
+            this->platforms = default_layer.platforms;
+            this->status = default_layer.status;
+            this->settings = default_layer.settings;
+            this->presets = default_layer.presets;
+        }
     } else if (json_features_value != QJsonValue::Undefined) {
         const QJsonObject& json_features_object = json_features_value.toObject();
 
