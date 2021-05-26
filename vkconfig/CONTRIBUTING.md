@@ -2,28 +2,12 @@
 
 ## Contributions Welcome
 
-The Vulkan Ecosystem will benefit from your contributions to VulkanTools.  While there are often
-active and organized development efforts underway to improve these tools, there are always
-opportunities for anyone to help by contributing new tools or additional features to existing tools.
-
-The easiest method for contributing is to examine the [issues list](https://github.com/LunarG/VulkanTools/issues)
+The easiest method for contributing to *Vulkan Configurator* is to examine the [issues list](https://github.com/LunarG/VulkanTools/issues) and the [roadmap](https://github.com/LunarG/VulkanTools/projects/2)
 and look for areas that are of interest.
 
-Of course, if you have your own work in mind, please open an issue to describe it and assign it to yourself.
-Finally, please feel free to contact any of the developers that are actively contributing should you
-wish to coordinate further.
-
-Repository Issue labels:
-
-* _Bug_:          These issues refer to invalid or broken functionality and are the highest priority.
-* _Incomplete_:   These issues refer to missing validation checks that users have encountered during application
-development that would have been directly useful, and are high priority.
-* _Enhancement_:  These issues refer ideas for improving or extending functionality.
-
-It is the maintainers goal for all issues to be assigned within one business day of their submission. If you choose
-to work on an issue that is assigned, simply coordinate with the current assignee.
-
-[Roadmap](https://github.com/LunarG/VulkanTools/projects/2)
+Furthermore:
+- If you have your own work in mind, please open an issue to describe it and assign it to yourself.
+- If you choose to work on an issue that is assigned, simply coordinate with the current assignee.
 
 --------------
 ## Building Vulkan Configurator

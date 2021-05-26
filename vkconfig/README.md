@@ -15,12 +15,13 @@ A Vulkan application may configure layers when creating a Vulkan Instance. This 
 
 Finally *Vulkan Configurator* allows using layers from user-defined directories.
 
-* **[Change Log](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CHANGELOG.md)**
-* **Bug reports**: Please submit [GitHub issues](https://github.com/LunarG/VulkanTools/issues) if you encounter any issue.
-* [**Contributing**](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CONTRIBUTING.md)
+* **[Change Log](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CHANGELOG.md)**: The history of *Vulkan Configurator* releases.
+* **[Bug reports](https://github.com/LunarG/VulkanTools/issues)**: Open a GitHub issue when you encounter a bug.
+* **[Roadmap](https://github.com/LunarG/VulkanTools/projects/2)**: Follow *Vulkan Configurator* future developments.
+* **[Contributing](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CONTRIBUTING.md)**: Submit a fix or a feature to *Vulkan Configurator*.
 
 --------------
-## Platform Support
+## Platforms Support
 
 | OS      | Windows            | Linux               | macOS              | iOS     | Android |
 | --------| ------------------ | ------------------- | ------------------ | ------- | ------- |
