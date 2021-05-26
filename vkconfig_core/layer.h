@@ -49,7 +49,7 @@ class Layer {
    public:
     std::string key;
     Version file_format_version;
-    std::string library_path;  // This is a relative path, straight out of the json
+    std::string binary_path;
     Version api_version;
     std::string implementation_version;
     StatusType status;
@@ -57,13 +57,12 @@ class Layer {
     std::string introduction;
     std::string url;
     int platforms;
-    std::string path;  // Actual path to the folder that contains the layer (this is important!)
+    std::string manifest_path;
     LayerType type;
 
     SettingMetaSet settings;
     std::vector<LayerPreset> presets;
 
-    // File based layers
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
 
     void AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_settings_value);
@@ -72,5 +71,3 @@ class Layer {
 
 void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta);
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);
-
-std::string BuildPropertiesLog(const Layer& layer);

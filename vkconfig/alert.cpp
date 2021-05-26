@@ -54,3 +54,57 @@ void Alert::ConfigurationNameInvalid() {
     alert.setIcon(QMessageBox::Warning);
     alert.exec();
 }
+
+static std::string BuildPropertiesLog(const Layer& layer) {
+    std::string description;
+    if (!layer.description.empty()) {
+        description += layer.description + "\n";
+    }
+    description += "API Version: " + layer.api_version.str() + " - Implementation Version: " + layer.implementation_version + "\n";
+    if (layer.platforms != 0) {
+        description += "Supported Platforms: ";
+
+        const std::vector<std::string>& platforms = GetPlatformTokens(layer.platforms);
+        for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
+            description += platforms[i];
+            if (i < n - 1) {
+                description += ", ";
+            }
+        }
+
+        description += "\n";
+    }
+
+    description += "\n";
+    description += layer.manifest_path + "\n";
+    description += format("- %s Layers Path \n", GetLayerTypeLabel(layer.type));
+    description += "- File Format: " + layer.file_format_version.str() + "\n";
+    description += "- Layer Binary Path:\n    " + layer.binary_path + "\n";
+    description += "\n";
+    description +=
+        format("Total Settings Count: %d - Total Presets Count: %d", CountSettings(layer.settings), layer.presets.size());
+    return description;
+}
+
+void Alert::LayerProperties(const Layer* layer) {
+    assert(layer != nullptr);
+
+    std::string title = layer->key;
+    if (layer->status != STATUS_STABLE) {
+        title += format(" (%s)", GetToken(layer->status));
+    }
+
+    std::string text;
+    if (!layer->introduction.empty()) {
+        text += layer->introduction + "\n\n";
+    }
+    text += BuildPropertiesLog(*layer);
+
+    QMessageBox alert;
+    alert.setWindowTitle(title.c_str());
+    alert.setText(text.c_str());
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Information);
+    alert.exec();
+}

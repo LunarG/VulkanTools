@@ -130,8 +130,8 @@ static int RunLayersVerbose(const CommandLine& command_line) {
         printf("\n%s (%s) %s-%s\n", layer.key.c_str(), GetLayerTypeLabel(layer.type), layer.api_version.str().c_str(),
                layer.implementation_version.c_str());
         printf("- %s\n", layer.description.c_str());
-        printf("- %s\n", layer.path.c_str());
-        printf("- %s\n", layer.library_path.c_str());
+        printf("- %s\n", layer.manifest_path.c_str());
+        printf("- %s\n", layer.binary_path.c_str());
     }
 
     return 0;

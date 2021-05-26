@@ -49,7 +49,7 @@ TEST(test_layer, load_1_1_0_header) {
 
     EXPECT_EQ(Version(1, 1, 0), layer.file_format_version);
     EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_1_0", layer.key.c_str());
-    EXPECT_STREQ(".\\VkLayer_reference.dll", layer.library_path.c_str());
+    EXPECT_STREQ(".\\VkLayer_reference.dll", layer.binary_path.c_str());
     EXPECT_EQ(Version(1, 2, 162), layer.api_version);
     EXPECT_STREQ("Build 75", layer.implementation_version.c_str());
     EXPECT_STREQ("reference layer", layer.description.c_str());
@@ -66,7 +66,7 @@ TEST(test_layer, load_1_2_0_header) {
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
     EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_2_0", layer.key.c_str());
-    EXPECT_STREQ(".\\VkLayer_reference.dll", layer.library_path.c_str());
+    EXPECT_STREQ(".\\VkLayer_reference.dll", layer.binary_path.c_str());
     EXPECT_EQ(Version(1, 2, 170), layer.api_version);
     EXPECT_STREQ("Build 76", layer.implementation_version.c_str());
     EXPECT_STREQ("reference layer", layer.description.c_str());

@@ -67,7 +67,7 @@ void CustomPathsDialog::RepopulateTree() {
         for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; i++) {
             const Layer &layer = configurator.layers.available_layers[i];
 
-            const QFileInfo file_info(layer.path.c_str());
+            const QFileInfo file_info(layer.manifest_path.c_str());
             const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
             if (path != user_defined_path) continue;
 

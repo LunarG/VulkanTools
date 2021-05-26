@@ -80,8 +80,6 @@ class MainWindow : public QMainWindow {
     std::unique_ptr<QDialog> vk_info_dialog;
     std::unique_ptr<QDialog> vk_installation_dialog;
 
-    const Layer *GetLayer(QTreeWidgetItem *item) const;
-
     void Log(const std::string &log);
 
     ConfigurationListItem *GetCheckedItem();
