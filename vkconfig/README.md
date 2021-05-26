@@ -22,11 +22,9 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 --------------
 ## Platform Support
 
-| OS                       | Support |
-| ------------------------ | ------------------------ |
-| Windows                  | :heavy_check_mark:       |
-| Linux                    | :heavy_check_mark:       |
-| macOS                    | :heavy_check_mark:       |
+| OS      | Windows            | Linux               | macOS              | iOS     | Android |
+| --------| ------------------ | ------------------- | ------------------ | ------- | ------- |
+| Support | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: | :x:     | :x:     |
 
 --------------
 ## Downloads
