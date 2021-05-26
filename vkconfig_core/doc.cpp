@@ -312,11 +312,15 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     } else {
         text += format("<a href=\"%s\">%s</a>\n", layer.url.c_str(), layer.key.c_str());
     }
-    text += " - " + layer.description;
+
     if (layer.status != STATUS_STABLE) {
         text += format(" (%s)", GetToken(layer.status));
     }
-    text += "</h1>";
+    text += "</h1>\n";
+
+    if (!layer.description.empty()) {
+        text += "<h3>" + layer.description + "</h3>\n";
+    }
 
     if (!layer.introduction.empty()) {
         text += format("<p>%s</p>\n", layer.introduction.c_str());
@@ -326,11 +330,13 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "<ul>\n";
     text += format("\t<li>API Version: %s</li>\n", layer.api_version.str().c_str());
     text += format("\t<li>Implementation Version: %s</li>\n", layer.implementation_version.c_str());
-    text += format("\t<li>%s<ul>\n", QFileInfo(layer.path.c_str()).fileName().toStdString().c_str());
+    text += format("\t<li>Layer Manifest: %s<ul>\n", QFileInfo(layer.manifest_path.c_str()).fileName().toStdString().c_str());
     text += format("\t\t<li>File Format: %s</li>\n", layer.file_format_version.str().c_str());
-    text += format("\t\t<li>Layer Binary Path: %s</li>\n", layer.library_path.c_str());
+    text += format("\t\t<li>Layer Binary Path: %s</li>\n", layer.binary_path.c_str());
     text += "\t</ul></li>\n";
-    text += format("\t<li>Platforms Supported: %s</li>\n", BuildPlatformsHTML(layer.platforms).c_str());
+    if (layer.platforms != 0) {
+        text += format("\t<li>Supported Platforms: %s</li>\n", BuildPlatformsHTML(layer.platforms).c_str());
+    }
     if (layer.status != STATUS_STABLE) {
         text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
     }
@@ -342,12 +348,17 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     }
     text += "</ul>\n";
 
+    if (!layer.url.empty()) {
+        text +=
+            format("<p>Visit <a href=\"%s\">%s home page</a> for more information.</p>\n", layer.url.c_str(), layer.key.c_str());
+    }
+
     if (!layer.settings.Empty()) {
         text += "<h2><a href=\"#top\" id=\"settings\">Layer Settings Overview</a></h2>\n";
         text += "<table><thead><tr>";
         text += format(
             "<th>Setting</th><th>Type</th><th>Default Value</th><th><a href=\"%s\">vk_layer_settings.txt</a> Variable</th>"
-            "<th>Environment Variable</th><th>Platforms Supported</th>",
+            "<th>Environment Variable</th><th>Supported Platforms</th>",
             GetLayerSettingsDocURL(layer).c_str());
         text += "</tr></thead><tbody>\n";
         WriteSettingsOverview(text, layer, layer.settings);

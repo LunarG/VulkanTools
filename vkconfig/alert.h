@@ -20,8 +20,11 @@
 
 #pragma once
 
+#include "../vkconfig_core/layer.h"
+
 struct Alert {
     static void ConfigurationRenamingFailed();
     static void ConfigurationNameEmpty();
     static void ConfigurationNameInvalid();
+    static void LayerProperties(const Layer *layer);
 };

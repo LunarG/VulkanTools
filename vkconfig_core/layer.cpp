@@ -65,25 +65,25 @@ static std::string GetBuiltinFolder(const Version& version) {
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
-Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT), type(LAYER_TYPE_EXPLICIT) {}
+Layer::Layer() : status(STATUS_STABLE), platforms(0), type(LAYER_TYPE_EXPLICIT) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type)
-    : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT), type(layer_type) {}
+    : key(key), status(STATUS_STABLE), platforms(0), type(layer_type) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
              const std::string& implementation_version, const std::string& library_path, const std::string& type)
     : key(key),
       file_format_version(file_format_version),
-      library_path(library_path),
+      binary_path(library_path),
       api_version(api_version),
       implementation_version(implementation_version),
       status(STATUS_STABLE),
-      platforms(PLATFORM_DESKTOP_BIT),
+      platforms(0),
       type(layer_type) {}
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return file_format_version != Version::VERSION_NULL && !key.empty() && !library_path.empty() &&
+    return file_format_version != Version::VERSION_NULL && !key.empty() && !binary_path.empty() &&
            api_version != Version::VERSION_NULL && !implementation_version.empty();
 }
 
@@ -140,7 +140,7 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
     QString json_text = file.readAll();
     file.close();
 
-    this->path = full_path_to_file;
+    this->manifest_path = full_path_to_file;
 
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
@@ -199,7 +199,7 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
-        this->library_path = json_library_path_value.toString().toStdString();
+        this->binary_path = json_library_path_value.toString().toStdString();
     }
 
     this->implementation_version = ReadStringValue(json_layer_object, "implementation_version");
@@ -660,18 +660,4 @@ void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& d
             }
         }
     }
-}
-
-std::string BuildPropertiesLog(const Layer& layer) {
-    std::string description = layer.description + "\n";
-    description += "API Version: " + layer.api_version.str() + "\n";
-    description += "Implementation Version: " + layer.implementation_version + "\n";
-    description += std::string("Status: ") + GetToken(layer.status) + "\n\n";
-    description += layer.path + "\n";
-    description += format("- %s Layers Path \n", GetLayerTypeLabel(layer.type));
-    description += "- File Format: " + layer.file_format_version.str() + "\n";
-    description += "- Layer Binary Path:\n    " + layer.library_path + "\n\n";
-    description += format("Total Settings Count: %d\n", CountSettings(layer.settings));
-    description += format("Total Presets Count: %d", layer.presets.size());
-    return description;
 }

@@ -1212,8 +1212,8 @@ void MainWindow::on_push_button_clear_log_clicked() {
     ui->push_button_clear_log->setEnabled(false);
 }
 
-const Layer *MainWindow::GetLayer(QTreeWidgetItem *item) const {
-    if (item == ui->settings_tree->invisibleRootItem()) return nullptr;
+const Layer *GetLayer(QTreeWidget *tree, QTreeWidgetItem *item) {
+    if (item == tree->invisibleRootItem()) return nullptr;
     if (item == nullptr) return nullptr;
 
     const std::string &text = item->text(0).toStdString().c_str();
@@ -1226,7 +1226,7 @@ const Layer *MainWindow::GetLayer(QTreeWidgetItem *item) const {
         }
     }
 
-    return GetLayer(item->parent());
+    return GetLayer(tree, item->parent());
 }
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
@@ -1250,7 +1250,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         if (right_click) {
             QTreeWidgetItem *setting_item = ui->settings_tree->itemAt(right_click->pos());
 
-            const Layer *layer = GetLayer(setting_item);
+            const Layer *layer = GetLayer(ui->settings_tree, setting_item);
             if (layer == nullptr) {
                 return false;  // Unhandled action
             }
@@ -1297,19 +1297,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QAction *action = menu.exec(point);
 
             if (action == title_action) {
-                std::string text;
-                if (!layer->introduction.empty()) {
-                    text += layer->introduction + "\n\n";
-                }
-                text += BuildPropertiesLog(*layer);
-
-                QMessageBox alert;
-                alert.setWindowTitle(format("%s", layer->key.c_str()).c_str());
-                alert.setText(text.c_str());
-                alert.setStandardButtons(QMessageBox::Ok);
-                alert.setDefaultButton(QMessageBox::Ok);
-                alert.setIcon(QMessageBox::Information);
-                alert.exec();
+                Alert::LayerProperties(layer);
             } else if (action == visit_layer_website_action) {
                 QDesktopServices::openUrl(QUrl(layer->url.c_str()));
             } else if (action == layer_state_action) {
