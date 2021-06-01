@@ -33,7 +33,7 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, c
                                      SettingDataSet& data_set, const std::string& flag)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataFlags>(meta.key.c_str())),
+      data(*static_cast<SettingDataFlags*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       flag(flag),
       field(new QCheckBox(this)) {

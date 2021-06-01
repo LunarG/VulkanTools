@@ -216,70 +216,14 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
             const std::string setting_key = ReadStringValue(json_setting_object, "key");
             const SettingType setting_type = GetSettingType(ReadStringValue(json_setting_object, "type").c_str());
 
-            SettingData& setting_data = parameter.settings.Create(setting_key, setting_type);
+            SettingData* setting_data = FindSetting(parameter.settings, setting_key.c_str());
+            if (setting_data == nullptr) continue;
 
             // Configuration type and layer type are differents, use layer default value
-            if (setting_data.type != setting_type) continue;
+            if (setting_data->type != setting_type) continue;
 
-            switch (setting_data.type) {
-                case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FILE:
-                case SETTING_SAVE_FOLDER:
-                case SETTING_ENUM:
-                case SETTING_STRING: {
-                    static_cast<SettingDataString&>(setting_data).value = ReadStringValue(json_setting_object, "value");
-                    break;
-                }
-                case SETTING_INT: {
-                    static_cast<SettingDataInt&>(setting_data).value = ReadIntValue(json_setting_object, "value");
-                    break;
-                }
-                case SETTING_FLOAT: {
-                    static_cast<SettingDataFloat&>(setting_data).value = ReadFloatValue(json_setting_object, "value");
-                    break;
-                }
-                case SETTING_FRAMES: {
-                    static_cast<SettingDataFrames&>(setting_data).value = ReadStringValue(json_setting_object, "value");
-                    break;
-                }
-                case SETTING_BOOL_NUMERIC_DEPRECATED:
-                case SETTING_BOOL: {
-                    static_cast<SettingDataBool&>(setting_data).value = ReadBoolValue(json_setting_object, "value");
-                    break;
-                }
-                case SETTING_LIST: {
-                    SettingDataList& data = static_cast<SettingDataList&>(setting_data);
-                    data.value.clear();
-
-                    const QJsonArray& values = ReadArray(json_setting_object, "value");
-                    for (int i = 0, n = values.size(); i < n; ++i) {
-                        EnabledNumberOrString value;
-
-                        if (values[i].isObject()) {
-                            const QJsonObject& object = values[i].toObject();
-
-                            const NumberOrString& number_or_string = ReadNumberOrStringValue(object, "key");
-
-                            value.key = number_or_string.key;
-                            value.number = number_or_string.number;
-                            value.enabled = ReadBoolValue(object, "enabled");
-                        } else {
-                            value.key = values[i].toString().toStdString();
-                            value.enabled = true;
-                        }
-                        data.value.push_back(value);
-                    }
-                    break;
-                }
-                case SETTING_FLAGS: {
-                    static_cast<SettingDataFlags&>(setting_data).value = ReadStringArray(json_setting_object, "value");
-                    break;
-                }
-                default: {
-                    assert(0);
-                    break;
-                }
-            }
+            const bool result = setting_data->Load(json_setting_object);
+            assert(result);
         }
 
         this->parameters.push_back(parameter);
@@ -348,76 +292,18 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
 
         QJsonArray json_settings;
-        for (std::size_t j = 0, m = parameter.settings.Size(); j < m; ++j) {
-            const SettingData& setting_data = parameter.settings[j];
+        for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {
+            const SettingData* setting_data = parameter.settings[j];
 
-            if (setting_data.type == SETTING_GROUP) {
+            if (setting_data->type == SETTING_GROUP) {
                 continue;
             }
 
             QJsonObject json_setting;
-            json_setting.insert("key", parameter.settings[j].key.c_str());
-            json_setting.insert("type", GetSettingTypeToken(setting_data.type));
+            json_setting.insert("key", parameter.settings[j]->key.c_str());
+            json_setting.insert("type", GetToken(setting_data->type));
 
-            switch (setting_data.type) {
-                case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FILE:
-                case SETTING_SAVE_FOLDER:
-                case SETTING_ENUM:
-                case SETTING_FRAMES:
-                case SETTING_STRING: {
-                    json_setting.insert("value", static_cast<const SettingDataString&>(setting_data).value.c_str());
-                    break;
-                }
-                case SETTING_INT: {
-                    json_setting.insert("value", static_cast<const SettingDataInt&>(setting_data).value);
-                    break;
-                }
-                case SETTING_FLOAT: {
-                    json_setting.insert("value", static_cast<const SettingDataFloat&>(setting_data).value);
-                    break;
-                }
-                case SETTING_BOOL_NUMERIC_DEPRECATED:
-                case SETTING_BOOL: {
-                    json_setting.insert("value", static_cast<const SettingDataBool&>(setting_data).value);
-                    break;
-                }
-                case SETTING_LIST: {
-                    const SettingDataList& list = static_cast<const SettingDataList&>(setting_data);
-
-                    QJsonArray json_array;
-
-                    for (std::size_t i = 0, n = list.value.size(); i < n; ++i) {
-                        QJsonObject object;
-                        if (list.value[i].key.empty()) {
-                            object.insert("key", list.value[i].number);
-                        } else {
-                            object.insert("key", list.value[i].key.c_str());
-                        }
-                        object.insert("enabled", list.value[i].enabled);
-                        json_array.append(object);
-                    }
-
-                    json_setting.insert("value", json_array);
-                    break;
-                }
-                case SETTING_FLAGS: {
-                    const SettingDataFlags& data = static_cast<const SettingDataFlags&>(setting_data);
-
-                    QJsonArray json_array;
-
-                    for (std::size_t i = 0, n = data.value.size(); i < n; ++i) {
-                        json_array.append(data.value[i].c_str());
-                    }
-
-                    json_setting.insert("value", json_array);
-                    break;
-                }
-                default: {
-                    assert(0);
-                    break;
-                }
-            }
+            setting_data->Save(json_setting);
 
             json_settings.append(json_setting);
         }
@@ -490,13 +376,14 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
         }
     }
 
-    // Case 3: reset to zero
+    // Case 3: reset to default values
     {
         for (auto it = this->parameters.begin(); it != this->parameters.end(); ++it) {
             it->state = LAYER_STATE_APPLICATION_CONTROLLED;
             it->overridden_rank = Parameter::NO_RANK;
-            it->settings.Clear();
-            CollectDefaultSettingData(FindByKey(available_layers, it->key.c_str())->settings, it->settings);
+            for (std::size_t i = 0, n = it->settings.size(); i < n; ++i) {
+                it->settings[i]->Reset();
+            }
         }
 
         OrderParameter(this->parameters, available_layers);

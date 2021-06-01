@@ -30,7 +30,7 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
                                                    SettingDataSet& data_set, EnabledNumberOrString& element)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataList>(meta.key.c_str())),
+      data(*static_cast<SettingDataList*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       element(element),
       button(new QPushButton(this)),

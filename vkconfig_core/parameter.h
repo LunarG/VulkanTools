@@ -22,7 +22,7 @@
 
 #include "layer.h"
 #include "layer_state.h"
-#include "setting_data.h"
+#include "setting.h"
 
 #include <vector>
 

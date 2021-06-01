@@ -24,6 +24,7 @@
 #include "../vkconfig_core/layer.h"
 
 #include "widget_setting_int.h"
+#include "widget_setting_flags.h"
 
 #include "widget_setting.h"
 #include <QRadioButton>

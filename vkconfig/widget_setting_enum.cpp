@@ -30,7 +30,7 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
                                      SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataEnum>(meta.key.c_str())),
+      data(*static_cast<SettingDataEnum*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QComboBox(this)) {
     assert(&meta);

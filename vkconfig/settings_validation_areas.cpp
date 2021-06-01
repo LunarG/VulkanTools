@@ -26,6 +26,7 @@
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/setting_bool.h"
 
 #include <QSettings>
 #include <QMessageBox>
@@ -129,10 +130,10 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       data_set(data_set) {
     assert(&meta_set);
     assert(&data_set);
-    assert(meta_set.Get<SettingMetaFlags>("enables") != nullptr);
-    assert(meta_set.Get<SettingMetaFlags>("disables") != nullptr);
-    assert(data_set.Get<SettingDataFlags>("enables") != nullptr);
-    assert(data_set.Get<SettingDataFlags>("disables") != nullptr);
+    assert(FindSetting(meta_set, "enables") != nullptr);
+    assert(FindSetting(meta_set, "disables") != nullptr);
+    assert(FindSetting(data_set, "enables") != nullptr);
+    assert(FindSetting(data_set, "disables") != nullptr);
 
     this->item->setText(0, "Validation Areas");
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -228,7 +229,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                 this->connect(this->widget_shader_gpu_reserve, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUReserveChecked(bool)));
 
             {
-                const SettingMetaBool *value = FindSettingMeta<SettingMetaBool>(meta_set, "gpuav_buffer_oob");
+                const SettingMetaBool *value = static_cast<const SettingMetaBool *>(FindSetting(meta_set, "gpuav_buffer_oob"));
                 if (IsSupported(value)) {
                     this->item_shader_gpu_oob = new QTreeWidgetItem();
                     this->item_shader_gpu_oob->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -253,7 +254,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             this->connect(this->widget_shader_printf, SIGNAL(toggled(bool)), this, SLOT(OnShaderPrintfChecked(bool)));
 
             {
-                const SettingMetaBool *value = FindSettingMeta<SettingMetaBool>(meta_set, "printf_to_stdout");
+                const SettingMetaBool *value = static_cast<const SettingMetaBool *>(FindSetting(meta_set, "printf_to_stdout"));
                 if (IsSupported(value)) {
                     this->item_shader_printf_to_stdout = new QTreeWidgetItem();
                     this->item_shader_printf_to_stdout->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -269,7 +270,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             }
 
             {
-                const SettingMetaBool *value = FindSettingMeta<SettingMetaBool>(meta_set, "printf_verbose");
+                const SettingMetaBool *value = static_cast<const SettingMetaBool *>(FindSetting(meta_set, "printf_verbose"));
                 if (IsSupported(value)) {
                     this->item_shader_printf_verbose = new QTreeWidgetItem();
                     this->item_shader_printf_verbose->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -285,7 +286,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             }
 
             {
-                const SettingMetaInt *value = FindSettingMeta<SettingMetaInt>(meta_set, "printf_buffer_size");
+                const SettingMetaInt *value = static_cast<const SettingMetaInt *>(FindSetting(meta_set, "printf_buffer_size"));
                 if (IsSupported(value)) {
                     this->item_shader_printf_size = new QTreeWidgetItem();
                     this->item_shader_printf->addChild(this->item_shader_printf_size);
@@ -457,7 +458,7 @@ void WidgetSettingValidation::OnShaderGPUReserveChecked(bool checked) {
 }
 
 void WidgetSettingValidation::OnShaderGPUOOBChecked(bool checked) {
-    this->data_set.Get<SettingDataBool>("gpuav_buffer_oob")->value = checked;
+    static_cast<SettingDataBool *>(FindSetting(this->data_set, "gpuav_buffer_oob"))->value = checked;
     this->OnSettingChanged();
 }
 
@@ -468,12 +469,12 @@ void WidgetSettingValidation::OnShaderPrintfChecked(bool checked) {
 }
 
 void WidgetSettingValidation::OnShaderPrintfStdoutChecked(bool checked) {
-    this->data_set.Get<SettingDataBool>("printf_to_stdout")->value = checked;
+    static_cast<SettingDataBool *>(FindSetting(this->data_set, "printf_to_stdout"))->value = checked;
     this->OnSettingChanged();
 }
 
 void WidgetSettingValidation::OnShaderPrintfVerboseChecked(bool checked) {
-    this->data_set.Get<SettingDataBool>("printf_verbose")->value = checked;
+    static_cast<SettingDataBool *>(FindSetting(this->data_set, "printf_verbose"))->value = checked;
     this->OnSettingChanged();
 }
 
@@ -548,7 +549,7 @@ bool WidgetSettingValidation::CheckOverhead(Overhead candidate) const {
 void WidgetSettingValidation::OnSettingChanged() { emit itemChanged(); }
 
 void WidgetSettingValidation::UpdateFlag(const char *key, const char *flag, bool append) {
-    SettingDataFlags *data = data_set.Get<SettingDataFlags>(key);
+    SettingDataFlags *data = static_cast<SettingDataFlags *>(FindSetting(this->data_set, key));
     assert(data != nullptr);
 
     if (append) {
@@ -558,14 +559,16 @@ void WidgetSettingValidation::UpdateFlag(const char *key, const char *flag, bool
     }
 }
 
-bool WidgetSettingValidation::HasDataBool(const char *key) const { return data_set.Get<SettingDataBool>(key)->value; }
+bool WidgetSettingValidation::HasDataBool(const char *key) const {
+    return static_cast<SettingDataBool *>(FindSetting(this->data_set, key))->value;
+}
 
 bool WidgetSettingValidation::HasDataFlag(const char *key, const char *flag) const {
-    return IsStringFound(data_set.Get<SettingDataFlags>(key)->value, flag);
+    return IsStringFound(static_cast<const SettingDataFlags *>(FindSetting(this->data_set, key))->value, key);
 }
 
 const SettingEnumValue *WidgetSettingValidation::GetMetaFlag(const char *key, const char *flag) const {
-    return FindByKey(meta_set.Get<SettingMetaFlags>(key)->enum_values, flag);
+    return FindByKey(static_cast<const SettingMetaFlags *>(FindSetting(this->meta_set, key))->enum_values, flag);
 }
 
 void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {

@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_data.h"
-#include "../vkconfig_core/setting_meta.h"
+#include "../vkconfig_core/setting_frames.h"
 
 #include "widget_setting.h"
 

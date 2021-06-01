@@ -36,7 +36,7 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* ite
                                          SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataFrames>(meta.key.c_str())),
+      data(*static_cast<SettingDataFrames*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QLineEdit(this)),
       timer_error(new QTimer(this)),
@@ -141,7 +141,7 @@ void WidgetSettingFrames::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-SettingInputError WidgetSettingFrames::ProcessInputValue() { return ProcessInput(this->value_buffer, this->meta, this->data); }
+SettingInputError WidgetSettingFrames::ProcessInputValue() { return this->data.ProcessInput(this->value_buffer); }
 
 void WidgetSettingFrames::OnTextEdited(const QString& new_value) {
     this->timer_error->stop();

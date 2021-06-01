@@ -22,6 +22,7 @@
 #pragma once
 
 #include "widget_setting.h"
+#include "../vkconfig_core/setting_flags.h"
 
 #include <QComboBox>
 #include <QResizeEvent>
