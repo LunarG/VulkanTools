@@ -30,7 +30,7 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* ite
                                          SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataString>(meta.key.c_str())),
+      data(*static_cast<SettingDataString*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QLineEdit(this)) {
     assert(&meta);

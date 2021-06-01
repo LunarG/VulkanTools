@@ -33,7 +33,7 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
                                        SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataFloat>(meta.key.c_str())),
+      data(*static_cast<SettingDataFloat*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QLineEdit(this)),
       timer_error(new QTimer(this)),
@@ -168,7 +168,7 @@ void WidgetSettingFloat::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-SettingInputError WidgetSettingFloat::ProcessInputValue() { return ProcessInput(this->value_buffer, this->meta, this->data); }
+SettingInputError WidgetSettingFloat::ProcessInputValue() { return this->data.ProcessInput(this->value_buffer); }
 
 void WidgetSettingFloat::OnTextEdited(const QString& new_value) {
     this->timer_error->stop();

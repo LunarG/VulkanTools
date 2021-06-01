@@ -32,7 +32,7 @@ static const int MIN_FIELD_WIDTH = 80;
 WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataInt>(meta.key.c_str())),
+      data(*static_cast<SettingDataInt*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QLineEdit(this)),
       timer_error(new QTimer(this)),
@@ -157,7 +157,7 @@ void WidgetSettingInt::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-SettingInputError WidgetSettingInt::ProcessInputValue() { return ProcessInput(this->value_buffer, this->meta, this->data); }
+SettingInputError WidgetSettingInt::ProcessInputValue() { return data.ProcessInput(this->value_buffer); }
 
 void WidgetSettingInt::OnTextEdited(const QString& new_value) {
     this->timer_error->stop();

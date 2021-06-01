@@ -171,11 +171,11 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
 
         std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
 
-        for (std::size_t i = 0, m = parameter.settings.Size(); i < m; ++i) {
-            const SettingData& setting_data = parameter.settings[i];
+        for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
+            const SettingData* setting_data = parameter.settings[i];
 
             // Skip missing settings
-            const SettingMeta* meta = FindSettingMeta<SettingMeta>(layer->settings, setting_data.key.c_str());
+            const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
             if (meta == nullptr) {
                 continue;
             }
@@ -185,98 +185,8 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 continue;
             }
 
-            stream << lc_layer_name.c_str() << setting_data.key.c_str() << " = ";
-            switch (setting_data.type) {
-                case SETTING_GROUP: {
-                    break;
-                }
-                case SETTING_LOAD_FILE:
-                case SETTING_SAVE_FILE:
-                case SETTING_SAVE_FOLDER: {
-                    stream << ReplaceBuiltInVariable(static_cast<const SettingDataString&>(setting_data).value.c_str()).c_str();
-                    break;
-                }
-                case SETTING_FRAMES: {
-                    const SettingDataFrames& data = static_cast<const SettingDataFrames&>(setting_data);
-                    const SettingMetaFrames* meta = FindSettingMeta<SettingMetaFrames>(layer->settings, data.key.c_str());
-                    if (meta->IsValid(data)) {
-                        stream << data.value.c_str();
-                    } else {
-                        stream << meta->default_value.c_str();
-                    }
-                    break;
-                }
-                case SETTING_ENUM:
-                case SETTING_STRING: {
-                    stream << static_cast<const SettingDataString&>(setting_data).value.c_str();
-                    break;
-                }
-                case SETTING_INT: {
-                    const SettingDataInt& data = static_cast<const SettingDataInt&>(setting_data);
-                    const SettingMetaInt* meta = FindSettingMeta<SettingMetaInt>(layer->settings, data.key.c_str());
-
-                    if (meta->IsValid(data)) {
-                        stream << data.value;
-                    } else {
-                        stream << meta->default_value;
-                    }
-
-                    break;
-                }
-                case SETTING_FLOAT: {
-                    const SettingDataFloat& data = static_cast<const SettingDataFloat&>(setting_data);
-                    const SettingMetaFloat* meta = FindSettingMeta<SettingMetaFloat>(layer->settings, data.key.c_str());
-
-                    const std::string float_format = meta->GetFloatFormat();
-
-                    if (meta->IsValid(data)) {
-                        stream << format(float_format.c_str(), data.value).c_str();
-                    } else {
-                        stream << format(float_format.c_str(), meta->default_value).c_str();
-                    }
-
-                    break;
-                }
-                case SETTING_BOOL_NUMERIC_DEPRECATED: {
-                    stream << (static_cast<const SettingDataBool&>(setting_data).value ? "1" : "0");
-                    break;
-                }
-                case SETTING_BOOL: {
-                    stream << (static_cast<const SettingDataBool&>(setting_data).value ? "TRUE" : "FALSE");
-                    break;
-                }
-                case SETTING_LIST: {
-                    const SettingDataList& setting_object = static_cast<const SettingDataList&>(setting_data);
-
-                    for (std::size_t i = 0, n = setting_object.value.size(); i < n; ++i) {
-                        if (!setting_object.value[i].enabled) continue;
-
-                        if (i != 0) stream << ",";
-                        if (setting_object.value[i].key.empty()) {
-                            stream << setting_object.value[i].number;
-                        } else {
-                            stream << setting_object.value[i].key.c_str();
-                        }
-                    }
-
-                    break;
-                }
-                case SETTING_FLAGS: {
-                    const SettingDataFlags& setting_object = static_cast<const SettingDataFlags&>(setting_data);
-
-                    for (std::size_t i = 0, n = setting_object.value.size(); i < n; ++i) {
-                        stream << setting_object.value[i].c_str();
-                        if (i < n - 1) stream << ",";
-                    }
-
-                    break;
-                }
-                default: {
-                    assert(0);
-                    break;
-                }
-            }
-
+            stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
+            stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
             stream << "\n";
         }
     }

@@ -19,28 +19,28 @@ if(Qt5_FOUND)
     source_group("Configurations 2.2.1 Files" FILES ${FILES_CONFIGURATIONS_2_2_1})
 
     file(GLOB FILES_LAYERS_130 ./layers/130/*.json)
-    source_group("Layers 130 Files" FILES ${FILES_LAYERS_130})
+    source_group("130 Files" FILES ${FILES_LAYERS_130})
 
     file(GLOB FILES_LAYERS_135 ./layers/135/*.json)
-    source_group("Layers 135 Files" FILES ${FILES_LAYERS_135})
+    source_group("135 Files" FILES ${FILES_LAYERS_135})
 
     file(GLOB FILES_LAYERS_141 ./layers/141/*.json)
-    source_group("Layers 141 Files" FILES ${FILES_LAYERS_141})
+    source_group("141 Files" FILES ${FILES_LAYERS_141})
 
     file(GLOB FILES_LAYERS_148 ./layers/148/*.json)
-    source_group("Layers 148 Files" FILES ${FILES_LAYERS_148})
+    source_group("148 Files" FILES ${FILES_LAYERS_148})
 
     file(GLOB FILES_LAYERS_154 ./layers/154/*.json)
-    source_group("Layers 154 Files" FILES ${FILES_LAYERS_154})
+    source_group("154 Files" FILES ${FILES_LAYERS_154})
 
     file(GLOB FILES_LAYERS_162 ./layers/162/*.json)
-    source_group("Layers 162 Files" FILES ${FILES_LAYERS_162})
+    source_group("162 Files" FILES ${FILES_LAYERS_162})
 
     file(GLOB FILES_LAYERS_170 ./layers/170/*.json)
-    source_group("Layers 170 Files" FILES ${FILES_LAYERS_170})
+    source_group("170 Files" FILES ${FILES_LAYERS_170})
 
     file(GLOB FILES_LAYERS_SCHEMA ./layers/layers_schema.json)
-    source_group("Layers Schema Files" FILES ${FILES_LAYERS_SCHEMA})
+    source_group("Schema Files" FILES ${FILES_LAYERS_SCHEMA})
 
     set(FILES_RESOURCES 
         ${FILES_CONFIGURATIONS_2_1_0}

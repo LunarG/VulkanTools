@@ -20,6 +20,7 @@
 
 #include "../layer.h"
 #include "../util.h"
+#include "../setting_flags.h"
 
 #include <gtest/gtest.h>
 
@@ -280,9 +281,9 @@ TEST(test_layer_built_in, layer_170_validation) {
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/170/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
     EXPECT_EQ(11, CountSettings(layer.settings));
     EXPECT_EQ(6, layer.presets.size());
-    EXPECT_TRUE(layer.presets[0].settings.Get<SettingDataFlags>("enables")->value.empty());
+    EXPECT_TRUE(static_cast<SettingDataFlags*>(FindSetting(layer.presets[0].settings, "enables"))->value.empty());
     EXPECT_STREQ("VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
-                 layer.presets[0].settings.Get<SettingDataFlags>("disables")->value[0].c_str());
+                 static_cast<SettingDataFlags*>(FindSetting(layer.presets[0].settings, "disables"))->value[0].c_str());
 }
 
 TEST(test_layer_built_in, layer_170_synchronization2) {
@@ -326,4 +327,3 @@ TEST(test_layer_built_in, layer_170_screenshot) {
     EXPECT_EQ(3, CountSettings(layer.settings));
     EXPECT_EQ(0, layer.presets.size());
 }
-

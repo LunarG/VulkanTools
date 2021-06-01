@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "setting_meta.h"
+#include "setting.h"
 #include "layer_preset.h"
 #include "layer_type.h"
 #include "version.h"
@@ -46,6 +46,12 @@ class Layer {
 
     std::string FindPresetLabel(const SettingDataSet& settings) const;
 
+    SettingMeta* Instantiate(const std::string& key, const SettingType type);
+
+    void AddSettingData(SettingDataSet& data_set, const QJsonValue& json_setting_value);
+
+    void AddSettingsSet(SettingMetaSet& meta_set, const QJsonValue& json_settings_value);
+
    public:
     std::string key;
     Version file_format_version;
@@ -64,10 +70,11 @@ class Layer {
     std::vector<LayerPreset> presets;
 
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
-
-    void AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_settings_value);
-    void AddSettingData(SettingDataSet& settings, const QJsonValue& json_setting_value);
 };
 
-void InitSettingDefaultValue(SettingData& setting_data, const SettingMeta& setting_meta);
+template <typename T>
+inline T* Instantiate(Layer& layer, const std::string& key) {
+    return static_cast<T*>(layer.Instantiate(key, typename T::TYPE));
+}
+
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);

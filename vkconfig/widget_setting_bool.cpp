@@ -27,7 +27,7 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
                                      SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*data_set.Get<SettingDataBool>(meta.key.c_str())),
+      data(*static_cast<SettingDataBool*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QCheckBox(this)) {
     assert(&this->meta);

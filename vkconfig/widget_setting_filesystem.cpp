@@ -33,7 +33,7 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     : WidgetSettingBase(tree, item),
       item_child(new QTreeWidgetItem()),
       meta(meta),
-      data(*data_set.Get<SettingDataString>(meta.key.c_str())),
+      data(*static_cast<SettingDataString*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QLineEdit(this)),
       button(new QPushButton(this)) {

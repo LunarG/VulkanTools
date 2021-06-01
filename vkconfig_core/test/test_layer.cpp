@@ -20,26 +20,36 @@
 
 #include "../layer.h"
 #include "../util.h"
+#include "../setting_string.h"
+#include "../setting_filesystem.h"
+#include "../setting_bool.h"
+#include "../setting_frames.h"
+#include "../setting_flags.h"
+#include "../setting_int.h"
+#include "../setting_list.h"
 
 #include <gtest/gtest.h>
 
 #include <regex>
 
 TEST(test_layer, collect_settings) {
+    Layer layer;
+
     SettingDataSet data0;
     SettingMetaSet meta;
 
     CollectDefaultSettingData(meta, data0);
-    EXPECT_TRUE(data0.Empty());
+    EXPECT_TRUE(data0.empty());
 
-    SettingMetaString& meta0 = static_cast<SettingMetaString&>(meta.Create("key0", SETTING_STRING));
-    meta0.default_value = "value0";
+    SettingMetaString* meta0 = static_cast<SettingMetaString*>(layer.Instantiate("key0", SETTING_STRING));
+    meta0->default_value = "value0";
+    meta.push_back(meta0);
 
     SettingDataSet data1;
     CollectDefaultSettingData(meta, data1);
 
-    SettingDataString& data_string = *data1.Get<SettingDataString>("key0");
-    EXPECT_STREQ("value0", data_string.value.c_str());
+    SettingDataString* data_string = static_cast<SettingDataString*>(FindSetting(data1, "key0"));
+    EXPECT_STREQ("value0", data_string->value.c_str());
 }
 
 TEST(test_layer, load_1_1_0_header) {
@@ -55,7 +65,7 @@ TEST(test_layer, load_1_1_0_header) {
     EXPECT_STREQ("reference layer", layer.description.c_str());
     EXPECT_EQ(STATUS_STABLE, layer.status);
     EXPECT_TRUE(layer.url.empty());
-    EXPECT_TRUE(layer.settings.Empty());
+    EXPECT_TRUE(layer.settings.empty());
     EXPECT_TRUE(layer.presets.empty());
 }
 
@@ -72,7 +82,7 @@ TEST(test_layer, load_1_2_0_header) {
     EXPECT_STREQ("reference layer", layer.description.c_str());
     EXPECT_EQ(STATUS_BETA, layer.status);
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
-    EXPECT_TRUE(!layer.settings.Empty());
+    EXPECT_TRUE(!layer.settings.empty());
     EXPECT_TRUE(!layer.presets.empty());
 }
 
@@ -81,12 +91,19 @@ TEST(test_layer, load_1_2_0_preset_enum) {
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_STREQ("Preset Enum", layer.presets[0].label.c_str());
-    EXPECT_STREQ("Description Enum", layer.presets[0].description.c_str());
-    EXPECT_EQ(PLATFORM_DESKTOP_BIT, layer.presets[0].platform_flags);
-    EXPECT_EQ(STATUS_STABLE, layer.presets[0].status);
-    EXPECT_STREQ("value2", layer.presets[0].settings.Get<SettingDataEnum>("enum_required_only")->value.c_str());
-    EXPECT_STREQ("value2", layer.presets[0].settings.Get<SettingDataEnum>("enum_with_optional")->value.c_str());
+    const std::size_t index = 0;
+
+    SettingDataEnum* setting_only = static_cast<SettingDataEnum*>(FindSetting(layer.presets[index].settings, "enum_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataEnum* setting_opt = static_cast<SettingDataEnum*>(FindSetting(layer.presets[index].settings, "enum_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
+    EXPECT_STREQ("Preset Enum", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Enum", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_DESKTOP_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_STABLE, layer.presets[index].status);
+    EXPECT_STREQ("value2", setting_only->value.c_str());
+    EXPECT_STREQ("value2", setting_opt->value.c_str());
 }
 
 TEST(test_layer, load_1_2_0_preset_flags) {
@@ -94,14 +111,23 @@ TEST(test_layer, load_1_2_0_preset_flags) {
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_STREQ("Preset Flags", layer.presets[1].label.c_str());
-    EXPECT_STREQ("Description Flags", layer.presets[1].description.c_str());
-    EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.presets[1].platform_flags);
-    EXPECT_EQ(STATUS_BETA, layer.presets[1].status);
-    EXPECT_STREQ("flag0", layer.presets[1].settings.Get<SettingDataFlags>("flags_required_only")->value[0].c_str());
-    EXPECT_STREQ("flag2", layer.presets[1].settings.Get<SettingDataFlags>("flags_required_only")->value[1].c_str());
-    EXPECT_STREQ("flag0", layer.presets[1].settings.Get<SettingDataFlags>("flags_with_optional")->value[0].c_str());
-    EXPECT_STREQ("flag2", layer.presets[1].settings.Get<SettingDataFlags>("flags_with_optional")->value[1].c_str());
+    const std::size_t index = 1;
+
+    SettingDataFlags* setting_only =
+        static_cast<SettingDataFlags*>(FindSetting(layer.presets[index].settings, "flags_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataFlags* setting_opt =
+        static_cast<SettingDataFlags*>(FindSetting(layer.presets[index].settings, "flags_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
+    EXPECT_STREQ("Preset Flags", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description Flags", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_BETA, layer.presets[index].status);
+    EXPECT_STREQ("flag0", setting_only->value[0].c_str());
+    EXPECT_STREQ("flag2", setting_only->value[1].c_str());
+    EXPECT_STREQ("flag0", setting_opt->value[0].c_str());
+    EXPECT_STREQ("flag2", setting_opt->value[1].c_str());
 }
 
 TEST(test_layer, load_1_2_0_preset_string) {
@@ -109,12 +135,21 @@ TEST(test_layer, load_1_2_0_preset_string) {
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
-    EXPECT_STREQ("Preset String", layer.presets[2].label.c_str());
-    EXPECT_STREQ("Description String", layer.presets[2].description.c_str());
-    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.presets[2].platform_flags);
-    EXPECT_EQ(STATUS_ALPHA, layer.presets[2].status);
-    EXPECT_STREQ("Required Only", layer.presets[2].settings.Get<SettingDataString>("string_required_only")->value.c_str());
-    EXPECT_STREQ("With Optional", layer.presets[2].settings.Get<SettingDataString>("string_with_optional")->value.c_str());
+    const std::size_t index = 2;
+
+    SettingDataFileLoad* setting_only =
+        static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataFileLoad* setting_opt =
+        static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
+    EXPECT_STREQ("Preset String", layer.presets[index].label.c_str());
+    EXPECT_STREQ("Description String", layer.presets[index].description.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.presets[index].platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, layer.presets[index].status);
+    EXPECT_STREQ("Required Only", setting_only->value.c_str());
+    EXPECT_STREQ("With Optional", setting_opt->value.c_str());
 }
 
 TEST(test_layer, load_1_2_0_preset_bool) {
@@ -128,8 +163,8 @@ TEST(test_layer, load_1_2_0_preset_bool) {
     EXPECT_STREQ("Description Bool", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataBool>("bool_required_only")->value);
-    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataBool>("bool_with_optional")->value);
+    EXPECT_EQ(true, static_cast<const SettingDataBool*>(FindSetting(layer.presets[index].settings, "bool_required_only"))->value);
+    EXPECT_EQ(false, static_cast<const SettingDataBool*>(FindSetting(layer.presets[index].settings, "bool_with_optional"))->value);
 }
 
 TEST(test_layer, load_1_2_0_preset_load_file) {
@@ -139,12 +174,19 @@ TEST(test_layer, load_1_2_0_preset_load_file) {
 
     const std::size_t index = 4;
 
+    SettingDataFileLoad* setting_only =
+        static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "load_file_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataFileLoad* setting_opt =
+        static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "load_file_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
     EXPECT_STREQ("Preset Load File", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Load File", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataString>("load_file_required_only")->value.c_str());
-    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataString>("load_file_with_optional")->value.c_str());
+    EXPECT_STREQ("./text.log", setting_only->value.c_str());
+    EXPECT_STREQ("./text.log", setting_opt->value.c_str());
 }
 
 TEST(test_layer, load_1_2_0_preset_save_file) {
@@ -154,12 +196,19 @@ TEST(test_layer, load_1_2_0_preset_save_file) {
 
     const std::size_t index = 5;
 
+    SettingDataFileSave* setting_only =
+        static_cast<SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataFileSave* setting_opt =
+        static_cast<SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
     EXPECT_STREQ("Preset Save File", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Save File", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_file_required_only")->value.c_str());
-    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_file_with_optional")->value.c_str());
+    EXPECT_STREQ("./text.log", setting_only->value.c_str());
+    EXPECT_STREQ("./text.log", setting_opt->value.c_str());
 }
 
 TEST(test_layer, load_1_2_0_preset_save_folder) {
@@ -169,12 +218,19 @@ TEST(test_layer, load_1_2_0_preset_save_folder) {
 
     const std::size_t index = 6;
 
+    SettingDataFolderSave* setting_only =
+        static_cast<SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataFolderSave* setting_opt =
+        static_cast<SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
     EXPECT_STREQ("Preset Save Folder", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Save Folder", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_folder_required_only")->value.c_str());
-    EXPECT_STREQ("./text.log", layer.presets[index].settings.Get<SettingDataFileSave>("save_folder_with_optional")->value.c_str());
+    EXPECT_STREQ("./text.log", setting_only->value.c_str());
+    EXPECT_STREQ("./text.log", setting_opt->value.c_str());
 }
 
 TEST(test_layer, load_1_2_0_preset_int) {
@@ -184,12 +240,17 @@ TEST(test_layer, load_1_2_0_preset_int) {
 
     const std::size_t index = 7;
 
+    SettingDataInt* setting_only = static_cast<SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataInt* setting_opt = static_cast<SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
     EXPECT_STREQ("Preset Int", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description Int", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_EQ(75, layer.presets[index].settings.Get<SettingDataInt>("int_required_only")->value);
-    EXPECT_EQ(77, layer.presets[index].settings.Get<SettingDataInt>("int_with_optional")->value);
+    EXPECT_EQ(75, setting_only->value);
+    EXPECT_EQ(77, setting_opt->value);
 }
 
 TEST(test_layer, load_1_2_0_preset_frames) {
@@ -203,8 +264,12 @@ TEST(test_layer, load_1_2_0_preset_frames) {
     EXPECT_STREQ("Description Frames", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_STREQ("13-17,24-32", layer.presets[index].settings.Get<SettingDataFrames>("frames_required_only")->value.c_str());
-    EXPECT_STREQ("13-17,24,32", layer.presets[index].settings.Get<SettingDataFrames>("frames_with_optional")->value.c_str());
+    EXPECT_STREQ(
+        "13-17,24-32",
+        static_cast<const SettingDataFrames*>(FindSetting(layer.presets[index].settings, "frames_required_only"))->value.c_str());
+    EXPECT_STREQ(
+        "13-17,24,32",
+        static_cast<const SettingDataFrames*>(FindSetting(layer.presets[index].settings, "frames_with_optional"))->value.c_str());
 }
 
 TEST(test_layer, load_1_2_0_preset_list) {
@@ -214,28 +279,33 @@ TEST(test_layer, load_1_2_0_preset_list) {
 
     const std::size_t index = 9;
 
+    SettingDataList* setting_only = static_cast<SettingDataList*>(FindSetting(layer.presets[index].settings, "list_required_only"));
+    ASSERT_TRUE(setting_only);
+    SettingDataList* setting_opt = static_cast<SettingDataList*>(FindSetting(layer.presets[index].settings, "list_with_optional"));
+    ASSERT_TRUE(setting_opt);
+
     EXPECT_STREQ("Preset List", layer.presets[index].label.c_str());
     EXPECT_STREQ("Description List", layer.presets[index].description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
     EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[0].key.c_str());
-    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[1].key.c_str());
-    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[0].enabled);
-    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_required_only")->value[1].enabled);
-    EXPECT_STREQ("stringA", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[0].key.c_str());
-    EXPECT_STREQ("stringB", layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[1].key.c_str());
-    EXPECT_EQ(true, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[0].enabled);
-    EXPECT_EQ(false, layer.presets[index].settings.Get<SettingDataList>("list_with_optional")->value[1].enabled);
+    EXPECT_STREQ("stringA", setting_only->value[0].key.c_str());
+    EXPECT_STREQ("stringB", setting_only->value[1].key.c_str());
+    EXPECT_EQ(true, setting_only->value[0].enabled);
+    EXPECT_EQ(false, setting_only->value[1].enabled);
+    EXPECT_STREQ("stringA", setting_opt->value[0].key.c_str());
+    EXPECT_STREQ("stringB", setting_opt->value[1].key.c_str());
+    EXPECT_EQ(true, setting_opt->value[0].enabled);
+    EXPECT_EQ(false, setting_opt->value[1].enabled);
 }
 
 TEST(test_layer, load_1_2_0_setting_enum_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaEnum* setting_meta = layer.settings.Get<SettingMetaEnum>("enum_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaEnum* setting_meta = static_cast<SettingMetaEnum*>(FindSetting(layer.settings, "enum_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("enum_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -273,10 +343,10 @@ TEST(test_layer, load_1_2_0_setting_enum_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaEnum* setting_meta = layer.settings.Get<SettingMetaEnum>("enum_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaEnum* setting_meta = static_cast<SettingMetaEnum*>(FindSetting(layer.settings, "enum_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("enum_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_ENUM", setting_meta->env.c_str());
@@ -326,10 +396,10 @@ TEST(test_layer, load_1_2_0_setting_flags_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFlags* setting_meta = layer.settings.Get<SettingMetaFlags>("flags_required_only");
-    ASSERT_TRUE(setting_meta);
+    const SettingMetaFlags* setting_meta = static_cast<SettingMetaFlags*>(FindSetting(layer.settings, "flags_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("flags_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -368,10 +438,10 @@ TEST(test_layer, load_1_2_0_setting_flags_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFlags* setting_meta = layer.settings.Get<SettingMetaFlags>("flags_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFlags* setting_meta = static_cast<SettingMetaFlags*>(FindSetting(layer.settings, "flags_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("flags_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_FLAGS", setting_meta->env.c_str());
@@ -422,10 +492,10 @@ TEST(test_layer, load_1_2_0_setting_string_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaString* setting_meta = layer.settings.Get<SettingMetaString>("string_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaString* setting_meta = static_cast<SettingMetaString*>(FindSetting(layer.settings, "string_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("string_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -444,10 +514,10 @@ TEST(test_layer, load_1_2_0_setting_string_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaString* setting_meta = layer.settings.Get<SettingMetaString>("string_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaString* setting_meta = static_cast<SettingMetaString*>(FindSetting(layer.settings, "string_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("string_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_STRING", setting_meta->env.c_str());
@@ -466,10 +536,10 @@ TEST(test_layer, load_1_2_0_setting_bool_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaBool* setting_meta = layer.settings.Get<SettingMetaBool>("bool_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaBool* setting_meta = static_cast<SettingMetaBool*>(FindSetting(layer.settings, "bool_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("bool_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -488,10 +558,10 @@ TEST(test_layer, load_1_2_0_setting_bool_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaBool* setting_meta = layer.settings.Get<SettingMetaBool>("bool_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaBool* setting_meta = static_cast<SettingMetaBool*>(FindSetting(layer.settings, "bool_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("bool_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_BOOL", setting_meta->env.c_str());
@@ -510,10 +580,10 @@ TEST(test_layer, load_1_2_0_setting_load_file_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFileLoad* setting_meta = layer.settings.Get<SettingMetaFileLoad>("load_file_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFileLoad* setting_meta = static_cast<SettingMetaFileLoad*>(FindSetting(layer.settings, "load_file_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("load_file_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -533,10 +603,10 @@ TEST(test_layer, load_1_2_0_setting_load_file_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFileLoad* setting_meta = layer.settings.Get<SettingMetaFileLoad>("load_file_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFileLoad* setting_meta = static_cast<SettingMetaFileLoad*>(FindSetting(layer.settings, "load_file_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("load_file_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_LOAD_FILE", setting_meta->env.c_str());
@@ -556,10 +626,10 @@ TEST(test_layer, load_1_2_0_setting_save_file_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFileSave* setting_meta = layer.settings.Get<SettingMetaFileSave>("save_file_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFileSave* setting_meta = static_cast<SettingMetaFileSave*>(FindSetting(layer.settings, "save_file_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("save_file_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -579,10 +649,10 @@ TEST(test_layer, load_1_2_0_setting_save_file_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFileSave* setting_meta = layer.settings.Get<SettingMetaFileSave>("save_file_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFileSave* setting_meta = static_cast<SettingMetaFileSave*>(FindSetting(layer.settings, "save_file_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("save_file_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_SAVE_FILE", setting_meta->env.c_str());
@@ -602,10 +672,11 @@ TEST(test_layer, load_1_2_0_setting_save_folder_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFolderSave* setting_meta = layer.settings.Get<SettingMetaFolderSave>("save_folder_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFolderSave* setting_meta =
+        static_cast<SettingMetaFolderSave*>(FindSetting(layer.settings, "save_folder_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("save_folder_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -624,10 +695,11 @@ TEST(test_layer, load_1_2_0_setting_save_folder_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFolderSave* setting_meta = layer.settings.Get<SettingMetaFolderSave>("save_folder_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFolderSave* setting_meta =
+        static_cast<SettingMetaFolderSave*>(FindSetting(layer.settings, "save_folder_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("save_folder_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_SAVE_FOLDER", setting_meta->env.c_str());
@@ -646,9 +718,9 @@ TEST(test_layer, load_1_2_0_setting_int_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaInt* setting_meta = layer.settings.Get<SettingMetaInt>("int_required_only");
+    SettingMetaInt* setting_meta = static_cast<SettingMetaInt*>(FindSetting(layer.settings, "int_required_only"));
     ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("int_required_only", setting_meta->key.c_str());
@@ -671,9 +743,9 @@ TEST(test_layer, load_1_2_0_setting_int_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaInt* setting_meta = layer.settings.Get<SettingMetaInt>("int_with_optional");
+    SettingMetaInt* setting_meta = static_cast<SettingMetaInt*>(FindSetting(layer.settings, "int_with_optional"));
     ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("int_with_optional", setting_meta->key.c_str());
@@ -696,10 +768,10 @@ TEST(test_layer, load_1_2_0_setting_frames_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFrames* setting_meta = layer.settings.Get<SettingMetaFrames>("frames_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFrames* setting_meta = static_cast<SettingMetaFrames*>(FindSetting(layer.settings, "frames_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("frames_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -718,10 +790,10 @@ TEST(test_layer, load_1_2_0_setting_frames_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaFrames* setting_meta = layer.settings.Get<SettingMetaFrames>("frames_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaFrames* setting_meta = static_cast<SettingMetaFrames*>(FindSetting(layer.settings, "frames_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("frames_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_FRAMES", setting_meta->env.c_str());
@@ -741,10 +813,10 @@ TEST(test_layer, load_1_2_0_setting_list_required_only) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaList* setting_meta = layer.settings.Get<SettingMetaList>("list_required_only");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaList* setting_meta = static_cast<SettingMetaList*>(FindSetting(layer.settings, "list_required_only"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("list_required_only", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());
@@ -787,10 +859,10 @@ TEST(test_layer, load_1_2_0_setting_list_with_optional) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaList* setting_meta = layer.settings.Get<SettingMetaList>("list_with_optional");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaList* setting_meta = static_cast<SettingMetaList*>(FindSetting(layer.settings, "list_with_optional"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("list_with_optional", setting_meta->key.c_str());
     EXPECT_STREQ("VK_REF_LIST", setting_meta->env.c_str());
@@ -839,10 +911,10 @@ TEST(test_layer, load_1_2_0_setting_list_empty) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
-    ASSERT_TRUE(!layer.settings.Empty());
+    ASSERT_TRUE(!layer.settings.empty());
 
-    SettingMetaList* setting_meta = layer.settings.Get<SettingMetaList>("list_empty");
-    ASSERT_TRUE(setting_meta);
+    SettingMetaList* setting_meta = static_cast<SettingMetaList*>(FindSetting(layer.settings, "list_empty"));
+    ASSERT_TRUE(setting_meta != nullptr);
 
     EXPECT_STREQ("list_empty", setting_meta->key.c_str());
     EXPECT_TRUE(setting_meta->env.empty());

@@ -123,7 +123,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (layer == nullptr) continue;
 
             // Handle the case were we get off easy. No settings.
-            if (parameter.settings.Empty()) {
+            if (parameter.settings.empty()) {
                 QTreeWidgetItem *layer_child_item = new QTreeWidgetItem();
                 layer_child_item->setText(0, "No User Settings");
                 layer_item->addChild(layer_child_item);
@@ -276,8 +276,8 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
     this->connect(this->validation.get(), SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
     const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
-    for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
-        const SettingMeta &setting_meta = layer_setting_metas[setting_index];
+    for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; ++setting_index) {
+        const SettingMeta &setting_meta = *layer_setting_metas[setting_index];
         if (IsBuiltinValidation(setting_meta.key)) continue;
 
         this->BuildTreeItem(parent, layer_setting_metas, parameter.settings, setting_meta);
@@ -365,8 +365,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                 WidgetSettingFlag *widget = new WidgetSettingFlag(tree, child, meta, data_set, meta.enum_values[i].key.c_str());
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
-                for (std::size_t j = 0, o = meta.enum_values[i].settings.Size(); j < o; ++j) {
-                    this->BuildTreeItem(child, meta.enum_values[i].settings, data_set, meta.enum_values[i].settings[j]);
+                for (std::size_t j = 0, o = meta.enum_values[i].settings.size(); j < o; ++j) {
+                    this->BuildTreeItem(child, meta.enum_values[i].settings, data_set, *meta.enum_values[i].settings[j]);
                 }
             }
         } break;
@@ -391,8 +391,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
         } break;
     }
 
-    for (std::size_t i = 0, n = meta_object.children.Size(); i < n; ++i) {
-        this->BuildTreeItem(item, meta_object.children, data_set, meta_object.children[i]);
+    for (std::size_t i = 0, n = meta_object.children.size(); i < n; ++i) {
+        this->BuildTreeItem(item, meta_object.children, data_set, *meta_object.children[i]);
     }
 }
 
@@ -401,8 +401,8 @@ void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &p
 
     const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
 
-    for (std::size_t setting_index = 0, n = layer_setting_metas.Size(); setting_index < n; ++setting_index) {
-        this->BuildTreeItem(parent, layer_setting_metas, parameter.settings, layer_setting_metas[setting_index]);
+    for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; ++setting_index) {
+        this->BuildTreeItem(parent, layer_setting_metas, parameter.settings, *layer_setting_metas[setting_index]);
     }
 }
 
