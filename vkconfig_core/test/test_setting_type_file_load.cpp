@@ -25,12 +25,16 @@
 
 static_assert(SettingMetaFileLoad::TYPE == SETTING_LOAD_FILE, "Invalid type");
 
+inline SettingMetaFileLoad* InstantiateFileLoad(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaFileLoad*>(layer.Instantiate(key, SETTING_LOAD_FILE));
+}
+
 TEST(test_setting_type_file_load, meta_equal) {
     Layer layer;
 
-    SettingMetaFileLoad* meta0 = Instantiate<SettingMetaFileLoad>(layer, "key");
+    SettingMetaFileLoad* meta0 = InstantiateFileLoad(layer, "key");
     meta0->default_value = "valueA";
-    SettingMetaFileLoad* meta1 = Instantiate<SettingMetaFileLoad>(layer, "key");
+    SettingMetaFileLoad* meta1 = InstantiateFileLoad(layer, "key");
     meta1->default_value = "valueA";
     EXPECT_EQ(*meta0, *meta1);
 
@@ -41,7 +45,7 @@ TEST(test_setting_type_file_load, meta_equal) {
 TEST(test_setting_type_file_load, data_equal) {
     Layer layer;
 
-    SettingMetaFileLoad* meta = Instantiate<SettingMetaFileLoad>(layer, "key");
+    SettingMetaFileLoad* meta = InstantiateFileLoad(layer, "key");
 
     SettingDataFileLoad* data0 = Instantiate<SettingDataFileLoad>(meta);
     EXPECT_STREQ(meta->key.c_str(), data0->key.c_str());

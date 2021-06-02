@@ -25,6 +25,10 @@
 
 #include <gtest/gtest.h>
 
+inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaString*>(layer.Instantiate(key, SETTING_STRING));
+}
+
 static std::vector<Layer> GenerateTestLayers() {
     std::vector<Layer> layers;
     layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
@@ -231,8 +235,8 @@ TEST(test_parameter, order_manual) {
 TEST(test_parameter, apply_settings) {
     Layer layer;
 
-    SettingMetaString* metaA = Instantiate<SettingMetaString>(layer, "A");
-    SettingMetaString* metaB = Instantiate<SettingMetaString>(layer, "B");
+    SettingMetaString* metaA = InstantiateString(layer, "A");
+    SettingMetaString* metaB = InstantiateString(layer, "B");
 
     SettingDataString* preset_setting = Instantiate<SettingDataString>(metaA);
     preset_setting->value = "preset value";

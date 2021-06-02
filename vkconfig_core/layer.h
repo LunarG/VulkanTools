@@ -77,9 +77,4 @@ class Layer {
     std::vector<std::shared_ptr<SettingMeta> > memory;  // Settings are deleted when all layers instances are deleted.
 };
 
-template <typename T>
-inline T* Instantiate(Layer& layer, const std::string& key) {
-    return static_cast<T*>(layer.Instantiate(key, typename T::TYPE));
-}
-
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);

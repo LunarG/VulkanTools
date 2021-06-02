@@ -32,6 +32,10 @@
 
 #include <regex>
 
+inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaString*>(layer.Instantiate(key, SETTING_STRING));
+}
+
 TEST(test_layer, collect_settings) {
     Layer layer;
 
@@ -41,7 +45,7 @@ TEST(test_layer, collect_settings) {
     CollectDefaultSettingData(meta, data0);
     EXPECT_TRUE(data0.empty());
 
-    SettingMetaString* meta0 = Instantiate<SettingMetaString>(layer, "key0");
+    SettingMetaString* meta0 = InstantiateString(layer, "key0");
     meta0->default_value = "value0";
     meta.push_back(meta0);
 

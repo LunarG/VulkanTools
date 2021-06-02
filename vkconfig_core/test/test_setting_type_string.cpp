@@ -25,12 +25,16 @@
 
 static_assert(SettingMetaString::TYPE == SETTING_STRING, "Invalid type");
 
+inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaString*>(layer.Instantiate(key, SETTING_STRING));
+}
+
 TEST(test_setting_type_string, meta_equal) {
     Layer layer;
 
-    SettingMetaString* meta0 = Instantiate<SettingMetaString>(layer, "key");
+    SettingMetaString* meta0 = InstantiateString(layer, "key");
     meta0->default_value = "76";
-    SettingMetaString* meta1 = Instantiate<SettingMetaString>(layer, "key");
+    SettingMetaString* meta1 = InstantiateString(layer, "key");
     meta1->default_value = "76";
     EXPECT_EQ(*meta0, *meta1);
 
@@ -41,7 +45,7 @@ TEST(test_setting_type_string, meta_equal) {
 TEST(test_setting_type_string, data_equal) {
     Layer layer;
 
-    SettingMetaString* meta = Instantiate<SettingMetaString>(layer, "key");
+    SettingMetaString* meta = InstantiateString(layer, "key");
 
     SettingDataString* data0 = Instantiate<SettingDataString>(meta);
     EXPECT_STREQ(meta->key.c_str(), data0->key.c_str());
@@ -57,7 +61,7 @@ TEST(test_setting_type_string, data_equal) {
     data1->value = "76";
     EXPECT_EQ(*data0, *data1);
 
-    SettingMetaString* metaX = Instantiate<SettingMetaString>(layer, "keyX");
+    SettingMetaString* metaX = InstantiateString(layer, "keyX");
     SettingDataString* dataX = Instantiate<SettingDataString>(metaX);
     dataX->value = "76";
 
@@ -67,7 +71,7 @@ TEST(test_setting_type_string, data_equal) {
 TEST(test_setting_type_string, is_supported_meta_default) {
     Layer layer;
 
-    SettingMetaString* meta = Instantiate<SettingMetaString>(layer, "key");
+    SettingMetaString* meta = InstantiateString(layer, "key");
 
     EXPECT_EQ(true, IsSupported(meta));
 }
@@ -81,7 +85,7 @@ TEST(test_setting_type_string, is_supported_meta_null) {
 TEST(test_setting_type_string, is_supported_value_hidden) {
     Layer layer;
 
-    SettingMetaString* meta = Instantiate<SettingMetaString>(layer, "key");
+    SettingMetaString* meta = InstantiateString(layer, "key");
     meta->view = SETTING_VIEW_HIDDEN;
 
     EXPECT_EQ(false, IsSupported(meta));
@@ -90,7 +94,7 @@ TEST(test_setting_type_string, is_supported_value_hidden) {
 TEST(test_setting_type_string, is_supported_value_platform) {
     Layer layer;
 
-    SettingMetaString* meta = Instantiate<SettingMetaString>(layer, "key");
+    SettingMetaString* meta = InstantiateString(layer, "key");
     meta->platform_flags = 0;
 
     EXPECT_EQ(false, IsSupported(meta));

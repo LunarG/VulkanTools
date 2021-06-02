@@ -25,12 +25,16 @@
 
 static_assert(SettingMetaEnum::TYPE == SETTING_ENUM, "Invalid type");
 
+inline SettingMetaEnum* InstantiateEnum(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaEnum*>(layer.Instantiate(key, SETTING_ENUM));
+}
+
 TEST(test_setting_type_enum, meta_equal) {
     Layer layer;
 
-    SettingMetaEnum* meta0 = Instantiate<SettingMetaEnum>(layer, "key");
+    SettingMetaEnum* meta0 = InstantiateEnum(layer, "key");
     meta0->default_value = "value";
-    SettingMetaEnum* meta1 = Instantiate<SettingMetaEnum>(layer, "key");
+    SettingMetaEnum* meta1 = InstantiateEnum(layer, "key");
     meta1->default_value = "value";
     EXPECT_EQ(*meta0, *meta1);
 
@@ -41,7 +45,7 @@ TEST(test_setting_type_enum, meta_equal) {
 TEST(test_setting_type_enum, data_equal) {
     Layer layer;
 
-    SettingMetaEnum* meta = Instantiate<SettingMetaEnum>(layer, "key");
+    SettingMetaEnum* meta = InstantiateEnum(layer, "key");
 
     SettingDataEnum* data0 = Instantiate<SettingDataEnum>(meta);
     EXPECT_EQ(SETTING_ENUM, data0->type);
