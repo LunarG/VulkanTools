@@ -39,7 +39,10 @@ bool SettingMetaBool::Load(const QJsonObject& json_setting) {
     return true;
 }
 
-std::string SettingMetaBool::Export(ExportMode export_mode) const { return this->default_value ? "TRUE" : "FALSE"; }
+std::string SettingMetaBool::Export(ExportMode export_mode) const {
+    (void)export_mode;
+    return this->default_value ? "TRUE" : "FALSE";
+}
 
 bool SettingMetaBool::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
@@ -66,7 +69,10 @@ bool SettingDataBool::Save(QJsonObject& json_setting) const {
     return true;
 }
 
-std::string SettingDataBool::Export(ExportMode export_mode) const { return this->value ? "TRUE" : "FALSE"; }
+std::string SettingDataBool::Export(ExportMode export_mode) const {
+    (void)export_mode;
+    return this->value ? "TRUE" : "FALSE";
+}
 
 bool SettingDataBool::Equal(const SettingData& other) const {
     if (!SettingData::Equal(other)) return false;
@@ -87,11 +93,17 @@ SettingMetaBoolNumeric::SettingMetaBoolNumeric(Layer& layer, const std::string& 
 
 SettingData* SettingMetaBoolNumeric::Instantiate() { return new SettingDataBoolNumeric(this); }
 
-std::string SettingMetaBoolNumeric::Export(ExportMode export_mode) const { return this->default_value ? "1" : "0"; }
+std::string SettingMetaBoolNumeric::Export(ExportMode export_mode) const {
+    (void)export_mode;
+    return this->default_value ? "1" : "0";
+}
 
 // SettingDataBoolNumeric
 
 SettingDataBoolNumeric::SettingDataBoolNumeric(const SettingMetaBoolNumeric* meta)
     : SettingDataBool(meta->key, meta->type), meta(meta) {}
 
-std::string SettingDataBoolNumeric::Export(ExportMode export_mode) const { return this->value ? "1" : "0"; }
+std::string SettingDataBoolNumeric::Export(ExportMode export_mode) const {
+    (void)export_mode;
+    return this->value ? "1" : "0";
+}

@@ -50,10 +50,16 @@ SOURCES += \
     ../vkconfig_core/path_manager.cpp \
     ../vkconfig_core/platform.cpp \
     ../vkconfig_core/registry.cpp \
-    ../vkconfig_core/setting_data.cpp \
-    ../vkconfig_core/setting_meta.cpp \
-    ../vkconfig_core/setting_set.cpp \
-    ../vkconfig_core/setting_type.cpp \
+    ../vkconfig_core/setting.cpp \
+    ../vkconfig_core/setting_bool.cpp \
+    ../vkconfig_core/setting_filesystem.cpp \
+    ../vkconfig_core/setting_flags.cpp \
+    ../vkconfig_core/setting_float.cpp \
+    ../vkconfig_core/setting_frames.cpp \
+    ../vkconfig_core/setting_group.cpp \
+    ../vkconfig_core/setting_int.cpp \
+    ../vkconfig_core/setting_list.cpp \
+    ../vkconfig_core/setting_string.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
     vulkan.cpp \
@@ -110,10 +116,16 @@ HEADERS += \
     ../vkconfig_core/path_manager.h \
     ../vkconfig_core/platform.h \
     ../vkconfig_core/registry.h \
-    ../vkconfig_core/setting_data.h \
-    ../vkconfig_core/setting_meta.h \
-    ../vkconfig_core/setting_set.h \
-    ../vkconfig_core/setting_type.h \
+    ../vkconfig_core/setting.h \
+    ../vkconfig_core/setting_bool.h \
+    ../vkconfig_core/setting_filesystem.h \
+    ../vkconfig_core/setting_flags.h \
+    ../vkconfig_core/setting_float.h \
+    ../vkconfig_core/setting_frames.h \
+    ../vkconfig_core/setting_group.h \
+    ../vkconfig_core/setting_int.h \
+    ../vkconfig_core/setting_list.h \
+    ../vkconfig_core/setting_string.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \
     vulkan.h \
