@@ -66,10 +66,15 @@ class Layer {
     std::string manifest_path;
     LayerType type;
 
-    SettingMetaSet settings;
+    std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
+
+   private:
+    Layer& operator=(const Layer&) = delete;
+
+    std::vector<std::shared_ptr<SettingMeta> > memory;  // Settings are deleted when all layers instances are deleted.
 };
 
 template <typename T>

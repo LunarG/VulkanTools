@@ -31,6 +31,7 @@ SettingMetaBool::SettingMetaBool(Layer& layer, const std::string& key, const Set
 SettingData* SettingMetaBool::Instantiate() {
     SettingData* setting_data = new SettingDataBool(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 

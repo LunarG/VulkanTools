@@ -28,7 +28,12 @@ SettingMetaString::SettingMetaString(Layer& layer, const std::string& key) : Set
 SettingMetaString::SettingMetaString(Layer& layer, const std::string& key, const SettingType& setting_type)
     : SettingMeta(layer, key, setting_type) {}
 
-SettingData* SettingMetaString::Instantiate() { return new SettingDataString(this); }
+SettingData* SettingMetaString::Instantiate() {
+    SettingData* setting_data = new SettingDataString(this);
+    setting_data->Reset();
+    this->instances.push_back(setting_data);
+    return setting_data;
+}
 
 bool SettingMetaString::Load(const QJsonObject& json_setting) {
     this->default_value = ReadStringValue(json_setting, "default");

@@ -61,6 +61,7 @@ SettingMetaFileLoad::SettingMetaFileLoad(Layer& layer, const std::string& key) :
 SettingData* SettingMetaFileLoad::Instantiate() {
     SettingData* setting_data = new SettingDataFileLoad(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 
@@ -77,6 +78,7 @@ SettingMetaFileSave::SettingMetaFileSave(Layer& layer, const std::string& key) :
 SettingData* SettingMetaFileSave::Instantiate() {
     SettingData* setting_data = new SettingDataFileSave(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 
@@ -93,6 +95,7 @@ SettingMetaFolderSave::SettingMetaFolderSave(Layer& layer, const std::string& ke
 SettingData* SettingMetaFolderSave::Instantiate() {
     SettingData* setting_data = new SettingDataFolderSave(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 

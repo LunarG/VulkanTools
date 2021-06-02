@@ -27,6 +27,7 @@ SettingMetaGroup::SettingMetaGroup(Layer& layer, const std::string& key) : Setti
 SettingData* SettingMetaGroup::Instantiate() {
     SettingData* setting_data = new SettingDataGroup(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 

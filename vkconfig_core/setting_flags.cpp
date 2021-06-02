@@ -60,6 +60,7 @@ SettingMetaEnum::SettingMetaEnum(Layer& layer, const std::string& key) : Setting
 SettingData* SettingMetaEnum::Instantiate() {
     SettingData* setting_data = new SettingDataEnum(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 
@@ -96,6 +97,7 @@ SettingMetaFlags::SettingMetaFlags(Layer& layer, const std::string& key) : Setti
 SettingData* SettingMetaFlags::Instantiate() {
     SettingData* setting_data = new SettingDataFlags(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 

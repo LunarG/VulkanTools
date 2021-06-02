@@ -105,37 +105,57 @@ std::string Layer::FindPresetLabel(const SettingDataSet& settings) const {
 }
 
 SettingMeta* Layer::Instantiate(const std::string& key, const SettingType type) {
+    SettingMeta* setting_meta = nullptr;
+
     switch (type) {
         case SETTING_STRING:
-            return new SettingMetaString(*this, key);
+            setting_meta = new SettingMetaString(*this, key);
+            break;
         case SETTING_INT:
-            return new SettingMetaInt(*this, key);
+            setting_meta = new SettingMetaInt(*this, key);
+            break;
         case SETTING_FLOAT:
-            return new SettingMetaFloat(*this, key);
+            setting_meta = new SettingMetaFloat(*this, key);
+            break;
         case SETTING_GROUP:
-            return new SettingMetaGroup(*this, key);
+            setting_meta = new SettingMetaGroup(*this, key);
+            break;
         case SETTING_SAVE_FILE:
-            return new SettingMetaFileSave(*this, key);
+            setting_meta = new SettingMetaFileSave(*this, key);
+            break;
         case SETTING_LOAD_FILE:
-            return new SettingMetaFileLoad(*this, key);
+            setting_meta = new SettingMetaFileLoad(*this, key);
+            break;
         case SETTING_SAVE_FOLDER:
-            return new SettingMetaFolderSave(*this, key);
+            setting_meta = new SettingMetaFolderSave(*this, key);
+            break;
         case SETTING_BOOL:
-            return new SettingMetaBool(*this, key);
+            setting_meta = new SettingMetaBool(*this, key);
+            break;
         case SETTING_BOOL_NUMERIC_DEPRECATED:
-            return new SettingMetaBoolNumeric(*this, key);
+            setting_meta = new SettingMetaBoolNumeric(*this, key);
+            break;
         case SETTING_ENUM:
-            return new SettingMetaEnum(*this, key);
+            setting_meta = new SettingMetaEnum(*this, key);
+            break;
         case SETTING_FLAGS:
-            return new SettingMetaFlags(*this, key);
+            setting_meta = new SettingMetaFlags(*this, key);
+            break;
         case SETTING_FRAMES:
-            return new SettingMetaFrames(*this, key);
+            setting_meta = new SettingMetaFrames(*this, key);
+            break;
         case SETTING_LIST:
-            return new SettingMetaList(*this, key);
+            setting_meta = new SettingMetaList(*this, key);
+            break;
         default:
             assert(0);
-            return nullptr;
+            break;
     }
+
+    assert(setting_meta != nullptr);
+    this->settings.push_back(setting_meta);
+    this->memory.push_back(std::shared_ptr<SettingMeta>(setting_meta));
+    return setting_meta;
 }
 
 static void AlertInvalidLayer(const std::string& path, const std::string& text) {
@@ -259,8 +279,9 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
             this->url = default_layer.url;
             this->platforms = default_layer.platforms;
             this->status = default_layer.status;
-            this->settings = default_layer.settings;
-            this->presets = default_layer.presets;
+            std::swap(this->settings, default_layer.settings);
+            std::swap(this->presets, default_layer.presets);
+            this->memory = default_layer.memory;
         }
     } else if (json_features_value != QJsonValue::Undefined) {
         const QJsonObject& json_features_object = json_features_value.toObject();
@@ -322,7 +343,6 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_sett
         const std::string key = ReadStringValue(json_setting, "key");
         const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
         SettingMeta* setting_meta = Instantiate(key, type);
-        settings.push_back(setting_meta);
 
         const QJsonValue& json_children = json_setting.value("settings");
         if (json_children != QJsonValue::Undefined) {
