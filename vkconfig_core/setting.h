@@ -104,6 +104,7 @@ typedef std::vector<SettingData*> SettingDataSet;
 
 struct SettingMeta : public Header {
     SettingMeta(Layer& layer, const std::string& key, const SettingType type);
+    virtual ~SettingMeta();
 
     bool operator==(const SettingMeta& other) const { return this->Equal(other); }
     bool operator!=(const SettingMeta& other) const { return !this->Equal(other); }
@@ -123,6 +124,8 @@ struct SettingMeta : public Header {
    protected:
     virtual bool Equal(const SettingMeta& other) const;
     Layer& layer;
+
+    std::vector<SettingData*> instances;
 };
 
 struct SettingData {

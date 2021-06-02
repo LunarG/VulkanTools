@@ -30,6 +30,7 @@ SettingMetaFloat::SettingMetaFloat(Layer& layer, const std::string& key)
 SettingData* SettingMetaFloat::Instantiate() {
     SettingData* setting_data = new SettingDataFloat(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 

@@ -98,6 +98,7 @@ SettingMetaList::SettingMetaList(Layer& layer, const std::string& key) : Setting
 SettingData* SettingMetaList::Instantiate() {
     SettingData* setting_data = new SettingDataList(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 

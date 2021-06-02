@@ -32,6 +32,7 @@ SettingMetaInt::SettingMetaInt(Layer& layer, const std::string& key)
 SettingData* SettingMetaInt::Instantiate() {
     SettingData* setting_data = new SettingDataInt(this);
     setting_data->Reset();
+    this->instances.push_back(setting_data);
     return setting_data;
 }
 

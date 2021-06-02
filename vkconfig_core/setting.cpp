@@ -95,6 +95,13 @@ SettingMeta::SettingMeta(Layer& layer, const std::string& key, const SettingType
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }
 
+SettingMeta::~SettingMeta() {
+    for (std::size_t i = 0, n = this->instances.size(); i < n; ++i) {
+        delete this->instances[i];
+        this->instances[i] = nullptr;
+    }
+}
+
 bool IsSupported(const SettingMeta* meta) {
     if (meta == nullptr) return false;
 
