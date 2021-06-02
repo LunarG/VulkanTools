@@ -141,6 +141,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 // Create and write vk_layer_settings.txt file
 bool WriteSettingsOverride(const Environment& environment, const std::vector<Layer>& available_layers,
                            const Configuration& configuration, const std::string& settings_path) {
+    (void)environment;
+
     assert(!settings_path.empty());
     assert(QFileInfo(settings_path.c_str()).absoluteDir().exists());
 
@@ -235,7 +237,7 @@ bool SurrenderConfiguration(const Environment& environment) {
     return result_layers && result_settings;
 }
 
-bool HasOverride(const Environment& environment) {
+bool HasOverride() {
     const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS);
     const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
 

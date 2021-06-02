@@ -36,7 +36,10 @@ bool SettingMetaString::Load(const QJsonObject& json_setting) {
     return true;
 }
 
-std::string SettingMetaString::Export(ExportMode export_mode) const { return this->default_value; }
+std::string SettingMetaString::Export(ExportMode export_mode) const {
+    (void)export_mode;
+    return this->default_value;
+}
 
 bool SettingMetaString::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
@@ -69,6 +72,8 @@ bool SettingDataString::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataString::Export(ExportMode export_mode) const {
+    (void)export_mode;
+
     if (this->IsValid()) {
         return this->value;
     } else {

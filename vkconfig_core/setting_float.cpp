@@ -58,6 +58,8 @@ bool SettingMetaFloat::Load(const QJsonObject& json_setting) {
 }
 
 std::string SettingMetaFloat::Export(ExportMode export_mode) const {
+    (void)export_mode;
+
     const std::string float_format = this->GetFloatFormat();
 
     return format(float_format.c_str(), this->default_value);
@@ -97,6 +99,8 @@ bool SettingDataFloat::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataFloat::Export(ExportMode export_mode) const {
+    (void)export_mode;
+
     const std::string float_format = this->meta->GetFloatFormat();
 
     if (this->IsValid()) {

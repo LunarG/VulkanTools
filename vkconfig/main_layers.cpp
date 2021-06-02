@@ -75,7 +75,7 @@ static int RunLayersSurrender(const CommandLine& command_line) {
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
-    const bool has_overridden_layers = HasOverride(environment);
+    const bool has_overridden_layers = HasOverride();
     const bool surrender_result = SurrenderConfiguration(environment);
 
     environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit

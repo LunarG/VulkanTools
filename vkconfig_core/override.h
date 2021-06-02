@@ -32,4 +32,4 @@ bool OverrideConfiguration(const Environment& environment, const std::vector<Lay
 bool SurrenderConfiguration(const Environment& environment);
 
 // Check whether a layers configuration is activated
-bool HasOverride(const Environment& environment);
+bool HasOverride();
