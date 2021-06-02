@@ -25,12 +25,16 @@
 
 static_assert(SettingMetaBool::TYPE == SETTING_BOOL, "Invalid type");
 
+inline SettingMetaBool* InstantiateBool(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaBool*>(layer.Instantiate(key, SETTING_BOOL));
+}
+
 TEST(test_setting_type_bool, meta_equal) {
     Layer layer;
 
-    SettingMetaBool* meta0 = Instantiate<SettingMetaBool>(layer, "key");
+    SettingMetaBool* meta0 = InstantiateBool(layer, "key");
     meta0->default_value = true;
-    SettingMetaBool* meta1 = Instantiate<SettingMetaBool>(layer, "key");
+    SettingMetaBool* meta1 = InstantiateBool(layer, "key");
     meta1->default_value = true;
 
     EXPECT_EQ(*meta0, *meta1);
@@ -42,7 +46,7 @@ TEST(test_setting_type_bool, meta_equal) {
 TEST(test_setting_type_bool, data_equal) {
     Layer layer;
 
-    SettingMetaBool* meta = Instantiate<SettingMetaBool>(layer, "key");
+    SettingMetaBool* meta = InstantiateBool(layer, "key");
 
     SettingDataBool* data0 = Instantiate<SettingDataBool>(meta);
     data0->value = true;

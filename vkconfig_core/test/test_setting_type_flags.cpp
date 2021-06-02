@@ -25,11 +25,15 @@
 
 static_assert(SettingMetaFlags::TYPE == SETTING_FLAGS, "Invalid type");
 
+inline SettingMetaFlags* InstantiateFlags(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaFlags*>(layer.Instantiate(key, SETTING_FLAGS));
+}
+
 TEST(test_setting_type_flags, meta_equal) {
     Layer layer;
 
-    SettingMetaFlags* meta0 = Instantiate<SettingMetaFlags>(layer, "key");
-    SettingMetaFlags* meta1 = Instantiate<SettingMetaFlags>(layer, "key");
+    SettingMetaFlags* meta0 = InstantiateFlags(layer, "key");
+    SettingMetaFlags* meta1 = InstantiateFlags(layer, "key");
 
     EXPECT_EQ(*meta0, *meta1);
 
@@ -61,8 +65,8 @@ TEST(test_setting_type_flags, meta_equal) {
 TEST(test_setting_type_flags, data_equal) {
     Layer layer;
 
-    SettingMetaFlags* metaA = Instantiate<SettingMetaFlags>(layer, "keyA");
-    SettingMetaFlags* metaB = Instantiate<SettingMetaFlags>(layer, "keyB");
+    SettingMetaFlags* metaA = InstantiateFlags(layer, "keyA");
+    SettingMetaFlags* metaB = InstantiateFlags(layer, "keyB");
     EXPECT_NE(*metaA, *metaB);
 
     std::vector<std::string> valueX;

@@ -25,12 +25,16 @@
 
 static_assert(SettingMetaInt::TYPE == SETTING_INT, "Invalid type");
 
+inline SettingMetaInt* InstantiateInt(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaInt*>(layer.Instantiate(key, SETTING_INT));
+}
+
 TEST(test_setting_type_int, meta_equal) {
     Layer layer;
 
-    SettingMetaInt* meta0 = Instantiate<SettingMetaInt>(layer, "key");
+    SettingMetaInt* meta0 = InstantiateInt(layer, "key");
     meta0->default_value = 76;
-    SettingMetaInt* meta1 = Instantiate<SettingMetaInt>(layer, "key");
+    SettingMetaInt* meta1 = InstantiateInt(layer, "key");
     meta1->default_value = 76;
     EXPECT_EQ(*meta0, *meta1);
 
@@ -41,7 +45,7 @@ TEST(test_setting_type_int, meta_equal) {
 TEST(test_setting_type_int, data_equal) {
     Layer layer;
 
-    SettingMetaInt* meta = Instantiate<SettingMetaInt>(layer, "key");
+    SettingMetaInt* meta = InstantiateInt(layer, "key");
 
     SettingDataInt* data0 = Instantiate<SettingDataInt>(meta);
     EXPECT_STREQ(meta->key.c_str(), data0->key.c_str());
@@ -57,7 +61,7 @@ TEST(test_setting_type_int, data_equal) {
     data1->value = 76;
     EXPECT_EQ(*data0, *data1);
 
-    SettingMetaInt* metaX = Instantiate<SettingMetaInt>(layer, "keyX");
+    SettingMetaInt* metaX = InstantiateInt(layer, "keyX");
     SettingDataInt* dataX = Instantiate<SettingDataInt>(metaX);
     dataX->value = 76;
 

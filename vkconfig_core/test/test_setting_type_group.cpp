@@ -25,18 +25,22 @@
 
 static_assert(SettingMetaGroup::TYPE == SETTING_GROUP, "Invalid type");
 
+inline SettingMetaGroup* InstantiateGroup(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaGroup*>(layer.Instantiate(key, SETTING_GROUP));
+}
+
 TEST(test_setting_type_group, meta_equal) {
     Layer layer;
 
-    SettingMetaGroup* meta0 = Instantiate<SettingMetaGroup>(layer, "key");
-    SettingMetaGroup* meta1 = Instantiate<SettingMetaGroup>(layer, "key");
+    SettingMetaGroup* meta0 = InstantiateGroup(layer, "key");
+    SettingMetaGroup* meta1 = InstantiateGroup(layer, "key");
     EXPECT_EQ(*meta0, *meta1);
 }
 
 TEST(test_setting_type_group, data_equal) {
     Layer layer;
 
-    SettingMetaGroup* meta = Instantiate<SettingMetaGroup>(layer, "key");
+    SettingMetaGroup* meta = InstantiateGroup(layer, "key");
 
     SettingDataGroup* data0 = Instantiate<SettingDataGroup>(meta);
     EXPECT_STREQ(meta->key.c_str(), data0->key.c_str());

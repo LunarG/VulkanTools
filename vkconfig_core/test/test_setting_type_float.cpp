@@ -25,12 +25,16 @@
 
 static_assert(SettingMetaFloat::TYPE == SETTING_FLOAT, "Invalid type");
 
+inline SettingMetaFloat* InstantiateFloat(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaFloat*>(layer.Instantiate(key, SETTING_FLOAT));
+}
+
 TEST(test_setting_type_float, meta_equal) {
     Layer layer;
 
-    SettingMetaFloat* meta0 = Instantiate<SettingMetaFloat>(layer, "key");
+    SettingMetaFloat* meta0 = InstantiateFloat(layer, "key");
     meta0->default_value = 7.6f;
-    SettingMetaFloat* meta1 = Instantiate<SettingMetaFloat>(layer, "key");
+    SettingMetaFloat* meta1 = InstantiateFloat(layer, "key");
     meta1->default_value = 7.6f;
     EXPECT_EQ(*meta0, *meta1);
 
@@ -41,7 +45,7 @@ TEST(test_setting_type_float, meta_equal) {
 TEST(test_setting_type_float, data_equal) {
     Layer layer;
 
-    SettingMetaFloat* meta = Instantiate<SettingMetaFloat>(layer, "key");
+    SettingMetaFloat* meta = InstantiateFloat(layer, "key");
 
     SettingDataFloat* data0 = Instantiate<SettingDataFloat>(meta);
     EXPECT_STREQ(meta->key.c_str(), data0->key.c_str());
@@ -57,7 +61,7 @@ TEST(test_setting_type_float, data_equal) {
     data1->value = 7.6f;
     EXPECT_EQ(*data0, *data1);
 
-    SettingMetaFloat* metaX = Instantiate<SettingMetaFloat>(layer, "keyX");
+    SettingMetaFloat* metaX = InstantiateFloat(layer, "keyX");
     SettingDataFloat* dataX = Instantiate<SettingDataFloat>(metaX);
     dataX->value = 7.6f;
 
@@ -67,7 +71,7 @@ TEST(test_setting_type_float, data_equal) {
 TEST(test_setting_type_float, process_input_float_no_error) {
     Layer layer;
 
-    SettingMetaFloat* meta = Instantiate<SettingMetaFloat>(layer, "key");
+    SettingMetaFloat* meta = InstantiateFloat(layer, "key");
     SettingDataFloat* data = Instantiate<SettingDataFloat>(meta);
 
     EXPECT_EQ(SETTING_INPUT_NO_ERROR, data->ProcessInput("1.0"));
@@ -76,7 +80,7 @@ TEST(test_setting_type_float, process_input_float_no_error) {
 TEST(test_setting_type_float, process_input_float_error_empty) {
     Layer layer;
 
-    SettingMetaFloat* meta = Instantiate<SettingMetaFloat>(layer, "key");
+    SettingMetaFloat* meta = InstantiateFloat(layer, "key");
     SettingDataFloat* data = Instantiate<SettingDataFloat>(meta);
 
     EXPECT_EQ(SETTING_INPUT_ERROR_EMPTY, data->ProcessInput(""));
@@ -85,7 +89,7 @@ TEST(test_setting_type_float, process_input_float_error_empty) {
 TEST(test_setting_type_float, process_input_float_error_syntax) {
     Layer layer;
 
-    SettingMetaFloat* meta = Instantiate<SettingMetaFloat>(layer, "key");
+    SettingMetaFloat* meta = InstantiateFloat(layer, "key");
     SettingDataFloat* data = Instantiate<SettingDataFloat>(meta);
 
     EXPECT_EQ(SETTING_INPUT_ERROR_SYNTAX, data->ProcessInput("1,0"));
@@ -94,7 +98,7 @@ TEST(test_setting_type_float, process_input_float_error_syntax) {
 TEST(test_setting_type_float, process_input_float_error_sementics) {
     Layer layer;
 
-    SettingMetaFloat* meta = Instantiate<SettingMetaFloat>(layer, "key");
+    SettingMetaFloat* meta = InstantiateFloat(layer, "key");
     meta->max_value = 2.0;
     meta->min_value = 1.0;
 

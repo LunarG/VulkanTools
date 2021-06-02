@@ -25,6 +25,10 @@
 
 #include <gtest/gtest.h>
 
+inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaString*>(layer.Instantiate(key, SETTING_STRING));
+}
+
 TEST(test_layer_preset, get_preset) {
     LayerPreset layer_preset_a;
     layer_preset_a.label = "1";
@@ -46,9 +50,9 @@ TEST(test_layer_preset, has_preset) {
     SettingDataSet preset_settings;
     SettingDataSet layer_settings;
 
-    SettingMetaString* metaA = Instantiate<SettingMetaString>(layer, "KeyA");
-    SettingMetaString* metaB = Instantiate<SettingMetaString>(layer, "KeyB");
-    SettingMetaString* metaC = Instantiate<SettingMetaString>(layer, "KeyC");
+    SettingMetaString* metaA = InstantiateString(layer, "KeyA");
+    SettingMetaString* metaB = InstantiateString(layer, "KeyB");
+    SettingMetaString* metaC = InstantiateString(layer, "KeyC");
 
     EXPECT_EQ(false, HasPreset(layer_settings, preset_settings));
 

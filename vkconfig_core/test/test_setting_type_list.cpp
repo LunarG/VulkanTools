@@ -25,18 +25,22 @@
 
 static_assert(SettingMetaList::TYPE == SETTING_LIST, "Invalid type");
 
+inline SettingMetaList* InstantiateList(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaList*>(layer.Instantiate(key, SETTING_LIST));
+}
+
 TEST(test_setting_type_list, meta_equal) {
     Layer layer;
 
-    SettingMetaList* meta0 = Instantiate<SettingMetaList>(layer, "key");
-    SettingMetaList* meta1 = Instantiate<SettingMetaList>(layer, "key");
+    SettingMetaList* meta0 = InstantiateList(layer, "key");
+    SettingMetaList* meta1 = InstantiateList(layer, "key");
     EXPECT_EQ(*meta0, *meta1);
 }
 
 TEST(test_setting_type_list, data_equal) {
     Layer layer;
 
-    SettingMetaList* meta = Instantiate<SettingMetaList>(layer, "key");
+    SettingMetaList* meta = InstantiateList(layer, "key");
 
     SettingDataList* data0 = Instantiate<SettingDataList>(meta);
     EXPECT_STREQ(meta->key.c_str(), data0->key.c_str());

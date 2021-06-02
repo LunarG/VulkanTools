@@ -25,12 +25,16 @@
 
 static_assert(SettingMetaFolderSave::TYPE == SETTING_SAVE_FOLDER, "Invalid type");
 
+inline SettingMetaFolderSave* InstantiateFolderSave(Layer& layer, const std::string& key) {
+    return static_cast<SettingMetaFolderSave*>(layer.Instantiate(key, SETTING_SAVE_FOLDER));
+}
+
 TEST(test_setting_type_folder_save, meta_equal) {
     Layer layer;
 
-    SettingMetaFolderSave* meta0 = Instantiate<SettingMetaFolderSave>(layer, "key");
+    SettingMetaFolderSave* meta0 = InstantiateFolderSave(layer, "key");
     meta0->default_value = "valueA";
-    SettingMetaFolderSave* meta1 = Instantiate<SettingMetaFolderSave>(layer, "key");
+    SettingMetaFolderSave* meta1 = InstantiateFolderSave(layer, "key");
     meta1->default_value = "valueA";
     EXPECT_EQ(*meta0, *meta1);
 
@@ -41,7 +45,7 @@ TEST(test_setting_type_folder_save, meta_equal) {
 TEST(test_setting_type_folder_save, data_equal) {
     Layer layer;
 
-    SettingMetaFolderSave* meta = Instantiate<SettingMetaFolderSave>(layer, "key");
+    SettingMetaFolderSave* meta = InstantiateFolderSave(layer, "key");
 
     SettingDataFolderSave* data0 = Instantiate<SettingDataFolderSave>(meta);
     EXPECT_STREQ(meta->key.c_str(), data0->key.c_str());
