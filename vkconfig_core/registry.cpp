@@ -26,14 +26,15 @@
 #include <windows.h>
 #include <winreg.h>
 #include <Cfgmgr32.h>
+#include <shlobj.h>
 #define WIN_BUFFER_SIZE 1024
 
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
-void AppendRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file) {
+void AppendRegistryEntriesForLayers(QString override_file, QString settings_file) {
     // Layer override json file
     HKEY key;
-    const HKEY userKey = running_as_administrator ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+    const HKEY userKey = IsUserAnAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
     LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
@@ -59,10 +60,10 @@ void AppendRegistryEntriesForLayers(bool running_as_administrator, QString overr
 
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
-void RemoveRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file) {
+void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file) {
     // Layer override json file
     HKEY key;
-    HKEY userKey = (running_as_administrator) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+    HKEY userKey = IsUserAnAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
     LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,

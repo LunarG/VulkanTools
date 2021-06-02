@@ -29,9 +29,9 @@
 
 #include <vector>
 
-void AppendRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
+void AppendRegistryEntriesForLayers(QString override_file, QString settings_file);
 
-void RemoveRegistryEntriesForLayers(bool running_as_administrator, QString override_file, QString settings_file);
+void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file);
 
 void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type);
 

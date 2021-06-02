@@ -133,8 +133,6 @@ class Environment {
     LoaderMessageLevel GetLoaderMessage() const { return this->loader_message_level; }
     void SetLoaderMessage(LoaderMessageLevel level) { this->loader_message_level = level; }
 
-    const bool running_as_administrator;  // Are we being "Run as Administrator"
-
     bool first_run;
     const Version api_version;
 
