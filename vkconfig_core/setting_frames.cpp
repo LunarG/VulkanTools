@@ -23,6 +23,8 @@
 
 // SettingMetaFrames
 
+const SettingType SettingMetaFrames::TYPE(SETTING_FRAMES);
+
 SettingMetaFrames::SettingMetaFrames(Layer& layer, const std::string& key) : SettingMetaString(layer, key, TYPE) {}
 
 // SettingDataFrames

@@ -25,7 +25,7 @@
 #include <memory>
 
 struct SettingMetaBool : public SettingMeta {
-    static const SettingType TYPE = SETTING_BOOL;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
@@ -57,14 +57,14 @@ struct SettingDataBool : public SettingData {
    protected:
     SettingDataBool(const std::string& key, const SettingType& type);
 
-    virtual bool Equal(const SettingData& other) const;
-    virtual SettingData& Assign(const SettingData& other);
+    bool Equal(const SettingData& other) const override;
+    SettingData& Assign(const SettingData& other) override;
 
     const SettingMetaBool* meta;
 };
 
 struct SettingMetaBoolNumeric : public SettingMetaBool {
-    static const SettingType TYPE = SETTING_BOOL_NUMERIC_DEPRECATED;
+    static const SettingType TYPE;
 
     SettingMetaBoolNumeric(Layer& layer, const std::string& key);
 

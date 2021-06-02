@@ -23,7 +23,7 @@
 #include "setting_string.h"
 
 struct SettingMetaFrames : public SettingMetaString {
-    static const SettingType TYPE = SETTING_FRAMES;
+    static const SettingType TYPE;
 
    private:
     SettingMetaFrames(Layer& layer, const std::string& key);

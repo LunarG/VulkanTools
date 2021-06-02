@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaFileSave::TYPE == SETTING_SAVE_FILE, "Invalid type");
-
 inline SettingMetaFileSave* InstantiateFileSave(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaFileSave*>(layer.Instantiate(key, SETTING_SAVE_FILE));
 }
+
+TEST(test_setting_type_file_save, init) { EXPECT_EQ(SETTING_SAVE_FILE, SettingMetaFileSave::TYPE); }
 
 TEST(test_setting_type_file_save, meta_equal) {
     Layer layer;

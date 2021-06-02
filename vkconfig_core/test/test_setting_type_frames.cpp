@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaFrames::TYPE == SETTING_FRAMES, "Invalid type");
-
 inline SettingMetaFrames* InstantiateFrames(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaFrames*>(layer.Instantiate(key, SETTING_FRAMES));
 }
+
+TEST(test_setting_type_frames, init) { EXPECT_EQ(SETTING_FRAMES, SettingMetaFrames::TYPE); }
 
 TEST(test_setting_type_frames, meta_equal) {
     Layer layer;

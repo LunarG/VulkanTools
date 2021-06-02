@@ -60,7 +60,7 @@ class SettingsTreeManager : QObject {
 
     void BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
-    void BuildTreeItem(QTreeWidgetItem *parent, const SettingMetaSet &meta_set, SettingDataSet &data_set, const SettingMeta &meta);
+    void BuildTreeItem(QTreeWidgetItem *parent, SettingDataSet &data_set, const SettingMeta &meta);
 
     void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
 

@@ -55,6 +55,8 @@ bool SettingMetaEnumeration::Equal(const SettingMeta& other) const {
 
 // SettingMetaEnum
 
+const SettingType SettingMetaEnum::TYPE = SETTING_ENUM;
+
 SettingMetaEnum::SettingMetaEnum(Layer& layer, const std::string& key) : SettingMetaEnumeration(layer, key, TYPE) {}
 
 SettingData* SettingMetaEnum::Instantiate() {
@@ -91,6 +93,8 @@ SettingDataEnum::SettingDataEnum(const SettingMetaEnum* meta) : SettingDataStrin
 void SettingDataEnum::Reset() { this->value = this->meta->default_value; }
 
 // SettingMetaFlags
+
+const SettingType SettingMetaFlags::TYPE(SETTING_FLAGS);
 
 SettingMetaFlags::SettingMetaFlags(Layer& layer, const std::string& key) : SettingMetaEnumeration(layer, key, TYPE) {}
 

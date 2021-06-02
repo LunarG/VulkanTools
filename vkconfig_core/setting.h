@@ -129,6 +129,8 @@ struct SettingMeta : public Header {
 };
 
 struct SettingData {
+    virtual ~SettingData() {}
+
     SettingData& operator=(const SettingData& other);
 
     bool operator==(const SettingData& other) const { return this->Equal(other); }

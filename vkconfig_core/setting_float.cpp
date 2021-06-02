@@ -24,6 +24,8 @@
 
 // SettingMetaFloat
 
+const SettingType SettingMetaFloat::TYPE(SETTING_FLOAT);
+
 SettingMetaFloat::SettingMetaFloat(Layer& layer, const std::string& key)
     : SettingMeta(layer, key, TYPE), default_value(0.0f), min_value(0.0f), max_value(0.0f), precision(0), width(0) {}
 

@@ -23,7 +23,7 @@
 #include "setting.h"
 
 struct SettingMetaFloat : public SettingMeta {
-    static const SettingType TYPE = SETTING_FLOAT;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
@@ -71,8 +71,8 @@ struct SettingDataFloat : public SettingData {
     float value;
 
    protected:
-    virtual bool Equal(const SettingData& other) const;
-    virtual SettingData& Assign(const SettingData& other);
+    bool Equal(const SettingData& other) const override;
+    SettingData& Assign(const SettingData& other) override;
 
     const SettingMetaFloat* meta;
 };
