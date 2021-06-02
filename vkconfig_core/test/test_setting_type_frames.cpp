@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaFrames::TYPE == SETTING_FRAMES, "Invalid type");
+
 TEST(test_setting_type_frames, meta_equal) {
     Layer layer;
 

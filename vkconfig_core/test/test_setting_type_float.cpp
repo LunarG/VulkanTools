@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaFloat::TYPE == SETTING_FLOAT, "Invalid type");
+
 TEST(test_setting_type_float, meta_equal) {
     Layer layer;
 

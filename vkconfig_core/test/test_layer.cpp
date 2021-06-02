@@ -41,7 +41,7 @@ TEST(test_layer, collect_settings) {
     CollectDefaultSettingData(meta, data0);
     EXPECT_TRUE(data0.empty());
 
-    SettingMetaString* meta0 = static_cast<SettingMetaString*>(layer.Instantiate("key0", SETTING_STRING));
+    SettingMetaString* meta0 = Instantiate<SettingMetaString>(layer, "key0");
     meta0->default_value = "value0";
     meta.push_back(meta0);
 

@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaList::TYPE == SETTING_LIST, "Invalid type");
+
 TEST(test_setting_type_list, meta_equal) {
     Layer layer;
 

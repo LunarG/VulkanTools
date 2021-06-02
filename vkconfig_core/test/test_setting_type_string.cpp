@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaString::TYPE == SETTING_STRING, "Invalid type");
+
 TEST(test_setting_type_string, meta_equal) {
     Layer layer;
 
