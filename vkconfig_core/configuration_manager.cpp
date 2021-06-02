@@ -188,6 +188,22 @@ void ConfigurationManager::RemoveConfigurationFiles() {
     }
 }
 
+void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
+    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
+
+    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i];
+
+        const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
+        for (int j = 0, o = configuration_files.size(); j < o; ++j) {
+            const std::string filename = configuration_files[j].baseName().toStdString();
+            if (filename == key) {
+                std::remove(configuration_files[j].filePath().toStdString().c_str());
+            }
+        }
+    }
+}
+
 void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &available_layers, const std::string &configuration_name) {
     assert(!configuration_name.empty());
 
@@ -197,6 +213,8 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
             SetActiveConfiguration(available_layers, nullptr);
         }
     }
+
+    RemoveConfigurationFile(configuration_name.c_str());
 
     // Update the configuration in the list
     std::vector<Configuration> updated_configurations;
