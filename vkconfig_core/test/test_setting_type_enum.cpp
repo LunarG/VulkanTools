@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaEnum::TYPE == SETTING_ENUM, "Invalid type");
-
 inline SettingMetaEnum* InstantiateEnum(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaEnum*>(layer.Instantiate(key, SETTING_ENUM));
 }
+
+TEST(test_setting_type_enum, init) { EXPECT_EQ(SETTING_ENUM, SettingMetaEnum::TYPE); }
 
 TEST(test_setting_type_enum, meta_equal) {
     Layer layer;

@@ -93,6 +93,8 @@ static void LoadVUIDs(std::vector<NumberOrString>& value) {
 
 // SettingMetaList
 
+const SettingType SettingMetaList::TYPE(SETTING_LIST);
+
 SettingMetaList::SettingMetaList(Layer& layer, const std::string& key) : SettingMeta(layer, key, TYPE), list_only(false) {}
 
 SettingData* SettingMetaList::Instantiate() {

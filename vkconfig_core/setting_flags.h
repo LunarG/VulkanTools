@@ -44,7 +44,7 @@ struct SettingMetaEnumeration : public SettingMeta {
 };
 
 struct SettingMetaEnum : public SettingMetaEnumeration {
-    static const SettingType TYPE = SETTING_ENUM;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
@@ -70,7 +70,7 @@ struct SettingDataEnum : public SettingDataString {
 };
 
 struct SettingMetaFlags : public SettingMetaEnumeration {
-    static const SettingType TYPE = SETTING_FLAGS;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;

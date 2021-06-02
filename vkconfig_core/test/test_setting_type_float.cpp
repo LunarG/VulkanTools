@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaFloat::TYPE == SETTING_FLOAT, "Invalid type");
-
 inline SettingMetaFloat* InstantiateFloat(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaFloat*>(layer.Instantiate(key, SETTING_FLOAT));
 }
+
+TEST(test_setting_type_float, init) { EXPECT_EQ(SETTING_FLOAT, SettingMetaFloat::TYPE); }
 
 TEST(test_setting_type_float, meta_equal) {
     Layer layer;

@@ -23,7 +23,7 @@
 #include "setting.h"
 
 struct SettingMetaGroup : public SettingMeta {
-    static const SettingType TYPE = SETTING_GROUP;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
@@ -44,7 +44,7 @@ struct SettingDataGroup : public SettingData {
     std::string Export(ExportMode export_mode) const override;
 
    protected:
-    virtual SettingData& Assign(const SettingData& other);
+    SettingData& Assign(const SettingData& other) override;
 
     const SettingMetaGroup* meta;
 };

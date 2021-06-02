@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaList::TYPE == SETTING_LIST, "Invalid type");
-
 inline SettingMetaList* InstantiateList(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaList*>(layer.Instantiate(key, SETTING_LIST));
 }
+
+TEST(test_setting_type_list, init) { EXPECT_EQ(SETTING_LIST, SettingMetaList::TYPE); }
 
 TEST(test_setting_type_list, meta_equal) {
     Layer layer;

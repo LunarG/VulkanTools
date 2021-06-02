@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaString::TYPE == SETTING_STRING, "Invalid type");
-
 inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaString*>(layer.Instantiate(key, SETTING_STRING));
 }
+
+TEST(test_setting_type_string, init) { EXPECT_EQ(SETTING_STRING, SettingMetaString::TYPE); }
 
 TEST(test_setting_type_string, meta_equal) {
     Layer layer;

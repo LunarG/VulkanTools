@@ -23,6 +23,8 @@
 
 // SettingMetaInt
 
+const SettingType SettingMetaInt::TYPE(SETTING_INT);
+
 SettingMetaInt::SettingMetaInt(Layer& layer, const std::string& key)
     : SettingMeta(layer, key, TYPE),
       default_value(0),

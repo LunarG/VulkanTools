@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaFolderSave::TYPE == SETTING_SAVE_FOLDER, "Invalid type");
-
 inline SettingMetaFolderSave* InstantiateFolderSave(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaFolderSave*>(layer.Instantiate(key, SETTING_SAVE_FOLDER));
 }
+
+TEST(test_setting_type_folder_save, init) { EXPECT_EQ(SETTING_SAVE_FOLDER, SettingMetaFolderSave::TYPE); }
 
 TEST(test_setting_type_folder_save, meta_equal) {
     Layer layer;

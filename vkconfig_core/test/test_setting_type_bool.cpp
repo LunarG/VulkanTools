@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaBool::TYPE == SETTING_BOOL, "Invalid type");
-
 inline SettingMetaBool* InstantiateBool(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaBool*>(layer.Instantiate(key, SETTING_BOOL));
 }
+
+TEST(test_setting_type_bool, init) { EXPECT_EQ(SETTING_BOOL, SettingMetaBool::TYPE); }
 
 TEST(test_setting_type_bool, meta_equal) {
     Layer layer;

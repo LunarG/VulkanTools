@@ -22,6 +22,8 @@
 
 // SettingMetaGroup
 
+const SettingType SettingMetaGroup::TYPE(SETTING_GROUP);
+
 SettingMetaGroup::SettingMetaGroup(Layer& layer, const std::string& key) : SettingMeta(layer, key, TYPE) {}
 
 SettingData* SettingMetaGroup::Instantiate() {

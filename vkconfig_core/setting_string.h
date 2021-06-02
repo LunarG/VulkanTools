@@ -23,7 +23,7 @@
 #include "setting.h"
 
 struct SettingMetaString : public SettingMeta {
-    static const SettingType TYPE = SETTING_STRING;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
 
@@ -56,8 +56,8 @@ struct SettingDataString : public SettingData {
    protected:
     SettingDataString(const std::string& key, const SettingType& type);
 
-    virtual bool Equal(const SettingData& other) const;
-    virtual SettingData& Assign(const SettingData& other);
+    bool Equal(const SettingData& other) const override;
+    SettingData& Assign(const SettingData& other) override;
 
     const SettingMetaString* meta;
 };

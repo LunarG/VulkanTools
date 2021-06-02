@@ -56,6 +56,8 @@ bool SettingMetaFilesystem::Equal(const SettingMeta& other) const {
 
 // SettingMetaFileLoad
 
+const SettingType SettingMetaFileLoad::TYPE(SETTING_LOAD_FILE);
+
 SettingMetaFileLoad::SettingMetaFileLoad(Layer& layer, const std::string& key) : SettingMetaFilesystem(layer, key, TYPE) {}
 
 SettingData* SettingMetaFileLoad::Instantiate() {
@@ -73,6 +75,8 @@ void SettingDataFileLoad::Reset() { this->value = this->meta->default_value; }
 
 // SettingMetaFileSave
 
+const SettingType SettingMetaFileSave::TYPE(SETTING_SAVE_FILE);
+
 SettingMetaFileSave::SettingMetaFileSave(Layer& layer, const std::string& key) : SettingMetaFilesystem(layer, key, TYPE) {}
 
 SettingData* SettingMetaFileSave::Instantiate() {
@@ -89,6 +93,8 @@ SettingDataFileSave::SettingDataFileSave(const SettingMetaFileSave* meta) : Sett
 void SettingDataFileSave::Reset() { this->value = this->meta->default_value; }
 
 // SettingMetaFolderSave
+
+const SettingType SettingMetaFolderSave::TYPE(SETTING_SAVE_FOLDER);
 
 SettingMetaFolderSave::SettingMetaFolderSave(Layer& layer, const std::string& key) : SettingMetaFilesystem(layer, key, TYPE) {}
 

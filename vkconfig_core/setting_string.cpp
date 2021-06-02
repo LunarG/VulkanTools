@@ -23,6 +23,8 @@
 
 // SettingMetaString
 
+const SettingType SettingMetaString::TYPE = SETTING_STRING;
+
 SettingMetaString::SettingMetaString(Layer& layer, const std::string& key) : SettingMetaString(layer, key, TYPE) {}
 
 SettingMetaString::SettingMetaString(Layer& layer, const std::string& key, const SettingType& setting_type)

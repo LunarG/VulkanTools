@@ -36,7 +36,7 @@ struct SettingMetaFilesystem : public SettingMeta {
 };
 
 struct SettingMetaFileLoad : public SettingMetaFilesystem {
-    static const SettingType TYPE = SETTING_LOAD_FILE;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
 
@@ -56,7 +56,7 @@ struct SettingDataFileLoad : public SettingDataString {
 };
 
 struct SettingMetaFileSave : public SettingMetaFilesystem {
-    static const SettingType TYPE = SETTING_SAVE_FILE;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
 
@@ -76,7 +76,7 @@ struct SettingDataFileSave : public SettingDataString {
 };
 
 struct SettingMetaFolderSave : public SettingMetaFilesystem {
-    static const SettingType TYPE = SETTING_SAVE_FOLDER;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
 

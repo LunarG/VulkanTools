@@ -23,7 +23,7 @@
 #include "setting.h"
 
 struct SettingMetaList : public SettingMeta {
-    static const SettingType TYPE = SETTING_LIST;
+    static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
@@ -53,8 +53,8 @@ struct SettingDataList : public SettingData {
     std::vector<EnabledNumberOrString> value;
 
    protected:
-    virtual bool Equal(const SettingData& other) const;
-    virtual SettingData& Assign(const SettingData& other);
+    bool Equal(const SettingData& other) const override;
+    SettingData& Assign(const SettingData& other) override;
 
     const SettingMetaList* meta;
 };

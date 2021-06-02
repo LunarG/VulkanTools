@@ -23,6 +23,8 @@
 
 // SettingMetaBool
 
+const SettingType SettingMetaBool::TYPE(SETTING_BOOL);
+
 SettingMetaBool::SettingMetaBool(Layer& layer, const std::string& key) : SettingMetaBool(layer, key, TYPE) {}
 
 SettingMetaBool::SettingMetaBool(Layer& layer, const std::string& key, const SettingType type)
@@ -89,6 +91,8 @@ SettingData& SettingDataBool::Assign(const SettingData& other) {
 }
 
 // SettingMetaBoolNumeric
+
+const SettingType SettingMetaBoolNumeric::TYPE(SETTING_BOOL_NUMERIC_DEPRECATED);
 
 SettingMetaBoolNumeric::SettingMetaBoolNumeric(Layer& layer, const std::string& key) : SettingMetaBool(layer, key, TYPE) {}
 

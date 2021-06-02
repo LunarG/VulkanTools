@@ -23,11 +23,11 @@
 
 #include <gtest/gtest.h>
 
-static_assert(SettingMetaFlags::TYPE == SETTING_FLAGS, "Invalid type");
-
 inline SettingMetaFlags* InstantiateFlags(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaFlags*>(layer.Instantiate(key, SETTING_FLAGS));
 }
+
+TEST(test_setting_type_flags, init) { EXPECT_EQ(SETTING_FLAGS, SettingMetaFlags::TYPE); }
 
 TEST(test_setting_type_flags, meta_equal) {
     Layer layer;
