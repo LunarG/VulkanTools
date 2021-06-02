@@ -213,7 +213,7 @@ bool OverrideConfiguration(const Environment& environment, const std::vector<Lay
 
     // On Windows only, we need to write these values to the registry
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-    AppendRegistryEntriesForLayers(environment.running_as_administrator, layers_path.c_str(), settings_path.c_str());
+    AppendRegistryEntriesForLayers(layers_path.c_str(), settings_path.c_str());
 #endif
 
     return result_settings && result_layers;
@@ -231,7 +231,7 @@ bool SurrenderConfiguration(const Environment& environment) {
     const bool result_settings = EraseSettingsOverride(settings_path);
 
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-    RemoveRegistryEntriesForLayers(environment.running_as_administrator, layers_path.c_str(), settings_path.c_str());
+    RemoveRegistryEntriesForLayers(layers_path.c_str(), settings_path.c_str());
 #endif
 
     return result_layers && result_settings;

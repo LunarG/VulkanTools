@@ -22,10 +22,6 @@
 #include "platform.h"
 #include "util.h"
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-#include <shlobj.h>
-#endif
-
 #include <QSettings>
 #include <QMessageBox>
 #include <QCheckBox>
@@ -129,15 +125,8 @@ std::string GetLoaderDebugToken(LoaderMessageLevel level) {
 Environment::Environment(PathManager& paths, const Version& api_version)
     : api_version(api_version),
       loader_message_level(GetLoaderDebug(qgetenv("VK_LOADER_DEBUG").toStdString())),
-// Hack for GitHub C.I.
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS && (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-      running_as_administrator(IsUserAnAdmin()),
-#else
-      running_as_administrator(false),
-#endif
       paths_manager(paths),
       paths(paths_manager) {
-
     const bool result = Load();
     assert(result);
 }
