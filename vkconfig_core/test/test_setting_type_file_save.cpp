@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaFileSave::TYPE == SETTING_SAVE_FILE, "Invalid type");
+
 TEST(test_setting_type_file_save, meta_equal) {
     Layer layer;
 

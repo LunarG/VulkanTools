@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaInt::TYPE == SETTING_INT, "Invalid type");
+
 TEST(test_setting_type_int, meta_equal) {
     Layer layer;
 

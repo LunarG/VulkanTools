@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaGroup::TYPE == SETTING_GROUP, "Invalid type");
+
 TEST(test_setting_type_group, meta_equal) {
     Layer layer;
 

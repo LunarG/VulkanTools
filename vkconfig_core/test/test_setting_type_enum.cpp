@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaEnum::TYPE == SETTING_ENUM, "Invalid type");
+
 TEST(test_setting_type_enum, meta_equal) {
     Layer layer;
 

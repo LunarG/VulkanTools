@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaFlags::TYPE == SETTING_FLAGS, "Invalid type");
+
 TEST(test_setting_type_flags, meta_equal) {
     Layer layer;
 

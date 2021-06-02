@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+static_assert(SettingMetaBool::TYPE == SETTING_BOOL, "Invalid type");
+
 TEST(test_setting_type_bool, meta_equal) {
     Layer layer;
 
