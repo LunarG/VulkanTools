@@ -58,6 +58,31 @@ TEST(test_setting_type_enum, data_equal) {
     EXPECT_EQ(*data0, *data1);
 }
 
+TEST(test_setting_type_enum, value) {
+    Layer layer;
+
+    SettingMetaEnum* meta = InstantiateEnum(layer, "key");
+    meta->default_value = "A";
+    EXPECT_STREQ("A", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataEnum* dataA = Instantiate<SettingDataEnum>(meta);
+    EXPECT_EQ(dataA->value, meta->default_value);
+
+    EXPECT_STREQ("A", dataA->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A", dataA->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    meta->default_value = "B";
+    EXPECT_STREQ("B", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("B", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataEnum* dataB = Instantiate<SettingDataEnum>(meta);
+    EXPECT_EQ(dataB->value, meta->default_value);
+
+    EXPECT_STREQ("B", dataB->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("B", dataB->Export(EXPORT_MODE_OVERRIDE).c_str());
+}
+
 TEST(test_setting_type_enum, is_supported_enum_value_default) {
     SettingEnumValue value;
 

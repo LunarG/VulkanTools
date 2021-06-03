@@ -35,6 +35,13 @@ struct SettingMetaFilesystem : public SettingMeta {
     bool Equal(const SettingMeta& other) const override;
 };
 
+struct SettingDataFilesystem : public SettingDataString {
+    std::string Export(ExportMode export_mode) const override;
+
+   protected:
+    SettingDataFilesystem(const std::string& key, const SettingType& type);
+};
+
 struct SettingMetaFileLoad : public SettingMetaFilesystem {
     static const SettingType TYPE;
 
@@ -46,7 +53,7 @@ struct SettingMetaFileLoad : public SettingMetaFilesystem {
     friend class Layer;
 };
 
-struct SettingDataFileLoad : public SettingDataString {
+struct SettingDataFileLoad : public SettingDataFilesystem {
     SettingDataFileLoad(const SettingMetaFileLoad* meta);
 
     void Reset() override;
@@ -66,7 +73,7 @@ struct SettingMetaFileSave : public SettingMetaFilesystem {
     friend class Layer;
 };
 
-struct SettingDataFileSave : public SettingDataString {
+struct SettingDataFileSave : public SettingDataFilesystem {
     SettingDataFileSave(const SettingMetaFileSave* meta);
 
     void Reset() override;
@@ -86,7 +93,7 @@ struct SettingMetaFolderSave : public SettingMetaFilesystem {
     friend class Layer;
 };
 
-struct SettingDataFolderSave : public SettingDataString {
+struct SettingDataFolderSave : public SettingDataFilesystem {
     SettingDataFolderSave(const SettingMetaFolderSave* meta);
 
     void Reset() override;

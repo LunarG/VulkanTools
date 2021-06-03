@@ -68,6 +68,33 @@ TEST(test_setting_type_float, data_equal) {
     EXPECT_NE(*data0, *dataX);
 }
 
+TEST(test_setting_type_float, value) {
+    Layer layer;
+
+    SettingMetaFloat* meta = InstantiateFloat(layer, "key");
+    meta->precision = 2;
+    meta->width = 3;
+    meta->default_value = 1.75555555f;
+    EXPECT_STREQ("1.76", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("1.76", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataFloat* dataA = Instantiate<SettingDataFloat>(meta);
+    EXPECT_EQ(dataA->value, meta->default_value);
+
+    EXPECT_STREQ("1.76", dataA->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("1.76", dataA->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    meta->default_value = 1.72222222f;
+    EXPECT_STREQ("1.72", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("1.72", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataFloat* dataB = Instantiate<SettingDataFloat>(meta);
+    EXPECT_EQ(dataB->value, meta->default_value);
+
+    EXPECT_STREQ("1.72", dataB->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("1.72", dataB->Export(EXPORT_MODE_OVERRIDE).c_str());
+}
+
 TEST(test_setting_type_float, process_input_float_no_error) {
     Layer layer;
 

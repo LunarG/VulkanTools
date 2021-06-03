@@ -50,3 +50,45 @@ TEST(test_setting_type_list, data_equal) {
 
     EXPECT_EQ(*data0, *data1);
 }
+
+TEST(test_setting_type_list, value) {
+    EnabledNumberOrString A("A");
+    EnabledNumberOrString B("B");
+    B.enabled = true;
+    EnabledNumberOrString C("C");
+    C.enabled = false;
+
+    EnabledNumberOrString D("D");
+    EnabledNumberOrString E("E");
+    E.enabled = true;
+    EnabledNumberOrString F("F");
+    F.enabled = false;
+
+    Layer layer;
+
+    SettingMetaList* meta = InstantiateList(layer, "key");
+    meta->default_value.push_back(A);
+    meta->default_value.push_back(B);
+    meta->default_value.push_back(C);
+    EXPECT_STREQ("A,B", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A,B", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataList* dataA = Instantiate<SettingDataList>(meta);
+    EXPECT_EQ(dataA->value, meta->default_value);
+
+    EXPECT_STREQ("A,B", dataA->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A,B", dataA->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    meta->default_value.clear();
+    meta->default_value.push_back(D);
+    meta->default_value.push_back(E);
+    meta->default_value.push_back(F);
+    EXPECT_STREQ("D,E", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("D,E", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataList* dataC = Instantiate<SettingDataList>(meta);
+    EXPECT_EQ(dataC->value, meta->default_value);
+
+    EXPECT_STREQ("D,E", dataC->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("D,E", dataC->Export(EXPORT_MODE_OVERRIDE).c_str());
+}

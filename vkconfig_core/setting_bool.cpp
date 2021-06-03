@@ -55,10 +55,8 @@ bool SettingMetaBool::Equal(const SettingMeta& other) const {
 
 // SettingDataBool
 
-SettingDataBool::SettingDataBool(const SettingMetaBool* meta) : SettingData(meta->key, meta->type), value(false), meta(meta) {}
-
-SettingDataBool::SettingDataBool(const std::string& key, const SettingType& type)
-    : SettingData(key, type), value(false), meta(nullptr) {}
+SettingDataBool::SettingDataBool(const SettingMetaBool* meta)
+    : SettingData(meta->key, meta->type), value(meta->default_value), meta(meta) {}
 
 void SettingDataBool::Reset() { this->value = this->meta->default_value; }
 
@@ -105,8 +103,7 @@ std::string SettingMetaBoolNumeric::Export(ExportMode export_mode) const {
 
 // SettingDataBoolNumeric
 
-SettingDataBoolNumeric::SettingDataBoolNumeric(const SettingMetaBoolNumeric* meta)
-    : SettingDataBool(meta->key, meta->type), meta(meta) {}
+SettingDataBoolNumeric::SettingDataBoolNumeric(const SettingMetaBoolNumeric* meta) : SettingDataBool(meta) {}
 
 std::string SettingDataBoolNumeric::Export(ExportMode export_mode) const {
     (void)export_mode;

@@ -68,6 +68,31 @@ TEST(test_setting_type_string, data_equal) {
     EXPECT_NE(*data0, *dataX);
 }
 
+TEST(test_setting_type_string, value) {
+    Layer layer;
+
+    SettingMetaString* meta = InstantiateString(layer, "key");
+    meta->default_value = "A";
+    EXPECT_STREQ("A", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataString* dataA = Instantiate<SettingDataString>(meta);
+    EXPECT_EQ(dataA->value, meta->default_value);
+
+    EXPECT_STREQ("A", dataA->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A", dataA->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    meta->default_value = "B";
+    EXPECT_STREQ("B", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("B", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataString* dataB = Instantiate<SettingDataString>(meta);
+    EXPECT_EQ(dataB->value, meta->default_value);
+
+    EXPECT_STREQ("B", dataB->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("B", dataB->Export(EXPORT_MODE_OVERRIDE).c_str());
+}
+
 TEST(test_setting_type_string, is_supported_meta_default) {
     Layer layer;
 

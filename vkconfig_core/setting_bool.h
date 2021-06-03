@@ -55,8 +55,6 @@ struct SettingDataBool : public SettingData {
     bool value;
 
    protected:
-    SettingDataBool(const std::string& key, const SettingType& type);
-
     bool Equal(const SettingData& other) const override;
     SettingData& Assign(const SettingData& other) override;
 
@@ -77,6 +75,4 @@ struct SettingDataBoolNumeric : public SettingDataBool {
     SettingDataBoolNumeric(const SettingMetaBoolNumeric* meta);
 
     std::string Export(ExportMode export_mode) const override;
-
-    const SettingMetaBoolNumeric* meta;
 };

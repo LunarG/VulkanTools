@@ -54,6 +54,22 @@ bool SettingMetaFilesystem::Equal(const SettingMeta& other) const {
     return this->default_value == meta.default_value && this->filter == meta.filter;
 }
 
+// SettingDataFilesystem
+
+SettingDataFilesystem::SettingDataFilesystem(const std::string& key, const SettingType& type) : SettingDataString(key, type) {}
+
+std::string SettingDataFilesystem::Export(ExportMode export_mode) const {
+    switch (export_mode) {
+        default:
+            assert(0);
+            return "";
+        case EXPORT_MODE_OVERRIDE:
+            return ReplaceBuiltInVariable(this->value).c_str();
+        case EXPORT_MODE_DOC:
+            return this->value;
+    }
+}
+
 // SettingMetaFileLoad
 
 const SettingType SettingMetaFileLoad::TYPE(SETTING_LOAD_FILE);
@@ -69,7 +85,8 @@ SettingData* SettingMetaFileLoad::Instantiate() {
 
 // SettingDataFileLoad
 
-SettingDataFileLoad::SettingDataFileLoad(const SettingMetaFileLoad* meta) : SettingDataString(meta->key, meta->type), meta(meta) {}
+SettingDataFileLoad::SettingDataFileLoad(const SettingMetaFileLoad* meta)
+    : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
 
 void SettingDataFileLoad::Reset() { this->value = this->meta->default_value; }
 
@@ -88,7 +105,8 @@ SettingData* SettingMetaFileSave::Instantiate() {
 
 // SettingDataFileSave
 
-SettingDataFileSave::SettingDataFileSave(const SettingMetaFileSave* meta) : SettingDataString(meta->key, meta->type), meta(meta) {}
+SettingDataFileSave::SettingDataFileSave(const SettingMetaFileSave* meta)
+    : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
 
 void SettingDataFileSave::Reset() { this->value = this->meta->default_value; }
 
@@ -108,6 +126,6 @@ SettingData* SettingMetaFolderSave::Instantiate() {
 // SettingDataFolderSave
 
 SettingDataFolderSave::SettingDataFolderSave(const SettingMetaFolderSave* meta)
-    : SettingDataString(meta->key, meta->type), meta(meta) {}
+    : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
 
 void SettingDataFolderSave::Reset() { this->value = this->meta->default_value; }
