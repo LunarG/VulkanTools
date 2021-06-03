@@ -94,3 +94,31 @@ TEST(test_setting_type_flags, data_equal) {
     data1->value = valueY;
     EXPECT_NE(*data0, *data1);
 }
+
+TEST(test_setting_type_flags, value) {
+    Layer layer;
+
+    SettingMetaFlags* meta = InstantiateFlags(layer, "key");
+    meta->default_value.push_back("A");
+    meta->default_value.push_back("B");
+    EXPECT_STREQ("A,B", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A,B", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataFlags* dataA = Instantiate<SettingDataFlags>(meta);
+    EXPECT_EQ(dataA->value, meta->default_value);
+
+    EXPECT_STREQ("A,B", dataA->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("A,B", dataA->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    meta->default_value.clear();
+    meta->default_value.push_back("C");
+    meta->default_value.push_back("D");
+    EXPECT_STREQ("C,D", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("C,D", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataFlags* dataC = Instantiate<SettingDataFlags>(meta);
+    EXPECT_EQ(dataC->value, meta->default_value);
+
+    EXPECT_STREQ("C,D", dataC->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("C,D", dataC->Export(EXPORT_MODE_OVERRIDE).c_str());
+}

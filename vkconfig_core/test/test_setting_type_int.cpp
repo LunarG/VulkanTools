@@ -67,3 +67,27 @@ TEST(test_setting_type_int, data_equal) {
 
     EXPECT_NE(*data0, *dataX);
 }
+
+TEST(test_setting_type_int, value) {
+    Layer layer;
+
+    SettingMetaInt* meta = InstantiateInt(layer, "key");
+    EXPECT_STREQ("0", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("0", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataInt* dataA = Instantiate<SettingDataInt>(meta);
+    EXPECT_EQ(dataA->value, meta->default_value);
+
+    EXPECT_STREQ("0", dataA->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("0", dataA->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    meta->default_value = 176;
+    EXPECT_STREQ("176", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("176", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataInt* dataB = Instantiate<SettingDataInt>(meta);
+    EXPECT_EQ(dataB->value, meta->default_value);
+
+    EXPECT_STREQ("176", dataB->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("176", dataB->Export(EXPORT_MODE_OVERRIDE).c_str());
+}

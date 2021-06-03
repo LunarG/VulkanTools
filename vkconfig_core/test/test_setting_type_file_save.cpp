@@ -61,3 +61,14 @@ TEST(test_setting_type_file_save, data_equal) {
     data1->value = "value";
     EXPECT_EQ(*data0, *data1);
 }
+
+TEST(test_setting_type_file_save, value) {
+    Layer layer;
+
+    SettingMetaFileSave* meta = InstantiateFileSave(layer, "key");
+
+    SettingDataFileSave* data = Instantiate<SettingDataFileSave>(meta);
+    data->value = "${VULKAN_CONTENT}/value";
+    EXPECT_STREQ("${VULKAN_CONTENT}/value", data->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STRNE("${VULKAN_CONTENT}/value", data->Export(EXPORT_MODE_OVERRIDE).c_str());
+}

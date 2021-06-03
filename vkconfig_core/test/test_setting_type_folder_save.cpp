@@ -61,3 +61,16 @@ TEST(test_setting_type_folder_save, data_equal) {
     data1->value = "value";
     EXPECT_EQ(*data0, *data1);
 }
+
+TEST(test_setting_type_folder_save, value) {
+    Layer layer;
+
+    SettingMetaFolderSave* meta = InstantiateFolderSave(layer, "key");
+    meta->default_value = "${VULKAN_CONTENT}/value";
+    EXPECT_STREQ("${VULKAN_CONTENT}/value", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STRNE("${VULKAN_CONTENT}/value", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+
+    SettingDataFolderSave* data = Instantiate<SettingDataFolderSave>(meta);
+    EXPECT_STREQ("${VULKAN_CONTENT}/value", data->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STRNE("${VULKAN_CONTENT}/value", data->Export(EXPORT_MODE_OVERRIDE).c_str());
+}
