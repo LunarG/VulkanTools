@@ -25,20 +25,33 @@
 
 #include <QFileDialog>
 
-CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths) {
+CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths), need_reload(false) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     ui->treeWidget->headerItem()->setText(0, "User-Defined Layers Paths");
 
-    RepopulateTree();
+    this->RepopulateTree();
 
     Configurator &configurator = Configurator::Get();
     ui->buttonBox->setEnabled(!configurator.layers.Empty());
     configurator.request_vulkan_status = true;
 }
 
-CustomPathsDialog::~CustomPathsDialog() {}
+CustomPathsDialog::~CustomPathsDialog() {
+    if (this->need_reload) {
+        this->Reload();
+    }
+}
+
+void CustomPathsDialog::Reload() {
+    Configurator &configurator = Configurator::Get();
+    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+
+    configurator.layers.LoadAllInstalledLayers();
+    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+}
 
 // Load the tree widget with the current list
 void CustomPathsDialog::RepopulateTree() {
@@ -85,15 +98,14 @@ void CustomPathsDialog::on_pushButtonAdd_clicked() {
 
     if (!custom_path.empty()) {
         if (configurator.environment.AppendCustomLayerPath(custom_path)) {
-            configurator.layers.LoadAllInstalledLayers();
-            configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+            this->need_reload = true;
         }
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, custom_path.c_str());
         ui->treeWidget->addTopLevelItem(item);
 
-        RepopulateTree();
+        this->RepopulateTree();
     }
 
     ui->buttonBox->setEnabled(!configurator.layers.Empty());
@@ -117,12 +129,11 @@ void CustomPathsDialog::on_pushButtonRemove_clicked() {
 
     // Now actually remove it.
     if (configurator.environment.RemoveCustomLayerPath(selected->text(0).toStdString())) {
-        configurator.layers.LoadAllInstalledLayers();
-        configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+        this->need_reload = true;
     }
 
     // Update GUI and save
-    RepopulateTree();
+    this->RepopulateTree();
 
     // Nothing is selected, so disable remove button
     ui->buttonBox->setEnabled(!configurator.layers.Empty());

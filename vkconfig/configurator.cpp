@@ -76,9 +76,6 @@ bool Configurator::Init() {
 
         CustomPathsDialog dlg;
         dlg.exec();
-
-        // Give it one more chance... If there are still no layers, bail
-        layers.LoadAllInstalledLayers();
     }
 
     if (!has_layers) {
@@ -132,8 +129,6 @@ bool Configurator::Init() {
                 if (alert.exec() == QMessageBox::Yes) {
                     CustomPathsDialog dlg;
                     dlg.exec();
-
-                    layers.LoadAllInstalledLayers();
                 }
                 if (alert.checkBox()->isChecked()) {
                     settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", true);
