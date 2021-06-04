@@ -27,6 +27,7 @@
 - Update built-in VUIDs to the list included in SDK 1.2.176 #1511
 - Refactor the layer window to expose more layer documentation #1519
 - Add shader caching setting to validation built-in UI #1522
+- Improve user-defined paths dialog and workflow #1523
 
 ## [Vulkan Configurator 2.3.0 for Vulkan SDK 1.2.176.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - Mai 2021
 
