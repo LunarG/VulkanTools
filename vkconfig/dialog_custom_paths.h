@@ -42,6 +42,8 @@ class CustomPathsDialog : public QDialog {
     CustomPathsDialog &operator=(const CustomPathsDialog &) = delete;
 
     void RepopulateTree();
+    void Reload();
 
     std::unique_ptr<Ui::dialog_custom_paths> ui;
+    bool need_reload;
 };

@@ -732,11 +732,8 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     LayersDialog dlg(this, *configuration);
     dlg.exec();
 
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration->key);
     LoadConfigurationList();
-
     RestoreLastItem();
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 // When changes are made to the layer list, it forces a reload
