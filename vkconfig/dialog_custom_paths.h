@@ -24,18 +24,20 @@
 #include "ui_dialog_custom_paths.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 class UserDefinedPathsDialog : public QDialog {
     Q_OBJECT
 
    public:
     explicit UserDefinedPathsDialog(QWidget *parent = nullptr);
-    ~UserDefinedPathsDialog();
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();
     void on_pushButtonRemove_clicked();
     void on_treeWidget_itemSelectionChanged();
+    void on_buttonBox_clicked();
 
    private:
     UserDefinedPathsDialog(const UserDefinedPathsDialog &) = delete;
@@ -43,7 +45,9 @@ class UserDefinedPathsDialog : public QDialog {
 
     void RepopulateTree();
     void Reload();
+    void SaveLayersPaths(const std::vector<std::string> &layers_paths);
 
     std::unique_ptr<Ui::dialog_custom_paths> ui;
-    bool need_reload;
+    std::vector<std::string> layers_paths;
+    std::vector<std::string> layers_paths_saved;
 };

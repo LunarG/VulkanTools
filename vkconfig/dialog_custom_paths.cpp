@@ -25,22 +25,16 @@
 
 #include <QFileDialog>
 
-UserDefinedPathsDialog::UserDefinedPathsDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::dialog_custom_paths), need_reload(false) {
+UserDefinedPathsDialog::UserDefinedPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    Configurator &configurator = Configurator::Get();
+    this->layers_paths_saved = this->layers_paths =
+        configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
     this->RepopulateTree();
 
-    Configurator &configurator = Configurator::Get();
     ui->buttonBox->setEnabled(!configurator.layers.Empty());
-    configurator.request_vulkan_status = true;
-}
-
-UserDefinedPathsDialog::~UserDefinedPathsDialog() {
-    if (this->need_reload) {
-        this->Reload();
-    }
 }
 
 void UserDefinedPathsDialog::Reload() {
@@ -50,6 +44,16 @@ void UserDefinedPathsDialog::Reload() {
     configurator.layers.LoadAllInstalledLayers();
     configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.request_vulkan_status = true;
+}
+
+void UserDefinedPathsDialog::SaveLayersPaths(const std::vector<std::string> &layers_paths) {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.ClearCustomLayerPath();
+
+    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
+        configurator.environment.AppendCustomLayerPath(layers_paths[i]);
+    }
 }
 
 // Load the tree widget with the current list
@@ -65,38 +69,34 @@ void UserDefinedPathsDialog::RepopulateTree() {
     // present in the folder (because they may not be used). We have to list the custom layer paths
     // and then look for layers that are already loaded that are from that path.
 
-    const std::vector<std::string> &layers_paths =
-        configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+    for (std::size_t custom_path_index = 0, count = this->layers_paths.size(); custom_path_index < count; ++custom_path_index) {
+        const std::string user_defined_path(ConvertNativeSeparators(this->layers_paths[custom_path_index]));
 
-    if (layers_paths.empty()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, "None");
         ui->treeWidget->addTopLevelItem(item);
-    } else {
-        for (std::size_t custom_path_index = 0, count = layers_paths.size(); custom_path_index < count; ++custom_path_index) {
-            const std::string user_defined_path(ConvertNativeSeparators(layers_paths[custom_path_index]));
+        item->setText(0, user_defined_path.c_str());
+        item->setExpanded(true);
 
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            ui->treeWidget->addTopLevelItem(item);
-            item->setText(0, user_defined_path.c_str());
-            item->setExpanded(true);
+        // Look for layers that are loaded that are also from this folder
+        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; ++i) {
+            const Layer &layer = configurator.layers.available_layers[i];
 
-            // Look for layers that are loaded that are also from this folder
-            for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; i++) {
-                const Layer &layer = configurator.layers.available_layers[i];
-
-                const QFileInfo file_info(layer.manifest_path.c_str());
-                const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
-                if (path != user_defined_path) {
-                    continue;
-                }
-
-                QTreeWidgetItem *child = new QTreeWidgetItem();
-                child->setText(0, layer.key.c_str());
-                item->addChild(child);
+            const QFileInfo file_info(layer.manifest_path.c_str());
+            const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
+            if (path != user_defined_path) {
+                continue;
             }
+
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0, layer.key.c_str());
+            item->addChild(child);
         }
     }
+}
+
+void UserDefinedPathsDialog::on_buttonBox_clicked() {
+    this->SaveLayersPaths(layers_paths);
+    this->Reload();
 }
 
 void UserDefinedPathsDialog::on_pushButtonAdd_clicked() {
@@ -104,15 +104,19 @@ void UserDefinedPathsDialog::on_pushButtonAdd_clicked() {
     const std::string custom_path = configurator.path.SelectPath(this, PATH_USER_DEFINED_LAYERS_GUI);
 
     if (!custom_path.empty()) {
-        if (configurator.environment.AppendCustomLayerPath(custom_path)) {
-            this->need_reload = true;
+        if (std::find(layers_paths.begin(), layers_paths.end(), custom_path) == layers_paths.end()) {
+            this->layers_paths.push_back(custom_path);
+
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(0, custom_path.c_str());
+            ui->treeWidget->addTopLevelItem(item);
+
+            this->Reload();
+            this->RepopulateTree();
+
+            this->SaveLayersPaths(this->layers_paths_saved);
+            this->Reload();
         }
-
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, custom_path.c_str());
-        ui->treeWidget->addTopLevelItem(item);
-
-        this->RepopulateTree();
     }
 
     ui->buttonBox->setEnabled(!configurator.layers.Empty());
@@ -132,16 +136,14 @@ void UserDefinedPathsDialog::on_pushButtonRemove_clicked() {
 
     while (selected->parent() != nullptr) selected = selected->parent();
 
-    Configurator &configurator = Configurator::Get();
+    RemoveString(this->layers_paths, selected->text(0).toStdString());
 
-    // Now actually remove it.
-    if (configurator.environment.RemoveCustomLayerPath(selected->text(0).toStdString())) {
-        this->need_reload = true;
-    }
-
-    // Update GUI and save
     this->RepopulateTree();
+    this->Reload();
+
+    this->SaveLayersPaths(this->layers_paths_saved);
+    this->Reload();
 
     // Nothing is selected, so disable remove button
-    ui->buttonBox->setEnabled(!configurator.layers.Empty());
+    ui->buttonBox->setEnabled(!Configurator::Get().layers.Empty());
 }
