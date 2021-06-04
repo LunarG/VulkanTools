@@ -201,10 +201,3 @@ bool SettingDataFlags::Equal(const SettingData& other) const {
 
     return true;
 }
-
-SettingData& SettingDataFlags::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-
-    this->value = static_cast<const SettingDataFlags&>(other).value;
-    return *this;
-}

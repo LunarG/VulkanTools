@@ -120,10 +120,3 @@ bool SettingDataInt::Equal(const SettingData& other) const {
 
     return this->value == static_cast<const SettingDataInt&>(other).value;
 }
-
-SettingData& SettingDataInt::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-
-    this->value = static_cast<const SettingDataInt&>(other).value;
-    return *this;
-}

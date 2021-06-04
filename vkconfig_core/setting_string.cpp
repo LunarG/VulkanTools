@@ -93,10 +93,3 @@ bool SettingDataString::Equal(const SettingData& other) const {
 
     return this->value == static_cast<const SettingDataString&>(other).value;
 }
-
-SettingData& SettingDataString::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-
-    this->value = static_cast<const SettingDataString&>(other).value;
-    return *this;
-}

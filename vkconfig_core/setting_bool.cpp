@@ -81,13 +81,6 @@ bool SettingDataBool::Equal(const SettingData& other) const {
     return this->value == static_cast<const SettingDataBool&>(other).value;
 }
 
-SettingData& SettingDataBool::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-
-    this->value = static_cast<const SettingDataBool&>(other).value;
-    return *this;
-}
-
 // SettingMetaBoolNumeric
 
 const SettingType SettingMetaBoolNumeric::TYPE(SETTING_BOOL_NUMERIC_DEPRECATED);

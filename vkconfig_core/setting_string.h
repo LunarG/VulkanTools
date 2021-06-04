@@ -57,7 +57,6 @@ struct SettingDataString : public SettingData {
     SettingDataString(const std::string& key, const SettingType& type);
 
     bool Equal(const SettingData& other) const override;
-    SettingData& Assign(const SettingData& other) override;
 
     const SettingMetaString* meta;
 };

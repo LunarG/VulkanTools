@@ -70,5 +70,5 @@ class WidgetSettingList : public WidgetSettingBase {
     QSize size;
 
     std::vector<NumberOrString> list;
-    SettingDataList data_cached;
+    std::vector<EnabledNumberOrString> value_cached;
 };

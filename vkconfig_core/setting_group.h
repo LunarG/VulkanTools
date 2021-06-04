@@ -44,7 +44,5 @@ struct SettingDataGroup : public SettingData {
     std::string Export(ExportMode export_mode) const override;
 
    protected:
-    SettingData& Assign(const SettingData& other) override;
-
     const SettingMetaGroup* meta;
 };
