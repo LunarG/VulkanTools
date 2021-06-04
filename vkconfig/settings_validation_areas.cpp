@@ -39,6 +39,7 @@ static const char *TOKEN_CORE_QUERY = "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION
 static const char *TOKEN_CORE_DESC = "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET";
 static const char *TOKEN_CORE_SHADER = "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT";
 static const char *TOKEN_CORE_PUSH = "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE";
+static const char *TOKEN_CORE_CACHING = "VALIDATION_FEATURE_DISABLE_SHADER_VALIDATION_CACHING_EXT";
 
 static const char *TOKEN_MISC_THREAD = "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT";
 static const char *TOKEN_MISC_UNIQUE = "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT";
@@ -169,8 +170,14 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                 this->connect(this->widget_core_desc, SIGNAL(clicked(bool)), this, SLOT(OnCoreDescChecked(bool)));
 
             this->widget_core_shader = this->CreateWidget(this->item_core, &this->item_core_shader, "disables", TOKEN_CORE_SHADER);
-            if (this->widget_core_shader != nullptr)
+            if (this->widget_core_shader != nullptr) {
                 this->connect(this->widget_core_shader, SIGNAL(clicked(bool)), this, SLOT(OnCoreShaderChecked(bool)));
+
+                this->widget_core_caching =
+                    this->CreateWidget(this->item_core_shader, &this->item_core_caching, "disables", TOKEN_CORE_CACHING);
+                if (this->widget_core_caching != nullptr)
+                    this->connect(this->widget_core_caching, SIGNAL(clicked(bool)), this, SLOT(OnCoreCachingChecked(bool)));
+            }
 
             this->widget_core_push = this->CreateWidget(this->item_core, &this->item_core_push, "disables", TOKEN_CORE_PUSH);
             if (this->widget_core_push != nullptr)
@@ -343,6 +350,7 @@ void WidgetSettingValidation::OnCoreChecked(bool checked) {
         this->UpdateFlag("disables", TOKEN_CORE_DESC, false);
         this->UpdateFlag("disables", TOKEN_CORE_SHADER, false);
         this->UpdateFlag("disables", TOKEN_CORE_PUSH, false);
+        this->UpdateFlag("disables", TOKEN_CORE_CACHING, false);
     }
 
     if (widget_core_layout != nullptr) {
@@ -362,6 +370,9 @@ void WidgetSettingValidation::OnCoreChecked(bool checked) {
     }
     if (widget_core_shader != nullptr) {
         widget_core_shader->setChecked(!HasDataFlag("disables", TOKEN_CORE_SHADER));
+        if (widget_core_caching != nullptr) {
+            widget_core_caching->setChecked(!HasDataFlag("disables", TOKEN_CORE_CACHING));
+        }
     }
     if (widget_core_push != nullptr) {
         widget_core_push->setChecked(!HasDataFlag("disables", TOKEN_CORE_PUSH));
@@ -402,6 +413,11 @@ void WidgetSettingValidation::OnCoreShaderChecked(bool checked) {
 
 void WidgetSettingValidation::OnCorePushChecked(bool checked) {
     this->UpdateFlag("disables", TOKEN_CORE_PUSH, !checked);
+    this->OnSettingChanged();
+}
+
+void WidgetSettingValidation::OnCoreCachingChecked(bool checked) {
+    this->UpdateFlag("disables", TOKEN_CORE_CACHING, !checked);
     this->OnSettingChanged();
 }
 
@@ -564,7 +580,9 @@ bool WidgetSettingValidation::HasDataBool(const char *key) const {
 }
 
 bool WidgetSettingValidation::HasDataFlag(const char *key, const char *flag) const {
-    return IsStringFound(static_cast<const SettingDataFlags *>(FindSetting(this->data_set, key))->value, key);
+    const SettingDataFlags *data = static_cast<const SettingDataFlags *>(FindSetting(this->data_set, key));
+
+    return IsStringFound(data->value, flag);
 }
 
 const SettingEnumValue *WidgetSettingValidation::GetMetaFlag(const char *key, const char *flag) const {
@@ -609,8 +627,16 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
 
     if (this->widget_core_shader != nullptr) {
         this->widget_core_shader->setEnabled(core_enabled);
-        if (refresh_areas == REFRESH_ENABLE_AND_STATE)
-            this->widget_core_shader->setChecked(!HasDataFlag("disables", TOKEN_CORE_SHADER));
+
+        const bool shader_enabled = !HasDataFlag("disables", TOKEN_CORE_SHADER);
+
+        if (refresh_areas == REFRESH_ENABLE_AND_STATE) this->widget_core_shader->setChecked(shader_enabled);
+
+        if (this->widget_core_caching != nullptr) {
+            this->widget_core_caching->setEnabled(core_enabled && shader_enabled);
+            if (refresh_areas == REFRESH_ENABLE_AND_STATE)
+                this->widget_core_caching->setChecked(!HasDataFlag("disables", TOKEN_CORE_CACHING));
+        }
     }
 
     if (this->widget_core_push != nullptr) {

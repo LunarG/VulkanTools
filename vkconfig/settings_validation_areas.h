@@ -66,6 +66,9 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_core_push;
     QCheckBox *widget_core_push;
 
+    QTreeWidgetItem *item_core_caching;
+    QCheckBox *widget_core_caching;
+
     QTreeWidgetItem *item_misc_thread;
     QCheckBox *widget_misc_thread;
 
@@ -123,6 +126,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     void OnCoreDescChecked(bool checked);
     void OnCoreShaderChecked(bool checked);
     void OnCorePushChecked(bool checked);
+    void OnCoreCachingChecked(bool checked);
 
     void OnMiscThreadChecked(bool checked);
     void OnMiscUniqueChecked(bool checked);
