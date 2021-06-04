@@ -34,6 +34,12 @@
        <pointsize>10</pointsize>
       </font>
      </property>
+     <property name="columnCount">
+      <number>1</number>
+     </property>
+     <attribute name="headerVisible">
+      <bool>false</bool>
+     </attribute>
      <column>
       <property name="text">
        <string notr="true">1</string>
@@ -52,6 +58,7 @@
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>

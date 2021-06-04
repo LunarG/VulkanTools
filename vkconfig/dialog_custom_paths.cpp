@@ -25,11 +25,10 @@
 
 #include <QFileDialog>
 
-CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths), need_reload(false) {
+UserDefinedPathsDialog::UserDefinedPathsDialog(QWidget *parent)
+    : QDialog(parent), ui(new Ui::dialog_custom_paths), need_reload(false) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
-    ui->treeWidget->headerItem()->setText(0, "User-Defined Layers Paths");
 
     this->RepopulateTree();
 
@@ -38,13 +37,13 @@ CustomPathsDialog::CustomPathsDialog(QWidget *parent) : QDialog(parent), ui(new 
     configurator.request_vulkan_status = true;
 }
 
-CustomPathsDialog::~CustomPathsDialog() {
+UserDefinedPathsDialog::~UserDefinedPathsDialog() {
     if (this->need_reload) {
         this->Reload();
     }
 }
 
-void CustomPathsDialog::Reload() {
+void UserDefinedPathsDialog::Reload() {
     Configurator &configurator = Configurator::Get();
     configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
 
@@ -54,7 +53,7 @@ void CustomPathsDialog::Reload() {
 }
 
 // Load the tree widget with the current list
-void CustomPathsDialog::RepopulateTree() {
+void UserDefinedPathsDialog::RepopulateTree() {
     Configurator &configurator = Configurator::Get();
 
     // Populate the tree
@@ -65,34 +64,42 @@ void CustomPathsDialog::RepopulateTree() {
     // layers are used on a first occurance basis. So we can't just show the layers that are
     // present in the folder (because they may not be used). We have to list the custom layer paths
     // and then look for layers that are already loaded that are from that path.
-    const std::vector<std::string> &user_defined_layers_paths =
+
+    const std::vector<std::string> &layers_paths =
         configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
 
-    for (std::size_t custom_path_index = 0, n = user_defined_layers_paths.size(); custom_path_index < n; ++custom_path_index) {
-        // Custom path is the parent tree item
-        const std::string user_defined_path(ConvertNativeSeparators(user_defined_layers_paths[custom_path_index]));
-
+    if (layers_paths.empty()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, user_defined_path.c_str());
+        item->setText(0, "None");
         ui->treeWidget->addTopLevelItem(item);
+    } else {
+        for (std::size_t custom_path_index = 0, count = layers_paths.size(); custom_path_index < count; ++custom_path_index) {
+            const std::string user_defined_path(ConvertNativeSeparators(layers_paths[custom_path_index]));
 
-        // Look for layers that are loaded that are also from this folder
-        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; i++) {
-            const Layer &layer = configurator.layers.available_layers[i];
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            ui->treeWidget->addTopLevelItem(item);
+            item->setText(0, user_defined_path.c_str());
+            item->setExpanded(true);
 
-            const QFileInfo file_info(layer.manifest_path.c_str());
-            const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
-            if (path != user_defined_path) continue;
+            // Look for layers that are loaded that are also from this folder
+            for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; i++) {
+                const Layer &layer = configurator.layers.available_layers[i];
 
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, layer.key.c_str());
-            item->addChild(child);
+                const QFileInfo file_info(layer.manifest_path.c_str());
+                const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
+                if (path != user_defined_path) {
+                    continue;
+                }
+
+                QTreeWidgetItem *child = new QTreeWidgetItem();
+                child->setText(0, layer.key.c_str());
+                item->addChild(child);
+            }
         }
-        item->setExpanded(true);
     }
 }
 
-void CustomPathsDialog::on_pushButtonAdd_clicked() {
+void UserDefinedPathsDialog::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();
     const std::string custom_path = configurator.path.SelectPath(this, PATH_USER_DEFINED_LAYERS_GUI);
 
@@ -112,10 +119,10 @@ void CustomPathsDialog::on_pushButtonAdd_clicked() {
 }
 
 /// Don't make remove button accessable unless an item has been selected
-void CustomPathsDialog::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
+void UserDefinedPathsDialog::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
 
 /// Remove the selected user-defined search path
-void CustomPathsDialog::on_pushButtonRemove_clicked() {
+void UserDefinedPathsDialog::on_pushButtonRemove_clicked() {
     // Which one is selected? We need the top item too
     QTreeWidgetItem *selected = ui->treeWidget->currentItem();
     if (selected == nullptr) {

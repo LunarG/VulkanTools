@@ -191,7 +191,8 @@ void MainWindow::UpdateUI() {
     }
 
     // Update settings
-    ui->push_button_select_configuration->setEnabled(environment.UseOverride() && !active_contiguration_name.empty());
+    ui->push_button_select_layers->setEnabled(environment.UseOverride() && !active_contiguration_name.empty());
+    ui->push_button_find_layers->setEnabled(environment.UseOverride() && !active_contiguration_name.empty());
     ui->settings_tree->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->group_box_settings->setTitle(active_contiguration_name.empty() ? "Configuration Settings"
                                                                        : (active_contiguration_name + " Settings").c_str());
@@ -718,7 +719,7 @@ void MainWindow::on_push_button_applications_clicked() {
     UpdateUI();
 }
 
-void MainWindow::on_push_button_select_configuration_clicked() {
+void MainWindow::on_push_button_select_layers_clicked() {
     ConfigurationListItem *item = SaveLastItem();
     if (item == nullptr) return;
 
@@ -733,8 +734,11 @@ void MainWindow::on_push_button_select_configuration_clicked() {
     dlg.exec();
 
     LoadConfigurationList();
-    RestoreLastItem();
+
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
+
+void MainWindow::on_push_button_find_layers_clicked() { this->FindLayerPaths(); }
 
 // When changes are made to the layer list, it forces a reload
 // of the configuration list. This wipes everything out, so we
@@ -772,7 +776,7 @@ bool MainWindow::RestoreLastItem(const char *configuration_override) {
 
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
-void MainWindow::addCustomPaths() {
+void MainWindow::FindLayerPaths() {
     // SaveLastItem();
     // Get the tree state and clear it.
     // This looks better aesthetically after the dialog
@@ -780,11 +784,12 @@ void MainWindow::addCustomPaths() {
     // configs and it will cause a crash.
     _settings_tree_manager.CleanupGUI();
 
-    CustomPathsDialog dlg(this);
+    UserDefinedPathsDialog dlg(this);
     dlg.exec();
 
     LoadConfigurationList();  // Force a reload
-    RestoreLastItem();
+
+    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 // Edit the layers for the given configuration.
@@ -987,12 +992,12 @@ void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
 
 void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
     (void)item;
-    addCustomPaths();
+    FindLayerPaths();
 }
 
 void MainWindow::toolsSetCustomPaths(bool checked) {
     (void)checked;
-    addCustomPaths();
+    FindLayerPaths();
 }
 
 void MainWindow::editorExpanded(QTreeWidgetItem *item) {
