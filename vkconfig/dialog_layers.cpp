@@ -203,7 +203,7 @@ void LayersDialog::OnLayerTreeSortedClicked(QTreeWidgetItem *item, int column) {
     TreeWidgetItemParameter *selected_sorted_item = dynamic_cast<TreeWidgetItemParameter *>(item);
     assert(selected_sorted_item);
 
-    selected_available_layer_name = selected_sorted_layer_name = selected_sorted_item->layer_name;
+    this->selected_available_layer_name = this->selected_sorted_layer_name = selected_sorted_item->layer_name;
 
     UpdateUI();
 }
@@ -364,8 +364,11 @@ void LayersDialog::on_button_reset_clicked() {
 }
 
 void LayersDialog::on_button_paths_clicked() {
-    CustomPathsDialog dlg(this);
+    UserDefinedPathsDialog dlg(this);
     dlg.exec();
+
+    Configurator &configurator = Configurator::Get();
+    this->configuration.Reset(configurator.layers.available_layers, configurator.path);
 
     BuildParameters();
     LoadAvailableLayersUI();
@@ -383,14 +386,13 @@ void LayersDialog::OverrideOrder(const std::string layer_name, const TreeWidgetI
     Parameter *above_parameter = FindByKey(configuration.parameters, above->layer_name.c_str());
     assert(above_parameter != nullptr);
 
-    selected_sorted_layer_name = selected_available_layer_name = layer_name;
+    this->selected_sorted_layer_name = this->selected_available_layer_name = layer_name;
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
 
     OrderParameter(configuration.parameters, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
-
     UpdateUI();
 }
 
@@ -424,13 +426,13 @@ void LayersDialog::currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem
     TreeWidgetItemParameter *layer_item = dynamic_cast<TreeWidgetItemParameter *>(current);
 
     if (layer_item == nullptr) {
-        selected_available_layer_name.clear();
+        this->selected_available_layer_name.clear();
         return;
     }
 
     assert(!layer_item->layer_name.empty());
 
-    selected_available_layer_name = layer_item->layer_name.c_str();
+    this->selected_available_layer_name = layer_item->layer_name.c_str();
 
     ui->button_reset->setEnabled(true);
     this->UpdateButtons();
@@ -454,7 +456,7 @@ void LayersDialog::UpdateButtons() {
 }
 
 void LayersDialog::OverrideAllExplicitLayers() {
-    for (auto it = configuration.parameters.begin(); it != configuration.parameters.end(); ++it) {
+    for (auto it = this->configuration.parameters.begin(); it != this->configuration.parameters.end(); ++it) {
         if (it->state != LAYER_STATE_APPLICATION_CONTROLLED) continue;
 
         Configurator &configurator = Configurator::Get();
@@ -523,7 +525,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     current_parameter->state = layer_state;
     current_parameter->overridden_rank = Parameter::NO_RANK;
 
-    OrderParameter(configuration.parameters, Configurator::Get().layers.available_layers);
+    OrderParameter(this->configuration.parameters, Configurator::Get().layers.available_layers);
 
     ui->button_reset->setEnabled(true);
 
@@ -544,20 +546,21 @@ void LayersDialog::accept() {
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configuration.key != ui->lineEditName->text().toStdString() &&
+    if (this->configuration.key != ui->lineEditName->text().toStdString() &&
         IsFound(configurator.configurations.available_configurations, ui->lineEditName->text().toStdString().c_str())) {
         Alert::ConfigurationRenamingFailed();
         return;
     }
 
-    Configuration *saved_configuration = FindByKey(configurator.configurations.available_configurations, configuration.key.c_str());
+    Configuration *saved_configuration =
+        FindByKey(configurator.configurations.available_configurations, this->configuration.key.c_str());
     assert(saved_configuration != nullptr);
 
-    FilterParameters(configuration.parameters, LAYER_STATE_APPLICATION_CONTROLLED);
+    FilterParameters(this->configuration.parameters, LAYER_STATE_APPLICATION_CONTROLLED);
 
     saved_configuration->key = ui->lineEditName->text().toStdString();
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
-    saved_configuration->parameters = configuration.parameters;
+    saved_configuration->parameters = this->configuration.parameters;
 
     QDialog::accept();
 }

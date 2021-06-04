@@ -74,7 +74,7 @@ bool Configurator::Init() {
         alert.setIcon(QMessageBox::Warning);
         alert.exec();
 
-        CustomPathsDialog dlg;
+        UserDefinedPathsDialog dlg;
         dlg.exec();
     }
 
@@ -127,7 +127,7 @@ bool Configurator::Init() {
                 alert.setIcon(QMessageBox::Warning);
                 alert.setCheckBox(new QCheckBox("Do not show again."));
                 if (alert.exec() == QMessageBox::Yes) {
-                    CustomPathsDialog dlg;
+                    UserDefinedPathsDialog dlg;
                     dlg.exec();
                 }
                 if (alert.checkBox()->isChecked()) {

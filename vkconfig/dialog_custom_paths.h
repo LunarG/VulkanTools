@@ -25,12 +25,12 @@
 
 #include <memory>
 
-class CustomPathsDialog : public QDialog {
+class UserDefinedPathsDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit CustomPathsDialog(QWidget *parent = nullptr);
-    ~CustomPathsDialog();
+    explicit UserDefinedPathsDialog(QWidget *parent = nullptr);
+    ~UserDefinedPathsDialog();
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();
@@ -38,8 +38,8 @@ class CustomPathsDialog : public QDialog {
     void on_treeWidget_itemSelectionChanged();
 
    private:
-    CustomPathsDialog(const CustomPathsDialog &) = delete;
-    CustomPathsDialog &operator=(const CustomPathsDialog &) = delete;
+    UserDefinedPathsDialog(const UserDefinedPathsDialog &) = delete;
+    UserDefinedPathsDialog &operator=(const UserDefinedPathsDialog &) = delete;
 
     void RepopulateTree();
     void Reload();
