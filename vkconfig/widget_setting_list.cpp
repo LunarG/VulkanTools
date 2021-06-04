@@ -48,8 +48,7 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
       search(nullptr),
       field(new QLineEdit(this)),
       add_button(new QPushButton(this)),
-      list(meta.list),
-      data_cached(&meta) {
+      list(meta.list) {
     assert(&this->meta);
     assert(&this->data);
 
@@ -105,8 +104,8 @@ void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
         this->add_button->show();
     }
 
-    if (this->data != this->data_cached) {
-        this->data_cached = this->data;
+    if (this->data.value != this->value_cached) {
+        this->value_cached = this->data.value;
 
         this->tree->blockSignals(true);
 

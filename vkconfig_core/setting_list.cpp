@@ -20,6 +20,7 @@
 
 #include "setting_list.h"
 #include "json.h"
+#include "layer.h"
 
 #include <QFile>
 #include <QJsonArray>
@@ -37,7 +38,7 @@ static QString ReadAll(const std::string& path) {
     return json_text;
 }
 
-static void LoadVUIDs(std::vector<NumberOrString>& value) {
+void LoadVUIDs(std::vector<NumberOrString>& value) {
     const std::string vulkan_sdk_path(qgetenv("VULKAN_SDK").toStdString());
     const std::string path = vulkan_sdk_path.empty() ? "/usr" : vulkan_sdk_path;
 
@@ -120,15 +121,15 @@ bool SettingMetaList::Load(const QJsonObject& json_setting) {
         }
     }
 
-    if (json_setting.value("list_only") != QJsonValue::Undefined) {
-        this->list_only = ReadBoolValue(json_setting, "list_only");
-    }
-
-    if (this->key == "VK_LAYER_KHRONOS_validation") {
+    if (this->layer.key == "VK_LAYER_KHRONOS_validation") {
         ::LoadVUIDs(this->list);
     }
 
     std::sort(this->list.begin(), this->list.end());
+
+    if (json_setting.value("list_only") != QJsonValue::Undefined) {
+        this->list_only = ReadBoolValue(json_setting, "list_only");
+    }
 
     const QJsonArray& json_default = ReadArray(json_setting, "default");
     for (int i = 0, n = json_default.size(); i < n; ++i) {
@@ -271,13 +272,4 @@ bool SettingDataList::Equal(const SettingData& other) const {
     }
 
     return true;
-}
-
-SettingData& SettingDataList::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-
-    const SettingDataList& data = static_cast<const SettingDataList&>(other);
-
-    this->value = data.value;
-    return *this;
 }

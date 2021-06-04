@@ -50,11 +50,6 @@ SettingDataGroup::SettingDataGroup(const SettingMetaGroup* meta) : SettingData(m
 
 void SettingDataGroup::Reset() { assert(this->meta != nullptr); }
 
-SettingData& SettingDataGroup::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-    return *this;
-}
-
 bool SettingDataGroup::Load(const QJsonObject& json_setting) {
     (void)json_setting;
     return true;

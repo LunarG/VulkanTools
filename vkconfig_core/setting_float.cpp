@@ -142,10 +142,3 @@ bool SettingDataFloat::Equal(const SettingData& other) const {
 
     return std::abs(this->value - static_cast<const SettingDataFloat&>(other).value) <= std::numeric_limits<float>::epsilon();
 }
-
-SettingData& SettingDataFloat::Assign(const SettingData& other) {
-    assert(this->type == other.type);
-
-    this->value = static_cast<const SettingDataFloat&>(other).value;
-    return *this;
-}

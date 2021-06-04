@@ -99,7 +99,6 @@ struct SettingDataFlags : public SettingData {
 
    protected:
     bool Equal(const SettingData& other) const override;
-    SettingData& Assign(const SettingData& other) override;
 
     const SettingMetaFlags* meta;
 };

@@ -76,11 +76,6 @@ const char* GetToken(SettingType type) {
 
 SettingData::SettingData(const std::string& key, const SettingType& type) : key(key), type(type) { assert(!this->key.empty()); }
 
-SettingData& SettingData::operator=(const SettingData& other) {
-    this->Assign(other);
-    return *this;
-}
-
 bool SettingData::Equal(const SettingData& other) const {
     if (this->key != other.key)
         return false;

@@ -92,3 +92,12 @@ TEST(test_setting_type_list, value) {
     EXPECT_STREQ("D,E", dataC->Export(EXPORT_MODE_DOC).c_str());
     EXPECT_STREQ("D,E", dataC->Export(EXPORT_MODE_OVERRIDE).c_str());
 }
+
+void LoadVUIDs(std::vector<NumberOrString>& value);
+
+TEST(test_setting_type_list, validation_list) {
+    std::vector<NumberOrString> list;
+    LoadVUIDs(list);
+
+    EXPECT_TRUE(!list.empty());
+}

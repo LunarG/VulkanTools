@@ -131,8 +131,6 @@ struct SettingMeta : public Header {
 struct SettingData {
     virtual ~SettingData() {}
 
-    SettingData& operator=(const SettingData& other);
-
     bool operator==(const SettingData& other) const { return this->Equal(other); }
     bool operator!=(const SettingData& other) const { return !this->Equal(other); }
 
@@ -150,7 +148,9 @@ struct SettingData {
     SettingData(const std::string& key, const SettingType& type);
 
     virtual bool Equal(const SettingData& other) const;
-    virtual SettingData& Assign(const SettingData& other) = 0;
+
+   private:
+    SettingData& operator=(const SettingData& other) = delete;
 };
 
 bool IsSupported(const SettingMeta* meta);
