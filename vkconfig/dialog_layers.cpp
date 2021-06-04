@@ -363,19 +363,6 @@ void LayersDialog::on_button_reset_clicked() {
     ui->button_reset->setEnabled(false);
 }
 
-void LayersDialog::on_button_paths_clicked() {
-    UserDefinedPathsDialog dlg(this);
-    dlg.exec();
-
-    Configurator &configurator = Configurator::Get();
-    this->configuration.Reset(configurator.layers.available_layers, configurator.path);
-
-    BuildParameters();
-    LoadAvailableLayersUI();
-    LoadSortedLayersUI();
-    UpdateUI();
-}
-
 void LayersDialog::OverrideOrder(const std::string layer_name, const TreeWidgetItemParameter *below,
                                  const TreeWidgetItemParameter *above) {
     assert(below != nullptr);

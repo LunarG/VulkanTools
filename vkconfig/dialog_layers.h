@@ -56,7 +56,6 @@ class LayersDialog : public QDialog {
     void on_button_doc_clicked();
     void on_button_website_clicked();
     void on_button_reset_clicked();
-    void on_button_paths_clicked();
     void on_pushButtonUp_clicked();
     void on_pushButtonDown_clicked();
 
