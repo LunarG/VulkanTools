@@ -297,6 +297,76 @@
                     "description": "Modify the device memory heap flags and memory type flags from the JSON config file.",
                     "type": "BOOL",
                     "default": false
+                },
+                {
+                    "key": "modify_format_list",
+                    "env": "VK_DEVSIM_MODIFY_FORMAT_LIST",
+                    "label": "Modify Device Format list",
+                    "description": "Modify the device format list from the layer JSON config file.",
+                    "type": "ENUM",
+                    "flags": [
+                        {
+                            "key": "none",
+                            "label": "None",
+                            "description": "Turns off modification of the device's format list. Uses the device's real format list."
+                        },
+                        {
+                            "key": "replace",
+                            "label": "Replace",
+                            "description": "Fully replaces the device's format list with the format list provided by the devsim configuration file."
+                        },
+                        {
+                            "key": "whitelist",
+                            "label": "Whitelist",
+                            "description": "Includes formats from the devsim configuration file only if they are supported by the device."
+                        },
+                        {
+                            "key": "blacklist",
+                            "label": "Blacklist",
+                            "description": "Removes formats from the device's format list if they are included in the devsim configuration file's format list."
+                        },
+                        {
+                            "key": "intersect",
+                            "label": "Intersect",
+                            "description": "Adds the list of formats from the devsim configuration file to the device's format list while avoiding repeats."
+                        }
+                    ],
+                    "default": "none"
+                },
+                {
+                    "key": "modify_format_properties",
+                    "env": "VK_DEVSIM_MODIFY_FORMAT_PROPERTIES",
+                    "label": "Modify Device Format Properties",
+                    "description": "Modify the device format properties from the layer JSON config file.",
+                    "type": "ENUM",
+                    "flags": [
+                        {
+                            "key": "none",
+                            "label": "None",
+                            "description": "Turns off modification of the device's format properties. Uses the device's real format properties."
+                        },
+                        {
+                            "key": "replace",
+                            "label": "Replace",
+                            "description": "Fully replaces the device's format properties with the properties provided by the devsim configuration file for each format."
+                        },
+                        {
+                            "key": "whitelist",
+                            "label": "Whitelist",
+                            "description": "Includes properties for each format from the devsim configuration file only if they are supported by the device."
+                        },
+                        {
+                            "key": "blacklist",
+                            "label": "Blacklist",
+                            "description": "Removes properties from the device's formats if they are included in the devsim configuration file for that format."
+                        },
+                        {
+                            "key": "intersect",
+                            "label": "Intersect",
+                            "description": "Adds the properties from the devsim configuration file to the device's format while avoiding repeats."
+                        }
+                    ],
+                    "default": "none"
                 }
             ]
         }
