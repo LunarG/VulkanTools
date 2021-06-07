@@ -193,6 +193,22 @@ If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` env
 }
 ```
 
+#### Additional sample JSON configuration files
+
+| Sample Name | Description | Link |
+|:-----------:|:-----------:|:----:|
+| iOS_gpu_family_3_portability.json | JSON configuration file describing iOS GPU family 3 portability features and properties. | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/iOS_gpu_family_3_portability.json) |
+| iOS_gpu_family_5_portability.json | JSON configuration file describing iOS GPU family 5 portability features and properties. | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/iOS_gpu_family_5_portability.json) |
+| macOS_gpu_family_1_portability.json | JSON configuration file describing macOS GPU family 1 portability features and properties. | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/macOS_gpu_family_1_portability.json) |
+| portability_minimum_vulkan_1_0.json | JSON configuration file for Vulkan 1.0 minimum requirements as defined by the Vulkan Specification. Values are modified to cover the Vulkan Portability Subset | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/portability_minimum_vulkan_1_0.json) |
+| portability_minimum_vulkan_1_1.json | JSON configuration file for Vulkan 1.1 minimum requirements as defined by the Vulkan Specification. Values are modified to cover the Vulkan Portability Subset | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/portability_minimum_vulkan_1_1.json) |
+| portability_minimum_vulkan_1_2.json | JSON configuration file for Vulkan 1.2 minimum requirements as defined by the Vulkan Specification. Values are modified to cover the Vulkan Portability Subset | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/portability_minimum_vulkan_1_2.json) |
+| spec_minimum_vulkan_1_0.json | JSON configuration file for Vulkan 1.0 minimum requirements as defined by the Vulkan Specification. | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/spec_minimum_vulkan_1_0.json) |
+| spec_minimum_vulkan_1_1.json | JSON configuration file for Vulkan 1.1 minimum requirements as defined by the Vulkan Specification. | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/spec_minimum_vulkan_1_1.json) |
+| spec_minimum_vulkan_1_2.json | JSON configuration file for Vulkan 1.2 minimum requirements as defined by the Vulkan Specification. | [Link](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/sdk_sample_configs/spec_minimum_vulkan_1_2.json) |
+
+These and other sample files can be found in the [${VulkanTools}/layersvt/device_simulation_examples/sdk_sample_configs](https://github.com/LunarG/VulkanTools/tree/master/layersvt/device_simulation_examples/sdk_sample_configs) directory.
+
 ### `VK_KHR_portability_subset` Emulation
 
 The DevSim layer provides the ability to emulate the `VK_KHR_portability_subset` extension on devices that do not implement this extension.
@@ -203,7 +219,7 @@ DevSim config files that use this feature should validate to the portability spe
 ### DevSim Layer Options
 
 | Environment Variable | `vk_layer_settings.txt` Option | Android Option | Default | Description |
-|:--------------------:|:----------------------------:|:--------------:|:-----------:|:--------------:|
+|:--------------------:|:------------------------------:|:--------------:|:-------:|:-----------:|
 | `VK_DEVSIM_FILENAME` | `lunarg_device_simulation.filename` | `debug.vulkan.devsim.filepath` | Not Set | Name of one or more configuration file(s) to load. _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`. Files are loaded in order.  Later files can override settings from earlier files.|
 | `VK_DEVSIM_DEBUG_ENABLE` | `lunarg_device_simulation.debug_enable` | debug.vulkan.devsim.debugenable | false | Enables debug message output. |
 | `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | debug.vulkan.devsim.exitonerror | false | Enables exit-on-error. |
