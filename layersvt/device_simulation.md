@@ -226,16 +226,18 @@ DevSim config files that use this feature should validate to the portability spe
 | `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | debug.vulkan.devsim.emulateportability | true | Enables emulation of the `VK_KHR_portability_subset` extension. |
 | `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | debug.vulkan.devsim.modifyextensionlist | none | Enables modification of the device extensions list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
 | `VK_DEVSIM_MODIFY_MEMORY_FLAGS` | `lunarg_device_simulation.modify_memory_flags` | debug.vulkan.devsim.modifymemoryflags | false | Enables modification of the device memory heap flags and memory type flags from the JSON config file. |
+| `VK_DEVSIM_MODIFY_FORMAT_LIST` | `lunarg_device_simulation.modify_format_list` | debug.vulkan.devsim.modifyformatlist | none | Enables modification of the device format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
+| `VK_DEVSIM_MODIFY_FORMAT_PROPERTIES` | `lunarg_device_simulation.modify_format_properties` | debug.vulkan.devsim.modifyformatproperties | none | Enables modification of the device format properties from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
 
 **Note:** Environment variables take precedence over `vk_layer_settings.txt` options.
 
-#### `VK_DEVSIM_MODIFY_EXTENSION_LIST` Options Descriptions
+#### Array Combination Mode Options Descriptions
 
-* none: Turns off modification of the device's extension list. Uses the device's real extension list.
-* replace: Fully replaces the device's extension list with the extension list provided by the DevSim configuration file.
-* whitelist: Includes extensions from the devsim configuration file only if they are supported by the device.
-* blacklist: Removes extensions from the device's extension list if they are included in the devsim configuration file's extension list.
-* intersect: Adds the list of extensions from the devsim configuration file to the device's extension list while avoiding repeats.
+* none: Turns off modification of the device's properties list. Uses the device's real properties list.
+* replace: Fully replaces the device's properties list with the properties list provided by the DevSim configuration file.
+* whitelist: Includes properties from the devsim configuration file only if they are supported by the device.
+* blacklist: Removes properties from the device's properties list if they are included in the devsim configuration file's properties list.
+* intersect: Adds the list of properties from the devsim configuration file to the device's properties list while avoiding repeats.
 
 ### Example using the DevSim layer using Linux environment variables
 ```bash
