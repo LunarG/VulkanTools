@@ -36,7 +36,7 @@
                         },
                         {
                             "key": "filename",
-                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/common_desktop_1_0.json"
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/portability_desktop_1_0.json"
                         }
                     ]
                 },
@@ -56,12 +56,12 @@
                         },
                         {
                             "key": "filename",
-                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/common_desktop_1_2.json"
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/portability_desktop_1_2.json"
                         }
                     ]
                 },
                 {
-                    "label": "macOS Portability",
+                    "label": "macOS Portability Subset",
                     "description": "Check the Vulkan application for Vulkan portability subset capabilities.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
@@ -77,7 +77,7 @@
                     ]
                 },
                 {
-                    "label": "iOS GPU family 3 Portability",
+                    "label": "iOS GPU family 3 Portability Subset",
                     "description": "Check the application for Vulkan portability subset capabilities.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
@@ -93,7 +93,7 @@
                     ]
                 },
                 {
-                    "label": "iOS GPU family 5 Portability",
+                    "label": "iOS GPU family 5 Portability Subset",
                     "description": "Check the application for Vulkan portability subset capabilities.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
@@ -225,7 +225,7 @@
                     "description": "Path of a devsim configuration file to load.",
                     "type": "LOAD_FILE",
                     "filter": "*.json",
-                    "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/common_desktop_1_0.json"
+                    "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/portability_desktop_1_0.json"
                 },
                 {
                     "key": "debug_enable",
