@@ -71,7 +71,7 @@
                 {
                     "label": "Vulkan 1.2 minimum requirements",
                     "description": "Check the application for Vulkan 1.2 minimum requirements.",
-                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "platforms": [ "WINDOWS", "LINUX" ],
                     "status": "STABLE",
                     "settings": [
                         {
@@ -119,7 +119,7 @@
                 {
                     "label": "Vulkan 1.2 minimum requirements portability",
                     "description": "Check the application for Vulkan 1.2 minimum requirements.",
-                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "platforms": [ "WINDOWS", "LINUX" ],
                     "status": "STABLE",
                     "settings": [
                         {
