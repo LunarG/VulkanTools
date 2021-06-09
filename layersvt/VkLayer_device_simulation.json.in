@@ -21,8 +21,48 @@
         "features": {
             "presets": [
                 {
-                    "label": "macOS portability",
-                    "description": "Check the application for Vulkan portability subset.",
+                    "label": "Desktop Vulkan 1.0 Portability",
+                    "description": "Check the Vulkan 1.0 application will run on Windows and Linux platforms without exceeding ecosystem effective devices capabilities",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "emulate_portability",
+                            "value": true
+                        },
+                        {
+                            "key": "modify_extension_list",
+                            "value": "whitelist"
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/common_desktop_1_0.json"
+                        }
+                    ]
+                },
+                {
+                    "label": "Desktop Vulkan 1.2 Portability",
+                    "description": "Check the Vulkan 1.2 application will run on Windows and Linux platforms without exceeding ecosystem effective devices capabilities.",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "emulate_portability",
+                            "value": true
+                        },
+                        {
+                            "key": "modify_extension_list",
+                            "value": "whitelist"
+                        },
+                        {
+                            "key": "filename",
+                            "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/common_desktop_1_2.json"
+                        }
+                    ]
+                },
+                {
+                    "label": "macOS Portability",
+                    "description": "Check the Vulkan application for Vulkan portability subset capabilities.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
                     "settings": [
@@ -37,8 +77,8 @@
                     ]
                 },
                 {
-                    "label": "iOS GPU family 3 portability",
-                    "description": "Check the application for Vulkan portability subset.",
+                    "label": "iOS GPU family 3 Portability",
+                    "description": "Check the application for Vulkan portability subset capabilities.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
                     "settings": [
@@ -53,8 +93,8 @@
                     ]
                 },
                 {
-                    "label": "iOS GPU family 5 portability",
-                    "description": "Check the application for Vulkan portability subset.",
+                    "label": "iOS GPU family 5 Portability",
+                    "description": "Check the application for Vulkan portability subset capabilities.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
                     "settings": [
@@ -69,7 +109,7 @@
                     ]
                 },
                 {
-                    "label": "Vulkan 1.2 minimum requirements",
+                    "label": "Vulkan 1.2 Minimum Requirements",
                     "description": "Check the application for Vulkan 1.2 minimum requirements.",
                     "platforms": [ "WINDOWS", "LINUX" ],
                     "status": "STABLE",
@@ -85,7 +125,7 @@
                     ]
                 },
                 {
-                    "label": "Vulkan 1.1 minimum requirements",
+                    "label": "Vulkan 1.1 Minimum Requirements",
                     "description": "Check the application for Vulkan 1.1 minimum requirements.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
@@ -101,7 +141,7 @@
                     ]
                 },
                 {
-                    "label": "Vulkan 1.0 minimum requirements",
+                    "label": "Vulkan 1.0 Minimum Requirements",
                     "description": "Check the application for Vulkan 1.0 minimum requirements.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
@@ -117,8 +157,8 @@
                     ]
                 },
                 {
-                    "label": "Vulkan 1.2 minimum requirements portability",
-                    "description": "Check the application for Vulkan 1.2 minimum requirements.",
+                    "label": "Vulkan 1.2 Portability Requirements",
+                    "description": "Check the application for Vulkan 1.2 minimum and portability subset requirements.",
                     "platforms": [ "WINDOWS", "LINUX" ],
                     "status": "STABLE",
                     "settings": [
@@ -137,8 +177,8 @@
                     ]
                 },
                 {
-                    "label": "Vulkan 1.1 minimum requirements portability",
-                    "description": "Check the application for Vulkan 1.1 minimum requirements.",
+                    "label": "Vulkan 1.1 Portability Requirements",
+                    "description": "Check the application for Vulkan 1.1 minimum and portability subset requirements.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
                     "settings": [
@@ -157,8 +197,8 @@
                     ]
                 },
                 {
-                    "label": "Vulkan 1.0 minimum requirements portability",
-                    "description": "Check the application for Vulkan 1.0 minimum requirements.",
+                    "label": "Vulkan 1.0 Portability Requirements",
+                    "description": "Check the application for Vulkan 1.0 minimum and portability subset requirements.",
                     "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
                     "status": "STABLE",
                     "settings": [
@@ -185,7 +225,7 @@
                     "description": "Path of a devsim configuration file to load.",
                     "type": "LOAD_FILE",
                     "filter": "*.json",
-                    "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
+                    "default": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/common_desktop_1_0.json"
                 },
                 {
                     "key": "debug_enable",
