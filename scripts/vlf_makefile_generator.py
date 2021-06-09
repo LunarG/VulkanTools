@@ -90,7 +90,7 @@ if __name__ == '__main__':
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/loader\n'
             contents += 'LOCAL_STATIC_LIBRARIES += layer_utils\n'
             contents += 'LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable\n'
-            contents += 'LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden\n'
+            contents += 'LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_ENABLE_BETA_EXTENSIONS -fvisibility=hidden\n'
             contents += 'LOCAL_LDLIBS    := -llog\n'
             contents += 'LOCAL_LDFLAGS   += -Wl,-Bsymbolic\n'
             contents += 'LOCAL_LDFLAGS   += -Wl,--exclude-libs,ALL\n'
