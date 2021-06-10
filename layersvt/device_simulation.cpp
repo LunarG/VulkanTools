@@ -1241,38 +1241,7 @@ bool JsonLoader::LoadFile(const char *filename) {
     const SchemaId schema_id = IdentifySchema(schema_value);
     switch (schema_id) {
         case SchemaId::kDevsim100:
-            GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
-            GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
-            GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
-            GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
-            GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
-            GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
-            GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
-            result = true;
-            break;
-
         case SchemaId::kDevsim110:
-            GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
-            GetValue(root, "VkPhysicalDeviceMaintenance3Properties", &pdd_.physical_device_maintenance_3_properties_);
-            GetValue(root, "VkPhysicalDeviceMultiviewProperties", &pdd_.physical_device_multiview_properties_);
-            GetValue(root, "VkPhysicalDevicePointClippingProperties", &pdd_.physical_device_point_clipping_properties_);
-            GetValue(root, "VkPhysicalDeviceProtectedMemoryProperties", &pdd_.physical_device_protected_memory_properties_);
-            GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
-            GetValue(root, "VkPhysicalDevice16BitStorageFeatures", &pdd_.physical_device_16bit_storage_features_);
-            GetValue(root, "VkPhysicalDeviceMultiviewFeatures", &pdd_.physical_device_multiview_features_);
-            GetValue(root, "VkPhysicalDeviceProtectedMemoryFeatures", &pdd_.physical_device_protected_memory_features_);
-            GetValue(root, "VkPhysicalDeviceSamplerYcbcrConversionFeatures",
-                &pdd_.physical_device_sampler_ycbcr_conversion_features_);
-            GetValue(root, "VkPhysicalDeviceShaderDrawParametersFeatures", &pdd_.physical_device_shader_draw_parameters_features_);
-            GetValue(root, "VkPhysicalDeviceVariablePointersFeatures", &pdd_.physical_device_variable_pointers_features_);
-            GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
-            GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
-            GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
-            GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
-            GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
-            result = true;
-            break;
-
         case SchemaId::kDevsim120:
             GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
             GetValue(root, "VkPhysicalDeviceDepthStencilResolveProperties",
@@ -1318,6 +1287,10 @@ bool JsonLoader::LoadFile(const char *filename) {
 
             GetValue(root, "Vulkan12Features", &pdd_.physical_device_vulkan_1_2_features_);
             GetValue(root, "Vulkan12Properties", &pdd_.physical_device_vulkan_1_2_properties_);
+
+            GetValue(root, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", &pdd_.physical_device_portability_subset_properties_);
+            GetValue(root, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", &pdd_.physical_device_portability_subset_features_);
+
             result = true;
             break;
 
