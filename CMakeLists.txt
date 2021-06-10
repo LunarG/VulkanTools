@@ -96,11 +96,18 @@ if (USE_CCACHE)
     endif(CCACHE_FOUND)
 endif()
 
+option(BUILD_WERROR "Treat compiler warnings as errors" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
     set(FALLBACK_CONFIG_DIRS "/etc/xdg" CACHE STRING
         "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
     set(FALLBACK_DATA_DIRS "/usr/local/share:/usr/share" CACHE STRING
         "Search path to use when XDG_DATA_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
+
+    if(BUILD_WERROR)
+        if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+            add_compile_options(-Werror)
+        endif()
+    endif()
 
     include(FindPkgConfig)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
