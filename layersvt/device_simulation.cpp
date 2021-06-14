@@ -1457,6 +1457,8 @@ class PhysicalDeviceData {
 
     VkPhysicalDeviceShaderDrawParametersFeatures physical_device_shader_draw_parameters_features_;
 
+    VkPhysicalDeviceSubgroupProperties physical_device_subgroup_properties_;
+
     // VK_KHR_8bit_storage structs
     VkPhysicalDevice8BitStorageFeaturesKHR physical_device_8bit_storage_features_;
 
@@ -1556,6 +1558,8 @@ class PhysicalDeviceData {
         physical_device_protected_memory_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES};
 
         physical_device_shader_draw_parameters_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES};
+
+        physical_device_subgroup_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES};
 
         // VK_KHR_8bit_storage structs
         physical_device_8bit_storage_features_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES_KHR};
@@ -1703,6 +1707,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceTimelineSemaphorePropertiesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSubgroupProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice8BitStorageFeaturesKHR *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDevice16BitStorageFeaturesKHR *dest);
@@ -1739,6 +1744,11 @@ class JsonLoader {
 
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Properties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Features *dest);
+
+    // GPUinfo config file format
+    void GetValueGPUinfoCore11(const Json::Value &parent);
+    void GetValueGPUinfoCore12(const Json::Value &parent);
+    void GetValueGPUinfoSurfaceCapabilities(const Json::Value &parent);
 
     // For use as warn_func in GET_VALUE_WARN().  Return true if warning occurred.
     static bool WarnIfGreater(const char *name, const uint64_t new_value, const uint64_t old_value) {
@@ -2075,328 +2085,95 @@ bool JsonLoader::LoadFile(const char *filename) {
     bool result = false;
     const Json::Value schema_value = root["$schema"];
     const SchemaId schema_id = IdentifySchema(schema_value);
-    switch (schema_id) {
-        case SchemaId::kDevsim100:
-        case SchemaId::kDevsim110:
-        case SchemaId::kDevsim120:
-            GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
-            GetValue(root, "VkPhysicalDeviceDepthStencilResolveProperties",
-                     &pdd_.physical_device_depth_stencil_resolve_properties_);
-            GetValue(root, "VkPhysicalDeviceDescriptorIndexingProperties", &pdd_.physical_device_descriptor_indexing_properties_);
-            GetValue(root, "VkPhysicalDeviceFloatControlsProperties", &pdd_.physical_device_float_controls_properties_);
-            GetValue(root, "VkPhysicalDeviceHostQueryResetFeatures", &pdd_.physical_device_host_query_reset_features_);
-            GetValue(root, "VkPhysicalDeviceMaintenance3Properties", &pdd_.physical_device_maintenance_3_properties_);
-            GetValue(root, "VkPhysicalDeviceMultiviewProperties", &pdd_.physical_device_multiview_properties_);
-            GetValue(root, "VkPhysicalDevicePointClippingProperties", &pdd_.physical_device_point_clipping_properties_);
-            GetValue(root, "VkPhysicalDeviceProtectedMemoryProperties", &pdd_.physical_device_protected_memory_properties_);
-            GetValue(root, "VkPhysicalDeviceTimelineSemaphoreProperties", &pdd_.physical_device_timeline_semaphore_properties_);
-            GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
-            GetValue(root, "VkPhysicalDevice16BitStorageFeatures", &pdd_.physical_device_16bit_storage_features_);
-            GetValue(root, "VkPhysicalDevice8BitStorageFeatures", &pdd_.physical_device_8bit_storage_features_);
-            GetValue(root, "VkPhysicalDeviceBufferDeviceAddressFeatures", &pdd_.physical_device_buffer_device_address_features_);
-            GetValue(root, "VkPhysicalDeviceDescriptorIndexingFeatures", &pdd_.physical_device_descriptor_indexing_features_);
-            GetValue(root, "VkPhysicalDeviceImagelessFramebufferFeatures", &pdd_.physical_device_imageless_framebuffer_features_);
-            GetValue(root, "VkPhysicalDeviceMultiviewFeatures", &pdd_.physical_device_multiview_features_);
-            GetValue(root, "VkPhysicalDeviceProtectedMemoryFeatures", &pdd_.physical_device_protected_memory_features_);
-            GetValue(root, "VkPhysicalDeviceSamplerFilterMinmaxProperties",
-                     &pdd_.physical_device_sampler_filter_minmax_properties_);
-            GetValue(root, "VkPhysicalDeviceSamplerYcbcrConversionFeatures",
-                     &pdd_.physical_device_sampler_ycbcr_conversion_features_);
-            GetValue(root, "VkPhysicalDeviceScalarBlockLayoutFeatures", &pdd_.physical_device_scalar_block_layout_features_);
-            GetValue(root, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures",
-                     &pdd_.physical_device_separate_depth_stencil_layouts_features_);
-            GetValue(root, "VkPhysicalDeviceShaderAtomicInt64Features", &pdd_.physical_device_shader_atomic_int64_features_);
-            GetValue(root, "VkPhysicalDeviceShaderDrawParametersFeatures", &pdd_.physical_device_shader_draw_parameters_features_);
-            GetValue(root, "VkPhysicalDeviceShaderFloat16Int8Features", &pdd_.physical_device_shader_float16_int8_features_);
-            GetValue(root, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures",
-                     &pdd_.physical_device_shader_subgroup_extended_types_features_);
-            GetValue(root, "VkPhysicalDeviceTimelineSemaphoreFeatures", &pdd_.physical_device_timeline_semaphore_features_);
-            GetValue(root, "VkPhysicalDeviceUniformBufferStandardLayoutFeatures",
-                     &pdd_.physical_device_uniform_buffer_standard_layout_features_);
-            GetValue(root, "VkPhysicalDeviceVariablePointersFeatures", &pdd_.physical_device_variable_pointers_features_);
-            GetValue(root, "VkPhysicalDeviceVulkanMemoryModelFeatures", &pdd_.physical_device_vulkan_memory_model_features_);
-            GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
-            GetValue(root, "VkSurfaceCapabilitiesKHR", &pdd_.surface_capabilities_);
-            GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
-            GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
-            GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
-            GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
-            GetArray(root, "ArrayOfVkSurfaceFormats", &pdd_.arrayof_surface_formats_);
-            GetArray(root, "ArrayOfVkPresentModes", &pdd_.arrayof_present_modes_);
-
-            GetValue(root, "Vulkan12Features", &pdd_.physical_device_vulkan_1_2_features_);
-            GetValue(root, "Vulkan12Properties", &pdd_.physical_device_vulkan_1_2_properties_);
-
-            GetValue(root, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", &pdd_.physical_device_portability_subset_properties_);
-            GetValue(root, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", &pdd_.physical_device_portability_subset_features_);
-
-            result = true;
-            break;
-
-        case SchemaId::kDevsim8BitStorageKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_8BIT_STORAGE_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_8bit_storage, but VK_KHR_8bit_storage is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDevice8BitStorageFeaturesKHR", &pdd_.physical_device_8bit_storage_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsim16BitStorageKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_16bit_storage, but VK_KHR_16bit_storage is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDevice16BitStorageFeaturesKHR", &pdd_.physical_device_16bit_storage_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimBufferDeviceAddressKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_buffer_device_address, but "
-                    "VK_KHR_buffer_device_address is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceBufferDeviceAddressFeaturesKHR", &pdd_.physical_device_buffer_device_address_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimDepthStencilResolveKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_depth_stencil_resolve, but "
-                    "VK_KHR_depth_stencil_resolve is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceDepthStencilResolvePropertiesKHR",
-                     &pdd_.physical_device_depth_stencil_resolve_properties_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimDescriptorIndexingEXT:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_EXT_descriptor_indexing, but "
-                    "VK_EXT_descriptor_indexing is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceDescriptorIndexingPropertiesEXT",
-                     &pdd_.physical_device_descriptor_indexing_properties_);
-            GetValue(root, "VkPhysicalDeviceDescriptorIndexingFeaturesEXT", &pdd_.physical_device_descriptor_indexing_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimHostQueryResetEXT:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_EXT_host_query_reset, but "
-                    "VK_EXT_host_query_reset is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceHostQueryResetFeaturesEXT", &pdd_.physical_device_host_query_reset_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimImagelessFramebufferKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_imageless_framebuffer, but "
-                    "VK_KHR_imageless_framebuffer is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceImagelessFramebufferFeaturesKHR",
-                     &pdd_.physical_device_imageless_framebuffer_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimMaintenance2KHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MAINTENANCE2_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_maintenance2, but VK_KHR_maintenance2 is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDevicePointClippingPropertiesKHR", &pdd_.physical_device_point_clipping_properties_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimMaintenance3KHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MAINTENANCE3_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_maintenance3, but VK_KHR_maintenance3 is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceMaintenance3PropertiesKHR", &pdd_.physical_device_maintenance_3_properties_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimMultiviewKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MULTIVIEW_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_multiview, but VK_KHR_multiview is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceMultiviewPropertiesKHR", &pdd_.physical_device_multiview_properties_);
-            GetValue(root, "VkPhysicalDeviceMultiviewFeaturesKHR", &pdd_.physical_device_multiview_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimPortabilitySubsetKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && emulatePortability.num <= 0) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_portability_subset, but VK_KHR_portability_subset is "
-                    "not supported by the device and emulation is not turned on.\nIf you wish to emulate "
-                    "VK_KHR_portability_subset, please set environment variable %s to 1.\n",
-                    kEnvarDevsimEmulatePortability);
-            }
-            GetValue(root, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", &pdd_.physical_device_portability_subset_properties_);
-            GetValue(root, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", &pdd_.physical_device_portability_subset_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimSamplerFilterMinmaxEXT:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_EXT_sampler_filter_minmax, but "
-                    "VK_EXT_sampler_filter_minmax is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT",
-                     &pdd_.physical_device_sampler_filter_minmax_properties_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimSamplerYcbcrConversionKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_sampler_ycbcr_conversion, but "
-                    "VK_KHR_sampler_ycbcr_conversion is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR",
-                     &pdd_.physical_device_sampler_ycbcr_conversion_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimScalarBlockLayoutEXT:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_EXT_scalar_block_layout, but "
-                    "VK_EXT_scalar_block_layout is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceScalarBlockLayoutFeaturesEXT", &pdd_.physical_device_scalar_block_layout_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimSeparateDepthStencilLayoutsKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_separate_depth_stencil_layouts, but "
-                    "VK_KHR_separate_depth_stencil_layouts is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR",
-                     &pdd_.physical_device_separate_depth_stencil_layouts_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimShaderAtomicInt64KHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_shader_atomic_int64, but "
-                    "VK_KHR_shader_atomic_int64 is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceShaderAtomicInt64FeaturesKHR", &pdd_.physical_device_shader_atomic_int64_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimShaderFloatControlsKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_shader_float_controls, but "
-                    "VK_KHR_shader_float_controls is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceFloatControlsPropertiesKHR", &pdd_.physical_device_float_controls_properties_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimShaderFloat16Int8KHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_shader_float16_int8, but "
-                    "VK_KHR_shader_float16_int8 is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceShaderFloat16Int8FeaturesKHR", &pdd_.physical_device_shader_float16_int8_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimShaderSubgroupExtendedTypesKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_SUBGROUP_EXTENDED_TYPES_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_shader_subgroup_extended_types, but "
-                    "VK_KHR_shader_subgroup_extended_types is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR",
-                     &pdd_.physical_device_shader_subgroup_extended_types_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimTimelineSemaphoreKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_timeline_semaphore, but "
-                    "VK_KHR_timeline_semaphore is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceTimelineSemaphorePropertiesKHR", &pdd_.physical_device_timeline_semaphore_properties_);
-            GetValue(root, "VkPhysicalDeviceTimelineSemaphoreFeaturesKHR", &pdd_.physical_device_timeline_semaphore_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimUniformBufferStandardLayoutKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_UNIFORM_BUFFER_STANDARD_LAYOUT_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_uniform_buffer_standard_layout, but"
-                    "VK_KHR_unifrom_buffer_standard_layout is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR",
-                     &pdd_.physical_device_uniform_buffer_standard_layout_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimVariablePointersKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_variable_pointers, but VK_KHR_variable_pointers is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceVariablePointersFeaturesKHR", &pdd_.physical_device_variable_pointers_features_);
-            result = true;
-            break;
-
-        case SchemaId::kDevsimVulkanMemoryModelKHR:
-            if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_VULKAN_MEMORY_MODEL_EXTENSION_NAME)) {
-                ErrorPrintf(
-                    "JSON file sets variables for structs provided by VK_KHR_vulkan_memory_model, but VK_KHR_vulkan_memory_model "
-                    "is "
-                    "not supported by the device.\n");
-            }
-            GetValue(root, "VkPhysicalDeviceVulkanMemoryModelFeaturesKHR", &pdd_.physical_device_vulkan_memory_model_features_);
-            result = true;
-            break;
-
-        case SchemaId::kUnknown:
-        default:
-            break;
+    if (schema_id == SchemaId::kUnknown) {
+        DebugPrintf("}\n");
+        return result;
     }
+
+    result = true;
+
+    GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
+    GetValue(root, "VkPhysicalDeviceDepthStencilResolveProperties", &pdd_.physical_device_depth_stencil_resolve_properties_);
+    GetValue(root, "VkPhysicalDeviceDepthStencilResolvePropertiesKHR", &pdd_.physical_device_depth_stencil_resolve_properties_);
+    GetValue(root, "VkPhysicalDeviceSubgroupProperties", &pdd_.physical_device_subgroup_properties_);
+    GetValue(root, "VkPhysicalDeviceDescriptorIndexingProperties", &pdd_.physical_device_descriptor_indexing_properties_);
+    GetValue(root, "VkPhysicalDeviceDescriptorIndexingPropertiesEXT", &pdd_.physical_device_descriptor_indexing_properties_);
+    GetValue(root, "VkPhysicalDeviceFloatControlsProperties", &pdd_.physical_device_float_controls_properties_);
+    GetValue(root, "VkPhysicalDeviceFloatControlsPropertiesKHR", &pdd_.physical_device_float_controls_properties_);
+    GetValue(root, "VkPhysicalDeviceHostQueryResetFeatures", &pdd_.physical_device_host_query_reset_features_);
+    GetValue(root, "VkPhysicalDeviceHostQueryResetFeaturesEXT", &pdd_.physical_device_host_query_reset_features_);
+    GetValue(root, "VkPhysicalDeviceMaintenance3Properties", &pdd_.physical_device_maintenance_3_properties_);
+    GetValue(root, "VkPhysicalDeviceMaintenance3PropertiesKHR", &pdd_.physical_device_maintenance_3_properties_);
+    GetValue(root, "VkPhysicalDeviceMultiviewProperties", &pdd_.physical_device_multiview_properties_);
+    GetValue(root, "VkPhysicalDeviceMultiviewPropertiesKHR", &pdd_.physical_device_multiview_properties_);
+    GetValue(root, "VkPhysicalDevicePointClippingProperties", &pdd_.physical_device_point_clipping_properties_);
+    GetValue(root, "VkPhysicalDevicePointClippingPropertiesKHR", &pdd_.physical_device_point_clipping_properties_);
+    GetValue(root, "VkPhysicalDeviceProtectedMemoryProperties", &pdd_.physical_device_protected_memory_properties_);
+    GetValue(root, "VkPhysicalDeviceTimelineSemaphoreProperties", &pdd_.physical_device_timeline_semaphore_properties_);
+    GetValue(root, "VkPhysicalDeviceTimelineSemaphorePropertiesKHR", &pdd_.physical_device_timeline_semaphore_properties_);
+    GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
+    GetValue(root, "VkPhysicalDevice16BitStorageFeatures", &pdd_.physical_device_16bit_storage_features_);
+    GetValue(root, "VkPhysicalDevice16BitStorageFeaturesKHR", &pdd_.physical_device_16bit_storage_features_);
+    GetValue(root, "VkPhysicalDevice8BitStorageFeatures", &pdd_.physical_device_8bit_storage_features_);
+    GetValue(root, "VkPhysicalDevice8BitStorageFeaturesKHR", &pdd_.physical_device_8bit_storage_features_);
+    GetValue(root, "VkPhysicalDeviceBufferDeviceAddressFeatures", &pdd_.physical_device_buffer_device_address_features_);
+    GetValue(root, "VkPhysicalDeviceBufferDeviceAddressFeaturesKHR", &pdd_.physical_device_buffer_device_address_features_);
+    GetValue(root, "VkPhysicalDeviceDescriptorIndexingFeatures", &pdd_.physical_device_descriptor_indexing_features_);
+    GetValue(root, "VkPhysicalDeviceDescriptorIndexingFeaturesEXT", &pdd_.physical_device_descriptor_indexing_features_);
+    GetValue(root, "VkPhysicalDeviceImagelessFramebufferFeatures", &pdd_.physical_device_imageless_framebuffer_features_);
+    GetValue(root, "VkPhysicalDeviceImagelessFramebufferFeaturesKHR", &pdd_.physical_device_imageless_framebuffer_features_);
+    GetValue(root, "VkPhysicalDeviceMultiviewFeatures", &pdd_.physical_device_multiview_features_);
+    GetValue(root, "VkPhysicalDeviceMultiviewFeaturesKHR", &pdd_.physical_device_multiview_features_);
+    GetValue(root, "VkPhysicalDeviceProtectedMemoryFeatures", &pdd_.physical_device_protected_memory_features_);
+    GetValue(root, "VkPhysicalDeviceSamplerFilterMinmaxProperties", &pdd_.physical_device_sampler_filter_minmax_properties_);
+    GetValue(root, "VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT", &pdd_.physical_device_sampler_filter_minmax_properties_);
+    GetValue(root, "VkPhysicalDeviceSamplerYcbcrConversionFeatures", &pdd_.physical_device_sampler_ycbcr_conversion_features_);
+    GetValue(root, "VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR", &pdd_.physical_device_sampler_ycbcr_conversion_features_);
+    GetValue(root, "VkPhysicalDeviceScalarBlockLayoutFeatures", &pdd_.physical_device_scalar_block_layout_features_);
+    GetValue(root, "VkPhysicalDeviceScalarBlockLayoutFeaturesEXT", &pdd_.physical_device_scalar_block_layout_features_);
+    GetValue(root, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures",
+             &pdd_.physical_device_separate_depth_stencil_layouts_features_);
+    GetValue(root, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR",
+             &pdd_.physical_device_separate_depth_stencil_layouts_features_);
+    GetValue(root, "VkPhysicalDeviceShaderAtomicInt64Features", &pdd_.physical_device_shader_atomic_int64_features_);
+    GetValue(root, "VkPhysicalDeviceShaderAtomicInt64FeaturesKHR", &pdd_.physical_device_shader_atomic_int64_features_);
+    GetValue(root, "VkPhysicalDeviceShaderDrawParametersFeatures", &pdd_.physical_device_shader_draw_parameters_features_);
+    GetValue(root, "VkPhysicalDeviceShaderFloat16Int8Features", &pdd_.physical_device_shader_float16_int8_features_);
+    GetValue(root, "VkPhysicalDeviceShaderFloat16Int8FeaturesKHR", &pdd_.physical_device_shader_float16_int8_features_);
+    GetValue(root, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures",
+             &pdd_.physical_device_shader_subgroup_extended_types_features_);
+    GetValue(root, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR",
+             &pdd_.physical_device_shader_subgroup_extended_types_features_);
+    GetValue(root, "VkPhysicalDeviceTimelineSemaphoreFeatures", &pdd_.physical_device_timeline_semaphore_features_);
+    GetValue(root, "VkPhysicalDeviceTimelineSemaphoreFeaturesKHR", &pdd_.physical_device_timeline_semaphore_features_);
+    GetValue(root, "VkPhysicalDeviceUniformBufferStandardLayoutFeatures",
+             &pdd_.physical_device_uniform_buffer_standard_layout_features_);
+    GetValue(root, "VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR",
+             &pdd_.physical_device_uniform_buffer_standard_layout_features_);
+    GetValue(root, "VkPhysicalDeviceVariablePointersFeatures", &pdd_.physical_device_variable_pointers_features_);
+    GetValue(root, "VkPhysicalDeviceVariablePointersFeaturesKHR", &pdd_.physical_device_variable_pointers_features_);
+    GetValue(root, "VkPhysicalDeviceVulkanMemoryModelFeatures", &pdd_.physical_device_vulkan_memory_model_features_);
+    GetValue(root, "VkPhysicalDeviceVulkanMemoryModelFeaturesKHR", &pdd_.physical_device_vulkan_memory_model_features_);
+    GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
+    GetValue(root, "VkSurfaceCapabilitiesKHR", &pdd_.surface_capabilities_);
+    GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
+    GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
+    GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
+    GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
+    GetArray(root, "ArrayOfVkSurfaceFormats", &pdd_.arrayof_surface_formats_);
+    GetArray(root, "ArrayOfVkPresentModes", &pdd_.arrayof_present_modes_);
+
+    GetValue(root, "Vulkan12Features", &pdd_.physical_device_vulkan_1_2_features_);
+    GetValue(root, "Vulkan12Properties", &pdd_.physical_device_vulkan_1_2_properties_);
+
+    GetValue(root, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", &pdd_.physical_device_portability_subset_properties_);
+    GetValue(root, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", &pdd_.physical_device_portability_subset_features_);
+
+    // GPUinfo structures
+    GetValueGPUinfoCore11(root);
+    GetValueGPUinfoCore12(root);
+    GetValueGPUinfoSurfaceCapabilities(root);
+
     DebugPrintf("}\n");
 
     return result;
@@ -2504,6 +2281,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceDepthStencilResolveProperties)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_depth_stencil_resolve, but "
+            "VK_KHR_depth_stencil_resolve is "
+            "not supported by the device.\n");
+    }
     GET_VALUE(supportedDepthResolveModes);
     GET_VALUE(supportedStencilResolveModes);
     GET_VALUE_WARN(independentResolveNone, WarnIfGreater);
@@ -2516,6 +2299,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceDescriptorIndexingPropertiesEXT)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_EXT_descriptor_indexing, but "
+            "VK_EXT_descriptor_indexing is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(maxUpdateAfterBindDescriptorsInAllPools, WarnIfGreater);
     GET_VALUE_WARN(shaderUniformBufferArrayNonUniformIndexingNative, WarnIfGreater);
     GET_VALUE_WARN(shaderSampledImageArrayNonUniformIndexingNative, WarnIfGreater);
@@ -2547,6 +2336,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceFloatControlsPropertiesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_shader_float_controls, but "
+            "VK_KHR_shader_float_controls is "
+            "not supported by the device.\n");
+    }
     GET_VALUE(denormBehaviorIndependence);
     GET_VALUE(roundingModeIndependence);
     GET_VALUE_WARN(shaderSignedZeroInfNanPreserveFloat16, WarnIfGreater);
@@ -2572,6 +2367,11 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMaintenance3PropertiesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MAINTENANCE3_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_maintenance3, but VK_KHR_maintenance3 is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(maxPerSetDescriptors, WarnIfGreater);
     GET_VALUE_WARN(maxMemoryAllocationSize, WarnIfGreater);
 }
@@ -2582,6 +2382,11 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMultiviewPropertiesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MULTIVIEW_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_multiview, but VK_KHR_multiview is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(maxMultiviewViewCount, WarnIfGreater);
     GET_VALUE_WARN(maxMultiviewInstanceIndex, WarnIfGreater);
 }
@@ -2592,7 +2397,8 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevicePointClippingPropertiesKHR)\n");
-    GET_VALUE(pointClippingBehavior);
+    DebugPrintf("WARN VkPhysicalDevicePointClippingProperties only reports how a device functions and will not be set.");
+    // GET_VALUE(pointClippingBehavior);
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDevicePortabilitySubsetPropertiesKHR *dest) {
@@ -2601,6 +2407,13 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevicePortabilitySubsetPropertiesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && emulatePortability.num <= 0) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_portability_subset, but VK_KHR_portability_subset is "
+            "not supported by the device and emulation is not turned on.\nIf you wish to emulate "
+            "VK_KHR_portability_subset, please set environment variable %s to 1.\n",
+            kEnvarDevsimEmulatePortability);
+    }
     GET_VALUE_WARN(minVertexInputBindingStrideAlignment, WarnIfLesser);
 }
 
@@ -2619,6 +2432,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_EXT_sampler_filter_minmax, but "
+            "VK_EXT_sampler_filter_minmax is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(filterMinmaxSingleComponentFormats, WarnIfGreater);
     GET_VALUE_WARN(filterMinmaxImageComponentMapping, WarnIfGreater);
 }
@@ -2629,6 +2448,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceTimelineSemaphorePropertiesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_timeline_semaphore, but "
+            "VK_KHR_timeline_semaphore is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(maxTimelineSemaphoreValueDifference, WarnIfGreater);
 }
 
@@ -2757,6 +2582,17 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(residencyNonResidentStrict);
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSubgroupProperties *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(subgroupSize);
+    GET_VALUE(supportedStages);
+    GET_VALUE(supportedOperations);
+    GET_VALUE(quadOperationsInAllStages);
+}
+
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest) {
     const Json::Value value = parent[name];
     if (value.type() != Json::objectValue) {
@@ -2826,6 +2662,11 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevice8BitStorageFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_8BIT_STORAGE_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_8bit_storage, but VK_KHR_8bit_storage is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(storageBuffer8BitAccess, WarnIfGreater);
     GET_VALUE_WARN(uniformAndStorageBuffer8BitAccess, WarnIfGreater);
     GET_VALUE_WARN(storagePushConstant8, WarnIfGreater);
@@ -2837,6 +2678,11 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevice16BitStorageFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_16BIT_STORAGE_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_16bit_storage, but VK_KHR_16bit_storage is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(storageBuffer16BitAccess, WarnIfGreater);
     GET_VALUE_WARN(uniformAndStorageBuffer16BitAccess, WarnIfGreater);
     GET_VALUE_WARN(storagePushConstant16, WarnIfGreater);
@@ -2849,6 +2695,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceBufferDeviceAddressFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_buffer_device_address, but "
+            "VK_KHR_buffer_device_address is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(bufferDeviceAddress, WarnIfGreater);
     GET_VALUE_WARN(bufferDeviceAddressCaptureReplay, WarnIfGreater);
     GET_VALUE_WARN(bufferDeviceAddressMultiDevice, WarnIfGreater);
@@ -2860,6 +2712,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceDescriptorIndexingFeaturesEXT)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_EXT_descriptor_indexing, but "
+            "VK_EXT_descriptor_indexing is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(shaderInputAttachmentArrayDynamicIndexing, WarnIfGreater);
     GET_VALUE_WARN(shaderUniformTexelBufferArrayDynamicIndexing, WarnIfGreater);
     GET_VALUE_WARN(shaderStorageTexelBufferArrayDynamicIndexing, WarnIfGreater);
@@ -2888,6 +2746,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceHostQueryResetFeaturesEXT)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_EXT_host_query_reset, but "
+            "VK_EXT_host_query_reset is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(hostQueryReset, WarnIfGreater);
 }
 
@@ -2897,6 +2761,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceImagelessFramebufferFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_IMAGELESS_FRAMEBUFFER_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_imageless_framebuffer, but "
+            "VK_KHR_imageless_framebuffer is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(imagelessFramebuffer, WarnIfGreater);
 }
 
@@ -2906,6 +2776,11 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMultiviewFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_MULTIVIEW_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_multiview, but VK_KHR_multiview is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(multiview, WarnIfGreater);
     GET_VALUE_WARN(multiviewGeometryShader, WarnIfGreater);
     GET_VALUE_WARN(multiviewTessellationShader, WarnIfGreater);
@@ -2917,6 +2792,13 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDevicePortabilitySubsetFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && emulatePortability.num <= 0) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_portability_subset, but VK_KHR_portability_subset is "
+            "not supported by the device and emulation is not turned on.\nIf you wish to emulate "
+            "VK_KHR_portability_subset, please set environment variable %s to 1.\n",
+            kEnvarDevsimEmulatePortability);
+    }
     GET_VALUE_WARN(constantAlphaColorBlendFactors, WarnIfGreater);
     GET_VALUE_WARN(events, WarnIfGreater);
     GET_VALUE_WARN(imageViewFormatReinterpretation, WarnIfGreater);
@@ -2949,6 +2831,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_sampler_ycbcr_conversion, but "
+            "VK_KHR_sampler_ycbcr_conversion is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(samplerYcbcrConversion, WarnIfGreater);
 }
 
@@ -2958,6 +2846,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceScalarBlockLayoutFeaturesEXT)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_EXT_scalar_block_layout, but "
+            "VK_EXT_scalar_block_layout is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(scalarBlockLayout, WarnIfGreater);
 }
 
@@ -2968,6 +2862,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name,
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceSeparateDepthStencilLayoutsFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SEPARATE_DEPTH_STENCIL_LAYOUTS_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_separate_depth_stencil_layouts, but "
+            "VK_KHR_separate_depth_stencil_layouts is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(separateDepthStencilLayouts, WarnIfGreater);
 }
 
@@ -2977,6 +2877,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceShaderAtomicInt64FeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_shader_atomic_int64, but "
+            "VK_KHR_shader_atomic_int64 is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(shaderBufferInt64Atomics, WarnIfGreater);
     GET_VALUE_WARN(shaderSharedInt64Atomics, WarnIfGreater);
 }
@@ -2996,6 +2902,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceShaderFloat16Int8FeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_shader_float16_int8, but "
+            "VK_KHR_shader_float16_int8 is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(shaderFloat16, WarnIfGreater);
     GET_VALUE_WARN(shaderInt8, WarnIfGreater);
 }
@@ -3007,6 +2919,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name,
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceFeatures)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_SHADER_SUBGROUP_EXTENDED_TYPES_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_shader_subgroup_extended_types, but "
+            "VK_KHR_shader_subgroup_extended_types is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(shaderSubgroupExtendedTypes, WarnIfGreater);
 }
 
@@ -3026,6 +2944,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name,
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_UNIFORM_BUFFER_STANDARD_LAYOUT_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_uniform_buffer_standard_layout, but"
+            "VK_KHR_unifrom_buffer_standard_layout is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(uniformBufferStandardLayout, WarnIfGreater);
 }
 
@@ -3035,6 +2959,11 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceVariablePointersFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_variable_pointers, but VK_KHR_variable_pointers is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(variablePointersStorageBuffer, WarnIfGreater);
     GET_VALUE_WARN(variablePointers, WarnIfGreater);
 }
@@ -3045,6 +2974,12 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
         return;
     }
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceVulkanMemoryModelFeaturesKHR)\n");
+    if (!PhysicalDeviceData::HasExtension(&pdd_, VK_KHR_VULKAN_MEMORY_MODEL_EXTENSION_NAME)) {
+        ErrorPrintf(
+            "JSON file sets variables for structs provided by VK_KHR_vulkan_memory_model, but VK_KHR_vulkan_memory_model "
+            "is "
+            "not supported by the device.\n");
+    }
     GET_VALUE_WARN(vulkanMemoryModel, WarnIfGreater);
     GET_VALUE_WARN(vulkanMemoryModelDeviceScope, WarnIfGreater);
     GET_VALUE_WARN(vulkanMemoryModelAvailabilityVisibilityChains, WarnIfGreater);
@@ -3203,6 +3138,294 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE_WARN(drawIndirectCount, WarnIfGreater);
     GET_VALUE_WARN(descriptorIndexing, WarnIfGreater);
     GET_VALUE_WARN(samplerFilterMinmax, WarnIfGreater);
+}
+
+void JsonLoader::GetValueGPUinfoCore11(const Json::Value &parent) {
+    const Json::Value core11 = parent["core11"];
+    if (core11.type() != Json::objectValue) {
+        return;
+    }
+
+    const Json::Value core11_features = core11["features"];
+    if (core11_features.type() == Json::objectValue) {
+        GetValue(core11_features, "storageBuffer16BitAccess",
+                 &pdd_.physical_device_16bit_storage_features_.storageBuffer16BitAccess);
+        GetValue(core11_features, "uniformAndStorageBuffer16BitAccess",
+                 &pdd_.physical_device_16bit_storage_features_.uniformAndStorageBuffer16BitAccess);
+        GetValue(core11_features, "storagePushConstant16", &pdd_.physical_device_16bit_storage_features_.storagePushConstant16);
+        GetValue(core11_features, "storageInputOutput16", &pdd_.physical_device_16bit_storage_features_.storageInputOutput16);
+
+        GetValue(core11_features, "multiview", &pdd_.physical_device_multiview_features_.multiview);
+        GetValue(core11_features, "multiviewGeometryShader", &pdd_.physical_device_multiview_features_.multiviewGeometryShader);
+        GetValue(core11_features, "multiviewTessellationShader",
+                 &pdd_.physical_device_multiview_features_.multiviewTessellationShader);
+
+        GetValue(core11_features, "variablePointersStorageBuffer",
+                 &pdd_.physical_device_variable_pointers_features_.variablePointersStorageBuffer);
+        GetValue(core11_features, "variablePointers", &pdd_.physical_device_variable_pointers_features_.variablePointers);
+
+        GetValue(core11_features, "protectedMemory", &pdd_.physical_device_protected_memory_features_.protectedMemory);
+
+        GetValue(core11_features, "samplerYcbcrConversion",
+                 &pdd_.physical_device_sampler_ycbcr_conversion_features_.samplerYcbcrConversion);
+
+        GetValue(core11_features, "shaderDrawParameters",
+                 &pdd_.physical_device_shader_draw_parameters_features_.shaderDrawParameters);
+    }
+
+    const Json::Value core11_properties = core11["properties"];
+    if (core11_properties.type() == Json::objectValue) {
+        GetValue(core11_properties, "subgroupSize", &pdd_.physical_device_subgroup_properties_.subgroupSize);
+        GetValue(core11_properties, "subgroupSupportedStages", &pdd_.physical_device_subgroup_properties_.supportedStages);
+        GetValue(core11_properties, "subgroupSupportedOperations", &pdd_.physical_device_subgroup_properties_.supportedOperations);
+        GetValue(core11_properties, "subgroupQuadOperationsInAllStages",
+                 &pdd_.physical_device_subgroup_properties_.quadOperationsInAllStages);
+
+        GetValue(core11_properties, "maxMultiviewViewCount", &pdd_.physical_device_multiview_properties_.maxMultiviewViewCount);
+        GetValue(core11_properties, "maxMultiviewInstanceIndex",
+                 &pdd_.physical_device_multiview_properties_.maxMultiviewInstanceIndex);
+
+        GetValue(core11_properties, "protectedNoFault", &pdd_.physical_device_protected_memory_properties_.protectedNoFault);
+
+        GetValue(core11_properties, "maxPerSetDescriptors", &pdd_.physical_device_maintenance_3_properties_.maxPerSetDescriptors);
+        GetValue(core11_properties, "maxMemoryAllocationSize",
+                 &pdd_.physical_device_maintenance_3_properties_.maxMemoryAllocationSize);
+    }
+
+    const Json::Value device_props = parent["VkPhysicalDeviceProperties"];
+    if (device_props.type() == Json::objectValue) {
+        GetValue(device_props, "subgroupProperties", &pdd_.physical_device_subgroup_properties_);
+    }
+}
+
+void JsonLoader::GetValueGPUinfoCore12(const Json::Value &parent) {
+    const Json::Value core12 = parent["core12"];
+    if (core12.type() != Json::objectValue) {
+        return;
+    }
+
+    const Json::Value core12_features = core12["features"];
+    if (core12_features.type() == Json::objectValue) {
+        GetValue(core12_features, "samplerMirrorClampToEdge", &pdd_.physical_device_vulkan_1_2_features_.samplerMirrorClampToEdge);
+        GetValue(core12_features, "shaderOutputViewportIndex",
+                 &pdd_.physical_device_vulkan_1_2_features_.shaderOutputViewportIndex);
+        GetValue(core12_features, "shaderOutputLayer", &pdd_.physical_device_vulkan_1_2_features_.shaderOutputLayer);
+        GetValue(core12_features, "subgroupBroadcastDynamicId",
+                 &pdd_.physical_device_vulkan_1_2_features_.subgroupBroadcastDynamicId);
+        GetValue(core12_features, "drawIndirectCount", &pdd_.physical_device_vulkan_1_2_features_.drawIndirectCount);
+        GetValue(core12_features, "descriptorIndexing", &pdd_.physical_device_vulkan_1_2_features_.descriptorIndexing);
+        GetValue(core12_features, "samplerFilterMinmax", &pdd_.physical_device_vulkan_1_2_features_.samplerFilterMinmax);
+
+        GetValue(core12_features, "storageBuffer8BitAccess", &pdd_.physical_device_8bit_storage_features_.storageBuffer8BitAccess);
+        GetValue(core12_features, "uniformAndStorageBuffer8BitAccess",
+                 &pdd_.physical_device_8bit_storage_features_.uniformAndStorageBuffer8BitAccess);
+        GetValue(core12_features, "storagePushConstant8", &pdd_.physical_device_8bit_storage_features_.storagePushConstant8);
+
+        GetValue(core12_features, "shaderBufferInt64Atomics",
+                 &pdd_.physical_device_shader_atomic_int64_features_.shaderBufferInt64Atomics);
+        GetValue(core12_features, "shaderSharedInt64Atomics",
+                 &pdd_.physical_device_shader_atomic_int64_features_.shaderSharedInt64Atomics);
+
+        GetValue(core12_features, "shaderFloat16", &pdd_.physical_device_shader_float16_int8_features_.shaderFloat16);
+        GetValue(core12_features, "shaderInt8", &pdd_.physical_device_shader_float16_int8_features_.shaderInt8);
+
+        GetValue(core12_features, "shaderInputAttachmentArrayDynamicIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderInputAttachmentArrayDynamicIndexing);
+        GetValue(core12_features, "shaderUniformTexelBufferArrayDynamicIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderUniformTexelBufferArrayDynamicIndexing);
+        GetValue(core12_features, "shaderStorageTexelBufferArrayDynamicIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderStorageTexelBufferArrayDynamicIndexing);
+        GetValue(core12_features, "shaderUniformBufferArrayNonUniformIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderUniformBufferArrayNonUniformIndexing);
+        GetValue(core12_features, "shaderSampledImageArrayNonUniformIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderSampledImageArrayNonUniformIndexing);
+        GetValue(core12_features, "shaderStorageBufferArrayNonUniformIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderStorageBufferArrayNonUniformIndexing);
+        GetValue(core12_features, "shaderStorageImageArrayNonUniformIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderStorageImageArrayNonUniformIndexing);
+        GetValue(core12_features, "shaderInputAttachmentArrayNonUniformIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderInputAttachmentArrayNonUniformIndexing);
+        GetValue(core12_features, "shaderUniformTexelBufferArrayNonUniformIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderUniformTexelBufferArrayNonUniformIndexing);
+        GetValue(core12_features, "shaderStorageTexelBufferArrayNonUniformIndexing",
+                 &pdd_.physical_device_descriptor_indexing_features_.shaderStorageTexelBufferArrayNonUniformIndexing);
+        GetValue(core12_features, "descriptorBindingUniformBufferUpdateAfterBind",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingUniformBufferUpdateAfterBind);
+        GetValue(core12_features, "descriptorBindingSampledImageUpdateAfterBind",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingSampledImageUpdateAfterBind);
+        GetValue(core12_features, "descriptorBindingStorageImageUpdateAfterBind",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingStorageImageUpdateAfterBind);
+        GetValue(core12_features, "descriptorBindingStorageBufferUpdateAfterBind",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingStorageBufferUpdateAfterBind);
+        GetValue(core12_features, "descriptorBindingUniformTexelBufferUpdateAfterBind",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingUniformTexelBufferUpdateAfterBind);
+        GetValue(core12_features, "descriptorBindingStorageTexelBufferUpdateAfterBind",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingStorageTexelBufferUpdateAfterBind);
+        GetValue(core12_features, "descriptorBindingUpdateUnusedWhilePending",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingUpdateUnusedWhilePending);
+        GetValue(core12_features, "descriptorBindingPartiallyBound",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingPartiallyBound);
+        GetValue(core12_features, "descriptorBindingVariableDescriptorCount",
+                 &pdd_.physical_device_descriptor_indexing_features_.descriptorBindingVariableDescriptorCount);
+        GetValue(core12_features, "runtimeDescriptorArray",
+                 &pdd_.physical_device_descriptor_indexing_features_.runtimeDescriptorArray);
+
+        GetValue(core12_features, "scalarBlockLayout", &pdd_.physical_device_scalar_block_layout_features_.scalarBlockLayout);
+
+        GetValue(core12_features, "imagelessFramebuffer",
+                 &pdd_.physical_device_imageless_framebuffer_features_.imagelessFramebuffer);
+
+        GetValue(core12_features, "uniformBufferStandardLayout",
+                 &pdd_.physical_device_uniform_buffer_standard_layout_features_.uniformBufferStandardLayout);
+
+        GetValue(core12_features, "shaderSubgroupExtendedTypes",
+                 &pdd_.physical_device_shader_subgroup_extended_types_features_.shaderSubgroupExtendedTypes);
+
+        GetValue(core12_features, "separateDepthStencilLayouts",
+                 &pdd_.physical_device_separate_depth_stencil_layouts_features_.separateDepthStencilLayouts);
+
+        GetValue(core12_features, "hostQueryReset", &pdd_.physical_device_host_query_reset_features_.hostQueryReset);
+
+        GetValue(core12_features, "timelineSemaphore", &pdd_.physical_device_timeline_semaphore_features_.timelineSemaphore);
+
+        GetValue(core12_features, "bufferDeviceAddress", &pdd_.physical_device_buffer_device_address_features_.bufferDeviceAddress);
+        GetValue(core12_features, "bufferDeviceAddressCaptureReplay",
+                 &pdd_.physical_device_buffer_device_address_features_.bufferDeviceAddressCaptureReplay);
+        GetValue(core12_features, "bufferDeviceAddressMultiDevice",
+                 &pdd_.physical_device_buffer_device_address_features_.bufferDeviceAddressMultiDevice);
+
+        GetValue(core12_features, "vulkanMemoryModel", &pdd_.physical_device_vulkan_memory_model_features_.vulkanMemoryModel);
+        GetValue(core12_features, "vulkanMemoryModelDeviceScope",
+                 &pdd_.physical_device_vulkan_memory_model_features_.vulkanMemoryModelDeviceScope);
+        GetValue(core12_features, "vulkanMemoryModelAvailabilityVisibilityChains",
+                 &pdd_.physical_device_vulkan_memory_model_features_.vulkanMemoryModelAvailabilityVisibilityChains);
+    }
+
+    const Json::Value core12_properties = core12["properties"];
+    if (core12_properties.type() == Json::objectValue) {
+        GetValue(core12_properties, "denormBehaviorIndependence",
+                 &pdd_.physical_device_float_controls_properties_.denormBehaviorIndependence);
+        GetValue(core12_properties, "roundingModeIndependence",
+                 &pdd_.physical_device_float_controls_properties_.roundingModeIndependence);
+        GetValue(core12_properties, "shaderSignedZeroInfNanPreserveFloat16",
+                 &pdd_.physical_device_float_controls_properties_.shaderSignedZeroInfNanPreserveFloat16);
+        GetValue(core12_properties, "shaderSignedZeroInfNanPreserveFloat32",
+                 &pdd_.physical_device_float_controls_properties_.shaderSignedZeroInfNanPreserveFloat32);
+        GetValue(core12_properties, "shaderSignedZeroInfNanPreserveFloat64",
+                 &pdd_.physical_device_float_controls_properties_.shaderSignedZeroInfNanPreserveFloat64);
+        GetValue(core12_properties, "shaderDenormPreserveFloat16",
+                 &pdd_.physical_device_float_controls_properties_.shaderDenormPreserveFloat16);
+        GetValue(core12_properties, "shaderDenormPreserveFloat32",
+                 &pdd_.physical_device_float_controls_properties_.shaderDenormPreserveFloat32);
+        GetValue(core12_properties, "shaderDenormPreserveFloat64",
+                 &pdd_.physical_device_float_controls_properties_.shaderDenormPreserveFloat64);
+        GetValue(core12_properties, "shaderDenormFlushToZeroFloat16",
+                 &pdd_.physical_device_float_controls_properties_.shaderDenormFlushToZeroFloat16);
+        GetValue(core12_properties, "shaderDenormFlushToZeroFloat32",
+                 &pdd_.physical_device_float_controls_properties_.shaderDenormFlushToZeroFloat32);
+        GetValue(core12_properties, "shaderDenormFlushToZeroFloat64",
+                 &pdd_.physical_device_float_controls_properties_.shaderDenormFlushToZeroFloat64);
+        GetValue(core12_properties, "shaderRoundingModeRTEFloat16",
+                 &pdd_.physical_device_float_controls_properties_.shaderRoundingModeRTEFloat16);
+        GetValue(core12_properties, "shaderRoundingModeRTEFloat32",
+                 &pdd_.physical_device_float_controls_properties_.shaderRoundingModeRTEFloat32);
+        GetValue(core12_properties, "shaderRoundingModeRTEFloat64",
+                 &pdd_.physical_device_float_controls_properties_.shaderRoundingModeRTEFloat64);
+        GetValue(core12_properties, "shaderRoundingModeRTZFloat16",
+                 &pdd_.physical_device_float_controls_properties_.shaderRoundingModeRTZFloat16);
+        GetValue(core12_properties, "shaderRoundingModeRTZFloat32",
+                 &pdd_.physical_device_float_controls_properties_.shaderRoundingModeRTZFloat32);
+        GetValue(core12_properties, "shaderRoundingModeRTZFloat64",
+                 &pdd_.physical_device_float_controls_properties_.shaderRoundingModeRTZFloat64);
+
+        GetValue(core12_properties, "maxUpdateAfterBindDescriptorsInAllPools",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxUpdateAfterBindDescriptorsInAllPools);
+        GetValue(core12_properties, "shaderUniformBufferArrayNonUniformIndexingNative",
+                 &pdd_.physical_device_descriptor_indexing_properties_.shaderUniformBufferArrayNonUniformIndexingNative);
+        GetValue(core12_properties, "shaderSampledImageArrayNonUniformIndexingNative",
+                 &pdd_.physical_device_descriptor_indexing_properties_.shaderSampledImageArrayNonUniformIndexingNative);
+        GetValue(core12_properties, "shaderStorageBufferArrayNonUniformIndexingNative",
+                 &pdd_.physical_device_descriptor_indexing_properties_.shaderStorageBufferArrayNonUniformIndexingNative);
+        GetValue(core12_properties, "shaderStorageImageArrayNonUniformIndexingNative",
+                 &pdd_.physical_device_descriptor_indexing_properties_.shaderStorageImageArrayNonUniformIndexingNative);
+        GetValue(core12_properties, "shaderInputAttachmentArrayNonUniformIndexingNative",
+                 &pdd_.physical_device_descriptor_indexing_properties_.shaderInputAttachmentArrayNonUniformIndexingNative);
+        GetValue(core12_properties, "robustBufferAccessUpdateAfterBind",
+                 &pdd_.physical_device_descriptor_indexing_properties_.robustBufferAccessUpdateAfterBind);
+        GetValue(core12_properties, "quadDivergentImplicitLod",
+                 &pdd_.physical_device_descriptor_indexing_properties_.quadDivergentImplicitLod);
+        GetValue(core12_properties, "maxPerStageDescriptorUpdateAfterBindSamplers",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxPerStageDescriptorUpdateAfterBindSamplers);
+        GetValue(core12_properties, "maxPerStageDescriptorUpdateAfterBindUniformBuffers",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxPerStageDescriptorUpdateAfterBindUniformBuffers);
+        GetValue(core12_properties, "maxPerStageDescriptorUpdateAfterBindStorageBuffers",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxPerStageDescriptorUpdateAfterBindStorageBuffers);
+        GetValue(core12_properties, "maxPerStageDescriptorUpdateAfterBindSampledImages",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxPerStageDescriptorUpdateAfterBindSampledImages);
+        GetValue(core12_properties, "maxPerStageDescriptorUpdateAfterBindStorageImages",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxPerStageDescriptorUpdateAfterBindStorageImages);
+        GetValue(core12_properties, "maxPerStageDescriptorUpdateAfterBindInputAttachments",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxPerStageDescriptorUpdateAfterBindInputAttachments);
+        GetValue(core12_properties, "maxPerStageUpdateAfterBindResources",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxPerStageUpdateAfterBindResources);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindSamplers",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindSamplers);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindUniformBuffers",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindUniformBuffers);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindUniformBuffersDynamic",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindUniformBuffersDynamic);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindStorageBuffers",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindStorageBuffers);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindStorageBuffersDynamic",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindStorageBuffersDynamic);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindSampledImages",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindSampledImages);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindStorageImages",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindStorageImages);
+        GetValue(core12_properties, "maxDescriptorSetUpdateAfterBindInputAttachments",
+                 &pdd_.physical_device_descriptor_indexing_properties_.maxDescriptorSetUpdateAfterBindInputAttachments);
+
+        GetValue(core12_properties, "supportedDepthResolveModes",
+                 &pdd_.physical_device_depth_stencil_resolve_properties_.supportedDepthResolveModes);
+        GetValue(core12_properties, "supportedStencilResolveModes",
+                 &pdd_.physical_device_depth_stencil_resolve_properties_.supportedStencilResolveModes);
+        GetValue(core12_properties, "independentResolveNone",
+                 &pdd_.physical_device_depth_stencil_resolve_properties_.independentResolveNone);
+        GetValue(core12_properties, "independentResolve",
+                 &pdd_.physical_device_depth_stencil_resolve_properties_.independentResolve);
+
+        GetValue(core12_properties, "filterMinmaxSingleComponentFormats",
+                 &pdd_.physical_device_sampler_filter_minmax_properties_.filterMinmaxSingleComponentFormats);
+        GetValue(core12_properties, "filterMinmaxImageComponentMapping",
+                 &pdd_.physical_device_sampler_filter_minmax_properties_.filterMinmaxImageComponentMapping);
+
+        GetValue(core12_properties, "maxTimelineSemaphoreValueDifference",
+                 &pdd_.physical_device_timeline_semaphore_properties_.maxTimelineSemaphoreValueDifference);
+
+        GetValue(core12_properties, "framebufferIntegerColorSampleCounts",
+                 &pdd_.physical_device_vulkan_1_2_properties_.framebufferIntegerColorSampleCounts);
+    }
+}
+
+void JsonLoader::GetValueGPUinfoSurfaceCapabilities(const Json::Value &parent) {
+    const Json::Value surface_capabilities =
+        parent["surfacecapabilites"];  // You may notice "surfacecapabilites" is missing an 'i'.  This is how it is spelled in the
+                                       // GPUinfo format.
+    if (surface_capabilities.type() != Json::objectValue) {
+        return;
+    }
+
+    GetValue(surface_capabilities, "minImageCount", &pdd_.surface_capabilities_.minImageCount);
+    GetValue(surface_capabilities, "maxImageCount", &pdd_.surface_capabilities_.maxImageCount);
+    GetValue(surface_capabilities, "minImageExtent", &pdd_.surface_capabilities_.minImageExtent);
+    GetValue(surface_capabilities, "maxImageExtent", &pdd_.surface_capabilities_.maxImageExtent);
+    GetValue(surface_capabilities, "maxImageArrayLayers", &pdd_.surface_capabilities_.maxImageArrayLayers);
+    GetValue(surface_capabilities, "supportedTransforms", &pdd_.surface_capabilities_.supportedTransforms);
+    GetValue(surface_capabilities, "supportedCompositeAlpha", &pdd_.surface_capabilities_.supportedCompositeAlpha);
+    GetValue(surface_capabilities, "supportedUsageFlags", &pdd_.surface_capabilities_.supportedUsageFlags);
+
+    GetArray(surface_capabilities, "surfaceformats", &pdd_.arrayof_surface_formats_);
+    GetArray(surface_capabilities, "presentmodes", &pdd_.arrayof_present_modes_);
 }
 
 #undef GET_VALUE
@@ -3665,6 +3888,12 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
             void *pNext = sdpf->pNext;
             *sdpf = physicalDeviceData->physical_device_shader_draw_parameters_features_;
             sdpf->pNext = pNext;
+        } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES &&
+                   physicalDeviceData->physical_device_properties_.apiVersion >= VK_API_VERSION_1_1) {
+            VkPhysicalDeviceSubgroupProperties *sp = (VkPhysicalDeviceSubgroupProperties *)place;
+            void *pNext = sp->pNext;
+            *sp = physicalDeviceData->physical_device_subgroup_properties_;
+            sp->pNext = pNext;
         } else if (structure->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES &&
                    physicalDeviceData->physical_device_properties_.apiVersion >= VK_API_VERSION_1_2) {
             VkPhysicalDeviceVulkan11Properties *v11p = (VkPhysicalDeviceVulkan11Properties *)place;
