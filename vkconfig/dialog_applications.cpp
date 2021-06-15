@@ -20,9 +20,9 @@
  */
 
 #include "dialog_applications.h"
-
 #include "configurator.h"
-#include "alert.h"
+
+#include "../vkconfig_core/alert.h"
 
 #include <QFileDialog>
 #include <QTextStream>

@@ -21,8 +21,6 @@
 
 #include "mainwindow.h"
 
-#include "alert.h"
-
 #include "dialog_about.h"
 #include "dialog_vulkan_analysis.h"
 #include "dialog_vulkan_info.h"
@@ -33,6 +31,7 @@
 #include "configurator.h"
 #include "vulkan.h"
 
+#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"

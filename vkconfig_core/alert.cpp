@@ -78,6 +78,17 @@ void Alert::LayerInitFailed() {
     alert.exec();
 }
 
+void Alert::LayerInvalid(const char* path, const char* message) {
+    const std::string text = format("%s is not a valid layer manifest. \n\n", path) + message;
+
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("Failed to load a layer manifest...");
+    alert.setText(text.c_str());
+    alert.setInformativeText("The layer is being ignored.");
+    alert.setIcon(QMessageBox::Critical);
+    alert.exec();
+}
+
 QMessageBox::Button Alert::LayerImplicitExcluded(const char* layer_name) {
     const char* text = "%s was excluded but it is an implicit layer. This may cause undefined behavior, including crashes.";
 

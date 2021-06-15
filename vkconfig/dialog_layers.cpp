@@ -23,8 +23,8 @@
 #include "dialog_custom_paths.h"
 
 #include "configurator.h"
-#include "alert.h"
 
+#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/doc.h"
