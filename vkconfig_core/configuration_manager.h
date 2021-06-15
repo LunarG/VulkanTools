@@ -36,7 +36,8 @@ class ConfigurationManager {
 
     void SaveAllConfigurations(const std::vector<Layer>& available_layers);
 
-    Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
+    Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name,
+                                       bool duplicate = false);
 
     void RemoveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
 
