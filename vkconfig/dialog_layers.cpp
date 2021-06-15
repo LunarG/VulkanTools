@@ -217,14 +217,14 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
 
     std::string decorated_name(parameter.key);
 
-    if (layer->status != STATUS_STABLE) {
-        decorated_name += format(" (%s)", GetToken(layer->status));
-    }
-
-    decorated_name += format(" - %s", layer->api_version.str().c_str());
-
     bool is_implicit_layer = false;
     if (layer != nullptr) {
+        if (layer->status != STATUS_STABLE) {
+            decorated_name += format(" (%s)", GetToken(layer->status));
+        }
+
+        decorated_name += format(" - %s", layer->api_version.str().c_str());
+
         if (IsDLL32Bit(layer->manifest_path)) {
             decorated_name += " (32-bit)";
         }
@@ -234,6 +234,10 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
             decorated_name += format(" - %s layer", GetLayerTypeLabel(layer->type));
         }
     } else {
+        // A layers configuration may have excluded layer that are misssing because they are not available on this platform
+        // We simply hide these layers to avoid confusing the Vulkan developers
+        if (parameter.state == LAYER_STATE_EXCLUDED) return;
+
         decorated_name += " (Missing)";
     }
 

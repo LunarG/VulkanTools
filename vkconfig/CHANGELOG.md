@@ -31,6 +31,7 @@
 
 ### Fixes:
 - Fix message box with no title displayed on macOS #1547
+- Hide excluded layers in configuration that are missing, these may not be supported on the platform. #1551
 
 ## [Vulkan Configurator 2.3.0 for Vulkan SDK 1.2.176.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - Mai 2021
 
