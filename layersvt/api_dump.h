@@ -521,23 +521,26 @@ class ApiDumpSettings {
         stream << indentation(indents) << name << ": ";
 
         if (use_spaces)
-            stream << spaces(name_size - (int)strlen(name) - 2);
+            stream << std::setfill(' ') << std::setw(name_size - (int)strlen(name) - 2);
         else
-            stream << tabs((name_size - (int)strlen(name) - 3 + indent_size) / indent_size);
+            stream << std::setfill('\t') << std::setw((name_size - (int)strlen(name) - 3 + indent_size) / indent_size);
 
         if (show_type && use_spaces)
-            stream << type << spaces(type_size - (int)strlen(type));
+            stream << type << std::setfill(' ') << std::setw(type_size - (int)strlen(type));
         else if (show_type && !use_spaces)
-            stream << type << tabs((type_size - (int)strlen(type) - 1 + indent_size) / indent_size);
+            stream << type << std::setfill('\t') << std::setw((type_size - (int)strlen(type) - 1 + indent_size) / indent_size);
 
         return stream << " = ";
     }
 
     inline const char *indentation(int indents) const {
-        if (use_spaces)
-            return spaces(indents * indent_size);
-        else
-            return tabs(indents);
+        if (use_spaces) {
+            stream() << std::setfill(' ') << std::setw(indents * indent_size);
+            return "";
+        } else {
+            stream() << std::setfill('\t') << std::setw(indents);
+            return "";
+        }
     }
 
     inline bool shouldFlush() const { return should_flush; }
@@ -650,10 +653,6 @@ class ApiDumpSettings {
             return default_value;
     }
 
-    inline static const char *spaces(int count) { return SPACES + (MAX_SPACES - std::max(count, 0)); }
-
-    inline static const char *tabs(int count) { return TABS + (MAX_TABS - std::max(count, 0)); }
-
     bool use_cout;
     std::string output_dir = "";
     std::ofstream output_stream;
@@ -673,18 +672,7 @@ class ApiDumpSettings {
 
     bool use_conditional_output = false;
     ConditionalFrameOutput condFrameOutput;
-
-    static const char *const SPACES;
-    static const int MAX_SPACES = 144;
-    static const char *const TABS;
-    static const int MAX_TABS = 36;
 };
-
-const char *const ApiDumpSettings::SPACES =
-    "                                                                                                                          "
-    "    "
-    "                  ";
-const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
 class ApiDumpInstance {
    public:
