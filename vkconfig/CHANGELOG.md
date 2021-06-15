@@ -29,6 +29,9 @@
 - Add shader caching setting to validation built-in UI #1522
 - Improve user-defined paths dialog and workflow #1523
 
+### Fixes:
+- Fix message box with no title displayed on macOS #1547
+
 ## [Vulkan Configurator 2.3.0 for Vulkan SDK 1.2.176.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - Mai 2021
 
 ### Features:

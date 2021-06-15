@@ -20,6 +20,7 @@
 
 #include "vulkan.h"
 #include "configurator.h"
+#include "alert.h"
 
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/platform.h"
@@ -28,9 +29,6 @@
 
 #include <QLibrary>
 #include <QtGlobal>
-#include <QFileInfo>
-#include <QDir>
-#include <QMessageBox>
 
 #include <cassert>
 
@@ -108,11 +106,7 @@ std::string GenerateVulkanStatus() {
     const Version loader_version = GetVulkanLoaderVersion();
 
     if (loader_version == Version::VERSION_NULL) {
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Vulkan Development Status failure...");
-        alert.setText("Could not find a Vulkan Loader.");
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
+        Alert::LoaderFailure();
 
         log += "- Could not find a Vulkan Loader.\n";
         return log;
@@ -204,11 +198,7 @@ std::string GenerateVulkanStatus() {
     assert(vkCreateInstance);
     err = vkCreateInstance(&inst_info, NULL, &inst);
     if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Vulkan Development Status failure...");
-        alert.setText("Cannot find a compatible Vulkan installable client driver (ICD).");
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
+        Alert::InstanceFailure();
 
         log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
         return log;
@@ -220,11 +210,7 @@ std::string GenerateVulkanStatus() {
 
     // This can fail on a new Linux setup. Check and fail gracefully rather than crash.
     if (err != VK_SUCCESS) {
-        QMessageBox alert(NULL);
-        alert.setWindowTitle("Vulkan Development Status failure...");
-        alert.setText("Cannot find any Vulkan Physical Devices.");
-        alert.setIcon(QMessageBox::Critical);
-        alert.exec();
+        Alert::PhysicalDeviceFailure();
 
         log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
         return log;

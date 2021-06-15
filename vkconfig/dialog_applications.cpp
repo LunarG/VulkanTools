@@ -22,8 +22,8 @@
 #include "dialog_applications.h"
 
 #include "configurator.h"
+#include "alert.h"
 
-#include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
 #include <QCloseEvent>
@@ -98,12 +98,7 @@ void ApplicationsDialog::closeEvent(QCloseEvent *event) {
     if (environment.GetApplications().empty() || !environment.HasOverriddenApplications()) {
         environment.SetMode(OVERRIDE_MODE_LIST, false);
 
-        QMessageBox alert;
-        alert.setIcon(QMessageBox::Warning);
-        alert.setWindowTitle("Vulkan Layers overriding will apply globally.");
-        alert.setText("The application list to override is empty. Restricting layers overriding to the selected list is disabled.");
-        alert.setInformativeText("As a result, Vulkan Layers overriding will apply globally, to all Vulkan applications.");
-        alert.exec();
+        Alert::ApplicationListEmpty();
     }
 }
 

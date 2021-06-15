@@ -362,15 +362,7 @@ void MainWindow::on_check_box_apply_list_clicked() {
             format("The detected Vulkan loader version is %s but version 1.2.141 or newer is required", version.c_str());
         ui->check_box_apply_list->setToolTip(message.c_str());
 
-        QMessageBox alert(nullptr);
-        alert.setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
-        alert.setTextFormat(Qt::RichText);
-        alert.setText(message.c_str());
-        alert.setInformativeText(
-            "In order to apply layers override to only a selected list of Vulkan applications, get the latest Vulkan Runtime from "
-            "<a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature or update your Vulkan drivers");
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
+        Alert::ApplicationListUnsupported(message.c_str());
 
         ui->check_box_apply_list->setEnabled(false);
         ui->check_box_apply_list->setChecked(false);
@@ -406,17 +398,7 @@ void MainWindow::on_check_box_clear_on_launch_clicked() {
 void MainWindow::toolsResetToDefault(bool checked) {
     (void)checked;
 
-    // Let make sure...
-    QMessageBox alert;
-    alert.setIcon(QMessageBox::Warning);
-    alert.setWindowTitle("Restoring and Resetting all Layers Configurations to default");
-    alert.setText(
-        "You are about to delete all the user-defined configurations and resetting all default configurations to their default "
-        "state.");
-    alert.setInformativeText("Are you sure you want to continue?");
-    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    alert.setDefaultButton(QMessageBox::Yes);
-    if (alert.exec() == QMessageBox::No) return;
+    if (Alert::ConfiguratorResetAll() == QMessageBox::No) return;
 
     _settings_tree_manager.CleanupGUI();
 
@@ -971,15 +953,7 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
 void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
     (void)item;
 
-    QMessageBox alert;
-    alert.setWindowTitle("Reloading Missing Default Configurations...");
-    alert.setText("Are you sure you want to reload the default configurations?");
-    alert.setInformativeText("Add missing default configurations. Existing configurations are preserved.");
-    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    alert.setDefaultButton(QMessageBox::No);
-    alert.setIcon(QMessageBox::Warning);
-
-    if (alert.exec() == QMessageBox::Yes) {
+    if (Alert::ConfiguratorReloadDefault() == QMessageBox::Yes) {
         _settings_tree_manager.CleanupGUI();
 
         Configurator &configurator = Configurator::Get();
@@ -1528,10 +1502,7 @@ void MainWindow::on_push_button_launcher_clicked() {
             if (!ui->check_box_clear_on_launch->isChecked()) mode |= QIODevice::Append;
 
             if (!_log_file.open(mode)) {
-                QMessageBox err;
-                err.setText("Cannot open log file");
-                err.setIcon(QMessageBox::Warning);
-                err.exec();
+                Alert::LogFileFailed();
             }
         }
     }

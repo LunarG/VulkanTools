@@ -21,6 +21,7 @@
 
 #include "configurator.h"
 #include "settings_tree.h"
+#include "alert.h"
 
 #include "widget_setting.h"
 #include "widget_setting_int.h"
@@ -44,7 +45,6 @@
 #include <QRadioButton>
 #include <QApplication>
 #include <QSettings>
-#include <QMessageBox>
 
 #include <cassert>
 
@@ -453,14 +453,7 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     if (!settings.value("vkconfig_restart", false).toBool()) {
         settings.setValue("vkconfig_restart", true);
 
-        QMessageBox alert;
-        alert.setText(
-            "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application "
-            "start.\n\n"
-            "For changes to take effect, running Vulkan Applications should be restarted.");
-        alert.setWindowTitle("Any change requires Vulkan Applications restart");
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
+        Alert::ConfiguratorRestart();
     }
 
     // Refresh layer configuration
