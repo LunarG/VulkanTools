@@ -331,7 +331,7 @@ void LayersDialog::on_button_reset_clicked() {
     Configurator &configurator = Configurator::Get();
 
     QMessageBox alert;
-    alert.setWindowTitle(format("Resetting *%s* configuration...", this->configuration.key.c_str()).c_str());
+    alert.QDialog::setWindowTitle(format("Resetting *%s* configuration...", this->configuration.key.c_str()).c_str());
     alert.setText(format("Are you sure you want to reset the *%s* configuration?", this->configuration.key.c_str()).c_str());
     if (this->configuration.IsBuiltIn())
         alert.setInformativeText(
@@ -476,15 +476,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     LayerState layer_state = static_cast<LayerState>(selection);
 
     if (layer_state == LAYER_STATE_OVERRIDDEN && current_parameter->key == "VK_LAYER_LUNARG_device_simulation") {
-        QMessageBox alert;
-        alert.setWindowTitle("Overridding or excluding ALL explicit layers is recommanded");
-        alert.setText(
-            "VK_LAYER_LUNARG_device_simulation requires being executed close to the Vulkan drivers. However, "
-            "application-controlled layers are executed after Vulkan Configurator overridden layers.");
-        alert.setInformativeText("Do you want to override ALL explicit layers too?");
-        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        alert.setIcon(QMessageBox::Warning);
-        if (alert.exec() == QMessageBox::Yes) {
+        if (Alert::LayerDevSim() == QMessageBox::Yes) {
             OverrideAllExplicitLayers();
         }
     } else if (layer_state == LAYER_STATE_EXCLUDED) {
@@ -493,16 +485,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
         if (layer != nullptr) {
             if (layer->type == LAYER_TYPE_IMPLICIT) {
-                QMessageBox alert;
-                alert.setWindowTitle("Implicit layer excluded...");
-                alert.setText(
-                    format("%s was excluded but it is an implicit layer. This may cause undefined behavior, including crashes. ",
-                           tree_layer_item->layer_name.c_str())
-                        .c_str());
-                alert.setInformativeText("Do you want to continue?");
-                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-                alert.setIcon(QMessageBox::Warning);
-                if (alert.exec() == QMessageBox::No) {
+                if (Alert::LayerImplicitExcluded(tree_layer_item->layer_name.c_str()) == QMessageBox::No) {
                     current_parameter->state = LAYER_STATE_APPLICATION_CONTROLLED;
                 }
             }

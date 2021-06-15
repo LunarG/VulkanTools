@@ -22,9 +22,32 @@
 
 #include "../vkconfig_core/layer.h"
 
+#include <QMessageBox>
+
 struct Alert {
+    static void LoaderFailure();
+    static void InstanceFailure();
+    static void PhysicalDeviceFailure();
+
+    static void ApplicationListUnsupported(const char* message);
+    static void ApplicationListEmpty();
+
+    static void LayerInitFailed();
+    static QMessageBox::Button LayerImplicitExcluded(const char* layer_name);
+    static QMessageBox::Button LayerDevSim();
+
+    static void ConfiguratorSingleton();
+    static void ConfiguratorInitFailed();
+    static void ConfiguratorRestart();
+    static QMessageBox::Button ConfiguratorResetAll();
+    static QMessageBox::Button ConfiguratorReloadDefault();
+    static QMessageBox::Button ConfiguratorCrashed();
+
     static void ConfigurationRenamingFailed();
     static void ConfigurationNameEmpty();
     static void ConfigurationNameInvalid();
-    static void LayerProperties(const Layer *layer);
+
+    static void LayerProperties(const Layer* layer);
+
+    static void LogFileFailed();
 };

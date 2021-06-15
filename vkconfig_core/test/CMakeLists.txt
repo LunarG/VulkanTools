@@ -10,7 +10,7 @@ function(vkConfigTest NAME)
     set(TEST_NAME vkconfig_${NAME})
 
     file(GLOB FILES_JSON ./*.json)
-    file(GLOB FILES_TEXT ./*0.txt)
+    file(GLOB FILES_TEXT ./*.txt)
     source_group("Test Files" FILES ${FILES_JSON} ${FILES_TEXT})
 
     add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} resources.qrc)
