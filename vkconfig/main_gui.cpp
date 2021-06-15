@@ -21,8 +21,8 @@
 #include "main_gui.h"
 
 #include "mainwindow.h"
-#include "alert.h"
 
+#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/application_singleton.h"
 

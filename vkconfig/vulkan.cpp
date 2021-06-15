@@ -20,8 +20,8 @@
 
 #include "vulkan.h"
 #include "configurator.h"
-#include "alert.h"
 
+#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/platform.h"
 

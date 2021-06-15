@@ -33,6 +33,7 @@ struct Alert {
     static void ApplicationListEmpty();
 
     static void LayerInitFailed();
+    static void LayerInvalid(const char* path, const char* message);
     static QMessageBox::Button LayerImplicitExcluded(const char* layer_name);
     static QMessageBox::Button LayerDevSim();
 

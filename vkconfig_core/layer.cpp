@@ -34,6 +34,7 @@
 #include "path.h"
 #include "json.h"
 #include "json_validator.h"
+#include "alert.h"
 
 #include <QFile>
 #include <QDir>
@@ -158,17 +159,6 @@ SettingMeta* Layer::Instantiate(const std::string& key, const SettingType type) 
     return setting_meta;
 }
 
-static void AlertInvalidLayer(const std::string& path, const std::string& text) {
-    const std::string title = format("Failed to load %s layer manifest. The layer will be ignored.", path.c_str());
-
-    QMessageBox alert;
-    alert.setWindowTitle(title.c_str());
-    alert.setText(text.c_str());
-    alert.setIcon(QMessageBox::Critical);
-    alert.setInformativeText("The layer is being ignored");
-    alert.exec();
-}
-
 /// Reports errors via a message box. This might be a bad idea?
 bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type) {
     this->type = layer_type;  // Set layer type, no way to know this from the json file
@@ -209,8 +199,8 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
 
     this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     if (this->file_format_version.GetMajor() > 1) {
-        ::AlertInvalidLayer(full_path_to_file,
-                            format("Unsupported layer file format: %s", this->file_format_version.str().c_str()));
+        Alert::LayerInvalid(full_path_to_file.c_str(),
+                            format("Unsupported layer file format: %s", this->file_format_version.str().c_str()).c_str());
         return false;
     }
 
@@ -262,7 +252,7 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
 
     if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
         if (!is_builtin_layer_file || (is_builtin_layer_file && this->api_version >= Version(1, 2, 170))) {
-            AlertInvalidLayer(full_path_to_file, validator.message.toStdString());
+            Alert::LayerInvalid(full_path_to_file.c_str(), validator.message.toStdString().c_str());
             return false;
         }
     }

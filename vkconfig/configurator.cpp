@@ -22,13 +22,13 @@
 
 #include "configurator.h"
 #include "vulkan.h"
-#include "alert.h"
 
 #include "dialog_custom_paths.h"
 
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/path.h"
 #include "../vkconfig_core/override.h"
+#include "../vkconfig_core/alert.h"
 
 #include <QDir>
 #include <QSettings>

@@ -21,7 +21,6 @@
 
 #include "configurator.h"
 #include "settings_tree.h"
-#include "alert.h"
 
 #include "widget_setting.h"
 #include "widget_setting_int.h"
@@ -35,6 +34,7 @@
 #include "widget_setting_list_element.h"
 #include "widget_setting_list.h"
 
+#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"

@@ -28,6 +28,7 @@ Release: DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
+    ../vkconfig_core/alert.cpp \
     ../vkconfig_core/application.cpp \
     ../vkconfig_core/application_singleton.cpp \
     ../vkconfig_core/command_line.cpp \
@@ -63,7 +64,6 @@ SOURCES += \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
     vulkan.cpp \
-    alert.cpp \
     widget_preset.cpp \
     widget_setting.cpp \
     widget_setting_bool.cpp \
@@ -94,6 +94,7 @@ SOURCES += \
     configurator.cpp
 
 HEADERS += \
+    ../vkconfig_core/alert.h \
     ../vkconfig_core/application.h \
     ../vkconfig_core/application_singleton.h \
     ../vkconfig_core/command_line.h \
@@ -129,7 +130,6 @@ HEADERS += \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \
     vulkan.h \
-    alert.h \
     widget_preset.h \
     widget_setting.h \
     widget_setting_bool.h \
