@@ -139,10 +139,10 @@ void ConfigurationManager::SaveAllConfigurations(const std::vector<Layer> &avail
 }
 
 Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer> &available_layers,
-                                                         const std::string &configuration_name) {
+                                                         const std::string &configuration_name, bool duplicate) {
     Configuration *duplicate_configuration = FindByKey(available_configurations, configuration_name.c_str());
 
-    Configuration new_configuration = duplicate_configuration != nullptr ? *duplicate_configuration : Configuration();
+    Configuration new_configuration = duplicate_configuration != nullptr && duplicate ? *duplicate_configuration : Configuration();
     new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
 
     const std::string path = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + new_configuration.key + ".json";

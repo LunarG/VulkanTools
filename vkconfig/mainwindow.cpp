@@ -899,7 +899,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
     const Configuration &duplicated_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, item->configuration_name);
+        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, item->configuration_name, true);
 
     item->configuration_name = duplicated_configuration.key;
 
