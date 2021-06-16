@@ -536,7 +536,7 @@ void LayersDialog::accept() {
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
     saved_configuration->parameters = this->configuration.parameters;
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
 
     QDialog::accept();
 }
