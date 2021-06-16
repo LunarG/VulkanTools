@@ -28,6 +28,7 @@
 - Refactor the layer window to expose more layer documentation #1519
 - Add shader caching setting to validation built-in UI #1522
 - Improve user-defined paths dialog and workflow #1523
+- Improve UI labels #1551
 
 ### Fixes:
 - Fix message box with no title displayed on macOS #1547

@@ -40,7 +40,7 @@ ApplicationsDialog::ApplicationsDialog(QWidget *parent)
 
     // The header is hidden by default and stays hidden when no checkboxes are used.
     if (!configurator.environment.UseApplicationListOverrideMode())
-        setWindowTitle("Applications Launcher Shortcuts");
+        setWindowTitle("Vulkan Applications Launcher Shortcuts");
     else {
         ui->treeWidget->setHeaderHidden(false);
         ui->treeWidget->setHeaderLabel("Check to override Vulkan layers");

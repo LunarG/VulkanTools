@@ -1319,7 +1319,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Create context menu here
             QMenu menu(ui->configuration_tree);
 
-            QAction *edit_action = new QAction("Select Layers...", nullptr);
+            QAction *edit_action = new QAction("Edit Layers...", nullptr);
             edit_action->setEnabled(active && item != nullptr);
             menu.addAction(edit_action);
 
