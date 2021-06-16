@@ -44,7 +44,7 @@ bool SettingMetaBool::Load(const QJsonObject& json_setting) {
 
 std::string SettingMetaBool::Export(ExportMode export_mode) const {
     (void)export_mode;
-    return this->default_value ? "TRUE" : "FALSE";
+    return this->default_value ? "true" : "false";
 }
 
 bool SettingMetaBool::Equal(const SettingMeta& other) const {
@@ -72,7 +72,7 @@ bool SettingDataBool::Save(QJsonObject& json_setting) const {
 
 std::string SettingDataBool::Export(ExportMode export_mode) const {
     (void)export_mode;
-    return this->value ? "TRUE" : "FALSE";
+    return this->value ? "true" : "false";
 }
 
 bool SettingDataBool::Equal(const SettingData& other) const {

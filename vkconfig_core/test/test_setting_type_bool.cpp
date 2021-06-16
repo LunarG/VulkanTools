@@ -66,22 +66,22 @@ TEST(test_setting_type_bool, value) {
     Layer layer;
 
     SettingMetaBool* meta = InstantiateBool(layer, "key");
-    EXPECT_STREQ("FALSE", meta->Export(EXPORT_MODE_DOC).c_str());
-    EXPECT_STREQ("FALSE", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+    EXPECT_STREQ("false", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("false", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
 
     SettingDataBool* data0 = Instantiate<SettingDataBool>(meta);
     EXPECT_EQ(data0->value, meta->default_value);
 
-    EXPECT_STREQ("FALSE", data0->Export(EXPORT_MODE_DOC).c_str());
-    EXPECT_STREQ("FALSE", data0->Export(EXPORT_MODE_OVERRIDE).c_str());
+    EXPECT_STREQ("false", data0->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("false", data0->Export(EXPORT_MODE_OVERRIDE).c_str());
 
     meta->default_value = true;
-    EXPECT_STREQ("TRUE", meta->Export(EXPORT_MODE_DOC).c_str());
-    EXPECT_STREQ("TRUE", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
+    EXPECT_STREQ("true", meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("true", meta->Export(EXPORT_MODE_OVERRIDE).c_str());
 
     SettingDataBool* data1 = Instantiate<SettingDataBool>(meta);
     EXPECT_EQ(data1->value, meta->default_value);
 
-    EXPECT_STREQ("TRUE", data1->Export(EXPORT_MODE_DOC).c_str());
-    EXPECT_STREQ("TRUE", data1->Export(EXPORT_MODE_OVERRIDE).c_str());
+    EXPECT_STREQ("true", data1->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ("true", data1->Export(EXPORT_MODE_OVERRIDE).c_str());
 }
