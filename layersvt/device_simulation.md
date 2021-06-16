@@ -228,6 +228,8 @@ DevSim config files that use this feature should validate to the portability spe
 | `VK_DEVSIM_MODIFY_MEMORY_FLAGS` | `lunarg_device_simulation.modify_memory_flags` | debug.vulkan.devsim.modifymemoryflags | false | Enables modification of the device memory heap flags and memory type flags from the JSON config file. |
 | `VK_DEVSIM_MODIFY_FORMAT_LIST` | `lunarg_device_simulation.modify_format_list` | debug.vulkan.devsim.modifyformatlist | none | Enables modification of the device format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
 | `VK_DEVSIM_MODIFY_FORMAT_PROPERTIES` | `lunarg_device_simulation.modify_format_properties` | debug.vulkan.devsim.modifyformatproperties | none | Enables modification of the device format properties from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
+| `VK_DEVSIM_MODIFY_SURFACE_FORMATS` | `lunarg_device_simulation.modify_surface_formats` | debug.vulkan.devsim.modifysurfaceformats | none | Enables modification of the device format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
+| `VK_DEVSIM_MODIFY_FORMAT_LIST` | `lunarg_device_simulation.modify_format_list` | debug.vulkan.devsim.modifyformatlist | none | Enables modification of the device format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
 
 **Note:** Environment variables take precedence over `vk_layer_settings.txt` options.
 

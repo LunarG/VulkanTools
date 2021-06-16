@@ -367,6 +367,76 @@
                         }
                     ],
                     "default": "none"
+                },
+                {
+                    "key": "modify_surface_formats",
+                    "env": "VK_DEVSIM_MODIFY_SURFACE_FORMATS",
+                    "label": "Modify Device Surface Formats",
+                    "description": "Modify the device surface formats from the layer JSON config file.",
+                    "type": "ENUM",
+                    "flags": [
+                        {
+                            "key": "none",
+                            "label": "None",
+                            "description": "Turns off modification of the device's surface formats. Uses the device's real surface formats."
+                        },
+                        {
+                            "key": "replace",
+                            "label": "Replace",
+                            "description": "Fully replaces the device's surface formats with those provided by the devsim configuration file."
+                        },
+                        {
+                            "key": "whitelist",
+                            "label": "Whitelist",
+                            "description": "Includes surface format from the devsim configuration file only if they are supported by the device."
+                        },
+                        {
+                            "key": "blacklist",
+                            "label": "Blacklist",
+                            "description": "Removes device's surface formats if they are included in the devsim configuration file."
+                        },
+                        {
+                            "key": "intersect",
+                            "label": "Intersect",
+                            "description": "Adds the surface formats from the devsim configuration file to the device's surface formats while avoiding repeats."
+                        }
+                    ],
+                    "default": "none"
+                },
+                {
+                    "key": "modify_present_modes",
+                    "env": "VK_DEVSIM_MODIFY_PRESENT_MODES",
+                    "label": "Modify Device Present Modes",
+                    "description": "Modify the device present mode list from the layer JSON config file.",
+                    "type": "ENUM",
+                    "flags": [
+                        {
+                            "key": "none",
+                            "label": "None",
+                            "description": "Turns off modification of the device's present mode list. Uses the device's real present modes."
+                        },
+                        {
+                            "key": "replace",
+                            "label": "Replace",
+                            "description": "Fully replaces the device's present mode list with the list provided by the devsim configuration file."
+                        },
+                        {
+                            "key": "whitelist",
+                            "label": "Whitelist",
+                            "description": "Includes present modes from the devsim configuration file only if they are supported by the device."
+                        },
+                        {
+                            "key": "blacklist",
+                            "label": "Blacklist",
+                            "description": "Removes present modes from the device's list if they are included in the devsim configuration file."
+                        },
+                        {
+                            "key": "intersect",
+                            "label": "Intersect",
+                            "description": "Adds the present modes from the devsim configuration file to the device's list while avoiding repeats."
+                        }
+                    ],
+                    "default": "none"
                 }
             ]
         }
