@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Applications to override Vulkan Layers</string>
+   <string>Vulkan Applications with overridden Vulkan Layers</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="4" column="0">

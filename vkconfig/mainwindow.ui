@@ -110,7 +110,7 @@
                </font>
               </property>
               <property name="text">
-               <string>Fully controlled by the Vulkan applications</string>
+               <string>Layers Fully Controlled by the Vulkan Applications</string>
               </property>
              </widget>
             </item>
@@ -123,7 +123,7 @@
                </font>
               </property>
               <property name="text">
-               <string>Overridden by the Vulkan Configurator</string>
+               <string>Overriding Layers by the Vulkan Configurator</string>
               </property>
              </widget>
             </item>
@@ -154,38 +154,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Apply only to the selected list of Vulkan applications</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QPushButton" name="push_button_applications">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Edit...</string>
+                 <string>Apply only to the Vulkan Applications List</string>
                 </property>
                </widget>
               </item>
@@ -214,7 +183,38 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Make layers override persistent on exit</string>
+                 <string>Continue Overriding Layers on Exit</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="push_button_applications">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>136</width>
+                  <height>26</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>136</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Edit Applications...</string>
                 </property>
                </widget>
               </item>
@@ -569,7 +569,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Select Layers...</string>
+              <string>Edit Layers...</string>
              </property>
             </widget>
            </item>
