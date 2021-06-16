@@ -110,6 +110,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       widget_shader_gpu_reserve(nullptr),
       item_shader_gpu_oob(nullptr),
       widget_shader_gpu_oob(nullptr),
+      item_shader_gpu_indirect(nullptr),
+      widget_shader_gpu_indirect(nullptr),
       item_shader_printf(nullptr),
       widget_shader_printf(nullptr),
 
@@ -247,6 +249,23 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                     this->widget_shader_gpu_oob->setToolTip(value->description.c_str());
                     this->tree->setItemWidget(this->item_shader_gpu_oob, 0, this->widget_shader_gpu_oob);
                     this->connect(this->widget_shader_gpu_oob, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUOOBChecked(bool)));
+                }
+            }
+
+            {
+                const SettingMetaBool *value =
+                    static_cast<const SettingMetaBool *>(FindSetting(meta_set, "validate_draw_indirect"));
+                if (IsSupported(value)) {
+                    this->item_shader_gpu_indirect = new QTreeWidgetItem();
+                    this->item_shader_gpu_indirect->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                    this->item_shader_gpu->addChild(this->item_shader_gpu_indirect);
+
+                    this->widget_shader_gpu_indirect = new QCheckBox(this);
+                    this->widget_shader_gpu_indirect->setText(value->label.c_str());
+                    this->widget_shader_gpu_indirect->setToolTip(value->description.c_str());
+                    this->tree->setItemWidget(this->item_shader_gpu_indirect, 0, this->widget_shader_gpu_indirect);
+                    this->connect(this->widget_shader_gpu_indirect, SIGNAL(clicked(bool)), this,
+                                  SLOT(OnShaderGPUIndirectChecked(bool)));
                 }
             }
 
@@ -478,6 +497,11 @@ void WidgetSettingValidation::OnShaderGPUOOBChecked(bool checked) {
     this->OnSettingChanged();
 }
 
+void WidgetSettingValidation::OnShaderGPUIndirectChecked(bool checked) {
+    static_cast<SettingDataBool *>(FindSetting(this->data_set, "validate_draw_indirect"))->value = checked;
+    this->OnSettingChanged();
+}
+
 void WidgetSettingValidation::OnShaderPrintfChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_SHADER_PRINTF, checked);
     this->UpdateFlag("enables", TOKEN_SHADER_GPU, !checked);
@@ -686,6 +710,12 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
                 this->widget_shader_gpu_oob->setEnabled(shader_gpu);
                 if (refresh_areas == REFRESH_ENABLE_AND_STATE)
                     this->widget_shader_gpu_oob->setChecked(this->HasDataBool("gpuav_buffer_oob"));
+            }
+
+            if (this->widget_shader_gpu_indirect != nullptr) {
+                this->widget_shader_gpu_indirect->setEnabled(shader_gpu);
+                if (refresh_areas == REFRESH_ENABLE_AND_STATE)
+                    this->widget_shader_gpu_indirect->setChecked(this->HasDataBool("validate_draw_indirect"));
             }
 
             if (this->widget_shader_printf != nullptr) {

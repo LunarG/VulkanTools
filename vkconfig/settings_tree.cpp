@@ -255,7 +255,7 @@ void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
 }
 
 static bool IsBuiltinValidation(const std::string &key) {
-    static const char *VALIDATION_KEYS[] = {"disables",         "enables",        "gpuav_buffer_oob",
+    static const char *VALIDATION_KEYS[] = {"disables",         "enables",        "gpuav_buffer_oob",  "validate_draw_indirect",
                                             "printf_to_stdout", "printf_verbose", "printf_buffer_size"};
 
     for (std::size_t i = 0, n = countof(VALIDATION_KEYS); i < n; ++i) {

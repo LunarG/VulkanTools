@@ -93,6 +93,9 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_shader_gpu_oob;
     QCheckBox *widget_shader_gpu_oob;
 
+    QTreeWidgetItem *item_shader_gpu_indirect;
+    QCheckBox *widget_shader_gpu_indirect;
+
     QTreeWidgetItem *item_shader_printf;
     QRadioButton *widget_shader_printf;
 
@@ -138,6 +141,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     void OnShaderGPUChecked(bool checked);
     void OnShaderGPUReserveChecked(bool checked);
     void OnShaderGPUOOBChecked(bool checked);
+    void OnShaderGPUIndirectChecked(bool checked);
 
     void OnShaderPrintfChecked(bool checked);
     void OnShaderPrintfStdoutChecked(bool checked);
