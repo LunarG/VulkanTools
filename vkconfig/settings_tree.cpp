@@ -254,17 +254,6 @@ void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
     return;
 }
 
-static bool IsBuiltinValidation(const std::string &key) {
-    static const char *VALIDATION_KEYS[] = {"disables",         "enables",        "gpuav_buffer_oob",  "validate_draw_indirect",
-                                            "printf_to_stdout", "printf_verbose", "printf_buffer_size"};
-
-    for (std::size_t i = 0, n = countof(VALIDATION_KEYS); i < n; ++i) {
-        if (key == VALIDATION_KEYS[i]) return true;
-    }
-
-    return false;
-}
-
 void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter) {
     Configurator &configurator = Configurator::Get();
     std::vector<Layer> &available_layers = configurator.layers.available_layers;
@@ -279,10 +268,20 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         new WidgetSettingValidation(this->tree, validation_areas_item, validation_layer->settings, parameter.settings));
     this->connect(this->validation.get(), SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
+    const SettingMetaFlags *enables = FindSetting<SettingMetaFlags>(validation_layer->settings, "enables");
+    const SettingMetaFlags *disables = FindSetting<SettingMetaFlags>(validation_layer->settings, "disables");
+
     const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
     for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; ++setting_index) {
         const SettingMeta &setting_meta = *layer_setting_metas[setting_index];
-        if (IsBuiltinValidation(setting_meta.key)) continue;
+
+        if (enables != nullptr) {  // All children settings of 'enables' are handle by the built-in UI
+            if (FindSetting(enables->children, setting_meta.key.c_str()) != nullptr) continue;
+        }
+
+        if (disables != nullptr) {  // All children settings of 'disables' are handle by the built-in UI
+            if (FindSetting(disables->children, setting_meta.key.c_str()) != nullptr) continue;
+        }
 
         this->BuildTreeItem(parent, parameter.settings, setting_meta);
     }
