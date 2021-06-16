@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <QCloseEvent>
+
 class UserDefinedPathsDialog : public QDialog {
     Q_OBJECT
 
@@ -38,6 +40,7 @@ class UserDefinedPathsDialog : public QDialog {
     void on_pushButtonRemove_clicked();
     void on_treeWidget_itemSelectionChanged();
     void on_buttonBox_clicked();
+    void reject();
 
    private:
     UserDefinedPathsDialog(const UserDefinedPathsDialog &) = delete;

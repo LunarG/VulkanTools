@@ -56,6 +56,13 @@ void UserDefinedPathsDialog::SaveLayersPaths(const std::vector<std::string> &lay
     }
 }
 
+void UserDefinedPathsDialog::reject() {
+    this->SaveLayersPaths(this->layers_paths_saved);
+    this->Reload();
+
+    QDialog::reject();
+}
+
 // Load the tree widget with the current list
 void UserDefinedPathsDialog::RepopulateTree() {
     Configurator &configurator = Configurator::Get();
@@ -94,10 +101,7 @@ void UserDefinedPathsDialog::RepopulateTree() {
     }
 }
 
-void UserDefinedPathsDialog::on_buttonBox_clicked() {
-    this->SaveLayersPaths(layers_paths);
-    this->Reload();
-}
+void UserDefinedPathsDialog::on_buttonBox_clicked() { this->accept(); }
 
 void UserDefinedPathsDialog::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();
@@ -111,11 +115,9 @@ void UserDefinedPathsDialog::on_pushButtonAdd_clicked() {
             item->setText(0, custom_path.c_str());
             ui->treeWidget->addTopLevelItem(item);
 
+            this->SaveLayersPaths(this->layers_paths);
             this->Reload();
             this->RepopulateTree();
-
-            this->SaveLayersPaths(this->layers_paths_saved);
-            this->Reload();
         }
     }
 
@@ -138,11 +140,9 @@ void UserDefinedPathsDialog::on_pushButtonRemove_clicked() {
 
     RemoveString(this->layers_paths, selected->text(0).toStdString());
 
+    this->SaveLayersPaths(this->layers_paths);
+    this->Reload();
     this->RepopulateTree();
-    this->Reload();
-
-    this->SaveLayersPaths(this->layers_paths_saved);
-    this->Reload();
 
     // Nothing is selected, so disable remove button
     ui->buttonBox->setEnabled(!Configurator::Get().layers.Empty());
