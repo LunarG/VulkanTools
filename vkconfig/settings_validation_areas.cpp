@@ -238,7 +238,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                 this->connect(this->widget_shader_gpu_reserve, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUReserveChecked(bool)));
 
             {
-                const SettingMetaBool *value = static_cast<const SettingMetaBool *>(FindSetting(meta_set, "gpuav_buffer_oob"));
+                const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "gpuav_buffer_oob");
                 if (IsSupported(value)) {
                     this->item_shader_gpu_oob = new QTreeWidgetItem();
                     this->item_shader_gpu_oob->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -253,8 +253,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             }
 
             {
-                const SettingMetaBool *value =
-                    static_cast<const SettingMetaBool *>(FindSetting(meta_set, "validate_draw_indirect"));
+                const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "validate_draw_indirect");
                 if (IsSupported(value)) {
                     this->item_shader_gpu_indirect = new QTreeWidgetItem();
                     this->item_shader_gpu_indirect->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -280,7 +279,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             this->connect(this->widget_shader_printf, SIGNAL(toggled(bool)), this, SLOT(OnShaderPrintfChecked(bool)));
 
             {
-                const SettingMetaBool *value = static_cast<const SettingMetaBool *>(FindSetting(meta_set, "printf_to_stdout"));
+                const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "printf_to_stdout");
                 if (IsSupported(value)) {
                     this->item_shader_printf_to_stdout = new QTreeWidgetItem();
                     this->item_shader_printf_to_stdout->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -296,7 +295,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             }
 
             {
-                const SettingMetaBool *value = static_cast<const SettingMetaBool *>(FindSetting(meta_set, "printf_verbose"));
+                const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "printf_verbose");
                 if (IsSupported(value)) {
                     this->item_shader_printf_verbose = new QTreeWidgetItem();
                     this->item_shader_printf_verbose->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -312,7 +311,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
             }
 
             {
-                const SettingMetaInt *value = static_cast<const SettingMetaInt *>(FindSetting(meta_set, "printf_buffer_size"));
+                const SettingMetaInt *value = FindSetting<SettingMetaInt>(meta_set, "printf_buffer_size");
                 if (IsSupported(value)) {
                     this->item_shader_printf_size = new QTreeWidgetItem();
                     this->item_shader_printf->addChild(this->item_shader_printf_size);
