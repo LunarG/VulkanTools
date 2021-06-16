@@ -69,7 +69,7 @@ namespace {
 // layersvt/VkLayer_device_simulation.json.in
 
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 8;
+const uint32_t kVersionDevsimMinor = 9;
 const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
@@ -313,6 +313,12 @@ const char *const kEnvarDevsimModifyFormatList =
 const char *const kEnvarDevsimModifyFormatProperties =
     "debug.vulkan.devsim.modifyformatproperties";  // an ArrayCombinationMode value sets how the device and config format properties
                                                    // are combined.
+const char *const kEnvarDevsimModifySurfaceFormats =
+    "debug.vulkan.devsim.modifysurfaceformats";  // an ArrayCombinationMode value sets how the device and config surface format
+                                                 // lists are combined.
+const char *const kEnvarDevsimModifyPresentModes =
+    "debug.vulkan.devsim.modifypresentmodes";  // an ArrayCombinationMode value sets how the device and config present modes are
+                                               // combined.
 #else
 const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // path of the configuration file(s) to load.
 const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non-zero integer will enable debugging output.
@@ -330,6 +336,11 @@ const char *const kEnvarDevsimModifyFormatList =
 const char *const kEnvarDevsimModifyFormatProperties =
     "VK_DEVSIM_MODIFY_FORMAT_PROPERTIES";  // an ArrayCombinationMode value sets how the device and config format properties are
                                            // combined.
+const char *const kEnvarDevsimModifySurfaceFormats =
+    "VK_DEVSIM_MODIFY_SURFACE_FORMATS";  // an ArrayCombinationMode value sets how the device and config surface format lists are
+                                         // combined.
+const char *const kEnvarDevsimModifyPresentModes =
+    "VK_DEVSIM_MODIFY_PRESENT_MODES";  // an ArrayCombinationMode value sets how the device and config present modes are combined.
 #endif
 
 const char *const kLayerSettingsDevsimFilename =
@@ -353,6 +364,12 @@ const char *const kLayerSettingsDevsimModifyFormatList =
 const char *const kLayerSettingsDevsimModifyFormatProperties =
     "lunarg_device_simulation.modify_format_properties";  // an ArrayCombinationMode value sets how the device and config format
                                                           // properties are combined.
+const char *const kLayerSettingsDevsimModifySurfaceFormats =
+    "lunarg_device_simulation.modify_surface_formats";  // an ArrayCombinationMode value sets how the device and config surface
+                                                        // format lists are combined.
+const char *const kLayerSettingsDevsimModifyPresentModes =
+    "lunarg_device_simulation.modify_present_modes";  // an ArrayCombinationMode value sets how the device and config present modes
+                                                      // are combined.
 
 struct ArrayCombinationModeSetting {
     ArrayCombinationMode mode;
@@ -377,6 +394,8 @@ struct ArrayCombinationModeSetting modifyExtensionList;
 struct IntSetting modifyMemoryFlags;
 struct ArrayCombinationModeSetting modifyFormatList;
 struct ArrayCombinationModeSetting modifyFormatProperties;
+struct ArrayCombinationModeSetting modifySurfaceFormats;
+struct ArrayCombinationModeSetting modifyPresentModes;
 
 // Various small utility functions ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1267,6 +1286,8 @@ typedef std::vector<VkQueueFamilyProperties> ArrayOfVkQueueFamilyProperties;
 typedef std::unordered_map<uint32_t /*VkFormat*/, VkFormatProperties> ArrayOfVkFormatProperties;
 typedef std::vector<VkLayerProperties> ArrayOfVkLayerProperties;
 typedef std::vector<VkExtensionProperties> ArrayOfVkExtensionProperties;
+typedef std::vector<VkSurfaceFormatKHR> ArrayOfVkSurfaceFormats;
+typedef std::vector<VkPresentModeKHR> ArrayOfVkPresentModes;
 
 // FormatProperties utilities ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1399,7 +1420,7 @@ class PhysicalDeviceData {
                 simulation_extensions_ = device_extensions_;
         }
 
-        return simulation_extensions_.size();
+        return static_cast<uint32_t>(simulation_extensions_.size());
     }
 
     VkInstance instance() const { return instance_; }
@@ -1415,10 +1436,13 @@ class PhysicalDeviceData {
     VkPhysicalDeviceProperties physical_device_properties_;
     VkPhysicalDeviceFeatures physical_device_features_;
     VkPhysicalDeviceMemoryProperties physical_device_memory_properties_;
+    VkSurfaceCapabilitiesKHR surface_capabilities_;
+    ArrayOfVkPresentModes arrayof_present_modes_;
     ArrayOfVkQueueFamilyProperties arrayof_queue_family_properties_;
     ArrayOfVkFormatProperties arrayof_format_properties_;
     ArrayOfVkLayerProperties arrayof_layer_properties_;
     ArrayOfVkExtensionProperties arrayof_extension_properties_;
+    ArrayOfVkSurfaceFormats arrayof_surface_formats_;
 
     // Vulkan 1.2 structs for summarizing core extension properties and features
     VkPhysicalDeviceVulkan11Properties physical_device_vulkan_1_1_properties_;
@@ -1518,6 +1542,7 @@ class PhysicalDeviceData {
         physical_device_properties_ = {};
         physical_device_features_ = {};
         physical_device_memory_properties_ = {};
+        surface_capabilities_ = {};
 
         // Vulkan 1.2 structs for summarizing core extension properties and features
         physical_device_vulkan_1_1_properties_ = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES};
@@ -1702,11 +1727,15 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
     void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMemoryProperties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkSurfaceCapabilitiesKHR *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkExtent2D *dest);
     void GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest);
     void GetValue(const Json::Value &parent, int index, VkQueueFamilyProperties *dest);
     void GetValue(const Json::Value &parent, int index, DevsimFormatProperties *dest);
     void GetValue(const Json::Value &parent, int index, VkLayerProperties *dest);
     void GetValue(const Json::Value &parent, int index, VkExtensionProperties *dest);
+    void GetValue(const Json::Value &parent, int index, VkSurfaceFormatKHR *dest);
+    void GetValue(const Json::Value &parent, int index, VkPresentModeKHR *dest);
 
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Properties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Features *dest);
@@ -1944,6 +1973,38 @@ class JsonLoader {
         return static_cast<int>(dest->size());
     }
 
+    int GetArray(const Json::Value &parent, const char *name, ArrayOfVkSurfaceFormats *dest) {
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        DebugPrintf("\t\tJsonLoader::GetArray(ArrayOfVkSurfaceFormats)\n");
+        dest->clear();
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            VkSurfaceFormatKHR surface_format = {};
+            GetValue(value, i, &surface_format);
+            dest->push_back(surface_format);
+        }
+        return static_cast<int>(dest->size());
+    }
+
+    int GetArray(const Json::Value &parent, const char *name, ArrayOfVkPresentModes *dest) {
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        DebugPrintf("\t\tJsonLoader::GetArray(ArrayOfVkPresentModes)\n");
+        dest->clear();
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            VkPresentModeKHR present_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+            GetValue(value, i, &present_mode);
+            dest->push_back(present_mode);
+        }
+        return static_cast<int>(dest->size());
+    }
+
     void WarnDeprecated(const Json::Value &parent, const char *name) {
         const Json::Value value = parent[name];
         if (value.type() != Json::nullValue) {
@@ -2055,10 +2116,13 @@ bool JsonLoader::LoadFile(const char *filename) {
             GetValue(root, "VkPhysicalDeviceVariablePointersFeatures", &pdd_.physical_device_variable_pointers_features_);
             GetValue(root, "VkPhysicalDeviceVulkanMemoryModelFeatures", &pdd_.physical_device_vulkan_memory_model_features_);
             GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
+            GetValue(root, "VkSurfaceCapabilitiesKHR", &pdd_.surface_capabilities_);
             GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
             GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
             GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
             GetArray(root, "ArrayOfVkExtensionProperties", &pdd_.arrayof_extension_properties_);
+            GetArray(root, "ArrayOfVkSurfaceFormats", &pdd_.arrayof_surface_formats_);
+            GetArray(root, "ArrayOfVkPresentModes", &pdd_.arrayof_present_modes_);
 
             GetValue(root, "Vulkan12Features", &pdd_.physical_device_vulkan_1_2_features_);
             GetValue(root, "Vulkan12Properties", &pdd_.physical_device_vulkan_1_2_properties_);
@@ -2986,6 +3050,15 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE_WARN(vulkanMemoryModelAvailabilityVisibilityChains, WarnIfGreater);
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkExtent2D *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(width);
+    GET_VALUE(height);
+}
+
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest) {
     const Json::Value value = parent[name];
     if (value.type() != Json::objectValue) {
@@ -3047,6 +3120,21 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     }
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkSurfaceCapabilitiesKHR *dest) {
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE_WARN(minImageCount, WarnIfLesser);
+    GET_VALUE_WARN(maxImageCount, WarnIfGreater);
+    GET_VALUE(minImageExtent);
+    GET_VALUE(maxImageExtent);
+    GET_VALUE_WARN(maxImageArrayLayers, WarnIfGreater);
+    GET_VALUE(supportedTransforms);
+    GET_VALUE(supportedCompositeAlpha);
+    GET_VALUE(supportedUsageFlags);
+}
+
 void JsonLoader::GetValue(const Json::Value &parent, int index, DevsimFormatProperties *dest) {
     const Json::Value value = parent[index];
     if (value.type() != Json::objectValue) {
@@ -3076,6 +3164,23 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, VkExtensionPrope
     }
     GET_ARRAY(extensionName);  // size < VK_MAX_EXTENSION_NAME_SIZE
     GET_VALUE(specVersion);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, int index, VkSurfaceFormatKHR *dest) {
+    const Json::Value value = parent[index];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(format);
+    GET_VALUE(colorSpace);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, int index, VkPresentModeKHR *dest) {
+    const Json::Value value = parent[index];
+    if (!value.isInt()) {
+        return;
+    }
+    *dest = static_cast<VkPresentModeKHR>(value.asInt());
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceVulkan12Properties *dest) {
@@ -3245,6 +3350,32 @@ static void GetDevSimModifyFormatProperties() {
     modifyFormatProperties.mode = GetArrayCombinationModeValue(modify_format_properties);
 }
 
+// Fill the modifySurfaceFormats variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void GetDevSimModifySurfaceFormats() {
+    std::string modify_surface_formats = getLayerOption(kLayerSettingsDevsimModifySurfaceFormats);
+    modifySurfaceFormats.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimModifySurfaceFormats);
+    if (!env_var.empty()) {
+        modify_surface_formats = env_var;
+        modifySurfaceFormats.fromEnvVar = true;
+    }
+    modifySurfaceFormats.mode = GetArrayCombinationModeValue(modify_surface_formats);
+}
+
+// Fill the modifyPresentModes variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void GetDevSimModifyPresentModes() {
+    std::string modify_present_modes = getLayerOption(kLayerSettingsDevsimModifyPresentModes);
+    modifyPresentModes.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimModifyPresentModes);
+    if (!env_var.empty()) {
+        modify_present_modes = env_var;
+        modifyPresentModes.fromEnvVar = true;
+    }
+    modifyPresentModes.mode = GetArrayCombinationModeValue(modify_present_modes);
+}
+
 // Generic layer dispatch table setup, see [LALI].
 static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                          VkInstance *pInstance) {
@@ -3256,6 +3387,8 @@ static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo
     GetDevSimModifyMemoryFlags();
     GetDevSimModifyFormatList();
     GetDevSimModifyFormatProperties();
+    GetDevSimModifySurfaceFormats();
+    GetDevSimModifyPresentModes();
 
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo);
@@ -3858,6 +3991,310 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevic
     GetPhysicalDeviceFormatProperties2(physicalDevice, format, pFormatProperties);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
+                                                                       VkSurfaceCapabilitiesKHR *pSurfaceCapabilities) {
+    VkResult result = VK_SUCCESS;
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    result = dt->GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
+    if (result != VK_SUCCESS) return result;
+
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    if (pdd) {
+        VkSurfaceCapabilitiesKHR surf_caps = pdd->surface_capabilities_;
+        surf_caps.currentExtent = pSurfaceCapabilities->currentExtent;
+        surf_caps.currentTransform = pSurfaceCapabilities->currentTransform;
+        *pSurfaceCapabilities = surf_caps;
+    }
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(VkPhysicalDevice physicalDevice,
+                                                                        VkPhysicalDeviceSurfaceInfo2KHR *pSurfaceInfo,
+                                                                        VkSurfaceCapabilities2KHR *pSurfaceCapabilities) {
+    {
+        std::lock_guard<std::mutex> lock(global_lock);
+        const auto dt = instance_dispatch_table(physicalDevice);
+        dt->GetPhysicalDeviceSurfaceCapabilities2KHR(physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
+    }
+    return GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, pSurfaceInfo->surface,
+                                                   &pSurfaceCapabilities->surfaceCapabilities);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
+                                                                  uint32_t *pSurfaceFormatCount,
+                                                                  VkSurfaceFormatKHR *pSurfaceFormats) {
+    VkResult result = VK_SUCCESS;
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_surface_formats_.size()) : 0;
+    if (src_count == 0) {
+        result = dt->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
+    } else {
+        uint32_t sf_count = 0;
+        dt->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &sf_count, nullptr);
+        std::vector<VkSurfaceFormatKHR> device_surface_formats(sf_count);
+        dt->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &sf_count, device_surface_formats.data());
+
+        std::vector<VkSurfaceFormatKHR> simulation_surface_formats;
+
+        switch (modifySurfaceFormats.mode) {
+            case ARRAY_COMBINATION_MODE_NONE:
+                return dt->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
+                break;
+            case ARRAY_COMBINATION_MODE_REPLACE:
+                return EnumerateProperties(src_count, pdd->arrayof_surface_formats_.data(), pSurfaceFormatCount, pSurfaceFormats);
+                break;
+            case ARRAY_COMBINATION_MODE_WHITELIST:
+                for (VkSurfaceFormatKHR &dev_surf_form : device_surface_formats) {
+                    for (VkSurfaceFormatKHR &file_surf_form : pdd->arrayof_surface_formats_) {
+                        if (dev_surf_form.format == file_surf_form.format &&
+                            dev_surf_form.colorSpace == file_surf_form.colorSpace) {
+                            simulation_surface_formats.push_back(dev_surf_form);
+                            break;
+                        }
+                    }
+                }
+                break;
+            case ARRAY_COMBINATION_MODE_BLACKLIST:
+                for (VkSurfaceFormatKHR &dev_surf_form : device_surface_formats) {
+                    bool blacklisted = false;
+                    for (VkSurfaceFormatKHR &file_surf_form : pdd->arrayof_surface_formats_) {
+                        if (dev_surf_form.format == file_surf_form.format &&
+                            dev_surf_form.colorSpace == file_surf_form.colorSpace) {
+                            blacklisted = true;
+                            break;
+                        }
+                    }
+                    if (!blacklisted) {
+                        simulation_surface_formats.push_back(dev_surf_form);
+                    }
+                }
+                break;
+            case ARRAY_COMBINATION_MODE_INTERSECT:
+                for (VkSurfaceFormatKHR &dev_surf_form : device_surface_formats) {
+                    simulation_surface_formats.push_back(dev_surf_form);
+                }
+                for (VkSurfaceFormatKHR &file_surf_form : pdd->arrayof_surface_formats_) {
+                    bool blacklisted = false;
+                    for (VkSurfaceFormatKHR &sim_surf_form : simulation_surface_formats) {
+                        if (sim_surf_form.format == file_surf_form.format &&
+                            sim_surf_form.colorSpace == file_surf_form.colorSpace) {
+                            blacklisted = true;
+                            break;
+                        }
+                    }
+                    if (!blacklisted) {
+                        simulation_surface_formats.push_back(file_surf_form);
+                    }
+                }
+                break;
+            default:
+                return dt->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
+        }
+
+        result = EnumerateProperties(static_cast<uint32_t>(simulation_surface_formats.size()), simulation_surface_formats.data(),
+                                     pSurfaceFormatCount, pSurfaceFormats);
+    }
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice physicalDevice,
+                                                                   const VkPhysicalDeviceSurfaceInfo2KHR *pSurfaceInfo,
+                                                                   uint32_t *pSurfaceFormatCount,
+                                                                   VkSurfaceFormat2KHR *pSurfaceFormats) {
+    VkResult result = VK_SUCCESS;
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    // Are there JSON overrides, or should we call down to return the original values?
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_surface_formats_.size()) : 0;
+    if (src_count == 0) {
+        result = dt->GetPhysicalDeviceSurfaceFormats2KHR(physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
+        return result;
+    }
+
+    uint32_t sf_count = 0;
+    dt->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, pSurfaceInfo->surface, &sf_count, nullptr);
+    std::vector<VkSurfaceFormatKHR> device_surface_formats(sf_count);
+    dt->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, pSurfaceInfo->surface, &sf_count, device_surface_formats.data());
+
+    std::vector<VkSurfaceFormatKHR> simulation_surface_formats;
+
+    switch (modifySurfaceFormats.mode) {
+        case ARRAY_COMBINATION_MODE_NONE:
+            result = dt->GetPhysicalDeviceSurfaceFormats2KHR(physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
+            return result;
+            break;
+        case ARRAY_COMBINATION_MODE_REPLACE:
+            if (!pSurfaceFormats) {
+                *pSurfaceFormatCount = src_count;
+                return result;
+            }
+
+            // You can't directly initialize a variable in a switch case because of scope issues, so we explicitly add a scope here.
+            {
+                if (*pSurfaceFormatCount < src_count) result = VK_INCOMPLETE;
+                const uint32_t copy_count = (*pSurfaceFormatCount < src_count) ? *pSurfaceFormatCount : src_count;
+                const VkSurfaceFormatKHR *src_props = pdd->arrayof_surface_formats_.data();
+                for (uint32_t i = 0; i < copy_count; ++i) {
+                    pSurfaceFormats[i].surfaceFormat = src_props[i];
+                }
+                *pSurfaceFormatCount = copy_count;
+            }
+
+            return result;
+            break;
+        case ARRAY_COMBINATION_MODE_WHITELIST:
+            for (VkSurfaceFormatKHR &dev_surf_form : device_surface_formats) {
+                for (VkSurfaceFormatKHR &file_surf_form : pdd->arrayof_surface_formats_) {
+                    if (dev_surf_form.format == file_surf_form.format && dev_surf_form.colorSpace == file_surf_form.colorSpace) {
+                        simulation_surface_formats.push_back(dev_surf_form);
+                        break;
+                    }
+                }
+            }
+            break;
+        case ARRAY_COMBINATION_MODE_BLACKLIST:
+            for (VkSurfaceFormatKHR &dev_surf_form : device_surface_formats) {
+                bool blacklisted = false;
+                for (VkSurfaceFormatKHR &file_surf_form : pdd->arrayof_surface_formats_) {
+                    if (dev_surf_form.format == file_surf_form.format && dev_surf_form.colorSpace == file_surf_form.colorSpace) {
+                        blacklisted = true;
+                        break;
+                    }
+                }
+                if (!blacklisted) {
+                    simulation_surface_formats.push_back(dev_surf_form);
+                }
+            }
+            break;
+        case ARRAY_COMBINATION_MODE_INTERSECT:
+            for (VkSurfaceFormatKHR &dev_surf_form : device_surface_formats) {
+                simulation_surface_formats.push_back(dev_surf_form);
+            }
+            for (VkSurfaceFormatKHR &file_surf_form : pdd->arrayof_surface_formats_) {
+                bool blacklisted = false;
+                for (VkSurfaceFormatKHR &sim_surf_form : simulation_surface_formats) {
+                    if (sim_surf_form.format == file_surf_form.format && sim_surf_form.colorSpace == file_surf_form.colorSpace) {
+                        blacklisted = true;
+                        break;
+                    }
+                }
+                if (!blacklisted) {
+                    simulation_surface_formats.push_back(file_surf_form);
+                }
+            }
+            break;
+        default:
+            result = dt->GetPhysicalDeviceSurfaceFormats2KHR(physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
+            return result;
+    }
+
+    src_count = static_cast<uint32_t>(simulation_surface_formats.size());
+
+    if (!pSurfaceFormats) {
+        *pSurfaceFormatCount = src_count;
+        return result;
+    }
+
+    // Careful: cannot use EnumerateProperties() here! (because src and dst structs are not the same type)
+    if (*pSurfaceFormatCount < src_count) result = VK_INCOMPLETE;
+    const uint32_t copy_count = (*pSurfaceFormatCount < src_count) ? *pSurfaceFormatCount : src_count;
+    const VkSurfaceFormatKHR *src_props = simulation_surface_formats.data();
+    for (uint32_t i = 0; i < copy_count; ++i) {
+        pSurfaceFormats[i].surfaceFormat = src_props[i];
+    }
+    *pSurfaceFormatCount = copy_count;
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
+                                                                       uint32_t *pPresentModeCount,
+                                                                       VkPresentModeKHR *pPresentModes) {
+    VkResult result = VK_SUCCESS;
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_present_modes_.size()) : 0;
+    if (src_count == 0) {
+        return dt->GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, pPresentModes);
+    }
+
+    uint32_t present_mode_count = 0;
+    dt->GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &present_mode_count, nullptr);
+    std::vector<VkPresentModeKHR> device_present_modes(present_mode_count);
+    dt->GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &present_mode_count, device_present_modes.data());
+
+    std::vector<VkPresentModeKHR> simulation_present_modes;
+
+    switch (modifyPresentModes.mode) {
+        case ARRAY_COMBINATION_MODE_NONE:
+            result = dt->GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, pPresentModes);
+            return result;
+            break;
+        case ARRAY_COMBINATION_MODE_REPLACE:
+            result = EnumerateProperties(src_count, pdd->arrayof_present_modes_.data(), pPresentModeCount, pPresentModes);
+            return result;
+            break;
+        case ARRAY_COMBINATION_MODE_WHITELIST:
+            for (VkPresentModeKHR &dev_present_mode : device_present_modes) {
+                for (VkPresentModeKHR &file_present_mode : pdd->arrayof_present_modes_) {
+                    if (dev_present_mode == file_present_mode) {
+                        simulation_present_modes.push_back(dev_present_mode);
+                        break;
+                    }
+                }
+            }
+            break;
+        case ARRAY_COMBINATION_MODE_BLACKLIST:
+            for (VkPresentModeKHR &dev_present_mode : device_present_modes) {
+                bool blacklist = false;
+                for (VkPresentModeKHR &file_present_mode : pdd->arrayof_present_modes_) {
+                    if (dev_present_mode == file_present_mode) {
+                        blacklist = true;
+                        break;
+                    }
+                }
+                if (!blacklist) {
+                    simulation_present_modes.push_back(dev_present_mode);
+                }
+            }
+            break;
+        case ARRAY_COMBINATION_MODE_INTERSECT:
+            for (VkPresentModeKHR &dev_present_mode : device_present_modes) {
+                simulation_present_modes.push_back(dev_present_mode);
+            }
+            for (VkPresentModeKHR &file_present_mode : pdd->arrayof_present_modes_) {
+                bool blacklist = false;
+                for (VkPresentModeKHR &sim_present_mode : simulation_present_modes) {
+                    if (sim_present_mode == file_present_mode) {
+                        blacklist = true;
+                        break;
+                    }
+                }
+                if (!blacklist) {
+                    simulation_present_modes.push_back(file_present_mode);
+                }
+            }
+            break;
+        default:
+            result = dt->GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, pPresentModes);
+            return result;
+    }
+
+    return EnumerateProperties(static_cast<uint32_t>(simulation_present_modes.size()), simulation_present_modes.data(),
+                               pPresentModeCount, pPresentModes);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice physicalDevice, uint32_t *pToolCount,
                                                                   VkPhysicalDeviceToolPropertiesEXT *pToolProperties) {
     std::stringstream version_stream;
@@ -4427,6 +4864,11 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties);
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties2);
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties2KHR);
+    GET_PROC_ADDR(GetPhysicalDeviceSurfaceCapabilitiesKHR);
+    GET_PROC_ADDR(GetPhysicalDeviceSurfaceCapabilities2KHR);
+    GET_PROC_ADDR(GetPhysicalDeviceSurfaceFormatsKHR);
+    GET_PROC_ADDR(GetPhysicalDeviceSurfaceFormats2KHR);
+    GET_PROC_ADDR(GetPhysicalDeviceSurfacePresentModesKHR);
     GET_PROC_ADDR(GetPhysicalDeviceToolPropertiesEXT);
 #undef GET_PROC_ADDR
 
