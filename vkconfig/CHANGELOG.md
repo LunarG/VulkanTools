@@ -26,7 +26,8 @@
 - Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers) list within the help menu
 - Update built-in VUIDs to the list included in SDK 1.2.176 #1511
 - Refactor the layer window to expose more layer documentation #1519
-- Add shader caching setting to validation built-in UI #1522
+- Add shader caching setting to validation built-in UI #1552
+- Add indirect parameter setting to validation built-in UI #1522
 - Improve user-defined paths dialog and workflow #1523
 - Improve UI labels #1551
 
