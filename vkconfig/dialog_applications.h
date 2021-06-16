@@ -38,8 +38,8 @@ class ApplicationsDialog : public QDialog {
    private:
     QTreeWidgetItem *CreateApplicationItem(const Application &application) const;
 
-    virtual void closeEvent(QCloseEvent *) override;
-    virtual bool eventFilter(QObject *target, QEvent *event) override;
+    void closeEvent(QCloseEvent *) override;
+    bool eventFilter(QObject *target, QEvent *event) override;
 
    public Q_SLOTS:
     void on_pushButtonAdd_clicked();                                                // Pick the application

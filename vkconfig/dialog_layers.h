@@ -48,7 +48,7 @@ class LayersDialog : public QDialog {
     void LoadSortedLayersUI();
 
    public Q_SLOTS:
-    virtual void accept() override;  // Save the configuration
+    void accept() override;
 
     void currentLayerChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
