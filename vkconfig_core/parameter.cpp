@@ -34,8 +34,10 @@ bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
         SettingData* preset_setting = preset.settings[preset_index];
 
         for (std::size_t i = 0, n = this->settings.size(); i < n; ++i) {
-            if (this->settings[i]->key != preset_setting->key) continue;
-            if (this->settings[i]->type != preset_setting->type) continue;
+            SettingData* current_setting = this->settings[i];
+
+            if (current_setting->key != preset_setting->key) continue;
+            if (current_setting->type != preset_setting->type) continue;
 
             this->settings[i] = preset_setting;
         }

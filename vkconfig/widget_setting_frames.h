@@ -53,10 +53,10 @@ class WidgetSettingFrames : public WidgetSettingBase {
    private:
     void Resize();
     SettingInputError ProcessInputValue();
+    SettingDataFrames& data();
 
-    const SettingDataSet& data_set;
-    SettingDataFrames& data;
     const SettingMetaFrames& meta;
+    SettingDataSet& data_set;
 
     std::string value_buffer;
     QLineEdit* field;

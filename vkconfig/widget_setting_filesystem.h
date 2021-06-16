@@ -49,11 +49,12 @@ class WidgetSettingFilesystem : public WidgetSettingBase {
     void resizeEvent(QResizeEvent *event) override;
 
    private:
-    QTreeWidgetItem *item_child;
-    const SettingDataSet &data_set;
-    SettingDataString &data;
-    const SettingMetaFilesystem &meta;
+    SettingDataString &data();
 
+    const SettingMetaFilesystem &meta;
+    SettingDataSet &data_set;
+
+    QTreeWidgetItem *item_child;
     QLineEdit *field;
     QPushButton *button;
 };

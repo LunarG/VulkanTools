@@ -32,13 +32,11 @@ static const int MIN_FIELD_WIDTH = 80;
 WidgetSettingInt::WidgetSettingInt(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaInt& meta, SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*static_cast<SettingDataInt*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       field(new QLineEdit(this)),
       timer_error(new QTimer(this)),
       timer_valid(new QTimer(this)) {
     assert(&meta);
-    assert(&data);
 
     const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
 
@@ -80,7 +78,7 @@ void WidgetSettingInt::Refresh(RefreshAreas refresh_areas) {
         }
 
         this->field->blockSignals(true);
-        this->field->setText(format("%d", this->data.value).c_str());
+        this->field->setText(format("%d", this->data().value).c_str());
         this->field->blockSignals(false);
     }
 }
@@ -130,8 +128,8 @@ void WidgetSettingInt::OnErrorValue() {
         alert.setIcon(QMessageBox::Critical);
         alert.setCheckBox(new QCheckBox("Do not show again."));
         if (alert.exec() == QMessageBox::Yes) {
-            this->data.value = this->meta.default_value;
-            this->field->setText(format("%d", this->data.value).c_str());
+            this->data().value = this->meta.default_value;
+            this->field->setText(format("%d", this->meta.default_value).c_str());
             this->field->setPalette(default_palette);
             this->Resize();
         }
@@ -157,7 +155,7 @@ void WidgetSettingInt::Resize() {
     this->field->setGeometry(button_rect);
 }
 
-SettingInputError WidgetSettingInt::ProcessInputValue() { return data.ProcessInput(this->value_buffer); }
+SettingInputError WidgetSettingInt::ProcessInputValue() { return this->data().ProcessInput(this->value_buffer); }
 
 void WidgetSettingInt::OnTextEdited(const QString& new_value) {
     this->timer_error->stop();
@@ -174,4 +172,10 @@ void WidgetSettingInt::OnTextEdited(const QString& new_value) {
     }
 
     emit itemChanged();
+}
+
+SettingDataInt& WidgetSettingInt::data() {
+    SettingDataInt* data = FindSetting<SettingDataInt>(this->data_set, this->meta.key.c_str());
+    assert(data != nullptr);
+    return *data;
 }

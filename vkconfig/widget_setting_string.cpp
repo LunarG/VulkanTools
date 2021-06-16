@@ -28,15 +28,10 @@ static const int MIN_FIELD_WIDTH = 120;
 
 WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta,
                                          SettingDataSet& data_set)
-    : WidgetSettingBase(tree, item),
-      meta(meta),
-      data(*static_cast<SettingDataString*>(FindSetting(data_set, meta.key.c_str()))),
-      data_set(data_set),
-      field(new QLineEdit(this)) {
+    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QLineEdit(this)) {
     assert(&meta);
-    assert(&data);
 
-    this->field->setText(data.value.c_str());
+    this->field->setText(this->data().value.c_str());
     this->field->setFont(tree->font());
     this->field->setToolTip(this->field->text());
     this->field->show();
@@ -65,7 +60,7 @@ void WidgetSettingString::Refresh(RefreshAreas refresh_areas) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->setText(data.value.c_str());
+        this->field->setText(this->data().value.c_str());
     }
 }
 
@@ -83,8 +78,14 @@ void WidgetSettingString::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingString::OnTextEdited(const QString& value) {
-    this->data.value = value.toStdString();
+    this->data().value = value.toStdString();
     this->field->setToolTip(this->field->text());
 
     emit itemChanged();
+}
+
+SettingDataString& WidgetSettingString::data() {
+    SettingDataString* data = FindSetting<SettingDataString>(this->data_set, this->meta.key.c_str());
+    assert(data != nullptr);
+    return *data;
 }

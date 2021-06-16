@@ -43,17 +43,16 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
                                      SettingDataSet &data_set)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*static_cast<SettingDataList *>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       search(nullptr),
       field(new QLineEdit(this)),
       add_button(new QPushButton(this)),
       list(meta.list) {
     assert(&this->meta);
-    assert(&this->data);
 
-    for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
-        ::RemoveValue(this->list, this->data.value[i]);
+    std::vector<EnabledNumberOrString> value = this->data().value;
+    for (std::size_t i = 0, n = value.size(); i < n; ++i) {
+        ::RemoveValue(this->list, value[i]);
     }
 
     const char *tooltip = GetFieldToolTip(this->meta, this->list.empty());
@@ -76,7 +75,8 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
 
     this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnElementAppended()), Qt::QueuedConnection);
 
-    std::sort(this->data.value.begin(), this->data.value.end());
+    std::sort(value.begin(), value.end());
+    this->data().value = value;
 
     this->item->setText(0, (this->meta.label + "  ").c_str());
     this->item->setFont(0, this->tree->font());
@@ -104,8 +104,10 @@ void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
         this->add_button->show();
     }
 
-    if (this->data.value != this->value_cached) {
-        this->value_cached = this->data.value;
+    std::vector<EnabledNumberOrString> &value = this->data().value;
+
+    if (value != this->value_cached) {
+        this->value_cached = value;
 
         this->tree->blockSignals(true);
 
@@ -113,8 +115,8 @@ void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
             this->item->removeChild(this->item->child(0));
         }
 
-        for (std::size_t i = 0, n = this->data.value.size(); i < n; ++i) {
-            this->AddElement(this->data.value[i]);
+        for (std::size_t i = 0, n = value.size(); i < n; ++i) {
+            this->AddElement(value[i]);
         }
 
         this->tree->blockSignals(false);
@@ -202,8 +204,10 @@ void WidgetSettingList::OnElementAppended() {
         return;
     }
 
+    std::vector<EnabledNumberOrString> &value = this->data().value;
+
     // Add the value if it's not in the list already
-    if (IsValueFound(this->data.value, entry)) {
+    if (IsValueFound(value, entry)) {
         QMessageBox alert;
         alert.setWindowTitle("Duplicated value");
         alert.setText(format("'%s' setting already has the value '%s' listed", this->meta.label.c_str(), entry.c_str()).c_str());
@@ -214,8 +218,8 @@ void WidgetSettingList::OnElementAppended() {
 
     this->field->setText("");
 
-    this->data.value.push_back(entry);
-    std::sort(this->data.value.begin(), this->data.value.end());
+    value.push_back(entry);
+    std::sort(value.begin(), value.end());
     ::RemoveValue(this->list, entry);
 
     emit itemChanged();
@@ -240,9 +244,15 @@ void WidgetSettingList::OnElementRemoved(const QString &element) {
     NumberOrString list_value(element.toStdString());
     this->list.push_back(list_value);
 
-    RemoveValue(this->data.value, EnabledNumberOrString(list_value));
+    RemoveValue(this->data().value, EnabledNumberOrString(list_value));
 }
 
 void WidgetSettingList::OnElementRejected() { this->OnTextEdited(""); }
 
 void WidgetSettingList::OnSettingChanged() { emit itemChanged(); }
+
+SettingDataList &WidgetSettingList::data() {
+    SettingDataList *data = FindSetting<SettingDataList>(this->data_set, this->meta.key.c_str());
+    assert(data != nullptr);
+    return *data;
+}

@@ -25,13 +25,8 @@
 
 WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta,
                                      SettingDataSet& data_set)
-    : WidgetSettingBase(tree, item),
-      meta(meta),
-      data(*static_cast<SettingDataBool*>(FindSetting(data_set, meta.key.c_str()))),
-      data_set(data_set),
-      field(new QCheckBox(this)) {
+    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QCheckBox(this)) {
     assert(&this->meta);
-    assert(&this->data);
 
     this->field->setText(this->meta.label.c_str());
     this->field->setFont(this->tree->font());
@@ -59,13 +54,19 @@ void WidgetSettingBool::Refresh(RefreshAreas refresh_areas) {
         }
 
         this->field->blockSignals(true);
-        this->field->setChecked(this->data.value);
+        this->field->setChecked(this->data().value);
         this->field->blockSignals(false);
     }
 }
 
 void WidgetSettingBool::OnClicked() {
-    this->data.value = this->field->isChecked();
+    this->data().value = this->field->isChecked();
 
     emit itemChanged();
+}
+
+SettingDataBool& WidgetSettingBool::data() {
+    SettingDataBool* data = FindSetting<SettingDataBool>(this->data_set, this->meta.key.c_str());
+    assert(data != nullptr);
+    return *data;
 }
