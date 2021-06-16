@@ -43,9 +43,10 @@ class WidgetSettingFlag : public WidgetSettingBase {
     void itemChanged();
 
    private:
-    const SettingDataSet& data_set;
-    SettingDataFlags& data;
+    SettingDataFlags& data();
+
     const SettingMetaFlags& meta;
+    SettingDataSet& data_set;
 
     std::string flag;
     QCheckBox* field;

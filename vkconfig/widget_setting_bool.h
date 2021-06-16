@@ -42,9 +42,10 @@ class WidgetSettingBool : public WidgetSettingBase {
     void itemChanged();
 
    private:
-    const SettingDataSet& data_set;
-    SettingDataBool& data;
+    SettingDataBool& data();
+
     const SettingMetaBool& meta;
+    SettingDataSet& data_set;
 
     QCheckBox* field;
 };

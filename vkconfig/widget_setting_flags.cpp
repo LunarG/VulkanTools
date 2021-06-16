@@ -31,13 +31,7 @@
 
 WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta,
                                      SettingDataSet& data_set, const std::string& flag)
-    : WidgetSettingBase(tree, item),
-      meta(meta),
-      data(*static_cast<SettingDataFlags*>(FindSetting(data_set, meta.key.c_str()))),
-      data_set(data_set),
-      flag(flag),
-      field(new QCheckBox(this)) {
-    assert(&data);
+    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), flag(flag), field(new QCheckBox(this)) {
     assert(!flag.empty());
 
     const SettingEnumValue* enum_value = FindByKey(meta.enum_values, flag.c_str());
@@ -68,18 +62,26 @@ void WidgetSettingFlag::Refresh(RefreshAreas refresh_areas) {
             this->DisplayOverride(this->field, this->meta);
         }
 
+        const std::vector<std::string>& value = this->data().value;
+
         this->field->blockSignals(true);
-        this->field->setChecked(std::find(data.value.begin(), data.value.end(), flag) != data.value.end());
+        this->field->setChecked(std::find(value.begin(), value.end(), flag) != value.end());
         this->field->blockSignals(false);
     }
 }
 
 void WidgetSettingFlag::OnClicked(bool checked) {
     if (checked) {
-        AppendString(data.value, flag);
+        AppendString(this->data().value, flag);
     } else {
-        RemoveString(data.value, flag);
+        RemoveString(this->data().value, flag);
     }
 
     emit itemChanged();
+}
+
+SettingDataFlags& WidgetSettingFlag::data() {
+    SettingDataFlags* data = FindSetting<SettingDataFlags>(this->data_set, this->meta.key.c_str());
+    assert(data != nullptr);
+    return *data;
 }

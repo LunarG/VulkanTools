@@ -48,9 +48,10 @@ class WidgetSettingListElement : public WidgetSettingBase {
     void resizeEvent(QResizeEvent* event) override;
 
    private:
-    const SettingDataSet& data_set;
-    SettingDataList& data;
+    SettingDataList& data();
+
     const SettingMetaList& meta;
+    SettingDataSet& data_set;
 
     EnabledNumberOrString& element;
     QPushButton* button;

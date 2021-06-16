@@ -47,10 +47,10 @@ class WidgetSettingString : public WidgetSettingBase {
 
    private:
     void Resize();
+    SettingDataString& data();
 
-    const SettingDataSet& data_set;
     const SettingMetaString& meta;
-    SettingDataString& data;
+    SettingDataSet& data_set;
 
     QLineEdit* field;
     QSize resize;

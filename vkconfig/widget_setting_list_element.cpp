@@ -30,13 +30,11 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
                                                    SettingDataSet& data_set, EnabledNumberOrString& element)
     : WidgetSettingBase(tree, item),
       meta(meta),
-      data(*static_cast<SettingDataList*>(FindSetting(data_set, meta.key.c_str()))),
       data_set(data_set),
       element(element),
       button(new QPushButton(this)),
       field(new QCheckBox(this)) {
     assert(&meta);
-    assert(&data);
 
     const std::string text = element.key.empty() ? format("%d", element.number) : element.key;
 
@@ -70,7 +68,8 @@ void WidgetSettingListElement::Refresh(RefreshAreas refresh_areas) {
         }
 
         this->field->blockSignals(true);
-        this->field->setChecked(std::find(this->data.value.begin(), this->data.value.end(), this->element)->enabled);
+        std::vector<EnabledNumberOrString>& value = this->data().value;
+        this->field->setChecked(std::find(value.begin(), value.end(), this->element)->enabled);
         this->field->blockSignals(false);
     }
 }
@@ -92,11 +91,19 @@ void WidgetSettingListElement::OnElementChecked(bool checked) {
 }
 
 void WidgetSettingListElement::OnElementRemoved() {
-    auto it = std::find(this->data.value.begin(), this->data.value.end(), this->element);
-    assert(it != this->data.value.end());
+    std::vector<EnabledNumberOrString>& value = this->data().value;
 
-    this->data.value.erase(it);
+    auto it = std::find(value.begin(), value.end(), this->element);
+    assert(it != value.end());
+
+    value.erase(it);
 
     emit itemSelected(this->field->text());  // Remove the element from the parent WidgetSettingList
     emit itemChanged();                      // Notify the setting tree that settings have changed
+}
+
+SettingDataList& WidgetSettingListElement::data() {
+    SettingDataList* data = FindSetting<SettingDataList>(this->data_set, this->meta.key.c_str());
+    assert(data != nullptr);
+    return *data;
 }

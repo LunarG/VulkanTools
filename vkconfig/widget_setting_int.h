@@ -51,10 +51,10 @@ class WidgetSettingInt : public WidgetSettingBase {
    private:
     void Resize();
     SettingInputError ProcessInputValue();
+    SettingDataInt& data();
 
-    const SettingDataSet& data_set;
-    SettingDataInt& data;
     const SettingMetaInt& meta;
+    SettingDataSet& data_set;
 
     std::string value_buffer;
     QLineEdit* field;

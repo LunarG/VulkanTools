@@ -157,11 +157,31 @@ bool IsSupported(const SettingMeta* meta);
 
 SettingMeta* FindSetting(SettingMetaSet& settings, const char* key);
 
+template <typename T>
+T* FindSetting(SettingMetaSet& settings, const char* key) {
+    return static_cast<T*>(FindSetting(settings, key));
+}
+
 const SettingMeta* FindSetting(const SettingMetaSet& settings, const char* key);
+
+template <typename T>
+const T* FindSetting(const SettingMetaSet& settings, const char* key) {
+    return static_cast<const T*>(FindSetting(settings, key));
+}
 
 SettingData* FindSetting(SettingDataSet& settings, const char* key);
 
+template <typename T>
+T* FindSetting(SettingDataSet& settings, const char* key) {
+    return static_cast<T*>(FindSetting(settings, key));
+}
+
 const SettingData* FindSetting(const SettingDataSet& settings, const char* key);
+
+template <typename T>
+const T* FindSetting(const SettingDataSet& settings, const char* key) {
+    return static_cast<const T*>(FindSetting(settings, key));
+}
 
 std::size_t CountSettings(const SettingMetaSet& settings);
 

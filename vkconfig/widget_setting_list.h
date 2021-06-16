@@ -60,9 +60,10 @@ class WidgetSettingList : public WidgetSettingBase {
     void AddElement(EnabledNumberOrString &element);
     void ResetCompleter();
 
-    SettingDataSet &data_set;
-    SettingDataList &data;
+    SettingDataList &data();
+
     const SettingMetaList &meta;
+    SettingDataSet &data_set;
 
     QCompleter *search;
     QLineEdit *field;
