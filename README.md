@@ -7,6 +7,10 @@ The repository contains the following Vulkan Tools:
 
 These tools have binaries included within the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/).
 
+VkTrace and VkReplay have been deprecated and replaced by [gfxreconstruct](https://github.com/LunarG/gfxreconstruct).
+Both VkTrace and VkReplay have been removed from VulkanTools and can now be found in the [vktrace](https://github.com/LunarG/vktrace) archive.
+Both these tools are also no longer part of the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/).
+
 ## CI Build Status
 | Platform | Build Status |
 |:--------:|:------------:|
