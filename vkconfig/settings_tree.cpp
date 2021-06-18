@@ -105,6 +105,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
 
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
+            this->tree->addTopLevelItem(layer_item);
+
             std::string layer_text = parameter.key;
             if (layer == nullptr) {
                 layer_text += " (Missing)";
@@ -116,8 +118,6 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             layer_item->setFont(0, font_layer);
             layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
-
-            this->tree->addTopLevelItem(layer_item);
             layer_item->setExpanded(true);
 
             if (layer == nullptr) continue;
