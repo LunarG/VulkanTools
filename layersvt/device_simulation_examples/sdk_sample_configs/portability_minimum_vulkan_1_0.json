@@ -171,25 +171,27 @@
         "variableMultisampleRate": 0,
         "inheritedQueries": 0
     },
+    "VkPhysicalDevicePortabilitySubsetPropertiesKHR": {
+        "minVertexInputBindingStrideAlignment": 4
+    },
+    "VkPhysicalDevicePortabilitySubsetFeaturesKHR": {
+        "constantAlphaColorBlendFactors": 0,
+        "events": 0,
+        "imageViewFormatReinterpretation": 0,
+        "imageViewFormatSwizzle": 0,
+        "imageView2DOn3DImage": 0,
+        "multisampleArrayImage": 0,
+        "mutableComparisonSamplers": 0,
+        "pointPolygons": 0,
+        "samplerMipLodBias": 0,
+        "separateStencilMaskRef": 0,
+        "shaderSampleRateInterpolationFunctions": 0,
+        "tessellationIsolines": 0,
+        "tessellationPointMode": 0,
+        "triangleFans": 0,
+        "vertexAttributeAccessBeyondStride": 0
+    },
     "ArrayOfVkFormatProperties": [
-    {
-      "formatID": 3,
-      "linearTilingFeatures": 5121,
-      "optimalTilingFeatures": 5121,
-      "bufferFeatures": 0
-    },
-    {
-      "formatID": 4,
-      "linearTilingFeatures": 7553,
-      "optimalTilingFeatures": 7553,
-      "bufferFeatures": 0
-    },
-    {
-      "formatID": 8,
-      "linearTilingFeatures": 7553,
-      "optimalTilingFeatures": 7553,
-      "bufferFeatures": 0
-    },
     {
       "formatID": 9,
       "linearTilingFeatures": 7553,
@@ -234,8 +236,8 @@
     },
     {
       "formatID": 21,
-      "linearTilingFeatures": 3201,
-      "optimalTilingFeatures": 3201,
+      "linearTilingFeatures": 5121,
+      "optimalTilingFeatures": 5121,
       "bufferFeatures": 72
     },
     {
@@ -415,13 +417,13 @@
     {
       "formatID": 98,
       "linearTilingFeatures": 52359,
-      "optimalTilingFeatures": 52359,
+      "optimalTilingFeatures": 52355,
       "bufferFeatures": 120
     },
     {
       "formatID": 99,
       "linearTilingFeatures": 52359,
-      "optimalTilingFeatures": 52359,
+      "optimalTilingFeatures": 52355,
       "bufferFeatures": 120
     },
     {
