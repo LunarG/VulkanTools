@@ -3778,8 +3778,11 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
     const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->simulation_extensions_.size()) : 0;
-    if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
-        result = EnumerateProperties(kDeviceExtensionPropertiesCount, kDeviceExtensionProperties.data(), pCount, pProperties);
+    if (pLayerName) {
+        if (strcmp(pLayerName, kOurLayerName) == 0)
+            result = EnumerateProperties(kDeviceExtensionPropertiesCount, kDeviceExtensionProperties.data(), pCount, pProperties);
+        else
+            result = dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
     } else if (src_count == 0 || pdd->extension_list_combination_mode_ == ARRAY_COMBINATION_MODE_NONE) {
         result = dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
     } else {
