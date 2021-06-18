@@ -535,6 +535,7 @@ void LayersDialog::accept() {
     saved_configuration->key = ui->lineEditName->text().toStdString();
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
     saved_configuration->parameters = this->configuration.parameters;
+    saved_configuration->setting_tree_state.clear();
 
     configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
 
