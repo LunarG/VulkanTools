@@ -199,8 +199,6 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     if (!configuration->setting_tree_state.isEmpty()) {
         this->SetTreeState(configuration->setting_tree_state, 0, this->tree->invisibleRootItem());
-    } else {
-        assert(1);
     }
 
     this->tree->blockSignals(false);
