@@ -29,15 +29,15 @@ REGISTRY_PATH=$dir/third_party/Vulkan-Headers/registry
 REGISTRY=${REGISTRY_PATH}/vk.xml
 
 # layer factory
-( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_factory.h )
-( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_factory.cpp )
+( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_factory.h -removeExtensions VK_HUAWEI_subpass_shading )
+( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_factory.cpp -removeExtensions VK_HUAWEI_subpass_shading )
 ( cd generated/include; python3 ${VT_SCRIPTS}/vlf_makefile_generator.py ../../../layer_factory ${REGISTRY_PATH}/../include)
 
 # apidump
-( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump.cpp -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 )
-( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_text.h -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 )
-( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_html.h -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 )
-( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_json.h -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 )
+( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump.cpp -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 -removeExtensions VK_HUAWEI_subpass_shading)
+( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_text.h -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 -removeExtensions VK_HUAWEI_subpass_shading)
+( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_html.h -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 -removeExtensions VK_HUAWEI_subpass_shading)
+( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_json.h -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_EXT_video_decode_h264 -removeExtensions VK_EXT_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 -removeExtensions VK_HUAWEI_subpass_shading)
  
 ( pushd ${LVL_BASE}/build-android; rm -rf generated; mkdir -p generated/include generated/common; popd )
 ( cd generated/include; cp -rf * ${LVL_BASE}/build-android/generated/include )
