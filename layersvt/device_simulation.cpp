@@ -404,7 +404,7 @@ struct ArrayCombinationModeSetting modifyPresentModes;
 const uint32_t MAX_BUFFER_SIZE = 255;
 typedef enum { VK_LOG_NONE = 0, VK_LOG_ERROR, VK_LOG_WARNING, VK_LOG_VERBOSE, VK_LOG_DEBUG } VkLogLevel;
 
-const char *AndroidGetEnv(const char *key) {
+std::string AndroidGetEnv(const char *key) {
     std::string command("settings get global ");
     command += key;
 
@@ -423,10 +423,10 @@ const char *AndroidGetEnv(const char *key) {
         __android_log_print(ANDROID_LOG_INFO, "devsim", "Vulkan device simulation layer %s: %s", command.c_str(),
                             android_env.c_str());
         android_env.erase(android_env.find_last_not_of(" \n\r\t") + 1);
-        return android_env.c_str();
+        return android_env;
     }
 
-    return nullptr;
+    return "";
 }
 #endif
 
@@ -441,8 +441,8 @@ std::string GetEnvarValue(const char *name) {
         value = buffer.data();
     }
 #elif defined(__ANDROID__)
-    const char *v = AndroidGetEnv(name);
-    if (v) value = v;
+    std::string v = AndroidGetEnv(name);
+    if (v.length() > 0) value = v;
 #else
     const char *v = getenv(name);
     if (v) value = v;
