@@ -31,18 +31,18 @@ class ViaSystemLinux : public ViaSystem {
 
    protected:
     virtual int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) override;
-    virtual ViaResults PrintSystemEnvironmentInfo();
-    virtual ViaResults PrintSystemHardwareInfo();
-    virtual ViaResults PrintSystemExecutableInfo();
-    virtual ViaResults PrintSystemDriverInfo();
-    virtual ViaResults PrintSystemLoaderInfo();
-    virtual ViaResults PrintSystemSdkInfo();
-    virtual ViaResults PrintSystemImplicitLayerInfo();
-    virtual ViaResults PrintSystemExplicitLayerInfo();
-    virtual ViaResults PrintSystemSettingsFileInfo();
-    virtual bool CheckExpiration(OverrideExpiration expiration);
-    virtual std::string GetEnvironmentalVariableValue(const std::string &env_var);
-    virtual bool ExpandPathWithEnvVar(std::string &path);
+    virtual ViaResults PrintSystemEnvironmentInfo() override;
+    virtual ViaResults PrintSystemHardwareInfo() override;
+    virtual ViaResults PrintSystemExecutableInfo() override;
+    virtual ViaResults PrintSystemDriverInfo() override;
+    virtual ViaResults PrintSystemLoaderInfo() override;
+    virtual ViaResults PrintSystemSdkInfo() override;
+    virtual ViaResults PrintSystemImplicitLayerInfo() override;
+    virtual ViaResults PrintSystemExplicitLayerInfo() override;
+    virtual ViaResults PrintSystemSettingsFileInfo() override;
+    virtual bool CheckExpiration(OverrideExpiration expiration) override;
+    virtual std::string GetEnvironmentalVariableValue(const std::string &env_var) override;
+    virtual bool ExpandPathWithEnvVar(std::string &path) override;
 
    private:
     bool ReadDriverJson(std::string cur_driver_json, bool &found_lib);
