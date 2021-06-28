@@ -313,7 +313,7 @@ bool Environment::LoadApplications() {
         }
 
         applications = RemoveMissingApplications(applications);
-        if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) applications = UpdateDefaultApplications(applications);
+        applications = UpdateDefaultApplications(applications);
         if (applications.empty()) applications = CreateDefaultApplications();
     }
 
