@@ -36,6 +36,7 @@
 - Hide excluded layers in configuration that are missing, these may not be supported on the platform #1551
 - Fix crash when renaming a configuration from the layers window #1551
 - Fix validation layer bool setting written in 'vk_layer-setting.txt' #1551
+- Fix upgrade of 'vkcube' path when the path is no longer valid
 
 ## [Vulkan Configurator 2.3.0 for Vulkan SDK 1.2.176.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - Mai 2021
 
