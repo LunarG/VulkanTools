@@ -4008,6 +4008,19 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysica
         VkSurfaceCapabilitiesKHR surf_caps = pdd->surface_capabilities_;
         surf_caps.currentExtent = pSurfaceCapabilities->currentExtent;
         surf_caps.currentTransform = pSurfaceCapabilities->currentTransform;
+
+        if (surf_caps.minImageCount == 0) surf_caps.minImageCount = pSurfaceCapabilities->minImageCount;
+        if (surf_caps.maxImageCount == 0) surf_caps.maxImageCount = pSurfaceCapabilities->maxImageCount;
+        if (surf_caps.minImageExtent.width == 0 && surf_caps.minImageExtent.height == 0)
+            surf_caps.minImageExtent = pSurfaceCapabilities->minImageExtent;
+        if (surf_caps.maxImageExtent.width == 0 && surf_caps.maxImageExtent.height == 0)
+            surf_caps.maxImageExtent = pSurfaceCapabilities->maxImageExtent;
+        if (surf_caps.maxImageArrayLayers == 0) surf_caps.maxImageArrayLayers = pSurfaceCapabilities->maxImageArrayLayers;
+        if (surf_caps.supportedTransforms == 0) surf_caps.supportedTransforms = pSurfaceCapabilities->supportedTransforms;
+        if (surf_caps.supportedCompositeAlpha == 0)
+            surf_caps.supportedCompositeAlpha = pSurfaceCapabilities->supportedCompositeAlpha;
+        if (surf_caps.supportedUsageFlags == 0) surf_caps.supportedUsageFlags = pSurfaceCapabilities->supportedUsageFlags;
+
         *pSurfaceCapabilities = surf_caps;
     }
 
