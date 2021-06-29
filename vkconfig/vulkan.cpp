@@ -32,7 +32,7 @@
 
 #include <cassert>
 
-static const char *GetVulkanLibrary() {
+const char *GetVulkanLibrary() {
     static const char *TABLE[] = {
         "vulkan-1.dll",              // PLATFORM_WINDOWS
         "libvulkan",                 // PLATFORM_LINUX
@@ -84,8 +84,6 @@ static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLa
 std::string GenerateVulkanStatus() {
     std::string log;
 
-    // return log;  // bug https://github.com/LunarG/VulkanTools/issues/1172
-
     const Configurator &configurator = Configurator::Get();
 
     // Layers override configuration
@@ -134,6 +132,11 @@ std::string GenerateVulkanStatus() {
         const std::string path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
         log += "- Global `vk_layer_settings.txt` uses the default platform path:\n";
         log += format("    %s\n", ExtractAbsoluteDir(path).c_str());
+    }
+
+    // If there is no Vulkan loader installed, we can't call any Vulkan API.
+    if (loader_version == Version::VERSION_NULL) {
+        return log;
     }
 
     QLibrary library(GetVulkanLibrary());
@@ -195,6 +198,8 @@ std::string GenerateVulkanStatus() {
 
     VkInstance inst;
     PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)library.resolve("vkCreateInstance");
+    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
+
     assert(vkCreateInstance);
     err = vkCreateInstance(&inst_info, NULL, &inst);
     if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
@@ -211,6 +216,7 @@ std::string GenerateVulkanStatus() {
     // This can fail on a new Linux setup. Check and fail gracefully rather than crash.
     if (err != VK_SUCCESS) {
         Alert::PhysicalDeviceFailure();
+        vkDestroyInstance(inst, NULL);
 
         log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
         return log;
@@ -222,18 +228,18 @@ std::string GenerateVulkanStatus() {
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, &devices[0]);
     assert(!err);
 
+    PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
+        (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
+
     log += "- Physical Devices:\n";
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
         VkPhysicalDeviceProperties properties;
-        PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
-            (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
         vkGetPhysicalDeviceProperties(devices[i], &properties);
         log += format("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName, GetPhysicalDeviceType(properties.deviceType),
                       VK_VERSION_MAJOR(properties.apiVersion), VK_VERSION_MINOR(properties.apiVersion),
                       VK_VERSION_PATCH(properties.apiVersion));
     }
 
-    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
     vkDestroyInstance(inst, NULL);
 
     return log;
