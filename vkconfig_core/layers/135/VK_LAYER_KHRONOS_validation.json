@@ -235,6 +235,7 @@
                 },
                 {
                     "key": "disables",
+                    "env": "VK_LAYER_DISABLES",
                     "label": "Disables",
                     "description": "Setting an option here will disable areas of validation",
                     "type": "FLAGS",
@@ -311,6 +312,7 @@
                 },
                 {
                     "key": "enables",
+                    "env": "VK_LAYER_ENABLES",
                     "label": "Enables",
                     "description": "Setting an option here will enable specialized areas of validation",
                     "type": "FLAGS",
