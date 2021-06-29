@@ -67,7 +67,6 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
 
     this->connect(this->field, SIGNAL(textChanged(const QString &)), this, SLOT(OnTextEdited(const QString &)));
     this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(OnElementAppended()), Qt::QueuedConnection);
-    this->connect(this->field, SIGNAL(inputRejected()), this, SLOT(OnElementRejected()), Qt::QueuedConnection);
 
     this->add_button->show();
     this->add_button->setText("+");
@@ -246,8 +245,6 @@ void WidgetSettingList::OnElementRemoved(const QString &element) {
 
     RemoveValue(this->data().value, EnabledNumberOrString(list_value));
 }
-
-void WidgetSettingList::OnElementRejected() { this->OnTextEdited(""); }
 
 void WidgetSettingList::OnSettingChanged() { emit itemChanged(); }
 
