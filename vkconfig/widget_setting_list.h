@@ -45,7 +45,6 @@ class WidgetSettingList : public WidgetSettingBase {
     void OnTextEdited(const QString &value);
     void OnSettingChanged();
     void OnElementRemoved(const QString &value);
-    void OnElementRejected();
 
    Q_SIGNALS:
     void itemSelected(const QString &value);
