@@ -266,26 +266,29 @@ void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter
         new WidgetSettingValidation(this->tree, validation_areas_item, validation_layer->settings, parameter.settings));
     this->connect(this->validation.get(), SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
-    const SettingMetaFlags *enables = FindSetting<SettingMetaFlags>(validation_layer->settings, "enables");
-    const SettingMetaFlags *disables = FindSetting<SettingMetaFlags>(validation_layer->settings, "disables");
-
-    const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
-    for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; ++setting_index) {
-        const SettingMeta &setting_meta = *layer_setting_metas[setting_index];
-
-        if (enables != nullptr) {  // All children settings of 'enables' are handle by the built-in UI
-            if (FindSetting(enables->children, setting_meta.key.c_str()) != nullptr) continue;
-        }
-
-        if (disables != nullptr) {  // All children settings of 'disables' are handle by the built-in UI
-            if (FindSetting(disables->children, setting_meta.key.c_str()) != nullptr) continue;
-        }
-
-        this->BuildTreeItem(parent, parameter.settings, setting_meta);
+    SettingMetaSet &settings = validation_layer->settings;
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        this->BuildTreeItem(parent, parameter, *settings[i]);
     }
 }
 
-void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, SettingDataSet &data_set, const SettingMeta &meta_object) {
+static bool IsBuiltinValidationSetting(const Parameter &parameter, const std::string &key) {
+    if (parameter.key != "VK_LAYER_KHRONOS_validation") return false;
+
+    std::vector<std::string> keys;
+    keys.push_back("enables");
+    keys.push_back("disables");
+    keys.push_back("printf_to_stdout");
+    keys.push_back("printf_verbose");
+    keys.push_back("printf_buffer_size");
+    keys.push_back("gpuav_buffer_oob");
+    keys.push_back("validate_draw_indirect");
+
+    return IsStringFound(keys, key);
+}
+
+void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta_object) {
+    if (IsBuiltinValidationSetting(parameter, meta_object.key)) return;
     if (!IsPlatformSupported(meta_object.platform_flags)) return;
     if (meta_object.view == SETTING_VIEW_HIDDEN) return;
     if (meta_object.view == SETTING_VIEW_ADVANCED &&
@@ -307,28 +310,28 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, SettingDataSet 
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
             const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(meta_object);
 
-            WidgetSettingBool *widget = new WidgetSettingBool(tree, item, meta, data_set);
+            WidgetSettingBool *widget = new WidgetSettingBool(tree, item, meta, parameter.settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_INT: {
             const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(meta_object);
 
-            WidgetSettingInt *widget = new WidgetSettingInt(tree, item, meta, data_set);
+            WidgetSettingInt *widget = new WidgetSettingInt(tree, item, meta, parameter.settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FLOAT: {
             const SettingMetaFloat &meta = static_cast<const SettingMetaFloat &>(meta_object);
 
-            WidgetSettingFloat *widget = new WidgetSettingFloat(tree, item, meta, data_set);
+            WidgetSettingFloat *widget = new WidgetSettingFloat(tree, item, meta, parameter.settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FRAMES: {
             const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(meta_object);
 
-            WidgetSettingFrames *widget = new WidgetSettingFrames(tree, item, meta, data_set);
+            WidgetSettingFrames *widget = new WidgetSettingFrames(tree, item, meta, parameter.settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -337,14 +340,14 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, SettingDataSet 
         case SETTING_SAVE_FOLDER: {
             const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(meta_object);
 
-            WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, data_set);
+            WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, parameter.settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_ENUM: {
             const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(meta_object);
 
-            WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, data_set);
+            WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, parameter.settings);
             this->connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -356,17 +359,19 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, SettingDataSet 
             item->setExpanded(meta.expanded);
 
             for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
-                if (!IsPlatformSupported(meta.enum_values[i].platform_flags)) continue;
-                if (meta.enum_values[i].view == SETTING_VIEW_HIDDEN) continue;
+                const SettingEnumValue &value = meta.enum_values[i];
+
+                if (!IsPlatformSupported(value.platform_flags)) continue;
+                if (value.view == SETTING_VIEW_HIDDEN) continue;
 
                 QTreeWidgetItem *child = new QTreeWidgetItem();
                 item->addChild(child);
 
-                WidgetSettingFlag *widget = new WidgetSettingFlag(tree, child, meta, data_set, meta.enum_values[i].key.c_str());
+                WidgetSettingFlag *widget = new WidgetSettingFlag(tree, child, meta, parameter.settings, value.key.c_str());
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
-                for (std::size_t j = 0, o = meta.enum_values[i].settings.size(); j < o; ++j) {
-                    this->BuildTreeItem(child, data_set, *meta.enum_values[i].settings[j]);
+                for (std::size_t j = 0, o = value.settings.size(); j < o; ++j) {
+                    this->BuildTreeItem(child, parameter, *value.settings[j]);
                 }
             }
         } break;
@@ -374,14 +379,14 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, SettingDataSet 
         case SETTING_STRING: {
             const SettingMetaString &meta = static_cast<const SettingMetaString &>(meta_object);
 
-            WidgetSettingString *widget = new WidgetSettingString(tree, item, meta, data_set);
+            WidgetSettingString *widget = new WidgetSettingString(tree, item, meta, parameter.settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_LIST: {
             const SettingMetaList &meta = static_cast<const SettingMetaList &>(meta_object);
 
-            WidgetSettingList *widget = new WidgetSettingList(tree, item, meta, data_set);
+            WidgetSettingList *widget = new WidgetSettingList(tree, item, meta, parameter.settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -392,17 +397,16 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, SettingDataSet 
     }
 
     for (std::size_t i = 0, n = meta_object.children.size(); i < n; ++i) {
-        this->BuildTreeItem(item, data_set, *meta_object.children[i]);
+        this->BuildTreeItem(item, parameter, *meta_object.children[i]);
     }
 }
 
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
     std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
 
-    const SettingMetaSet &layer_setting_metas = FindByKey(available_layers, parameter.key.c_str())->settings;
-
-    for (std::size_t setting_index = 0, n = layer_setting_metas.size(); setting_index < n; ++setting_index) {
-        this->BuildTreeItem(parent, parameter.settings, *layer_setting_metas[setting_index]);
+    const SettingMetaSet &settings = FindByKey(available_layers, parameter.key.c_str())->settings;
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        this->BuildTreeItem(parent, parameter, *settings[i]);
     }
 }
 

@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaGroup* InstantiateGroup(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaGroup*>(layer.Instantiate(key, SETTING_GROUP));
+    return static_cast<SettingMetaGroup*>(layer.Instantiate(layer.settings, key, SETTING_GROUP));
 }
 
 TEST(test_setting_type_group, init) { EXPECT_EQ(SETTING_GROUP, SettingMetaGroup::TYPE); }

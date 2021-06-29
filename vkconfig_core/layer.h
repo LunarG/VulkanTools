@@ -46,7 +46,7 @@ class Layer {
 
     std::string FindPresetLabel(const SettingDataSet& settings) const;
 
-    SettingMeta* Instantiate(const std::string& key, const SettingType type);
+    SettingMeta* Instantiate(SettingMetaSet& meta_set, const std::string& key, const SettingType type);
 
     void AddSettingData(SettingDataSet& data_set, const QJsonValue& json_setting_value);
 
