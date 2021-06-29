@@ -307,6 +307,10 @@ void MainWindow::LoadConfigurationList() {
     ui->configuration_tree->resizeColumnToContents(0);
     ui->configuration_tree->resizeColumnToContents(1);
 
+    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
+    }
+
     this->UpdateUI();
 }
 
@@ -399,8 +403,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     if (Alert::ConfiguratorResetAll() == QMessageBox::No) return;
 
-    _settings_tree_manager.CleanupGUI();
-
     Configurator &configurator = Configurator::Get();
     configurator.environment.Reset(Environment::CLEAR);
     configurator.environment.ClearCustomLayerPath();
@@ -409,10 +411,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     LoadConfigurationList();
-
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        _settings_tree_manager.CreateGUI(ui->settings_tree);
-    }
 
     configurator.request_vulkan_status = true;
 
@@ -444,8 +442,6 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     if (configuration_item != nullptr) {
         this->SetActiveConfiguration(configuration_item->configuration_name);
     }
-
-    SaveLastItem();
 
     UpdateUI();
 }
@@ -504,8 +500,6 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             LoadConfigurationList();
             SelectConfigurationItem(new_name.c_str());
         }
-
-        _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
     UpdateUI();
@@ -682,8 +676,6 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
 void MainWindow::showEvent(QShowEvent *event) {
     (void)event;
 
-    SaveLastItem();
-
     UpdateUI();
 
     event->accept();
@@ -701,76 +693,26 @@ void MainWindow::on_push_button_applications_clicked() {
 }
 
 void MainWindow::on_push_button_select_layers_clicked() {
-    ConfigurationListItem *item = SaveLastItem();
-    if (item == nullptr) return;
-
-    // Save current state before we go in
-    _settings_tree_manager.CleanupGUI();
-
     Configurator &configurator = Configurator::Get();
     Configuration *configuration = configurator.configurations.GetActiveConfiguration();
     assert(configuration != nullptr);
 
     LayersDialog dlg(this, *configuration);
-    dlg.exec();
-
-    LoadConfigurationList();
-
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
+    if (dlg.exec() == QDialog::Accepted) {
+        this->SetActiveConfiguration(configuration->key);
+        LoadConfigurationList();
+    }
 }
 
 void MainWindow::on_push_button_find_layers_clicked() { this->FindLayerPaths(); }
 
-// When changes are made to the layer list, it forces a reload
-// of the configuration list. This wipes everything out, so we
-// need a way to restore the currently selected item whenever
-// certain kinds of edits occur. These push/pop functions
-// accomplish that. If nothing can be found it should simply
-// leave nothing selected.
-ConfigurationListItem *MainWindow::SaveLastItem() {
-    // Who is selected?
-    ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->currentItem());
-    if (item == nullptr) return nullptr;
-
-    assert(!item->configuration_name.empty());
-    _last_item = item->configuration_name;
-    return item;
-}
-
-// Partner for above function. Returns false if the last config could not be found.
-bool MainWindow::RestoreLastItem(const char *configuration_override) {
-    if (configuration_override != nullptr) _last_item = configuration_override;
-
-    // Reset the current item
-    for (int i = 0; i < ui->configuration_tree->topLevelItemCount(); i++) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
-        if (item == nullptr) continue;
-
-        assert(!item->configuration_name.empty());
-        if (item->configuration_name == _last_item) {
-            ui->configuration_tree->setCurrentItem(item);
-            return true;
-        }
-    }
-    return false;
-}
-
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
 void MainWindow::FindLayerPaths() {
-    // SaveLastItem();
-    // Get the tree state and clear it.
-    // This looks better aesthetically after the dialog
-    // but the dialog changes the pointers to the
-    // configs and it will cause a crash.
-    _settings_tree_manager.CleanupGUI();
-
     UserDefinedPathsDialog dlg(this);
     dlg.exec();
 
-    LoadConfigurationList();  // Force a reload
-
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
+    LoadConfigurationList();
 }
 
 // Edit the layers for the given configuration.
@@ -778,24 +720,19 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     assert(item);
     assert(!item->configuration_name.empty());
 
-    SaveLastItem();
-    _settings_tree_manager.CleanupGUI();
-
     Configurator &configurator = Configurator::Get();
-    LayersDialog dlg(this, *FindByKey(configurator.configurations.available_configurations, item->configuration_name.c_str()));
-    dlg.exec();
+    Configuration *configuration =
+        FindByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
+    assert(configuration != nullptr);
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
-
-    RestoreLastItem();
-    LoadConfigurationList();
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
+    LayersDialog dlg(this, *configuration);
+    if (dlg.exec() == QDialog::Accepted) {
+        this->SetActiveConfiguration(configuration->key);
+        LoadConfigurationList();
+    }
 }
 
 void MainWindow::NewClicked() {
-    // SaveLastItem();
-    _settings_tree_manager.CleanupGUI();
-
     Configurator &configurator = Configurator::Get();
     const std::string active_configuration = configurator.environment.Get(ACTIVE_CONFIGURATION);
 
@@ -805,13 +742,11 @@ void MainWindow::NewClicked() {
     LayersDialog dlg(this, new_configuration);
     switch (dlg.exec()) {
         case QDialog::Accepted:
-            configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, new_configuration.key);
-            RestoreLastItem(new_configuration.key.c_str());
+            this->SetActiveConfiguration(new_configuration.key);
             break;
         case QDialog::Rejected:
             configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, new_configuration.key);
             configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration);
-            RestoreLastItem(active_configuration.c_str());
             break;
         default:
             assert(0);
@@ -819,7 +754,6 @@ void MainWindow::NewClicked() {
     }
 
     LoadConfigurationList();
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::RemoveClicked(ConfigurationListItem *item) {
@@ -836,14 +770,11 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     alert.setIcon(QMessageBox::Warning);
     if (alert.exec() == QMessageBox::No) return;
 
-    SaveLastItem();
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, item->configuration_name);
     LoadConfigurationList();
-
-    RestoreLastItem();
 }
 
 void MainWindow::ResetClicked(ConfigurationListItem *item) {
@@ -875,27 +806,20 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
     alert.setIcon(QMessageBox::Warning);
     if (alert.exec() == QMessageBox::No) return;
 
-    _settings_tree_manager.CleanupGUI();
-
     configuration->Reset(configurator.layers.available_layers, configurator.path);
 
     LoadConfigurationList();
-
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
     assert(item);
 
-    SaveLastItem();
     ui->configuration_tree->editItem(item, 1);
 }
 
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     assert(item);
     assert(!item->configuration_name.empty());
-
-    _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
     const Configuration &duplicated_configuration =
@@ -917,8 +841,6 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     }
     assert(new_item);
     ui->configuration_tree->editItem(new_item, 1);
-
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::ImportClicked(ConfigurationListItem *item) {
@@ -929,11 +851,8 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     const std::string full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
     if (full_import_path.empty()) return;
 
-    _settings_tree_manager.CleanupGUI();
-
     configurator.configurations.ImportConfiguration(configurator.layers.available_layers, full_import_path);
     LoadConfigurationList();
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
 }
 
 void MainWindow::ExportClicked(ConfigurationListItem *item) {
@@ -987,8 +906,6 @@ void MainWindow::OnConfigurationItemExpanded(QTreeWidgetItem *item) {
 void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
     (void)item;
-
-    SaveLastItem();
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
@@ -1408,11 +1325,14 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 void MainWindow::SetActiveConfiguration(const std::string &configuration_name) {
     assert(!configuration_name.empty());
 
+    // Sort will invalidate the name
+    const std::string name_copy = configuration_name;
+
     Configurator &configurator = Configurator::Get();
     configurator.request_vulkan_status = true;
 
     configurator.configurations.SortConfigurations();
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration_name);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, name_copy);
 }
 
 bool MainWindow::SelectConfigurationItem(const std::string &configuration_name) {
