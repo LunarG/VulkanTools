@@ -33,7 +33,7 @@
 #include <regex>
 
 inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaString*>(layer.Instantiate(key, SETTING_STRING));
+    return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
 }
 
 TEST(test_layer, collect_settings) {

@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaInt* InstantiateInt(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaInt*>(layer.Instantiate(key, SETTING_INT));
+    return static_cast<SettingMetaInt*>(layer.Instantiate(layer.settings, key, SETTING_INT));
 }
 
 TEST(test_setting_type_int, init) { EXPECT_EQ(SETTING_INT, SettingMetaInt::TYPE); }

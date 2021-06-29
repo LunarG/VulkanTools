@@ -105,7 +105,7 @@ std::string Layer::FindPresetLabel(const SettingDataSet& settings) const {
     return NO_PRESET;
 }
 
-SettingMeta* Layer::Instantiate(const std::string& key, const SettingType type) {
+SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key, const SettingType type) {
     SettingMeta* setting_meta = nullptr;
 
     switch (type) {
@@ -154,8 +154,8 @@ SettingMeta* Layer::Instantiate(const std::string& key, const SettingType type) 
     }
 
     assert(setting_meta != nullptr);
-    this->settings.push_back(setting_meta);
     this->memory.push_back(std::shared_ptr<SettingMeta>(setting_meta));
+    meta_set.push_back(setting_meta);
     return setting_meta;
 }
 
@@ -332,7 +332,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const QJsonValue& json_sett
 
         const std::string key = ReadStringValue(json_setting, "key");
         const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
-        SettingMeta* setting_meta = Instantiate(key, type);
+        SettingMeta* setting_meta = Instantiate(settings, key, type);
 
         const QJsonValue& json_children = json_setting.value("settings");
         if (json_children != QJsonValue::Undefined) {

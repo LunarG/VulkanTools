@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaFloat* InstantiateFloat(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaFloat*>(layer.Instantiate(key, SETTING_FLOAT));
+    return static_cast<SettingMetaFloat*>(layer.Instantiate(layer.settings, key, SETTING_FLOAT));
 }
 
 TEST(test_setting_type_float, init) { EXPECT_EQ(SETTING_FLOAT, SettingMetaFloat::TYPE); }

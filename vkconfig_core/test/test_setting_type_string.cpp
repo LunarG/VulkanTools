@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaString*>(layer.Instantiate(key, SETTING_STRING));
+    return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
 }
 
 TEST(test_setting_type_string, init) { EXPECT_EQ(SETTING_STRING, SettingMetaString::TYPE); }

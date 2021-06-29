@@ -66,6 +66,7 @@ QCheckBox *WidgetSettingValidation::CreateWidget(QTreeWidgetItem *parent, QTreeW
     *item = new QTreeWidgetItem();
     (*item)->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     parent->addChild(*item);
+    (*item)->setExpanded(true);
 
     QCheckBox *widget = new QCheckBox(this);
     widget->setText(value->label.c_str());

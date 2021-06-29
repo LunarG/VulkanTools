@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaBool* InstantiateBool(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaBool*>(layer.Instantiate(key, SETTING_BOOL));
+    return static_cast<SettingMetaBool*>(layer.Instantiate(layer.settings, key, SETTING_BOOL));
 }
 
 TEST(test_setting_type_bool, init) { EXPECT_EQ(SETTING_BOOL, SettingMetaBool::TYPE); }
