@@ -98,7 +98,7 @@ static void WriteSettingsDetails(std::string& text, const Layer& layer, const Se
             } else {
                 text += format("\t<li>Environment Variable: <span class=\"code\">%s</span></li>\n", setting->env.c_str());
             }
-            text += format("\t<li>Platforms Supported: %s</li>\n", BuildPlatformsHTML(setting->platform_flags).c_str());
+            text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHTML(setting->platform_flags).c_str());
 
             if (setting->view != SETTING_VIEW_STANDARD) {
                 text += format("\t<li>Setting Level: %s</li>\n", GetToken(setting->view));
@@ -116,7 +116,7 @@ static void WriteSettingsDetails(std::string& text, const Layer& layer, const Se
                 text += "<table>\n";
                 text +=
                     "<thead><tr><th>Enum Value</th><th>Label</th><th class=\"desc\">Description</th><th>Platforms "
-                    "Supported</th></tr></thead>\n";
+                    "</th></tr></thead>\n";
                 text += "<tbody>\n";
                 for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
                     const SettingEnumValue& value = setting_enum.enum_values[j];
@@ -188,7 +188,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += format("\t\t<li>Layer Binary Path: %s</li>\n", layer.binary_path.c_str());
     text += "\t</ul></li>\n";
     if (layer.platforms != 0) {
-        text += format("\t<li>Supported Platforms: %s</li>\n", BuildPlatformsHTML(layer.platforms).c_str());
+        text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHTML(layer.platforms).c_str());
     }
     if (layer.status != STATUS_STABLE) {
         text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
@@ -211,7 +211,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += "<table><thead><tr>";
         text += format(
             "<th>Setting</th><th>Type</th><th>Default Value</th><th><a href=\"%s\">vk_layer_settings.txt</a> Variable</th>"
-            "<th>Environment Variable</th><th>Supported Platforms</th>",
+            "<th>Environment Variable</th><th>Platforms</th>",
             GetLayerSettingsDocURL(layer).c_str());
         text += "</tr></thead><tbody>\n";
         WriteSettingsOverview(text, layer, layer.settings);
