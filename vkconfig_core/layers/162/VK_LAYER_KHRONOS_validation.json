@@ -282,6 +282,7 @@
                 },
                 {
                     "key": "duplicate_message_limit",
+                    "env": "VK_LAYER_DUPLICATE_MESSAGE_LIMIT",
                     "label": "Duplicated Messages Limit",
                     "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
                     "type": "INT",
@@ -292,6 +293,7 @@
                 },
                 {
                     "key": "message_id_filter",
+                    "env": "VK_LAYER_MESSAGE_ID_FILTER",
                     "label": "Mute Message VUIDs",
                     "description": "List of VUIDs and VUID identifers which are to be IGNORED by the validation layer",
                     "type": "LIST",
@@ -299,6 +301,7 @@
                 },
                 {
                     "key": "disables",
+                    "env": "VK_LAYER_DISABLES",
                     "label": "Disables",
                     "description": "Setting an option here will disable areas of validation",
                     "type": "FLAGS",
@@ -330,26 +333,26 @@
                         },
                         {
                             "key": "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT",
-                            "label": "Disable Shaders",
-                            "description": "",
+                            "label": "Shaders",
+                            "description": "Shader checks. These checks can be CPU intensive during application start up, especially if Shader Validation Caching is also disabled.",
                             "view": "ADVANCED"
                         },
                         {
                             "key": "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
                             "label": "Command Buffer State",
-                            "description": "",
+                            "description": "Check that all Vulkan objects used by a command buffer have not been destroyed. These checks can be CPU intensive for some applications.",
                             "view": "ADVANCED"
                         },
                         {
                             "key": "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
                             "label": "Image Layout",
-                            "description": "",
+                            "description": "Check that the layout of each image subresource is correct whenever it is used by a command buffer. These checks are very CPU intensive for some applications.",
                             "view": "ADVANCED"
                         },
                         {
                             "key": "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
                             "label": "Query",
-                            "description": "",
+                            "description": "Checks for commands that use VkQueryPool objects.",
                             "view": "ADVANCED"
                         },
                         {
@@ -361,7 +364,7 @@
                         {
                             "key": "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
                             "label": "Object in Use",
-                            "description": "",
+                            "description": "Check that the layout of each image subresource is correct whenever it is used by a command buffer. These checks are very CPU intensive for some applications.",
                             "view": "ADVANCED"
                         },
                         {
@@ -375,6 +378,7 @@
                 },
                 {
                     "key": "enables",
+                    "env": "VK_LAYER_ENABLES",
                     "label": "Enables",
                     "description": "Setting an option here will enable specialized areas of validation",
                     "type": "FLAGS",
