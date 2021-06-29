@@ -122,7 +122,7 @@ std::string GenerateVulkanStatus() {
 
     const std::string layer_settings_path(qgetenv("VK_LAYER_SETTINGS_PATH"));
     if (!layer_settings_path.empty()) {
-        log += "- Global `vk_layer_settings.txt` location overridden by VK_LAYER_SETTINGS_PATH:\n";
+        log += "- `vk_layer_settings.txt` location overridden by VK_LAYER_SETTINGS_PATH:\n";
         if (layer_settings_path.find("vk_layer_settings.txt") == std::string::npos) {
             log += format("    %s\n", layer_settings_path.c_str());
         } else {
@@ -130,7 +130,7 @@ std::string GenerateVulkanStatus() {
         }
     } else {
         const std::string path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
-        log += "- Global `vk_layer_settings.txt` uses the default platform path:\n";
+        log += "- `vk_layer_settings.txt` uses the default platform path:\n";
         log += format("    %s\n", ExtractAbsoluteDir(path).c_str());
     }
 
