@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaFileLoad* InstantiateFileLoad(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaFileLoad*>(layer.Instantiate(key, SETTING_LOAD_FILE));
+    return static_cast<SettingMetaFileLoad*>(layer.Instantiate(layer.settings, key, SETTING_LOAD_FILE));
 }
 
 TEST(test_setting_type_file_load, init) { EXPECT_EQ(SETTING_LOAD_FILE, SettingMetaFileLoad::TYPE); }

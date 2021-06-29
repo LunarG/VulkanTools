@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaFrames* InstantiateFrames(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaFrames*>(layer.Instantiate(key, SETTING_FRAMES));
+    return static_cast<SettingMetaFrames*>(layer.Instantiate(layer.settings, key, SETTING_FRAMES));
 }
 
 TEST(test_setting_type_frames, init) { EXPECT_EQ(SETTING_FRAMES, SettingMetaFrames::TYPE); }

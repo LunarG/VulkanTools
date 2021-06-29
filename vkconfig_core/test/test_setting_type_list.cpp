@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaList* InstantiateList(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaList*>(layer.Instantiate(key, SETTING_LIST));
+    return static_cast<SettingMetaList*>(layer.Instantiate(layer.settings, key, SETTING_LIST));
 }
 
 TEST(test_setting_type_list, init) { EXPECT_EQ(SETTING_LIST, SettingMetaList::TYPE); }

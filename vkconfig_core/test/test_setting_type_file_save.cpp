@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaFileSave* InstantiateFileSave(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaFileSave*>(layer.Instantiate(key, SETTING_SAVE_FILE));
+    return static_cast<SettingMetaFileSave*>(layer.Instantiate(layer.settings, key, SETTING_SAVE_FILE));
 }
 
 TEST(test_setting_type_file_save, init) { EXPECT_EQ(SETTING_SAVE_FILE, SettingMetaFileSave::TYPE); }

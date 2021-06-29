@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaFolderSave* InstantiateFolderSave(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaFolderSave*>(layer.Instantiate(key, SETTING_SAVE_FOLDER));
+    return static_cast<SettingMetaFolderSave*>(layer.Instantiate(layer.settings, key, SETTING_SAVE_FOLDER));
 }
 
 TEST(test_setting_type_folder_save, init) { EXPECT_EQ(SETTING_SAVE_FOLDER, SettingMetaFolderSave::TYPE); }

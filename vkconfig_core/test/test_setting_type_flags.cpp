@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaFlags* InstantiateFlags(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaFlags*>(layer.Instantiate(key, SETTING_FLAGS));
+    return static_cast<SettingMetaFlags*>(layer.Instantiate(layer.settings, key, SETTING_FLAGS));
 }
 
 TEST(test_setting_type_flags, init) { EXPECT_EQ(SETTING_FLAGS, SettingMetaFlags::TYPE); }

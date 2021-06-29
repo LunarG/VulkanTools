@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaBoolNumeric* InstantiateBoolNum(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaBoolNumeric*>(layer.Instantiate(key, SETTING_BOOL_NUMERIC_DEPRECATED));
+    return static_cast<SettingMetaBoolNumeric*>(layer.Instantiate(layer.settings, key, SETTING_BOOL_NUMERIC_DEPRECATED));
 }
 
 TEST(test_setting_type_bool_num, init) { EXPECT_EQ(SETTING_BOOL_NUMERIC_DEPRECATED, SettingMetaBoolNumeric::TYPE); }

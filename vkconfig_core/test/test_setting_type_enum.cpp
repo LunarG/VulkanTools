@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 
 inline SettingMetaEnum* InstantiateEnum(Layer& layer, const std::string& key) {
-    return static_cast<SettingMetaEnum*>(layer.Instantiate(key, SETTING_ENUM));
+    return static_cast<SettingMetaEnum*>(layer.Instantiate(layer.settings, key, SETTING_ENUM));
 }
 
 TEST(test_setting_type_enum, init) { EXPECT_EQ(SETTING_ENUM, SettingMetaEnum::TYPE); }
