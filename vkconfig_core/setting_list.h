@@ -46,6 +46,7 @@ struct SettingDataList : public SettingData {
     SettingDataList(const SettingMetaList* meta);
 
     void Reset() override;
+    bool Parse(const std::string& value) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;

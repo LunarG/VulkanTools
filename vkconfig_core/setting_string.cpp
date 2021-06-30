@@ -68,6 +68,11 @@ void SettingDataString::Reset() {
     this->value = this->meta->default_value;
 }
 
+bool SettingDataString::Parse(const std::string& new_value) {
+    this->value = new_value;
+    return true;
+}
+
 bool SettingDataString::Load(const QJsonObject& json_setting) {
     this->value = ReadStringValue(json_setting, "value");
     return true;

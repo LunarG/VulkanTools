@@ -157,6 +157,8 @@ void SettingDataFlags::Reset() {
     this->value = this->meta->default_value;
 }
 
+bool SettingDataFlags::Parse(const std::string& value) {}
+
 bool SettingDataFlags::Load(const QJsonObject& json_setting) {
     this->value = ReadStringArray(json_setting, "value");
     return true;

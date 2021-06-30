@@ -31,6 +31,13 @@ SettingMetaFrames::SettingMetaFrames(Layer& layer, const std::string& key) : Set
 
 SettingDataFrames::SettingDataFrames(const SettingMetaFrames* meta) : SettingDataString(meta), meta(meta) {}
 
+bool SettingDataFrames::Parse(const std::string& new_value) {
+    if (!(IsFrames(new_value) || new_value.empty())) return false;
+
+    this->value = new_value;
+    return true;
+}
+
 bool SettingDataFrames::Load(const QJsonObject& json_setting) {
     this->value = ReadStringValue(json_setting, "value");
     return true;

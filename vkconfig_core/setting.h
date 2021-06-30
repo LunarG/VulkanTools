@@ -135,6 +135,7 @@ struct SettingData {
     bool operator!=(const SettingData& other) const { return !this->Equal(other); }
 
     virtual void Reset() = 0;
+    virtual bool Parse(const std::string& value) = 0;
     virtual bool Load(const QJsonObject& json_setting) = 0;
     virtual bool Save(QJsonObject& json_setting) const = 0;
     virtual std::string Export(ExportMode export_mode) const = 0;

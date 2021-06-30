@@ -91,6 +91,11 @@ void SettingDataFloat::Reset() {
     this->value = this->meta->default_value;
 }
 
+bool SettingDataFloat::Parse(const std::string& new_value) {
+    this->value = std::strtof(new_value.c_str(), nullptr);
+    return true;
+}
+
 bool SettingDataFloat::Load(const QJsonObject& json_setting) {
     this->value = ReadFloatValue(json_setting, "value");
     return true;

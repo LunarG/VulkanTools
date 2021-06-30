@@ -77,6 +77,12 @@ SettingDataInt::SettingDataInt(const SettingMetaInt* meta)
 
 void SettingDataInt::Reset() { this->value = this->meta->default_value; }
 
+bool SettingDataInt::Parse(const std::string& new_value) {
+    int radix = ((new_value.find("0x") == 0 || new_value.find("0X") == 0) ? 16 : 10);
+    this->value = static_cast<int>(std::strtol(new_value.c_str(), nullptr, radix));
+    return true;
+}
+
 bool SettingDataInt::Load(const QJsonObject& json_setting) {
     this->value = ReadIntValue(json_setting, "value");
     return true;
