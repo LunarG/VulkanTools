@@ -21,6 +21,7 @@
 - Add settings environment variables checking #1498
 - Add settings tree context menu #1501
 - Add layer generated user documentation #1510
+- Add build date in the title bar
 
 ### Improvements:
 - Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers) list within the help menu
