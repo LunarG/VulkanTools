@@ -1555,6 +1555,23 @@ std::string ViaSystem::ConvertPathFormat(std::string str) {
     return str;
 }
 
+static void ReplaceAllBackslashes(std::string& str) {
+    size_t bs_pos = str.find("\\");
+    while (bs_pos != std::string::npos) {
+#ifdef VIA_WINDOWS_TARGET
+        // Accept existing double-backslashes on Windows
+        if (str.at(bs_pos + 1) != '\\') {
+            str.replace(bs_pos, 1, "\\\\");
+        }
+        bs_pos = str.find("\\", bs_pos + 2);
+#else
+        // Just always replace backslashes on other platforms
+        str.replace(bs_pos, 1, "/");
+        bs_pos = str.find("\\", bs_pos + 1);
+#endif
+    }
+}
+
 void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
     std::map<std::string, std::vector<VulkanSettingPair>> settings;
 
@@ -1578,7 +1595,7 @@ void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
 
         // The settings file is a text file where:
         //  - # indicates a comment
-        //  - Settings are stored in the fasion:
+        //  - Settings are stored in the fashion:
         //        <layer_name>.<setting> = <value>
         while (settings_stream->good()) {
             std::string cur_line;
@@ -1601,6 +1618,7 @@ void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
             std::string before_equal = trimmed_line.substr(0, equal_loc);
             std::string after_equal = trimmed_line.substr(equal_loc + 1, std::string::npos);
             new_pair.value = TrimWhitespace(after_equal);
+            ReplaceAllBackslashes(new_pair.value);
 
             std::string trimmed_setting = TrimWhitespace(before_equal);
 
