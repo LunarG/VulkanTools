@@ -35,6 +35,7 @@ SOURCES += \
     ../vkconfig_core/configuration.cpp \
     ../vkconfig_core/configuration_manager.cpp \
     ../vkconfig_core/doc.cpp \
+    ../vkconfig_core/date.cpp \
     ../vkconfig_core/environment.cpp \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     ../vkconfig_core/configuration.h \
     ../vkconfig_core/configuration_manager.h \
     ../vkconfig_core/doc.h \
+    ../vkconfig_core/date.h \
     ../vkconfig_core/environment.h \
     ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \

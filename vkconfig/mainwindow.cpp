@@ -37,6 +37,7 @@
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/help.h"
 #include "../vkconfig_core/doc.h"
+#include "../vkconfig_core/date.h"
 
 #include <QProcess>
 #include <QMessageBox>
@@ -144,7 +145,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() { ResetLaunchApplication(); }
 
 static std::string GetMainWindowTitle(bool active) {
-    std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
+    std::string title = format("%s %s-%s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
     if (active) title += " <ACTIVE>";
     return title;
 }
