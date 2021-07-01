@@ -61,6 +61,13 @@ static void WriteSettingsOverview(std::string& text, const Layer& layer, const S
             text += "</tr>\n";
         }
 
+        if (IsEnum(setting->type)) {
+            const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
+            for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
+                WriteSettingsOverview(text, layer, setting_enum.enum_values[j].settings);
+            }
+        }
+
         WriteSettingsOverview(text, layer, setting->children);
     }
 }
@@ -131,10 +138,14 @@ static void WriteSettingsDetails(std::string& text, const Layer& layer, const Se
                     } else {
                         text += format("\t<td class=\"desc\">%s</td>\n", value.description.c_str());
                     }
-                    text += format("\t<td>%s</td>\n", BuildPlatformsHTML(setting->platform_flags).c_str());
+                    text += format("\t<td>%s</td>\n", BuildPlatformsHTML(value.platform_flags).c_str());
                     text += "</tr>\n";
                 }
                 text += "</tbody></table>\n";
+
+                for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
+                    WriteSettingsDetails(text, layer, setting_enum.enum_values[j].settings);
+                }
             }
         }
 
