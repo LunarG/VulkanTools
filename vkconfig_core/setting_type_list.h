@@ -20,59 +20,41 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 
-struct SettingMetaFloat : public SettingMeta {
+struct SettingMetaList : public SettingMeta {
     static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
     std::string Export(ExportMode export_mode) const override;
 
-    float default_value;
-    float min_value;
-    float max_value;
-    int precision;
-    int width;
-    std::string unit;
-
-    bool HasRange() const { return std::abs(this->max_value - this->min_value) > std::numeric_limits<float>::epsilon(); }
-
-    bool HasPrecision() const { return this->precision != 0 || this->width != 0; }
-
-    std::string GetFloatFormat() const {
-        if (this->HasPrecision()) {
-            return "%" + format("%d.%df", this->width, this->precision);
-        } else {
-            return "%f";
-        }
-    }
+    std::vector<NumberOrString> list;
+    std::vector<EnabledNumberOrString> default_value;
+    bool list_only;
 
    protected:
     bool Equal(const SettingMeta& other) const override;
 
    private:
-    SettingMetaFloat(Layer& layer, const std::string& key);
+    SettingMetaList(Layer& layer, const std::string& key);
 
     friend class Layer;
 };
 
-struct SettingDataFloat : public SettingData {
-    SettingDataFloat(const SettingMetaFloat* meta);
+struct SettingDataList : public SettingData {
+    SettingDataList(const SettingMetaList* meta);
 
     void Reset() override;
     bool Parse(const std::string& value) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
-    bool IsValid() const override;
 
-    SettingInputError ProcessInput(const std::string& value);
-
-    float value;
+    std::vector<EnabledNumberOrString> value;
 
    protected:
     bool Equal(const SettingData& other) const override;
 
-    const SettingMetaFloat* meta;
+    const SettingMetaList* meta;
 };

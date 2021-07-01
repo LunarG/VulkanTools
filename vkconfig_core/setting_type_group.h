@@ -20,26 +20,30 @@
 
 #pragma once
 
-#include "setting_string.h"
+#include "setting_type.h"
 
-struct SettingMetaFrames : public SettingMetaString {
+struct SettingMetaGroup : public SettingMeta {
     static const SettingType TYPE;
 
+    SettingData* Instantiate() override;
+    bool Load(const QJsonObject& json_setting) override;
+    std::string Export(ExportMode export_mode) const override;
+
    private:
-    SettingMetaFrames(Layer& layer, const std::string& key);
+    SettingMetaGroup(Layer& layer, const std::string& key);
 
     friend class Layer;
 };
 
-struct SettingDataFrames : public SettingDataString {
-    SettingDataFrames(const SettingMetaFrames* meta);
+struct SettingDataGroup : public SettingData {
+    SettingDataGroup(const SettingMetaGroup* meta);
 
+    void Reset() override;
     bool Parse(const std::string& value) override;
     bool Load(const QJsonObject& json_setting) override;
+    bool Save(QJsonObject& json_setting) const override;
+    std::string Export(ExportMode export_mode) const override;
 
-    bool IsValid() const override;
-
-    SettingInputError ProcessInput(const std::string& value);
-
-    const SettingMetaFrames* meta;
+   protected:
+    const SettingMetaGroup* meta;
 };

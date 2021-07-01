@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_float.h"
+#include "setting_type_float.h"
 #include "util.h"
 #include "json.h"
 

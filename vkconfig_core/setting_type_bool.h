@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 
 #include <memory>
 

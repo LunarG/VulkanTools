@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_flags.h"
+#include "setting_type_flags.h"
 #include "json.h"
 #include "layer.h"
 
@@ -157,7 +157,34 @@ void SettingDataFlags::Reset() {
     this->value = this->meta->default_value;
 }
 
-bool SettingDataFlags::Parse(const std::string& value) {}
+bool SettingDataFlags::Parse(const std::string& new_value) {
+    /*
+    std::string delimiter(",");
+
+    size_t pos = 0;
+    std::string token;
+    while (new_value.length() != 0) {
+        token = GetNextToken(&new_value, delimiter, &pos);
+        if (token.find("VK_VALIDATION_FEATURE_ENABLE_") != std::string::npos) {
+            auto result = VkValFeatureEnableLookup.find(token);
+            if (result != VkValFeatureEnableLookup.end()) {
+                SetValidationFeatureEnable(enables, result->second);
+            } else {
+                auto result2 = VkValFeatureEnableLookup2.find(token);
+                if (result2 != VkValFeatureEnableLookup2.end()) {
+                    SetValidationFeatureEnable2(enables, result2->second);
+                }
+            }
+        } else if (token.find("VALIDATION_CHECK_ENABLE_") != std::string::npos) {
+            auto result = ValidationEnableLookup.find(token);
+            if (result != ValidationEnableLookup.end()) {
+                SetValidationEnable(this->value, result->second);
+            }
+        }
+    }
+    */
+    return true;
+}
 
 bool SettingDataFlags::Load(const QJsonObject& json_setting) {
     this->value = ReadStringArray(json_setting, "value");

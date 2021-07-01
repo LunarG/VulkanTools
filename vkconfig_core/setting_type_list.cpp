@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_list.h"
+#include "setting_type_list.h"
 #include "json.h"
 #include "layer.h"
 
@@ -213,7 +213,7 @@ std::string GetNextToken(std::string* token_list, const std::string& delimiter, 
 
 bool SettingDataList::Parse(const std::string& new_value) {
     this->value.clear();
-
+    /*
     // std::string delimiter = ",";
 
 #if defined(_WIN32)
@@ -237,7 +237,7 @@ bool SettingDataList::Parse(const std::string& new_value) {
             this->value.push_back(int_id);
         }
     }
-
+*/
     return true;
 }
 

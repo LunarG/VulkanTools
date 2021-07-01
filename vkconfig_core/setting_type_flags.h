@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "setting_string.h"
+#include "setting_type_string.h"
 
 struct SettingEnumValue : public Header {
     std::string key;

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 
 struct SettingMetaInt : public SettingMeta {
     static const SettingType TYPE;

@@ -20,44 +20,59 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 
-struct SettingMetaString : public SettingMeta {
+struct SettingMetaFloat : public SettingMeta {
     static const SettingType TYPE;
 
     SettingData* Instantiate() override;
-
     bool Load(const QJsonObject& json_setting) override;
     std::string Export(ExportMode export_mode) const override;
 
-    std::string default_value;
+    float default_value;
+    float min_value;
+    float max_value;
+    int precision;
+    int width;
+    std::string unit;
+
+    bool HasRange() const { return std::abs(this->max_value - this->min_value) > std::numeric_limits<float>::epsilon(); }
+
+    bool HasPrecision() const { return this->precision != 0 || this->width != 0; }
+
+    std::string GetFloatFormat() const {
+        if (this->HasPrecision()) {
+            return "%" + format("%d.%df", this->width, this->precision);
+        } else {
+            return "%f";
+        }
+    }
 
    protected:
-    SettingMetaString(Layer& layer, const std::string& key, const SettingType& setting_type);
-
     bool Equal(const SettingMeta& other) const override;
 
    private:
-    SettingMetaString(Layer& layer, const std::string& key);
+    SettingMetaFloat(Layer& layer, const std::string& key);
 
     friend class Layer;
 };
 
-struct SettingDataString : public SettingData {
-    SettingDataString(const SettingMetaString* meta);
+struct SettingDataFloat : public SettingData {
+    SettingDataFloat(const SettingMetaFloat* meta);
 
     void Reset() override;
     bool Parse(const std::string& value) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
+    bool IsValid() const override;
 
-    std::string value;
+    SettingInputError ProcessInput(const std::string& value);
+
+    float value;
 
    protected:
-    SettingDataString(const std::string& key, const SettingType& type);
-
     bool Equal(const SettingData& other) const override;
 
-    const SettingMetaString* meta;
+    const SettingMetaFloat* meta;
 };

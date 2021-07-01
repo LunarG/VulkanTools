@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_string.h"
+#include "setting_type_string.h"
 #include "json.h"
 
 // SettingMetaString
