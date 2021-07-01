@@ -231,7 +231,8 @@
                         {
                             "key": "VK_DBG_LAYER_ACTION_DEBUG_OUTPUT",
                             "label": "Debug Output",
-                            "description": "Log a txt message using the Windows OutputDebugString function."
+                            "description": "Log a txt message using the Windows OutputDebugString function.",
+                            "platforms": [ "WINDOWS" ]
                         },
                         {
                             "key": "VK_DBG_LAYER_ACTION_BREAK",
