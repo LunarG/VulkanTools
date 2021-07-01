@@ -224,7 +224,8 @@
                         {
                             "key": "debug",
                             "label": "Debug",
-                            "description": "For layer development. Report messages for debugging layer behavior."
+                            "description": "For layer development. Report messages for debugging layer behavior.",
+                            "view": "ADVANCED"
                         }
                     ],
                     "default": [
@@ -290,21 +291,9 @@
                             "view": "ADVANCED"
                         },
                         {
-                            "key": "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE",
-                            "label": "Push Constant Range",
-                            "description": "",
-                            "view": "ADVANCED"
-                        },
-                        {
                             "key": "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
                             "label": "Object in Use",
                             "description": "Check that the layout of each image subresource is correct whenever it is used by a command buffer. These checks are very CPU intensive for some applications.",
-                            "view": "ADVANCED"
-                        },
-                        {
-                            "key": "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
-                            "label": "Idle Descriptor Set",
-                            "description": "",
                             "view": "ADVANCED"
                         }
                     ],

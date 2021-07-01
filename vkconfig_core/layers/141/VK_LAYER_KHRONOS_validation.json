@@ -248,7 +248,8 @@
                         {
                             "key": "debug",
                             "label": "Debug",
-                            "description": "For layer development. Report messages for debugging layer behavior."
+                            "description": "For layer development. Report messages for debugging layer behavior.",
+                            "view": "ADVANCED"
                         }
                     ],
                     "default": [
@@ -291,44 +292,32 @@
                         },
                         {
                             "key": "VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT",
-                            "label": "Disable Shaders",
-                            "description": "",
+                            "label": "Shaders",
+                            "description": "Shader checks. These checks can be CPU intensive during application start up, especially if Shader Validation Caching is also disabled.",
                             "view": "ADVANCED"
                         },
                         {
                             "key": "VALIDATION_CHECK_DISABLE_COMMAND_BUFFER_STATE",
                             "label": "Command Buffer State",
-                            "description": "",
+                            "description": "Check that all Vulkan objects used by a command buffer have not been destroyed. These checks can be CPU intensive for some applications.",
                             "view": "ADVANCED"
                         },
                         {
                             "key": "VALIDATION_CHECK_DISABLE_IMAGE_LAYOUT_VALIDATION",
                             "label": "Image Layout",
-                            "description": "",
+                            "description": "Check that the layout of each image subresource is correct whenever it is used by a command buffer. These checks are very CPU intensive for some applications.",
                             "view": "ADVANCED"
                         },
                         {
                             "key": "VALIDATION_CHECK_DISABLE_QUERY_VALIDATION",
                             "label": "Query",
-                            "description": "",
-                            "view": "ADVANCED"
-                        },
-                        {
-                            "key": "VALIDATION_CHECK_DISABLE_PUSH_CONSTANT_RANGE",
-                            "label": "Push Constant Range",
-                            "description": "",
+                            "description": "Checks for commands that use VkQueryPool objects.",
                             "view": "ADVANCED"
                         },
                         {
                             "key": "VALIDATION_CHECK_DISABLE_OBJECT_IN_USE",
                             "label": "Object in Use",
-                            "description": "",
-                            "view": "ADVANCED"
-                        },
-                        {
-                            "key": "VALIDATION_CHECK_DISABLE_IDLE_DESCRIPTOR_SET",
-                            "label": "Idle Descriptor Set",
-                            "description": "",
+                            "description": "Check that the layout of each image subresource is correct whenever it is used by a command buffer. These checks are very CPU intensive for some applications.",
                             "view": "ADVANCED"
                         }
                     ],
