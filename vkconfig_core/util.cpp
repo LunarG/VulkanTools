@@ -95,6 +95,40 @@ bool IsStringFound(const std::vector<std::string>& list, const std::string& valu
     return false;
 }
 
+std::vector<std::string> Split(const std::string& value, const std::string& delimiter) {
+    std::vector<std::string> result;
+
+    std::string parse = value;
+
+    std::size_t start = 0;
+    std::size_t end = parse.find(delimiter);
+    while (end != std::string::npos) {
+        result.push_back(parse.substr(start, end - start));
+        start = end + delimiter.length();
+        end = parse.find(delimiter, start);
+    }
+
+    const std::string last = parse.substr(start, end);
+    if (!last.empty()) {
+        result.push_back(last);
+    }
+
+    return result;
+}
+
+std::string Merge(const std::vector<std::string>& value, const std::string& delimiter) {
+    std::string result;
+
+    for (std::size_t i = 0, n = value.size(); i < n; ++i) {
+        result += value[i];
+        if (i < n - 1) {
+            result += delimiter;
+        }
+    }
+
+    return result;
+}
+
 void RemoveValue(std::vector<NumberOrString>& list, const NumberOrString& value) {
     std::vector<NumberOrString> new_list;
     new_list.reserve(list.size());
