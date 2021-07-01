@@ -270,7 +270,8 @@
                         {
                             "key": "debug",
                             "label": "Debug",
-                            "description": "For layer development. Report messages for debugging layer behavior."
+                            "description": "For layer development. Report messages for debugging layer behavior.",
+                            "view": "ADVANCED"
                         }
                     ],
                     "default": [
@@ -390,6 +391,7 @@
                                     "key": "printf_to_stdout",
                                     "label": "Printf to stdout",
                                     "description": "To redirect Debug Printf messages from the debug callback to stdout",
+                                    "platforms": [ "WINDOWS", "LINUX" ],
                                     "type": "BOOL",
                                     "default": true,
                                     "dependence": {
@@ -406,6 +408,7 @@
                                     "key": "printf_verbose",
                                     "label": "Verbose",
                                     "description": "Verbosity of debug printf messages",
+                                    "platforms": [ "WINDOWS", "LINUX" ],
                                     "type": "BOOL",
                                     "default": false,
                                     "dependence": {
@@ -422,6 +425,7 @@
                                     "key": "printf_buffer_size",
                                     "label": "Printf buffer size",
                                     "description": "The size in bytes of the buffer used by debug printf",
+                                    "platforms": [ "WINDOWS", "LINUX" ],
                                     "type": "INT",
                                     "default": 1024,
                                     "range": {
@@ -452,6 +456,7 @@
                                     "key": "gpuav_buffer_oob",
                                     "label": "Check Out of Bounds ",
                                     "description": "Enable buffer out of bounds checking",
+                                    "platforms": [ "WINDOWS", "LINUX" ],
                                     "type": "BOOL",
                                     "default": true,
                                     "dependence": {
