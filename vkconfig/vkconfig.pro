@@ -52,18 +52,20 @@ SOURCES += \
     ../vkconfig_core/path_manager.cpp \
     ../vkconfig_core/platform.cpp \
     ../vkconfig_core/registry.cpp \
-    ../vkconfig_core/setting.cpp \
-    ../vkconfig_core/setting_bool.cpp \
-    ../vkconfig_core/setting_filesystem.cpp \
-    ../vkconfig_core/setting_flags.cpp \
-    ../vkconfig_core/setting_float.cpp \
-    ../vkconfig_core/setting_frames.cpp \
-    ../vkconfig_core/setting_group.cpp \
-    ../vkconfig_core/setting_int.cpp \
-    ../vkconfig_core/setting_list.cpp \
-    ../vkconfig_core/setting_string.cpp \
+    ../vkconfig_core/setting_parser.cpp \
+    ../vkconfig_core/setting_type.cpp \
+    ../vkconfig_core/setting_type_bool.cpp \
+    ../vkconfig_core/setting_type_filesystem.cpp \
+    ../vkconfig_core/setting_type_flags.cpp \
+    ../vkconfig_core/setting_type_float.cpp \
+    ../vkconfig_core/setting_type_frames.cpp \
+    ../vkconfig_core/setting_type_group.cpp \
+    ../vkconfig_core/setting_type_int.cpp \
+    ../vkconfig_core/setting_type_list.cpp \
+    ../vkconfig_core/setting_type_string.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
+    ../vkconfig_core/xxhash.c \
     vulkan.cpp \
     widget_preset.cpp \
     widget_setting.cpp \
@@ -77,6 +79,7 @@ SOURCES += \
     widget_setting_string.cpp \
     widget_setting_list_element.cpp \
     widget_setting_list.cpp \
+    widget_setting_validation.cpp \
     widget_tree_friendly_combobox.cpp \
     dialog_about.cpp \
     dialog_applications.cpp \
@@ -91,7 +94,6 @@ SOURCES += \
     main_layers.cpp \
     mainwindow.cpp \
     settings_tree.cpp \
-    settings_validation_areas.cpp \
     configurator.cpp
 
 HEADERS += \
@@ -119,18 +121,20 @@ HEADERS += \
     ../vkconfig_core/path_manager.h \
     ../vkconfig_core/platform.h \
     ../vkconfig_core/registry.h \
-    ../vkconfig_core/setting.h \
-    ../vkconfig_core/setting_bool.h \
-    ../vkconfig_core/setting_filesystem.h \
-    ../vkconfig_core/setting_flags.h \
-    ../vkconfig_core/setting_float.h \
-    ../vkconfig_core/setting_frames.h \
-    ../vkconfig_core/setting_group.h \
-    ../vkconfig_core/setting_int.h \
-    ../vkconfig_core/setting_list.h \
-    ../vkconfig_core/setting_string.h \
+    ../vkconfig_core/setting_parser.h \
+    ../vkconfig_core/setting_type.h \
+    ../vkconfig_core/setting_type_bool.h \
+    ../vkconfig_core/setting_type_filesystem.h \
+    ../vkconfig_core/setting_type_flags.h \
+    ../vkconfig_core/setting_type_float.h \
+    ../vkconfig_core/setting_type_frames.h \
+    ../vkconfig_core/setting_type_group.h \
+    ../vkconfig_core/setting_type_int.h \
+    ../vkconfig_core/setting_type_list.h \
+    ../vkconfig_core/setting_type_string.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \
+    ../vkconfig_core/xxhash.h \
     vulkan.h \
     widget_preset.h \
     widget_setting.h \
@@ -144,6 +148,7 @@ HEADERS += \
     widget_setting_string.h \
     widget_setting_list_element.h \
     widget_setting_list.h \
+    widget_setting_validation.h \
     widget_tree_friendly_combobox.h \
     dialog_about.h \
     dialog_applications.h \

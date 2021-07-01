@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../setting_frames.h"
+#include "../setting_type_frames.h"
 #include "../layer.h"
 
 #include <gtest/gtest.h>

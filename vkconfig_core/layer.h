@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 #include "layer_preset.h"
 #include "layer_type.h"
 #include "version.h"

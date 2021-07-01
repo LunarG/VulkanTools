@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_bool.h"
+#include "../vkconfig_core/setting_type_bool.h"
 
 #include "widget_setting.h"
 

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_string.h"
+#include "../vkconfig_core/setting_type_string.h"
 
 #include "widget_setting.h"
 

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_flags.h"
+#include "../vkconfig_core/setting_type_flags.h"
 
 #include "widget_setting.h"
 

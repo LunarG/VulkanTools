@@ -6,7 +6,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
 
 if(Qt5_FOUND)
-    file(GLOB FILES_SOURCE ./*.cpp)
+    file(GLOB FILES_SOURCE_C ./*.c)    
+    file(GLOB FILES_SOURCE_CXX ./*.cpp)
     file(GLOB FILES_HEADER ./*.h)
 
     file(GLOB FILES_CONFIGURATIONS_2_2_1 ./configurations/2.2.1/*.json)
@@ -47,7 +48,7 @@ if(Qt5_FOUND)
         ${FILES_LAYERS_170}
         ${FILES_LAYERS_SCHEMA})
 
-    set(FILES_ALL ${FILES_SOURCE} ${FILES_HEADER} ${FILES_RESOURCES})
+    set(FILES_ALL ${FILES_SOURCE_C} ${FILES_SOURCE_CXX} ${FILES_HEADER} ${FILES_RESOURCES})
 
     add_library(vkconfig_core STATIC ${FILES_ALL})
     target_compile_definitions(vkconfig_core PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)

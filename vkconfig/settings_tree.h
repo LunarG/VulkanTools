@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "settings_validation_areas.h"
+#include "widget_setting_validation.h"
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
 #include "widget_preset.h"

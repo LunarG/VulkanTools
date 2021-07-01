@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../setting_flags.h"
+#include "../setting_type_flags.h"
 #include "../layer.h"
 
 #include <gtest/gtest.h>
