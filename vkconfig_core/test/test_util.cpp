@@ -235,6 +235,12 @@ TEST(test_util, to_upper_case) {
 
 TEST(test_util, is_number) {
     EXPECT_EQ(true, IsNumber("0123456789"));
+    EXPECT_EQ(true, IsNumber("0x1F"));
+    EXPECT_EQ(true, IsNumber("-0x1F"));
+    EXPECT_EQ(true, IsNumber("0x1adf"));
+    EXPECT_EQ(true, IsNumber("-0x48e"));
+    EXPECT_EQ(true, IsNumber("-0x3AC7e"));
+
     EXPECT_EQ(false, IsNumber("01234c56789"));
     EXPECT_EQ(false, IsNumber("$%#&@()-_[]{}"));
 }

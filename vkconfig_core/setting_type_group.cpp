@@ -50,7 +50,7 @@ SettingDataGroup::SettingDataGroup(const SettingMetaGroup* meta) : SettingData(m
 
 void SettingDataGroup::Reset() { assert(this->meta != nullptr); }
 
-bool SettingDataGroup::Parse(const std::string& value) {
+bool SettingDataGroup::Parse(const std::string& value, const ParseSource parse) {
     (void)value;
     return true;
 }

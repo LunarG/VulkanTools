@@ -60,7 +60,7 @@ SettingDataBool::SettingDataBool(const SettingMetaBool* meta)
 
 void SettingDataBool::Reset() { this->value = this->meta->default_value; }
 
-bool SettingDataBool::Parse(const std::string& new_value) {
+bool SettingDataBool::Parse(const std::string& new_value, const ParseSource parse) {
     std::string lower_value = ToLowerCase(new_value);
     this->value = lower_value == "true";
     return true;

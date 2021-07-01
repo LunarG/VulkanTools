@@ -57,7 +57,7 @@ bool IsFrames(const std::string& s) {
 }
 
 bool IsNumber(const std::string& s) {
-    static const std::regex FRAME_REGEX("^-?[0-9]*$");
+    static const std::regex FRAME_REGEX("^-?([0-9]*|0x[0-9|a-z|A-Z]*)$");
 
     return std::regex_search(s, FRAME_REGEX);
 }

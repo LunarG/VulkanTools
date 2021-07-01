@@ -95,6 +95,10 @@ enum ExportMode {
 
 enum { EXPORT_MODE_COUNT = EXPORT_MODE_LAST - EXPORT_MODE_FIRST + 1 };
 
+enum ParseSource { PARSE_SETTING = 0, PARSE_ENV_VAR };
+
+const char* GetToken(ParseSource type);
+
 class Layer;
 struct SettingMeta;
 struct SettingData;
@@ -135,7 +139,7 @@ struct SettingData {
     bool operator!=(const SettingData& other) const { return !this->Equal(other); }
 
     virtual void Reset() = 0;
-    virtual bool Parse(const std::string& value) = 0;
+    virtual bool Parse(const std::string& value, const ParseSource parse = PARSE_SETTING) = 0;
     virtual bool Load(const QJsonObject& json_setting) = 0;
     virtual bool Save(QJsonObject& json_setting) const = 0;
     virtual std::string Export(ExportMode export_mode) const = 0;

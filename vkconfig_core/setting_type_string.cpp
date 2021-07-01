@@ -68,7 +68,7 @@ void SettingDataString::Reset() {
     this->value = this->meta->default_value;
 }
 
-bool SettingDataString::Parse(const std::string& new_value) {
+bool SettingDataString::Parse(const std::string& new_value, const ParseSource parse) {
     this->value = new_value;
     return true;
 }

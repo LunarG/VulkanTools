@@ -91,7 +91,7 @@ void SettingDataFloat::Reset() {
     this->value = this->meta->default_value;
 }
 
-bool SettingDataFloat::Parse(const std::string& new_value) {
+bool SettingDataFloat::Parse(const std::string& new_value, const ParseSource parse) {
     this->value = std::strtof(new_value.c_str(), nullptr);
     return true;
 }

@@ -34,7 +34,7 @@ struct SettingMetaFrames : public SettingMetaString {
 struct SettingDataFrames : public SettingDataString {
     SettingDataFrames(const SettingMetaFrames* meta);
 
-    bool Parse(const std::string& value) override;
+    bool Parse(const std::string& value, const ParseSource parse = PARSE_SETTING) override;
     bool Load(const QJsonObject& json_setting) override;
 
     bool IsValid() const override;

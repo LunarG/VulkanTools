@@ -22,6 +22,8 @@
 #include "json.h"
 #include "layer.h"
 
+#include "../vkconfig_core/xxhash.h"
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -190,54 +192,25 @@ SettingDataList::SettingDataList(const SettingMetaList* meta) : SettingData(meta
 
 void SettingDataList::Reset() { this->value = this->meta->default_value; }
 
-std::string GetNextToken(std::string* token_list, const std::string& delimiter, size_t* pos) {
-    std::string token;
-    *pos = token_list->find(delimiter);
-    if (*pos != std::string::npos) {
-        token = token_list->substr(0, *pos);
-    } else {
-        *pos = token_list->length() - delimiter.length();
-        token = *token_list;
-    }
-    token_list->erase(0, *pos + delimiter.length());
-
-    // Remove quotes from quoted strings
-    if ((token.length() > 0) && (token[0] == '\"')) {
-        token.erase(token.begin());
-        if ((token.length() > 0) && (token[token.length() - 1] == '\"')) {
-            token.erase(--token.end());
-        }
-    }
-    return token;
-}
-
-bool SettingDataList::Parse(const std::string& new_value) {
+bool SettingDataList::Parse(const std::string& new_value, const ParseSource parse) {
     this->value.clear();
-    /*
-    // std::string delimiter = ",";
 
-#if defined(_WIN32)
-    std::string env_delimiter = ";";
-#else
-    std::string env_delimiter = ":";
-#endif
+    std::vector<std::string> values = Split(new_value, GetToken(parse));
 
-    size_t pos = 0;
-    std::string token;
-    while (new_value.length() != 0) {
-        token = GetNextToken(&new_value, env_delimiter, &pos);
-        uint32_t int_id = TokenToUint(token);
-        if (int_id == 0) {
-            size_t id_hash = XXH32(token.c_str(), strlen(token.c_str()), 8);  // String
-            if (id_hash != 0) {
-                int_id = static_cast<uint32_t>(id_hash);
-            }
+    for (std::size_t i = 0, n = values.size(); i < n; ++i) {
+        NumberOrString number_or_string;
+
+        if (IsNumber(values[i])) {
+            int radix = ToLowerCase(new_value).find("0x") == 0 ? 16 : 10;
+            number_or_string.number = std::strtol(new_value.c_str(), nullptr, radix);
+        } else {
+            number_or_string.key = values[i];
+            number_or_string.number = XXH32(values[i].c_str(), std::strlen(values[i].c_str()), 8);
         }
-        if ((int_id != 0) && (std::find(this->value.begin(), this->value.end(), int_id)) == this->value.end()) {
-            this->value.push_back(int_id);
-        }
+
+        this->value.push_back(number_or_string);
     }
-*/
+
     return true;
 }
 
