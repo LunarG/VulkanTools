@@ -256,7 +256,7 @@ TEST(test_layer_built_in, layer_162_device_simulation) {
 TEST(test_layer_built_in, layer_162_gfxreconstruct) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/162/VK_LAYER_LUNARG_gfxreconstruct.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(20, CountSettings(layer.settings));
+    EXPECT_EQ(21, CountSettings(layer.settings));
     EXPECT_EQ(2, layer.presets.size());
 }
 
@@ -310,7 +310,7 @@ TEST(test_layer_built_in, layer_170_device_simulation) {
 TEST(test_layer_built_in, layer_170_gfxreconstruct) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/170/VK_LAYER_LUNARG_gfxreconstruct.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(20, CountSettings(layer.settings));
+    EXPECT_EQ(21, CountSettings(layer.settings));
     EXPECT_EQ(2, layer.presets.size());
 }
 
