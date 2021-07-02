@@ -36,10 +36,13 @@ bool SettingMetaEnumeration::Load(const QJsonObject& json_setting) {
 
         SettingEnumValue setting_enum_value;
         setting_enum_value.key = ReadStringValue(json_object, "key");
+        setting_enum_value.platform_flags = this->platform_flags;
+        setting_enum_value.status = this->status;
+        setting_enum_value.view = this->view;
         LoadMetaHeader(setting_enum_value, json_object);
 
         if (json_object.value("settings") != QJsonValue::Undefined) {
-            this->layer.AddSettingsSet(setting_enum_value.settings, json_object.value("settings"));
+            this->layer.AddSettingsSet(setting_enum_value.settings, this, json_object.value("settings"));
         }
 
         this->enum_values.push_back(setting_enum_value);

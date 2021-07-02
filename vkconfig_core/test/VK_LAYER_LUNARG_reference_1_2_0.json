@@ -6,7 +6,7 @@
         "api_version": "1.2.170",
         "implementation_version": "Build 76",
         "description": "reference layer",
-        "status": "BETA",
+        "status": "STABLE",
         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html",
         "device_extensions": [
             {
