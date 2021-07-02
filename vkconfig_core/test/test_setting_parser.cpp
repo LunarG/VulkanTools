@@ -21,10 +21,3 @@
 #include "../setting_parser.h"
 
 #include <gtest/gtest.h>
-
-TEST(test_setting_parser, countof_int_2) {
-    const int test_data[]{8, 9};
-    static_assert(countof(test_data) == 2, "countof for 2 ints is broken");
-
-    EXPECT_EQ(2, countof(test_data));
-}
