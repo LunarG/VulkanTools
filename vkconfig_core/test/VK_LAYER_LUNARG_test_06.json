@@ -1,0 +1,63 @@
+{
+    "file_format_version": "1.2.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_test_06",
+        "library_path": ".\\VkLayer_test.dll",
+        "api_version": "1.2.170",
+        "implementation_version": "Build 76",
+        "description": "reference layer",
+        "platforms": [ "WINDOWS", "LINUX", "MACOS", "ANDROID" ],
+        "status": "BETA",
+        "features": {
+            "settings": [
+                {
+                    "key": "setting_inherit",
+                    "type": "ENUM",
+                    "label": "enum",
+                    "description": "enum inherit",
+                    "flags": [
+                        {
+                            "key": "value0",
+                            "label": "Value0",
+                            "description": "My value0"
+                        },
+                        {
+                            "key": "value1",
+                            "label": "Value1",
+                            "description": "My value1",
+                            "platforms": [ "WINDOWS" ],
+                            "status": "ALPHA",
+                            "view": "ADVANCED"
+                        }
+                    ],
+                    "default": "value1"
+                },
+                {
+                    "key": "setting_override",
+                    "type": "ENUM",
+                    "label": "enum",
+                    "description": "enum override",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "ALPHA",
+                    "view": "ADVANCED",
+                    "flags": [
+                        {
+                            "key": "value0",
+                            "label": "Value0",
+                            "description": "My value0"
+                        },
+                        {
+                            "key": "value1",
+                            "label": "Value1",
+                            "description": "My value1",
+                            "platforms": [ "WINDOWS" ],
+                            "status": "DEPRECATED",
+                            "view": "HIDDEN"
+                        }
+                    ],
+                    "default": "value1"
+                }
+            ]
+        }
+    }
+}

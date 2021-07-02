@@ -10,6 +10,14 @@
         <file>VK_LAYER_LUNARG_reference_1_1_0.json</file>
         <file>VK_LAYER_LUNARG_reference_1_2_0.json</file>
 
+        <file>VK_LAYER_LUNARG_test_00.json</file>
+        <file>VK_LAYER_LUNARG_test_01.json</file>
+        <file>VK_LAYER_LUNARG_test_02.json</file>
+        <file>VK_LAYER_LUNARG_test_03.json</file>
+        <file>VK_LAYER_LUNARG_test_04.json</file>
+        <file>VK_LAYER_LUNARG_test_05.json</file>
+        <file>VK_LAYER_LUNARG_test_06.json</file>
+
         <file>override_layers_2_2_0_schema_1_2_0.json</file>
         <file>override_layers_2_2_1_schema_1_2_0.json</file>
         <file>override_settings_2_2_0_schema_1_2_0.txt</file>

@@ -30,7 +30,7 @@ TEST(test_layer_manager, load_only_layer_json) {
     LayerManager layer_manager(environment);
     layer_manager.LoadLayersFromPath(":/");
 
-    EXPECT_EQ(2, layer_manager.available_layers.size());
+    EXPECT_EQ(9, layer_manager.available_layers.size());
 
     environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }

@@ -1,0 +1,47 @@
+{
+    "file_format_version": "1.2.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_test_04",
+        "library_path": ".\\VkLayer_test.dll",
+        "api_version": "1.2.170",
+        "implementation_version": "Build 76",
+        "description": "reference layer",
+        "platforms": [ "WINDOWS", "LINUX" ],
+        "status": "BETA",
+        "features": {
+            "presets": [
+                {
+                    "label": "Preset Inherit",
+                    "description": "Description Inherit",
+                    "settings": [
+                        {
+                            "key": "int_required_only",
+                            "value": 75
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Override",
+                    "description": "Description Override",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "ALPHA",
+                    "settings": [
+                        {
+                            "key": "int_required_only",
+                            "value": 75
+                        }
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "key": "int_required_only",
+                    "type": "INT",
+                    "label": "Integer",
+                    "description": "Integer Description",
+                    "default": 82
+                }
+            ]
+        }
+    }
+}

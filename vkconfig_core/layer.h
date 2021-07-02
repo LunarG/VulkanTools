@@ -50,7 +50,7 @@ class Layer {
 
     void AddSettingData(SettingDataSet& data_set, const QJsonValue& json_setting_value);
 
-    void AddSettingsSet(SettingMetaSet& meta_set, const QJsonValue& json_settings_value);
+    void AddSettingsSet(SettingMetaSet& meta_set, const SettingMeta* parent, const QJsonValue& json_settings_value);
 
    public:
     std::string key;
