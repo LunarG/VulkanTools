@@ -149,7 +149,7 @@ build_script:
 
   - echo Build Vulkan Configurator, layers and VIA with cmake
   - cd ../build
-  - cmake --build . --parallel --config %CONFIGURATION% -- /m /v:minimal
+  - cmake --build . --parallel --config %CONFIGURATION%
 
 test_script:
   ctest --parallel 8 --output-on-failure -C %CONFIGURATION%
