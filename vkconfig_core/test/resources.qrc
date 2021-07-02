@@ -1,10 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>Configuration 2.0.1.json</file>
-        <file>Configuration 2.0.2.json</file>
-        <file>Configuration 2.0.3.json</file>
-        <file>Configuration 2.1.0.json</file>
-        <file>Configuration 2.2.0.json</file>
         <file>Configuration 2.2.1.json</file>
 
         <file>VK_LAYER_LUNARG_reference_1_1_0.json</file>
@@ -18,25 +13,8 @@
         <file>VK_LAYER_LUNARG_test_05.json</file>
         <file>VK_LAYER_LUNARG_test_06.json</file>
 
-        <file>override_layers_2_2_0_schema_1_2_0.json</file>
         <file>override_layers_2_2_1_schema_1_2_0.json</file>
-        <file>override_settings_2_2_0_schema_1_2_0.txt</file>
         <file>override_settings_2_2_1_schema_1_2_0.txt</file>
-    </qresource>
-
-    <qresource prefix="/configurations/2.1.0">
-        <file alias="API dump.json">../configurations/2.1.0/API dump.json</file>
-        <file alias="Frame Capture.json">../configurations/2.1.0/Frame Capture.json</file>
-        <file alias="Portability.json">../configurations/2.1.0/Portability.json</file>
-        <file alias="Validation.json">../configurations/2.1.0/Validation.json</file>
-    </qresource>
-
-    <qresource prefix="/configurations/2.2.0">
-        <file alias="API dump.json">../configurations/2.2.0/API dump.json</file>
-        <file alias="Frame Capture.json">../configurations/2.2.0/Frame Capture.json</file>
-        <file alias="Portability.json">../configurations/2.2.0/Portability.json</file>
-        <file alias="Synchronization.json">../configurations/2.2.0/Synchronization.json</file>
-        <file alias="Validation.json">../configurations/2.2.0/Validation.json</file>
     </qresource>
 
     <qresource prefix="/configurations/2.2.1">

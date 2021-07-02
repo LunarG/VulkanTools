@@ -26,7 +26,7 @@
 #include <QMessageBox>
 #include <QFileInfoList>
 
-static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_1", "_2_2", ""};
+static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_1"};
 
 ConfigurationManager::ConfigurationManager(const PathManager &path_manager, Environment &environment)
     : active_configuration(nullptr), path_manager(path_manager), environment(environment) {}
@@ -77,29 +77,6 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
     this->SortConfigurations();
 }
 
-// Discard old built-in configurations that have been replaced by new configurations
-static bool IsConfigurationExcluded(const char *filename) {
-    static const char *EXCLUDED_FILENAMES[] = {"Validation - Synchronization (Alpha).json",
-                                               "Validation - Standard.json",
-                                               "Validation - Reduced-Overhead.json",
-                                               "Validation - GPU-Assisted.json",
-                                               "Validation - Debug Printf.json",
-                                               "Validation - Shader Printf.json",
-                                               "Validation - Best Practices.json",
-                                               "Frame Capture - Range (F5 to start and to stop).json",
-                                               "Frame Capture - Range (F10 to start and to stop).json",
-                                               "Frame Capture - First two frames.json",
-                                               "applist.json"};
-
-    for (std::size_t i = 0, n = countof(EXCLUDED_FILENAMES); i < n; ++i) {
-        if (std::strcmp(EXCLUDED_FILENAMES[i], filename) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 void ConfigurationManager::SortConfigurations() {
     this->active_configuration = nullptr;
 
@@ -117,7 +94,6 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
     const QFileInfoList &configuration_files = GetJSONFiles(path);
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
         const QFileInfo &info = configuration_files[i];
-        if (SUPPORT_LAYER_CONFIG_2_0_3 && IsConfigurationExcluded(info.fileName().toStdString().c_str())) continue;
 
         Configuration configuration;
         const bool result = configuration.Load(available_layers, info.absoluteFilePath().toStdString());

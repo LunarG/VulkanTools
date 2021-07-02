@@ -198,39 +198,14 @@ bool Environment::Load() {
     QSettings settings;
 
     // Load "first_run"
-    first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, first_run).toBool();
+    this->first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, first_run).toBool();
 
     // Load "version": If the version doesn't exist of it's an old version of vkconfig
-    const Version default_version(first_run || !SUPPORT_LAYER_CONFIG_2_0_0 ? version : Version("2.0.0"));
-    version = Version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, default_version.str().c_str()).toString().toStdString());
-
-    if (version == Version("2.0.0")) {  // The version is an old development version, unknown and unsupported, hard reset.
-        Reset(DEFAULT);
-        return true;
-    }
+    this->version =
+        Version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, Version::VKCONFIG.str().c_str()).toString().toStdString());
 
     // Load 'override_mode"
-    if (SUPPORT_LAYER_CONFIG_2_0_1 && version <= Version("2.0.1")) {
-        const bool active = settings.value("overrideActive", first_run).toBool();
-        const bool active_list = settings.value("applyOnlyToList", first_run).toBool();
-        const bool active_persistent = settings.value("keepActiveOnExit", first_run).toBool();
-        if (!active)
-            override_state = OVERRIDE_STATE_DISABLED;
-        else if (active_list && active_persistent)
-            override_state = OVERRIDE_STATE_SELECTED_PERSISTENT;
-        else if (active_list && !active_persistent)
-            override_state = OVERRIDE_STATE_SELECTED_TEMPORARY;
-        else if (!active_list && active_persistent)
-            override_state = OVERRIDE_STATE_GLOBAL_PERSISTENT;
-        else if (!active_list && !active_persistent)
-            override_state = OVERRIDE_STATE_GLOBAL_TEMPORARY;
-        else {
-            override_state = OVERRIDE_STATE_DISABLED;
-            assert(0);
-        }
-    } else {
-        override_state = static_cast<OverrideState>(settings.value(VKCONFIG_KEY_OVERRIDE_MODE, QVariant(override_state)).toInt());
-    }
+    override_state = static_cast<OverrideState>(settings.value(VKCONFIG_KEY_OVERRIDE_MODE, QVariant(override_state)).toInt());
 
     // Load loader debug message state
     loader_message_level = static_cast<LoaderMessageLevel>(
