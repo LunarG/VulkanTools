@@ -1,0 +1,12 @@
+{
+    "file_format_version": "1.2.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_test_02",
+        "library_path": ".\\VkLayer_test.dll",
+        "api_version": "1.2.170",
+        "implementation_version": "Build 76",
+        "description": "test layer",
+        "platforms": [ "WINDOWS", "LINUX" ],
+        "status": "BETA"
+    }
+}

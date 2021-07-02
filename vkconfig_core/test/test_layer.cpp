@@ -56,6 +56,160 @@ TEST(test_layer, collect_settings) {
     EXPECT_STREQ("value0", data_string->value.c_str());
 }
 
+TEST(test_layer, load_header_overridden) {
+    Layer layer;
+    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_00.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_STREQ("VK_LAYER_LUNARG_test_00", layer.key.c_str());
+    EXPECT_STREQ(".\\VkLayer_test.dll", layer.binary_path.c_str());
+    EXPECT_EQ(Version(1, 2, 170), layer.api_version);
+    EXPECT_STREQ("Build 76", layer.implementation_version.c_str());
+    EXPECT_STREQ("test layer", layer.description.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
+    EXPECT_TRUE(layer.settings.empty());
+    EXPECT_TRUE(layer.presets.empty());
+}
+
+TEST(test_layer, load_header_default) {
+    Layer layer;
+    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_01.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_STREQ("VK_LAYER_LUNARG_test_01", layer.key.c_str());
+    EXPECT_STREQ(".\\VkLayer_test.dll", layer.binary_path.c_str());
+    EXPECT_EQ(Version(1, 2, 170), layer.api_version);
+    EXPECT_STREQ("Build 76", layer.implementation_version.c_str());
+    EXPECT_STREQ("test layer", layer.description.c_str());
+    EXPECT_EQ(PLATFORM_DESKTOP_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_STABLE, layer.status);
+    EXPECT_TRUE(layer.url.empty());
+    EXPECT_EQ(0, layer.settings.size());
+    EXPECT_EQ(0, layer.presets.size());
+}
+
+TEST(test_layer, load_header_override) {
+    Layer layer;
+    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_02.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_EQ(0, layer.settings.size());
+    EXPECT_EQ(0, layer.presets.size());
+}
+
+TEST(test_layer, load_setting_interit) {
+    Layer layer;
+    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_03.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_EQ(2, layer.settings.size());
+    EXPECT_EQ(0, layer.presets.size());
+
+    EXPECT_STREQ("int_inherit", layer.settings[0]->key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.settings[0]->platform_flags);
+    EXPECT_EQ(STATUS_BETA, layer.settings[0]->status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, layer.settings[0]->view);
+
+    EXPECT_STREQ("int_override", layer.settings[1]->key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.settings[1]->platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, layer.settings[1]->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, layer.settings[1]->view);
+}
+
+TEST(test_layer, load_preset_interit) {
+    Layer layer;
+    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_EQ(1, layer.settings.size());
+    EXPECT_EQ(2, layer.presets.size());
+
+    EXPECT_STREQ("Preset Inherit", layer.presets[0].label.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.presets[0].platform_flags);
+    EXPECT_EQ(STATUS_BETA, layer.presets[0].status);
+
+    EXPECT_STREQ("Preset Override", layer.presets[1].label.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[1].platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, layer.presets[1].status);
+}
+
+TEST(test_layer, load_setting_children_interit) {
+    Layer layer;
+    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_05.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_EQ(0, layer.presets.size());
+    EXPECT_EQ(1, layer.settings.size());
+    EXPECT_EQ(2, layer.settings[0]->children.size());
+    EXPECT_EQ(3, CountSettings(layer.settings));
+
+    EXPECT_STREQ("int_inherit", layer.settings[0]->children[0]->key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.settings[0]->children[0]->platform_flags);
+    EXPECT_EQ(STATUS_BETA, layer.settings[0]->children[0]->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, layer.settings[0]->children[0]->view);
+
+    EXPECT_STREQ("int_override", layer.settings[0]->children[1]->key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.settings[0]->children[1]->platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, layer.settings[0]->children[1]->status);
+    EXPECT_EQ(SETTING_VIEW_HIDDEN, layer.settings[0]->children[1]->view);
+}
+
+TEST(test_layer, load_setting_enum_interit) {
+    Layer layer;
+    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_06.json", LAYER_TYPE_EXPLICIT);
+    ASSERT_TRUE(load_loaded);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT | PLATFORM_ANDROID_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_EQ(2, layer.settings.size());
+    EXPECT_EQ(0, layer.presets.size());
+
+    SettingMetaEnum* setting_inherit = static_cast<SettingMetaEnum*>(layer.settings[0]);
+    EXPECT_EQ(2, setting_inherit->enum_values.size());
+
+    EXPECT_STREQ("value0", setting_inherit->enum_values[0].key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT | PLATFORM_ANDROID_BIT,
+              setting_inherit->enum_values[0].platform_flags);
+    EXPECT_EQ(STATUS_BETA, setting_inherit->enum_values[0].status);
+    EXPECT_EQ(SETTING_VIEW_STANDARD, setting_inherit->enum_values[0].view);
+
+    EXPECT_STREQ("value1", setting_inherit->enum_values[1].key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT, setting_inherit->enum_values[1].platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, setting_inherit->enum_values[1].status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_inherit->enum_values[1].view);
+
+    SettingMetaEnum* setting_override = static_cast<SettingMetaEnum*>(layer.settings[1]);
+    EXPECT_EQ(2, setting_override->enum_values.size());
+    EXPECT_EQ(STATUS_ALPHA, setting_override->status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_override->view);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, setting_override->platform_flags);
+
+    EXPECT_STREQ("value0", setting_override->enum_values[0].key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, setting_override->enum_values[0].platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, setting_override->enum_values[0].status);
+    EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_override->enum_values[0].view);
+
+    EXPECT_STREQ("value1", setting_override->enum_values[1].key.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT, setting_override->enum_values[1].platform_flags);
+    EXPECT_EQ(STATUS_DEPRECATED, setting_override->enum_values[1].status);
+    EXPECT_EQ(SETTING_VIEW_HIDDEN, setting_override->enum_values[1].view);
+}
+
 TEST(test_layer, load_1_1_0_header) {
     Layer layer;
     const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_1_0.json", LAYER_TYPE_EXPLICIT);
@@ -67,27 +221,11 @@ TEST(test_layer, load_1_1_0_header) {
     EXPECT_EQ(Version(1, 2, 162), layer.api_version);
     EXPECT_STREQ("Build 75", layer.implementation_version.c_str());
     EXPECT_STREQ("reference layer", layer.description.c_str());
+    EXPECT_EQ(PLATFORM_DESKTOP_BIT, layer.platforms);
     EXPECT_EQ(STATUS_STABLE, layer.status);
     EXPECT_TRUE(layer.url.empty());
     EXPECT_TRUE(layer.settings.empty());
     EXPECT_TRUE(layer.presets.empty());
-}
-
-TEST(test_layer, load_1_2_0_header) {
-    Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
-    ASSERT_TRUE(load_loaded);
-
-    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
-    EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_2_0", layer.key.c_str());
-    EXPECT_STREQ(".\\VkLayer_reference.dll", layer.binary_path.c_str());
-    EXPECT_EQ(Version(1, 2, 170), layer.api_version);
-    EXPECT_STREQ("Build 76", layer.implementation_version.c_str());
-    EXPECT_STREQ("reference layer", layer.description.c_str());
-    EXPECT_EQ(STATUS_BETA, layer.status);
-    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
-    EXPECT_TRUE(!layer.settings.empty());
-    EXPECT_TRUE(!layer.presets.empty());
 }
 
 TEST(test_layer, load_1_2_0_preset_enum) {
