@@ -39,132 +39,9 @@
 #include <string>
 #include <algorithm>
 
-static const char* SUPPORTED_CONFIG_FILES[] = {"_2_2_1", "_2_2", ""};
+static const char* SUPPORTED_CONFIG_FILES[] = {"_2_2_1"};
 
 Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
-
-static Version GetConfigurationVersion(const QJsonValue& value) {
-    if (SUPPORT_LAYER_CONFIG_2_0_1) {
-        return Version(value == QJsonValue::Undefined ? "2.0.1" : value.toString().toStdString().c_str());
-    } else {
-        assert(value != QJsonValue::Undefined);
-        return Version(value.toString().toStdString().c_str());
-    }
-}
-
-bool Configuration::Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object,
-                            const std::string& full_path) {
-    const QString& filename = QFileInfo(full_path.c_str()).fileName();
-
-    const QJsonValue& json_file_format_version = json_root_object.value("file_format_version");
-    const Version version(GetConfigurationVersion(json_file_format_version));
-
-    const QStringList& keys = json_root_object.keys();
-
-    const QJsonValue& configuration_entry_value = json_root_object.value(keys[0]);
-    const QJsonObject& configuration_entry_object = configuration_entry_value.toObject();
-
-    if (SUPPORT_LAYER_CONFIG_2_0_1 && version <= Version("2.0.1")) {
-        this->key = filename.left(filename.length() - 5).toStdString();
-    } else {
-        this->key = ReadString(configuration_entry_object, "name").c_str();
-    }
-
-    if (this->key.empty()) {
-        this->key = "Configuration";
-        const int result = std::remove(full_path.c_str());
-        assert(result == 0);
-    }
-
-    this->description = ReadString(configuration_entry_object, "description").c_str();
-
-    const QJsonValue& json_platform_value = configuration_entry_object.value("platforms");
-    if (json_platform_value != QJsonValue::Undefined) {
-        this->platform_flags = GetPlatformFlags(ReadStringArray(configuration_entry_object, "platforms"));
-    }
-
-    const QJsonObject& layer_objects = ReadObject(configuration_entry_object, "layer_options");
-    const QStringList& layers = layer_objects.keys();
-
-    for (int layer_index = 0, layer_count = layers.size(); layer_index < layer_count; ++layer_index) {
-        const QJsonValue& layer_value = layer_objects.value(layers[layer_index]);
-        const QJsonObject& layer_object = layer_value.toObject();
-        const QJsonValue& layer_rank = layer_object.value("layer_rank");
-
-        Parameter parameter;
-        parameter.key = layers[layer_index].toStdString();
-        parameter.overridden_rank = layer_rank == QJsonValue::Undefined ? Parameter::NO_RANK : layer_rank.toInt();
-        parameter.state = LAYER_STATE_OVERRIDDEN;
-
-        const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
-        if (layer != nullptr) {
-            CollectDefaultSettingData(layer->settings, parameter.settings);
-        }
-
-        this->parameters.push_back(parameter);
-    }
-
-    const QJsonValue& excluded_value = configuration_entry_object.value("blacklisted_layers");
-    assert(excluded_value != QJsonValue::Undefined);
-
-    const QJsonArray& excluded_array = excluded_value.toArray();
-    for (int i = 0, n = excluded_array.size(); i < n; ++i) {
-        Parameter* parameter = FindByKey(this->parameters, excluded_array[i].toString().toStdString().c_str());
-        if (parameter != nullptr) {
-            parameter->state = LAYER_STATE_EXCLUDED;
-        } else {
-            Parameter parameter;
-            parameter.key = excluded_array[i].toString().toStdString();
-            parameter.state = LAYER_STATE_EXCLUDED;
-
-            this->parameters.push_back(parameter);
-        }
-    }
-
-    return true;
-}
-
-bool Configuration::Load2_1(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object) {
-    const QJsonValue& json_configuration_value = json_root_object.value("configuration");
-    if (json_configuration_value == QJsonValue::Undefined) return false;  // Not a configuration file
-
-    const QJsonObject& json_configuration_object = json_configuration_value.toObject();
-
-    // Required configuration values
-    this->key = ReadString(json_configuration_object, "name").c_str();
-    this->description = ReadString(json_configuration_object, "description").c_str();
-
-    // Optional configuration values
-    const QJsonValue& json_platform_value = json_configuration_object.value("platforms");
-    if (json_platform_value != QJsonValue::Undefined) {
-        this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
-    }
-
-    // Required configuration layers values
-    const QJsonArray& json_layers_array = ReadArray(json_configuration_object, "layers");
-    for (int layer_index = 0, layer_count = json_layers_array.size(); layer_index < layer_count; ++layer_index) {
-        const QJsonObject& json_layer_object = json_layers_array[layer_index].toObject();
-
-        Parameter parameter;
-        parameter.key = ReadStringValue(json_layer_object, "name").c_str();
-        parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
-        parameter.state = GetLayerState(ReadStringValue(json_layer_object, "state").c_str());
-
-        const QJsonValue& json_platform_value = json_layer_object.value("platforms");
-        if (json_platform_value != QJsonValue::Undefined) {
-            parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
-        }
-
-        const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
-        if (layer != nullptr) {
-            CollectDefaultSettingData(layer->settings, parameter.settings);
-        }
-
-        this->parameters.push_back(parameter);
-    }
-
-    return true;
-}
 
 bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object) {
     const QJsonValue& json_configuration_value = json_root_object.value("configuration");
@@ -250,16 +127,7 @@ bool Configuration::Load(const std::vector<Layer>& available_layers, const std::
         return false;
     }
 
-    const QJsonObject& json_root_object = json_doc.object();
-
-    const Version version(GetConfigurationVersion(json_root_object.value("file_format_version")));
-    if (SUPPORT_LAYER_CONFIG_2_0_3 && version < Version(2, 1, 0)) {
-        return Load2_0(available_layers, json_root_object, full_path);
-    } else if (SUPPORT_LAYER_CONFIG_2_1_0 && version < Version(2, 2, 0)) {
-        return Load2_1(available_layers, json_root_object);
-    } else {
-        return Load2_2(available_layers, json_root_object);
-    }
+    return Load2_2(available_layers, json_doc.object());
 }
 
 bool Configuration::Save(const std::vector<Layer>& available_layers, const std::string& full_path, bool exporter) const {
