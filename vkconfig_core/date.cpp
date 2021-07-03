@@ -21,6 +21,7 @@
 #include "date.h"
 #include "util.h"
 
+#if VKCONFIG_DATE
 #define COMPUTE_BUILD_YEAR \
     ((__DATE__[7] - '0') * 1000 + (__DATE__[8] - '0') * 100 + (__DATE__[9] - '0') * 10 + (__DATE__[10] - '0'))
 
@@ -71,3 +72,4 @@
 #define BUILD_DAY ((BUILD_DATE_IS_BAD) ? 99 : COMPUTE_BUILD_DAY)
 
 std::string GetBuildDate() { return format("%04d%02d%02d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY); }
+#endif

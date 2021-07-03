@@ -20,4 +20,8 @@
 
 #include <string>
 
+#define VKCONFIG_DATE 0
+
+#if VKCONFIG_DATE
 std::string GetBuildDate();
+#endif
