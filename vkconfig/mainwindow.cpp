@@ -145,7 +145,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() { ResetLaunchApplication(); }
 
 static std::string GetMainWindowTitle(bool active) {
+#if VKCONFIG_DATE
     std::string title = format("%s %s-%s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
+#else
+    std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
+#endif
     if (active) title += " <ACTIVE>";
     return title;
 }

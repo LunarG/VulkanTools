@@ -25,6 +25,7 @@
 
 #include <gtest/gtest.h>
 
+#if VKCONFIG_DATE
 TEST(test_date, lenght) {
     const std::string date = GetBuildDate();
 
@@ -36,3 +37,4 @@ TEST(test_date, digit) {
 
     EXPECT_TRUE(IsNumber(date));
 }
+#endif
