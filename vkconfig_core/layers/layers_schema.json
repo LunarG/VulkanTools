@@ -15,17 +15,17 @@
             "pattern": "^[0-9]+.[0-9]+.[0-9]+$"
         },
         "status": {
-            "description": "The development status of the setting ('STABLE' by default)",
+            "description": "The development status of the setting ('STABLE' by default). This property is inherited by children nodes.",
             "type": "string",
             "enum": [ "ALPHA", "BETA", "STABLE", "DEPRECATED" ]
         },
         "view": {
-            "description": "The level of visibility of the setting ('STANDARD' by default)",
+            "description": "The level of visibility of the setting ('STANDARD' by default). This property is inherited by children nodes.",
             "type": "string",
             "enum": [ "STANDARD", "ADVANCED", "HIDDEN" ]
         },
         "platforms": {
-            "description": "The platforms where the setting is available (all by default)",
+            "description": "The platforms where the setting is available (all by default). This property is inherited by children nodes.",
             "type": "array",
             "items": {
                 "type": "string",
@@ -327,7 +327,99 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "log",
+                                "label": "Log",
+                                "description": "Control log messages.",
+                                "type": "GROUP",
+                                "settings": [
+                                    {
+                                        "key": "log_action",
+                                        "label": "Log Action",
+                                        "description": "This indicates what action is to be taken when a layer wants to report information",
+                                        "type": "FLAGS",
+                                        "flags": [
+                                            {
+                                                "key": "ACTION_LOG_MSG",
+                                                "label": "Log Message",
+                                                "description": "Log a txt message to stdout or to a log filename.",
+                                                "settings": [
+                                                    {
+                                                        "key": "log_filename",
+                                                        "label": "Log Filename",
+                                                        "description": "Specifies the output filename",
+                                                        "type": "SAVE_FILE",
+                                                        "default": "stdout",
+                                                        "dependence": {
+                                                            "mode": "ALL",
+                                                            "settings": [
+                                                                {
+                                                                    "key": "debug_action",
+                                                                    "value": [ "ACTION_LOG_MSG" ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "key": "ACTION_DEBUG_OUTPUT",
+                                                "label": "Debug Output",
+                                                "description": "Log a txt message using the Windows OutputDebugString function.",
+                                                "platforms": [ "WINDOWS" ]
+                                            },
+                                            {
+                                                "key": "ACTION_BREAK",
+                                                "label": "Break",
+                                                "description": "Trigger a breakpoint if a debugger is in use."
+                                            }
+                                        ],
+                                        "default": [ "ACTION_LOG_MSG" ]
+                                    },
+                                    {
+                                        "key": "report_flags",
+                                        "label": "Log Report",
+                                        "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                                        "type": "FLAGS",
+                                        "flags": [
+                                            {
+                                                "key": "REPORT_INFO",
+                                                "label": "Info",
+                                                "description": "Report informational messages."
+                                            },
+                                            {
+                                                "key": "REPORT_WARN",
+                                                "label": "Warning",
+                                                "description": "Report warnings from using the API in a manner which may lead to undefined behavior or to warn the user of common trouble spots. A warning does NOT necessarily signify illegal application behavior."
+                                            },
+                                            {
+                                                "key": "REPORT_PERF",
+                                                "label": "performance",
+                                                "description": "Report using the API in a way that may cause suboptimal performance."
+                                            },
+                                            {
+                                                "key": "REPORT_ERROR",
+                                                "label": "Error",
+                                                "description": "Report errors in API usage."
+                                            },
+                                            {
+                                                "key": "REPORT_DEBUG",
+                                                "label": "Debug",
+                                                "description": "For layer development. Report messages for debugging layer behavior.",
+                                                "view": "ADVANCED"
+                                            }
+                                        ],
+                                        "default": [
+                                            "error",
+                                            "warn",
+                                            "perf"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for STRING and SAVE_FOLDER types",
@@ -387,7 +479,23 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "string_required_only",
+                                "type": "STRING",
+                                "label": "String",
+                                "description": "string",
+                                "default": "A string"
+                            },
+                            {
+                                "key": "save_folder_required_only",
+                                "type": "SAVE_FOLDER",
+                                "label": "Save folder",
+                                "description": "Save folder path",
+                                "default": "./test"
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for SAVE_FILE and LOAD_FILE types",
@@ -450,7 +558,49 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "load_file_required_only",
+                                "type": "LOAD_FILE",
+                                "label": "Load file",
+                                "description": "Load file path",
+                                "default": "./test.txt"
+                            },
+                            {
+                                "key": "load_file_with_optional",
+                                "env": "VK_REF_LOAD_FILE",
+                                "type": "LOAD_FILE",
+                                "label": "Load file",
+                                "description": "Load file path",
+                                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file",
+                                "status": "BETA",
+                                "view": "ADVANCED",
+                                "platforms": [ "WINDOWS", "LINUX" ],
+                                "filter": "*.txt",
+                                "default": "./test.txt"
+                            },
+                            {
+                                "key": "save_file_required_only",
+                                "type": "SAVE_FILE",
+                                "label": "Save file",
+                                "description": "Save file path",
+                                "default": "./test.json"
+                            },
+                            {
+                                "key": "save_file_with_optional",
+                                "env": "VK_REF_SAVE_FILE",
+                                "type": "SAVE_FILE",
+                                "label": "Save file",
+                                "description": "Save file path",
+                                "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file",
+                                "status": "BETA",
+                                "view": "ADVANCED",
+                                "platforms": [ "WINDOWS", "LINUX" ],
+                                "filter": "*.json",
+                                "default": "./test.json"
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for FRAMES type",
@@ -511,7 +661,47 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "toogle",
+                                "env": "VK_REF_TOGGLE",
+                                "label": "toogle",
+                                "type": "BOOL",
+                                "description": "true or false",
+                                "default": true,
+                                "settings": [
+                                    {
+                                        "key": "frames_required_only",
+                                        "type": "FRAMES",
+                                        "label": "Frames",
+                                        "description": "Frames Description",
+                                        "default": "76-82,75"
+                                    },
+                                    {
+                                        "key": "frames_with_optional",
+                                        "env": "VK_REF_FRAMES",
+                                        "type": "FRAMES",
+                                        "label": "Frames",
+                                        "description": "Frames Description",
+                                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames",
+                                        "status": "BETA",
+                                        "view": "ADVANCED",
+                                        "platforms": [ "WINDOWS", "LINUX" ],
+                                        "default": "76-82,75",
+                                        "dependence": {
+                                            "mode": "ALL",
+                                            "settings": [
+                                                {
+                                                    "key": "toogle",
+                                                    "value": true
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for BOOL type",
@@ -571,7 +761,47 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "show_timestamp",
+                                "env": "LAYER_TIMESTAMP",
+                                "label": "Show Timestamp",
+                                "description": "Show the timestamp of function calls since start in microseconds",
+                                "type": "BOOL",
+                                "default": false
+                            },
+                            {
+                                "key": "use_spaces",
+                                "label": "Use Spaces",
+                                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                                "type": "BOOL",
+                                "default": true,
+                                "settings": [
+                                    {
+                                        "key": "indent_size",
+                                        "label": "Indent Size",
+                                        "description": "Specifies the number of spaces that a tab is equal to",
+                                        "type": "INT",
+                                        "default": 4,
+                                        "range": {
+                                            "min": 1,
+                                            "max": 16
+                                        },
+                                        "unit": "chars",
+                                        "dependence": {
+                                            "mode": "ALL",
+                                            "settings": [
+                                                {
+                                                    "key": "use_spaces",
+                                                    "value": true
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for FLOAT type",
@@ -638,7 +868,54 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "toogle",
+                                "env": "VK_REF_TOGGLE",
+                                "label": "toogle",
+                                "type": "BOOL",
+                                "description": "true or false",
+                                "default": true,
+                                "settings": [
+                                    {
+                                        "key": "float_required_only",
+                                        "type": "FLOAT",
+                                        "label": "Float",
+                                        "description": "Float Description",
+                                        "default": 76.5
+                                    },
+                                    {
+                                        "key": "float_with_optional",
+                                        "env": "VK_REF_FLOAT",
+                                        "type": "FLOAT",
+                                        "label": "Float",
+                                        "description": "Float Description",
+                                        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#float",
+                                        "status": "BETA",
+                                        "view": "ADVANCED",
+                                        "platforms": [ "WINDOWS", "LINUX" ],
+                                        "default": 76.5,
+                                        "range": {
+                                            "min": 75.1,
+                                            "max": 82.2,
+                                            "width": 2,
+                                            "precision": 3
+                                        },
+                                        "unit": "second",
+                                        "dependence": {
+                                            "mode": "ALL",
+                                            "settings": [
+                                                {
+                                                    "key": "toogle",
+                                                    "value": true
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for INT type",
@@ -705,7 +982,33 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "duplicate_message_limit",
+                                "env": "VK_LAYER_DUPLICATE_MESSAGE_LIMIT",
+                                "label": "Duplicated Messages Limit",
+                                "description": "Limit the number of times any single validation message would be reported. Empty is unlimited.",
+                                "type": "INT",
+                                "default": 10,
+                                "range": {
+                                    "min": 0
+                                }
+                            },
+                            {
+                                "key": "printf_buffer_size",
+                                "label": "Printf buffer size",
+                                "description": "The size in bytes of the buffer used by debug printf",
+                                "platforms": [ "WINDOWS", "LINUX" ],
+                                "type": "INT",
+                                "default": 1024,
+                                "range": {
+                                    "min": 128,
+                                    "max": 1048576
+                                },
+                                "unit": "bytes"
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for ENUM type",
@@ -769,7 +1072,139 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "capture_compression_type",
+                                "env": "LAYER_CAPTURE_COMPRESSION_TYPE",
+                                "label": "Compression Format",
+                                "description": "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE. Default is: LZ4",
+                                "type": "ENUM",
+                                "flags": [
+                                    {
+                                        "key": "LZ4",
+                                        "label": "LZ4",
+                                        "description": "Fastest compression algorithm that favors performance over compression ratio."
+                                    },
+                                    {
+                                        "key": "ZLIB",
+                                        "label": "ZLIB",
+                                        "description": "Widely used compression algorithm with better compression ratio than LZ4 but worse performance."
+                                    },
+                                    {
+                                        "key": "ZSTD",
+                                        "label": "ZSTD",
+                                        "description": "Newer compression algorithm with better compression ratio and performance than ZLIB, though not as fast as LZ4."
+                                    },
+                                    {
+                                        "key": "NONE",
+                                        "label": "NONE",
+                                        "description": "No compression"
+                                    }
+                                ],
+                                "default": "LZ4"
+                            },
+                            {
+                                "key": "memory_tracking_mode",
+                                "env": "LAYER_MEMORY_TRACKING_MODE",
+                                "label": "Memory Tracking Mode",
+                                "description": "Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: page_guard, assisted, and unassisted.",
+                                "type": "ENUM",
+                                "flags": [
+                                    {
+                                        "key": "page_guard",
+                                        "label": "page_guard",
+                                        "description": "Tracks modifications to individual memory pages, which are written to the capture file on calls to vkFlushMappedMemoryRanges, vkUnmapMemory, and vkQueueSubmit. Tracking modifications requires allocating shadow memory for all mapped memory."
+                                    },
+                                    {
+                                        "key": "assisted",
+                                        "label": "assisted",
+                                        "description": "Expects the application to call vkFlushMappedMemoryRanges after memory is modified; the memory ranges specified to the vkFlushMappedMemoryRanges call will be written to the capture file during the call."
+                                    },
+                                    {
+                                        "key": "unassisted",
+                                        "label": "unassisted",
+                                        "description": "Writes the full content of mapped memory to the capture file on calls to vkUnmapMemory and vkQueueSubmit. It is very inefficient and may be unusable with real-world applications that map large amounts of memory."
+                                    }
+                                ],
+                                "default": "page_guard",
+                                "settings": [
+                                    {
+                                        "key": "page_guard_copy_on_map",
+                                        "env": "LAYER_PAGE_GUARD_COPY_ON_MAP",
+                                        "label": "Page Guard Copy on Map",
+                                        "description": "When the page_guard memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
+                                        "type": "BOOL",
+                                        "default": true,
+                                        "dependence": {
+                                            "mode": "ALL",
+                                            "settings": [
+                                                {
+                                                    "key": "memory_tracking_mode",
+                                                    "value": "page_guard"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "key": "page_guard_separate_read",
+                                        "env": "LAYER_PAGE_GUARD_SEPARATE_READ",
+                                        "label": "Page Guard Separate Read Tracking",
+                                        "description": "When the page_guard memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
+                                        "type": "BOOL",
+                                        "default": true,
+                                        "dependence": {
+                                            "mode": "ALL",
+                                            "settings": [
+                                                {
+                                                    "key": "memory_tracking_mode",
+                                                    "value": "page_guard"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "key": "page_guard_external_memory",
+                                        "env": "LAYER_PAGE_GUARD_EXTERNAL_MEMORY",
+                                        "label": "Page Guard External Memory",
+                                        "description": "When the page_guard memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows.",
+                                        "platforms": [ "WINDOWS" ],
+                                        "type": "BOOL",
+                                        "default": false,
+                                        "dependence": {
+                                            "mode": "ALL",
+                                            "settings": [
+                                                {
+                                                    "key": "memory_tracking_mode",
+                                                    "value": "page_guard"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "key": "page_guard_persistent_memory",
+                                        "env": "LAYER_PAGE_GUARD_PERSISTENT_MEMORY",
+                                        "label": "Page Guard Persisent Memory",
+                                        "description": "When the page_guard memory tracking mode is enabled, this option changes the way that the shadow memory used to detect modifications to mapped memory is allocated. The default behavior is to allocate and copy the mapped memory range on map and free the allocation on unmap. When this option is enabled, an allocation with a size equal to that of the object being mapped is made once on the first map and is not freed until the object is destroyed. This option is intended to be used with applications that frequently map and unmap large memory ranges, to avoid frequent allocation and copy operations that can have a negative impact on performance. This option is ignored when GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY is enabled.",
+                                        "type": "BOOL",
+                                        "default": false,
+                                        "dependence": {
+                                            "mode": "ALL",
+                                            "settings": [
+                                                {
+                                                    "key": "memory_tracking_mode",
+                                                    "value": "page_guard"
+                                                },
+                                                {
+                                                    "key": "page_guard_external_memory",
+                                                    "value": false
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for FLAGS type",
@@ -837,7 +1272,48 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "report_flags",
+                                "label": "Message Severity",
+                                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                                "type": "FLAGS",
+                                "flags": [
+                                    {
+                                        "key": "info",
+                                        "label": "Info",
+                                        "description": "Report informational messages."
+                                    },
+                                    {
+                                        "key": "warn",
+                                        "label": "Warning",
+                                        "description": "Report warnings from using the API in a manner which may lead to undefined behavior or to warn the user of common trouble spots. A warning does NOT necessarily signify illegal application behavior."
+                                    },
+                                    {
+                                        "key": "perf",
+                                        "label": "performance",
+                                        "description": "Report using the API in a way that may cause suboptimal performance."
+                                    },
+                                    {
+                                        "key": "error",
+                                        "label": "Error",
+                                        "description": "Report errors in API usage."
+                                    },
+                                    {
+                                        "key": "debug",
+                                        "label": "Debug",
+                                        "description": "For layer development. Report messages for debugging layer behavior.",
+                                        "view": "ADVANCED"
+                                    }
+                                ],
+                                "default": [
+                                    "error",
+                                    "warn",
+                                    "perf"
+                                ]
+                            }
+                        ]
                     },
                     {
                         "description": "layer setting for LIST type",
@@ -913,7 +1389,54 @@
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
                             }
-                        }
+                        },
+                        "examples": [
+                            {
+                                "key": "vuid",
+                                "env": "LAYER_VUID",
+                                "label": "VUID list",
+                                "description": "List of VUIDs and VUID identifers which are to be IGNORED by the validation layer",
+                                "type": "LIST",
+                                "default": [
+                                    [
+                                        {
+                                            "key": "0x1234ABCF",
+                                            "enabled": true
+                                        },
+                                        {
+                                            "key": 12345678,
+                                            "enabled": true
+                                        },
+                                        {
+                                            "key": "12345678",
+                                            "enabled": true
+                                        },
+                                        {
+                                            "key": "stringA",
+                                            "enabled": true
+                                        },
+                                        {
+                                            "key": "stringB",
+                                            "enabled": true
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "key": 1,
+                                            "enabled": false
+                                        },
+                                        {
+                                            "key": 2,
+                                            "enabled": true
+                                        },
+                                        {
+                                            "key": 3,
+                                            "enabled": false
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
@@ -934,6 +1457,7 @@
             ],
             "properties": {
                 "name": {
+                    "description": "The string used to uniquely identify this layer to applications.",
                     "type": "string",
                     "pattern": "^VK_LAYER_[A-Z0-9]+_[A-Za-z0-9_]+"
                 },
@@ -941,22 +1465,31 @@
                     "type": "string"
                 },
                 "api_version": {
+                    "description": "The major.minor.patch version number of the Vulkan API that the shared library file for the library was built against.",
                     "$ref": "#/definitions/version"
                 },
                 "implementation_version": {
+                    "description": "The version of the layer implemented. If the layer itself has any major changes, this number should change so the loader and/or application can identify it properly.",
                     "type": "string"
                 },
                 "description": {
+                    "description": "A high-level description of the layer and its intended use.",
+                    "type": "string"
+                },
+                "introduction": {
+                    "description": "A detailed description of the layer and its intended use. Introduced with version 1.2.0.",
                     "type": "string"
                 },
                 "url": {
+                    "description": "A link to the layer home page. Introduced with version 1.2.0.",
                     "type": "string"
                 },
-
                 "platforms": {
+                    "description": "The list of platforms supported by the layer. Introduced with version 1.2.0.",
                     "$ref": "#/definitions/platforms"
                 },
                 "status": {
+                    "description": "",
                     "$ref": "#/definitions/status"
                 },
                 "features": {
