@@ -15,17 +15,17 @@
             "pattern": "^[0-9]+.[0-9]+.[0-9]+$"
         },
         "status": {
-            "description": "The development status of the setting ('STABLE' by default). This property is inherited by children nodes.",
+            "description": "The development status of the setting. When missing, this property is inherited from parent nodes. If no parent node defines it, the default value is 'STABLE'.",
             "type": "string",
             "enum": [ "ALPHA", "BETA", "STABLE", "DEPRECATED" ]
         },
         "view": {
-            "description": "The level of visibility of the setting ('STANDARD' by default). This property is inherited by children nodes.",
+            "description": "The level of visibility of the setting ('STANDARD' by default). This property is inherited by child nodes.",
             "type": "string",
             "enum": [ "STANDARD", "ADVANCED", "HIDDEN" ]
         },
         "platforms": {
-            "description": "The platforms where the setting is available (all by default). This property is inherited by children nodes.",
+            "description": "The platforms where the setting is available. When missing, this property is inherited from parent nodes. If no parent node defines it, the default value is all platforms.",
             "type": "array",
             "items": {
                 "type": "string",
@@ -1462,6 +1462,7 @@
                     "pattern": "^VK_LAYER_[A-Z0-9]+_[A-Za-z0-9_]+"
                 },
                 "library_path": {
+                    "description": "The library_path specifies either a filename, a relative pathname, or a full pathname to a layer shared library file. If library_path specifies a relative pathname, it is relative to the path of the JSON manifest file (e.g. for cases when an application provides a layer that is in the same folder hierarchy as the rest of the application files). If library_path specifies a filename, the library must live in the system's shared object search path. There are no rules about the name of the layer shared library files other than it should end with the appropriate suffix (.DLL on Windows, .so on Linux, and .dylib on macOS). This field must not be present if component_layers is defined.",
                     "type": "string"
                 },
                 "api_version": {
@@ -1489,7 +1490,7 @@
                     "$ref": "#/definitions/platforms"
                 },
                 "status": {
-                    "description": "",
+                    "description": "The development status of the layer. When the node is missing, the value is gathered from a parent node or set to STABLE when no parent node has defined the node. Introduced with version 1.2.0.",
                     "$ref": "#/definitions/status"
                 },
                 "features": {
@@ -1510,12 +1511,15 @@
                                 "additionalProperties": true,
                                 "properties": {
                                     "label": {
+                                        "description": "The label used to identify the preset to the user eyes.",
                                         "type": "string"
                                     },
                                     "description": {
+                                        "description": "The description of the preset to example it's purpose.",
                                         "type": "string"
                                     },
                                     "url": {
+                                        "description": "A url for more documentation about the preset.",
                                         "type": "string"
                                     },
                                     "platforms": {
