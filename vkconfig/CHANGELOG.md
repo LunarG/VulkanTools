@@ -11,7 +11,12 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.4.0 for Vulkan SDK 1.2.X.0](https://github.com/LunarG/VulkanTools/tree/master) - July 2021
+## [Vulkan Configurator 2.4.1 for Vulkan SDK 1.2.X.0](https://github.com/LunarG/VulkanTools/tree/master) - September 2021
+
+### Fixes:
+- Fix user-defined layer settings not loaded, for older Vulkan API than 1.2.176
+
+## [Vulkan Configurator 2.4.0 for Vulkan SDK 1.2.182.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.182.0) - July 2021
 
 ### Features:
 - Add support for `VK_LAYER_SETTINGS_PATH` override for 'vk_layer_settings.txt' path
