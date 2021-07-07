@@ -257,23 +257,8 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
         }
     }
 
-    // Load default layer json file if necessary
     const QJsonValue& json_features_value = json_layer_object.value("features");
-
-    if (!is_builtin_layer_file && this->api_version <= Version(1, 2, 176)) {
-        const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
-
-        Layer default_layer;
-        if (default_layer.Load(available_layers, path, this->type)) {
-            this->introduction = default_layer.introduction;
-            this->url = default_layer.url;
-            this->platforms = default_layer.platforms;
-            this->status = default_layer.status;
-            std::swap(this->settings, default_layer.settings);
-            std::swap(this->presets, default_layer.presets);
-            this->memory = default_layer.memory;
-        }
-    } else if (json_features_value != QJsonValue::Undefined) {
+    if (json_features_value != QJsonValue::Undefined) {
         const QJsonObject& json_features_object = json_features_value.toObject();
 
         // Load layer settings
@@ -303,6 +288,22 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
 
                 this->presets.push_back(preset);
             }
+        }
+    }
+
+    // Override old built-in layer settings
+    if (!is_builtin_layer_file && this->api_version <= Version(1, 2, 176)) {
+        const std::string path = GetBuiltinFolder(this->api_version) + "/" + this->key + ".json";
+
+        Layer default_layer;
+        if (default_layer.Load(available_layers, path, this->type)) {
+            this->introduction = default_layer.introduction;
+            this->url = default_layer.url;
+            this->platforms = default_layer.platforms;
+            this->status = default_layer.status;
+            std::swap(this->settings, default_layer.settings);
+            std::swap(this->presets, default_layer.presets);
+            this->memory = default_layer.memory;
         }
     }
 
