@@ -705,7 +705,7 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
             }
 
             if (this->widget_shader_gpu != nullptr) {
-                this->widget_shader_gpu->setEnabled(shader_enabled);
+                this->widget_shader_gpu->setEnabled(this->widget_shader->isChecked());
                 if (refresh_areas == REFRESH_ENABLE_AND_STATE) this->widget_shader_gpu->setChecked(shader_gpu);
             }
 
@@ -728,7 +728,7 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
             }
 
             if (this->widget_shader_printf != nullptr) {
-                this->widget_shader_printf->setEnabled(shader_enabled);
+                this->widget_shader_printf->setEnabled(this->widget_shader->isChecked());
                 if (refresh_areas == REFRESH_ENABLE_AND_STATE) this->widget_shader_printf->setChecked(shader_printf);
             }
 
