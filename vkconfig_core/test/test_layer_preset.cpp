@@ -20,7 +20,7 @@
 
 #include "../layer.h"
 #include "../layer_preset.h"
-#include "../setting_string.h"
+#include "../setting_type_string.h"
 #include "../util.h"
 
 #include <gtest/gtest.h>

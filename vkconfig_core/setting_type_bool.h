@@ -20,40 +20,59 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 
-struct SettingMetaList : public SettingMeta {
+#include <memory>
+
+struct SettingMetaBool : public SettingMeta {
     static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
     std::string Export(ExportMode export_mode) const override;
 
-    std::vector<NumberOrString> list;
-    std::vector<EnabledNumberOrString> default_value;
-    bool list_only;
+    bool default_value;
 
    protected:
+    SettingMetaBool(Layer& layer, const std::string& key, const SettingType type);
+
     bool Equal(const SettingMeta& other) const override;
 
    private:
-    SettingMetaList(Layer& layer, const std::string& key);
+    SettingMetaBool(Layer& layer, const std::string& key);
 
     friend class Layer;
 };
 
-struct SettingDataList : public SettingData {
-    SettingDataList(const SettingMetaList* meta);
+struct SettingDataBool : public SettingData {
+    SettingDataBool(const SettingMetaBool* meta);
 
     void Reset() override;
+    bool Parse(const std::string& value, const ParseSource parse = PARSE_SETTING) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
 
-    std::vector<EnabledNumberOrString> value;
+    bool value;
 
    protected:
     bool Equal(const SettingData& other) const override;
 
-    const SettingMetaList* meta;
+    const SettingMetaBool* meta;
+};
+
+struct SettingMetaBoolNumeric : public SettingMetaBool {
+    static const SettingType TYPE;
+
+    SettingMetaBoolNumeric(Layer& layer, const std::string& key);
+
+    SettingData* Instantiate() override;
+
+    std::string Export(ExportMode export_mode) const override;
+};
+
+struct SettingDataBoolNumeric : public SettingDataBool {
+    SettingDataBoolNumeric(const SettingMetaBoolNumeric* meta);
+
+    std::string Export(ExportMode export_mode) const override;
 };

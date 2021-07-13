@@ -20,13 +20,13 @@
  */
 
 #include "widget_setting.h"
-#include "settings_validation_areas.h"
+#include "widget_setting_validation.h"
 #include "configurator.h"
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
-#include "../vkconfig_core/setting_bool.h"
+#include "../vkconfig_core/setting_type_bool.h"
 
 #include <QSettings>
 #include <QMessageBox>

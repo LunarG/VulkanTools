@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_string.h"
+#include "setting_type_string.h"
 #include "json.h"
 
 // SettingMetaString
@@ -66,6 +66,11 @@ SettingDataString::SettingDataString(const std::string& key, const SettingType& 
 void SettingDataString::Reset() {
     assert(meta != nullptr);
     this->value = this->meta->default_value;
+}
+
+bool SettingDataString::Parse(const std::string& new_value, const ParseSource parse) {
+    this->value = new_value;
+    return true;
 }
 
 bool SettingDataString::Load(const QJsonObject& json_setting) {

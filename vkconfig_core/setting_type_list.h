@@ -20,29 +20,41 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 
-struct SettingMetaGroup : public SettingMeta {
+struct SettingMetaList : public SettingMeta {
     static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
     std::string Export(ExportMode export_mode) const override;
 
+    std::vector<NumberOrString> list;
+    std::vector<EnabledNumberOrString> default_value;
+    bool list_only;
+
+   protected:
+    bool Equal(const SettingMeta& other) const override;
+
    private:
-    SettingMetaGroup(Layer& layer, const std::string& key);
+    SettingMetaList(Layer& layer, const std::string& key);
 
     friend class Layer;
 };
 
-struct SettingDataGroup : public SettingData {
-    SettingDataGroup(const SettingMetaGroup* meta);
+struct SettingDataList : public SettingData {
+    SettingDataList(const SettingMetaList* meta);
 
     void Reset() override;
+    bool Parse(const std::string& value, const ParseSource parse = PARSE_SETTING) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
 
+    std::vector<EnabledNumberOrString> value;
+
    protected:
-    const SettingMetaGroup* meta;
+    bool Equal(const SettingData& other) const override;
+
+    const SettingMetaList* meta;
 };

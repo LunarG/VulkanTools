@@ -20,7 +20,7 @@
 
 #include "../layer.h"
 #include "../util.h"
-#include "../setting_flags.h"
+#include "../setting_type_flags.h"
 
 #include <gtest/gtest.h>
 

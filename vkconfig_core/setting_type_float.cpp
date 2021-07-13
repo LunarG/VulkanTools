@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_float.h"
+#include "setting_type_float.h"
 #include "util.h"
 #include "json.h"
 
@@ -89,6 +89,11 @@ SettingDataFloat::SettingDataFloat(const SettingMetaFloat* meta) : SettingData(m
 void SettingDataFloat::Reset() {
     assert(this->meta != nullptr);
     this->value = this->meta->default_value;
+}
+
+bool SettingDataFloat::Parse(const std::string& new_value, const ParseSource parse) {
+    this->value = std::strtof(new_value.c_str(), nullptr);
+    return true;
 }
 
 bool SettingDataFloat::Load(const QJsonObject& json_setting) {

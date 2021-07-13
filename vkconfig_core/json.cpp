@@ -51,13 +51,13 @@ NumberOrString ReadNumberOrStringValue(const QJsonObject& json_object, const cha
 
     NumberOrString value;
     value.number = 0;
-
-    if (json_value.isString()) {
-        value.key = json_value.toString().toStdString();
-    } else {
-        value.number = json_value.toInt();
-    }
-
+    /*
+        if (json_value.isString()) {
+            value.key = json_value.toString().toStdString();
+        } else {
+            value.number = json_value.toInt();
+        }
+    */
     return value;
 }
 

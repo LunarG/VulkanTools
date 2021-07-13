@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "setting_string.h"
+#include "setting_type_string.h"
 
 struct SettingEnumValue : public Header {
     std::string key;
@@ -91,6 +91,7 @@ struct SettingDataFlags : public SettingData {
     SettingDataFlags(const SettingMetaFlags* meta);
 
     void Reset() override;
+    bool Parse(const std::string& value, const ParseSource parse = PARSE_SETTING) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;

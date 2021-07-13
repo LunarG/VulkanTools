@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_flags.h"
+#include "setting_type_flags.h"
 #include "json.h"
 #include "layer.h"
 
@@ -155,6 +155,11 @@ SettingDataFlags::SettingDataFlags(const SettingMetaFlags* meta) : SettingData(m
 void SettingDataFlags::Reset() {
     assert(this->meta != nullptr);
     this->value = this->meta->default_value;
+}
+
+bool SettingDataFlags::Parse(const std::string& new_value, const ParseSource parse) {
+    this->value = Split(new_value, GetToken(parse));
+    return true;
 }
 
 bool SettingDataFlags::Load(const QJsonObject& json_setting) {

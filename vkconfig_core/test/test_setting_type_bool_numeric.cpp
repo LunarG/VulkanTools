@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../setting_bool.h"
+#include "../setting_type_bool.h"
 #include "../layer.h"
 
 #include <gtest/gtest.h>

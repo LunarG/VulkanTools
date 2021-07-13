@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_filesystem.h"
+#include "setting_type_filesystem.h"
 #include "path.h"
 
 // SettingMetaFilesystem

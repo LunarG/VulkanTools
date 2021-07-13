@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_group.h"
+#include "setting_type_group.h"
 
 // SettingMetaGroup
 
@@ -49,6 +49,11 @@ std::string SettingMetaGroup::Export(ExportMode export_mode) const {
 SettingDataGroup::SettingDataGroup(const SettingMetaGroup* meta) : SettingData(meta->key, SettingMetaGroup::TYPE), meta(meta) {}
 
 void SettingDataGroup::Reset() { assert(this->meta != nullptr); }
+
+bool SettingDataGroup::Parse(const std::string& value, const ParseSource parse) {
+    (void)value;
+    return true;
+}
 
 bool SettingDataGroup::Load(const QJsonObject& json_setting) {
     (void)json_setting;

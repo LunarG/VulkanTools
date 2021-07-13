@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_list.h"
+#include "../vkconfig_core/setting_type_list.h"
 
 #include "widget_setting.h"
 

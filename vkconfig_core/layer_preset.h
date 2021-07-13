@@ -21,7 +21,7 @@
 #pragma once
 
 #include "header.h"
-#include "setting.h"
+#include "setting_type.h"
 
 #include <vector>
 

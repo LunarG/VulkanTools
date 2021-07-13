@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_frames.h"
+#include "setting_type_frames.h"
 #include "json.h"
 
 // SettingMetaFrames
@@ -30,6 +30,13 @@ SettingMetaFrames::SettingMetaFrames(Layer& layer, const std::string& key) : Set
 // SettingDataFrames
 
 SettingDataFrames::SettingDataFrames(const SettingMetaFrames* meta) : SettingDataString(meta), meta(meta) {}
+
+bool SettingDataFrames::Parse(const std::string& new_value, const ParseSource parse) {
+    if (!(IsFrames(new_value) || new_value.empty())) return false;
+
+    this->value = new_value;
+    return true;
+}
 
 bool SettingDataFrames::Load(const QJsonObject& json_setting) {
     this->value = ReadStringValue(json_setting, "value");

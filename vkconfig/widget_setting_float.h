@@ -22,7 +22,7 @@
 
 #include "widget_setting.h"
 
-#include "../vkconfig_core/setting_float.h"
+#include "../vkconfig_core/setting_type_float.h"
 
 #include <QString>
 #include <QLineEdit>

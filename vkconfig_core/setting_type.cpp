@@ -18,21 +18,27 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_bool.h"
-#include "setting_filesystem.h"
-#include "setting_flags.h"
-#include "setting_float.h"
-#include "setting_frames.h"
-#include "setting_group.h"
-#include "setting_int.h"
-#include "setting_list.h"
-#include "setting_string.h"
+#include "setting_type_bool.h"
+#include "setting_type_filesystem.h"
+#include "setting_type_flags.h"
+#include "setting_type_float.h"
+#include "setting_type_frames.h"
+#include "setting_type_group.h"
+#include "setting_type_int.h"
+#include "setting_type_list.h"
+#include "setting_type_string.h"
 #include "util.h"
 #include "version.h"
 
 #include <cassert>
 
 #include <QJsonArray>
+
+const char* GetToken(ParseSource type) {
+    static const char* table[] = {",", VKC_ENV == VKC_ENV_WIN32 ? ";" : ":"};
+
+    return table[type];
+}
 
 SettingType GetSettingType(const char* token) {
     assert(token != nullptr);

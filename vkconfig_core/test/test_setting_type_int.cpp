@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../setting_int.h"
+#include "../setting_type_int.h"
 #include "../layer.h"
 
 #include <gtest/gtest.h>

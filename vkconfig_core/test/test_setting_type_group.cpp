@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../setting_group.h"
+#include "../setting_type_group.h"
 #include "../layer.h"
 
 #include <gtest/gtest.h>

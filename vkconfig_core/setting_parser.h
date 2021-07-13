@@ -19,26 +19,3 @@
  */
 
 #pragma once
-
-#include "setting_string.h"
-
-struct SettingMetaFrames : public SettingMetaString {
-    static const SettingType TYPE;
-
-   private:
-    SettingMetaFrames(Layer& layer, const std::string& key);
-
-    friend class Layer;
-};
-
-struct SettingDataFrames : public SettingDataString {
-    SettingDataFrames(const SettingMetaFrames* meta);
-
-    bool Load(const QJsonObject& json_setting) override;
-
-    bool IsValid() const override;
-
-    SettingInputError ProcessInput(const std::string& value);
-
-    const SettingMetaFrames* meta;
-};

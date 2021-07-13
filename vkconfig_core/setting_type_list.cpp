@@ -18,9 +18,11 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_list.h"
+#include "setting_type_list.h"
 #include "json.h"
 #include "layer.h"
+
+#include "../vkconfig_core/xxhash.h"
 
 #include <QFile>
 #include <QJsonArray>
@@ -189,6 +191,28 @@ bool SettingMetaList::Equal(const SettingMeta& other) const {
 SettingDataList::SettingDataList(const SettingMetaList* meta) : SettingData(meta->key, meta->type), meta(meta) {}
 
 void SettingDataList::Reset() { this->value = this->meta->default_value; }
+
+bool SettingDataList::Parse(const std::string& new_value, const ParseSource parse) {
+    this->value.clear();
+
+    std::vector<std::string> values = Split(new_value, GetToken(parse));
+
+    for (std::size_t i = 0, n = values.size(); i < n; ++i) {
+        NumberOrString number_or_string;
+
+        if (IsNumber(values[i])) {
+            int radix = ToLowerCase(new_value).find("0x") == 0 ? 16 : 10;
+            number_or_string.number = std::strtol(new_value.c_str(), nullptr, radix);
+        } else {
+            number_or_string.key = values[i];
+            number_or_string.number = XXH32(values[i].c_str(), std::strlen(values[i].c_str()), 8);
+        }
+
+        this->value.push_back(number_or_string);
+    }
+
+    return true;
+}
 
 bool SettingDataList::Load(const QJsonObject& json_setting) {
     this->value.clear();

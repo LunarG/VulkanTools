@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_int.h"
+#include "../vkconfig_core/setting_type_int.h"
 
 #include "widget_setting.h"
 

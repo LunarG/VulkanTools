@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting.h"
+#include "../vkconfig_core/setting_type.h"
 
 #include <QTreeWidgetItem>
 #include <QWidget>

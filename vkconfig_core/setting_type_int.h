@@ -20,58 +20,45 @@
 
 #pragma once
 
-#include "setting.h"
+#include "setting_type.h"
 
-#include <memory>
-
-struct SettingMetaBool : public SettingMeta {
+struct SettingMetaInt : public SettingMeta {
     static const SettingType TYPE;
 
     SettingData* Instantiate() override;
     bool Load(const QJsonObject& json_setting) override;
     std::string Export(ExportMode export_mode) const override;
 
-    bool default_value;
+    int default_value;
+    int min_value;
+    int max_value;
+    std::string unit;
 
    protected:
-    SettingMetaBool(Layer& layer, const std::string& key, const SettingType type);
-
     bool Equal(const SettingMeta& other) const override;
 
    private:
-    SettingMetaBool(Layer& layer, const std::string& key);
+    SettingMetaInt(Layer& layer, const std::string& key);
 
     friend class Layer;
 };
 
-struct SettingDataBool : public SettingData {
-    SettingDataBool(const SettingMetaBool* meta);
+struct SettingDataInt : public SettingData {
+    SettingDataInt(const SettingMetaInt* meta);
 
     void Reset() override;
+    bool Parse(const std::string& value, const ParseSource parse = PARSE_SETTING) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
+    bool IsValid() const override;
 
-    bool value;
+    SettingInputError ProcessInput(const std::string& value);
+
+    int value;
 
    protected:
     bool Equal(const SettingData& other) const override;
 
-    const SettingMetaBool* meta;
-};
-
-struct SettingMetaBoolNumeric : public SettingMetaBool {
-    static const SettingType TYPE;
-
-    SettingMetaBoolNumeric(Layer& layer, const std::string& key);
-
-    SettingData* Instantiate() override;
-
-    std::string Export(ExportMode export_mode) const override;
-};
-
-struct SettingDataBoolNumeric : public SettingDataBool {
-    SettingDataBoolNumeric(const SettingMetaBoolNumeric* meta);
-
-    std::string Export(ExportMode export_mode) const override;
+    const SettingMetaInt* meta;
 };

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../vkconfig_core/setting_filesystem.h"
+#include "../vkconfig_core/setting_type_filesystem.h"
 
 #include "widget_setting.h"
 

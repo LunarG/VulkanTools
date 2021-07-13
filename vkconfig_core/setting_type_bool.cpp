@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "setting_bool.h"
+#include "setting_type_bool.h"
 #include "json.h"
 
 // SettingMetaBool
@@ -59,6 +59,12 @@ SettingDataBool::SettingDataBool(const SettingMetaBool* meta)
     : SettingData(meta->key, meta->type), value(meta->default_value), meta(meta) {}
 
 void SettingDataBool::Reset() { this->value = this->meta->default_value; }
+
+bool SettingDataBool::Parse(const std::string& new_value, const ParseSource parse) {
+    std::string lower_value = ToLowerCase(new_value);
+    this->value = lower_value == "true";
+    return true;
+}
 
 bool SettingDataBool::Load(const QJsonObject& json_setting) {
     this->value = ReadBoolValue(json_setting, "value");

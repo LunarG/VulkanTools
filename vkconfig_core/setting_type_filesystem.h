@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "setting_string.h"
+#include "setting_type_string.h"
 
 struct SettingMetaFilesystem : public SettingMeta {
     bool Load(const QJsonObject& json_setting) override;

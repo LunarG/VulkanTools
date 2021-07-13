@@ -15,37 +15,7 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
-#include "../vkconfig_core/setting_type_bool.h"
-
-#include "widget_setting.h"
-
-#include <QCheckBox>
-
-class WidgetSettingBool : public WidgetSettingBase {
-    Q_OBJECT
-
-   public:
-    explicit WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta, SettingDataSet& data_set);
-
-    void Refresh(RefreshAreas refresh_areas) override;
-
-   public Q_SLOTS:
-    void OnClicked();
-
-   Q_SIGNALS:
-    void itemChanged();
-
-   private:
-    SettingDataBool& data();
-
-    const SettingMetaBool& meta;
-    SettingDataSet& data_set;
-
-    QCheckBox* field;
-};
+#include "setting_parser.h"

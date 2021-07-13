@@ -21,7 +21,7 @@
 #include "../layer.h"
 #include "../parameter.h"
 #include "../util.h"
-#include "../setting_string.h"
+#include "../setting_type_string.h"
 
 #include <gtest/gtest.h>
 
