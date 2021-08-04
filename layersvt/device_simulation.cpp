@@ -56,7 +56,7 @@
 
 #include "vulkan/vk_layer.h"
 #include "vulkan/vulkan_beta.h"
-#include "vk_layer_config.h"
+#include <vk_layer_config.h>
 #include "vk_layer_table.h"
 
 namespace {
