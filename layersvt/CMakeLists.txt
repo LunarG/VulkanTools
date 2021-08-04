@@ -61,7 +61,7 @@ if (NOT APPLE)
 else()
     set(TARGET_NAMES
         VkLayer_api_dump
-	VkLayer_device_simulation
+	    VkLayer_device_simulation
         )
 endif ()
 
@@ -73,7 +73,7 @@ if (WIN32)
         VERBATIM
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY} vku)
     add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
     add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
     set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
@@ -81,7 +81,7 @@ if (WIN32)
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY} vku)
     add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
     add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
     if (NOT APPLE)

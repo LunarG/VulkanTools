@@ -228,6 +228,7 @@ if(BUILD_VIA)
     add_subdirectory(via)
 endif()
 
+add_subdirectory(vku)
 if(BUILD_LAYERSVT)
     add_subdirectory(layersvt)
 endif()
