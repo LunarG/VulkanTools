@@ -22,6 +22,7 @@
 #include "../environment.h"
 #include "../layer.h"
 #include "../layer_manager.h"
+#include "../vku/vk_layer_config.h"
 
 #include <gtest/gtest.h>
 
@@ -89,6 +90,75 @@ TEST(test_override, write_erase_2_2_1) {
 
     EXPECT_EQ(true, EraseLayersOverride("." + LAYERS));
     EXPECT_EQ(true, EraseSettingsOverride("." + SETTINGS));
+
+    env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
+}
+
+TEST(test_override, settings) {
+    PathManager paths;
+    Environment env(paths, Version(1, 2, 162));
+    env.Reset(Environment::DEFAULT);
+
+    LayerManager layer_manager(env);
+    layer_manager.LoadLayersFromPath(":/");
+
+    Configuration configuration;
+    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.1.json");
+    EXPECT_TRUE(load);
+    EXPECT_TRUE(!configuration.parameters.empty());
+
+    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
+
+    EXPECT_EQ(true, vku::GetLayerSettingBool("lunarg_reference_1_2_0", "toogle"));
+
+    EXPECT_STREQ("value2", vku::GetLayerSettingString("lunarg_reference_1_2_0", "enum_required_only").c_str());
+    EXPECT_STREQ("value1", vku::GetLayerSettingString("lunarg_reference_1_2_0", "enum_with_optional").c_str());
+
+    std::vector<std::string> flags_required_only = vku::GetLayerSettingStrings("lunarg_reference_1_2_0", "flags_required_only");
+    std::vector<std::string> flags_with_optional = vku::GetLayerSettingStrings("lunarg_reference_1_2_0", "flags_with_optional");
+
+    EXPECT_STREQ("flag0", flags_required_only[0].c_str());
+    EXPECT_STREQ("flag2", flags_required_only[1].c_str());
+    EXPECT_STREQ("flag0", flags_with_optional[0].c_str());
+    EXPECT_STREQ("flag2", flags_with_optional[1].c_str());
+
+    EXPECT_STREQ("My string", vku::GetLayerSettingString("lunarg_reference_1_2_0", "string_required_only").c_str());
+    EXPECT_STREQ("My string", vku::GetLayerSettingString("lunarg_reference_1_2_0", "string_with_optional").c_str());
+
+    EXPECT_EQ(true, vku::GetLayerSettingBool("lunarg_reference_1_2_0", "bool_required_only"));
+    EXPECT_EQ(true, vku::GetLayerSettingBool("lunarg_reference_1_2_0", "bool_with_optional"));
+
+    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("lunarg_reference_1_2_0", "load_file_required_only").c_str());
+    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("lunarg_reference_1_2_0", "load_file_with_optional").c_str());
+    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("lunarg_reference_1_2_0", "save_file_required_only").c_str());
+    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("lunarg_reference_1_2_0", "save_file_with_optional").c_str());
+    EXPECT_STREQ("./my_test", vku::GetLayerSettingString("lunarg_reference_1_2_0", "save_folder_required_only").c_str());
+    EXPECT_STREQ("./my_test", vku::GetLayerSettingString("lunarg_reference_1_2_0", "save_folder_with_optional").c_str());
+
+    EXPECT_EQ(76, vku::GetLayerSettingInt("lunarg_reference_1_2_0", "int_required_only"));
+    EXPECT_EQ(82, vku::GetLayerSettingInt("lunarg_reference_1_2_0", "int_with_optional"));
+
+    EXPECT_EQ(76.500000, vku::GetLayerSettingFloat("lunarg_reference_1_2_0", "float_required_only"));
+    EXPECT_EQ(76.500000, vku::GetLayerSettingFloat("lunarg_reference_1_2_0", "float_with_optional"));
+
+    EXPECT_STREQ("76-82,75", vku::GetLayerSettingString("lunarg_reference_1_2_0", "frames_required_only").c_str());
+    EXPECT_STREQ("79-82,75", vku::GetLayerSettingString("lunarg_reference_1_2_0", "frames_with_optional").c_str());
+
+    std::vector<std::pair<std::string, int>> list_required_only =
+        vku::GetLayerSettingList("lunarg_reference_1_2_0", "list_required_only");
+
+    EXPECT_EQ(76, list_required_only[0].second);
+    EXPECT_EQ(82, list_required_only[1].second);
+    EXPECT_STREQ("stringB", list_required_only[2].first.c_str());
+    EXPECT_STREQ("stringD", list_required_only[3].first.c_str());
+
+    std::vector<std::pair<std::string, int>> list_with_optional =
+        vku::GetLayerSettingList("lunarg_reference_1_2_0", "list_with_optional");
+
+    EXPECT_EQ(76, list_with_optional[0].second);
+    EXPECT_STREQ("stringA", list_with_optional[1].first.c_str());
+
+    EXPECT_EQ(true, SurrenderConfiguration(env));
 
     env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
