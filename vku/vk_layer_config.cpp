@@ -135,6 +135,18 @@ static std::string string_upper(const std::string &s) {
     return result;
 }
 
+VK_LAYER_EXPORT const char *GetLayerSetting(const char *option) {
+    std::string setting = option;
+    return layer_config.GetOption(setting);
+}
+
+VK_LAYER_EXPORT const char *GetLayerEnvVar(const char *option) {
+    layer_config.vk_layer_disables_env_var = GetEnvironment(option);
+    return layer_config.vk_layer_disables_env_var.c_str();
+}
+
+VK_LAYER_EXPORT void SetLayerSetting(const char *option, const char *value) { layer_config.SetOption(option, value); }
+
 static std::string GetSettingKey(const char *setting_namespace, const char *setting_key) {
     std::stringstream result;
     result << setting_namespace << "." << setting_key;
@@ -178,7 +190,8 @@ static std::string GetLayerSettingData(const char *setting_namespace, const char
         setting = GetLayerEnvVar(GetEnvVarKey(setting_namespace, key, true).c_str());
     }
     if (setting.empty()) {
-        setting = GetLayerSetting(GetSettingKey(setting_namespace, key).c_str());
+        std::string selected_setting = GetSettingKey(setting_namespace, key);
+        setting = GetLayerSetting(selected_setting.c_str());
     }
     return setting;
 }
@@ -278,15 +291,6 @@ VK_LAYER_EXPORT std::vector<std::pair<std::string, int>> GetLayerSettingList(con
     }
     return result;
 }
-
-VK_LAYER_EXPORT const char *GetLayerSetting(const char *option) { return layer_config.GetOption(option); }
-
-VK_LAYER_EXPORT const char *GetLayerEnvVar(const char *option) {
-    layer_config.vk_layer_disables_env_var = GetEnvironment(option);
-    return layer_config.vk_layer_disables_env_var.c_str();
-}
-
-VK_LAYER_EXPORT void SetLayerSetting(const char *option, const char *value) { layer_config.SetOption(option, value); }
 
 // Constructor for ConfigFile. Initialize layers to log error messages to stdout by default. If a vk_layer_settings file is present,
 // its settings will override the defaults.

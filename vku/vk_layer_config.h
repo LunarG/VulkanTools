@@ -34,15 +34,21 @@
 #include <vulkan/vulkan.h>
 
 namespace vku {
+// For BOOL type in the layer manifest
 VK_LAYER_EXPORT bool GetLayerSettingBool(const char *setting_namespace, const char *key);
+
+// For INT type in the layer manifest
 VK_LAYER_EXPORT int GetLayerSettingInt(const char *setting_namespace, const char *key);
+
+// For FLOAT type in the layer manifest
 VK_LAYER_EXPORT double GetLayerSettingFloat(const char *setting_namespace, const char *key);
+
+// For STRING, ENUM, LOAD_FILE, SAVE_FILE and SAVE_FOLDER types in the layer manifest
 VK_LAYER_EXPORT std::string GetLayerSettingString(const char *setting_namespace, const char *key);
+
+// For FLAGS type in the layer manifest
 VK_LAYER_EXPORT std::vector<std::string> GetLayerSettingStrings(const char *setting_namespace, const char *key);
+
+// For LIST type in the layer manifest
 VK_LAYER_EXPORT std::vector<std::pair<std::string, int>> GetLayerSettingList(const char *setting_namespace, const char *key);
-
-VK_LAYER_EXPORT void SetLayerSetting(const char *option, const char *val);
-
-VK_LAYER_EXPORT const char *GetLayerSetting(const char *setting);
-VK_LAYER_EXPORT const char *GetLayerEnvVar(const char *setting);
 }  // namespace vku
