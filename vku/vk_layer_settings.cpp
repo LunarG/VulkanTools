@@ -23,7 +23,7 @@
  * - Tobin Ehlis
  */
 
-#include "vk_layer_config.h"
+#include "vk_layer_settings.h"
 
 #include <cassert>
 #include <cstring>
@@ -147,59 +147,65 @@ VK_LAYER_EXPORT const char *GetLayerEnvVar(const char *option) {
 
 VK_LAYER_EXPORT void SetLayerSetting(const char *option, const char *value) { layer_config.SetOption(option, value); }
 
-static std::string GetSettingKey(const char *setting_namespace, const char *setting_key) {
+static std::string TrimPrefix(const std::string &layer_key) {
+    assert(layer_key.find("VK_LAYER_") == 0);
+    std::size_t prefix = std::strlen("VK_LAYER_");
+    return layer_key.substr(prefix, layer_key.size() - prefix);
+}
+
+static std::string GetSettingKey(const char *layer_key, const char *setting_key) {
     std::stringstream result;
-    result << setting_namespace << "." << setting_key;
+    result << string_tolower(TrimPrefix(layer_key)) << "." << setting_key;
     return result.str();
 }
 
-static inline std::string TrimVendor(const std::string &s) {
+static inline std::string TrimVendor(const std::string &layer_key) {
     static const char *separator = "_";
 
-    const auto trimmed_beg = s.find_first_of(separator);
-    if (trimmed_beg == std::string::npos) return s;
+    const auto trimmed_beg = layer_key.find_first_of(separator);
+    if (trimmed_beg == std::string::npos) return layer_key;
 
-    const auto trimmed_end = s.find_last_not_of(separator);
+    const auto trimmed_end = layer_key.find_last_not_of(separator);
     assert(trimmed_end != std::string::npos && trimmed_beg <= trimmed_end);
 
-    return s.substr(trimmed_beg + 1, s.size());
+    return TrimPrefix(layer_key).substr(trimmed_beg + 1, layer_key.size());
 }
 
-static std::string GetEnvVarKey(const char *setting_namespace, const char *setting_key, bool trim_vendor) {
+static std::string GetEnvVarKey(const char *layer_key, const char *setting_key, bool trim_vendor) {
     std::stringstream result;
 
 #if defined(__ANDROID__)
     if (trim_vendor) {
-        result << "debug.vulkan." << GetSettingKey(TrimVendor(setting_namespace), setting_key);
+        result << "debug.vulkan." << GetSettingKey(TrimVendor(layer_key), setting_key);
     } else {
-        result << "debug.vulkan." << GetSettingKey(setting_namespace, setting_key);
+        result << "debug.vulkan." << GetSettingKey(layer_key, setting_key);
     }
 #else
     if (trim_vendor) {
-        result << "VK_" << string_upper(TrimVendor(setting_namespace)) << "_" << string_upper(setting_key);
+        result << "VK_" << string_upper(TrimVendor(layer_key)) << "_" << string_upper(setting_key);
     } else {
-        result << "VK_" << string_upper(setting_namespace) << "_" << string_upper(setting_key);
+        result << "VK_" << string_upper(TrimPrefix(layer_key)) << "_" << string_upper(setting_key);
     }
 #endif
     return result.str();
 }
 
-static std::string GetLayerSettingData(const char *setting_namespace, const char *key) {
-    std::string setting = GetLayerEnvVar(GetEnvVarKey(setting_namespace, key, false).c_str());
+static std::string GetLayerSettingData(const char *layer_key, const char *setting_key) {
+    std::string setting = GetLayerEnvVar(GetEnvVarKey(layer_key, setting_key, false).c_str());
     if (setting.empty()) {
-        setting = GetLayerEnvVar(GetEnvVarKey(setting_namespace, key, true).c_str());
+        setting = GetLayerEnvVar(GetEnvVarKey(layer_key, setting_key, true).c_str());
     }
     if (setting.empty()) {
-        std::string selected_setting = GetSettingKey(setting_namespace, key);
+        std::string selected_setting = GetSettingKey(layer_key, setting_key);
         setting = GetLayerSetting(selected_setting.c_str());
     }
     return setting;
 }
 
-VK_LAYER_EXPORT bool GetLayerSettingBool(const char *setting_namespace, const char *key) {
+VK_LAYER_EXPORT bool GetLayerSettingBool(const char *layer_key, const char *setting_key) {
     bool result = false;
 
-    std::string setting = GetLayerSettingData(setting_namespace, key);
+    std::string setting = GetLayerSettingData(layer_key, setting_key);
     if (!setting.empty()) {
         setting = string_tolower(setting);
         if (setting == "true") {
@@ -211,28 +217,28 @@ VK_LAYER_EXPORT bool GetLayerSettingBool(const char *setting_namespace, const ch
     return result;
 }
 
-VK_LAYER_EXPORT int GetLayerSettingInt(const char *setting_namespace, const char *key) {
+VK_LAYER_EXPORT int GetLayerSettingInt(const char *layer_key, const char *setting_key) {
     int result = 0;
 
-    std::string setting = GetLayerSettingData(setting_namespace, key);
+    std::string setting = GetLayerSettingData(layer_key, setting_key);
     if (!setting.empty()) {
         result = std::atoi(setting.c_str());
     }
     return result;
 }
 
-VK_LAYER_EXPORT double GetLayerSettingFloat(const char *setting_namespace, const char *key) {
+VK_LAYER_EXPORT double GetLayerSettingFloat(const char *layer_key, const char *setting_key) {
     double result = 0.0;
 
-    std::string setting = GetLayerSettingData(setting_namespace, key);
+    std::string setting = GetLayerSettingData(layer_key, setting_key);
     if (!setting.empty()) {
         result = std::atof(setting.c_str());
     }
     return result;
 }
 
-VK_LAYER_EXPORT std::string GetLayerSettingString(const char *setting_namespace, const char *key) {
-    return GetLayerSettingData(setting_namespace, key);
+VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const char *setting_key) {
+    return GetLayerSettingData(layer_key, setting_key);
 }
 
 static inline std::vector<std::string> Split(const std::string &value, const std::string &delimiter) {
@@ -256,8 +262,8 @@ static inline std::vector<std::string> Split(const std::string &value, const std
     return result;
 }
 
-VK_LAYER_EXPORT std::vector<std::string> GetLayerSettingStrings(const char *setting_namespace, const char *key) {
-    std::string setting = GetLayerSettingData(setting_namespace, key);
+VK_LAYER_EXPORT Strings GetLayerSettingStrings(const char *layer_key, const char *setting_key) {
+    std::string setting = GetLayerSettingData(layer_key, setting_key);
     if (setting.find_first_of(",") != std::string::npos) {
         return Split(setting, ",");
     } else {
@@ -276,10 +282,10 @@ static bool IsInteger(const std::string &text) {
     return std::regex_search(text, FRAME_REGEX);
 }
 
-VK_LAYER_EXPORT std::vector<std::pair<std::string, int>> GetLayerSettingList(const char *setting_namespace, const char *key) {
-    std::vector<std::string> inputs = GetLayerSettingStrings(setting_namespace, key);
+VK_LAYER_EXPORT List GetLayerSettingList(const char *layer_key, const char *setting_key) {
+    std::vector<std::string> inputs = GetLayerSettingStrings(layer_key, setting_key);
 
-    std::vector<std::pair<std::string, int>> result;
+    List result;
     for (std::size_t i = 0, n = inputs.size(); i < n; ++i) {
         std::pair<std::string, int> value;
         if (IsInteger(inputs[i])) {

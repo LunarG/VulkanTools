@@ -17,10 +17,6 @@
  *
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
- * - Mark Lobodzinski <mark@lunarg.com>
- * - Jon Ashburn
- * - Courtney Goeltzenleuchter
- * - Tobin Ehlis
  */
 
 #pragma once
@@ -34,21 +30,25 @@
 #include <vulkan/vulkan.h>
 
 namespace vku {
+
+typedef std::vector<std::string> Strings;
+typedef std::vector<std::pair<std::string, int>> List;
+
 // For BOOL type in the layer manifest
-VK_LAYER_EXPORT bool GetLayerSettingBool(const char *setting_namespace, const char *key);
+VK_LAYER_EXPORT bool GetLayerSettingBool(const char *layer_key, const char *setting_key);
 
 // For INT type in the layer manifest
-VK_LAYER_EXPORT int GetLayerSettingInt(const char *setting_namespace, const char *key);
+VK_LAYER_EXPORT int GetLayerSettingInt(const char *layer_key, const char *setting_key);
 
 // For FLOAT type in the layer manifest
-VK_LAYER_EXPORT double GetLayerSettingFloat(const char *setting_namespace, const char *key);
+VK_LAYER_EXPORT double GetLayerSettingFloat(const char *layer_key, const char *setting_key);
 
 // For STRING, ENUM, LOAD_FILE, SAVE_FILE and SAVE_FOLDER types in the layer manifest
-VK_LAYER_EXPORT std::string GetLayerSettingString(const char *setting_namespace, const char *key);
+VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const char *setting_key);
 
 // For FLAGS type in the layer manifest
-VK_LAYER_EXPORT std::vector<std::string> GetLayerSettingStrings(const char *setting_namespace, const char *key);
+VK_LAYER_EXPORT Strings GetLayerSettingStrings(const char *layer_key, const char *setting_key);
 
 // For LIST type in the layer manifest
-VK_LAYER_EXPORT std::vector<std::pair<std::string, int>> GetLayerSettingList(const char *setting_namespace, const char *key);
+VK_LAYER_EXPORT List GetLayerSettingList(const char *layer_key, const char *setting_key);
 }  // namespace vku
