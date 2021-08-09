@@ -22,9 +22,13 @@
 #include "../environment.h"
 #include "../layer.h"
 #include "../layer_manager.h"
-#include "../vku/vk_layer_settings.h"
+#include "../../vku/vk_layer_settings.h"
 
 #include <gtest/gtest.h>
+
+#include <QtGlobal>
+
+#include <cstdlib>
 
 extern bool WriteLayersOverride(const Environment& environment, const std::vector<Layer>& available_layers,
                                 const Configuration& configuration, const std::string& layers_path);
@@ -94,7 +98,7 @@ TEST(test_override, write_erase_2_2_1) {
     env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
 
-TEST(test_override, settings) {
+TEST(test_override, vk_layer_settings_txt) {
     PathManager paths;
     Environment env(paths, Version(1, 2, 162));
     env.Reset(Environment::DEFAULT);
@@ -109,13 +113,21 @@ TEST(test_override, settings) {
 
     EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
 
+    EXPECT_EQ(false, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "not_found"));
+
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "toogle"));
     EXPECT_EQ(true, vku::GetLayerSettingBool("VK_LAYER_LUNARG_reference_1_2_0", "toogle"));
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "enum_required_only"));
     EXPECT_STREQ("value2", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "enum_required_only").c_str());
+
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "enum_with_optional"));
     EXPECT_STREQ("value1", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "enum_with_optional").c_str());
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "flags_required_only"));
     std::vector<std::string> flags_required_only =
         vku::GetLayerSettingStrings("VK_LAYER_LUNARG_reference_1_2_0", "flags_required_only");
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "flags_with_optional"));
     std::vector<std::string> flags_with_optional =
         vku::GetLayerSettingStrings("VK_LAYER_LUNARG_reference_1_2_0", "flags_with_optional");
 
@@ -124,28 +136,47 @@ TEST(test_override, settings) {
     EXPECT_STREQ("flag0", flags_with_optional[0].c_str());
     EXPECT_STREQ("flag2", flags_with_optional[1].c_str());
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "string_required_only"));
     EXPECT_STREQ("My string", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "string_required_only").c_str());
+
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "string_with_optional"));
     EXPECT_STREQ("My string", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "string_with_optional").c_str());
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "bool_required_only"));
     EXPECT_EQ(true, vku::GetLayerSettingBool("VK_LAYER_LUNARG_reference_1_2_0", "bool_required_only"));
+
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "bool_with_optional"));
     EXPECT_EQ(true, vku::GetLayerSettingBool("VK_LAYER_LUNARG_reference_1_2_0", "bool_with_optional"));
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "load_file_required_only"));
     EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "load_file_required_only").c_str());
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "load_file_with_optional"));
     EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "load_file_with_optional").c_str());
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "save_file_required_only"));
     EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "save_file_required_only").c_str());
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "save_file_with_optional"));
     EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "save_file_with_optional").c_str());
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "save_folder_required_only"));
     EXPECT_STREQ("./my_test", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "save_folder_required_only").c_str());
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "save_folder_with_optional"));
     EXPECT_STREQ("./my_test", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "save_folder_with_optional").c_str());
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "int_required_only"));
     EXPECT_EQ(76, vku::GetLayerSettingInt("VK_LAYER_LUNARG_reference_1_2_0", "int_required_only"));
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "int_with_optional"));
     EXPECT_EQ(82, vku::GetLayerSettingInt("VK_LAYER_LUNARG_reference_1_2_0", "int_with_optional"));
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "float_required_only"));
     EXPECT_EQ(76.500000, vku::GetLayerSettingFloat("VK_LAYER_LUNARG_reference_1_2_0", "float_required_only"));
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "float_with_optional"));
     EXPECT_EQ(76.500000, vku::GetLayerSettingFloat("VK_LAYER_LUNARG_reference_1_2_0", "float_with_optional"));
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "frames_required_only"));
     EXPECT_STREQ("76-82,75", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "frames_required_only").c_str());
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "frames_with_optional"));
     EXPECT_STREQ("79-82,75", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "frames_with_optional").c_str());
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "list_required_only"));
     std::vector<std::pair<std::string, int>> list_required_only =
         vku::GetLayerSettingList("VK_LAYER_LUNARG_reference_1_2_0", "list_required_only");
 
@@ -154,11 +185,52 @@ TEST(test_override, settings) {
     EXPECT_STREQ("stringB", list_required_only[2].first.c_str());
     EXPECT_STREQ("stringD", list_required_only[3].first.c_str());
 
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "list_with_optional"));
     std::vector<std::pair<std::string, int>> list_with_optional =
         vku::GetLayerSettingList("VK_LAYER_LUNARG_reference_1_2_0", "list_with_optional");
 
     EXPECT_EQ(76, list_with_optional[0].second);
     EXPECT_STREQ("stringA", list_with_optional[1].first.c_str());
+
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "list_empty"));
+    std::vector<std::pair<std::string, int>> list_empty = vku::GetLayerSettingList("VK_LAYER_LUNARG_reference_1_2_0", "list_empty");
+    EXPECT_EQ(true, list_empty.empty());
+
+    EXPECT_EQ(true, SurrenderConfiguration(env));
+
+    env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
+}
+
+TEST(test_override, env_var) {
+    PathManager paths;
+    Environment env(paths, Version(1, 2, 162));
+    env.Reset(Environment::DEFAULT);
+
+    LayerManager layer_manager(env);
+    layer_manager.LoadLayersFromPath(":/");
+
+    Configuration configuration;
+    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.1.json");
+    EXPECT_TRUE(load);
+    EXPECT_TRUE(!configuration.parameters.empty());
+
+    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
+
+    EXPECT_EQ(false, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "env_o"));
+
+    qputenv("VK_LUNARG_REFERENCE_1_2_0_ENV_A", "pouet");
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "env_a"));
+    EXPECT_STREQ("pouet", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "env_a").c_str());
+
+    // Check support of environment variable without vendor namespace
+    qputenv("VK_REFERENCE_1_2_0_ENV_B", "pouet");
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "env_b"));
+    EXPECT_STREQ("pouet", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "env_b").c_str());
+
+    // Check support of environment variable without full namespace
+    qputenv("VK_ENV_C", "pouet");
+    EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "env_c"));
+    EXPECT_STREQ("pouet", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "env_c").c_str());
 
     EXPECT_EQ(true, SurrenderConfiguration(env));
 

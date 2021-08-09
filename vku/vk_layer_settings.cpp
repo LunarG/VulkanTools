@@ -25,6 +25,7 @@
 
 #include "vk_layer_settings.h"
 
+#include <cstdlib>
 #include <cassert>
 #include <cstring>
 #include <cctype>
@@ -51,25 +52,28 @@
 
 namespace vku {
 
-typedef enum {
-    kVkConfig,
-    kEnvVar,
-    kLocal,
-} SettingsFileSource;
+enum Source {
+    SOURCE_VKCONFIG,
+    SOURCE_ENV_VAR,
+    SOURCE_LOCAL,
+};
 
-typedef struct SettingsFileInfo {
-    bool file_found = false;
-    std::string location{};
-    SettingsFileSource source = kLocal;
-} SettingsFileInfo;
+struct SettingsFileInfo {
+    SettingsFileInfo() : file_found(false), source(SOURCE_LOCAL) {}
 
-class ConfigFile {
+    bool file_found;
+    std::string location;
+    Source source;
+};
+
+class LayerSettings {
    public:
-    ConfigFile();
-    ~ConfigFile(){};
+    LayerSettings();
+    ~LayerSettings(){};
 
-    const char *GetOption(const std::string &option);
-    void SetOption(const std::string &option, const std::string &value);
+    bool Is(const std::string &setting_key);
+    const char *Get(const std::string &setting_key);
+    void Set(const std::string &setting_key, const std::string &setting_value);
     std::string vk_layer_disables_env_var;
     SettingsFileInfo settings_info{};
 
@@ -81,23 +85,26 @@ class ConfigFile {
     void ParseFile(const char *filename);
 };
 
-static ConfigFile layer_config;
+static LayerSettings vk_layer_settings;
 
-std::string GetEnvironment(const char *variable) {
-#if !defined(__ANDROID__) && !defined(_WIN32)
-    const char *output = getenv(variable);
-    return output == NULL ? "" : output;
-#elif defined(_WIN32)
-    int size = GetEnvironmentVariable(variable, NULL, 0);
-    if (size == 0) {
-        return "";
+static bool IsEnvironment(const char *variable) {
+#if defined(__ANDROID__)
+    string command = "getprop " + string(variable);
+    FILE *pPipe = popen(command.c_str(), "r");
+    if (pPipe != nullptr) {
+        pclose(pPipe);
+
+        return true;
+    } else {
+        return false;
     }
-    char *buffer = new char[size];
-    GetEnvironmentVariable(variable, buffer, size);
-    std::string output = buffer;
-    delete[] buffer;
-    return output;
-#elif defined(__ANDROID__)
+#else
+    return std::getenv(variable) != NULL;
+#endif
+}
+
+static std::string GetEnvironment(const char *variable) {
+#if defined(__ANDROID__)
     string command = "getprop " + string(variable);
     FILE *pPipe = popen(command.c_str(), "r");
     if (pPipe != nullptr) {
@@ -115,7 +122,8 @@ std::string GetEnvironment(const char *variable) {
         return "";
     }
 #else
-    return "";
+    const char *output = std::getenv(variable);
+    return output == NULL ? "" : output;
 #endif
 }
 
@@ -127,7 +135,7 @@ static std::string string_tolower(const std::string &s) {
     return result;
 }
 
-static std::string string_upper(const std::string &s) {
+static std::string string_toupper(const std::string &s) {
     std::string result = s;
     for (auto &c : result) {
         c = std::toupper(c);
@@ -135,17 +143,10 @@ static std::string string_upper(const std::string &s) {
     return result;
 }
 
-VK_LAYER_EXPORT const char *GetLayerSetting(const char *option) {
-    std::string setting = option;
-    return layer_config.GetOption(setting);
+VK_LAYER_EXPORT const char *GetLayerEnvVar(const char *setting_env) {
+    vk_layer_settings.vk_layer_disables_env_var = GetEnvironment(setting_env);
+    return vk_layer_settings.vk_layer_disables_env_var.c_str();
 }
-
-VK_LAYER_EXPORT const char *GetLayerEnvVar(const char *option) {
-    layer_config.vk_layer_disables_env_var = GetEnvironment(option);
-    return layer_config.vk_layer_disables_env_var.c_str();
-}
-
-VK_LAYER_EXPORT void SetLayerSetting(const char *option, const char *value) { layer_config.SetOption(option, value); }
 
 static std::string TrimPrefix(const std::string &layer_key) {
     assert(layer_key.find("VK_LAYER_") == 0);
@@ -162,44 +163,83 @@ static std::string GetSettingKey(const char *layer_key, const char *setting_key)
 static inline std::string TrimVendor(const std::string &layer_key) {
     static const char *separator = "_";
 
-    const auto trimmed_beg = layer_key.find_first_of(separator);
-    if (trimmed_beg == std::string::npos) return layer_key;
+    const std::string &namespace_key = TrimPrefix(layer_key);
 
-    const auto trimmed_end = layer_key.find_last_not_of(separator);
+    const auto trimmed_beg = namespace_key.find_first_of(separator);
+    if (trimmed_beg == std::string::npos) return namespace_key;
+
+    const auto trimmed_end = namespace_key.find_last_not_of(separator);
     assert(trimmed_end != std::string::npos && trimmed_beg <= trimmed_end);
 
-    return TrimPrefix(layer_key).substr(trimmed_beg + 1, layer_key.size());
+    return namespace_key.substr(trimmed_beg + 1, namespace_key.size());
 }
 
-static std::string GetEnvVarKey(const char *layer_key, const char *setting_key, bool trim_vendor) {
+enum TrimMode {
+    TRIM_NONE,
+    TRIM_VENDOR,
+    TRIM_NAMESPACE,
+
+    TRIM_FIRST = TRIM_NONE,
+    TRIM_LAST = TRIM_NAMESPACE,
+};
+
+static std::string GetEnvVarKey(const char *layer_key, const char *setting_key, TrimMode trim_mode) {
     std::stringstream result;
 
 #if defined(__ANDROID__)
-    if (trim_vendor) {
-        result << "debug.vulkan." << GetSettingKey(TrimVendor(layer_key), setting_key);
-    } else {
-        result << "debug.vulkan." << GetSettingKey(layer_key, setting_key);
+    switch (trim_mode) {
+        default:
+        case TRIM_NONE: {
+            result << "debug.vulkan." << GetSettingKey(layer_key, setting_key);
+            break;
+        }
+        case TRIM_VENDOR: {
+            result << "debug.vulkan." << GetSettingKey(TrimVendor(layer_key), setting_key);
+            break;
+        }
+        case TRIM_NAMESPACE: {
+            result << "debug.vulkan." << setting_key;
+            break;
+        }
     }
 #else
-    if (trim_vendor) {
-        result << "VK_" << string_upper(TrimVendor(layer_key)) << "_" << string_upper(setting_key);
-    } else {
-        result << "VK_" << string_upper(TrimPrefix(layer_key)) << "_" << string_upper(setting_key);
+    switch (trim_mode) {
+        default:
+        case TRIM_NONE: {
+            result << "VK_" << string_toupper(TrimPrefix(layer_key)) << "_" << string_toupper(setting_key);
+            break;
+        }
+        case TRIM_VENDOR: {
+            result << "VK_" << string_toupper(TrimVendor(layer_key)) << "_" << string_toupper(setting_key);
+            break;
+        }
+        case TRIM_NAMESPACE: {
+            result << "VK_" << string_toupper(setting_key);
+            break;
+        }
     }
+
 #endif
     return result.str();
 }
 
+VK_LAYER_EXPORT bool IsLayerSetting(const char *layer_key, const char *setting_key) {
+    for (int i = TRIM_FIRST, n = TRIM_LAST; i <= n; ++i) {
+        if (IsEnvironment(GetEnvVarKey(layer_key, setting_key, static_cast<TrimMode>(i)).c_str())) return true;
+    }
+
+    return vk_layer_settings.Is(GetSettingKey(layer_key, setting_key).c_str());
+}
+
 static std::string GetLayerSettingData(const char *layer_key, const char *setting_key) {
-    std::string setting = GetLayerEnvVar(GetEnvVarKey(layer_key, setting_key, false).c_str());
-    if (setting.empty()) {
-        setting = GetLayerEnvVar(GetEnvVarKey(layer_key, setting_key, true).c_str());
+    // First search in the environment variables
+    for (int i = TRIM_FIRST, n = TRIM_LAST; i <= n; ++i) {
+        std::string setting = GetLayerEnvVar(GetEnvVarKey(layer_key, setting_key, static_cast<TrimMode>(i)).c_str());
+        if (!setting.empty()) return setting;
     }
-    if (setting.empty()) {
-        std::string selected_setting = GetSettingKey(layer_key, setting_key);
-        setting = GetLayerSetting(selected_setting.c_str());
-    }
-    return setting;
+
+    // Second search in vk_layer_settings.txt
+    return vk_layer_settings.Get(GetSettingKey(layer_key, setting_key).c_str());
 }
 
 VK_LAYER_EXPORT bool GetLayerSettingBool(const char *layer_key, const char *setting_key) {
@@ -300,29 +340,39 @@ VK_LAYER_EXPORT List GetLayerSettingList(const char *layer_key, const char *sett
 
 // Constructor for ConfigFile. Initialize layers to log error messages to stdout by default. If a vk_layer_settings file is present,
 // its settings will override the defaults.
-ConfigFile::ConfigFile() : file_is_parsed_(false) {}
+LayerSettings::LayerSettings() : file_is_parsed_(false) {}
 
-const char *ConfigFile::GetOption(const std::string &option) {
+bool LayerSettings::Is(const std::string &setting_key) {
     std::map<std::string, std::string>::const_iterator it;
     if (!file_is_parsed_) {
         std::string settings_file = FindSettings();
         ParseFile(settings_file.c_str());
     }
 
-    if ((it = value_map_.find(option)) == value_map_.end()) {
+    return value_map_.find(setting_key) != value_map_.end();
+}
+
+const char *LayerSettings::Get(const std::string &setting_key) {
+    std::map<std::string, std::string>::const_iterator it;
+    if (!file_is_parsed_) {
+        std::string settings_file = FindSettings();
+        ParseFile(settings_file.c_str());
+    }
+
+    if ((it = value_map_.find(setting_key)) == value_map_.end()) {
         return "";
     } else {
         return it->second.c_str();
     }
 }
 
-void ConfigFile::SetOption(const std::string &option, const std::string &val) {
+void LayerSettings::Set(const std::string &setting_key, const std::string &value) {
     if (!file_is_parsed_) {
         std::string settings_file = FindSettings();
         ParseFile(settings_file.c_str());
     }
 
-    value_map_[option] = val;
+    value_map_[setting_key] = value;
 }
 
 #if defined(WIN32)
@@ -350,7 +400,7 @@ static inline bool IsHighIntegrity() {
 }
 #endif
 
-std::string ConfigFile::FindSettings() {
+std::string LayerSettings::FindSettings() {
     struct stat info;
 
 #if defined(WIN32)
@@ -379,7 +429,7 @@ std::string ConfigFile::FindSettings() {
 
                 // Use this file
                 RegCloseKey(key);
-                settings_info.source = kVkConfig;
+                settings_info.source = SOURCE_VKCONFIG;
                 settings_info.location = name;
                 return name;
             }
@@ -402,7 +452,7 @@ std::string ConfigFile::FindSettings() {
         std::string home_file = search_path + "/vulkan/settings.d/vk_layer_settings.txt";
         if (stat(home_file.c_str(), &info) == 0) {
             if (info.st_mode & S_IFREG) {
-                settings_info.source = kVkConfig;
+                settings_info.source = SOURCE_VKCONFIG;
                 settings_info.location = home_file;
                 return home_file;
             }
@@ -419,13 +469,13 @@ std::string ConfigFile::FindSettings() {
         if (info.st_mode & S_IFDIR) {
             env_path.append("/vk_layer_settings.txt");
         }
-        settings_info.source = kEnvVar;
+        settings_info.source = SOURCE_ENV_VAR;
         settings_info.location = env_path;
         return env_path;
     }
 
     // Default -- use the current working directory for the settings file location
-    settings_info.source = kLocal;
+    settings_info.source = SOURCE_LOCAL;
     char buff[512];
     auto buf_ptr = GetCurrentDir(buff, 512);
     if (buf_ptr) {
@@ -447,7 +497,7 @@ static inline std::string TrimWhitespace(const std::string &s) {
     return s.substr(trimmed_beg, trimmed_end - trimmed_beg + 1);
 }
 
-void ConfigFile::ParseFile(const char *filename) {
+void LayerSettings::ParseFile(const char *filename) {
     file_is_parsed_ = true;
 
     // Extract option = value pairs from a file
@@ -461,9 +511,9 @@ void ConfigFile::ParseFile(const char *filename) {
 
             const auto value_pos = line.find_first_of('=');
             if (value_pos != std::string::npos) {
-                const std::string option = TrimWhitespace(line.substr(0, value_pos));
-                const std::string value = TrimWhitespace(line.substr(value_pos + 1));
-                value_map_[option] = value;
+                const std::string setting_key = TrimWhitespace(line.substr(0, value_pos));
+                const std::string setting_value = TrimWhitespace(line.substr(value_pos + 1));
+                value_map_[setting_key] = setting_value;
             }
         }
     }
