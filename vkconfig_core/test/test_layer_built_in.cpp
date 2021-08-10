@@ -147,7 +147,7 @@ TEST(test_layer_built_in, layer_141_screenshot) {
 TEST(test_layer_built_in, layer_148_validation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/148/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(7, CountSettings(layer.settings));
+    EXPECT_EQ(8, CountSettings(layer.settings));
     EXPECT_EQ(5, layer.presets.size());
 }
 
@@ -191,7 +191,7 @@ TEST(test_layer_built_in, layer_148_screenshot) {
 TEST(test_layer_built_in, layer_154_validation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/154/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(7, CountSettings(layer.settings));
+    EXPECT_EQ(8, CountSettings(layer.settings));
     EXPECT_EQ(6, layer.presets.size());
 }
 
@@ -235,7 +235,7 @@ TEST(test_layer_built_in, layer_154_screenshot) {
 TEST(test_layer_built_in, layer_162_validation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/162/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(11, CountSettings(layer.settings));
+    EXPECT_EQ(12, CountSettings(layer.settings));
     EXPECT_EQ(6, layer.presets.size());
 }
 
@@ -279,7 +279,7 @@ TEST(test_layer_built_in, layer_162_screenshot) {
 TEST(test_layer_built_in, layer_170_validation) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/170/VK_LAYER_KHRONOS_validation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(11, CountSettings(layer.settings));
+    EXPECT_EQ(12, CountSettings(layer.settings));
     EXPECT_EQ(6, layer.presets.size());
     EXPECT_TRUE(static_cast<SettingDataFlags*>(FindSetting(layer.presets[0].settings, "enables"))->value.empty());
     EXPECT_STREQ("VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT",
