@@ -172,9 +172,9 @@ TEST(test_override, vk_layer_settings_txt) {
     EXPECT_EQ(76.500000, vku::GetLayerSettingFloat("VK_LAYER_LUNARG_reference_1_2_0", "float_with_optional"));
 
     EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "frames_required_only"));
-    EXPECT_STREQ("76-82,75", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "frames_required_only").c_str());
+    EXPECT_STREQ("76-82,75", vku::GetLayerSettingFrames("VK_LAYER_LUNARG_reference_1_2_0", "frames_required_only").c_str());
     EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "frames_with_optional"));
-    EXPECT_STREQ("79-82,75", vku::GetLayerSettingString("VK_LAYER_LUNARG_reference_1_2_0", "frames_with_optional").c_str());
+    EXPECT_STREQ("79-82,75", vku::GetLayerSettingFrames("VK_LAYER_LUNARG_reference_1_2_0", "frames_with_optional").c_str());
 
     EXPECT_EQ(true, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "list_required_only"));
     std::vector<std::pair<std::string, int>> list_required_only =
