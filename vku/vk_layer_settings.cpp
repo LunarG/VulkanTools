@@ -29,6 +29,7 @@
 #include <cassert>
 #include <cstring>
 #include <cctype>
+#include <cstdarg>
 #include <fstream>
 #include <array>
 #include <map>
@@ -52,6 +53,40 @@
 
 namespace vku {
 
+static std::string format(const char *message, ...) {
+    std::size_t const STRING_BUFFER(4096);
+
+    assert(message != nullptr);
+    assert(strlen(message) >= 0 && strlen(message) < STRING_BUFFER);
+
+    char buffer[STRING_BUFFER];
+    va_list list;
+
+    va_start(list, message);
+    vsprintf(buffer, message, list);
+    va_end(list);
+
+    return buffer;
+}
+
+static bool IsFrames(const std::string &s) {
+    static const std::regex FRAME_REGEX("^([0-9]+([-][0-9]+){0,2})(,([0-9]+([-][0-9]+){0,2}))*$");
+
+    return std::regex_search(s, FRAME_REGEX);
+}
+
+static bool IsNumber(const std::string &s) {
+    static const std::regex FRAME_REGEX("^-?[0-9]*$");
+
+    return std::regex_search(s, FRAME_REGEX);
+}
+
+static bool IsFloat(const std::string &s) {
+    static const std::regex FRAME_REGEX("^-?[0-9]*([.][0-9]*)?$");
+
+    return std::regex_search(s, FRAME_REGEX);
+}
+
 enum Source {
     SOURCE_VKCONFIG,
     SOURCE_ENV_VAR,
@@ -71,18 +106,26 @@ class LayerSettings {
     LayerSettings();
     ~LayerSettings(){};
 
+    void SetCallback(LAYER_SETTING_LOG_CALLBACK callback) { this->callback_ = callback; }
+    void Log(const std::string &setting_key, const std::string &message);
+
     bool Is(const std::string &setting_key);
     const char *Get(const std::string &setting_key);
     void Set(const std::string &setting_key, const std::string &setting_value);
+
     std::string vk_layer_disables_env_var;
-    SettingsFileInfo settings_info{};
+    SettingsFileInfo settings_info;
 
    private:
     bool file_is_parsed_;
     std::map<std::string, std::string> value_map_;
 
+    std::string last_log_setting;
+    std::string last_log_message;
+
     std::string FindSettings();
     void ParseFile(const char *filename);
+    LAYER_SETTING_LOG_CALLBACK callback_;
 };
 
 static LayerSettings vk_layer_settings;
@@ -223,7 +266,17 @@ static std::string GetEnvVarKey(const char *layer_key, const char *setting_key, 
     return result.str();
 }
 
+VK_LAYER_EXPORT void InitLayerSettingsLogCallback(LAYER_SETTING_LOG_CALLBACK callback) {
+    vk_layer_settings.SetCallback(callback);
+    return;
+}
+
 VK_LAYER_EXPORT bool IsLayerSetting(const char *layer_key, const char *setting_key) {
+    assert(layer_key);
+    assert(!std::string(layer_key).empty());
+    assert(setting_key);
+    assert(!std::string(setting_key).empty());
+
     for (int i = TRIM_FIRST, n = TRIM_LAST; i <= n; ++i) {
         if (IsEnvironment(GetEnvVarKey(layer_key, setting_key, static_cast<TrimMode>(i)).c_str())) return true;
     }
@@ -243,42 +296,74 @@ static std::string GetLayerSettingData(const char *layer_key, const char *settin
 }
 
 VK_LAYER_EXPORT bool GetLayerSettingBool(const char *layer_key, const char *setting_key) {
-    bool result = false;
+    assert(IsLayerSetting(layer_key, setting_key));
 
-    std::string setting = GetLayerSettingData(layer_key, setting_key);
-    if (!setting.empty()) {
-        setting = string_tolower(setting);
-        if (setting == "true") {
-            result = true;
-        } else {
-            result = std::atoi(setting.c_str()) != 0;
-        }
+    bool result = false;  // default value
+
+    std::string setting = string_tolower(GetLayerSettingData(layer_key, setting_key));
+    if (setting.empty()) {
+        vk_layer_settings.Log(setting_key,
+                              "The setting is used but the value is empty which is invalid for a boolean setting type.");
+    } else if (IsNumber(setting)) {
+        result = std::atoi(setting.c_str()) != 0;
+    } else if (setting == "true" || setting == "false") {
+        result = setting == "true";
+    } else {
+        std::string message = format("The data provided (%s) is not a boolean value.", setting.c_str());
+        vk_layer_settings.Log(setting_key, message);
     }
+
     return result;
 }
 
 VK_LAYER_EXPORT int GetLayerSettingInt(const char *layer_key, const char *setting_key) {
-    int result = 0;
+    assert(IsLayerSetting(layer_key, setting_key));
+
+    int result = 0;  // default value
 
     std::string setting = GetLayerSettingData(layer_key, setting_key);
-    if (!setting.empty()) {
+    if (setting.empty()) {
+        std::string message = "The setting is used but the value is empty which is invalid for a integer setting type.";
+        vk_layer_settings.Log(setting_key, message);
+    } else if (!IsNumber(setting)) {
+        std::string message = format("The data provided (%s) is not an integer value.", setting.c_str());
+        vk_layer_settings.Log(setting_key, message);
+    } else {
         result = std::atoi(setting.c_str());
     }
+
     return result;
 }
 
 VK_LAYER_EXPORT double GetLayerSettingFloat(const char *layer_key, const char *setting_key) {
-    double result = 0.0;
+    assert(IsLayerSetting(layer_key, setting_key));
+
+    double result = 0.0;  // default value
 
     std::string setting = GetLayerSettingData(layer_key, setting_key);
-    if (!setting.empty()) {
+    if (setting.empty()) {
+        std::string message = "The setting is used but the value is empty which is invalid for a floating-point setting type.";
+        vk_layer_settings.Log(setting_key, message);
+    } else if (!IsFloat(setting)) {
+        std::string message = format("The data provided (%s) is not a floating-point value.", setting.c_str());
+        vk_layer_settings.Log(setting_key, message);
+    } else {
         result = std::atof(setting.c_str());
     }
+
     return result;
 }
 
 VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const char *setting_key) {
-    return GetLayerSettingData(layer_key, setting_key);
+    assert(IsLayerSetting(layer_key, setting_key));
+
+    std::string setting = GetLayerSettingData(layer_key, setting_key);
+    if (setting.empty()) {
+        std::string message = "The setting is used but the value is empty which is invalid for a string setting type.";
+        vk_layer_settings.Log(setting_key, message);
+    }
+
+    return setting;
 }
 
 static inline std::vector<std::string> Split(const std::string &value, const std::string &delimiter) {
@@ -303,6 +388,8 @@ static inline std::vector<std::string> Split(const std::string &value, const std
 }
 
 VK_LAYER_EXPORT Strings GetLayerSettingStrings(const char *layer_key, const char *setting_key) {
+    assert(IsLayerSetting(layer_key, setting_key));
+
     std::string setting = GetLayerSettingData(layer_key, setting_key);
     if (setting.find_first_of(",") != std::string::npos) {
         return Split(setting, ",");
@@ -316,19 +403,15 @@ VK_LAYER_EXPORT Strings GetLayerSettingStrings(const char *layer_key, const char
     }
 }
 
-static bool IsInteger(const std::string &text) {
-    static const std::regex FRAME_REGEX("^-?([0-9]*|0x[0-9|a-z|A-Z]*)$");
-
-    return std::regex_search(text, FRAME_REGEX);
-}
-
 VK_LAYER_EXPORT List GetLayerSettingList(const char *layer_key, const char *setting_key) {
+    assert(IsLayerSetting(layer_key, setting_key));
+
     std::vector<std::string> inputs = GetLayerSettingStrings(layer_key, setting_key);
 
     List result;
     for (std::size_t i = 0, n = inputs.size(); i < n; ++i) {
         std::pair<std::string, int> value;
-        if (IsInteger(inputs[i])) {
+        if (IsNumber(inputs[i])) {
             value.second = atoi(inputs[i].c_str());
         } else {
             value.first = inputs[i];
@@ -340,7 +423,18 @@ VK_LAYER_EXPORT List GetLayerSettingList(const char *layer_key, const char *sett
 
 // Constructor for ConfigFile. Initialize layers to log error messages to stdout by default. If a vk_layer_settings file is present,
 // its settings will override the defaults.
-LayerSettings::LayerSettings() : file_is_parsed_(false) {}
+LayerSettings::LayerSettings() : file_is_parsed_(false), callback_(nullptr) {}
+
+void LayerSettings::Log(const std::string &setting_key, const std::string &message) {
+    this->last_log_setting = setting_key;
+    this->last_log_message = message;
+
+    if (this->callback_ == nullptr) {
+        fprintf(stderr, "LAYER SETTING (%s) error: %s\n", this->last_log_setting.c_str(), this->last_log_message.c_str());
+    } else {
+        this->callback_(this->last_log_setting.c_str(), this->last_log_message.c_str());
+    }
+}
 
 bool LayerSettings::Is(const std::string &setting_key) {
     std::map<std::string, std::string>::const_iterator it;

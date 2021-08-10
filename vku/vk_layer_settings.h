@@ -31,6 +31,11 @@ namespace vku {
 
 typedef std::vector<std::string> Strings;
 typedef std::vector<std::pair<std::string, int>> List;
+typedef void *(*LAYER_SETTING_LOG_CALLBACK)(const char *setting_key, const char *message);
+
+// Initialize the callback function to get error messages. By default the error messages are outputed to stderr. Use nullptr to
+// return to the default behavior.
+VK_LAYER_EXPORT void InitLayerSettingsLogCallback(LAYER_SETTING_LOG_CALLBACK callback);
 
 // Check whether a setting was set either from vk_layer_settings.txt or an environment variable
 VK_LAYER_EXPORT bool IsLayerSetting(const char *layer_key, const char *setting_key);
