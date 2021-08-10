@@ -15,6 +15,7 @@
 
 ### Fixes:
 - Fix user-defined layer settings not loaded, for older Vulkan API than 1.2.176
+- Fix settings written in 'vk_layer_settings.txt' even when the dependence is not met
 
 ## [Vulkan Configurator 2.4.0 for Vulkan SDK 1.2.182.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.182.0) - July 2021
 
