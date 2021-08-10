@@ -214,6 +214,8 @@ TEST(test_override, env_var) {
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
+    qputenv("VK_LAYER_SETTINGS_PATH", "./vk_layer_settings.txt");
+
     EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
 
     EXPECT_EQ(false, vku::IsLayerSetting("VK_LAYER_LUNARG_reference_1_2_0", "env_o"));
