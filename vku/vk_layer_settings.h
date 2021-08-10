@@ -49,6 +49,9 @@ VK_LAYER_EXPORT int GetLayerSettingInt(const char *layer_key, const char *settin
 // Query setting data for FLOAT setting type in the layer manifest
 VK_LAYER_EXPORT double GetLayerSettingFloat(const char *layer_key, const char *setting_key);
 
+// Query setting data for FRAMES setting type in the layer manifest
+VK_LAYER_EXPORT std::string GetLayerSettingFrames(const char *layer_key, const char *setting_key);
+
 // Query setting data for STRING, ENUM, LOAD_FILE, SAVE_FILE and SAVE_FOLDER setting types in the layer manifest
 VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const char *setting_key);
 

@@ -366,6 +366,18 @@ VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const c
     return setting;
 }
 
+VK_LAYER_EXPORT std::string GetLayerSettingFrames(const char *layer_key, const char *setting_key) {
+    assert(IsLayerSetting(layer_key, setting_key));
+
+    std::string setting = GetLayerSettingData(layer_key, setting_key);
+    if (!setting.empty() && !IsFrames(setting)) {
+        std::string message = format("The data provided (%s) is not a frames value.", setting.c_str());
+        vk_layer_settings.Log(setting_key, message);
+    }
+
+    return setting;
+}
+
 static inline std::vector<std::string> Split(const std::string &value, const std::string &delimiter) {
     std::vector<std::string> result;
 
