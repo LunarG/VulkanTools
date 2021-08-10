@@ -182,6 +182,11 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 continue;
             }
 
+            // Skip settings with dependence not met
+            if (!::CheckDependence(*meta, parameter.settings)) {
+                continue;
+            }
+
             // Skip overriden settings
             if (::CheckSettingOverridden(*meta)) {
                 continue;
