@@ -285,6 +285,7 @@
                     "settings": [
                         {
                             "key": "duplicate_message_limit",
+                            "env": "VK_LAYER_DUPLICATE_MESSAGE_LIMIT",
                             "label": "Max Duplicated Messages",
                             "description": "Maximum number of times any single validation message would be reported.",
                             "type": "INT",
