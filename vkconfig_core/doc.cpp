@@ -73,7 +73,7 @@ static void WriteSettingsOverview(std::string& text, const Layer& layer, const S
 }
 
 static const std::string GetLayerSettingsDocURL(const Layer& layer) {
-    if (layer.api_version > Version(1, 7, 176)) {
+    if (layer.api_version > Version(1, 7, 182)) {
         return format("https://github.com/LunarG/VulkanTools/tree/sdk-%s.0/vkconfig#vulkan-layers-settings",
                       layer.api_version.str().c_str());
     } else {
