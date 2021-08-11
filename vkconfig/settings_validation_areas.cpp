@@ -54,6 +54,7 @@ static const char *TOKEN_SYNC = "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VA
 
 static const char *TOKEN_BEST = "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT";
 static const char *TOKEN_BEST_ARM = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM";
+static const char *TOKEN_BEST_AMD = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_AMD";
 
 QCheckBox *WidgetSettingValidation::CreateWidget(QTreeWidgetItem *parent, QTreeWidgetItem **item, const char *key,
                                                  const char *flag) {
@@ -129,6 +130,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       widget_best(nullptr),
       item_best_arm(nullptr),
       widget_best_arm(nullptr),
+      item_best_amd(nullptr),
+      widget_best_amd(nullptr),
 
       meta_set(meta_set),
       data_set(data_set) {
@@ -355,6 +358,10 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
         this->widget_best_arm = this->CreateWidget(this->item_best, &this->item_best_arm, "enables", TOKEN_BEST_ARM);
         if (this->widget_best_arm != nullptr)
             this->connect(this->widget_best_arm, SIGNAL(clicked(bool)), this, SLOT(OnBestArmChecked(bool)));
+
+        this->widget_best_amd = this->CreateWidget(this->item_best, &this->item_best_amd, "enables", TOKEN_BEST_AMD);
+        if (this->widget_best_amd != nullptr)
+            this->connect(this->widget_best_amd, SIGNAL(clicked(bool)), this, SLOT(OnBestAmdChecked(bool)));
     }
 
     this->tree->setItemWidget(this->item, 0, this);
@@ -549,6 +556,11 @@ void WidgetSettingValidation::OnBestChecked(bool checked) {
 
 void WidgetSettingValidation::OnBestArmChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_BEST_ARM, checked);
+    this->OnSettingChanged();
+}
+
+void WidgetSettingValidation::OnBestAmdChecked(bool checked) {
+    this->UpdateFlag("enables", TOKEN_BEST_AMD, checked);
     this->OnSettingChanged();
 }
 
@@ -772,6 +784,13 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
         this->widget_best_arm->setEnabled(HasDataFlag("enables", TOKEN_BEST));
         if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
             this->widget_best_arm->setChecked(HasDataFlag("enables", TOKEN_BEST_ARM));
+        }
+    }
+
+    if (this->widget_best_amd != nullptr) {
+        this->widget_best_amd->setEnabled(HasDataFlag("enables", TOKEN_BEST));
+        if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+            this->widget_best_amd->setChecked(HasDataFlag("enables", TOKEN_BEST_AMD));
         }
     }
 
