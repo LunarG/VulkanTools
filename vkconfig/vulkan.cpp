@@ -111,7 +111,7 @@ std::string GenerateVulkanStatus() {
     } else {
         log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str());
         const LoaderMessageLevel loader_debug_message = configurator.environment.GetLoaderMessage();
-        if (loader_debug_message != LAODER_MESSAGE_NONE) {
+        if (loader_debug_message != LOADER_MESSAGE_NONE) {
             log += format("    - VK_LOADER_DEBUG=%s\n", GetLoaderDebugToken(loader_debug_message).c_str());
         }
     }
