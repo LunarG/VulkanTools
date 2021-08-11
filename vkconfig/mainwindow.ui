@@ -317,7 +317,7 @@
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error (only errors)&lt;br/&gt;- warn (warnings and errors)&lt;br/&gt;- info (info, warning, and errors)&lt;br/&gt;- debug (debug + all before)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error&lt;br/&gt;- warn (warnings)&lt;br/&gt;- info (information)&lt;br/&gt;- debug&lt;br/&gt;- layer (layer information)&lt;br/&gt;- implem (implementation/icd information)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <item>
             <property name="text">
@@ -342,6 +342,16 @@
            <item>
             <property name="text">
              <string>debug</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>layer</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>implem</string>
             </property>
            </item>
            <item>

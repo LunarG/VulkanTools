@@ -99,24 +99,27 @@ static const char* GetLayoutStateToken(LayoutState state) {
 }
 
 LoaderMessageLevel GetLoaderDebug(const std::string& value) {
-    for (int i = LAODER_MESSAGE_FIRST, n = LAODER_MESSAGE_LAST; i <= n; ++i) {
+    for (int i = LOADER_MESSAGE_FIRST, n = LOADER_MESSAGE_LAST; i <= n; ++i) {
         const LoaderMessageLevel level = static_cast<LoaderMessageLevel>(i);
         if (GetLoaderDebugToken(level) == value) return level;
     }
 
-    return LAODER_MESSAGE_NONE;
+    return LOADER_MESSAGE_NONE;
 }
 
 std::string GetLoaderDebugToken(LoaderMessageLevel level) {
     static const char* LOADER_MESSAGE_LEVEL[]{
-        "",       // LAODER_MESSAGE_NONE
-        "error",  // LAODER_MESSAGE_ERROR
-        "warn",   // LAODER_MESSAGE_WARN
-        "info",   // LAODER_MESSAGE_INFO
-        "debug",  // LAODER_MESSAGE_DEBUG
-        "all"     // LAODER_MESSAGE_ALL
+        "",       // LOADER_MESSAGE_NONE
+        "error",  // LOADER_MESSAGE_ERROR
+        "warn",   // LOADER_MESSAGE_WARN
+        "info",   // LOADER_MESSAGE_INFO
+        "debug",  // LOADER_MESSAGE_DEBUG
+        "layer",  // LOADER_MESSAGE_LAYER
+        "implem", // LOADER_MESSAGE_IMPLEMENTATION
+        "all"     // LOADER_MESSAGE_ALL
     };
-    static_assert(countof(LOADER_MESSAGE_LEVEL) == LAODER_MESSAGE_COUNT,
+
+    static_assert(countof(LOADER_MESSAGE_LEVEL) == LOADER_MESSAGE_COUNT,
                   "The tranlation table size doesn't match the enum number of elements");
 
     return LOADER_MESSAGE_LEVEL[level];
@@ -171,7 +174,7 @@ void Environment::Reset(ResetMode mode) {
 
             const std::string loader_debug_message(qgetenv("VK_LOADER_DEBUG"));
             if (loader_debug_message.empty()) {
-                loader_message_level = LAODER_MESSAGE_NONE;
+                loader_message_level = LOADER_MESSAGE_NONE;
             } else {
                 loader_message_level = GetLoaderDebug(loader_debug_message);
             }
