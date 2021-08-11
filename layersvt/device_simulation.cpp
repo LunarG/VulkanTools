@@ -58,6 +58,7 @@
 #include "vulkan/vulkan_beta.h"
 #include <vk_layer_config.h>
 #include "vk_layer_table.h"
+#include "../vku/vk_layer_settings.h"
 
 namespace {
 
@@ -70,7 +71,7 @@ namespace {
 
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 9;
-const uint32_t kVersionDevsimPatch = 0;
+const uint32_t kVersionDevsimPatch = 1;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 // Properties of this layer:
@@ -343,33 +344,24 @@ const char *const kEnvarDevsimModifyPresentModes =
     "VK_DEVSIM_MODIFY_PRESENT_MODES";  // an ArrayCombinationMode value sets how the device and config present modes are combined.
 #endif
 
-const char *const kLayerSettingsDevsimFilename =
-    "lunarg_device_simulation.filename";  // vk_layer_settings.txt equivalent for kEnvarDevsimFilename
-const char *const kLayerSettingsDevsimDebugEnable =
-    "lunarg_device_simulation.debug_enable";  // vk_layer_settings.txt equivalent for kEnvarDevsimDebugEnable
+const char *const kLayerSettingsDevsimFilename = "filename";         // vk_layer_settings.txt equivalent for kEnvarDevsimFilename
+const char *const kLayerSettingsDevsimDebugEnable = "debug_enable";  // vk_layer_settings.txt equivalent for kEnvarDevsimDebugEnable
 const char *const kLayerSettingsDevsimExitOnError =
-    "lunarg_device_simulation.exit_on_error";  // vk_layer_settings.txt equivalent for kEnvarDevsimExitOnError
+    "exit_on_error";  // vk_layer_settings.txt equivalent for kEnvarDevsimExitOnError
 const char *const kLayerSettingsDevsimEmulatePortability =
-    "lunarg_device_simulation.emulate_portability";  // vk_layer_settings.txt equivalent for kEnvarDevsimEmulatePortability
-
+    "emulate_portability";  // vk_layer_settings.txt equivalent for kEnvarDevsimEmulatePortability
 const char *const kLayerSettingsDevsimModifyExtensionList =
-    "lunarg_device_simulation.modify_extension_list";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyExtensionList
-
+    "modify_extension_list";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyExtensionList
 const char *const kLayerSettingsDevsimModifyMemoryFlags =
-    "lunarg_device_simulation.modify_memory_flags";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyMemoryFlags
-
+    "modify_memory_flags";  // vk_layer_settings.txt equivalent for kEnvarDevsimModifyMemoryFlags
 const char *const kLayerSettingsDevsimModifyFormatList =
-    "lunarg_device_simulation.modify_format_list";  // an ArrayCombinationMode value sets how the device and config format lists are
-                                                    // combined.
+    "modify_format_list";  // an ArrayCombinationMode value sets how the device and config format lists are combined.
 const char *const kLayerSettingsDevsimModifyFormatProperties =
-    "lunarg_device_simulation.modify_format_properties";  // an ArrayCombinationMode value sets how the device and config format
-                                                          // properties are combined.
+    "modify_format_properties";  // an ArrayCombinationMode value sets how the device and config format properties are combined.
 const char *const kLayerSettingsDevsimModifySurfaceFormats =
-    "lunarg_device_simulation.modify_surface_formats";  // an ArrayCombinationMode value sets how the device and config surface
-                                                        // format lists are combined.
+    "modify_surface_formats";  // an ArrayCombinationMode value sets how the device and config surface format lists are combined.
 const char *const kLayerSettingsDevsimModifyPresentModes =
-    "lunarg_device_simulation.modify_present_modes";  // an ArrayCombinationMode value sets how the device and config present modes
-                                                      // are combined.
+    "modify_present_modes";  // an ArrayCombinationMode value sets how the device and config present modes are combined.
 
 struct ArrayCombinationModeSetting {
     ArrayCombinationMode mode;
@@ -3436,12 +3428,15 @@ void JsonLoader::GetValueGPUinfoSurfaceCapabilities(const Json::Value &parent) {
 // Fill the inputFilename variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimFilename() {
-    inputFilename.str = getLayerOption(kLayerSettingsDevsimFilename);
-    inputFilename.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimFilename);
     if (!env_var.empty()) {
         inputFilename.str = env_var;
         inputFilename.fromEnvVar = true;
+    }
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimFilename)) {
+        inputFilename.fromEnvVar = false;
+        inputFilename.str = vku::GetLayerSettingString(kOurLayerName, kLayerSettingsDevsimFilename);
     }
 }
 
@@ -3485,51 +3480,61 @@ static ArrayCombinationMode GetArrayCombinationModeValue(const std::string &valu
 // Fill the debugLevel variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimDebugLevel() {
-    std::string debug_setting = getLayerOption(kLayerSettingsDevsimDebugEnable);
-    debugLevel.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimDebugEnable);
     if (!env_var.empty()) {
-        debug_setting = env_var;
         debugLevel.fromEnvVar = true;
+        debugLevel.num = GetBooleanValue(env_var);
     }
-    debugLevel.num = GetBooleanValue(debug_setting);
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimDebugEnable)) {
+        debugLevel.fromEnvVar = false;
+        debugLevel.num = vku::GetLayerSettingBool(kOurLayerName, kLayerSettingsDevsimDebugEnable);
+    }
 }
 
 // Fill the errorLevel variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimErrorLevel() {
-    std::string error_setting = getLayerOption(kLayerSettingsDevsimExitOnError);
-    errorLevel.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimExitOnError);
     if (!env_var.empty()) {
-        error_setting = env_var;
+        errorLevel.num = GetBooleanValue(env_var);
         errorLevel.fromEnvVar = true;
     }
-    errorLevel.num = GetBooleanValue(error_setting);
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimExitOnError)) {
+        errorLevel.fromEnvVar = false;
+        errorLevel.num = vku::GetLayerSettingBool(kOurLayerName, kLayerSettingsDevsimExitOnError);
+    }
 }
 
 // Fill the emulatePortability variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimEmulatePortability() {
-    std::string emulate_portability = getLayerOption(kLayerSettingsDevsimEmulatePortability);
-    emulatePortability.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimEmulatePortability);
     if (!env_var.empty()) {
-        emulate_portability = env_var;
+        emulatePortability.num = GetBooleanValue(env_var);
         emulatePortability.fromEnvVar = true;
     }
-    emulatePortability.num = GetBooleanValue(emulate_portability);
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimEmulatePortability)) {
+        emulatePortability.fromEnvVar = false;
+        emulatePortability.num = vku::GetLayerSettingBool(kOurLayerName, kLayerSettingsDevsimEmulatePortability);
+    }
 }
 
 // Fill the modifyExtensionList variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimModifyExtensionList() {
-    std::string modify_extension_list = getLayerOption(kLayerSettingsDevsimModifyExtensionList);
-    modifyExtensionList.fromEnvVar = false;
+    std::string modify_extension_list = "";
     std::string env_var = GetEnvarValue(kEnvarDevsimModifyExtensionList);
     if (!env_var.empty()) {
         modify_extension_list = env_var;
         modifyExtensionList.fromEnvVar = true;
+    }
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimModifyExtensionList)) {
+        modify_extension_list = vku::GetLayerSettingString(kOurLayerName, kLayerSettingsDevsimModifyExtensionList);
+        modifyExtensionList.fromEnvVar = false;
     }
     modifyExtensionList.mode = GetArrayCombinationModeValue(modify_extension_list);
 }
@@ -3537,25 +3542,31 @@ static void GetDevSimModifyExtensionList() {
 // Fill the modifyMemoryFlags variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimModifyMemoryFlags() {
-    std::string modify_memory_flags = getLayerOption(kLayerSettingsDevsimModifyMemoryFlags);
-    modifyMemoryFlags.fromEnvVar = false;
     std::string env_var = GetEnvarValue(kEnvarDevsimModifyMemoryFlags);
     if (!env_var.empty()) {
-        modify_memory_flags = env_var;
+        modifyMemoryFlags.num = GetBooleanValue(env_var);
         modifyMemoryFlags.fromEnvVar = true;
     }
-    modifyMemoryFlags.num = GetBooleanValue(modify_memory_flags);
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimModifyMemoryFlags)) {
+        modifyMemoryFlags.fromEnvVar = false;
+        modifyMemoryFlags.num = vku::GetLayerSettingBool(kOurLayerName, kLayerSettingsDevsimModifyMemoryFlags);
+    }
 }
 
 // Fill the modifyFormatList variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimModifyFormatList() {
-    std::string modify_format_list = getLayerOption(kLayerSettingsDevsimModifyFormatList);
-    modifyFormatList.fromEnvVar = false;
+    std::string modify_format_list = "";
     std::string env_var = GetEnvarValue(kEnvarDevsimModifyFormatList);
     if (!env_var.empty()) {
         modify_format_list = env_var;
         modifyFormatList.fromEnvVar = true;
+    }
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimModifyFormatList)) {
+        modifyFormatList.fromEnvVar = false;
+        modify_format_list = vku::GetLayerSettingString(kOurLayerName, kLayerSettingsDevsimModifyFormatList);
     }
     modifyFormatList.mode = GetArrayCombinationModeValue(modify_format_list);
 }
@@ -3563,12 +3574,16 @@ static void GetDevSimModifyFormatList() {
 // Fill the modifyFormatProperties variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimModifyFormatProperties() {
-    std::string modify_format_properties = getLayerOption(kLayerSettingsDevsimModifyFormatProperties);
-    modifyFormatProperties.fromEnvVar = false;
+    std::string modify_format_properties = "";
     std::string env_var = GetEnvarValue(kEnvarDevsimModifyFormatProperties);
     if (!env_var.empty()) {
         modify_format_properties = env_var;
         modifyFormatProperties.fromEnvVar = true;
+    }
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimModifyFormatProperties)) {
+        modifyFormatProperties.fromEnvVar = false;
+        modify_format_properties = vku::GetLayerSettingString(kOurLayerName, kLayerSettingsDevsimModifyFormatProperties);
     }
     modifyFormatProperties.mode = GetArrayCombinationModeValue(modify_format_properties);
 }
@@ -3576,12 +3591,16 @@ static void GetDevSimModifyFormatProperties() {
 // Fill the modifySurfaceFormats variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimModifySurfaceFormats() {
-    std::string modify_surface_formats = getLayerOption(kLayerSettingsDevsimModifySurfaceFormats);
-    modifySurfaceFormats.fromEnvVar = false;
+    std::string modify_surface_formats = "";
     std::string env_var = GetEnvarValue(kEnvarDevsimModifySurfaceFormats);
     if (!env_var.empty()) {
         modify_surface_formats = env_var;
         modifySurfaceFormats.fromEnvVar = true;
+    }
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimModifySurfaceFormats)) {
+        modifySurfaceFormats.fromEnvVar = false;
+        modify_surface_formats = vku::GetLayerSettingString(kOurLayerName, kLayerSettingsDevsimModifySurfaceFormats);
     }
     modifySurfaceFormats.mode = GetArrayCombinationModeValue(modify_surface_formats);
 }
@@ -3589,12 +3608,16 @@ static void GetDevSimModifySurfaceFormats() {
 // Fill the modifyPresentModes variable with a value from either vk_layer_settings.txt or environment variables.
 // Environment variables get priority.
 static void GetDevSimModifyPresentModes() {
-    std::string modify_present_modes = getLayerOption(kLayerSettingsDevsimModifyPresentModes);
-    modifyPresentModes.fromEnvVar = false;
+    std::string modify_present_modes = "";
     std::string env_var = GetEnvarValue(kEnvarDevsimModifyPresentModes);
     if (!env_var.empty()) {
         modify_present_modes = env_var;
         modifyPresentModes.fromEnvVar = true;
+    }
+
+    if (vku::IsLayerSetting(kOurLayerName, kLayerSettingsDevsimModifyPresentModes)) {
+        modifyPresentModes.fromEnvVar = false;
+        modify_present_modes = vku::GetLayerSettingString(kOurLayerName, kLayerSettingsDevsimModifyPresentModes);
     }
     modifyPresentModes.mode = GetArrayCombinationModeValue(modify_present_modes);
 }
