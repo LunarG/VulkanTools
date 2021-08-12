@@ -55,8 +55,15 @@
 
 #include <android/log.h>
 #include <sys/system_properties.h>
+// Disable warning about bitshift precedence
+#pragma GCC diagnostic ignored "-Wshift-op-parentheses"
 
 #endif  // ANDROID
+
+#if defined(WIN32)
+// Disable warning about bitshift precedence
+#pragma warning(disable : 4554)
+#endif
 
 #define MAX_STRING_LENGTH 1024
 
