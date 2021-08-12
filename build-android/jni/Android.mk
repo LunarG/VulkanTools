@@ -18,6 +18,7 @@ LOCAL_PATH := $(call my-dir)
 SRC_DIR := ../..
 LAYER_DIR := ../generated
 THIRD_PARTY := ../third_party
+VKU_DIR := ../third_party
 LVL_DIR := $(THIRD_PARTY)/Vulkan-ValidationLayers
 ANDROID_DIR := $(SRC_DIR)/build-android
 
@@ -27,7 +28,9 @@ LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_config.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_extension_utils.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_utils.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_format_utils.cpp
+LOCAL_SRC_FILES += $(LOCAL_PATH)/vku/vk_layer_settings.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
+                    $(LOCAL_PATH)/vku \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers/generated
