@@ -132,7 +132,7 @@ static LayerSettings vk_layer_settings;
 
 static bool IsEnvironment(const char *variable) {
 #if defined(__ANDROID__)
-    string command = "getprop " + string(variable);
+    std::string command = "getprop " + std::string(variable);
     FILE *pPipe = popen(command.c_str(), "r");
     if (pPipe != nullptr) {
         pclose(pPipe);
@@ -148,7 +148,7 @@ static bool IsEnvironment(const char *variable) {
 
 static std::string GetEnvironment(const char *variable) {
 #if defined(__ANDROID__)
-    string command = "getprop " + string(variable);
+    std::string command = "getprop " + std::string(variable);
     FILE *pPipe = popen(command.c_str(), "r");
     if (pPipe != nullptr) {
         char value[256];
@@ -159,7 +159,7 @@ static std::string GetEnvironment(const char *variable) {
         if (strcspn(value, "\r\n") == 0) {
             return "";
         } else {
-            return string(value);
+            return std::string(value);
         }
     } else {
         return "";
@@ -211,8 +211,8 @@ static inline std::string TrimVendor(const std::string &layer_key) {
     const auto trimmed_beg = namespace_key.find_first_of(separator);
     if (trimmed_beg == std::string::npos) return namespace_key;
 
-    const auto trimmed_end = namespace_key.find_last_not_of(separator);
-    assert(trimmed_end != std::string::npos && trimmed_beg <= trimmed_end);
+    assert(namespace_key.find_last_not_of(separator) != std::string::npos &&
+           trimmed_beg <= namespace_key.find_last_not_of(separator));
 
     return namespace_key.substr(trimmed_beg + 1, namespace_key.size());
 }
@@ -237,7 +237,7 @@ static std::string GetEnvVarKey(const char *layer_key, const char *setting_key, 
             break;
         }
         case TRIM_VENDOR: {
-            result << "debug.vulkan." << GetSettingKey(TrimVendor(layer_key), setting_key);
+            result << "debug.vulkan." << GetSettingKey(TrimVendor(layer_key).c_str(), setting_key);
             break;
         }
         case TRIM_NAMESPACE: {
