@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2015-2016, 2019 Valve Corporation
-# Copyright (c) 2015-2016, 2019 LunarG, Inc.
-# Copyright (c) 2015-2016, 2019 Google Inc.
+# Copyright (c) 2015-2016, 2019, 2021 Valve Corporation
+# Copyright (c) 2015-2016, 2019, 2021 LunarG, Inc.
+# Copyright (c) 2015-2016, 2019, 2021 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,9 +47,9 @@ from collections import namedtuple
 from common_codegen import *
 
 COMMON_CODEGEN = """
-/* Copyright (c) 2015-2016 Valve Corporation
- * Copyright (c) 2015-2016 LunarG, Inc.
- * Copyright (c) 2015-2016 Google Inc.
+/* Copyright (c) 2015-2016, 2021 Valve Corporation
+ * Copyright (c) 2015-2016, 2021 LunarG, Inc.
+ * Copyright (c) 2015-2016, 2021 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2370,8 +2370,12 @@ class VulkanVariable:
         self.lengthMember = False
         lengthString = rootNode.get('len')
         if lengthString is not None:
-            if "ename:" in lengthString:
+            if "ename:" in lengthString or "latexmath:" in lengthString:
                 lengthString = rootNode.get('altlen')
+                # Original form would result in object.(rasterizationSamples + 31)
+                # Count on the fact that + takes precedance over >>
+                if (lengthString == "(rasterizationSamples + 31) / 32"):
+                    lengthString = "rasterizationSamples + 31 >> 5"
         lengths = []
         if lengthString is not None:
             lengths = re.split(',', lengthString)
@@ -2380,16 +2384,6 @@ class VulkanVariable:
             self.childType = '*'.join(self.type.split('*')[0:-1])
             self.arrayLength = lengths[0]
             self.lengthMember = True
-        if self.arrayLength is not None and self.arrayLength.startswith('latexmath'):
-            code = self.arrayLength[10:len(self.arrayLength)]
-            code = re.sub('\\[', '', code)
-            code = re.sub('\\]', '', code)
-            code = re.sub('\\\\(lceil|rceil)', '', code)
-            code = re.sub('{|}', '', code)
-            code = re.sub('\\\\mathit', '', code)
-            code = re.sub('\\\\over', '/', code)
-            code = re.sub('\\\\textrm', '', code)
-            self.arrayLength = code
 
         # Dereference if necessary and handle members of variables
         if self.arrayLength is not None:
