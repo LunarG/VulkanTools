@@ -218,18 +218,86 @@ DevSim config files that use this feature should validate to the portability spe
 
 ### DevSim Layer Options
 
-| Environment Variable | `vk_layer_settings.txt` Option | Android Option | Default | Description |
-|:--------------------:|:------------------------------:|:--------------:|:-------:|:-----------:|
-| `VK_DEVSIM_FILENAME` | `lunarg_device_simulation.filename` | `debug.vulkan.devsim.filepath` | Not Set | Name of one or more configuration file(s) to load. _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`. Files are loaded in order.  Later files can override settings from earlier files.|
-| `VK_DEVSIM_DEBUG_ENABLE` | `lunarg_device_simulation.debug_enable` | debug.vulkan.devsim.debugenable | false | Enables debug message output. |
-| `VK_DEVSIM_EXIT_ON_ERROR` | `lunarg_device_simulation.exit_on_error` | debug.vulkan.devsim.exitonerror | false | Enables exit-on-error. |
-| `VK_DEVSIM_EMULATE_PORTABILITY_SUBSET_EXTENSION` | `lunarg_device_simulation.emulate_portability` | debug.vulkan.devsim.emulateportability | true | Enables emulation of the `VK_KHR_portability_subset` extension. |
-| `VK_DEVSIM_MODIFY_EXTENSION_LIST` | `lunarg_device_simulation.modify_extension_list` | debug.vulkan.devsim.modifyextensionlist | none | Enables modification of the device extensions list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
-| `VK_DEVSIM_MODIFY_MEMORY_FLAGS` | `lunarg_device_simulation.modify_memory_flags` | debug.vulkan.devsim.modifymemoryflags | false | Enables modification of the device memory heap flags and memory type flags from the JSON config file. |
-| `VK_DEVSIM_MODIFY_FORMAT_LIST` | `lunarg_device_simulation.modify_format_list` | debug.vulkan.devsim.modifyformatlist | none | Enables modification of the device format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
-| `VK_DEVSIM_MODIFY_FORMAT_PROPERTIES` | `lunarg_device_simulation.modify_format_properties` | debug.vulkan.devsim.modifyformatproperties | none | Enables modification of the device format properties from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
-| `VK_DEVSIM_MODIFY_SURFACE_FORMATS` | `lunarg_device_simulation.modify_surface_formats` | debug.vulkan.devsim.modifysurfaceformats | none | Enables modification of the device format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
-| `VK_DEVSIM_MODIFY_PRESENT_MODES` | `lunarg_device_simulation.modify_present_modes` | debug.vulkan.devsim.modifypresentmodes | none | Enables modification of the surface present mode list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".|
+#### Devsim JSON configuration file
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_FILENAME`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.filename`
+- Android Option: `debug.vulkan.lunarg_device_simulation.filename`
+- Default Value: Not set
+
+Name of one or more configuration file(s) to load. _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.
+On Windows, the delimiter is `;` else it is `:`. Files are loaded in order.  Later files can override settings from earlier files.
+
+#### Debug Enable
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_DEBUG_ENABLE`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.debug_enable`
+- Android Option: `debug.vulkan.lunarg_device_simulation.debug_enable`
+- Default Value: false
+
+Enables debug message output.
+
+#### Emulate `VK_KHR_portability_subset`
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_EMULATE_PORTABILITY`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.emulate_portability`
+- Android Option: `debug.vulkan.lunarg_device_simulation.emulate_portability`
+- Default Value: false
+
+Enables emulation of the `VK_KHR_portability_subset` extension.
+
+#### Exit on Error
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_EXIT_ON_ERROR`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.exit_on_error`
+- Android Option: `debug.vulkan.lunarg_device_simulation.exit_on_error`
+- Default Value: false
+
+Enables exit-on-error.
+
+#### Modify Device Extension list
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_MODIFY_EXTENSION_LIST`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.modify_extension_list`
+- Android Option: `debug.vulkan.lunarg_device_simulation.modify_extension_list`
+- Default Value: none
+
+ Enables modification of the device extensions list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".
+
+#### Modify Device Memory Flags
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_MODIFY_MEMORY_FLAGS`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.modify_memory_flags`
+- Android Option: `debug.vulkan.lunarg_device_simulation.modify_memory_flags`
+- Default Value: false
+
+Enables modification of the device memory heap flags and memory type flags from the JSON config file.
+
+#### Modify Device Format list
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_MODIFY_FORMAT_LIST`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.modify_format_list`
+- Android Option: `debug.vulkan.lunarg_device_simulation.modify_format_list`
+- Default Value: none
+
+Enables modification of the device format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".
+
+#### Modify Device Format Properties
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_MODIFY_FORMAT_PROPERTIES`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.modify_format_properties`
+- Android Option: `debug.vulkan.lunarg_device_simulation.modify_format_properties`
+- Default Value: none
+
+Enables modification of the device format properties from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".
+
+#### Modify Device Surface Formats
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_MODIFY_SURFACE_FORMATS`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.modify_surface_formats`
+- Android Option: `debug.vulkan.lunarg_device_simulation.modify_surface_formats`
+- Default Value: none
+
+Enables modification of the surface format list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".
+
+#### Modify Device Present Modes
+- Environment Variable: `VK_LUNARG_DEVICE_SIMULATION_MODIFY_PRESENT_MODES`
+- `vk_layer_settings.txt` Option: `lunarg_device_simulation.modify_present_modes`
+- Android Option: `debug.vulkan.lunarg_device_simulation.modify_present_modes`
+- Default Value: none
+
+Enables modification of the surface present mode list from the JSON config file. Valid options are "none", "replace", "whitelist", "blacklist", and "intersect".
 
 **Note:** Environment variables take precedence over `vk_layer_settings.txt` options.
 
