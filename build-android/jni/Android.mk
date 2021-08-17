@@ -18,7 +18,6 @@ LOCAL_PATH := $(call my-dir)
 SRC_DIR := ../..
 LAYER_DIR := ../generated
 THIRD_PARTY := ../third_party
-VKU_DIR := ../third_party
 LVL_DIR := $(THIRD_PARTY)/Vulkan-ValidationLayers
 ANDROID_DIR := $(SRC_DIR)/build-android
 
