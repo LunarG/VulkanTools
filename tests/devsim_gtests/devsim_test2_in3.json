@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
+  "comments": {
+    "url": "https://github.com/LunarG/VulkanTools/tree/master/tests",
+    "desc": "A configuration file fragment for the Device Simulation layer test."
+  },
+  "VkPhysicalDeviceMemoryProperties": {
+    "memoryHeaps": [
+      {
+        "flags": 900002000,
+        "size": 80000002001
+      },
+      {
+        "flags": 900002002,
+        "size": 80000002003
+      },
+      {
+        "flags": 900002004,
+        "size": 80000002005
+      }
+    ],
+    "memoryTypes": [
+      {
+        "heapIndex": 900003001,
+        "propertyFlags": 900003002
+      },
+      {
+        "heapIndex": 900003003,
+        "propertyFlags": 900003004
+      },
+      {
+        "heapIndex": 900003005,
+        "propertyFlags": 900003006
+      },
+      {
+        "heapIndex": 900003007,
+        "propertyFlags": 900003008
+      },
+      {
+        "heapIndex": 900003009,
+        "propertyFlags": 900003010
+      }
+    ]
+  }
+}

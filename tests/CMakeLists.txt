@@ -30,3 +30,5 @@ else()
             )
     endif()
 endif()
+
+add_subdirectory(devsim_gtests)

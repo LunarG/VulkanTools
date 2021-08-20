@@ -216,8 +216,20 @@ macro(run_vulkantools_vk_xml_generate dependency output)
     )
 endmacro()
 
-if(BUILD_TESTS)
-    add_subdirectory(tests)
+if(BUILD_TESTS OR BUILD_LAYERMGR)
+    include_directories(external)
+
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    add_subdirectory(external/googletest)
+    
+    if(BUILD_TESTS)
+        add_subdirectory(tests)
+    endif()
+    
+    if(BUILD_LAYERMGR)
+        add_subdirectory(vkconfig_core)
+        add_subdirectory(vkconfig)
+    endif()
 endif()
 
 if(BUILD_VLF)
@@ -231,16 +243,6 @@ endif()
 add_subdirectory(vku)
 if(BUILD_LAYERSVT)
     add_subdirectory(layersvt)
-endif()
-
-if(BUILD_LAYERMGR)
-    include_directories(external)
-
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    add_subdirectory(external/googletest)
-
-    add_subdirectory(vkconfig_core)
-    add_subdirectory(vkconfig)
 endif()
 
 # uninstall target
