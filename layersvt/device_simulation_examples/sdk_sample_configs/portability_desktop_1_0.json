@@ -108,7 +108,7 @@
             "sampledImageIntegerSampleCounts": 9,
             "sampledImageDepthSampleCounts": 9,
             "sampledImageStencilSampleCounts": 9,
-            "storageImageSampleCounts": 9,
+            "storageImageSampleCounts": 1,
             "maxSampleMaskWords": 1,
             "maxClipDistances": 8,
             "maxCullDistances": 8,
