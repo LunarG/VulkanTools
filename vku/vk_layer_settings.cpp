@@ -131,7 +131,9 @@ class LayerSettings {
 static LayerSettings vk_layer_settings;
 
 static bool IsEnvironment(const char *variable) {
-#if defined(__ANDROID__)
+#if _WIN32
+    return GetEnvironmentVariable(variable, NULL, 0) != 0;
+#elif defined(__ANDROID__)
     std::string command = "getprop " + std::string(variable);
     FILE *pPipe = popen(command.c_str(), "r");
     if (pPipe != nullptr) {
@@ -147,7 +149,17 @@ static bool IsEnvironment(const char *variable) {
 }
 
 static std::string GetEnvironment(const char *variable) {
-#if defined(__ANDROID__)
+#if _WIN32
+    int size = GetEnvironmentVariable(variable, NULL, 0);
+    if (size == 0) {
+        return "";
+    }
+    char *buffer = new char[size];
+    GetEnvironmentVariable(variable, buffer, size);
+    std::string output = buffer;
+    delete[] buffer;
+    return output;
+#elif defined(__ANDROID__)
     std::string command = "getprop " + std::string(variable);
     FILE *pPipe = popen(command.c_str(), "r");
     if (pPipe != nullptr) {
