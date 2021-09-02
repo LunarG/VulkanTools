@@ -39,7 +39,8 @@ Vulkan Configurator is a graphical user interface (GUI) that may be launched fro
 
 The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
-- Linux tarball: The vkconfig executable comes pre-built. Run vkconfig on the command line. 
+- Linux tarball: The vkconfig executable comes pre-built; be sure Qt is installed to run it. Run vkconfig on the command line.
+  - On Ubuntu 20.04 Qt can be installed by running `sudo apt install qt5-default`
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
 - macOS: The tool is provided as an application bundle. Run it by double-clicking the bundle from a Finder window.
 
