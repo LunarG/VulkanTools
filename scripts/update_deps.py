@@ -300,6 +300,9 @@ def command_output(cmd, directory, fail_ok=False):
         print(stdout)
     return stdout
 
+def escape(path):
+    return path.replace('\\', '/')
+
 class GoodRepo(object):
     """Represents a repository at a known-good commit."""
 
@@ -336,6 +339,7 @@ class GoodRepo(object):
         self.ci_only = json['ci_only'] if ('ci_only' in json) else []
         self.build_step = json['build_step'] if ('build_step' in json) else 'build'
         self.build_platforms = json['build_platforms'] if ('build_platforms' in json) else []
+        self.optional = set(json.get('optional', []))
         # Absolute paths for a repo's directories
         dir_top = os.path.abspath(args.dir)
         self.repo_dir = os.path.join(dir_top, self.sub_dir)
@@ -451,7 +455,7 @@ class GoodRepo(object):
 
         # Add any CMake options
         for option in self.cmake_options:
-            cmake_cmd.append(option)
+            cmake_cmd.append(escape(option.format(**self.__dict__)))
 
         # Set build config for single-configuration generators
         if platform.system() == 'Linux' or platform.system() == 'Darwin':
@@ -460,7 +464,7 @@ class GoodRepo(object):
 
         # Use the CMake -A option to select the platform architecture
         # without needing a Visual Studio generator.
-        if platform.system() == 'Windows':
+        if platform.system() == 'Windows' and self._args.generator != "Ninja":
             if self._args.arch.lower() == '64' or self._args.arch == 'x64' or self._args.arch == 'win64':
                 cmake_cmd.append('-A')
                 cmake_cmd.append('x64')
@@ -503,7 +507,7 @@ class GoodRepo(object):
                     print('warning: environment variable MAKE_JOBS has non-numeric value "{}".  '
                           'Using {} (CPU count) instead.'.format(env_make_jobs, num_make_jobs))
             cmake_cmd.append('-j{}'.format(num_make_jobs))
-        if platform.system() == 'Windows':
+        if platform.system() == 'Windows' and self._args.generator != "Ninja":
             cmake_cmd.append('--')
             cmake_cmd.append('/maxcpucount')
 
@@ -533,6 +537,9 @@ class GoodRepo(object):
         # Build and execute CMake command for the build
         self.CMakeBuild()
 
+    def IsOptional(self, opts):
+        if len(self.optional.intersection(opts)) > 0: return True
+        else: return False
 
 def GetGoodRepos(args):
     """Returns the latest list of GoodRepo objects.
@@ -586,8 +593,6 @@ def CreateHelper(args, repos, filename):
     This information is baked into the CMake files of the home repo and so
     this dictionary is kept with the repo via the json file.
     """
-    def escape(path):
-        return path.replace('\\', '\\\\')
     install_names = GetInstallNames(args)
     with open(filename, 'w') as helper_file:
         for repo in repos:
@@ -665,6 +670,12 @@ def main():
         dest='generator',
         help="Set the CMake generator",
         default=None)
+    parser.add_argument(
+        '--optional',
+        dest='optional',
+        type=lambda a: set(a.lower().split(',')),
+        help="Comma-separated list of 'optional' resources that may be skipped. Only 'tests' is currently supported as 'optional'",
+        default=set())
 
     args = parser.parse_args()
     save_cwd = os.getcwd()
@@ -681,6 +692,10 @@ def main():
         # If the repo has a platform whitelist, skip the repo
         # unless we are building on a whitelisted platform.
         if not repo.on_build_platform:
+            continue
+
+        # Skip test-only repos if the --tests option was not passed in
+        if repo.IsOptional(args.optional):
             continue
 
         field_list = ('url',
@@ -730,3 +745,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
