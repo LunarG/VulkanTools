@@ -1270,7 +1270,7 @@ VkResult EnumerateAll(std::vector<T> *vect, std::function<VkResult(uint32_t *, T
 
 // Global variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::mutex global_lock;  // Enforce thread-safety for this layer.
+std::recursive_mutex global_lock;  // Enforce thread-safety for this layer.
 
 uint32_t loader_layer_iface_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
 
@@ -1307,7 +1307,6 @@ class PhysicalDeviceData {
         assert(pd != VK_NULL_HANDLE);
         assert(instance != VK_NULL_HANDLE);
         assert(!Find(pd));                        // Verify this instance does not already exist.
-        assert(global_lock.try_lock() == false);  // Verify mutex is already locked before modifying map_
         const auto result = map_.emplace(pd, PhysicalDeviceData(instance));
         assert(result.second);  // true=insertion, false=replacement
         auto iter = result.first;
@@ -1319,7 +1318,6 @@ class PhysicalDeviceData {
 
     static void Destroy(const VkPhysicalDevice pd) {
         assert(Find(pd));
-        assert(global_lock.try_lock() == false);  // Verify mutex is already locked before modifying map_
         map_.erase(pd);
         DebugPrintf("PhysicalDeviceData::Destroy()\n");
     }
@@ -3665,7 +3663,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
         DebugPrintf("%s currently only supports VK_API_VERSION_1_2 and lower.\n", kOurLayerName);
     }
 
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
 
     if (VK_VERSION_MINOR(requested_version) > 0) {
         get_physical_device_properties2_active = true;
@@ -3686,7 +3684,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
     DebugPrintf("DestroyInstance\n");
 
     if (instance) {
-        std::lock_guard<std::mutex> lock(global_lock);
+        std::lock_guard<std::recursive_mutex> lock(global_lock);
 
         {
             const auto dt = instance_dispatch_table(instance);
@@ -3706,7 +3704,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties *pProperties) {
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
@@ -3949,11 +3947,9 @@ void FillPNextChain(PhysicalDeviceData *physicalDeviceData, void *place) {
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevice,
                                                         VkPhysicalDeviceProperties2KHR *pProperties) {
-    {
-        std::lock_guard<std::mutex> lock(global_lock);
-        const auto dt = instance_dispatch_table(physicalDevice);
-        dt->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
-    }
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+    dt->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
     GetPhysicalDeviceProperties(physicalDevice, &pProperties->properties);
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
     FillPNextChain(pdd, pProperties->pNext);
@@ -3965,7 +3961,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(VkPhysicalDevice phys
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures *pFeatures) {
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
@@ -3977,11 +3973,9 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(VkPhysicalDevice physicalDe
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures2KHR *pFeatures) {
-    {
-        std::lock_guard<std::mutex> lock(global_lock);
-        const auto dt = instance_dispatch_table(physicalDevice);
-        dt->GetPhysicalDeviceFeatures2(physicalDevice, pFeatures);
-    }
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+    dt->GetPhysicalDeviceFeatures2(physicalDevice, pFeatures);
     GetPhysicalDeviceFeatures(physicalDevice, &pFeatures->features);
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
     FillPNextChain(pdd, pFeatures->pNext);
@@ -4025,7 +4019,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char *pLayerName,
                                                                   uint32_t *pCount, VkExtensionProperties *pProperties) {
     VkResult result = VK_SUCCESS;
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
@@ -4056,7 +4050,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice,
                                                              VkPhysicalDeviceMemoryProperties *pMemoryProperties) {
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     // Are there JSON overrides, or should we call down to return the original values?
@@ -4082,11 +4076,9 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice ph
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(VkPhysicalDevice physicalDevice,
                                                               VkPhysicalDeviceMemoryProperties2KHR *pMemoryProperties) {
-    {
-        std::lock_guard<std::mutex> lock(global_lock);
-        const auto dt = instance_dispatch_table(physicalDevice);
-        dt->GetPhysicalDeviceMemoryProperties2(physicalDevice, pMemoryProperties);
-    }
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+    dt->GetPhysicalDeviceMemoryProperties2(physicalDevice, pMemoryProperties);
     GetPhysicalDeviceMemoryProperties(physicalDevice, &pMemoryProperties->memoryProperties);
     if (modifyMemoryFlags.num > 0) {
         PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
@@ -4102,7 +4094,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(VkPhysicalDevic
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice,
                                                                   uint32_t *pQueueFamilyPropertyCount,
                                                                   VkQueueFamilyProperties *pQueueFamilyProperties) {
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     // Are there JSON overrides, or should we call down to return the original values?
@@ -4119,7 +4111,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice physicalDevice,
                                                                       uint32_t *pQueueFamilyPropertyCount,
                                                                       VkQueueFamilyProperties2KHR *pQueueFamilyProperties2) {
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     // Are there JSON overrides, or should we call down to return the original values?
@@ -4152,7 +4144,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(VkPhysicalDev
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format,
                                                              VkFormatProperties *pFormatProperties) {
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     // Are there JSON overrides, or should we call down to return the original values?
@@ -4233,11 +4225,9 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(VkPhysicalDevice ph
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(VkPhysicalDevice physicalDevice, VkFormat format,
                                                               VkFormatProperties2KHR *pFormatProperties) {
-    {
-        std::lock_guard<std::mutex> lock(global_lock);
-        const auto dt = instance_dispatch_table(physicalDevice);
-        dt->GetPhysicalDeviceFormatProperties2(physicalDevice, format, pFormatProperties);
-    }
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+    dt->GetPhysicalDeviceFormatProperties2(physicalDevice, format, pFormatProperties);
     GetPhysicalDeviceFormatProperties(physicalDevice, format, &pFormatProperties->formatProperties);
 }
 
@@ -4246,10 +4236,55 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevic
     GetPhysicalDeviceFormatProperties2(physicalDevice, format, pFormatProperties);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format,
+                                                                      VkImageType type, VkImageTiling tiling,
+                                                                      VkImageUsageFlags usage, VkImageCreateFlags flags,
+                                                                      VkImageFormatProperties *pImageFormatProperties) {
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    // Are there JSON overrides, or should we call down to return the original values?
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    if (pdd->format_list_combination_mode_ == ARRAY_COMBINATION_MODE_NONE) {
+        return dt->GetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags,
+                                                          pImageFormatProperties);
+    }
+
+    VkFormatProperties fmt_props = {};
+    GetPhysicalDeviceFormatProperties(physicalDevice, format, &fmt_props);
+
+    if (!IsFormatSupported(fmt_props)) {
+        *pImageFormatProperties = VkImageFormatProperties{};
+        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+    }
+
+    VkResult result =
+        dt->GetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
+    VkPhysicalDevice physicalDevice, const VkPhysicalDeviceImageFormatInfo2KHR *pImageFormatInfo,
+    VkImageFormatProperties2KHR *pImageFormatProperties) {
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+    dt->GetPhysicalDeviceImageFormatProperties2KHR(physicalDevice, pImageFormatInfo, pImageFormatProperties);
+    return GetPhysicalDeviceImageFormatProperties(physicalDevice, pImageFormatInfo->format, pImageFormatInfo->type,
+                                                  pImageFormatInfo->tiling, pImageFormatInfo->usage, pImageFormatInfo->flags,
+                                                  &pImageFormatProperties->imageFormatProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(VkPhysicalDevice physicalDevice,
+                                                                       const VkPhysicalDeviceImageFormatInfo2 *pImageFormatInfo,
+                                                                       VkImageFormatProperties2 *pImageFormatProperties) {
+    return GetPhysicalDeviceImageFormatProperties2KHR(physicalDevice, pImageFormatInfo, pImageFormatProperties);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
                                                                        VkSurfaceCapabilitiesKHR *pSurfaceCapabilities) {
     VkResult result = VK_SUCCESS;
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     result = dt->GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
@@ -4282,11 +4317,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysica
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(VkPhysicalDevice physicalDevice,
                                                                         VkPhysicalDeviceSurfaceInfo2KHR *pSurfaceInfo,
                                                                         VkSurfaceCapabilities2KHR *pSurfaceCapabilities) {
-    {
-        std::lock_guard<std::mutex> lock(global_lock);
-        const auto dt = instance_dispatch_table(physicalDevice);
-        dt->GetPhysicalDeviceSurfaceCapabilities2KHR(physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
-    }
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+    dt->GetPhysicalDeviceSurfaceCapabilities2KHR(physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
     return GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, pSurfaceInfo->surface,
                                                    &pSurfaceCapabilities->surfaceCapabilities);
 }
@@ -4295,7 +4328,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevi
                                                                   uint32_t *pSurfaceFormatCount,
                                                                   VkSurfaceFormatKHR *pSurfaceFormats) {
     VkResult result = VK_SUCCESS;
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
@@ -4377,7 +4410,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDev
                                                                    uint32_t *pSurfaceFormatCount,
                                                                    VkSurfaceFormat2KHR *pSurfaceFormats) {
     VkResult result = VK_SUCCESS;
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     // Are there JSON overrides, or should we call down to return the original values?
@@ -4488,7 +4521,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(VkPhysica
                                                                        uint32_t *pPresentModeCount,
                                                                        VkPresentModeKHR *pPresentModes) {
     VkResult result = VK_SUCCESS;
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
@@ -4802,7 +4835,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                                                         VkPhysicalDevice *pPhysicalDevices) {
     // Our layer-specific initialization...
 
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(instance);
     VkResult result = dt->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 
@@ -5132,6 +5165,9 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties);
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties2);
     GET_PROC_ADDR(GetPhysicalDeviceFormatProperties2KHR);
+    GET_PROC_ADDR(GetPhysicalDeviceImageFormatProperties);
+    GET_PROC_ADDR(GetPhysicalDeviceImageFormatProperties2);
+    GET_PROC_ADDR(GetPhysicalDeviceImageFormatProperties2KHR);
     GET_PROC_ADDR(GetPhysicalDeviceSurfaceCapabilitiesKHR);
     GET_PROC_ADDR(GetPhysicalDeviceSurfaceCapabilities2KHR);
     GET_PROC_ADDR(GetPhysicalDeviceSurfaceFormatsKHR);
@@ -5144,7 +5180,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
         return nullptr;
     }
 
-    std::lock_guard<std::mutex> lock(global_lock);
+    std::lock_guard<std::recursive_mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(instance);
 
     if (!dt->GetInstanceProcAddr) {
