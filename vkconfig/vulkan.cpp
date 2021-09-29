@@ -24,6 +24,7 @@
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/platform.h"
+#include "../vkconfig_core/override.h"
 
 #include <vulkan/vulkan.h>
 
@@ -139,6 +140,11 @@ std::string GenerateVulkanStatus() {
         return log;
     }
 
+    Configuration *active_configuration = configurator.configurations.GetActiveConfiguration();
+    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+        SurrenderConfiguration(configurator.environment);
+    }
+
     QLibrary library(GetVulkanLibrary());
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
         (PFN_vkEnumerateInstanceLayerProperties)library.resolve("vkEnumerateInstanceLayerProperties");
@@ -241,6 +247,10 @@ std::string GenerateVulkanStatus() {
     }
 
     vkDestroyInstance(inst, NULL);
+
+    if (active_configuration != nullptr) {
+        OverrideConfiguration(configurator.environment, configurator.layers.available_layers, *active_configuration);
+    }
 
     return log;
 }

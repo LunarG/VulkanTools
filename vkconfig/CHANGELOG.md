@@ -11,7 +11,12 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.4.1](https://github.com/LunarG/VulkanTools/tree/master) - September 2021
+## [Vulkan Configurator 2.4.2](https://github.com/LunarG/VulkanTools/tree/master) - November 2021
+
+### Improvements:
+- Discard applied layers configuration to ensure the layers never crash Vulkan Configurator
+
+## [Vulkan Configurator 2.4.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.189.0) - September 2021
 
 ### Fixes:
 - Fix user-defined layer settings not loaded, for older Vulkan API than 1.2.176
