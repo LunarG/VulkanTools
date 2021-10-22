@@ -555,7 +555,7 @@ static void writePPM(const char *filename, VkImage image1) {
     uint32_t const width = imageMap[image1]->imageExtent.width;
     uint32_t const height = imageMap[image1]->imageExtent.height;
     VkFormat const format = imageMap[image1]->format;
-    uint32_t const numChannels = FormatChannelCount(format);
+    uint32_t const numChannels = FormatComponentCount(format);
 
     if ((3 != numChannels) && (4 != numChannels)) {
         assert(0);
