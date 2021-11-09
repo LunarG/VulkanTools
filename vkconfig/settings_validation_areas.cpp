@@ -112,6 +112,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       widget_shader_gpu_reserve(nullptr),
       item_shader_gpu_oob(nullptr),
       widget_shader_gpu_oob(nullptr),
+      item_shader_gpu_desc_indexing(nullptr),
+      widget_shader_gpu_desc_indexing(nullptr),
       item_shader_gpu_indirect(nullptr),
       widget_shader_gpu_indirect(nullptr),
       item_shader_printf(nullptr),
@@ -242,6 +244,23 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
 
             if (this->widget_shader_gpu_reserve != nullptr)
                 this->connect(this->widget_shader_gpu_reserve, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUReserveChecked(bool)));
+
+            {
+                const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "gpuav_descriptor_indexing");
+                if (IsSupported(value)) {
+                    this->item_shader_gpu_desc_indexing = new QTreeWidgetItem();
+                    this->item_shader_gpu_desc_indexing->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                    this->item_shader_gpu->addChild(this->item_shader_gpu_desc_indexing);
+                    this->item_shader_gpu->setExpanded(true);
+
+                    this->widget_shader_gpu_desc_indexing = new QCheckBox(this);
+                    this->widget_shader_gpu_desc_indexing->setText(value->label.c_str());
+                    this->widget_shader_gpu_desc_indexing->setToolTip(value->description.c_str());
+                    this->tree->setItemWidget(this->item_shader_gpu_desc_indexing, 0, this->widget_shader_gpu_desc_indexing);
+                    this->connect(this->widget_shader_gpu_desc_indexing, SIGNAL(clicked(bool)), this,
+                                  SLOT(OnShaderGPUDescIndexingChecked(bool)));
+                }
+            }
 
             {
                 const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "gpuav_buffer_oob");
@@ -508,6 +527,11 @@ void WidgetSettingValidation::OnShaderGPUReserveChecked(bool checked) {
     this->OnSettingChanged();
 }
 
+void WidgetSettingValidation::OnShaderGPUDescIndexingChecked(bool checked) {
+    static_cast<SettingDataBool *>(FindSetting(this->data_set, "gpuav_descriptor_indexing"))->value = checked;
+    this->OnSettingChanged();
+}
+
 void WidgetSettingValidation::OnShaderGPUOOBChecked(bool checked) {
     static_cast<SettingDataBool *>(FindSetting(this->data_set, "gpuav_buffer_oob"))->value = checked;
     this->OnSettingChanged();
@@ -725,6 +749,12 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
                 this->widget_shader_gpu_reserve->setEnabled(shader_gpu);
                 if (refresh_areas == REFRESH_ENABLE_AND_STATE)
                     this->widget_shader_gpu_reserve->setChecked(this->HasDataFlag("enables", TOKEN_SHADER_GPU_RESERVE));
+            }
+
+            if (this->widget_shader_gpu_desc_indexing != nullptr) {
+                this->widget_shader_gpu_desc_indexing->setEnabled(shader_gpu);
+                if (refresh_areas == REFRESH_ENABLE_AND_STATE)
+                    this->widget_shader_gpu_desc_indexing->setChecked(this->HasDataBool("gpuav_descriptor_indexing"));
             }
 
             if (this->widget_shader_gpu_oob != nullptr) {

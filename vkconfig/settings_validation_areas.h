@@ -93,6 +93,9 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_shader_gpu_oob;
     QCheckBox *widget_shader_gpu_oob;
 
+    QTreeWidgetItem *item_shader_gpu_desc_indexing;
+    QCheckBox *widget_shader_gpu_desc_indexing;
+
     QTreeWidgetItem *item_shader_gpu_indirect;
     QCheckBox *widget_shader_gpu_indirect;
 
@@ -143,6 +146,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
 
     void OnShaderGPUChecked(bool checked);
     void OnShaderGPUReserveChecked(bool checked);
+    void OnShaderGPUDescIndexingChecked(bool checked);
     void OnShaderGPUOOBChecked(bool checked);
     void OnShaderGPUIndirectChecked(bool checked);
 
