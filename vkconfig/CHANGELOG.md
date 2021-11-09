@@ -16,6 +16,9 @@
 ### Improvements:
 - Discard applied layers configuration to ensure the layers never crash Vulkan Configurator
 
+### Fixes:
+- Fix 'Edit Layers' button being enabled when there is no active copnfiguration #1616
+
 ## [Vulkan Configurator 2.4.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.189.0) - September 2021
 
 ### Fixes:
