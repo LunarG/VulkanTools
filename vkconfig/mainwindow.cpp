@@ -195,11 +195,11 @@ void MainWindow::UpdateUI() {
     }
 
     // Update settings
-    ui->push_button_select_layers->setEnabled(environment.UseOverride() && !active_contiguration_name.empty());
-    ui->push_button_find_layers->setEnabled(environment.UseOverride() && !active_contiguration_name.empty());
+    ui->push_button_select_layers->setEnabled(environment.UseOverride() && has_active_configuration);
+    ui->push_button_find_layers->setEnabled(environment.UseOverride());
     ui->settings_tree->setEnabled(environment.UseOverride() && has_active_configuration);
-    ui->group_box_settings->setTitle(active_contiguration_name.empty() ? "Configuration Settings"
-                                                                       : (active_contiguration_name + " Settings").c_str());
+    ui->group_box_settings->setTitle(has_active_configuration ? (active_contiguration_name + " Settings").c_str()
+                                                              : "Configuration Settings");
 
     // Handle application lists states
     ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && environment.UseOverride());
