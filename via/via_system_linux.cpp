@@ -574,7 +574,7 @@ bool ViaSystemLinux::ReadDriverJson(std::string cur_driver_json, bool &found_lib
                     found_lib = true;
                     could_load = VerifyOpen(query_res, load_error);
                 }
-                fclose(fp);
+                pclose(fp);
             }
         } else if (!could_load) {
             PrintBeginTableRow();
