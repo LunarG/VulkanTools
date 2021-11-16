@@ -49,6 +49,8 @@ class ApplicationsDialog : public QDialog {
     void itemChanged(QTreeWidgetItem *item, int column_index);
     void itemClicked(bool clicked);
 
+    void editAppName(const QString &name);
+    void editExecutable(const QString &name);
     void editCommandLine(const QString &cmd_line);
     void editWorkingFolder(const QString &working_folder);
     void editLogFile(const QString &log_file);

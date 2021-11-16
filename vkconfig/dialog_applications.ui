@@ -102,7 +102,33 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="label_1">
+        <property name="text">
+         <string>Application:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="lineEditAppName"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Executable:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEditExecutable"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Working Folder:</string>
         </property>
@@ -111,8 +137,11 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEditWorkingFolder"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Command Line Arguments:</string>
         </property>
@@ -121,14 +150,11 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEditWorkingFolder"/>
-      </item>
-      <item row="1" column="1">
+      <item row="3" column="1">
        <widget class="QLineEdit" name="lineEditCmdArgs"/>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_3">
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Log File</string>
         </property>
@@ -137,7 +163,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="4" column="1">
        <widget class="QLineEdit" name="lineEditLogFile"/>
       </item>
      </layout>

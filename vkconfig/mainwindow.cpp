@@ -69,10 +69,12 @@ MainWindow::MainWindow(QWidget *parent)
       _launch_application(nullptr),
       _log_file(nullptr),
       _launcher_apps_combo(nullptr),
+      _launcher_executable(nullptr),
       _launcher_arguments(nullptr),
       _launcher_working(nullptr),
       _launcher_log_file_edit(nullptr),
       _launcher_apps_browse_button(nullptr),
+      _launcher_executable_browse_button(nullptr),
       _launcher_working_browse_button(nullptr),
       _launcher_log_file_browse_button(nullptr),
       ui(new Ui::MainWindow),
@@ -211,16 +213,18 @@ void MainWindow::UpdateUI() {
 
     const std::vector<Application> &applications = environment.GetApplications();
     if (applications.empty()) {
+        _launcher_executable->setText("");
         _launcher_arguments->setText("");
         _launcher_working->setText("");
         _launcher_log_file_edit->setText("");
     } else {
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-            _launcher_apps_combo->addItem(applications[i].executable_path.c_str());
+            _launcher_apps_combo->addItem(applications[i].app_name.c_str());
         }
         _launcher_apps_combo->setCurrentIndex(environment.GetActiveApplicationIndex());
 
         const Application &application = environment.GetActiveApplication();
+        _launcher_executable->setText(application.executable_path.c_str());
         _launcher_arguments->setText(application.arguments.c_str());
         _launcher_working->setText(application.working_folder.c_str());
         _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
@@ -240,6 +244,9 @@ void MainWindow::UpdateUI() {
     ui->launcher_loader_debug->setCurrentIndex(environment.GetLoaderMessage());
 
     // ui->launcher_loader_debug
+    if (_launcher_executable_browse_button) {
+        _launcher_executable_browse_button->setEnabled(has_application_list);
+    }
     if (_launcher_working_browse_button) {
         _launcher_working_browse_button->setEnabled(has_application_list);
     }
@@ -248,6 +255,9 @@ void MainWindow::UpdateUI() {
     }
     if (_launcher_apps_combo) {
         _launcher_apps_combo->setEnabled(has_application_list);
+    }
+    if (_launcher_executable) {
+        _launcher_executable->setEnabled(has_application_list);
     }
     if (_launcher_arguments) {
         _launcher_arguments->setEnabled(has_application_list);
@@ -921,9 +931,9 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
 }
 
 void MainWindow::SetupLauncherTree() {
-    // Executable
+    // App Name
     QTreeWidgetItem *launcher_parent = new QTreeWidgetItem();
-    launcher_parent->setText(0, "Executable Path");
+    launcher_parent->setText(0, "Application");
     ui->launcher_tree->addTopLevelItem(launcher_parent);
 
     _launcher_apps_combo = new QComboBox();
@@ -940,6 +950,27 @@ void MainWindow::SetupLauncherTree() {
     ui->launcher_tree->setItemWidget(launcher_parent, 2, _launcher_apps_browse_button);
     connect(_launcher_apps_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
     connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
+
+    // Executable
+    QTreeWidgetItem *launcher_executable_item = new QTreeWidgetItem();
+    launcher_executable_item->setText(0, "Executable");
+    launcher_parent->addChild(launcher_executable_item);
+
+    _launcher_executable = new QLineEdit();
+    _launcher_executable->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    _launcher_executable->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui->launcher_tree->setItemWidget(launcher_executable_item, 1, _launcher_executable);
+    _launcher_executable->setReadOnly(false);
+
+    _launcher_executable_browse_button = new QPushButton();
+    _launcher_executable_browse_button->setText("...");
+    _launcher_executable_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    _launcher_executable_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+    _launcher_executable_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+    _launcher_executable_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+    ui->launcher_tree->setItemWidget(launcher_executable_item, 2, _launcher_executable_browse_button);
+    connect(_launcher_executable, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeExecutable(const QString &)));
+    connect(_launcher_executable_browse_button, SIGNAL(clicked()), this, SLOT(launchSetExecutable()));
 
     // Working folder
     QTreeWidgetItem *launcher_folder_item = new QTreeWidgetItem();
@@ -959,6 +990,7 @@ void MainWindow::SetupLauncherTree() {
     _launcher_working_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
     _launcher_working_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launcher_tree->setItemWidget(launcher_folder_item, 2, _launcher_working_browse_button);
+    connect(_launcher_working, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeWorkingFolder(const QString &)));
     connect(_launcher_working_browse_button, SIGNAL(clicked()), this, SLOT(launchSetWorkingFolder()));
 
     // Command line arguments
@@ -982,7 +1014,6 @@ void MainWindow::SetupLauncherTree() {
     _launcher_log_file_edit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launcher_tree->setItemWidget(launcher_log_file_item, 1, _launcher_log_file_edit);
     connect(_launcher_log_file_edit, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeLogFile(const QString &)));
-    connect(_launcher_working, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeWorkingFolder(const QString &)));
 
     _launcher_log_file_browse_button = new QPushButton();
     _launcher_log_file_browse_button->setText("...");
@@ -992,8 +1023,8 @@ void MainWindow::SetupLauncherTree() {
     connect(_launcher_log_file_browse_button, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
 
     // Launcher tree
-    ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
-    ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
+    ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
+    ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
 
     ui->launcher_tree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
     ui->launcher_tree->setColumnWidth(
@@ -1012,8 +1043,8 @@ void MainWindow::SetupLauncherTree() {
 // Expanding the tree also grows the tree to match
 void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
     (void)item;
-    ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
-    ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 4 + 6);
+    ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
+    ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
     Configurator::Get().environment.Set(LAYOUT_LAUNCHER_COLLAPSED, QByteArray("false"));
 }
 
@@ -1032,6 +1063,21 @@ void MainWindow::OnLauncherLoaderMessageChanged(int level) {
     configurator.request_vulkan_status = true;
 
     this->UpdateUI();
+}
+
+void MainWindow::launchSetExecutable() {
+    int current_application_index = _launcher_apps_combo->currentIndex();
+    assert(current_application_index >= 0);
+
+    Configurator &configurator = Configurator::Get();
+    Application &application = configurator.environment.GetApplication(current_application_index);
+    const std::string exe = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, application.executable_path.c_str());
+
+    // The user has cancel the operation
+    if (exe.empty()) return;
+
+    application.executable_path = exe;
+    _launcher_executable->setText(exe.c_str());
 }
 
 void MainWindow::launchSetLogFile() {
@@ -1071,6 +1117,14 @@ void MainWindow::launchChangeLogFile(const QString &log_file) {
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
     application.log_file = log_file.toStdString();
+}
+
+void MainWindow::launchChangeExecutable(const QString &exe) {
+    int current_application_index = _launcher_apps_combo->currentIndex();
+    assert(current_application_index >= 0);
+
+    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+    application.executable_path = exe.toStdString();
 }
 
 void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
@@ -1408,8 +1462,10 @@ void MainWindow::on_push_button_launcher_clicked() {
 
     const std::string actual_log_file = ReplaceBuiltInVariable(active_application.log_file.c_str());
 
+    assert(!active_application.app_name.empty());
+    launch_log += format("- Application: %s\n", active_application.app_name.c_str());
     assert(!active_application.executable_path.empty());
-    launch_log += format("- Executable Path: %s\n", active_application.executable_path.c_str());
+    launch_log += format("- Executable: %s\n", active_application.executable_path.c_str());
     assert(!active_application.working_folder.empty());
     launch_log += format("- Working Directory: %s\n", active_application.working_folder.c_str());
     if (!active_application.arguments.empty())

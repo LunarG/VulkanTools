@@ -26,8 +26,9 @@
 
 struct Application {
     Application() {}
-    Application(const std::string& executable_full_path, const std::string& arguments);
+    Application(const std::string& name, const std::string& executable_full_path, const std::string& arguments);
 
+    std::string app_name;
     Path executable_path;
     Path working_folder;
     std::string arguments;
