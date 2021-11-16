@@ -832,6 +832,8 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     item->configuration_name = duplicated_configuration.key;
 
+    this->SetActiveConfiguration(duplicated_configuration.key);
+
     LoadConfigurationList();
 
     ConfigurationListItem *new_item = nullptr;
