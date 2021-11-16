@@ -131,8 +131,6 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
 
-    SetActiveConfiguration(available_layers, configuration.key);
-
     return *FindByKey(this->available_configurations, configuration.key.c_str());
 }
 
