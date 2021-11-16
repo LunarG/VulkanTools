@@ -85,10 +85,12 @@ class MainWindow : public QMainWindow {
     ConfigurationListItem *GetCheckedItem();
 
     QComboBox *_launcher_apps_combo;
+    QLineEdit *_launcher_executable;
     QLineEdit *_launcher_arguments;
     QLineEdit *_launcher_working;
     QLineEdit *_launcher_log_file_edit;
     QPushButton *_launcher_apps_browse_button;
+    QPushButton *_launcher_executable_browse_button;
     QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_browse_button;
 
@@ -125,8 +127,10 @@ class MainWindow : public QMainWindow {
     void launchItemCollapsed(QTreeWidgetItem *item);
     void launchItemChanged(int index);
     void launchSetLogFile();
+    void launchSetExecutable();
     void launchSetWorkingFolder();
     void launchChangeLogFile(const QString &new_text);
+    void launchChangeExecutable(const QString &new_text);
     void launchChangeWorkingFolder(const QString &new_text);
     void launchArgsEdited(const QString &new_text);
 

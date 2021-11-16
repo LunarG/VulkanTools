@@ -276,10 +276,19 @@ bool Environment::LoadApplications() {
                     const QJsonObject& app_object = app_value.toObject();
 
                     Application application;
+                    application.app_name = app_object.value("app_name").toString().toStdString();
                     application.executable_path = app_object.value("app_path").toString().toStdString();
                     application.working_folder = app_object.value("app_folder").toString().toStdString();
                     application.override_layers = !app_object.value("exclude_override").toBool();
                     application.log_file = app_object.value("log_file").toString().toStdString();
+                    if (application.app_name.length() == 0) {
+                       std::string path = application.executable_path.c_str();
+                       if (path.find(GetNativeSeparator()) != std::string::npos) {
+                           application.app_name = path.substr(path.rfind(GetNativeSeparator()) + 1);
+                       } else {
+                           application.app_name = path;
+                       }
+                    }
 
                     // Arguments are in an array to make room for adding more in a future version
                     const QJsonArray& args = app_object.value("command_lines").toArray();
@@ -341,6 +350,7 @@ bool Environment::SaveApplications() const {
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         // Build an array of appnames with associated data
         QJsonObject application_object;
+        application_object.insert("app_name", applications[i].app_name.c_str());
         application_object.insert("app_path", applications[i].executable_path.c_str());
         application_object.insert("app_folder", applications[i].working_folder.c_str());
         application_object.insert("exclude_override", !applications[i].override_layers);
@@ -351,7 +361,7 @@ bool Environment::SaveApplications() const {
         argsArray.append(QJsonValue(applications[i].arguments.c_str()));
 
         application_object.insert("command_lines", argsArray);
-        root.insert(QFileInfo(applications[i].executable_path.c_str()).fileName(), application_object);
+        root.insert(QFileInfo(applications[i].app_name.c_str()).fileName(), application_object);
     }
 
     const std::string& app_list_json = GetPath(BUILTIN_PATH_APPLIST);
@@ -370,12 +380,12 @@ bool Environment::SaveApplications() const {
 void Environment::SelectActiveApplication(std::size_t application_index) {
     assert(application_index < applications.size());
 
-    Set(ACTIVE_APPLICATION, applications[application_index].executable_path.c_str());
+    Set(ACTIVE_APPLICATION, applications[application_index].app_name.c_str());
 }
 
 int Environment::GetActiveApplicationIndex() const {
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        if (applications[i].executable_path.c_str() == Get(ACTIVE_APPLICATION)) {
+        if (applications[i].app_name.c_str() == Get(ACTIVE_APPLICATION)) {
             return static_cast<int>(i);
         }
     }
@@ -421,7 +431,7 @@ const Application& Environment::GetActiveApplication() const {
     assert(!applications.empty());
 
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        if (applications[i].executable_path.c_str() == Get(ACTIVE_APPLICATION)) {
+        if (applications[i].app_name.c_str() == Get(ACTIVE_APPLICATION)) {
             return applications[i];
         }
     }
@@ -644,18 +654,19 @@ static std::string GetDefaultExecutablePath(const std::string& executable_name) 
 }
 
 struct DefaultApplication {
+    std::string name;
     std::string key;
     std::string arguments;
 };
 
-static const DefaultApplication defaults_applications[] = {{ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
-                                                           {ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
+static const DefaultApplication defaults_applications[] = {{"vkcube", ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
+                                                           {"vkcubepp", ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
 
 static Application CreateDefaultApplication(const DefaultApplication& default_application) {
     const std::string executable_path = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
     if (executable_path.empty()) Application();  // application could not be found..
 
-    Application application(executable_path, "--suppress_popups");
+    Application application(default_application.name, executable_path, default_application.arguments);
 
     // On all operating systems, but Windows we keep running into problems with this ending up
     // somewhere the user isn't allowed to create and write files. For consistncy sake, the log

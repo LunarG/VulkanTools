@@ -62,8 +62,8 @@ TEST(test_environment, remove_missing_applications) {
     ASSERT_TRUE(result);
 
     std::vector<Application> applications;
-    applications.push_back(Application("my_missing_executable", ""));
-    applications.push_back(Application("my_exciting_executable", ""));
+    applications.push_back(Application("missing", "my_missing_executable", ""));
+    applications.push_back(Application("exciting", "my_exciting_executable", ""));
 
     EXPECT_EQ(1, RemoveMissingApplications(applications).size());
 }

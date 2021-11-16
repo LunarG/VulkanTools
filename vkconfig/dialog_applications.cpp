@@ -57,6 +57,8 @@ ApplicationsDialog::ApplicationsDialog(QWidget *parent)
     connect(ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
             SLOT(selectedPathChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(itemChanged(QTreeWidgetItem *, int)));
+    connect(ui->lineEditAppName, SIGNAL(textEdited(const QString &)), this, SLOT(editAppName(const QString &)));
+    connect(ui->lineEditExecutable, SIGNAL(textEdited(const QString &)), this, SLOT(editExecutable(const QString &)));
     connect(ui->lineEditCmdArgs, SIGNAL(textEdited(const QString &)), this, SLOT(editCommandLine(const QString &)));
     connect(ui->lineEditWorkingFolder, SIGNAL(textEdited(const QString &)), this, SLOT(editWorkingFolder(const QString &)));
     connect(ui->lineEditLogFile, SIGNAL(textEdited(const QString &)), this, SLOT(editLogFile(const QString &)));
@@ -119,7 +121,14 @@ void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test applicatio
             ExactExecutableFromAppBundle(executable_full_path);
         }
 
-        Application new_application(executable_full_path, "");
+        std::string app_name;
+        if (executable_full_path.find(GetNativeSeparator()) != std::string::npos) {
+            app_name = executable_full_path.substr(executable_full_path.rfind(GetNativeSeparator()) + 1);
+        } else {
+            app_name = executable_full_path;
+        }
+
+        Application new_application(app_name, executable_full_path, "");
         configurator.environment.AppendApplication(new_application);
 
         QTreeWidgetItem *item = CreateApplicationItem(new_application);
@@ -137,12 +146,12 @@ QTreeWidgetItem *ApplicationsDialog::CreateApplicationItem(const Application &ap
     ui->treeWidget->addTopLevelItem(item);
 
     if (configurator.environment.UseApplicationListOverrideMode()) {
-        QCheckBox *check_box = new QCheckBox(application.executable_path.c_str());
+        QCheckBox *check_box = new QCheckBox(application.app_name.c_str());
         check_box->setChecked(application.override_layers);
         ui->treeWidget->setItemWidget(item, 0, check_box);
         connect(check_box, SIGNAL(clicked(bool)), this, SLOT(itemClicked(bool)));
     } else {
-        item->setText(0, application.executable_path.c_str());
+        item->setText(0, application.app_name.c_str());
     }
 
     return item;
@@ -163,6 +172,8 @@ void ApplicationsDialog::on_pushButtonRemove_clicked() {
     ui->groupLaunchInfo->setEnabled(false);
     ui->pushButtonRemove->setEnabled(false);
     ui->pushButtonSelect->setEnabled(false);
+    ui->lineEditAppName->setText("");
+    ui->lineEditExecutable->setText("");
     ui->lineEditCmdArgs->setText("");
     ui->lineEditWorkingFolder->setText("");
     ui->lineEditLogFile->setText("");
@@ -194,14 +205,18 @@ void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTre
     ui->pushButtonSelect->setEnabled(application_index >= 0);
 
     if (application_index < 0) {
+        ui->lineEditAppName->setText("");
+        ui->lineEditExecutable->setText("");
         ui->lineEditCmdArgs->setText("");
         ui->lineEditWorkingFolder->setText("");
-        ui->lineEditWorkingFolder->setText("");
+        ui->lineEditLogFile->setText("");
         return;
     }
 
     const Application &application = Configurator::Get().environment.GetApplication(application_index);
 
+    ui->lineEditAppName->setText(application.app_name.c_str());
+    ui->lineEditExecutable->setText(application.executable_path.c_str());
     ui->lineEditWorkingFolder->setText(application.working_folder.c_str());
     ui->lineEditCmdArgs->setText(application.arguments.c_str());
     ui->lineEditLogFile->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
@@ -234,6 +249,22 @@ void ApplicationsDialog::itemClicked(bool clicked) {
         assert(check_box != nullptr);
         environment.GetApplication(i).override_layers = check_box->isChecked();
     }
+}
+
+void ApplicationsDialog::editAppName(const QString &name) {
+    QTreeWidgetItem *current = ui->treeWidget->currentItem();
+    _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
+    if (_last_selected_application_index < 0) return;
+
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).app_name = name.toStdString();
+}
+
+void ApplicationsDialog::editExecutable(const QString &executable) {
+    QTreeWidgetItem *current = ui->treeWidget->currentItem();
+    _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(current);
+    if (_last_selected_application_index < 0) return;
+
+    Configurator::Get().environment.GetApplication(_last_selected_application_index).executable_path = executable.toStdString();
 }
 
 void ApplicationsDialog::editCommandLine(const QString &cmdLine) {
