@@ -48,6 +48,49 @@ Vulkan Configurator may be used with command line arguments to averride layers. 
 
 ![Vulkan Configurator Animated Presentation](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/presentation.gif)
 
+
+### Selecting an Application
+
+The typical use-case for VkConfig is to make changes and run applications while the tool is still open so
+that any changes made are not carried over when the tool exits.
+Because of this, VkConfig has an application launcher built in which allows you to select which
+application to run.
+
+![Application Selection](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig_applications_collapsed.png)
+
+Select between any previously-defined applications by clicking the down-facing error on the right of
+the application line.
+The application selection can also be expanded so the application name, executable path, command-line
+arguments, and even the log file can be edited.
+To edit these fields in-place, expand the application area by simply expanding the arrow to the left of
+the word "Application".
+
+![Application Selection Expanded](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig_applications_expanded.png)
+
+To add or further edit an application in the launcher, click the 3 periods (`...`) to the far right
+of the application field.
+This will expand to an application dialog where applications can be added, edited, or removed.
+
+![Application Dialog](https://github.com/LunarG/VulkanTools/blob/master/vkconfig/images/vkconfig_applications_dialog.png)
+
+
+### Applications Listed by Name
+
+Applications are now listed by name so the same application can be added with different names and
+different command-line arguments.
+
+For example, "Rise of the Tomb Raider" and "Half-Life 2" are both available through Valve's Steam
+store.
+In order to run both application's, the `steam` executable must first be run, but with different
+arguments.
+Because applications are now listed by name, it is now possible to add both to the Application list so
+they can be triggered individually.
+This removes the need to edit the command-line when switching between them previously.
+
+This may also prove useful if running the same application with one or more different command-line
+arguments.
+
+
 --------------
 ## Terminology
 
