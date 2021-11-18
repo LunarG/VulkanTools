@@ -1144,8 +1144,9 @@ void MainWindow::launchItemChanged(int application_index) {
     environment.SelectActiveApplication(application_index);
 
     Application &application = environment.GetApplication(application_index);
-    _launcher_arguments->setText(application.arguments.c_str());
+    _launcher_executable->setText(application.executable_path.c_str());
     _launcher_working->setText(application.working_folder.c_str());
+    _launcher_arguments->setText(application.arguments.c_str());
     _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
 }
 
