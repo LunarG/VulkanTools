@@ -334,6 +334,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         const QJsonObject& json_setting = json_array[i].toObject();
 
         const std::string key = ReadStringValue(json_setting, "key");
+        const std::string desc = ReadStringValue(json_setting, "description");
         const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
         SettingMeta* setting_meta = Instantiate(settings, key, type);
         setting_meta->platform_flags = parent == nullptr ? this->platforms : parent->platform_flags;

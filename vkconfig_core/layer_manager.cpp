@@ -117,6 +117,39 @@ void LayerManager::LoadAllInstalledLayers() {
     }
 }
 
+// Load a single layer
+void LayerManager::LoadLayer(const std::string &layer_name) {
+    available_layers.clear();
+
+    // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
+    const std::vector<std::string> &env_user_defined_layers_paths =
+        environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV);
+    for (std::size_t i = 0, n = env_user_defined_layers_paths.size(); i < n; ++i) {
+        if (LoadLayerFromPath(layer_name, env_user_defined_layers_paths[i]))
+            return;
+    }
+
+    // SECOND: Any user-defined path from Vulkan Configurator? Search for those too
+    const std::vector<std::string> &gui_user_defined_layers_paths =
+        environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+    for (std::size_t i = 0, n = gui_user_defined_layers_paths.size(); i < n; ++i) {
+        if (LoadLayerFromPath(layer_name, gui_user_defined_layers_paths[i]))
+            return;
+    }
+
+    // THIRD: Standard layer paths, in standard locations. The above has always taken precedence.
+    for (std::size_t i = 0, n = countof(SEARCH_PATHS); i < n; i++) {
+        if (LoadLayerFromPath(layer_name, SEARCH_PATHS[i]))
+            return;
+    }
+
+    // FOURTH: See if thee is anyting in the VULKAN_SDK path that wasn't already found elsewhere
+    if (!qgetenv("VULKAN_SDK").isEmpty()) {
+        if (LoadLayerFromPath(layer_name, GetPath(BUILTIN_PATH_EXPLICIT_LAYERS)))
+            return;
+    }
+}
+
 /// Search a folder and load up all the layers found there. This does NOT
 /// load the default settings for each layer. This is just a master list of
 /// layers found. Do NOT load duplicate layer names. The type of layer (explicit or implicit) is
@@ -161,4 +194,35 @@ void LayerManager::LoadLayersFromPath(const std::string &path) {
             available_layers.push_back(layer);
         }
     }
+}
+
+// Attempt to load the named layer from the given path
+bool LayerManager::LoadLayerFromPath(const std::string &layer_name, const std::string &path) {
+
+    LayerType type = LAYER_TYPE_USER_DEFINED;
+    if (QString(path.c_str()).contains("explicit", Qt::CaseInsensitive)) type = LAYER_TYPE_EXPLICIT;
+    if (QString(path.c_str()).contains("implicit", Qt::CaseInsensitive)) type = LAYER_TYPE_IMPLICIT;
+
+    PathFinder file_list;
+
+    if (VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+        // On Linux/Mac, we also need the home folder
+        std::string search_path = path;
+        if (path[0] == '.') {
+            search_path = QDir().homePath().toStdString() + "/" + path;
+        }
+        file_list = PathFinder(search_path, true);
+    }
+
+    for (int i = 0, n = file_list.FileCount(); i < n; ++i) {
+        Layer layer;
+        if (layer.Load(available_layers, file_list.GetFileName(i).c_str(), type)) {
+            // Add this layer if the layer name matches, then return
+            if (layer_name == layer.key) {
+               available_layers.push_back(layer);
+               return true;
+            }
+        }
+    }
+    return false;
 }

@@ -169,7 +169,7 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
         stream << "\n";
-        stream << "# " << layer->key.c_str() << "\n";
+        stream << "# " << layer->key.c_str() << "\n\n";
 
         std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
 
@@ -182,19 +182,47 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 continue;
             }
 
-            // Skip settings with dependence not met
-            if (!::CheckDependence(*meta, parameter.settings)) {
-                continue;
-            }
-
             // Skip overriden settings
             if (::CheckSettingOverridden(*meta)) {
                 continue;
             }
 
+            stream << "# ";
+            stream << meta->label.c_str();
+            stream << "\n# =====================\n# <LayerIdentifier>.";
+            stream << meta->key.c_str() << "\n";
+
+            // Break up description into smaller words
+            std::string description = meta->description;
+            std::vector<std::string> words;
+            int pos;
+            while ((pos = description.find(" ")) != std::string::npos) {
+                words.push_back(description.substr(0, pos));
+                description.erase(0, pos+1);
+            }
+            if (description.size() > 0) words.push_back(description);
+            if (words.size() > 0) {
+               stream << "#";
+               int nchars = 2;
+               for (auto word : words) {
+                   if (word.size() + nchars > 80) {
+                       stream << "\n#";
+                       nchars = 2;
+                   }
+                   stream << " " << word.c_str();
+                   nchars += (word.size()+1);
+               }
+            }
+            stream << "\n";
+
+            // If feature has unmet dependency, output it but comment it out
+            if (!::CheckDependence(*meta, parameter.settings)) {
+                stream << "#";
+            }
+
             stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
             stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
-            stream << "\n";
+            stream << "\n\n";
         }
     }
     file.close();

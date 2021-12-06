@@ -15,14 +15,11 @@
  * limitations under the License.
  *
  * Authors:
- * - Christophe Riccio <christophe@lunarg.com>
+ * - David Pinedo <david@lunarg.com>
  */
 
-#include "layer.h"
-#include "environment.h"
-#include "configuration.h"
+#pragma once
 
-void ExportHtmlDoc(const Layer& layer, const std::string& path);
+#include "../vkconfig_core/command_line.h"
 
-void ExportSettingsDoc(const Environment& environment, const std::vector<Layer>& available_layers,
-                       const Configuration& configuration, const std::string& path);
+int run_doc(const CommandLine& commandLine);

@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-enum CommandType { COMMAND_NONE = 0, COMMAND_SHOW_USAGE, COMMAND_VERSION, COMMAND_GUI, COMMAND_RESET, COMMAND_LAYERS };
+enum CommandType { COMMAND_NONE = 0, COMMAND_SHOW_USAGE, COMMAND_VERSION, COMMAND_GUI, COMMAND_RESET, COMMAND_LAYERS, COMMAND_DOC};
 
 enum CommandLayersArg {
     COMMAND_LAYERS_NONE = 0,
@@ -32,6 +32,12 @@ enum CommandLayersArg {
     COMMAND_LAYERS_SURRENDER,
     COMMAND_LAYERS_LIST,
     COMMAND_LAYERS_VERBOSE
+};
+
+enum CommandDocArg {
+    COMMAND_DOC_NONE = 0,
+    COMMAND_DOC_HTML,
+    COMMAND_DOC_SETTINGS
 };
 
 enum CommandResetArg { COMMAND_RESET_NONE = 0, COMMAND_RESET_SOFT, COMMAND_RESET_HARD };
@@ -46,7 +52,7 @@ enum CommandError {
     ERROR_FILE_NOTFOUND
 };
 
-enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_GUI, HELP_LAYERS, HELP_RESET };
+enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_GUI, HELP_LAYERS, HELP_DOC, HELP_RESET };
 
 class CommandLine {
    public:
@@ -59,6 +65,8 @@ class CommandLine {
     const CommandResetArg& command_reset_arg;
     const CommandLayersArg& command_layers_arg;
     const std::string& layers_configuration_path;
+    const CommandDocArg& command_doc_arg;
+    const std::string& doc_layer_name;
 
     const CommandError& error;
     const std::vector<std::string>& error_args;
@@ -71,6 +79,8 @@ class CommandLine {
     CommandResetArg _command_reset_arg;
     CommandLayersArg _command_layers_arg;
     std::string _layers_configuration_path;
+    CommandDocArg _command_doc_arg;
+    std::string _doc_layer_name;
 
     CommandError _error;
     std::vector<std::string> _error_args;

@@ -20,6 +20,7 @@
 
 #include "doc.h"
 #include "setting_flags.h"
+#include "override.h"
 
 #include <QFileInfo>
 
@@ -262,7 +263,17 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         file.write(text.c_str());
         file.close();
+        printf("vkconfig: html file written to %s\n", path.c_str());
+    } else {
+        printf("vkconfig: could not write %s\n", path.c_str());
     }
 }
 
-void ExportSettingsDoc(const Layer& layer, const std::string& path) {}
+void ExportSettingsDoc(const Environment& environment, const std::vector<Layer>& available_layers,
+                       const Configuration& configuration, const std::string& path) {
+
+    if (WriteSettingsOverride(environment, available_layers, configuration, path))
+        printf("vkconfig: settings written to %s\n", path.c_str());
+    else
+        printf("vkconfig: could not write %s\n", path.c_str());
+}
