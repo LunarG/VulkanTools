@@ -1,26 +1,147 @@
 
 # VK_LAYER_LUNARG_reference_1_2_0
+
+# toogle
+# =====================
+# <LayerIdentifier>.toogle
+# true or false
 lunarg_reference_1_2_0.toogle = true
+
+# enum
+# =====================
+# <LayerIdentifier>.enum_required_only
+# enum case
 lunarg_reference_1_2_0.enum_required_only = value2
+
+# enum
+# =====================
+# <LayerIdentifier>.enum_with_optional
+# enum case
 lunarg_reference_1_2_0.enum_with_optional = value1
+
+# flags
+# =====================
+# <LayerIdentifier>.flags_required_only
+# flags case
 lunarg_reference_1_2_0.flags_required_only = flag0,flag2
+
+# flags
+# =====================
+# <LayerIdentifier>.flags_with_optional
+# flags case
 lunarg_reference_1_2_0.flags_with_optional = flag0,flag2
+
+# String
+# =====================
+# <LayerIdentifier>.string_required_only
+# string
 lunarg_reference_1_2_0.string_required_only = My string
+
+# String
+# =====================
+# <LayerIdentifier>.string_with_optional
+# string
 lunarg_reference_1_2_0.string_with_optional = My string
+
+# bool
+# =====================
+# <LayerIdentifier>.bool_required_only
+# true or false
 lunarg_reference_1_2_0.bool_required_only = true
+
+# bool
+# =====================
+# <LayerIdentifier>.bool_with_optional
+# true or false
 lunarg_reference_1_2_0.bool_with_optional = true
+
+# Load file
+# =====================
+# <LayerIdentifier>.load_file_required_only
+# Load file path
 lunarg_reference_1_2_0.load_file_required_only = ./my_test.txt
+
+# Load file
+# =====================
+# <LayerIdentifier>.load_file_with_optional
+# Load file path
 lunarg_reference_1_2_0.load_file_with_optional = ./my_test.txt
+
+# Save file
+# =====================
+# <LayerIdentifier>.save_file_required_only
+# Save file path
 lunarg_reference_1_2_0.save_file_required_only = ./my_test.txt
+
+# Save file
+# =====================
+# <LayerIdentifier>.save_file_with_optional
+# Save file path
 lunarg_reference_1_2_0.save_file_with_optional = ./my_test.txt
+
+# Save folder
+# =====================
+# <LayerIdentifier>.save_folder_required_only
+# Save folder path
 lunarg_reference_1_2_0.save_folder_required_only = ./my_test
+
+# Save folder
+# =====================
+# <LayerIdentifier>.save_folder_with_optional
+# Save folder path
 lunarg_reference_1_2_0.save_folder_with_optional = ./my_test
+
+# Integer
+# =====================
+# <LayerIdentifier>.int_required_only
+# Integer Description
 lunarg_reference_1_2_0.int_required_only = 76
+
+# Integer
+# =====================
+# <LayerIdentifier>.int_with_optional
+# Integer Description
 lunarg_reference_1_2_0.int_with_optional = 82
+
+# Float
+# =====================
+# <LayerIdentifier>.float_required_only
+# Float Description
 lunarg_reference_1_2_0.float_required_only = 76.500000
+
+# Float
+# =====================
+# <LayerIdentifier>.float_with_optional
+# Float Description
 lunarg_reference_1_2_0.float_with_optional = 76.500
+
+# Frames
+# =====================
+# <LayerIdentifier>.frames_required_only
+# Frames Description
 lunarg_reference_1_2_0.frames_required_only = 76-82,75
+
+# Frames
+# =====================
+# <LayerIdentifier>.frames_with_optional
+# Frames Description
 lunarg_reference_1_2_0.frames_with_optional = 79-82,75
+
+# List
+# =====================
+# <LayerIdentifier>.list_required_only
+# List description
 lunarg_reference_1_2_0.list_required_only = 76,82,stringB,stringD
+
+# List
+# =====================
+# <LayerIdentifier>.list_with_optional
+# List description
 lunarg_reference_1_2_0.list_with_optional = 76,stringA
+
+# List
+# =====================
+# <LayerIdentifier>.list_empty
+# List description
 lunarg_reference_1_2_0.list_empty = 
+
