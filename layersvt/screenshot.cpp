@@ -628,34 +628,34 @@ static void writePPM(const char *filename, VkImage image1) {
         // does not support BLIT operations on 3 Channel rendertargets.
         // So format conversion gets costly.
         if (numChannels == 4) {
-            if (FormatIsUNorm(format))
+            if (FormatIsUNORM(format))
                 destformat = VK_FORMAT_R8G8B8A8_UNORM;
             else if (FormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8A8_SRGB;
-            else if (FormatIsSNorm(format))
+            else if (FormatIsSNORM(format))
                 destformat = VK_FORMAT_R8G8B8A8_SNORM;
-            else if (FormatIsUScaled(format))
+            else if (FormatIsUSCALED(format))
                 destformat = VK_FORMAT_R8G8B8A8_USCALED;
-            else if (FormatIsSScaled(format))
+            else if (FormatIsSSCALED(format))
                 destformat = VK_FORMAT_R8G8B8A8_SSCALED;
-            else if (FormatIsUInt(format))
+            else if (FormatIsUINT(format))
                 destformat = VK_FORMAT_R8G8B8A8_UINT;
-            else if (FormatIsSInt(format))
+            else if (FormatIsSINT(format))
                 destformat = VK_FORMAT_R8G8B8A8_SINT;
         } else {  // numChannels 3
-            if (FormatIsUNorm(format))
+            if (FormatIsUNORM(format))
                 destformat = VK_FORMAT_R8G8B8_UNORM;
             else if (FormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8_SRGB;
-            else if (FormatIsSNorm(format))
+            else if (FormatIsSNORM(format))
                 destformat = VK_FORMAT_R8G8B8_SNORM;
-            else if (FormatIsUScaled(format))
+            else if (FormatIsUSCALED(format))
                 destformat = VK_FORMAT_R8G8B8_USCALED;
-            else if (FormatIsSScaled(format))
+            else if (FormatIsSSCALED(format))
                 destformat = VK_FORMAT_R8G8B8_SSCALED;
-            else if (FormatIsUInt(format))
+            else if (FormatIsUINT(format))
                 destformat = VK_FORMAT_R8G8B8_UINT;
-            else if (FormatIsSInt(format))
+            else if (FormatIsSINT(format))
                 destformat = VK_FORMAT_R8G8B8_SINT;
         }
     }
