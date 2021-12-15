@@ -160,6 +160,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "<!DOCTYPE html>\n";
     text += "<html>\n";
     text += format("<head><title></title></head>\n", layer.key.c_str());
+    text += "<!--Begin body-->\n";
     text += "<body>\n";
     text += "<style>\n";
     text += "\ta {color: #A41E22;}\n";
@@ -191,7 +192,8 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += format("<p>%s</p>\n", layer.introduction.c_str());
     }
 
-    text += "<h2><a href=\"#top\">Layer Properties</a></h2>\n";
+    text += "<!--Begin Layer Properties-->\n";
+    text += "<h2>Layer Properties</h2>\n";
     text += "<ul>\n";
     text += format("\t<li>API Version: %s</li>\n", layer.api_version.str().c_str());
     text += format("\t<li>Implementation Version: %s</li>\n", layer.implementation_version.c_str());
@@ -219,7 +221,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     }
 
     if (!layer.settings.empty()) {
-        text += "<h2><a href=\"#top\" id=\"settings\">Layer Settings Overview</a></h2>\n";
+        text += "<h2><a id=\"settings\">Layer Settings Overview</a></h2>\n";
         text += "<table><thead><tr>";
         text += format(
             "<th>Setting</th><th>Type</th><th>Default Value</th><th><a href=\"%s\">vk_layer_settings.txt</a> Variable</th>"
@@ -229,12 +231,12 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         WriteSettingsOverview(text, layer, layer.settings);
         text += "</tbody></table>\n";
 
-        text += "<h2><a href=\"#top\">Layer Settings Details</a></h2>\n";
+        text += "<h2>Layer Settings Details</h2>\n";
         WriteSettingsDetails(text, layer, layer.settings);
     }
 
     if (!layer.presets.empty()) {
-        text += "<h2><a href=\"#top\" id=\"presets\">Layer Presets</a></h2>\n";
+        text += "<h2><a id=\"presets\">Layer Presets</a></h2>\n";
         for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
             const LayerPreset& preset = layer.presets[i];
 
@@ -256,6 +258,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         }
     }
 
+    text += "<!--End body-->\n";
     text += "</body>\n";
     text += "</html>\n";
 

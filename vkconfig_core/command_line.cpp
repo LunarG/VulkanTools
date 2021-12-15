@@ -198,6 +198,7 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_doc_arg(_command_doc_arg),
       layers_configuration_path(_layers_configuration_path),
       doc_layer_name(_doc_layer_name),
+      doc_out_dir(_doc_out_dir),
       error(_error),
       error_args(_error_args),
       _command(COMMAND_GUI),
@@ -250,13 +251,13 @@ CommandLine::CommandLine(int argc, char* argv[])
             }
         } break;
         case COMMAND_DOC: {
-            if (argc <= arg_offset + 1) {
+            if (argc <= arg_offset + 2) {
                 _error = ERROR_MISSING_COMMAND_ARGUMENT;
                 _error_args.push_back(argv[arg_offset + 0]);
                 break;
             }
 
-            if (argc > 4) {
+            if (argc > 5) {
                 _error = ERROR_TOO_MANY_COMMAND_ARGUMENTS;
                 _error_args.push_back(argv[arg_offset + 0]);
                 break;
@@ -270,6 +271,12 @@ CommandLine::CommandLine(int argc, char* argv[])
                 break;
             }
             _doc_layer_name = argv[arg_offset + 2];
+            if (argc == 5) {
+                // Output dir arg was specified
+                _doc_out_dir = argv[arg_offset + 3];
+            } else
+                // Output dir arg was not specified
+                _doc_out_dir = ".";
 
         } break;
         case COMMAND_RESET: {
@@ -423,18 +430,20 @@ void CommandLine::usage() const {
         }
         case HELP_DOC: {
             printf("Name\n");
-            printf("\t'doc_html' - Command to create Vulkan layer doc files\n");
+            printf("\t'doc' - Command to create Vulkan layer doc files\n");
             printf("\n");
             printf("Synopsis\n");
-            printf("\tvkconfig doc html <layer_name>\n");
-            printf("\tvkconfig doc settings <layer_name>\n");
+            printf("\tvkconfig doc html <layer_name> [<output_dir>]\n");
+            printf("\tvkconfig doc settings <layer_name> [<output_dir>]\n");
             printf("\n");
             printf("Description\n");
-            printf("\tvkconfig doc html <layer_name>\n");
+            printf("\tvkconfig doc html <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the html documentation file for the given layer.\n");
+            printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
             printf("\n");
-            printf("\tvkconfig doc settings <layer_name>\n");
+            printf("\tvkconfig doc settings <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the vk_layers_settings.txt file for the given layer.\n");
+            printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
             break;
         }
         case HELP_RESET: {

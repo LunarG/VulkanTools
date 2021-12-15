@@ -37,7 +37,7 @@ int run_doc_html(const CommandLine& commandLine) {
     for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
         const Layer& layer = layers.available_layers[i];
         if (layer.key == commandLine.doc_layer_name) {
-            const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer.key.c_str());
+            const std::string path = format("%s/%s.html", commandLine.doc_out_dir.c_str(), layer.key.c_str());
             ExportHtmlDoc(layer, path);
             return 0;
         }
@@ -55,19 +55,18 @@ int run_doc_settings(const CommandLine& commandLine) {
     ConfigurationManager configuration_manager(paths, environment);
     Configuration config;
     LayerManager layers(environment);
-    const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
     Layer *layer;
 
     layers.LoadLayer(commandLine.doc_layer_name);
     layer = FindByKey(layers.available_layers, commandLine.doc_layer_name.c_str());
     if (!layer) {
-       printf("vkconfig: could not find layer %s\n", commandLine.doc_layer_name.c_str());
+       printf("vkconfig: could not load layer %s\n", commandLine.doc_layer_name.c_str());
        return -1;
     }
     config = configuration_manager.CreateConfiguration(layers.available_layers, "Config");
     config.parameters = GatherParameters(config.parameters, layers.available_layers);
     config.parameters[0].state = LAYER_STATE_OVERRIDDEN;
-    ExportSettingsDoc(environment, layers.available_layers, config, settings_path);
+    ExportSettingsDoc(environment, layers.available_layers, config, commandLine.doc_out_dir);
 
     return rval;
 }
