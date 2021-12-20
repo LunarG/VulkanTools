@@ -1,7 +1,0 @@
-{
-  "$schema": "https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
-  "comments": {
-    "url": "https://github.com/LunarG/VulkanTools/tree/master/tests",
-    "desc": "An empty config file for the Device Simulator CI tests."
-  }
-}
