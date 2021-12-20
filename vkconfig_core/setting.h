@@ -65,12 +65,6 @@ inline bool IsEnum(SettingType type) {
     return type == SETTING_ENUM || type == SETTING_FLAGS;
 }
 
-inline bool IsPath(SettingType type) {
-    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
-
-    return type == SETTING_SAVE_FILE || type == SETTING_LOAD_FILE || type == SETTING_SAVE_FOLDER;
-}
-
 enum DependenceMode {
     DEPENDENCE_NONE = 0,
     DEPENDENCE_ALL,
