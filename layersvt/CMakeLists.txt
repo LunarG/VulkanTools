@@ -54,14 +54,12 @@ if (NOT APPLE)
         VkLayer_api_dump
         VkLayer_monitor
         VkLayer_screenshot
-        VkLayer_device_simulation
         )
     set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
     set(CMAKE_INSTALL_RPATH ${VK_LAYER_RPATH})
 else()
     set(TARGET_NAMES
         VkLayer_api_dump
-	    VkLayer_device_simulation
         )
 endif ()
 
@@ -129,7 +127,6 @@ if (NOT APPLE)
     add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
 endif ()
 
-add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
 
 # json file creation

@@ -3,16 +3,6 @@ if (NOT WIN32)
     # extra setup for out-of-tree builds
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         add_custom_target(vt_test-dir-symlinks ALL
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_layer_test.sh
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_gold.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in_ArrayOfVkFormatProperties.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_gold.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in1.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in2.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in3.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in4.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in5.json
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vlf_test.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/apidump_test.sh
             VERBATIM
