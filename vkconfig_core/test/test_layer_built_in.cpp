@@ -40,13 +40,6 @@ TEST(test_layer_built_in, layer_130_api_dump) {
     EXPECT_EQ(4, layer.presets.size());
 }
 
-TEST(test_layer_built_in, layer_130_device_simulation) {
-    Layer layer;
-    EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/130/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(3, CountSettings(layer.settings));
-    EXPECT_EQ(0, layer.presets.size());
-}
-
 TEST(test_layer_built_in, layer_130_monitor) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/130/VK_LAYER_LUNARG_monitor.json", LAYER_TYPE_EXPLICIT));
@@ -77,13 +70,6 @@ TEST(test_layer_built_in, layer_135_api_dump) {
     EXPECT_EQ(4, layer.presets.size());
 }
 
-TEST(test_layer_built_in, layer_135_device_simulation) {
-    Layer layer;
-    EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/135/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(3, CountSettings(layer.settings));
-    EXPECT_EQ(0, layer.presets.size());
-}
-
 TEST(test_layer_built_in, layer_135_monitor) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/135/VK_LAYER_LUNARG_monitor.json", LAYER_TYPE_EXPLICIT));
@@ -112,13 +98,6 @@ TEST(test_layer_built_in, layer_141_api_dump) {
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/141/VK_LAYER_LUNARG_api_dump.json", LAYER_TYPE_EXPLICIT));
     EXPECT_EQ(14, CountSettings(layer.settings));
     EXPECT_EQ(4, layer.presets.size());
-}
-
-TEST(test_layer_built_in, layer_141_device_simulation) {
-    Layer layer;
-    EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/141/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(3, CountSettings(layer.settings));
-    EXPECT_EQ(0, layer.presets.size());
 }
 
 TEST(test_layer_built_in, layer_141_gfxreconstruct) {
@@ -158,13 +137,6 @@ TEST(test_layer_built_in, layer_148_api_dump) {
     EXPECT_EQ(4, layer.presets.size());
 }
 
-TEST(test_layer_built_in, layer_148_device_simulation) {
-    Layer layer;
-    EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/148/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(3, CountSettings(layer.settings));
-    EXPECT_EQ(0, layer.presets.size());
-}
-
 TEST(test_layer_built_in, layer_148_gfxreconstruct) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/148/VK_LAYER_LUNARG_gfxreconstruct.json", LAYER_TYPE_EXPLICIT));
@@ -202,13 +174,6 @@ TEST(test_layer_built_in, layer_154_api_dump) {
     EXPECT_EQ(4, layer.presets.size());
 }
 
-TEST(test_layer_built_in, layer_154_device_simulation) {
-    Layer layer;
-    EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/154/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(3, CountSettings(layer.settings));
-    EXPECT_EQ(0, layer.presets.size());
-}
-
 TEST(test_layer_built_in, layer_154_gfxreconstruct) {
     Layer layer;
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/154/VK_LAYER_LUNARG_gfxreconstruct.json", LAYER_TYPE_EXPLICIT));
@@ -244,13 +209,6 @@ TEST(test_layer_built_in, layer_162_api_dump) {
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/162/VK_LAYER_LUNARG_api_dump.json", LAYER_TYPE_EXPLICIT));
     EXPECT_EQ(14, CountSettings(layer.settings));
     EXPECT_EQ(4, layer.presets.size());
-}
-
-TEST(test_layer_built_in, layer_162_device_simulation) {
-    Layer layer;
-    EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/162/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(5, CountSettings(layer.settings));
-    EXPECT_EQ(3, layer.presets.size());
 }
 
 TEST(test_layer_built_in, layer_162_gfxreconstruct) {
@@ -298,13 +256,6 @@ TEST(test_layer_built_in, layer_170_api_dump) {
     EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/170/VK_LAYER_LUNARG_api_dump.json", LAYER_TYPE_EXPLICIT));
     EXPECT_EQ(14, CountSettings(layer.settings));
     EXPECT_EQ(4, layer.presets.size());
-}
-
-TEST(test_layer_built_in, layer_170_device_simulation) {
-    Layer layer;
-    EXPECT_TRUE(layer.Load(std::vector<Layer>(), ":/layers/170/VK_LAYER_LUNARG_device_simulation.json", LAYER_TYPE_EXPLICIT));
-    EXPECT_EQ(6, CountSettings(layer.settings));
-    EXPECT_EQ(3, layer.presets.size());
 }
 
 TEST(test_layer_built_in, layer_170_gfxreconstruct) {

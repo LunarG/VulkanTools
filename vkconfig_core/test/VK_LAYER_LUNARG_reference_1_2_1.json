@@ -1,0 +1,688 @@
+{
+    "file_format_version": "1.2.1",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_reference_1_2_1",
+        "library_path": ".\\VkLayer_reference.dll",
+        "api_version": "1.2.170",
+        "implementation_version": "Build 76",
+        "description": "reference layer",
+        "status": "STABLE",
+        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html",
+        "device_extensions": [
+            {
+                "name": "VK_EXT_tooling_info",
+                "spec_version": "1",
+                "entrypoints": [
+                    "vkGetPhysicalDeviceToolPropertiesEXT"
+                ]
+            }
+        ],
+        "features": {
+            "presets": [
+                {
+                    "label": "Preset Enum",
+                    "description": "Description Enum",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "STABLE",
+                    "settings": [
+                        {
+                            "key": "enum_required_only",
+                            "value": "value2"
+                        },
+                        {
+                            "key": "enum_with_optional",
+                            "value": "value2"
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Flags",
+                    "description": "Description Flags",
+                    "platforms": [ "WINDOWS" ],
+                    "status": "BETA",
+                    "settings": [
+                        {
+                            "key": "flags_required_only",
+                            "value": [ "flag0", "flag2" ]
+                        },
+                        {
+                            "key": "flags_with_optional",
+                            "value": [ "flag0", "flag2" ]
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset String",
+                    "description": "Description String",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "status": "ALPHA",
+                    "settings": [
+                        {
+                            "key": "string_required_only",
+                            "value": "Required Only"
+                        },
+                        {
+                            "key": "string_with_optional",
+                            "value": "With Optional"
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Bool",
+                    "description": "Description Bool",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "bool_required_only",
+                            "value": true
+                        },
+                        {
+                            "key": "bool_with_optional",
+                            "value": false
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Load File",
+                    "description": "Description Load File",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "load_file_required_only",
+                            "value": "./text.log"
+                        },
+                        {
+                            "key": "load_file_with_optional",
+                            "value": "./text.log"
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Save File",
+                    "description": "Description Save File",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "save_file_required_only",
+                            "value": "./text.log"
+                        },
+                        {
+                            "key": "save_file_with_optional",
+                            "value": "./text.log"
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Save Folder",
+                    "description": "Description Save Folder",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "save_folder_required_only",
+                            "value": "./text.log"
+                        },
+                        {
+                            "key": "save_folder_with_optional",
+                            "value": "./text.log"
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Int",
+                    "description": "Description Int",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "int_required_only",
+                            "value": 75
+                        },
+                        {
+                            "key": "int_with_optional",
+                            "value": 77
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset Frames",
+                    "description": "Description Frames",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "frames_required_only",
+                            "value": "13-17,24-32"
+                        },
+                        {
+                            "key": "frames_with_optional",
+                            "value": "13-17,24,32"
+                        }
+                    ]
+                },
+                {
+                    "label": "Preset List",
+                    "description": "Description List",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "list_required_only",
+                            "value": [
+                                {
+                                    "key": "stringA",
+                                    "enabled": true
+                                },
+                                {
+                                    "key": "stringB",
+                                    "enabled": false
+                                }
+                            ]
+                        },
+                        {
+                            "key": "list_with_optional",
+                            "value": [
+                                {
+                                    "key": "stringA",
+                                    "enabled": true
+                                },
+                                {
+                                    "key": "stringB",
+                                    "enabled": false
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "key": "toogle",
+                    "env": "VK_REF_TOGGLE",
+                    "label": "toogle",
+                    "type": "BOOL",
+                    "description": "true or false",
+                    "default": true
+                },
+                {
+                    "key": "enum_required_only",
+                    "type": "ENUM",
+                    "label": "enum",
+                    "description": "enum case",
+                    "flags": [
+                        {
+                            "key": "value0",
+                            "label": "Value0",
+                            "description": "My value0"
+                        },
+                        {
+                            "key": "value1",
+                            "label": "Value1",
+                            "description": "My value1"
+                        },
+                        {
+                            "key": "value2",
+                            "label": "Value2",
+                            "description": "My value2"
+                        }
+                    ],
+                    "default": "value1"
+                },
+                {
+                    "key": "enum_with_optional",
+                    "env": "VK_REF_ENUM",
+                    "type": "ENUM",
+                    "label": "enum",
+                    "description": "enum case",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS" ],
+                    "flags": [
+                        {
+                            "key": "value0",
+                            "label": "Value0",
+                            "description": "My value0",
+                            "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value0",
+                            "status": "STABLE",
+                            "view": "HIDDEN",
+                            "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
+                        },
+                        {
+                            "key": "value1",
+                            "label": "Value1",
+                            "description": "My value1",
+                            "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value1",
+                            "status": "BETA",
+                            "view": "ADVANCED",
+                            "platforms": [ "WINDOWS", "LINUX" ]
+                        },
+                        {
+                            "key": "value2",
+                            "label": "Value2",
+                            "description": "My value2",
+                            "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#value2",
+                            "status": "ALPHA",
+                            "view": "STANDARD",
+                            "platforms": [ "WINDOWS" ]
+                        }
+                    ],
+                    "default": "value1",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "flags_required_only",
+                    "type": "FLAGS",
+                    "label": "flags",
+                    "description": "flags case",
+                    "flags": [
+                        {
+                            "key": "flag0",
+                            "label": "Flag0",
+                            "description": "My flag0"
+                        },
+                        {
+                            "key": "flag1",
+                            "label": "Flag1",
+                            "description": "My flag1"
+                        },
+                        {
+                            "key": "flag2",
+                            "label": "Flag2",
+                            "description": "My flag2"
+                        }
+                    ],
+                    "default": [ "flag0", "flag1" ]
+                },
+                {
+                    "key": "flags_with_optional",
+                    "env": "VK_REF_FLAGS",
+                    "type": "FLAGS",
+                    "label": "flags",
+                    "description": "flags case",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "flags": [
+                        {
+                            "key": "flag0",
+                            "label": "Flag0",
+                            "description": "My flag0",
+                            "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag0",
+                            "status": "STABLE",
+                            "view": "STANDARD",
+                            "platforms": [ "WINDOWS", "LINUX", "MACOS" ]
+                        },
+                        {
+                            "key": "flag1",
+                            "label": "Flag1",
+                            "description": "My flag1",
+                            "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag1",
+                            "status": "BETA",
+                            "view": "ADVANCED",
+                            "platforms": [ "WINDOWS", "LINUX" ]
+                        },
+                        {
+                            "key": "flag2",
+                            "label": "Flag2",
+                            "description": "My flag2",
+                            "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flag2",
+                            "status": "ALPHA",
+                            "view": "HIDDEN",
+                            "platforms": [ "WINDOWS" ]
+                        }
+                    ],
+                    "default": [ "flag0", "flag1" ],
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "string_required_only",
+                    "type": "STRING",
+                    "label": "String",
+                    "description": "string",
+                    "default": "A string"
+                },
+                {
+                    "key": "string_with_optional",
+                    "env": "VK_REF_STRING",
+                    "type": "STRING",
+                    "label": "String",
+                    "description": "string",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": "A string",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "bool_required_only",
+                    "type": "BOOL",
+                    "label": "bool",
+                    "description": "true or false",
+                    "default": true
+                },
+                {
+                    "key": "bool_with_optional",
+                    "env": "VK_REF_BOOL",
+                    "type": "BOOL",
+                    "label": "bool",
+                    "description": "true or false",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": true,
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "load_file_required_only",
+                    "type": "LOAD_FILE",
+                    "label": "Load file",
+                    "description": "Load file path",
+                    "default": "./test.txt"
+                },
+                {
+                    "key": "load_file_with_optional",
+                    "env": "VK_REF_LOAD_FILE",
+                    "type": "LOAD_FILE",
+                    "label": "Load file",
+                    "description": "Load file path",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "filter": "*.json",
+                    "default": "./test.json",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "save_file_required_only",
+                    "type": "SAVE_FILE",
+                    "label": "Save file",
+                    "description": "Save file path",
+                    "default": "./test.json"
+                },
+                {
+                    "key": "save_file_with_optional",
+                    "env": "VK_REF_SAVE_FILE",
+                    "type": "SAVE_FILE",
+                    "label": "Save file",
+                    "description": "Save file path",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "filter": "*.json",
+                    "default": "./test.json",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "save_folder_required_only",
+                    "type": "SAVE_FOLDER",
+                    "label": "Save folder",
+                    "description": "Save folder path",
+                    "default": "./test"
+                },
+                {
+                    "key": "save_folder_with_optional",
+                    "env": "VK_REF_SAVE_FOLDER",
+                    "type": "SAVE_FOLDER",
+                    "label": "Save folder",
+                    "description": "Save folder path",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": "./test",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "int_required_only",
+                    "type": "INT",
+                    "label": "Integer",
+                    "description": "Integer Description",
+                    "default": 76
+                },
+                {
+                    "key": "int_with_optional",
+                    "env": "VK_REF_INT",
+                    "type": "INT",
+                    "label": "Integer",
+                    "description": "Integer Description",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": 76,
+                    "range": {
+                        "min": 75,
+                        "max": 82
+                    },
+                    "unit": "byte",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "float_required_only",
+                    "type": "FLOAT",
+                    "label": "Float",
+                    "description": "Float Description",
+                    "default": 76.5
+                },
+                {
+                    "key": "float_with_optional",
+                    "env": "VK_REF_FLOAT",
+                    "type": "FLOAT",
+                    "label": "Float",
+                    "description": "Float Description",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#float",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": 76.5,
+                    "range": {
+                        "min": 75.1,
+                        "max": 82.2,
+                        "width": 2,
+                        "precision": 3
+                    },
+                    "unit": "second",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "frames_required_only",
+                    "type": "FRAMES",
+                    "label": "Frames",
+                    "description": "Frames Description",
+                    "default": "76-82,75"
+                },
+                {
+                    "key": "frames_with_optional",
+                    "env": "VK_REF_FRAMES",
+                    "type": "FRAMES",
+                    "label": "Frames",
+                    "description": "Frames Description",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": "76-82,75",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "list_required_only",
+                    "type": "LIST",
+                    "label": "List",
+                    "description": "List description",
+                    "default": [
+                        {
+                            "key": 76,
+                            "enabled": true
+                        },
+                        {
+                            "key": 82,
+                            "enabled": true
+                        },
+                        {
+                            "key": "stringB",
+                            "enabled": true
+                        },
+                        {
+                            "key": "stringC",
+                            "enabled": false
+                        },
+                        {
+                            "key": "stringD",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "key": "list_with_optional",
+                    "env": "VK_REF_LIST",
+                    "type": "LIST",
+                    "label": "List",
+                    "description": "List description",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "list": [
+                        75,
+                        76,
+                        "stringA",
+                        "stringB",
+                        "stringC"
+                    ],
+                    "list_only": true,
+                    "default": [
+                        {
+                            "key": 76,
+                            "enabled": true
+                        },
+                        {
+                            "key": 82,
+                            "enabled": true
+                        },
+                        {
+                            "key": "stringB",
+                            "enabled": true
+                        },
+                        {
+                            "key": "stringC",
+                            "enabled": false
+                        },
+                        {
+                            "key": "stringD",
+                            "enabled": true
+                        }
+                    ],
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "list_empty",
+                    "type": "LIST",
+                    "label": "List",
+                    "description": "List description",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": []
+                }
+            ]
+        }
+    }
+}

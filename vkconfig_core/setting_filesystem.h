@@ -38,6 +38,7 @@ struct SettingMetaFilesystem : public SettingMeta {
 struct SettingDataFilesystem : public SettingDataString {
     std::string Export(ExportMode export_mode) const override;
 
+
    protected:
     SettingDataFilesystem(const std::string& key, const SettingType& type);
 };
