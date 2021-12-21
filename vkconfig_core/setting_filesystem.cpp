@@ -88,7 +88,9 @@ SettingData* SettingMetaFileLoad::Instantiate() {
 SettingDataFileLoad::SettingDataFileLoad(const SettingMetaFileLoad* meta)
     : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
 
-void SettingDataFileLoad::Reset() { this->value = this->meta->default_value; }
+void SettingDataFileLoad::Reset() {
+    this->value = this->meta->default_value;
+}
 
 // SettingMetaFileSave
 

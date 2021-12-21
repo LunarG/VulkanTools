@@ -21,6 +21,7 @@
 
 #include "widget_setting_enum.h"
 #include "widget_setting.h"
+#include "configurator.h"
 
 #include <cassert>
 
@@ -61,19 +62,34 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->field->clear();
         this->enum_indexes.clear();
 
-        int selection = 0;
-        const std::string value = data().value;
-        for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
-            if (!IsSupported(&this->meta.enum_values[i])) continue;
+        if (meta.default_value == "${VK_PROFILES}") {
+            std::vector<std::string> profiles = Configurator::Get().GetProfiles();
 
-            this->field->addItem(this->meta.enum_values[i].label.c_str());
-            if (this->meta.enum_values[i].key == value) {
-                selection = static_cast<int>(this->enum_indexes.size());
+            int selection = 0;
+            const std::string value = this->data().value;
+            for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
+                this->field->addItem(profiles[i].c_str());
+                if (profiles[i] == value) {
+                    selection = static_cast<int>(this->enum_indexes.size());
+                }
+                this->enum_indexes.push_back(i);
             }
-            this->enum_indexes.push_back(i);
+            this->field->setCurrentIndex(selection);
+        } else {
+            int selection = 0;
+            const std::string value = this->data().value;
+            for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
+                if (!IsSupported(&this->meta.enum_values[i])) continue;
+
+                this->field->addItem(this->meta.enum_values[i].label.c_str());
+                if (this->meta.enum_values[i].key == value) {
+                    selection = static_cast<int>(this->enum_indexes.size());
+                }
+                this->enum_indexes.push_back(i);
+            }
+            this->field->setCurrentIndex(selection);
         }
 
-        this->field->setCurrentIndex(selection);
         this->field->blockSignals(false);
     }
 }
@@ -82,8 +98,16 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
     int width = MIN_FIELD_WIDTH;
 
     const QFontMetrics fm = this->field->fontMetrics();
-    for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
-        width = std::max(width, HorizontalAdvance(fm, (this->meta.enum_values[i].label + "0000").c_str()));
+
+    if (meta.default_value == "${VK_PROFILES}") {
+        const std::vector<std::string>& profiles = Configurator::Get().GetProfiles();
+        for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
+            width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
+        }
+    } else {
+        for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
+            width = std::max(width, HorizontalAdvance(fm, (this->meta.enum_values[i].label + "0000").c_str()));
+        }
     }
 
     const QRect button_rect = QRect(event->size().width() - width, 0, width, event->size().height());
