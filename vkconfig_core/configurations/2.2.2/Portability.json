@@ -99,28 +99,23 @@
                 "state": "OVERRIDDEN"
             },
             {
-                "name": "VK_LAYER_LUNARG_device_simulation",
+                "name": "VK_LAYER_KHRONOS_profiles",
                 "rank": 5,
                 "settings": [
-                    {
-                        "key": "debug_enable",
-                        "type": "BOOL",
-                        "value": true
-                    },
                     {
                         "key": "emulate_portability",
                         "type": "BOOL",
                         "value": true
                     },
                     {
-                        "key": "exit_on_error",
-                        "type": "BOOL",
-                        "value": false
+                        "key": "profile_file",
+                        "type": "LOAD_FILE",
+                        "value": "${VULKAN_CONTENT}/VK_LAYER_KHRONOS_profiles/VP_LUNARG_desktop_portability_2021.json"
                     },
                     {
-                        "key": "filename",
-                        "type": "LOAD_FILE",
-                        "value": "${VULKAN_CONTENT}/VK_LAYER_LUNARG_device_simulation/macOS_gpu_family_1_portability.json"
+                        "key": "profile_name",
+                        "type": "ENUM",
+                        "value": "VP_LUNARG_desktop_portability_2021_subset"
                     }
                 ],
                 "state": "OVERRIDDEN"

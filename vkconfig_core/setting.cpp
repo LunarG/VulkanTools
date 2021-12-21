@@ -304,9 +304,10 @@ bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
 
 const char* GetToken(DependenceMode type) {
     static const char* table[] = {
-        "NONE",  // DEPENDENCE_NONE
-        "ALL",   // DEPENDENCE_ALL
-        "ANY"    // DEPENDENCE_ANY
+        "NONE",     // DEPENDENCE_NONE
+        "ALL",      // DEPENDENCE_ALL
+        "ANY",      // DEPENDENCE_ANY
+        "PROFILE",  // DEPENDENCE_PROFILE
     };
     static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

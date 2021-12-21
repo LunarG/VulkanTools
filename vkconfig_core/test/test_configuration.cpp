@@ -58,21 +58,21 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 
 static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }
 
-TEST(test_configuration, load_and_save_v2_2_1) {
+TEST(test_configuration, load_and_save_v2_2_2) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.2.1.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 2.2.2.json");
     EXPECT_TRUE(load_loaded);
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_2_0");
+    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_2_1");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_STATE_OVERRIDDEN, parameter->state);
 
-    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_1_layer_1_2_0.json");
+    configuration_loaded.Save(std::vector<Layer>(), "test_v2_2_2_layer_1_2_1.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_1_layer_1_2_0.json");
+    configuration_saved.Load(std::vector<Layer>(), "test_v2_2_2_layer_1_2_1.json");
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }

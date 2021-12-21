@@ -9,8 +9,8 @@ if(Qt5_FOUND)
     file(GLOB FILES_SOURCE ./*.cpp)
     file(GLOB FILES_HEADER ./*.h)
 
-    file(GLOB FILES_CONFIGURATIONS_2_2_1 ./configurations/2.2.1/*.json)
-    source_group("Configurations 2.2.1 Files" FILES ${FILES_CONFIGURATIONS_2_2_1})
+    file(GLOB FILES_CONFIGURATIONS_2_2_2 ./configurations/2.2.2/*.json)
+    source_group("Configurations 2.2.2 Files" FILES ${FILES_CONFIGURATIONS_2_2_2})
 
     file(GLOB FILES_LAYERS_130 ./layers/130/*.json)
     source_group("130 Files" FILES ${FILES_LAYERS_130})
@@ -37,7 +37,7 @@ if(Qt5_FOUND)
     source_group("Schema Files" FILES ${FILES_LAYERS_SCHEMA})
 
     set(FILES_RESOURCES 
-        ${FILES_CONFIGURATIONS_2_2_1}
+        ${FILES_CONFIGURATIONS_2_2_2}
         ${FILES_LAYERS_130}
         ${FILES_LAYERS_135}
         ${FILES_LAYERS_141}

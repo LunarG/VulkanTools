@@ -26,7 +26,7 @@
 #include <QMessageBox>
 #include <QFileInfoList>
 
-static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_1"};
+static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_2", "_2_2_1"};
 
 ConfigurationManager::ConfigurationManager(const PathManager &path_manager, Environment &environment)
     : active_configuration(nullptr), path_manager(path_manager), environment(environment) {}
@@ -96,8 +96,13 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
         const QFileInfo &info = configuration_files[i];
 
         Configuration configuration;
-        const bool result = configuration.Load(available_layers, info.absoluteFilePath().toStdString());
+        std::string path = info.absoluteFilePath().toStdString();
 
+        // Skip "2_2_1/Portability.json" because we replaced the devsim layer by the profiles layer
+        if (path.find("2_2_1/Portability.json") != std::string::npos) {
+            path = ":/configurations/Portability.json";
+        }
+        const bool result = configuration.Load(available_layers, path);
         if (!result) continue;
 
         if (FindByKey(available_configurations, configuration.key.c_str()) != nullptr) continue;

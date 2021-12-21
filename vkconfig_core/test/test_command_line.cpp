@@ -165,7 +165,7 @@ TEST(test_command_line, usage_mode_layers_surrender_invalid) {
 }
 
 TEST(test_command_line, usage_mode_layers_override) {
-    static char* argv[] = {"vkconfig", "layers", "--override", ":/Configuration 2.2.1.json"};
+    static char* argv[] = {"vkconfig", "layers", "--override", ":/Configuration 2.2.2.json"};
     int argc = static_cast<int>(countof(argv));
 
     CommandLine command_line(argc, argv);

@@ -42,7 +42,7 @@
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "enum": [ "NONE", "ALL", "ANY" ]
+                            "enum": [ "NONE", "ALL", "ANY", "PROFILE" ]
                         }
                     },
                     "settings": {
