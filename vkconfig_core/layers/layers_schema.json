@@ -521,6 +521,10 @@
                                 "type": "string",
                                 "enum": [ "SAVE_FILE", "LOAD_FILE" ]
                             },
+                            "format": {
+                                "type": "string",
+                                "enum": [ "PROFILE" ]
+                            },
                             "filter": {
                                 "type": "string"
                             },
