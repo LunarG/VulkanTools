@@ -50,6 +50,7 @@ class WidgetSettingFilesystem : public WidgetSettingBase {
 
    private:
     SettingDataString &data();
+    void LoadFile();
 
     const SettingMetaFilesystem &meta;
     SettingDataSet &data_set;

@@ -19,6 +19,7 @@
  */
 
 #include "json_validator.h"
+#include "json.h"
 #include "util.h"
 
 #include <QFile>
@@ -42,19 +43,6 @@ using valijson::adapters::QtJsonAdapter;
 
 static std::unique_ptr<Schema> schema;
 static std::unique_ptr<Validator> validator;
-
-static QJsonDocument ParseJsonFile(const char *file) {
-    QFile file_schema(file);
-    const bool result = file_schema.open(QIODevice::ReadOnly | QIODevice::Text);
-    assert(result);
-    const QString &data = file_schema.readAll();
-    file_schema.close();
-
-    QJsonParseError json_parse_error;
-    const QJsonDocument &json_document = QJsonDocument::fromJson(data.toUtf8(), &json_parse_error);
-
-    return json_document;
-}
 
 JsonValidator::JsonValidator() {}
 

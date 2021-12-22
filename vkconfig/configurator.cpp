@@ -148,10 +148,3 @@ bool Configurator::SupportApplicationList(Version *return_loader_version) const 
 
     return version >= Version("1.2.141");
 }
-
-std::vector<std::string> Configurator::GetProfiles() const { 
-    std::vector<std::string> result;
-    result.push_back("VP_KHRONOS_pouet");
-    result.push_back("VP_KHRONOS_ahhhh");
-    return result;
-}

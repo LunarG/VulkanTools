@@ -28,6 +28,7 @@ struct SettingMetaFilesystem : public SettingMeta {
 
     std::string default_value;
     std::string filter;
+    std::string format;
 
    protected:
     SettingMetaFilesystem(Layer& layer, const std::string& key, const SettingType& type);

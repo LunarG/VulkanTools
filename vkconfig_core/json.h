@@ -22,9 +22,12 @@
 #include "util.h"
 
 #include <QJsonObject>
+#include <QJsonDocument>
 
 #include <string>
 #include <vector>
+
+QJsonDocument ParseJsonFile(const char* file);
 
 // Read an object from the json_object
 QJsonObject ReadObject(const QJsonObject& json_object, const char* key);

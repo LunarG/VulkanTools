@@ -44,7 +44,7 @@ class Configurator {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
     }
 
-    std::vector<std::string> GetProfiles() const;
+    std::vector<std::string> profiles;
 
    private:
     Configurator();
