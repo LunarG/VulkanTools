@@ -23,6 +23,7 @@
 #include "widget_setting.h"
 
 #include "../vkconfig_core/path.h"
+#include "../vkconfig_core/alert.h"
 #include "../vkconfig/configurator.h"
 
 #include <QFileDialog>
@@ -81,17 +82,17 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
     this->button->setEnabled(enabled);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
-        if (::CheckSettingOverridden(this->meta)) {
-            this->DisplayOverride(this->field, this->meta);
-        } else {
-            this->field->setToolTip(this->field->text());
-        }
+        LoadFile(this->data().value);
 
         this->field->blockSignals(true);
         this->field->setText(ReplaceBuiltInVariable(this->data().value).c_str());
         this->field->blockSignals(false);
 
-        LoadFile();
+        if (::CheckSettingOverridden(this->meta)) {
+            this->DisplayOverride(this->field, this->meta);
+        } else {
+            this->field->setToolTip(this->field->text());
+        }
     }
 }
 
@@ -102,13 +103,33 @@ void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
     this->button->setGeometry(button_rect);
 }
 
-void WidgetSettingFilesystem::LoadFile() {
+void WidgetSettingFilesystem::LoadFile(const std::string& path) {
     if (this->meta.type == SETTING_LOAD_FILE) {
         const SettingMetaFileLoad& setting_file = static_cast<const SettingMetaFileLoad&>(this->meta);
         if (setting_file.format == "PROFILE") {
-            SettingDataString* data = FindSetting<SettingDataString>(this->data_set, this->meta.key.c_str());
-            const std::string& value = ReplaceBuiltInVariable(data->value);
-            Configurator::Get().profiles = LoadProfiles(ParseJsonFile(value.c_str()));
+            if (path.empty()) return;
+
+            if (Configurator::Get().profile_file == path) return;
+
+            Configurator::Get().profile_file = path;
+
+            const std::string& value = ReplaceBuiltInVariable(path);
+            const QJsonDocument& doc = ParseJsonFile(value.c_str());
+
+            if (doc.isNull() || doc.isEmpty()) {
+                Alert::FileNotJson(format("%s is not a JSON file.", path.c_str()).c_str());
+                return;
+            }
+
+            const QJsonObject& json_root_object = doc.object();
+            if (json_root_object.value("$schema").toString().toStdString().find("https://schema.khronos.org/vulkan/profiles-1.") ==
+                std::string::npos) {
+                Alert::FileNotProfile(format("%s is not a JSON profile file.", path.c_str()).c_str());
+                return;
+            }
+
+            this->data().value = path;
+            Configurator::Get().profile_names = LoadProfiles(doc);
         }
     }
 }
@@ -138,10 +159,10 @@ void WidgetSettingFilesystem::browseButtonClicked() {
 
     if (!file.empty()) {
         file = ConvertNativeSeparators(file);
-        field->setText(file.c_str());
-        this->data().value = file;
+        LoadFile(file);
 
-        LoadFile();
+        field->setText(this->data().value.c_str());
+
         emit itemChanged();
     }
 }

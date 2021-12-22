@@ -51,4 +51,7 @@ struct Alert {
     static void LayerProperties(const Layer* layer);
 
     static void LogFileFailed();
+
+    static void FileNotJson(const char* message);
+    static void FileNotProfile(const char* message);
 };
