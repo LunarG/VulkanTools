@@ -65,6 +65,7 @@ class Layer {
     int platforms;
     std::string manifest_path;
     LayerType type;
+    QJsonDocument profile;
 
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;

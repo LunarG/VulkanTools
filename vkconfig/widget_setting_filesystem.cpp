@@ -23,10 +23,22 @@
 #include "widget_setting.h"
 
 #include "../vkconfig_core/path.h"
+#include "../vkconfig/configurator.h"
 
 #include <QFileDialog>
 
 #include <cassert>
+
+static std::vector<std::string> LoadProfiles(const QJsonDocument& doc) {
+    assert(!doc.isNull() && !doc.isEmpty());
+
+    const QJsonObject& json_root_object = doc.object();
+    if (json_root_object.value("profiles") == QJsonValue::Undefined) {
+        return std::vector<std::string>();
+    }
+
+    return ConvertString(ReadObject(json_root_object, "profiles").keys());
+}
 
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFilesystem& meta,
                                                  SettingDataSet& data_set)
@@ -78,6 +90,8 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
         this->field->blockSignals(true);
         this->field->setText(ReplaceBuiltInVariable(this->data().value).c_str());
         this->field->blockSignals(false);
+
+        LoadFile();
     }
 }
 
@@ -86,6 +100,17 @@ void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
 
     const QRect button_rect = QRect(parent_size.width() - MIN_BUTTON_SIZE, 0, MIN_BUTTON_SIZE, parent_size.height());
     this->button->setGeometry(button_rect);
+}
+
+void WidgetSettingFilesystem::LoadFile() {
+    if (this->meta.type == SETTING_LOAD_FILE) {
+        const SettingMetaFileLoad& setting_file = static_cast<const SettingMetaFileLoad&>(this->meta);
+        if (setting_file.format == "PROFILE") {
+            SettingDataString* data = FindSetting<SettingDataString>(this->data_set, this->meta.key.c_str());
+            const std::string& value = ReplaceBuiltInVariable(data->value);
+            Configurator::Get().profiles = LoadProfiles(ParseJsonFile(value.c_str()));
+        }
+    }
 }
 
 void WidgetSettingFilesystem::browseButtonClicked() {
@@ -115,6 +140,8 @@ void WidgetSettingFilesystem::browseButtonClicked() {
         file = ConvertNativeSeparators(file);
         field->setText(file.c_str());
         this->data().value = file;
+
+        LoadFile();
         emit itemChanged();
     }
 }

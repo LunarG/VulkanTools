@@ -53,7 +53,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
     this->field->setEnabled(enabled);
     this->setEnabled(enabled);
 
-    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+    if (meta.default_value == "${VK_PROFILES}") {
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
         }
@@ -62,34 +62,40 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->field->clear();
         this->enum_indexes.clear();
 
-        if (meta.default_value == "${VK_PROFILES}") {
-            std::vector<std::string> profiles = Configurator::Get().GetProfiles();
+        const std::vector<std::string>& profiles = Configurator::Get().profiles;
 
-            int selection = 0;
-            const std::string value = this->data().value;
-            for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
-                this->field->addItem(profiles[i].c_str());
-                if (profiles[i] == value) {
-                    selection = static_cast<int>(this->enum_indexes.size());
-                }
-                this->enum_indexes.push_back(i);
+        int selection = 0;
+        const std::string value = this->data().value;
+        for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
+            this->field->addItem(profiles[i].c_str());
+            if (profiles[i] == value) {
+                selection = static_cast<int>(this->enum_indexes.size());
             }
-            this->field->setCurrentIndex(selection);
-        } else {
-            int selection = 0;
-            const std::string value = this->data().value;
-            for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
-                if (!IsSupported(&this->meta.enum_values[i])) continue;
-
-                this->field->addItem(this->meta.enum_values[i].label.c_str());
-                if (this->meta.enum_values[i].key == value) {
-                    selection = static_cast<int>(this->enum_indexes.size());
-                }
-                this->enum_indexes.push_back(i);
-            }
-            this->field->setCurrentIndex(selection);
+            this->enum_indexes.push_back(i);
+        }
+        this->field->setCurrentIndex(selection);
+        this->field->blockSignals(false);
+    } else if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        if (::CheckSettingOverridden(this->meta)) {
+            this->DisplayOverride(this->field, this->meta);
         }
 
+        this->field->blockSignals(true);
+        this->field->clear();
+        this->enum_indexes.clear();
+
+        int selection = 0;
+        const std::string value = this->data().value;
+        for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
+            if (!IsSupported(&this->meta.enum_values[i])) continue;
+
+            this->field->addItem(this->meta.enum_values[i].label.c_str());
+            if (this->meta.enum_values[i].key == value) {
+                selection = static_cast<int>(this->enum_indexes.size());
+            }
+            this->enum_indexes.push_back(i);
+        }
+        this->field->setCurrentIndex(selection);
         this->field->blockSignals(false);
     }
 }
@@ -100,7 +106,7 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
     const QFontMetrics fm = this->field->fontMetrics();
 
     if (meta.default_value == "${VK_PROFILES}") {
-        const std::vector<std::string>& profiles = Configurator::Get().GetProfiles();
+        const std::vector<std::string>& profiles = Configurator::Get().profiles;
         for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
         }
@@ -115,9 +121,16 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingEnum::OnIndexChanged(int index) {
-    assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
+    if (meta.default_value == "${VK_PROFILES}") {
+        const std::vector<std::string>& profiles = Configurator::Get().profiles;
+        assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
-    this->data().value = this->meta.enum_values[enum_indexes[static_cast<std::size_t>(index)]].key;
+        this->data().value = profiles[index];
+    } else {
+        assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
+
+        this->data().value = this->meta.enum_values[enum_indexes[static_cast<std::size_t>(index)]].key;
+    }
     emit itemChanged();
 }
 

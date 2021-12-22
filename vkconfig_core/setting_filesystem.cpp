@@ -30,6 +30,9 @@ bool SettingMetaFilesystem::Load(const QJsonObject& json_setting) {
     if (json_setting.value("filter") != QJsonValue::Undefined) {
         this->filter = ReadStringValue(json_setting, "filter");
     }
+    if (json_setting.value("format") != QJsonValue::Undefined) {
+        this->format = ReadStringValue(json_setting, "format");
+    }
     this->default_value = ReadStringValue(json_setting, "default");
     return true;
 }
