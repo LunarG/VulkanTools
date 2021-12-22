@@ -272,3 +272,21 @@ void Alert::LogFileFailed() {
     alert.setIcon(QMessageBox::Warning);
     alert.exec();
 }
+
+void Alert::FileNotJson(const char* message) {
+    QMessageBox alert;
+    alert.setText(message);
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+}
+
+void Alert::FileNotProfile(const char* message) {
+    QMessageBox alert;
+    alert.setText(message);
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+}
