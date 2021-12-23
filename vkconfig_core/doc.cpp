@@ -160,7 +160,6 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "<!DOCTYPE html>\n";
     text += "<html>\n";
     text += format("<head><title></title></head>\n", layer.key.c_str());
-    text += "<!--Begin body-->\n";
     text += "<body>\n";
     text += "<style>\n";
     text += "\ta {color: #A41E22;}\n";
@@ -192,7 +191,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += format("<p>%s</p>\n", layer.introduction.c_str());
     }
 
-    text += "<!--Begin Layer Properties-->\n";
+    text += "<!--Begin vkconfig generated-->\n";
     text += "<h2>Layer Properties</h2>\n";
     text += "<ul>\n";
     text += format("\t<li>API Version: %s</li>\n", layer.api_version.str().c_str());
@@ -258,7 +257,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         }
     }
 
-    text += "<!--End body-->\n";
+    text += "<!--End vkconfig generated-->\n";
     text += "</body>\n";
     text += "</html>\n";
 
