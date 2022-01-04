@@ -58,7 +58,7 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
 
-    this->item->setText(0, meta.label.c_str());
+    this->item->setText(0, GetLabel(this->meta).c_str());
     this->item->setToolTip(0, meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->item->setExpanded(this->meta.expanded);

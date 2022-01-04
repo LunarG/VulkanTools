@@ -53,3 +53,11 @@ int HorizontalAdvance(const QFontMetrics& fm, const QString& string) {
     return fm.width(string);
 #endif
 }
+
+std::string GetLabel(const SettingMeta& meta) { 
+    if (meta.status == STATUS_STABLE) {
+        return meta.label;
+    } else {
+        return meta.label + " (" + GetToken(meta.status) + ")";
+    }
+}

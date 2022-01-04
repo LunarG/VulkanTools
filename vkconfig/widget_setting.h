@@ -54,3 +54,5 @@ class WidgetSettingBase : public QWidget {
 };
 
 int HorizontalAdvance(const QFontMetrics& fm, const QString& string);
+
+std::string GetLabel(const SettingMeta& meta);
