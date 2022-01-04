@@ -11,7 +11,13 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.4.2](https://github.com/LunarG/VulkanTools/tree/master) - November 2021
+## [Vulkan Configurator 2.4.3](https://github.com/LunarG/VulkanTools/tree/master) - February 2022
+
+### Improvements:
+- Upgrade the built-in "Portability" to use the Profiles layer
+- Display the development status of a setting next to the setting label in the UI
+
+## [Vulkan Configurator 2.4.2](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.196.0) - November 2021
 
 ### Improvements:
 - Discard applied layers configuration to ensure the layers never crash Vulkan Configurator
