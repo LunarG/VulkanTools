@@ -37,7 +37,9 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, c
     const SettingEnumValue* enum_value = FindByKey(meta.enum_values, flag.c_str());
     assert(enum_value);
 
-    this->field->setText(enum_value->label.c_str());
+    const std::string status = meta.status == STATUS_STABLE ? "" : std::string(" (") + GetToken(enum_value->status) + ")";
+
+    this->field->setText((enum_value->label + status).c_str());
     this->field->setToolTip(enum_value->description.c_str());
     this->field->setFont(tree->font());
     this->field->show();

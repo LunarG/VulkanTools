@@ -52,7 +52,7 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* ite
     this->connect(this->timer_error, &QTimer::timeout, this, &WidgetSettingFrames::OnErrorValue);
     this->connect(this->timer_valid, &QTimer::timeout, this, &WidgetSettingFrames::OnValidValue);
 
-    this->item->setText(0, meta.label.c_str());
+    this->item->setText(0, GetLabel(this->meta).c_str());
     this->item->setFont(0, this->tree->font());
     this->item->setToolTip(0, meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));

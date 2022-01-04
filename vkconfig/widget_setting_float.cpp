@@ -40,6 +40,7 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
     assert(&meta);
 
     const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
+    const std::string status = meta.status == STATUS_STABLE ? "" : std::string(" (") + GetToken(this->meta.status) + ")";
 
     this->field->setFont(tree->font());
     this->field->setToolTip(format("[%f, %f]", meta.min_value, meta.max_value).c_str());
@@ -51,7 +52,7 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
     this->connect(this->timer_error, &QTimer::timeout, this, &WidgetSettingFloat::OnErrorValue);
     this->connect(this->timer_valid, &QTimer::timeout, this, &WidgetSettingFloat::OnValidValue);
 
-    this->item->setText(0, (this->meta.label + unit).c_str());
+    this->item->setText(0, (this->meta.label + unit + status).c_str());
     this->item->setFont(0, this->tree->font());
     this->item->setToolTip(0, meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));

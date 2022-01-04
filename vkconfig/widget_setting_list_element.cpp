@@ -37,8 +37,9 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
     assert(&meta);
 
     const std::string text = element.key.empty() ? format("%d", element.number) : element.key;
+    const std::string status = meta.status == STATUS_STABLE ? "" : std::string(" (") + GetToken(this->meta.status) + ")";
 
-    this->field->setText(text.c_str());
+    this->field->setText((text + status).c_str());
     this->field->setFont(this->tree->font());
     this->field->setToolTip(text.c_str());
     this->field->setCheckable(true);

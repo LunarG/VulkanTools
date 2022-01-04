@@ -38,7 +38,7 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* ite
 
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
 
-    this->item->setText(0, meta.label.c_str());
+    this->item->setText(0, GetLabel(this->meta).c_str());
     this->item->setFont(0, this->tree->font());
     this->item->setToolTip(0, meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
