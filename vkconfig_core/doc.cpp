@@ -255,6 +255,17 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
     }
 }
 
+uint32_t GetNumSettings(const Layer& layer, const SettingMetaSet& settings) {
+    uint32_t rval = layer.settings.size();
+    for (std::size_t i = 0, n = layer.settings.size(); i < n; ++i) {
+        const SettingMeta* setting = layer.settings[i];
+        if (setting->type != SETTING_GROUP && setting->view != SETTING_VIEW_HIDDEN) {
+            rval += setting->children.size();
+        }
+    }
+    return rval;
+}
+
 void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     std::string text;
 
@@ -307,17 +318,12 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
     }
     if (!layer.settings.empty()) {
-        text += format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", layer.settings.size());
+        text += format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", GetNumSettings(layer, layer.settings));
     }
     if (!layer.presets.empty()) {
         text += format("\t<li><a href=\"#presets\">Number of Layer Presets: %d</a></li>\n", layer.presets.size());
     }
     text += "</ul>\n";
-
-    if (!layer.url.empty()) {
-        text +=
-            format("<p>Visit <a href=\"%s\">%s home page</a> for more information.</p>\n", layer.url.c_str(), layer.key.c_str());
-    }
 
     if (!layer.settings.empty()) {
         text += "<h2><a id=\"settings\">Layer Settings Overview</a></h2>\n";
