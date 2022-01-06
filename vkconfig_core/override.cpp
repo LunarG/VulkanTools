@@ -139,9 +139,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 }
 
 // Create and write vk_layer_settings.txt file
-bool WriteSettingsOverride(const Environment& environment, const std::vector<Layer>& available_layers,
+bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
                            const Configuration& configuration, const std::string& settings_path) {
-    (void)environment;
 
     assert(!settings_path.empty());
     assert(QFileInfo(settings_path.c_str()).absoluteDir().exists());
@@ -242,7 +241,7 @@ bool OverrideConfiguration(const Environment& environment, const std::vector<Lay
     const bool result_layers = WriteLayersOverride(environment, available_layers, configuration, layers_path);
 
     // vk_layer_settings.txt
-    const bool result_settings = WriteSettingsOverride(environment, available_layers, configuration, settings_path);
+    const bool result_settings = WriteSettingsOverride(available_layers, configuration, settings_path);
 
     // On Windows only, we need to write these values to the registry
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS

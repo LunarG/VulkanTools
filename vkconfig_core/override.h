@@ -35,5 +35,5 @@ bool SurrenderConfiguration(const Environment& environment);
 bool HasOverride();
 
 // Write the settings file for override layer
-bool WriteSettingsOverride(const Environment& environment, const std::vector<Layer>& available_layers,
+bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
                            const Configuration& configuration, const std::string& settings_path);

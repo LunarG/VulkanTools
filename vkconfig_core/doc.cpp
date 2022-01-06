@@ -271,10 +271,10 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     }
 }
 
-void ExportSettingsDoc(const Environment& environment, const std::vector<Layer>& available_layers,
+void ExportSettingsDoc(const std::vector<Layer>& available_layers,
                        const Configuration& configuration, const std::string& path) {
 
-    if (WriteSettingsOverride(environment, available_layers, configuration, path))
+    if (WriteSettingsOverride(available_layers, configuration, path))
         printf("vkconfig: settings written to %s\n", path.c_str());
     else
         printf("vkconfig: could not write %s\n", path.c_str());

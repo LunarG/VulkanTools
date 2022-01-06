@@ -1170,6 +1170,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QAction *export_html_action = new QAction("Open Layer HTML Documentation...", nullptr);
             menu.addAction(export_html_action);
 
+            QAction *export_settings_action = new QAction("Open Layer vk_layers_settings.txt...", nullptr);
+            menu.addAction(export_settings_action);
+
             static const char *table[] = {
                 "N/A",            // LAYER_STATE_APPLICATION_CONTROLLED
                 "Exclude Layer",  // LAYER_STATE_OVERRIDDEN
@@ -1220,6 +1223,11 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             } else if (action == export_html_action) {
                 const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
                 ExportHtmlDoc(*layer, path);
+                QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
+            } else if (action == export_settings_action) {
+                std::vector<Layer> layers= {*layer};
+                const std::string path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
+                ExportSettingsDoc(layers, *configuration, path);
                 QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
             } else {
                 return false;  // Unknown action

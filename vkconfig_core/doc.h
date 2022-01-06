@@ -24,5 +24,5 @@
 
 void ExportHtmlDoc(const Layer& layer, const std::string& path);
 
-void ExportSettingsDoc(const Environment& environment, const std::vector<Layer>& available_layers,
+void ExportSettingsDoc(const std::vector<Layer>& available_layers,
                        const Configuration& configuration, const std::string& path);

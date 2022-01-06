@@ -66,7 +66,7 @@ int run_doc_settings(const CommandLine& commandLine) {
     config = configuration_manager.CreateConfiguration(layers.available_layers, "Config");
     config.parameters = GatherParameters(config.parameters, layers.available_layers);
     config.parameters[0].state = LAYER_STATE_OVERRIDDEN;
-    ExportSettingsDoc(environment, layers.available_layers, config, commandLine.doc_out_dir+"/vk_layer_settings.txt");
+    ExportSettingsDoc(layers.available_layers, config, commandLine.doc_out_dir+"/vk_layer_settings.txt");
 
     return rval;
 }
