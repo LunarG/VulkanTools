@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,6 +146,7 @@ struct CommandDocDesc {
 
 static const CommandDocDesc command_doc_desc[] = {
     {COMMAND_DOC_HTML, "html", 3},
+    {COMMAND_DOC_MARKDOWN, "markdown", 3},
     {COMMAND_DOC_SETTINGS, "settings", 3},
 };
 
@@ -434,11 +435,16 @@ void CommandLine::usage() const {
             printf("\n");
             printf("Synopsis\n");
             printf("\tvkconfig doc html <layer_name> [<output_dir>]\n");
+            printf("\tvkconfig doc markdown <layer_name> [<output_dir>]\n");
             printf("\tvkconfig doc settings <layer_name> [<output_dir>]\n");
             printf("\n");
             printf("Description\n");
             printf("\tvkconfig doc html <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the html documentation file for the given layer.\n");
+            printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
+            printf("\n");
+            printf("\tvkconfig doc markdown <layer_name> [<output_dir>]\n");
+            printf("\t\tCreate the markdown documentation file for the given layer.\n");
             printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
             printf("\n");
             printf("\tvkconfig doc settings <layer_name> [<output_dir>]\n");

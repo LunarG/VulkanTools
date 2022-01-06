@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1170,6 +1170,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QAction *export_html_action = new QAction("Open Layer HTML Documentation...", nullptr);
             menu.addAction(export_html_action);
 
+            QAction *export_markdown_action = new QAction("Open Layer Markdown Documentation...", nullptr);   // DOES THIS WORK???
+            menu.addAction(export_markdown_action);
+
             QAction *export_settings_action = new QAction("Open Layer vk_layers_settings.txt...", nullptr);
             menu.addAction(export_settings_action);
 
@@ -1223,6 +1226,10 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             } else if (action == export_html_action) {
                 const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
                 ExportHtmlDoc(*layer, path);
+                QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
+            } else if (action == export_markdown_action) {
+                const std::string path = format("%s/%s.md", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
+                ExportMarkdownDoc(*layer, path);
                 QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
             } else if (action == export_settings_action) {
                 std::vector<Layer> layers= {*layer};

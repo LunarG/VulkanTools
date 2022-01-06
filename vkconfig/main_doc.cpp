@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,27 @@ int run_doc_html(const CommandLine& commandLine) {
     return -1;
 }
 
+int run_doc_markdown(const CommandLine& commandLine) {
+
+    PathManager paths;
+    Environment environment(paths);
+    environment.Reset(Environment::DEFAULT);
+
+    LayerManager layers(environment);
+    layers.LoadAllInstalledLayers();
+
+    for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
+        const Layer& layer = layers.available_layers[i];
+        if (layer.key == commandLine.doc_layer_name) {
+            const std::string path = format("%s/%s.md", commandLine.doc_out_dir.c_str(), layer.key.c_str());
+            ExportMarkdownDoc(layer, path);
+            return 0;
+        }
+    }
+    fprintf(stderr, "vkconfig: layer %s not found\n", commandLine.doc_layer_name.c_str());
+    return -1;
+}
+
 int run_doc_settings(const CommandLine& commandLine) {
 
     bool rval;
@@ -78,6 +99,9 @@ int run_doc(const CommandLine& command_line) {
     switch (command_line.command_doc_arg) {
         case COMMAND_DOC_HTML: {
             return run_doc_html(command_line);
+        }
+        case COMMAND_DOC_MARKDOWN: {
+            return run_doc_markdown(command_line);
         }
         case COMMAND_DOC_SETTINGS: {
             return run_doc_settings(command_line);

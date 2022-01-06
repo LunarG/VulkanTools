@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ enum CommandLayersArg {
 enum CommandDocArg {
     COMMAND_DOC_NONE = 0,
     COMMAND_DOC_HTML,
+    COMMAND_DOC_MARKDOWN,
     COMMAND_DOC_SETTINGS
 };
 

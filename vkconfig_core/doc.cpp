@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 
 #include <QFileInfo>
 
-static std::string BuildPlatformsHTML(int platform_flags) {
+static std::string BuildPlatformsHtml(int platform_flags) {
     std::string text;
 
     const std::vector<std::string>& platforms = GetPlatformTokens(platform_flags);
@@ -38,7 +38,20 @@ static std::string BuildPlatformsHTML(int platform_flags) {
     return text;
 }
 
-static void WriteSettingsOverview(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
+static std::string BuildPlatformsMarkdown(int platform_flags) {
+    std::string text;
+
+    const std::vector<std::string>& platforms = GetPlatformTokens(platform_flags);
+    for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
+        text += platforms[i];
+        if (i < platforms.size()-1)
+        text += ", ";
+    }
+
+    return text;
+}
+
+static void WriteSettingsOverviewHtml(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         const SettingMeta* setting = settings[i];
 
@@ -58,18 +71,49 @@ static void WriteSettingsOverview(std::string& text, const Layer& layer, const S
                 text += format("\t<td><span class=\"code\">%s</span></td>\n", setting->env.c_str());
             }
 
-            text += format("\t<td>%s</td>\n", BuildPlatformsHTML(setting->platform_flags).c_str());
+            text += format("\t<td>%s</td>\n", BuildPlatformsHtml(setting->platform_flags).c_str());
             text += "</tr>\n";
         }
 
         if (IsEnum(setting->type)) {
             const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
             for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
-                WriteSettingsOverview(text, layer, setting_enum.enum_values[j].settings);
+                WriteSettingsOverviewHtml(text, layer, setting_enum.enum_values[j].settings);
             }
         }
 
-        WriteSettingsOverview(text, layer, setting->children);
+        WriteSettingsOverviewHtml(text, layer, setting->children);
+    }
+}
+
+static void WriteSettingsOverviewMarkdown(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        const SettingMeta* setting = settings[i];
+
+        if (setting->type != SETTING_GROUP && setting->view != SETTING_VIEW_HIDDEN) {
+            text += "|" + setting->label + "|" + GetToken(setting->type) + "|";
+
+            text += setting->Export(EXPORT_MODE_DOC) + "|";
+
+            text += GetLayerSettingPrefix(layer.key) + setting->key + "|";
+
+            if (setting->env.empty()) {
+                text += "N/A";
+            } else {
+                text += setting->env;
+            }
+            text += "|";
+            text += BuildPlatformsMarkdown(setting->platform_flags) + "|\n";
+        }
+
+        if (IsEnum(setting->type)) {
+            const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
+            for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
+                WriteSettingsOverviewMarkdown(text, layer, setting_enum.enum_values[j].settings);
+            }
+        }
+
+        WriteSettingsOverviewMarkdown(text, layer, setting->children);
     }
 }
 
@@ -82,7 +126,7 @@ static const std::string GetLayerSettingsDocURL(const Layer& layer) {
     }
 }
 
-static void WriteSettingsDetails(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
+static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         const SettingMeta* setting = settings[i];
 
@@ -106,7 +150,7 @@ static void WriteSettingsDetails(std::string& text, const Layer& layer, const Se
             } else {
                 text += format("\t<li>Environment Variable: <span class=\"code\">%s</span></li>\n", setting->env.c_str());
             }
-            text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHTML(setting->platform_flags).c_str());
+            text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(setting->platform_flags).c_str());
 
             if (setting->view != SETTING_VIEW_STANDARD) {
                 text += format("\t<li>Setting Level: %s</li>\n", GetToken(setting->view));
@@ -139,18 +183,75 @@ static void WriteSettingsDetails(std::string& text, const Layer& layer, const Se
                     } else {
                         text += format("\t<td class=\"desc\">%s</td>\n", value.description.c_str());
                     }
-                    text += format("\t<td>%s</td>\n", BuildPlatformsHTML(value.platform_flags).c_str());
+                    text += format("\t<td>%s</td>\n", BuildPlatformsHtml(value.platform_flags).c_str());
                     text += "</tr>\n";
                 }
                 text += "</tbody></table>\n";
 
                 for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
-                    WriteSettingsDetails(text, layer, setting_enum.enum_values[j].settings);
+                    WriteSettingsDetailsHtml(text, layer, setting_enum.enum_values[j].settings);
                 }
             }
         }
 
-        WriteSettingsDetails(text, layer, setting->children);
+        WriteSettingsDetailsHtml(text, layer, setting->children);
+    }
+}
+
+static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        const SettingMeta* setting = settings[i];
+
+        if (setting->type != SETTING_GROUP && setting->view != SETTING_VIEW_HIDDEN) {
+            if (setting->status == STATUS_STABLE) {
+                text += "### " + setting->label;
+            } else {
+                text += "### " + setting->label + "(" + GetToken(setting->status) + ")";
+            }
+            text += "\n";
+
+            text += setting->description + "\n";
+
+            text += "#### Setting Properties:\n";
+            text += "- vk_layer_settings.txt Variable: " + GetLayerSettingPrefix(layer.key) + setting->key + "\n";
+            if (setting->env.empty()) {
+                text += "- Environment Variable: N/A\n";
+            } else {
+                text += "- Environment Variable: " + setting->env + "\n";
+            }
+            text += "- Platforms: " + BuildPlatformsMarkdown(setting->platform_flags) + "\n\n";
+
+            if (setting->view != SETTING_VIEW_STANDARD) {
+                text += format("Setting Level: %s\n" , GetToken(setting->view));
+            }
+
+            text += format("Setting Type: %s - Setting Default Value: %s\n" , GetToken(setting->type), setting->Export(EXPORT_MODE_DOC).c_str());
+
+            if (IsEnum(setting->type)) {
+                const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
+
+                text += "|Enum Value|Label|Description|Platforms|\n";
+                text += "|---|---|---|---|\n";
+                for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
+                    const SettingEnumValue& value = setting_enum.enum_values[j];
+
+                    if (value.view == SETTING_VIEW_HIDDEN) continue;
+
+                    text += "|" + value.key + "|" + value.label + "|";
+                    if (value.description.empty()) {
+                        text += "N/A|";
+                    } else {
+                        text += value.description + "|";
+                    }
+                    text += BuildPlatformsMarkdown(value.platform_flags) + "|\n";
+                }
+                for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
+                    WriteSettingsDetailsMarkdown(text, layer, setting_enum.enum_values[j].settings);
+                }
+            }
+        }
+
+        WriteSettingsDetailsMarkdown(text, layer, setting->children);
     }
 }
 
@@ -191,7 +292,6 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += format("<p>%s</p>\n", layer.introduction.c_str());
     }
 
-    text += "<!--Begin vkconfig generated-->\n";
     text += "<h2>Layer Properties</h2>\n";
     text += "<ul>\n";
     text += format("\t<li>API Version: %s</li>\n", layer.api_version.str().c_str());
@@ -201,7 +301,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += format("\t\t<li>Layer Binary Path: %s</li>\n", layer.binary_path.c_str());
     text += "\t</ul></li>\n";
     if (layer.platforms != 0) {
-        text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHTML(layer.platforms).c_str());
+        text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(layer.platforms).c_str());
     }
     if (layer.status != STATUS_STABLE) {
         text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
@@ -227,11 +327,11 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
             "<th>Environment Variable</th><th>Platforms</th>",
             GetLayerSettingsDocURL(layer).c_str());
         text += "</tr></thead><tbody>\n";
-        WriteSettingsOverview(text, layer, layer.settings);
+        WriteSettingsOverviewHtml(text, layer, layer.settings);
         text += "</tbody></table>\n";
 
         text += "<h2>Layer Settings Details</h2>\n";
-        WriteSettingsDetails(text, layer, layer.settings);
+        WriteSettingsDetailsHtml(text, layer, layer.settings);
     }
 
     if (!layer.presets.empty()) {
@@ -257,7 +357,6 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         }
     }
 
-    text += "<!--End vkconfig generated-->\n";
     text += "</body>\n";
     text += "</html>\n";
 
@@ -266,6 +365,77 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         file.write(text.c_str());
         file.close();
         printf("vkconfig: html file written to %s\n", path.c_str());
+    } else {
+        printf("vkconfig: could not write %s\n", path.c_str());
+    }
+}
+
+void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
+    std::string text;
+
+    text += format("# %s\n", layer.key.c_str());
+
+    if (!layer.description.empty()) {
+        text += "## " + layer.description + "\n";
+    }
+
+    if (!layer.introduction.empty()) {
+        text += layer.introduction + "\n";
+    }
+
+    text += "## Layer Properties\n\n";
+    text += format("- API Version: %s\n", layer.api_version.str().c_str());
+    text += format("- Implementation Version: %s\n", layer.implementation_version.c_str());
+    text += format("- Layer Manifest: %s\n", QFileInfo(layer.manifest_path.c_str()).fileName().toStdString().c_str());
+    text += format("  - File Format: %s\n", layer.file_format_version.str().c_str());
+    text += format("  - Layer Binary Path: %s\n", layer.binary_path.c_str());
+
+    if (layer.platforms != 0) {
+        text += "- Platforms: " + BuildPlatformsMarkdown(layer.platforms) + "\n";
+    }
+    if (layer.status != STATUS_STABLE) {
+        text += format(" - Status: %s\n", GetToken(layer.status));
+    }
+    if (!layer.settings.empty()) {
+        text += format("- Number of Layer Settings: %d\n", layer.settings.size());
+    }
+    if (!layer.presets.empty()) {
+        text += format("- Number of Layer Presets: %d\n", layer.presets.size());
+    }
+    text += "\n";
+
+    if (!layer.settings.empty()) {
+        text += "## Layer Settings Overview\n";
+        text += "|Setting|Type|Default Value|vk_layer_settings.txt Variable|Environment Variable|Platforms|\n";
+        text += "|---|---|---|---|---|---|\n";
+        WriteSettingsOverviewMarkdown(text, layer, layer.settings);
+
+        text += "## Layer Settings Details\n";
+        WriteSettingsDetailsMarkdown(text, layer, layer.settings);
+    }
+
+    if (!layer.presets.empty()) {
+        text += "## Layer Presets\n";
+        for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
+            const LayerPreset& preset = layer.presets[i];
+
+            text += "### " + preset.label + "\n"; 
+            text += preset.description + "\n"; 
+            text += "#### Preset Setting Values:\n";
+            for (std::size_t j = 0, o = preset.settings.size(); j < o; ++j) {
+                const SettingData* data = preset.settings[j];
+                const SettingMeta* meta = FindSetting(layer.settings, data->key.c_str());
+
+                text += "- " + meta->label + ": " + data->Export(EXPORT_MODE_DOC).c_str() + "\n";
+            }
+        }
+    }
+
+    QFile file(path.c_str());
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        file.write(text.c_str());
+        file.close();
+        printf("vkconfig: markdown file written to %s\n", path.c_str());
     } else {
         printf("vkconfig: could not write %s\n", path.c_str());
     }
