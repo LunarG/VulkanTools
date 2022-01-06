@@ -80,8 +80,21 @@ set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/
 set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/lib")
 find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
 
-find_package(PythonInterp 3 REQUIRED)
-set (PYTHON_CMD ${PYTHON_EXECUTABLE})
+# Check for python 3.6 or greater
+# Cannot use find_package(PythonInterp 3.6 REQUIRED) because it isn't smart enough to ignore an older /usr/bin/python3
+# Cannot use FindPython3 because it isn't available in CMake 3.10
+# This will go away when we start committing the generated files to this repo
+foreach(PYTHON_MIN_VERSION RANGE 6 20)
+    find_package(PythonInterp "3.${PYTHON_MIN_VERSION}" EXACT)
+    if(PythonInterp_FOUND)
+        set (PYTHON_CMD ${PYTHON_EXECUTABLE})
+        break()
+    endif()
+    unset(PYTHON_EXECUTABLE CACHE)
+endforeach(PYTHON_MIN_VERSION)
+if(NOT PythonInterp_FOUND)
+    message(FATAL_ERROR "Could not find Python >= 3.6")
+endif()
 
 # Enable cmake folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
