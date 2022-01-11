@@ -693,9 +693,11 @@ class ApiDumpInstance {
     }
 
     inline ~ApiDumpInstance() {
+        if (!dump_settings) return;
+
         if (!first_func_call_on_frame) settings().closeFrameOutput();
 
-        if (dump_settings != NULL) delete dump_settings;
+        delete dump_settings;
     }
 
     inline uint64_t frameCount() {
