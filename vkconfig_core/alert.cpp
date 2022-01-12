@@ -273,9 +273,18 @@ void Alert::LogFileFailed() {
     alert.exec();
 }
 
+void Alert::FileNotFound(const char* message) {
+    QMessageBox alert;
+    alert.setText(format("%s file not found.", message).c_str());
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+}
+
 void Alert::FileNotJson(const char* message) {
     QMessageBox alert;
-    alert.setText(message);
+    alert.setText(format("%s is not a JSON file.", message).c_str());
     alert.setStandardButtons(QMessageBox::Ok);
     alert.setDefaultButton(QMessageBox::Ok);
     alert.setIcon(QMessageBox::Warning);
@@ -284,7 +293,7 @@ void Alert::FileNotJson(const char* message) {
 
 void Alert::FileNotProfile(const char* message) {
     QMessageBox alert;
-    alert.setText(message);
+    alert.setText(format("%s is not a JSON profile file.", message).c_str());
     alert.setStandardButtons(QMessageBox::Ok);
     alert.setDefaultButton(QMessageBox::Ok);
     alert.setIcon(QMessageBox::Warning);
