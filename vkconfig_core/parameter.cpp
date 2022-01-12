@@ -29,6 +29,10 @@
 #include <cassert>
 #include <algorithm>
 
+static const char* VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME = "VK_LAYER_LUNARG_device_simulation";
+static const char* VK_LAYER_KHRONOS_PROFILES_NAME = "VK_LAYER_KHRONOS_profiles";
+static const char* VK_LAYER_KHRONOS_VALIDATION_NAME = "VK_LAYER_KHRONOS_validation";
+
 bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
     for (std::size_t preset_index = 0, preset_count = preset.settings.size(); preset_index < preset_count; ++preset_index) {
         SettingData* preset_setting = preset.settings[preset_index];
@@ -78,13 +82,19 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
             if (rankA == rankB && a.state == LAYER_STATE_OVERRIDDEN) {
                 if (a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK)
                     return a.overridden_rank < b.overridden_rank;
-                else if (a.key == "VK_LAYER_LUNARG_device_simulation")
+                else if (a.key == VK_LAYER_KHRONOS_PROFILES_NAME)
                     return false;
-                else if (b.key == "VK_LAYER_LUNARG_device_simulation")
+                else if (b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
                     return true;
-                else if (a.key == "VK_LAYER_KHRONOS_validation" && b.key == "VK_LAYER_LUNARG_device_simulation")
+                else if (a.key == VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME)
+                    return false;
+                else if (b.key == VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME)
                     return true;
-                else if (a.key == "VK_LAYER_KHRONOS_validation")
+                else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME && b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
+                    return true;
+                else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME && b.key == VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME)
+                    return true;
+                else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
                     return false;
                 else
                     return a.key < b.key;
