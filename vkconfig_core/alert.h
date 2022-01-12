@@ -52,6 +52,7 @@ struct Alert {
 
     static void LogFileFailed();
 
+    static void FileNotFound(const char* message);
     static void FileNotJson(const char* message);
     static void FileNotProfile(const char* message);
 };

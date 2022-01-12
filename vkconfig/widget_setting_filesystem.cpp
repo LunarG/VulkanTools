@@ -117,14 +117,13 @@ void WidgetSettingFilesystem::LoadFile(const std::string& path) {
             const QJsonDocument& doc = ParseJsonFile(value.c_str());
 
             if (doc.isNull() || doc.isEmpty()) {
-                Alert::FileNotJson(format("%s is not a JSON file.", path.c_str()).c_str());
                 return;
             }
 
             const QJsonObject& json_root_object = doc.object();
             if (json_root_object.value("$schema").toString().toStdString().find("https://schema.khronos.org/vulkan/profiles-1.") ==
                 std::string::npos) {
-                Alert::FileNotProfile(format("%s is not a JSON profile file.", path.c_str()).c_str());
+                Alert::FileNotProfile(value.c_str());
                 return;
             }
 
