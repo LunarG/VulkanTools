@@ -16,6 +16,8 @@
 ### Improvements:
 - Upgrade the built-in "Portability" to use the Profiles layer
 - Display the development status of a setting next to the setting label in the UI
+- Display a warning when using multiple layers built with different Vulkan Header version
+  - It's a requirement by the Vulkan Loader
 
 ### Fixes:
 - Fix ANY dependence when using FLAGS setting type
