@@ -23,6 +23,8 @@
 
 #include "configurator.h"
 
+#include "../vkconfig_core/alert.h"
+
 #include <QFileDialog>
 
 UserDefinedPathsDialog::UserDefinedPathsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::dialog_custom_paths) {
@@ -53,6 +55,22 @@ void UserDefinedPathsDialog::SaveLayersPaths(const std::vector<std::string> &lay
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
         configurator.environment.AppendCustomLayerPath(layers_paths[i]);
+    }
+}
+
+void UserDefinedPathsDialog::accept() {
+    Configurator &configurator = Configurator::Get();
+
+    std::string log_versions;
+    if (configurator.configurations.CheckLayersVersions(configurator.layers.available_layers,
+                                                        configurator.configurations.GetActiveConfiguration(), log_versions)) {
+        QDialog::accept();
+        return;
+    } 
+    
+    if (Alert::LayerIncompatibleVersions(log_versions.c_str()) == QMessageBox::Yes) {
+        QDialog::accept();
+        return;
     }
 }
 
@@ -100,8 +118,6 @@ void UserDefinedPathsDialog::RepopulateTree() {
         }
     }
 }
-
-void UserDefinedPathsDialog::on_buttonBox_clicked() { this->accept(); }
 
 void UserDefinedPathsDialog::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();

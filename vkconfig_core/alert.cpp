@@ -19,6 +19,7 @@
  */
 
 #include "alert.h"
+#include <QCheckBox>
 
 void Alert::LoaderFailure() {
     QMessageBox alert;
@@ -264,6 +265,17 @@ void Alert::LayerProperties(const Layer* layer) {
     alert.setDefaultButton(QMessageBox::Ok);
     alert.setIcon(QMessageBox::Information);
     alert.exec();
+}
+
+QMessageBox::Button Alert::LayerIncompatibleVersions(const char* message) {
+    QMessageBox alert;
+    alert.setWindowTitle("Incompatible layers versions");
+    alert.setText("The Vulkan Loader requires that the layers are built with the same Vulkan Headers version.");
+    alert.setInformativeText((std::string("Are you sure you want to keep using these layers?\n") + message).c_str());
+    alert.setIcon(QMessageBox::Warning);
+    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    alert.setDefaultButton(QMessageBox::No);
+    return static_cast<QMessageBox::Button>(alert.exec());
 }
 
 void Alert::LogFileFailed() {

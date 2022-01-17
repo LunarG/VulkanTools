@@ -22,6 +22,7 @@
 #include "path_manager.h"
 #include "configuration_manager.h"
 #include "override.h"
+#include "alert.h"
 
 #include <QMessageBox>
 #include <QFileInfoList>
@@ -345,4 +346,36 @@ void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> 
     }
 
     RefreshConfiguration(available_layers);
+}
+
+bool ConfigurationManager::CheckLayersVersions(const std::vector<Layer> &available_layers, Configuration *active_configuration,
+                                               std::string &log_versions) const {
+    assert(active_configuration != nullptr);
+
+    Version version = Version::VERSION_NULL;
+
+    bool result = true;
+
+    for (std::size_t param_index = 0, param_count = active_configuration->parameters.size(); param_index < param_count;
+         ++param_index) {
+        const Parameter &parameter = active_configuration->parameters[param_index];
+
+        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
+
+        for (std::size_t layer_index = 0, layer_count = available_layers.size(); layer_index < layer_count; ++layer_index) {
+            const Layer &layer = available_layers[layer_index];
+
+            if (layer.key == parameter.key) {
+                if (version == Version::VERSION_NULL) {
+                    version = layer.api_version;
+                }
+
+                if (layer.api_version != version) result = false;
+
+                log_versions += format("%s - %s\n", layer.key.c_str(), layer.api_version.str().c_str());
+            }
+        }
+    }
+
+    return result;
 }

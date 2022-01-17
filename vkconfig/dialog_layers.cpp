@@ -537,9 +537,17 @@ void LayersDialog::accept() {
     saved_configuration->parameters = this->configuration.parameters;
     saved_configuration->setting_tree_state.clear();
 
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
-
-    QDialog::accept();
+    std::string log_versions;
+    if (configurator.configurations.CheckLayersVersions(configurator.layers.available_layers, saved_configuration, log_versions)) {
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
+        QDialog::accept();
+    } else {
+        if (Alert::LayerIncompatibleVersions(log_versions.c_str()) == QMessageBox::No) {
+            return;
+        } else {
+            QDialog::accept();
+        }
+    }
 }
 
 void LayersDialog::BuildParameters() {
