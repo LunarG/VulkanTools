@@ -39,8 +39,8 @@ class UserDefinedPathsDialog : public QDialog {
     void on_pushButtonAdd_clicked();
     void on_pushButtonRemove_clicked();
     void on_treeWidget_itemSelectionChanged();
-    void on_buttonBox_clicked();
-    void reject();
+    void accept() override;
+    void reject() override;
 
    private:
     UserDefinedPathsDialog(const UserDefinedPathsDialog &) = delete;

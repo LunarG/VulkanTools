@@ -60,6 +60,9 @@ class ConfigurationManager {
 
     void SortConfigurations();
 
+    bool CheckLayersVersions(const std::vector<Layer>& available_layers, Configuration* active_configuration,
+                             std::string& log_versions) const;
+
     bool Empty() const { return available_configurations.empty(); }
 
     bool HasFile(const Configuration& configuration) const;

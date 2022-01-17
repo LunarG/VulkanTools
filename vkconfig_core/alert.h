@@ -49,6 +49,7 @@ struct Alert {
     static void ConfigurationNameInvalid();
 
     static void LayerProperties(const Layer* layer);
+    static QMessageBox::Button LayerIncompatibleVersions(const char* message);
 
     static void LogFileFailed();
 
