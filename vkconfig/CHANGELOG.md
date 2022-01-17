@@ -17,6 +17,9 @@
 - Upgrade the built-in "Portability" to use the Profiles layer
 - Display the development status of a setting next to the setting label in the UI
 
+### Fixes:
+- Fix ANY dependence when using FLAGS setting type
+
 ## [Vulkan Configurator 2.4.2](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.196.0) - November 2021
 
 ### Improvements:
