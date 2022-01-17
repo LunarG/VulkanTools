@@ -285,16 +285,20 @@ bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
                 const SettingData* data = FindSetting(data_set, meta.dependence[i]->key.c_str());
                 if (data == nullptr) continue;
 
-                if (*data == *meta.dependence[i]) return true;
-
                 if (meta.dependence[i]->type == SETTING_FLAGS) {
                     const SettingDataFlags& data_flags = static_cast<const SettingDataFlags&>(*data);
                     const SettingDataFlags& dep_flags = static_cast<const SettingDataFlags&>(*meta.dependence[i]);
+                    std::size_t found_flags = 0;
                     for (std::size_t j = 0, o = dep_flags.value.size(); j < o; ++j) {
                         if (IsStringFound(data_flags.value, dep_flags.value[j])) {
-                            return true;
+                            ++found_flags;
                         }
                     }
+                    if (found_flags == dep_flags.value.size()) return true;
+                }
+
+                if (*data == *meta.dependence[i]) {
+                    return true;
                 }
             }
             return false;
@@ -306,8 +310,7 @@ const char* GetToken(DependenceMode type) {
     static const char* table[] = {
         "NONE",     // DEPENDENCE_NONE
         "ALL",      // DEPENDENCE_ALL
-        "ANY",      // DEPENDENCE_ANY
-        "PROFILE",  // DEPENDENCE_PROFILE
+        "ANY"       // DEPENDENCE_ANY
     };
     static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
