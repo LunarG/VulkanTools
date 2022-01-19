@@ -204,15 +204,15 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
 
         if (setting->type != SETTING_GROUP && setting->view != SETTING_VIEW_HIDDEN) {
             if (setting->status == STATUS_STABLE) {
-                text += "### " + setting->label;
+                text += "#### " + setting->label;
             } else {
-                text += "### " + setting->label + "(" + GetToken(setting->status) + ")";
+                text += "#### " + setting->label + "(" + GetToken(setting->status) + ")";
             }
             text += "\n";
 
             text += setting->description + "\n";
 
-            text += "#### Setting Properties:\n";
+            text += "##### Setting Properties:\n";
             text += "- vk_layer_settings.txt Variable: " + GetLayerSettingPrefix(layer.key) + setting->key + "\n";
             if (setting->env.empty()) {
                 text += "- Environment Variable: N/A\n";
@@ -379,22 +379,23 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
 void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     std::string text;
 
-    text += format("# %s\n", layer.key.c_str());
+    text += format("## %s\n", layer.key.c_str());
 
     if (!layer.description.empty()) {
-        text += "## " + layer.description + "\n";
+        text += "### " + layer.description + "\n";
     }
 
     if (!layer.introduction.empty()) {
         text += layer.introduction + "\n";
     }
 
-    text += "## Layer Properties\n\n";
-    text += format("- API Version: %s\n", layer.api_version.str().c_str());
-    text += format("- Implementation Version: %s\n", layer.implementation_version.c_str());
-    text += format("- Layer Manifest: %s\n", QFileInfo(layer.manifest_path.c_str()).fileName().toStdString().c_str());
-    text += format("  - File Format: %s\n", layer.file_format_version.str().c_str());
-    text += format("  - Layer Binary Path: %s\n", layer.binary_path.c_str());
+    text += "### Layer Properties\n\n";
+    text += "- API Version: " + layer.api_version.str() + "\n";
+    text += "- Implementation Version: " + layer.implementation_version + "\n";
+    text += "- Layer Manifest: " + QFileInfo(layer.manifest_path.c_str()).fileName().toStdString() + "\n";
+    text += "  - File Format: " + layer.file_format_version.str() + "\n";
+    text += "  - Layer Binary: ";
+    text += (layer.binary_path.rfind("./", 0) == 0 ? layer.binary_path.substr(2) : layer.binary_path) + "\n";
 
     if (layer.platforms != 0) {
         text += "- Platforms: " + BuildPlatformsMarkdown(layer.platforms) + "\n";
@@ -411,23 +412,23 @@ void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     text += "\n";
 
     if (!layer.settings.empty()) {
-        text += "## Layer Settings Overview\n";
+        text += "### Layer Settings Overview\n";
         text += "|Setting|Type|Default Value|vk_layer_settings.txt Variable|Environment Variable|Platforms|\n";
         text += "|---|---|---|---|---|---|\n";
         WriteSettingsOverviewMarkdown(text, layer, layer.settings);
 
-        text += "## Layer Settings Details\n";
+        text += "### Layer Settings Details\n";
         WriteSettingsDetailsMarkdown(text, layer, layer.settings);
     }
 
     if (!layer.presets.empty()) {
-        text += "## Layer Presets\n";
+        text += "### Layer Presets\n";
         for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
             const LayerPreset& preset = layer.presets[i];
 
-            text += "### " + preset.label + "\n"; 
-            text += preset.description + "\n"; 
-            text += "#### Preset Setting Values:\n";
+            text += "#### " + preset.label + "\n";
+            text += preset.description + "\n";
+            text += "##### Preset Setting Values:\n";
             for (std::size_t j = 0, o = preset.settings.size(); j < o; ++j) {
                 const SettingData* data = preset.settings[j];
                 const SettingMeta* meta = FindSetting(layer.settings, data->key.c_str());

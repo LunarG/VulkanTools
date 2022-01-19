@@ -69,7 +69,7 @@ int run_doc_markdown(const CommandLine& commandLine) {
 
 int run_doc_settings(const CommandLine& commandLine) {
 
-    bool rval;
+    int rval = 0;
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);

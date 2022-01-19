@@ -142,12 +142,16 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
                            const Configuration& configuration, const std::string& settings_path) {
 
-    assert(!settings_path.empty());
-    assert(QFileInfo(settings_path.c_str()).absoluteDir().exists());
-
+    if (settings_path.empty() || !QFileInfo(settings_path.c_str()).absoluteDir().exists()) {
+        fprintf(stderr, "Cannot open file %s\n",  settings_path.c_str());
+        exit(1);
+    };
     QFile file(settings_path.c_str());
     const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result_settings_file);
+    if (!result_settings_file) {
+        fprintf(stderr, "Cannot open file %s\n",  settings_path.c_str());
+        exit(1);
+    }
     QTextStream stream(&file);
 
     bool has_missing_layers = false;
@@ -174,6 +178,11 @@ bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
 
         for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
             const SettingData* setting_data = parameter.settings[i];
+
+            // Skip groups - they aren't settings, so not relevant in this output
+            if (setting_data->type == SETTING_GROUP) {
+                continue;
+            }
 
             // Skip missing settings
             const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
