@@ -76,3 +76,5 @@ bool IsPortableFilename(const std::string& path);
 QFileInfoList GetJSONFiles(const char* directory);
 
 std::string ExtractAbsoluteDir(const std::string& path);
+
+std::vector<std::string> GetProfileNames(const std::string& profile_path);

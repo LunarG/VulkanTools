@@ -109,26 +109,8 @@ void WidgetSettingFilesystem::LoadFile(const std::string& path) {
         if (setting_file.format == "PROFILE") {
             if (path.empty()) return;
 
-            if (Configurator::Get().profile_file == path) return;
-
-            Configurator::Get().profile_file = path;
-
-            const std::string& value = ReplaceBuiltInVariable(path);
-            const QJsonDocument& doc = ParseJsonFile(value.c_str());
-
-            if (doc.isNull() || doc.isEmpty()) {
-                return;
-            }
-
-            const QJsonObject& json_root_object = doc.object();
-            if (json_root_object.value("$schema").toString().toStdString().find("https://schema.khronos.org/vulkan/profiles-1.") ==
-                std::string::npos) {
-                Alert::FileNotProfile(value.c_str());
-                return;
-            }
-
-            this->data().value = path;
-            Configurator::Get().profile_names = LoadProfiles(doc);
+            SettingDataFileLoad& setting_data = static_cast<SettingDataFileLoad&>(this->data());
+            setting_data.profile_names = GetProfileNames(path);
         }
     }
 }

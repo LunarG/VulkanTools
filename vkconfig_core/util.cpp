@@ -202,3 +202,4 @@ std::string GetLayerSettingPrefix(const std::string& key) {
     result.remove("VK_LAYER_");
     return ToLowerCase(result.toStdString()) + ".";
 }
+
