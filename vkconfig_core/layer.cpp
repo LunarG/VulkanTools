@@ -348,6 +348,24 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         const bool result = setting_meta->Load(json_setting);
         assert(result);
 
+        if (setting_meta->type == SETTING_LOAD_FILE) {
+            const SettingMetaFileLoad& setting_file = static_cast<const SettingMetaFileLoad&>(*setting_meta);
+            if (setting_file.format == "PROFILE") {
+                const std::string& value = ReplaceBuiltInVariable(setting_file.default_value);
+                const QJsonDocument& doc = ParseJsonFile(value.c_str());
+
+                if (!doc.isNull() && !doc.isEmpty()) 
+                {
+                    const QJsonObject& json_root_object = doc.object();
+                    if (json_root_object.value("$schema").toString().toStdString().find(
+                            "https://schema.khronos.org/vulkan/profiles-1.") == std::string::npos) {
+                        Alert::FileNotProfile(value.c_str());
+                        return;
+                    }
+                }
+            }
+        }
+
         const QJsonValue& json_children = json_setting.value("settings");
         if (json_children != QJsonValue::Undefined) {
             AddSettingsSet(setting_meta->children, setting_meta, json_children);

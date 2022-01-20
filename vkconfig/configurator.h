@@ -45,7 +45,6 @@ class Configurator {
     }
 
     std::string profile_file;
-    std::vector<std::string> profile_names;
 
    private:
     Configurator();

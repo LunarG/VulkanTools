@@ -23,9 +23,17 @@
 #include "widget_setting.h"
 #include "configurator.h"
 
+#include "../vkconfig_core/setting_filesystem.h"
+
 #include <cassert>
 
 static const int MIN_FIELD_WIDTH = 80;
+
+static const std::vector<std::string>& GetProfileNames(SettingDataSet& data_set) {
+    SettingDataFileLoad* data_file_load = static_cast<SettingDataFileLoad*>(FindSetting(data_set, "profile_file"));
+
+    return data_file_load->profile_names;
+}
 
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta,
                                      SettingDataSet& data_set)
@@ -62,7 +70,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->field->clear();
         this->enum_indexes.clear();
 
-        const std::vector<std::string>& profiles = Configurator::Get().profile_names;
+        const std::vector<std::string>& profiles = GetProfileNames(data_set);
 
         int selection = 0;
         const std::string value = this->data().value;
@@ -106,7 +114,7 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
     const QFontMetrics fm = this->field->fontMetrics();
 
     if (meta.default_value == "${VK_PROFILES}") {
-        const std::vector<std::string>& profiles = Configurator::Get().profile_names;
+        const std::vector<std::string>& profiles = GetProfileNames(data_set);
         for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
         }
@@ -122,7 +130,7 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
 
 void WidgetSettingEnum::OnIndexChanged(int index) {
     if (meta.default_value == "${VK_PROFILES}") {
-        const std::vector<std::string>& profiles = Configurator::Get().profile_names;
+        const std::vector<std::string>& profiles = GetProfileNames(data_set);
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
         this->data().value = profiles[index];

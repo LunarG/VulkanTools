@@ -19,11 +19,14 @@
  */
 
 #include "util.h"
+#include "json.h"
+#include "alert.h"
 #include "path.h"
 #include "path_manager.h"
 #include "platform.h"
 
 #include <QDir>
+#include <QJsonDocument>
 
 #include <cassert>
 #include <cstring>
@@ -277,4 +280,33 @@ std::string ExtractAbsoluteDir(const std::string& path) {
     assert(!path.empty());
 
     return ConvertNativeSeparators(QFileInfo(path.c_str()).absoluteDir().path().toStdString());
+}
+
+static std::vector<std::string> LoadProfiles(const QJsonDocument& doc) {
+    assert(!doc.isNull() && !doc.isEmpty());
+
+    const QJsonObject& json_root_object = doc.object();
+    if (json_root_object.value("profiles") == QJsonValue::Undefined) {
+        return std::vector<std::string>();
+    }
+
+    return ConvertString(ReadObject(json_root_object, "profiles").keys());
+}
+
+std::vector<std::string> GetProfileNames(const std::string& profile_path) {
+    const std::string& value = ReplaceBuiltInVariable(profile_path);
+    const QJsonDocument& doc = ParseJsonFile(value.c_str());
+
+    if (doc.isNull() || doc.isEmpty()) {
+        return std::vector<std::string>();
+    }
+
+    const QJsonObject& json_root_object = doc.object();
+    if (json_root_object.value("$schema").toString().toStdString().find("https://schema.khronos.org/vulkan/profiles-1.") ==
+        std::string::npos) {
+        Alert::FileNotProfile(value.c_str());
+        return std::vector<std::string>();
+    }
+
+    return LoadProfiles(doc);
 }

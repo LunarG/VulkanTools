@@ -58,7 +58,10 @@ struct SettingMetaFileLoad : public SettingMetaFilesystem {
 struct SettingDataFileLoad : public SettingDataFilesystem {
     SettingDataFileLoad(const SettingMetaFileLoad* meta);
 
+    bool Load(const QJsonObject& json_setting) override;
     void Reset() override;
+
+    std::vector<std::string> profile_names;
 
    private:
     const SettingMetaFileLoad* meta;
