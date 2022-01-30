@@ -2,7 +2,7 @@
   "repos" : [
     {
       "name" : "Vulkan-Headers",
-      "url" : "git@gitlab.khronos.org:vulkan/Vulkan-Headers.git",
+      "url" : "https://github.com/KhronosGroup/Vulkan-Headers.git",
       "sub_dir" : "Vulkan-Headers",
       "build_dir" : "Vulkan-Headers/build",
       "install_dir" : "Vulkan-Headers/build/install",
@@ -10,7 +10,7 @@
     },
     {
       "name" : "Vulkan-Loader",
-      "url" : "git@gitlab.khronos.org:vulkan/Vulkan-Loader.git",
+      "url" : "https://github.com/KhronosGroup/Vulkan-Loader.git",
       "sub_dir" : "Vulkan-Loader",
       "build_dir" : "Vulkan-Loader/build",
       "install_dir" : "Vulkan-Loader/build/install",
@@ -31,7 +31,7 @@
     },
     {
       "name" : "Vulkan-Tools",
-      "url" : "git@gitlab.khronos.org:vulkan/Vulkan-Loader.git",
+      "url" : "https://github.com/KhronosGroup/Vulkan-Tools.git",
       "sub_dir" : "Vulkan-Tools",
       "build_dir" : "Vulkan-Tools/build",
       "install_dir" : "Vulkan-Tools/build/install",
@@ -56,7 +56,7 @@
     },
     {
       "name" : "Vulkan-ValidationLayers",
-      "url" : "git@gitlab.khronos.org:vulkan/Vulkan-ValidationLayers.git",
+      "url" : "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git",
       "sub_dir" : "Vulkan-ValidationLayers",
       "build_dir" : "Vulkan-ValidationLayers/build",
       "install_dir" : "Vulkan-ValidationLayers/build/install",
