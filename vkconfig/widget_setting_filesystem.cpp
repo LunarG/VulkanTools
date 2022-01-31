@@ -119,7 +119,7 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     std::string file;
 
     const char* filter = this->meta.filter.c_str();
-    std::string value = this->data().value;
+    const std::string value = this->data().value;
 
     const std::string path = ReplaceBuiltInVariable(value.empty() ? "${VK_LOCAL}" : value.c_str());
 
@@ -141,6 +141,8 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     if (!file.empty()) {
         file = ConvertNativeSeparators(file);
         LoadFile(file);
+
+        this->data().value = file;
 
         field->setText(this->data().value.c_str());
 
