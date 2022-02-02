@@ -172,7 +172,7 @@ SettingMeta* FindSetting(SettingMetaSet& settings, const char* key) {
         SettingMeta* child = FindSetting(settings[i]->children, key);
         if (child != nullptr) return child;
 
-        if (IsEnum(settings[i]->type)) {
+        if (IsEnum(settings[i]->type) || IsFlags(settings[i]->type)) {
             SettingMetaEnum& setting_meta_enum = static_cast<SettingMetaEnum&>(*settings[i]);
 
             for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
@@ -192,7 +192,7 @@ const SettingMeta* FindSetting(const SettingMetaSet& settings, const char* key) 
         const SettingMeta* child = FindSetting(settings[i]->children, key);
         if (child != nullptr) return child;
 
-        if (IsEnum(settings[i]->type)) {
+        if (IsEnum(settings[i]->type) || IsFlags(settings[i]->type)) {
             const SettingMetaEnum& setting_meta_enum = static_cast<const SettingMetaEnum&>(*settings[i]);
 
             for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
@@ -231,7 +231,7 @@ std::size_t CountSettings(const SettingMetaSet& settings) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         count += CountSettings(settings[i]->children);
 
-        if (IsEnum(settings[i]->type)) {
+        if (IsEnum(settings[i]->type) || IsFlags(settings[i]->type)) {
             const SettingMetaEnumeration& meta_enum = static_cast<const SettingMetaEnumeration&>(*settings[i]);
 
             for (std::size_t j = 0, o = meta_enum.enum_values.size(); j < o; ++j) {

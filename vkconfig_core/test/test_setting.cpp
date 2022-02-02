@@ -22,9 +22,9 @@
 
 #include <gtest/gtest.h>
 
-TEST(test_setting, is_enum_true1) { EXPECT_EQ(true, IsEnum(SETTING_ENUM)); }
+TEST(test_setting, is_enum_true) { EXPECT_EQ(true, IsEnum(SETTING_ENUM)); }
 
-TEST(test_setting, is_enum_true2) { EXPECT_EQ(true, IsEnum(SETTING_FLAGS)); }
+TEST(test_setting, is_flags_true)  { EXPECT_EQ(true, IsFlags(SETTING_FLAGS)); }
 
 TEST(test_setting, is_enum_false) { EXPECT_EQ(false, IsEnum(SETTING_STRING)); }
 

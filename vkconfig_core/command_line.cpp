@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ struct CommandHelpDesc {
 };
 
 static const CommandHelpDesc command_help_desc[] = {
-    {HELP_HELP, "help"}, {HELP_VERSION, "version"}, {HELP_GUI, "gui"}, {HELP_LAYERS, "layers"}, {HELP_RESET, "reset"},
+    {HELP_HELP, "help"}, {HELP_VERSION, "version"}, {HELP_GUI, "gui"}, {HELP_LAYERS, "layers"}, {HELP_DOC, "doc"}, {HELP_RESET, "reset"},
 };
 
 static HelpType GetCommandHelpId(const char* token) {
@@ -66,6 +66,7 @@ static const ModeDesc mode_desc[] = {
     {COMMAND_VERSION, "version", HELP_VERSION},    // COMMAND_VERSION
     {COMMAND_GUI, "gui", HELP_GUI},                // COMMAND_GUI
     {COMMAND_LAYERS, "layers", HELP_LAYERS},       // COMMAND_LAYERS
+    {COMMAND_DOC, "doc", HELP_DOC},                // COMMAND_DOC
     {COMMAND_RESET, "reset", HELP_RESET}           // COMMAND_RESET
 };
 
@@ -137,6 +138,18 @@ static const CommandLayersDesc command_layers_desc[] = {
     {COMMAND_LAYERS_SURRENDER, "-s", 2},
 };
 
+struct CommandDocDesc {
+    CommandDocArg arguments;
+    const char* token;
+    int required_arguments;
+};
+
+static const CommandDocDesc command_doc_desc[] = {
+    {COMMAND_DOC_HTML, "html", 3},
+    {COMMAND_DOC_MARKDOWN, "markdown", 3},
+    {COMMAND_DOC_SETTINGS, "settings", 3},
+};
+
 static CommandLayersArg GetCommandLayersId(const char* token) {
     assert(token != nullptr);
 
@@ -158,16 +171,41 @@ static const CommandLayersDesc& GetCommandLayers(CommandLayersArg layers_arg) {
     return command_layers_desc[0];
 }
 
+static CommandDocArg GetCommandDocId(const char* token) {
+    assert(token != nullptr);
+
+    for (std::size_t i = 0, n = countof(command_doc_desc); i < n; ++i) {
+        if (std::strcmp(command_doc_desc[i].token, token) == 0) return command_doc_desc[i].arguments;
+    }
+
+    return COMMAND_DOC_NONE;
+}
+
+static const CommandDocDesc& GetCommandDoc(CommandDocArg doc_arg) {
+    assert(doc_arg != COMMAND_DOC_NONE);
+
+    for (std::size_t i = 0, n = countof(command_doc_desc); i < n; ++i) {
+        if (command_doc_desc[i].arguments == doc_arg) return command_doc_desc[i];
+    }
+
+    assert(0);
+    return command_doc_desc[0];
+}
+
 CommandLine::CommandLine(int argc, char* argv[])
     : command(_command),
       command_reset_arg(_command_reset_arg),
       command_layers_arg(_command_layers_arg),
+      command_doc_arg(_command_doc_arg),
       layers_configuration_path(_layers_configuration_path),
+      doc_layer_name(_doc_layer_name),
+      doc_out_dir(_doc_out_dir),
       error(_error),
       error_args(_error_args),
       _command(COMMAND_GUI),
       _command_reset_arg(COMMAND_RESET_NONE),
       _command_layers_arg(COMMAND_LAYERS_NONE),
+      _command_doc_arg(COMMAND_DOC_NONE),
       _error(ERROR_NONE),
       _help(HELP_DEFAULT) {
     assert(argc >= 1);
@@ -212,6 +250,35 @@ CommandLine::CommandLine(int argc, char* argv[])
                 }
                 break;
             }
+        } break;
+        case COMMAND_DOC: {
+            if (argc <= arg_offset + 2) {
+                _error = ERROR_MISSING_COMMAND_ARGUMENT;
+                _error_args.push_back(argv[arg_offset + 0]);
+                break;
+            }
+
+            if (argc > 5) {
+                _error = ERROR_TOO_MANY_COMMAND_ARGUMENTS;
+                _error_args.push_back(argv[arg_offset + 0]);
+                break;
+            }
+
+            _command_doc_arg = GetCommandDocId(argv[arg_offset + 1]);
+            if (_command_doc_arg == COMMAND_DOC_NONE) {
+                _error = ERROR_INVALID_COMMAND_ARGUMENT;
+                _error_args.push_back(argv[arg_offset + 0]);
+                _error_args.push_back(argv[arg_offset + 1]);
+                break;
+            }
+            _doc_layer_name = argv[arg_offset + 2];
+            if (argc == 5) {
+                // Output dir arg was specified
+                _doc_out_dir = argv[arg_offset + 3];
+            } else
+                // Output dir arg was not specified
+                _doc_out_dir = ".";
+
         } break;
         case COMMAND_RESET: {
             if (argc <= arg_offset + 1) {
@@ -308,6 +375,7 @@ void CommandLine::usage() const {
             printf("\tversion                   = Display %s version.\n", VKCONFIG_NAME);
             printf("\tgui                       = Launch the %s GUI.\n", VKCONFIG_NAME);
             printf("\tlayers                    = Manage system Vulkan Layers.\n");
+            printf("\tdoc                       = Create doc files for layer.\n");
             printf("\treset                     = Reset layers configurations.\n");
             printf("\n");
             printf("  (Use 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
@@ -315,7 +383,7 @@ void CommandLine::usage() const {
         }
         case HELP_HELP: {
             printf("Name\n");
-            printf("\t'help' - Displays of the %s commands help pages:\n", VKCONFIG_NAME);
+            printf("\t'help' - Displays the %s command help pages:\n", VKCONFIG_NAME);
             printf("\n");
             printf("Synopsis\n");
             printf("\tvkconfig help [command]\n");
@@ -359,6 +427,29 @@ void CommandLine::usage() const {
             printf("\n");
             printf("\tvkconfig layers (--list-version | -lv)\n");
             printf("\t\tList the Vulkan layers found by %s on the system with locations and versions.\n", VKCONFIG_NAME);
+            break;
+        }
+        case HELP_DOC: {
+            printf("Name\n");
+            printf("\t'doc' - Command to create Vulkan layer doc files\n");
+            printf("\n");
+            printf("Synopsis\n");
+            printf("\tvkconfig doc html <layer_name> [<output_dir>]\n");
+            printf("\tvkconfig doc markdown <layer_name> [<output_dir>]\n");
+            printf("\tvkconfig doc settings <layer_name> [<output_dir>]\n");
+            printf("\n");
+            printf("Description\n");
+            printf("\tvkconfig doc html <layer_name> [<output_dir>]\n");
+            printf("\t\tCreate the html documentation file for the given layer.\n");
+            printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
+            printf("\n");
+            printf("\tvkconfig doc markdown <layer_name> [<output_dir>]\n");
+            printf("\t\tCreate the markdown documentation file for the given layer.\n");
+            printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
+            printf("\n");
+            printf("\tvkconfig doc settings <layer_name> [<output_dir>]\n");
+            printf("\t\tCreate the vk_layers_settings.txt file for the given layer.\n");
+            printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
             break;
         }
         case HELP_RESET: {

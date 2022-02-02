@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 extern bool WriteLayersOverride(const Environment& environment, const std::vector<Layer>& available_layers,
                                 const Configuration& configuration, const std::string& layers_path);
 
-extern bool WriteSettingsOverride(const Environment& environment, const std::vector<Layer>& available_layers,
+extern bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
                                   const Configuration& configuration, const std::string& settings_path);
 
 extern bool EraseLayersOverride(const std::string& layers_path);
@@ -57,7 +57,7 @@ TEST(test_override, write_erase_2_2_2) {
     EXPECT_TRUE(!configuration.parameters.empty());
 
     EXPECT_EQ(true, WriteLayersOverride(env, layer_manager.available_layers, configuration, "." + LAYERS));
-    EXPECT_EQ(true, WriteSettingsOverride(env, layer_manager.available_layers, configuration, "." + SETTINGS));
+    EXPECT_EQ(true, WriteSettingsOverride(layer_manager.available_layers, configuration, "." + SETTINGS));
 
     QFile file_layers_override_ref((":" + LAYERS).c_str());
     const bool result_layers_override_ref = file_layers_override_ref.open(QIODevice::ReadOnly | QIODevice::Text);

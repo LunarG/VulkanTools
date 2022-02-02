@@ -89,6 +89,7 @@ SOURCES += \
     main_signal.cpp \
     main_reset.cpp \
     main_layers.cpp \
+    main_doc.cpp \
     mainwindow.cpp \
     settings_tree.cpp \
     settings_validation_areas.cpp \
@@ -155,6 +156,7 @@ HEADERS += \
     main_signal.h \
     main_reset.h \
     main_layers.h \
+    main_doc.h \
     mainwindow.h \
     settings_validation_areas.h \
     settings_tree.h \
