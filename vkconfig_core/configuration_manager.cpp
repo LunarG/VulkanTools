@@ -348,11 +348,21 @@ void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> 
     RefreshConfiguration(available_layers);
 }
 
+bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_layers, Configuration *active_configuration,
+                                            std::string &log_versions) const {
+    return CompareLayersVersions(available_layers, active_configuration, environment.api_version, log_versions, true);
+}
+
 bool ConfigurationManager::CheckLayersVersions(const std::vector<Layer> &available_layers, Configuration *active_configuration,
                                                std::string &log_versions) const {
+    return CompareLayersVersions(available_layers, active_configuration, Version::VERSION_NULL, log_versions, false);
+}
+
+bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &available_layers, Configuration *active_configuration,
+                                                 const Version &version, std::string &log_versions, bool is_less) const {
     assert(active_configuration != nullptr);
 
-    Version version = Version::VERSION_NULL;
+    Version current_version = version;
 
     bool result = true;
 
@@ -366,11 +376,15 @@ bool ConfigurationManager::CheckLayersVersions(const std::vector<Layer> &availab
             const Layer &layer = available_layers[layer_index];
 
             if (layer.key == parameter.key) {
-                if (version == Version::VERSION_NULL) {
-                    version = layer.api_version;
+                if (current_version == Version::VERSION_NULL) {
+                    current_version = layer.api_version;
                 }
 
-                if (layer.api_version != version) result = false;
+                if (is_less) {
+                    if (layer.api_version > version) result = false;
+                } else {
+                    if (layer.api_version != current_version) result = false;
+                }
 
                 log_versions += format("%s - %s\n", layer.key.c_str(), layer.api_version.str().c_str());
             }
