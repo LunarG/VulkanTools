@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,16 +154,19 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 }
 
 // Create and write vk_layer_settings.txt file
-bool WriteSettingsOverride(const Environment& environment, const std::vector<Layer>& available_layers,
+bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
                            const Configuration& configuration, const std::string& settings_path) {
-    (void)environment;
 
-    assert(!settings_path.empty());
-    assert(QFileInfo(settings_path.c_str()).absoluteDir().exists());
-
+    if (settings_path.empty() || !QFileInfo(settings_path.c_str()).absoluteDir().exists()) {
+        fprintf(stderr, "Cannot open file %s\n",  settings_path.c_str());
+        exit(1);
+    };
     QFile file(settings_path.c_str());
     const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result_settings_file);
+    if (!result_settings_file) {
+        fprintf(stderr, "Cannot open file %s\n",  settings_path.c_str());
+        exit(1);
+    }
     QTextStream stream(&file);
 
     bool has_missing_layers = false;
@@ -184,21 +187,21 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
         stream << "\n";
-        stream << "# " << layer->key.c_str() << "\n";
+        stream << "# " << layer->key.c_str() << "\n\n";
 
         std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
 
         for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
             const SettingData* setting_data = parameter.settings[i];
 
-            // Skip missing settings
-            const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
-            if (meta == nullptr) {
+            // Skip groups - they aren't settings, so not relevant in this output
+            if (setting_data->type == SETTING_GROUP) {
                 continue;
             }
 
-            // Skip settings with dependence not met
-            if (!::CheckDependence(*meta, parameter.settings)) {
+            // Skip missing settings
+            const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
+            if (meta == nullptr) {
                 continue;
             }
 
@@ -207,9 +210,42 @@ bool WriteSettingsOverride(const Environment& environment, const std::vector<Lay
                 continue;
             }
 
+            stream << "# ";
+            stream << meta->label.c_str();
+            stream << "\n# =====================\n# <LayerIdentifier>.";
+            stream << meta->key.c_str() << "\n";
+
+            // Break up description into smaller words
+            std::string description = meta->description;
+            std::vector<std::string> words;
+            int pos;
+            while ((pos = description.find(" ")) != std::string::npos) {
+                words.push_back(description.substr(0, pos));
+                description.erase(0, pos+1);
+            }
+            if (description.size() > 0) words.push_back(description);
+            if (words.size() > 0) {
+               stream << "#";
+               int nchars = 2;
+               for (auto word : words) {
+                   if (word.size() + nchars > 80) {
+                       stream << "\n#";
+                       nchars = 2;
+                   }
+                   stream << " " << word.c_str();
+                   nchars += (word.size()+1);
+               }
+            }
+            stream << "\n";
+
+            // If feature has unmet dependency, output it but comment it out
+            if (!::CheckDependence(*meta, parameter.settings)) {
+                stream << "#";
+            }
+
             stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
             stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
-            stream << "\n";
+            stream << "\n\n";
         }
     }
     file.close();
@@ -229,7 +265,7 @@ bool OverrideConfiguration(const Environment& environment, const std::vector<Lay
     const bool result_layers = WriteLayersOverride(environment, available_layers, configuration, layers_path);
 
     // vk_layer_settings.txt
-    const bool result_settings = WriteSettingsOverride(environment, available_layers, configuration, settings_path);
+    const bool result_settings = WriteSettingsOverride(available_layers, configuration, settings_path);
 
     // On Windows only, we need to write these values to the registry
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS

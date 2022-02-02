@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
-<p align="left">Copyright © 2015-2021 LunarG, Inc.</p>
+<p align="left">Copyright © 2015-2022 LunarG, Inc.</p>
 
 [![Creative Commons][3]][4]
 
@@ -8,24 +8,7 @@
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
 # VK\_LAYER\_LUNARG\_screenshot
-The `VK_LAYER_LUNARG_screenshot` layer records frames to image files. The layer can easily be enabled and configured using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK. Or you can manually enable and configure the layer by following the directions below.
-
-#### VK\_SCREENSHOT\_FRAMES
-The environment variable `VK_SCREENSHOT_FRAMES` can be set to a comma-separated list of frame numbers. When the frames corresponding to these numbers are presented, the screenshot layer will record the image buffer to PPM files. For example, if `VK_SCREENSHOT_FRAMES` is set to "4,8,15,16,23,42", the files created will be: 4.ppm, 8.ppm, 15.ppm, etc. `VK_SCREENSHOT_FRAMES` can also be set to a range of frames by specifying two numbers separated by a dash. The first number is the first frame and the second number is the number of frames. For example, if it is set to "20-3", the files created will be 20.ppm, 21.ppm, and 22.ppm.
-
-#### VK\_SCREENSHOT\_DIR
-The environment variable `VK_SCREENSHOT_DIR` can be set to specify the directory in which to create the screenshot files. If it is not set or is set to null, the files will be created in the current working directory.
-
-#### VK\_SCREENSHOT\_FORMAT
-The environment variable `VK_SCREENSHOT_FORMAT` can be set to specify a color space for the output. If it is not set, set to null, or set to `USE_SWAPCHAIN_COLORSPACE` the format will be set to use the same color space as the swapchain object.
-
-#### vk\_layer\_settings.txt Options
-Each environment variable has an equivalent option in the vk\_layer\_settings.txt file.
-* `VK_SCREENSHOT_FRAMES` = lunarg\_screenshot.frames
-* `VK_SCREENSHOT_DIR` = lunarg\_screenshot.dir
-* `VK_SCREENSHOT_FORMAT` = lunarg\_screenshot.format
-
-__Note:__ Environment variables take precedence over vk\_layer\_settings.txt options.
+The `VK_LAYER_LUNARG_screenshot` layer records frames to image files. The layer can easily be enabled and configured using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK. On desktops (Linux/Windows/MacOS), you can also manually enable the layer by setting the enviroment variable VK_INSTANCE_LAYERS to VK_LAYER_LUNARG_screenshot.
 
 ## Android
 
@@ -57,3 +40,6 @@ Vulkan Cube demo from [Khronos/Vulkan-Tools](https://github.com/KhronosGroup/Vul
 adb shell pm grant com.example.VkCube android.permission.READ_EXTERNAL_STORAGE
 adb shell pm grant com.example.VkCube android.permission.WRITE_EXTERNAL_STORAGE
 ```
+## Layer Options
+
+The options for this layer are specified in VK_LAYER_LUNARG_screenshot.json. The option details are in [screenshot_layer.html](https://vulkan.lunarg.com/doc/sdk/latest/windows/screenshot_layer.html#user-content-layer-details).

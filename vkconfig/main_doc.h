@@ -15,34 +15,11 @@
  * limitations under the License.
  *
  * Authors:
- * - Christophe Riccio <christophe@lunarg.com>
+ * - David Pinedo <david@lunarg.com>
  */
 
 #pragma once
 
-#include "layer.h"
-#include "environment.h"
+#include "../vkconfig_core/command_line.h"
 
-#include <QStringList>
-
-#include <string>
-#include <vector>
-#include <memory>
-
-class LayerManager {
-   public:
-    LayerManager(const Environment& environment);
-
-    void Clear();
-    bool Empty() const;
-
-    void LoadAllInstalledLayers();
-    void LoadLayer(const std::string& layer_name);
-    void LoadLayersFromPath(const std::string& path);
-
-    std::vector<Layer> available_layers;
-
-    const Environment& environment;
-   private:
-    bool LoadLayerFromPath(const std::string& layer_name, const std::string& path);
-};
+int run_doc(const CommandLine& commandLine);

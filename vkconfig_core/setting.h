@@ -62,7 +62,13 @@ const char* GetToken(SettingType type);
 inline bool IsEnum(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 
-    return type == SETTING_ENUM || type == SETTING_FLAGS;
+    return type == SETTING_ENUM;
+}
+
+inline bool IsFlags(SettingType type) {
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+    return type == SETTING_FLAGS;
 }
 
 enum DependenceMode {

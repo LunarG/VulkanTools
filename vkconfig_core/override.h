@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,3 +33,7 @@ bool SurrenderConfiguration(const Environment& environment);
 
 // Check whether a layers configuration is activated
 bool HasOverride();
+
+// Write the settings file for override layer
+bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
+                           const Configuration& configuration, const std::string& settings_path);

@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
 
-Copyright &copy; 2015-2020 LunarG, Inc.
+Copyright &copy; 2015-2022 LunarG, Inc.
 
 [![Creative Commons][3]][4]
 
@@ -26,7 +26,7 @@ The API dump layer can be enabled using vkconfig. See the [vkconfig](https://vul
 
 ### Desktop (Linux/Windows/MacOS)
 
-You must add the location of the generated `VK_LAYER_LUNARG_api.json` file and corresponding
+You must add the location of the `VK_LAYER_LUNARG_api_dump.json` file and corresponding
 `VkLayer_api_dump` library to your `VK_LAYER_PATH` in order for the Vulkan loader to be able
 to find the layer.
 
@@ -35,7 +35,7 @@ Then, you must also enable the layer in one of two ways:
  * Directly in your application using the layer's name during vkCreateInstance
  * Indirectly by using the `VK_INSTANCE_LAYERS` environment variable.
 
-#### Setting the `VK_LAYER_PATH`
+#### Setting `VK_LAYER_PATH`
 
 **Windows**
 
@@ -49,7 +49,7 @@ If your source was located in: `/my_folder/vulkantools` and your build folder wa
 
     export VK_LAYER_PATH=/my_folder/vulkantools/build/layersvt:$VK_LAYER_PATH
 
-Forcing the layer with `VK_INSTANCE_LAYERS`
+#### Enabling the layer with `VK_INSTANCE_LAYERS`
 
 To force the layer to be enabled for Vulkan applications, you can set the `VK_INSTANCE_LAYERS` environment variable in the following way:
 
@@ -95,34 +95,9 @@ When done, disable the layer using:
 
 <br></br>
 
-
-## API Dump Options
-
-Setting  | Environment Variable | Settings File Value | Default | Description
--------- | -------------------- | ------------------- | ------- | -----------
-Enable File Output | None: Implicitly defined when filename defined | `lunarg_api_dump.file` | Not Set | Force output of API Dump layer to be written to a file instead of `stdout`.
-Output File Name | `VK_APIDUMP_LOG_FILENAME` | `lunarg_api_dump.log_filename` | stdout | The name (and path) of the output file to save the generated content to.
-Detailed Output | `VK_APIDUMP_DETAILED` | `lunarg_api_dump.detailed` | true | Generate more detailed output of the commands including parameters and values.  If `false` only output function signature.
-No Addresses/Handles | `VK_APIDUMP_NO_ADDR` | `lunarg_api_dump.no_addr` | false | Generate output without addresses or handles (which can vary run to run. Instead use the placeholder value "address".
-Flush After Every Command | `VK_APIDUMP_FLUSH` | `lunarg_api_dump.flush` | true | Flush after every API command's output
-Output format | `VK_APIDUMP_OUTPUT_FORMAT` | `lunarg_api_dump.output_format` | `text` | Output the API Dump information as a text file (`text`), an HTML-formated file (`html`), or a json file (`json`).
-Selective Output Range | `VK_APIDUMP_OUTPUT_RANGE` | `lunarg_api_dump.output_range` | `0-0` | Only output frames within the specified range. Given by a comma separated list of frames or a range with a start, count, and optional interval separated by dashes. A count of 0 will output every frame after the start of the range. Example: "5-8-2" will output frame 5, continue until frame 13, dumping every other frame. Example: "3,8-2" will output frames 3, 8, and 9.
-Show Timestamps | `VK_APIDUMP_TIMESTAMP` | `lunarg_api_dump.show_timestamp` | false | Show the timestamp of function calls since start in microseconds
-
-### Settings Priority
-
-If you have a setting defined in both the Settings File as well as an Environment
-Variable, the Environment Variable value will **always** override the Settings File
-value.
-This is intended to let you dynamically change settings without having to adjust
-the Settings File.
-
-<br></br>
-
-
 ### Applying Environment Settings on Android
 
-On Android, you must use properties to set the environment variables.
+On Android, you must use properties to set the layer environment variables.
 The format of the properties to set takes the following form:
 
     debug. + (lower-case environment variable with 'vk_' stripped)
@@ -144,16 +119,7 @@ Which you can set in the following way:
 
 <br></br>
 
-### Settings File Specific Settings
 
-At this time, certain settings are only available to be set in the `vk_layer_settings.txt` file.  These are:
+## Layer Options
 
-Setting  | Settings File Value | Default | Description
--------- | ------------------- | ------- | -----------
-Indent Size | `lunarg_api_dump.indent_size` | 4 | Set the indent size for writing out parameters and values for each command.  Only valid for `text` format and `stdout` writing.
-Name Size | `lunarg_api_dump.name_size` | 32 | Set the max length to assume for written names.  This is intended to allow cleaner indenting by reserving space for names shorter than this length.  A value of 0 means no additional spacing applied.  Only valid when "Use Spaces" is enabled.
-Show Shader | `lunarg_api_dump.show_shader` | false | Output the contents of any shader file loaded.
-Show Types | `lunarg_api_dump.show_types` | true | Output the types for each setting.
-Type Size | `lunarg_api_dump.type_size` | 0 | Set the max length to assume for written types.  This is intended to allow cleaner indenting by reserving space for types shorter than this length.  A value of 0 means no additional spacing applied.  Only valid when "Use Spaces" is enabled.
-Use Spaces| `lunarg_api_dump.use_spaces` | true | Attempt to use additional white space to produce a cleaner/easier-to-read output.
-Show Thread And Frame | `lunarg_api_dump.show_thread_and_frame` | true | Show the thread and frame of each function called.
+The options for this layer are specified in VK_LAYER_LUNARG_api_dump.json. The option details are in [api_dump_layer.html](https://vulkan.lunarg.com/doc/sdk/latest/windows/api_dump_layer.html#user-content-layer-details).

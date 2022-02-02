@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include "main_gui.h"
 #include "main_reset.h"
 #include "main_layers.h"
+#include "main_doc.h"
 #include "main_signal.h"
 
 #include "../vkconfig_core/command_line.h"
@@ -55,6 +56,9 @@ int main(int argc, char* argv[]) {
         }
         case COMMAND_GUI: {
             return run_gui(argc, argv);
+        }
+        case COMMAND_DOC: {
+            return run_doc(command_line);
         }
         default: {
             assert(0);

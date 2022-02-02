@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -318,7 +318,7 @@ void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& d
 
         CollectDefaultSettingData(setting_meta->children, data_set);
 
-        if (IsEnum(setting_meta->type)) {
+        if (IsEnum(setting_meta->type) || IsFlags(setting_meta->type)) {
             const SettingMetaEnumeration* setting_meta_enum = static_cast<const SettingMetaEnumeration*>(setting_meta);
             for (std::size_t j = 0, o = setting_meta_enum->enum_values.size(); j < o; ++j) {
                 CollectDefaultSettingData(setting_meta_enum->enum_values[j].settings, data_set);
@@ -334,6 +334,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         const QJsonObject& json_setting = json_array[i].toObject();
 
         const std::string key = ReadStringValue(json_setting, "key");
+        const std::string desc = ReadStringValue(json_setting, "description");
         const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
         SettingMeta* setting_meta = Instantiate(settings, key, type);
         setting_meta->platform_flags = parent == nullptr ? this->platforms : parent->platform_flags;
