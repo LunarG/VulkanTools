@@ -310,7 +310,7 @@ void CommandLine::usage() const {
             printf("\tlayers                    = Manage system Vulkan Layers.\n");
             printf("\treset                     = Reset layers configurations.\n");
             printf("\n");
-            printf("  (Use 'vkconfig help <commamd>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
+            printf("  (Use 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
             break;
         }
         case HELP_HELP: {
