@@ -63,12 +63,10 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         // Extract just the path
         assert(!layer->manifest_path.empty());
         const QFileInfo file(layer->manifest_path.c_str());
-        const std::string absolute_path(ConvertNativeSeparators(file.absolutePath().toStdString()).c_str());
+        const std::string absolute_path(file.absolutePath().toStdString().c_str());
 
         // Make sure the path is not already in the list
         if (layer_override_paths.contains(absolute_path.c_str())) continue;
-
-        if (!path_gui.contains(absolute_path.c_str()) && !path_env.contains(absolute_path.c_str())) continue;
 
         // Okay, add to the list
         layer_override_paths << absolute_path.c_str();
@@ -76,7 +74,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
     QJsonArray json_paths;
     for (int i = 0, n = layer_override_paths.count(); i < n; ++i) {
-        json_paths.append(ConvertNativeSeparators(layer_override_paths[i].toStdString()).c_str());
+        json_paths.append(layer_override_paths[i].toStdString().c_str());
     }
 
     QJsonArray json_overridden_layers;
