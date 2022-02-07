@@ -165,7 +165,11 @@ std::string GetPath(BuiltinPath path) {
                 } else {
                     result = GetPath(BUILTIN_PATH_LOCAL);
                 }
+            } else {    // VULKAN_SDK may be set on macOS
+                if(VKC_PLATFORM == VKC_PLATFORM_MACOS)
+                    result += "/share/vulkan";
             }
+
             break;
         }
         case BUILTIN_PATH_VULKAN_CONTENT: {
