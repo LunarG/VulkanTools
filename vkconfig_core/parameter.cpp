@@ -180,25 +180,6 @@ std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const 
     return count;
 }
 
-static const std::vector<std::string>& GetProfileNames(SettingDataSet& data_set) {
-    SettingDataFileLoad* data_file_load = static_cast<SettingDataFileLoad*>(FindSetting(data_set, "profile_file"));
-
-    if (data_file_load != nullptr)
-        return data_file_load->profile_names;
-    else
-        return std::vector<std::string>();
-}
-
-static void PopulateBuiltinSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set) {
-    SettingDataFileLoad* data_profile_file = static_cast<SettingDataFileLoad*>(FindSetting(data_set, "profile_file"));
-    SettingDataString* data_profile_name = static_cast<SettingDataString*>(FindSetting(data_set, "profile_name"));
-    if (data_profile_file != nullptr && data_profile_name != nullptr) {
-        if (!data_profile_file->profile_names.empty()) {
-            data_profile_name->value = data_profile_file->profile_names[0];
-        }
-    }
-}
-
 std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers) {
     std::vector<Parameter> gathered_parameters;
 
@@ -220,7 +201,6 @@ std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters
         parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
         CollectDefaultSettingData(layer.settings, parameter.settings);
-        PopulateBuiltinSettingData(layer.settings, parameter.settings);
 
         gathered_parameters.push_back(parameter);
     }
