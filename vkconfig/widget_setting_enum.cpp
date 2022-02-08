@@ -61,7 +61,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
     this->field->setEnabled(enabled);
     this->setEnabled(enabled);
 
-    if (meta.default_value == "${VK_PROFILES}") {
+    if (meta.default_value == "${VP_DEFAULT}") {
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
         }
@@ -113,7 +113,7 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
 
     const QFontMetrics fm = this->field->fontMetrics();
 
-    if (meta.default_value == "${VK_PROFILES}") {
+    if (meta.default_value == "${VP_DEFAULT}") {
         const std::vector<std::string>& profiles = GetProfileNames(data_set);
         for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
@@ -129,7 +129,7 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingEnum::OnIndexChanged(int index) {
-    if (meta.default_value == "${VK_PROFILES}") {
+    if (meta.default_value == "${VP_DEFAULT}") {
         const std::vector<std::string>& profiles = GetProfileNames(data_set);
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
