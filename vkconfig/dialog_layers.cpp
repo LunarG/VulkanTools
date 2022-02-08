@@ -538,16 +538,14 @@ void LayersDialog::accept() {
     saved_configuration->setting_tree_state.clear();
 
     std::string log_versions;
-    if (!configurator.configurations.CheckApiVersions(configurator.layers.available_layers,
-                                                      configurator.configurations.GetActiveConfiguration(), log_versions)) {
+    if (!configurator.configurations.CheckApiVersions(configurator.layers.available_layers, saved_configuration, log_versions)) {
         if (Alert::LayerNewerVersions(log_versions.c_str()) == QMessageBox::No) {
             return;
         }
     }
 
     log_versions.clear();
-    if (!configurator.configurations.CheckLayersVersions(configurator.layers.available_layers,
-                                                         configurator.configurations.GetActiveConfiguration(), log_versions)) {
+    if (!configurator.configurations.CheckLayersVersions(configurator.layers.available_layers, saved_configuration, log_versions)) {
         if (Alert::LayerIncompatibleVersions(log_versions.c_str()) == QMessageBox::No) {
             return;
         }
