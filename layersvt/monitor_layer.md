@@ -10,7 +10,9 @@
 # VK\_LAYER\_LUNARG\_monitor
 The `VK_LAYER_LUNARG_monitor` utility layer displays the real-time frame rate in frames-per-second in the application's title bar. It is only compatible with the Win32 and XCB windowing systems and will not display the frame rate on other platforms.
 
-The layer can easily be enabled using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK.
+For an overview of how to configure layers, refer to the [Layers Overview and Configuration](https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_configuration.html) document.
+
+The Monitor Layer can be enabled using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK.
 ## Layer Options
 
 The options for this layer are specified in VK_LAYER_LUNARG_monitor.json. The option details are in [monitor_layer.html](https://vulkan.lunarg.com/doc/sdk/latest/windows/monitor_layer.html#user-content-layer-details).
