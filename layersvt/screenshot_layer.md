@@ -8,7 +8,16 @@
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
 # VK\_LAYER\_LUNARG\_screenshot
-The `VK_LAYER_LUNARG_screenshot` layer records frames to image files. The layer can easily be enabled and configured using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK. On desktops (Linux/Windows/MacOS), you can also manually enable the layer by setting the enviroment variable VK_INSTANCE_LAYERS to VK_LAYER_LUNARG_screenshot.
+The `VK_LAYER_LUNARG_screenshot` layer records frames to image files.
+
+## Configuring the Screenshot Layer
+
+For an overview of how to configure layers, refer to the [Layers Overview and Configuration](https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_configuration.html) document.
+
+The Screenshot Layer settings are documented in detail in the [VK_LAYER_LUNARG_screenshot](https://vulkan.lunarg.com/doc/sdk/latest/windows/screenshot_layer.html#user-content-layer-details) document.
+
+The Screenshot Layer can also be enabled and configured using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK.
+
 
 ## Android
 

@@ -18,11 +18,16 @@ or by using the `vk_layer_settings.txt` file.
 <br></br>
 
 
-## Enabling the Layer
+## Configuring the API Dump Layer
 
-### Vkconfig
+For an overview of how to configure layers, refer to the [Layers Overview and Configuration](https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_configuration.html) document.
 
-The API dump layer can be enabled using vkconfig. See the [vkconfig](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) documentation for more information.
+The API Dump Layer settings are documented in detail in the [VK_LAYER_LUNARG_api_dump](https://vulkan.lunarg.com/doc/sdk/latest/windows/api_dump_layer.html#user-content-layer-details) document.
+
+The API Dump Layer can also be enabled and configured using vkconfig. See the [vkconfig](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) documentation for more information.
+
+
+## Enabling the API Dump Layer
 
 ### Desktop (Linux/Windows/MacOS)
 
