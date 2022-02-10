@@ -45,6 +45,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     const QStringList& path_gui = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI));
     const QStringList& path_env = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV));
 
+    QStringList layer_system_paths;
+
     QStringList layer_override_paths;
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter& parameter = configuration.parameters[i];
@@ -65,16 +67,31 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         const QFileInfo file(layer->manifest_path.c_str());
         const std::string absolute_path(file.absolutePath().toStdString().c_str());
 
-        // Make sure the path is not already in the list
-        if (layer_override_paths.contains(absolute_path.c_str())) continue;
+        if (!path_gui.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
+            !path_env.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str())) {
+            // Make sure the path is not already in the system path list
+            if (layer_system_paths.contains(absolute_path.c_str())) continue;
 
-        // Okay, add to the list
-        layer_override_paths << absolute_path.c_str();
+            layer_system_paths << absolute_path.c_str();
+        } else {
+            // Make sure the path is not already in the override path list
+            if (layer_override_paths.contains(absolute_path.c_str())) continue;
+
+            // Okay, add to the list
+            layer_override_paths << absolute_path.c_str();
+        }
     }
 
     QJsonArray json_paths;
+
+    // First add override paths so that they take precedent over system paths
     for (int i = 0, n = layer_override_paths.count(); i < n; ++i) {
         json_paths.append(layer_override_paths[i].toStdString().c_str());
+    }
+
+    // Second add system paths, so that a layers configuration can run with both system and user-defined layers
+    for (int i = 0, n = layer_system_paths.count(); i < n; ++i) {
+        json_paths.append(layer_system_paths[i].toStdString().c_str());
     }
 
     QJsonArray json_overridden_layers;
