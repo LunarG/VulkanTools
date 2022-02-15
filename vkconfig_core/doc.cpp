@@ -271,7 +271,7 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
 }
 
 uint32_t GetNumSettings(const Layer& layer, const SettingMetaSet& settings) {
-    uint32_t rval = layer.settings.size();
+    std::size_t rval = layer.settings.size();
     for (std::size_t i = 0, n = layer.settings.size(); i < n; ++i) {
         const SettingMeta* setting = layer.settings[i];
         if (setting->type != SETTING_GROUP && setting->view != SETTING_VIEW_HIDDEN) {

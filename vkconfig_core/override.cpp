@@ -218,7 +218,7 @@ bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
             // Break up description into smaller words
             std::string description = meta->description;
             std::vector<std::string> words;
-            int pos;
+            std::size_t pos;
             while ((pos = description.find(" ")) != std::string::npos) {
                 words.push_back(description.substr(0, pos));
                 description.erase(0, pos+1);
@@ -226,7 +226,7 @@ bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
             if (description.size() > 0) words.push_back(description);
             if (words.size() > 0) {
                stream << "#";
-               int nchars = 2;
+               std::size_t nchars = 2;
                for (auto word : words) {
                    if (word.size() + nchars > 80) {
                        stream << "\n#";

@@ -42,7 +42,8 @@ int run_doc_html(const CommandLine& commandLine) {
             return 0;
         }
     }
-    fprintf(stderr, "vkconfig: layer %s not found\n", commandLine.doc_layer_name.c_str());
+    fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
+    fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
     return -1;
 }
 
@@ -63,7 +64,8 @@ int run_doc_markdown(const CommandLine& commandLine) {
             return 0;
         }
     }
-    fprintf(stderr, "vkconfig: layer %s not found\n", commandLine.doc_layer_name.c_str());
+    fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
+    fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
     return -1;
 }
 
@@ -81,7 +83,8 @@ int run_doc_settings(const CommandLine& commandLine) {
     layers.LoadLayer(commandLine.doc_layer_name);
     layer = FindByKey(layers.available_layers, commandLine.doc_layer_name.c_str());
     if (!layer) {
-       printf("vkconfig: could not load layer %s\n", commandLine.doc_layer_name.c_str());
+       fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
+       fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
        return -1;
     }
     config = configuration_manager.CreateConfiguration(layers.available_layers, "Config");
