@@ -270,7 +270,7 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
     }
 }
 
-uint32_t GetNumSettings(const Layer& layer, const SettingMetaSet& settings) {
+size_t GetNumSettings(const Layer& layer, const SettingMetaSet& settings) {
     std::size_t rval = layer.settings.size();
     for (std::size_t i = 0, n = layer.settings.size(); i < n; ++i) {
         const SettingMeta* setting = layer.settings[i];
