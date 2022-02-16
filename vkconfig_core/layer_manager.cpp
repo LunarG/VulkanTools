@@ -212,7 +212,10 @@ bool LayerManager::LoadLayerFromPath(const std::string &layer_name, const std::s
             search_path = QDir().homePath().toStdString() + "/" + path;
         }
         file_list = PathFinder(search_path, true);
+    } else {
+        file_list = PathFinder(path, true);
     }
+
 
     for (int i = 0, n = file_list.FileCount(); i < n; ++i) {
         Layer layer;
