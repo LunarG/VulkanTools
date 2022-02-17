@@ -15,4 +15,4 @@ For an overview of how to configure layers, refer to the [Layers Overview and Co
 The Monitor Layer can be enabled using the [Vulkan Configurator](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) included with the Vulkan SDK.
 ## Layer Options
 
-The options for this layer are specified in VK_LAYER_LUNARG_monitor.json. The option details are in [monitor_layer.html](https://vulkan.lunarg.com/doc/sdk/latest/windows/monitor_layer.html#user-content-layer-details).
+The options for this layer are specified in VK_LAYER_LUNARG_monitor.json. The layer option details are in the [monitor layer documentation](https://vulkan.lunarg.com/doc/sdk/latest/windows/monitor_layer.html#user-content-layer-details).
