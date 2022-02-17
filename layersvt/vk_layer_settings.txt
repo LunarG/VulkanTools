@@ -1,152 +1,204 @@
-################################################################################
+# The settings in this file can be used to configure the behavior of
+# layers in this repository.
 #
-#  This file contains per-layer settings that configure layer behavior at
-#  execution time. Comments in this file are denoted with the "#" char.
-#  Settings lines are of the form:
-#      "<LayerIdentifier>.<SettingName> = <SettingValue>"
-#
-#  <LayerIdentifier> is typically the official layer name, minus the VK_LAYER
-#  prefix and all lower-camel-case -- i.e., for VK_LAYER_LUNARG_api_dump, the
-#  layer identifier is 'lunarg_api_dump'.
-#
-################################################################################
-################################################################################
-#  VK_LAYER_LUNARG_api_dump Settings:
-#  ==================================
-#
-#    OUTPUT_FORMAT:
-#    =========
-#    <LayerIdentifer>.output_format : Specifies the format used for output; 
-#    can be HTML, JSON, or  Text (default -- outputs plain text).
-#
-#    DETAILED:
-#    =========
-#    <LayerIdentifer>.detailed : Setting this to TRUE causes parameter details
-#    to be dumped in addition to API calls.
-#
-#    NO_ADDR:
-#    ========
-#    <LayerIdentifier>.no_addr : Setting this to TRUE causes "address" to be
-#    dumped in place of hex addresses.
-#
-#    FILE:
-#    =====
-#    <LayerIdentifer>.file : Setting this to TRUE indicates that output
-#    should be written to file instead of STDOUT.
-#
-#    LOG_FILENAME:
-#    =============
-#    <LayerIdentifer>.log_filename : Specifies the file to dump to when
-#    "file = TRUE".  The default is "vk_apidump.txt".
-#
-#    FLUSH:
-#    ======
-#    <LayerIdentifier>.flush : Setting this to TRUE causes IO to be flushed
-#    each API call that is written.
-#
-#    INDENT SIZE:
-#    ==============
-#    <LayerIdentifier>.indent_size : Specifies the number of spaces that a tab
-#    is equal to.
-#
-#    SHOW TYPES:
-#    ==============
-#    <LayerIdentifier>.show_types : Setting this to TRUE causes types to be
-#    dumped in addition to values.
-#
-#    NAME SIZE:
-#    ==============
-#    <LayerIdentifier>.name_size : The number of characters the name of a
-#    variable should consume, assuming more are not required.
-#
-#    TYPE SIZE:
-#    ==============
-#    <LayerIdentifier>.type_size : The number of characters the type of a
-#    variable should consume, assuming more are not requires.
-#
-#    USE_SPACES:
-#    ==============
-#    <LayerIdentifier>.use_spaces : Setting this to TRUE causes all tabs
-#    characters to be replaced with spaces.
-#
-#    SHOW_SHADER:
-#    ==============
-#    <LayerIdentifier>.show_shader : Setting this to TRUE causes the shader
-#    binary code in pCode to be also written to output.
-#
-#    OUTPUT_RANGE:
-#    ==============
-#    <LayerIdentifer>.output_range : Comma separated list of ranges to dump. 
-#    Range format is "S-C-I" with S being the start frame, C is the count of
-#    frames, and I the interval between dumped frames. A count of 0 will 
-#    output every frame after the start of the range. Examples: "2-6-2" would
-#    will dump frames 2, 4, and 6. "3,4,6-0" will dump frames 3,4,6 and every 
-#    frame after it.
+# Note that this file is not regulary updated, so not all possible layer
+# settings may be listed, and some layer settings may even be obsolete.
 
-#  VK_LAYER_LUNARG_api_dump Settings
-lunarg_api_dump.output_format = Text
-lunarg_api_dump.detailed = TRUE
-lunarg_api_dump.no_addr = FALSE
-lunarg_api_dump.file = FALSE
-lunarg_api_dump.log_filename = vk_apidump.txt
-lunarg_api_dump.flush = TRUE
-lunarg_api_dump.indent_size = 4
-lunarg_api_dump.show_types = TRUE
-lunarg_api_dump.name_size = 32
-lunarg_api_dump.type_size = 0
-lunarg_api_dump.use_spaces = TRUE
-lunarg_api_dump.show_shader = FALSE
+# VK_LAYER_LUNARG_api_dump
+
+# Output Range
+# =====================
+# <LayerIdentifier>.output_range
+# Comma separated list of frames to output or a range of frames with a start,
+# count, and optional interval separated by a dash. A count of 0 will output
+# every frame after the start of the range. Example: "5-8-2" will output frame
+# 5, continue until frame 13, dumping every other frame. Example: "3,8-2" will
+# output frames 3, 8, and 9.
 lunarg_api_dump.output_range = 0-0
-lunarg_api_dump.show_timestamp = FALSE
 
-################################################################################
-#  VK_LAYER_LUNARG_device_simulation Settings:
-#  ===========================================
-#
-#    FILENAME:
-#    =========
-#    <LayerIdentifer>.filename : Name of one or more configuration file(s) to load.
-#    Added in v1.2.1: This variable can have a delimited list of files to be loaded.
-#    On Windows, the delimiter is ';' else it is ':'. Files are loaded in order.
-#    Later files can override settings from earlier files.
-#
-#    DEBUG_ENABLE:
-#    =============
-#    <LayerIdentifer>.debug_enable : A non-zero integer enables debug message output.
-#
-#    EXIT_ON_ERROR:
-#    ==============
-#    <LayerIdentifer>.exit_on_error : A non-zero integer enables exit-on-error.
+# Output Format
+# =====================
+# <LayerIdentifier>.output_format
+# Specifies the format used for output; can be HTML, JSON, or  Text (default --
+# outputs plain text)
+lunarg_api_dump.output_format = text
 
-# VK_LAYER_LUNARG_device_simulation Settings
-lunarg_device_simulation.filename = 
-lunarg_device_simulation.debug_enable = 0
-lunarg_device_simulation.exit_on_error = 0
+# Output to File
+# =====================
+# <LayerIdentifier>.file
+# Setting this to true indicates that output should be written to file instead
+# of stdout
+lunarg_api_dump.file = false
 
-################################################################################
-#  VK_LAYER_LUNARG_screenshot Settings:
-#  ====================================
-#
-#    FRAMES:
-#    =======
-#    <LayerIdentifer>.frames : Comma separated list of frames to output as
-#    screen shots or a range of frames with a start, count, and optional
-#    interval separated by a dash. Setting the variable to \"all\" will output
-#    every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13,
-#    dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.
-#
-#    DIR:
-#    ====
-#    <LayerIdentifer>.dir : This can be set to specify the directory in which to
-#    create the screenshot files.
-#
-#    FORMAT:
-#    =======
-#    <LayerIdentifer>.format : This can be set to a color space for the output.
-#    It must be one of the following values: "UNORM", "SNORM", "USCALED", "SSCALED",
-#    "UINT", "SINT", "SRGB" or "USE_SWAPCHAIN_COLORSPACE".
+# Log Filename
+# =====================
+# <LayerIdentifier>.log_filename
+# Specifies the file to dump to when output files are enabled
+#lunarg_api_dump.log_filename = stdout
 
-# VK_LAYER_LUNARG_screenshot Settings
-lunarg_screenshot.frames = 0-0
+# Log Flush After Write
+# =====================
+# <LayerIdentifier>.flush
+# Setting this to true causes IO to be flushed after each API call that is
+# written
+lunarg_api_dump.flush = true
+
+# Name Size
+# =====================
+# <LayerIdentifier>.name_size
+# The number of characters the name of a variable should consume, assuming more
+# are not required
+lunarg_api_dump.name_size = 32
+
+# Show Types
+# =====================
+# <LayerIdentifier>.show_types
+# Dump types in addition to values
+lunarg_api_dump.show_types = true
+
+# Type Size
+# =====================
+# <LayerIdentifier>.type_size
+# The number of characters the name of a type should consume, assuming more are
+# not required
+lunarg_api_dump.type_size = 0
+
+# Show Timestamp
+# =====================
+# <LayerIdentifier>.show_timestamp
+# Show the timestamp of function calls since start in microseconds
+lunarg_api_dump.show_timestamp = false
+
+# Show Shader
+# =====================
+# <LayerIdentifier>.show_shader
+# Dump the shader binary code in pCode
+lunarg_api_dump.show_shader = false
+
+# Show Parameter Details
+# =====================
+# <LayerIdentifier>.detailed
+# Dump parameter details in addition to API calls
+lunarg_api_dump.detailed = true
+
+# Hide Addresses
+# =====================
+# <LayerIdentifier>.no_addr
+# Dump "address" in place of hex addresses
+lunarg_api_dump.no_addr = false
+
+# Use Spaces
+# =====================
+# <LayerIdentifier>.use_spaces
+# Setting this to true causes all tab characters to be replaced with spaces
+lunarg_api_dump.use_spaces = true
+
+# Indent Size
+# =====================
+# <LayerIdentifier>.indent_size
+# Specifies the number of spaces that a tab is equal to
+lunarg_api_dump.indent_size = 4
+
+# Show Thread and Frame
+# =====================
+# <LayerIdentifier>.show_thread_and_frame
+# Show the thread and frame of each function called
+lunarg_api_dump.show_thread_and_frame = true
+
+
+# VK_LAYER_LUNARG_screenshot
+
+# Frames
+# =====================
+# <LayerIdentifier>.frames
+# Specifies list of frames to output as screenshots. It is specified as a comma
+# separated list of frames or a range of frames with a start, count, and
+# optional interval separated by a dash. Setting the variable to "all" will
+# output every frame. Example: "5-8-2" will output frame 5, continue until frame
+# 13, dumping every other frame. Example: "3,8-2" will output frames 3, 8, and
+# 9.
+lunarg_screenshot.frames = 
+
+# Directory
+# =====================
+# <LayerIdentifier>.dir
+# Specifies the directory in which to create the screenshot files. If it is not
+# set or is set to null, the files will be created in the current working
+# directory.
 lunarg_screenshot.dir = 
+
+# Format
+# =====================
+# <LayerIdentifier>.format
+# Specify a color space for the output. If it is not set, set to null, or set to
+# USE_SWAPCHAIN_COLORSPACE the format will be set to use the same color space as
+# the swapchain object.
 lunarg_screenshot.format = USE_SWAPCHAIN_COLORSPACE
+
+
+# VK_LAYER_LUNARG_device_simulation
+
+# Devsim JSON configuration file
+# =====================
+# <LayerIdentifier>.filename
+# Name of one or more configuration file(s) to load. This variable can have a
+# delimited list of files to be loaded. On Windows, the delimiter is ; else it
+# is :. Files are loaded in order. Later files can override settings from
+# earlier files.
+lunarg_device_simulation.filename = 
+
+# Debug Enable
+# =====================
+# <LayerIdentifier>.debug_enable
+# Enables debug message output.
+lunarg_device_simulation.debug_enable = false
+
+# Emulate VK_KHR_portability_subset
+# =====================
+# <LayerIdentifier>.emulate_portability
+# Enables emulation of the VK_KHR_portability_subset extension.
+lunarg_device_simulation.emulate_portability = false
+
+# Exit on Error
+# =====================
+# <LayerIdentifier>.exit_on_error
+# Enables exit-on-error.
+lunarg_device_simulation.exit_on_error = false
+
+# Modify Device Extension list
+# =====================
+# <LayerIdentifier>.modify_extension_list
+# Modify the device extensions list from the layer JSON config file.
+lunarg_device_simulation.modify_extension_list = none
+
+# Modify Device Memory Flags
+# =====================
+# <LayerIdentifier>.modify_memory_flags
+# Modify the device memory heap flags and memory type flags from the JSON config
+# file.
+lunarg_device_simulation.modify_memory_flags = false
+
+# Modify Device Format list
+# =====================
+# <LayerIdentifier>.modify_format_list
+# Modify the device format list from the layer JSON config file.
+lunarg_device_simulation.modify_format_list = none
+
+# Modify Device Format Properties
+# =====================
+# <LayerIdentifier>.modify_format_properties
+# Modify the device format properties from the layer JSON config file.
+lunarg_device_simulation.modify_format_properties = none
+
+# Modify Device Surface Formats
+# =====================
+# <LayerIdentifier>.modify_surface_formats
+# Modify the device surface formats from the layer JSON config file.
+lunarg_device_simulation.modify_surface_formats = none
+
+# Modify Device Present Modes
+# =====================
+# <LayerIdentifier>.modify_present_modes
+# Modify the device present mode list from the layer JSON config file.
+lunarg_device_simulation.modify_present_modes = none
+
