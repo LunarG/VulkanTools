@@ -25,7 +25,7 @@
                     "key": "frames",
                     "env": "VK_SCREENSHOT_FRAMES",
                     "label": "Frames",
-                    "description": "Specifies list of frames to output as screenshots. It is specified as a comma separated list of frames or a range of frames with a start, count, and optional interval separated by a dash. Setting the variable to \"all\" will output every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                    "description": "Specifies list of frames to output as screenshots. It is specified as a comma-separated list of frames or a range of frames with a start, count, and optional interval separated by a dash. Setting the variable to \"all\" will output every frame. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9. If it is not set or it set to an empty string, no screenshots are created.",
                     "type": "STRING",
                     "default": ""
                 },
@@ -33,7 +33,7 @@
                     "key": "dir",
                     "env": "VK_SCREENSHOT_DIR",
                     "label": "Directory",
-                    "description": "Specifies the directory in which to create the screenshot files. If it is not set or is set to null, the files will be created in the current working directory.",
+                    "description": "Specifies the directory in which to create the screenshot files. If it is not set or is set to an empty string, the files will be created in the current working directory.",
                     "type": "SAVE_FOLDER",
                     "default": ""
                 },
