@@ -197,8 +197,10 @@ void MainWindow::UpdateUI() {
     }
 
     // Update settings
-    ui->push_button_select_layers->setEnabled(environment.UseOverride() && has_active_configuration);
-    ui->push_button_find_layers->setEnabled(environment.UseOverride());
+    ui->push_button_edit->setEnabled(environment.UseOverride() && has_active_configuration);
+    ui->push_button_remove->setEnabled(environment.UseOverride() && has_active_configuration);
+    ui->push_button_find->setEnabled(environment.UseOverride());
+    ui->push_button_new->setEnabled(environment.UseOverride());
     ui->settings_tree->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->group_box_settings->setTitle(has_active_configuration ? (active_contiguration_name + " Settings").c_str()
                                                               : "Configuration Settings");
@@ -707,7 +709,15 @@ void MainWindow::on_push_button_applications_clicked() {
     UpdateUI();
 }
 
-void MainWindow::on_push_button_select_layers_clicked() {
+void MainWindow::on_push_button_new_clicked() { this->NewClicked(); }
+
+void MainWindow::on_push_button_remove_clicked() {
+    Configurator &configurator = Configurator::Get();
+
+    this->RemoveConfiguration(configurator.configurations.GetActiveConfiguration()->key);
+}
+
+void MainWindow::on_push_button_edit_clicked() {
     Configurator &configurator = Configurator::Get();
     Configuration *configuration = configurator.configurations.GetActiveConfiguration();
     assert(configuration != nullptr);
@@ -719,7 +729,7 @@ void MainWindow::on_push_button_select_layers_clicked() {
     }
 }
 
-void MainWindow::on_push_button_find_layers_clicked() { this->FindLayerPaths(); }
+void MainWindow::on_push_button_find_clicked() { this->FindLayerPaths(); }
 
 /// Allow addition or removal of custom layer paths. Afterwards reset the list
 /// of loaded layers, but only if something was changed.
@@ -771,14 +781,13 @@ void MainWindow::NewClicked() {
     LoadConfigurationList();
 }
 
-void MainWindow::RemoveClicked(ConfigurationListItem *item) {
-    assert(item);
-    assert(!item->configuration_name.empty());
+void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
+    assert(!configuration_name.empty());
 
     // Let make sure...
     QMessageBox alert;
-    alert.setWindowTitle(format("Removing *%s* configuration...", item->configuration_name.c_str()).c_str());
-    alert.setText(format("Are you sure you want to remove the *%s* configuration?", item->configuration_name.c_str()).c_str());
+    alert.setWindowTitle(format("Removing *%s* configuration...", configuration_name.c_str()).c_str());
+    alert.setText(format("Are you sure you want to remove the *%s* configuration?", configuration_name.c_str()).c_str());
     alert.setInformativeText("All the data from this configuration will be lost.");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
@@ -788,8 +797,14 @@ void MainWindow::RemoveClicked(ConfigurationListItem *item) {
     _settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, item->configuration_name);
+    configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, configuration_name);
     LoadConfigurationList();
+}
+
+void MainWindow::RemoveClicked(ConfigurationListItem *item) {
+    assert(item);
+
+    this->RemoveConfiguration(item->configuration_name);
 }
 
 void MainWindow::ResetClicked(ConfigurationListItem *item) {
@@ -1287,7 +1302,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 ExportMarkdownDoc(*layer, path);
                 QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
             } else if (action == export_settings_action) {
-                std::vector<Layer> layers= {*layer};
+                std::vector<Layer> layers = {*layer};
                 const std::string path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
                 ExportSettingsDoc(layers, *configuration, path);
                 QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));

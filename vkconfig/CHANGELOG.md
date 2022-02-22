@@ -18,6 +18,9 @@
 - Add `vk_layer_settings.txt` documentation export
 - Add command line support of HTML, markdown and `vk_layer_settings.txt` documentation exports
 
+### Improvements:
+- Add button to create a new layers configuration
+
 ### Fixes:
 - Fix layer presets that could be modified by accident #1653
 - Fix loading of profiles file from the UI #1653

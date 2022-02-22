@@ -142,8 +142,10 @@ class MainWindow : public QMainWindow {
     void on_check_box_persistent_clicked();
     void on_check_box_clear_on_launch_clicked();
     void on_push_button_applications_clicked();
-    void on_push_button_select_layers_clicked();
-    void on_push_button_find_layers_clicked();
+    void on_push_button_edit_clicked();
+    void on_push_button_find_clicked();
+    void on_push_button_new_clicked();
+    void on_push_button_remove_clicked();
 
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);
@@ -161,6 +163,7 @@ class MainWindow : public QMainWindow {
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
 
+    void RemoveConfiguration(const std::string &configuration_name);
     void SetActiveConfiguration(const std::string &configuration_name);
     bool SelectConfigurationItem(const std::string &configuration_name);
     void ResetLaunchApplication();
