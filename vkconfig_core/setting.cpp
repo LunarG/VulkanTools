@@ -215,6 +215,16 @@ SettingData* FindSetting(SettingDataSet& settings, const char* key) {
     return nullptr;
 }
 
+const SettingData* FindSetting(SettingDataSetConst& settings, const char* key) {
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        if (settings[i]->key == key) {
+            return settings[i];
+        }
+    }
+
+    return nullptr;
+}
+
 const SettingData* FindSetting(const SettingDataSet& settings, const char* key) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         if (settings[i]->key == key) {
@@ -308,9 +318,9 @@ bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
 
 const char* GetToken(DependenceMode type) {
     static const char* table[] = {
-        "NONE",     // DEPENDENCE_NONE
-        "ALL",      // DEPENDENCE_ALL
-        "ANY"       // DEPENDENCE_ANY
+        "NONE",  // DEPENDENCE_NONE
+        "ALL",   // DEPENDENCE_ALL
+        "ANY"    // DEPENDENCE_ANY
     };
     static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
