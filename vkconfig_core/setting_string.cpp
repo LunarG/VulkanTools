@@ -68,6 +68,13 @@ void SettingDataString::Reset() {
     this->value = this->meta->default_value;
 }
 
+void SettingDataString::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataString* setting_data = static_cast<const SettingDataString*>(data);
+    this->value = setting_data->value;
+}
+
 bool SettingDataString::Load(const QJsonObject& json_setting) {
     this->value = ReadStringValue(json_setting, "value");
     return true;

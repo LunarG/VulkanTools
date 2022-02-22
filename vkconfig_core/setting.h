@@ -95,6 +95,7 @@ struct SettingData;
 
 typedef std::vector<SettingMeta*> SettingMetaSet;
 typedef std::vector<SettingData*> SettingDataSet;
+typedef std::vector<const SettingData*> SettingDataSetConst;
 
 struct SettingMeta : public Header {
     SettingMeta(Layer& layer, const std::string& key, const SettingType type);
@@ -129,6 +130,7 @@ struct SettingData {
     bool operator!=(const SettingData& other) const { return !this->Equal(other); }
 
     virtual void Reset() = 0;
+    virtual void Copy(const SettingData* data) = 0;
     virtual bool Load(const QJsonObject& json_setting) = 0;
     virtual bool Save(QJsonObject& json_setting) const = 0;
     virtual std::string Export(ExportMode export_mode) const = 0;

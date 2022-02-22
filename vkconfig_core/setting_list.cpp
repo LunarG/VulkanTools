@@ -190,6 +190,13 @@ SettingDataList::SettingDataList(const SettingMetaList* meta) : SettingData(meta
 
 void SettingDataList::Reset() { this->value = this->meta->default_value; }
 
+void SettingDataList::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataList* setting_data = static_cast<const SettingDataList*>(data);
+    this->value = setting_data->value;
+}
+
 bool SettingDataList::Load(const QJsonObject& json_setting) {
     this->value.clear();
 

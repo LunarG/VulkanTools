@@ -60,6 +60,13 @@ SettingDataBool::SettingDataBool(const SettingMetaBool* meta)
 
 void SettingDataBool::Reset() { this->value = this->meta->default_value; }
 
+void SettingDataBool::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataBool* setting_data = static_cast<const SettingDataBool*>(data);
+    this->value = setting_data->value;
+}
+
 bool SettingDataBool::Load(const QJsonObject& json_setting) {
     this->value = ReadBoolValue(json_setting, "value");
     return true;

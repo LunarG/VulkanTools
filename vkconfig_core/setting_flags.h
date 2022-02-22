@@ -64,6 +64,7 @@ struct SettingMetaEnum : public SettingMetaEnumeration {
 struct SettingDataEnum : public SettingDataString {
     SettingDataEnum(const SettingMetaEnum* meta);
 
+    void Copy(const SettingData* data) override;
     void Reset() override;
 
     const SettingMetaEnum* meta;
@@ -90,10 +91,11 @@ struct SettingMetaFlags : public SettingMetaEnumeration {
 struct SettingDataFlags : public SettingData {
     SettingDataFlags(const SettingMetaFlags* meta);
 
-    void Reset() override;
+    void Copy(const SettingData* data) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
+    void Reset() override;
 
     std::vector<std::string> value;
 

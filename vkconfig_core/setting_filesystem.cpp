@@ -89,7 +89,14 @@ SettingData* SettingMetaFileLoad::Instantiate() {
 // SettingDataFileLoad
 
 SettingDataFileLoad::SettingDataFileLoad(const SettingMetaFileLoad* meta)
-    : SettingDataFilesystem(meta->key, meta->type), meta(meta) {
+    : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
+
+void SettingDataFileLoad::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataFileLoad* setting_data = static_cast<const SettingDataFileLoad*>(data);
+    this->value = setting_data->value;
+    this->profile_names = setting_data->profile_names;
 }
 
 bool SettingDataFileLoad::Load(const QJsonObject& json_setting) {
@@ -101,9 +108,7 @@ bool SettingDataFileLoad::Load(const QJsonObject& json_setting) {
     return true;
 }
 
-void SettingDataFileLoad::Reset() {
-    this->value = this->meta->default_value;
-}
+void SettingDataFileLoad::Reset() { this->value = this->meta->default_value; }
 
 // SettingMetaFileSave
 
@@ -122,6 +127,13 @@ SettingData* SettingMetaFileSave::Instantiate() {
 
 SettingDataFileSave::SettingDataFileSave(const SettingMetaFileSave* meta)
     : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
+
+void SettingDataFileSave::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataFileSave* setting_data = static_cast<const SettingDataFileSave*>(data);
+    this->value = setting_data->value;
+}
 
 void SettingDataFileSave::Reset() { this->value = this->meta->default_value; }
 
@@ -142,5 +154,12 @@ SettingData* SettingMetaFolderSave::Instantiate() {
 
 SettingDataFolderSave::SettingDataFolderSave(const SettingMetaFolderSave* meta)
     : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
+
+void SettingDataFolderSave::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataFolderSave* setting_data = static_cast<const SettingDataFolderSave*>(data);
+    this->value = setting_data->value;
+}
 
 void SettingDataFolderSave::Reset() { this->value = this->meta->default_value; }

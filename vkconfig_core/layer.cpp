@@ -283,7 +283,7 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
                 const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
                 for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count;
                      ++setting_index) {
-                    AddSettingData(preset.settings, json_setting_array[setting_index]);
+                    AddSettingData((SettingDataSet&)preset.settings, json_setting_array[setting_index]);
                 }
 
                 this->presets.push_back(preset);
@@ -354,8 +354,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
                 const std::string& value = ReplaceBuiltInVariable(setting_file.default_value);
                 const QJsonDocument& doc = ParseJsonFile(value.c_str());
 
-                if (!doc.isNull() && !doc.isEmpty()) 
-                {
+                if (!doc.isNull() && !doc.isEmpty()) {
                     const QJsonObject& json_root_object = doc.object();
                     if (json_root_object.value("$schema").toString().toStdString().find(
                             "https://schema.khronos.org/vulkan/profiles-1.") == std::string::npos) {

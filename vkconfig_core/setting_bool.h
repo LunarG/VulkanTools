@@ -48,6 +48,7 @@ struct SettingDataBool : public SettingData {
     SettingDataBool(const SettingMetaBool* meta);
 
     void Reset() override;
+    void Copy(const SettingData* data) override;
     bool Load(const QJsonObject& json_setting) override;
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;

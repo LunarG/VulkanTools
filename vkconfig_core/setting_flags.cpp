@@ -93,6 +93,13 @@ SettingDataEnum::SettingDataEnum(const SettingMetaEnum* meta) : SettingDataStrin
     assert(meta != nullptr);
 }
 
+void SettingDataEnum::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataEnum* setting_data = static_cast<const SettingDataEnum*>(data);
+    this->value = setting_data->value;
+}
+
 void SettingDataEnum::Reset() { this->value = this->meta->default_value; }
 
 // SettingMetaFlags
@@ -155,6 +162,13 @@ SettingDataFlags::SettingDataFlags(const SettingMetaFlags* meta) : SettingData(m
 void SettingDataFlags::Reset() {
     assert(this->meta != nullptr);
     this->value = this->meta->default_value;
+}
+
+void SettingDataFlags::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataFlags* setting_data = static_cast<const SettingDataFlags*>(data);
+    this->value = setting_data->value;
 }
 
 bool SettingDataFlags::Load(const QJsonObject& json_setting) {

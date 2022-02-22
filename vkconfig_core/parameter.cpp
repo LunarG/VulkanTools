@@ -36,7 +36,7 @@ static const char* VK_LAYER_KHRONOS_VALIDATION_NAME = "VK_LAYER_KHRONOS_validati
 
 bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
     for (std::size_t preset_index = 0, preset_count = preset.settings.size(); preset_index < preset_count; ++preset_index) {
-        SettingData* preset_setting = preset.settings[preset_index];
+        const SettingData* preset_setting = preset.settings[preset_index];
 
         for (std::size_t i = 0, n = this->settings.size(); i < n; ++i) {
             SettingData* current_setting = this->settings[i];
@@ -44,7 +44,7 @@ bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
             if (current_setting->key != preset_setting->key) continue;
             if (current_setting->type != preset_setting->type) continue;
 
-            this->settings[i] = preset_setting;
+            this->settings[i]->Copy(preset_setting);
         }
     }
 

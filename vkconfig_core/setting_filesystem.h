@@ -39,7 +39,6 @@ struct SettingMetaFilesystem : public SettingMeta {
 struct SettingDataFilesystem : public SettingDataString {
     std::string Export(ExportMode export_mode) const override;
 
-
    protected:
     SettingDataFilesystem(const std::string& key, const SettingType& type);
 };
@@ -58,6 +57,7 @@ struct SettingMetaFileLoad : public SettingMetaFilesystem {
 struct SettingDataFileLoad : public SettingDataFilesystem {
     SettingDataFileLoad(const SettingMetaFileLoad* meta);
 
+    void Copy(const SettingData* data) override;
     bool Load(const QJsonObject& json_setting) override;
     void Reset() override;
 
@@ -81,6 +81,7 @@ struct SettingMetaFileSave : public SettingMetaFilesystem {
 struct SettingDataFileSave : public SettingDataFilesystem {
     SettingDataFileSave(const SettingMetaFileSave* meta);
 
+    void Copy(const SettingData* data) override;
     void Reset() override;
 
    private:
@@ -101,6 +102,7 @@ struct SettingMetaFolderSave : public SettingMetaFilesystem {
 struct SettingDataFolderSave : public SettingDataFilesystem {
     SettingDataFolderSave(const SettingMetaFolderSave* meta);
 
+    void Copy(const SettingData* data) override;
     void Reset() override;
 
    private:

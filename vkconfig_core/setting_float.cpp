@@ -91,6 +91,13 @@ void SettingDataFloat::Reset() {
     this->value = this->meta->default_value;
 }
 
+void SettingDataFloat::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataFloat* setting_data = static_cast<const SettingDataFloat*>(data);
+    this->value = setting_data->value;
+}
+
 bool SettingDataFloat::Load(const QJsonObject& json_setting) {
     this->value = ReadFloatValue(json_setting, "value");
     return true;
