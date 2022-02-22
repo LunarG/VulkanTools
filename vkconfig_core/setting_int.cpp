@@ -77,6 +77,13 @@ SettingDataInt::SettingDataInt(const SettingMetaInt* meta)
 
 void SettingDataInt::Reset() { this->value = this->meta->default_value; }
 
+void SettingDataInt::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataInt* setting_data = static_cast<const SettingDataInt*>(data);
+    this->value = setting_data->value;
+}
+
 bool SettingDataInt::Load(const QJsonObject& json_setting) {
     this->value = ReadIntValue(json_setting, "value");
     return true;
