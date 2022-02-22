@@ -109,8 +109,13 @@ void WidgetSettingFilesystem::LoadFile(const std::string& path) {
         if (setting_file.format == "PROFILE") {
             if (path.empty()) return;
 
-            SettingDataFileLoad& setting_data = static_cast<SettingDataFileLoad&>(this->data());
-            setting_data.profile_names = GetProfileNames(path);
+            SettingDataFileLoad& file_setting_data = static_cast<SettingDataFileLoad&>(this->data());
+            file_setting_data.profile_names = GetProfileNames(path);
+
+            SettingDataString* enum_setting_data = FindSetting<SettingDataString>(this->data_set, "profile_name");
+            if (!file_setting_data.profile_names.empty() && enum_setting_data != nullptr) {
+                enum_setting_data->value = file_setting_data.profile_names[0];
+            }
         }
     }
 }
