@@ -237,11 +237,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 0;
 
-        SettingDataEnum* setting_only =
-            static_cast<SettingDataEnum*>(FindSetting(layer.presets[index].settings, "enum_required_only"));
+        const SettingDataEnum* setting_only =
+            static_cast<const SettingDataEnum*>(FindSetting(layer.presets[index].settings, "enum_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataEnum* setting_opt =
-            static_cast<SettingDataEnum*>(FindSetting(layer.presets[index].settings, "enum_with_optional"));
+        const SettingDataEnum* setting_opt =
+            static_cast<const SettingDataEnum*>(FindSetting(layer.presets[index].settings, "enum_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset Enum", layer.presets[index].label.c_str());
@@ -256,11 +256,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 1;
 
-        SettingDataFlags* setting_only =
-            static_cast<SettingDataFlags*>(FindSetting(layer.presets[index].settings, "flags_required_only"));
+        const SettingDataFlags* setting_only =
+            static_cast<const SettingDataFlags*>(FindSetting(layer.presets[index].settings, "flags_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataFlags* setting_opt =
-            static_cast<SettingDataFlags*>(FindSetting(layer.presets[index].settings, "flags_with_optional"));
+        const SettingDataFlags* setting_opt =
+            static_cast<const SettingDataFlags*>(FindSetting(layer.presets[index].settings, "flags_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset Flags", layer.presets[index].label.c_str());
@@ -277,11 +277,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 2;
 
-        SettingDataFileLoad* setting_only =
-            static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_required_only"));
+        const SettingDataFileLoad* setting_only =
+            static_cast<const SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataFileLoad* setting_opt =
-            static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_with_optional"));
+        const SettingDataFileLoad* setting_opt =
+            static_cast<const SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset String", layer.presets[index].label.c_str());
@@ -310,11 +310,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 4;
 
-        SettingDataFileLoad* setting_only =
-            static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "load_file_required_only"));
+        const SettingDataFileLoad* setting_only =
+            static_cast<const SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "load_file_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataFileLoad* setting_opt =
-            static_cast<SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "load_file_with_optional"));
+        const SettingDataFileLoad* setting_opt =
+            static_cast<const SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "load_file_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset Load File", layer.presets[index].label.c_str());
@@ -329,11 +329,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 5;
 
-        SettingDataFileSave* setting_only =
-            static_cast<SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_required_only"));
+        const SettingDataFileSave* setting_only =
+            static_cast<const SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataFileSave* setting_opt =
-            static_cast<SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_with_optional"));
+        const SettingDataFileSave* setting_opt =
+            static_cast<const SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset Save File", layer.presets[index].label.c_str());
@@ -348,11 +348,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 6;
 
-        SettingDataFolderSave* setting_only =
-            static_cast<SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_required_only"));
+        const SettingDataFolderSave* setting_only =
+            static_cast<const SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataFolderSave* setting_opt =
-            static_cast<SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_with_optional"));
+        const SettingDataFolderSave* setting_opt =
+            static_cast<const SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset Save Folder", layer.presets[index].label.c_str());
@@ -367,10 +367,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 7;
 
-        SettingDataInt* setting_only =
-            static_cast<SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_required_only"));
+        const SettingDataInt* setting_only =
+            static_cast<const SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataInt* setting_opt = static_cast<SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_with_optional"));
+        const SettingDataInt* setting_opt =
+            static_cast<const SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset Int", layer.presets[index].label.c_str());
@@ -401,11 +402,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 9;
 
-        SettingDataList* setting_only =
-            static_cast<SettingDataList*>(FindSetting(layer.presets[index].settings, "list_required_only"));
+        const SettingDataList* setting_only =
+            static_cast<const SettingDataList*>(FindSetting(layer.presets[index].settings, "list_required_only"));
         ASSERT_TRUE(setting_only);
-        SettingDataList* setting_opt =
-            static_cast<SettingDataList*>(FindSetting(layer.presets[index].settings, "list_with_optional"));
+        const SettingDataList* setting_opt =
+            static_cast<const SettingDataList*>(FindSetting(layer.presets[index].settings, "list_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset List", layer.presets[index].label.c_str());

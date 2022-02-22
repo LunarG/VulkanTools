@@ -47,7 +47,7 @@ TEST(test_layer_preset, get_preset) {
 TEST(test_layer_preset, has_preset) {
     Layer layer;
 
-    SettingDataSet preset_settings;
+    SettingDataSetConst preset_settings;
     SettingDataSet layer_settings;
 
     SettingMetaString* metaA = InstantiateString(layer, "KeyA");

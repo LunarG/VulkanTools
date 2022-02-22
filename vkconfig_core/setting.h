@@ -173,6 +173,8 @@ const T* FindSetting(const SettingMetaSet& settings, const char* key) {
 
 SettingData* FindSetting(SettingDataSet& settings, const char* key);
 
+const SettingData* FindSetting(SettingDataSetConst& settings, const char* key);
+
 template <typename T>
 T* FindSetting(SettingDataSet& settings, const char* key) {
     return static_cast<T*>(FindSetting(settings, key));
