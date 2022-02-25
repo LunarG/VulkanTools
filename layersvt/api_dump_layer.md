@@ -12,8 +12,6 @@ Copyright &copy; 2015-2022 LunarG, Inc.
 # VK\_LAYER\_LUNARG\_api\_dump
 The `VK_LAYER_LUNARG_api_dump` utility layer prints API calls, parameters,
 and values to the identified output stream.
-It has several settings that can be adjusted by either environment variables
-or by using the `vk_layer_settings.txt` file.
 
 <br></br>
 
@@ -22,7 +20,7 @@ or by using the `vk_layer_settings.txt` file.
 
 For an overview of how to configure layers, refer to the [Layers Overview and Configuration](https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_configuration.html) document.
 
-The API Dump Layer settings are documented in detail in the [VK_LAYER_LUNARG_api_dump](https://vulkan.lunarg.com/doc/sdk/latest/windows/api_dump_layer.html#user-content-layer-details) document.
+The API Dump Layer settings are documented in the [Layer Details](https://vulkan.lunarg.com/doc/sdk/latest/windows/api_dump_layer.html#user-content-layer-details) section below.
 
 The API Dump Layer can also be enabled and configured using vkconfig. See the [vkconfig](https://vulkan.lunarg.com/doc/sdk/latest/windows/vkconfig.html) documentation for more information.
 
