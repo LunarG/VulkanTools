@@ -652,6 +652,62 @@ out:
     return found_json;
 }
 
+void ViaSystemLinux::PrintDriverEnvVarInfo(const char* var, bool& found_json, bool& found_lib) {
+    bool found_this_lib = false;
+    char *env_var_value = getenv(var);
+    if (NULL != env_var_value) {
+        PrintBeginTableRow();
+        PrintTableElement(var);
+        PrintTableElement(env_var_value);
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        // These variables may have multiple folders listed in it (colon
+        // ':' delimited)
+        char *tok = strtok(env_var_value, ":");
+        if (tok != NULL) {
+            while (tok != NULL) {
+                if (access(tok, R_OK) != -1) {
+                    PrintBeginTableRow();
+                    PrintTableElement(tok, VIA_ALIGN_RIGHT);
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintEndTableRow();
+                    if (ReadDriverJson(tok, found_this_lib)) {
+                        found_json = true;
+                        found_lib |= found_this_lib;
+                    }
+                } else {
+                    PrintBeginTableRow();
+                    PrintTableElement(tok, VIA_ALIGN_RIGHT);
+                    PrintTableElement("No such file");
+                    PrintTableElement("");
+                    PrintEndTableRow();
+                }
+                tok = strtok(NULL, ":");
+            }
+        } else {
+            if (access(env_var_value, R_OK) != -1) {
+                PrintBeginTableRow();
+                PrintTableElement(env_var_value, VIA_ALIGN_RIGHT);
+                PrintTableElement("");
+                PrintTableElement("");
+                PrintEndTableRow();
+                if (ReadDriverJson(env_var_value, found_this_lib)) {
+                    found_json = true;
+                    found_lib |= found_this_lib;
+                }
+            } else {
+                PrintBeginTableRow();
+                PrintTableElement(env_var_value, VIA_ALIGN_RIGHT);
+                PrintTableElement("No such file");
+                PrintTableElement("");
+                PrintEndTableRow();
+            }
+        }
+    }
+}
+
 ViaSystem::ViaResults ViaSystemLinux::PrintSystemDriverInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     bool found_json = false;
@@ -661,10 +717,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemDriverInfo() {
     char generic_string[1024];
     char cur_vulkan_driver_json[1024];
     char *home_env_value = NULL;
-    char *drivers_env_value = NULL;
-    char *icd_env_value = NULL;
     std::vector<std::string> driver_paths;
-    int drivers_path_index = -1;
 
     PrintBeginTable("Vulkan Driver Info", 3);
 
@@ -684,23 +737,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemDriverInfo() {
         driver_paths.push_back(home_icd_dir);
     }
 
-    // The user can override the drivers path manually
-    drivers_env_value = getenv("VK_DRIVERS_PATH");
-    if (NULL != drivers_env_value) {
-        drivers_path_index = driver_paths.size();
-        // VK_DRIVERS_PATH may have multiple folders listed in it (colon
-        // ':' delimited)
-        char *tok = strtok(drivers_env_value, ":");
-        if (tok != NULL) {
-            while (tok != NULL) {
-                driver_paths.push_back(tok);
-                tok = strtok(NULL, ":");
-            }
-        } else {
-            driver_paths.push_back(drivers_env_value);
-        }
-    }
-
     // Loop through all folders discovered above.
     for (size_t dir = 0; dir < driver_paths.size(); dir++) {
         // Just to make things clear, make sure to add a
@@ -709,12 +745,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemDriverInfo() {
             PrintBeginTableRow();
             PrintTableElement("Standard Paths");
             PrintTableElement("");
-            PrintTableElement("");
-            PrintEndTableRow();
-        } else if (drivers_path_index >= 0 && dir == static_cast<size_t>(drivers_path_index)) {
-            PrintBeginTableRow();
-            PrintTableElement("VK_DRIVERS_PATH");
-            PrintTableElement(drivers_env_value);
             PrintTableElement("");
             PrintEndTableRow();
         }
@@ -758,59 +788,9 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemDriverInfo() {
         }
     }
 
-    // The user can specify particularly what driver files to use
-    icd_env_value = getenv("VK_ICD_FILENAMES");
-    if (NULL != icd_env_value) {
-        PrintBeginTableRow();
-        PrintTableElement("VK_ICD_FILENAMES");
-        PrintTableElement(icd_env_value);
-        PrintTableElement("");
-        PrintEndTableRow();
-
-        // VK_ICD_FILENAMES may have multiple folders listed in it (colon
-        // ':' delimited)
-        char *tok = strtok(icd_env_value, ":");
-        if (tok != NULL) {
-            while (tok != NULL) {
-                if (access(tok, R_OK) != -1) {
-                    PrintBeginTableRow();
-                    PrintTableElement(tok, VIA_ALIGN_RIGHT);
-                    PrintTableElement("");
-                    PrintTableElement("");
-                    PrintEndTableRow();
-                    if (ReadDriverJson(tok, found_this_lib)) {
-                        found_json = true;
-                        found_lib |= found_this_lib;
-                    }
-                } else {
-                    PrintBeginTableRow();
-                    PrintTableElement(tok, VIA_ALIGN_RIGHT);
-                    PrintTableElement("No such file");
-                    PrintTableElement("");
-                    PrintEndTableRow();
-                }
-                tok = strtok(NULL, ":");
-            }
-        } else {
-            if (access(icd_env_value, R_OK) != -1) {
-                PrintBeginTableRow();
-                PrintTableElement(icd_env_value, VIA_ALIGN_RIGHT);
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintEndTableRow();
-                if (ReadDriverJson(icd_env_value, found_this_lib)) {
-                    found_json = true;
-                    found_lib |= found_this_lib;
-                }
-            } else {
-                PrintBeginTableRow();
-                PrintTableElement(icd_env_value, VIA_ALIGN_RIGHT);
-                PrintTableElement("No such file");
-                PrintTableElement("");
-                PrintEndTableRow();
-            }
-        }
-    }
+    PrintDriverEnvVarInfo("VK_DRIVER_FILES", found_json, found_lib);
+    PrintDriverEnvVarInfo("VK_ICD_FILENAMES", found_json, found_lib);
+    PrintDriverEnvVarInfo("VK_ADD_DRIVER_FILES", found_json, found_lib);
 
     PrintEndTable();
 
@@ -1336,37 +1316,18 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemImplicitLayerInfo() {
     return result;
 }
 
-ViaSystem::ViaResults ViaSystemLinux::PrintSystemExplicitLayerInfo() {
+ViaSystem::ViaResults ViaSystemLinux::PrintLayerEnvVar(const char* var) {
     ViaResults result = VIA_SUCCESSFUL;
-    char *env_value = NULL;
-    std::string explicit_layer_id;
 
-    PrintBeginTable("Vulkan Explicit Layers", 4);
-
-    if (0 != _layer_override_search_path.size()) {
-        explicit_layer_id = "Override";
-
-        PrintBeginTableRow();
-        PrintTableElement("Override Paths");
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintEndTableRow();
-
-        for (uint32_t cur_path = 0; cur_path < _layer_override_search_path.size(); cur_path++) {
-            result = PrintExplicitLayersInFolder(explicit_layer_id, _layer_override_search_path[cur_path]);
-        }
-    }
-
-    // Look at the VK_LAYER_PATH environment variable paths if it is set.
-    env_value = getenv("VK_LAYER_PATH");
+    // Look at the environment variable paths if it is set.
+    char *env_value = getenv(var);
     std::string cur_json;
     if (NULL != env_value) {
         char *tok = strtok(env_value, ":");
-        explicit_layer_id = "VK_LAYER_PATH";
+        std::string explicit_layer_id = var;
 
         PrintBeginTableRow();
-        PrintTableElement("VK_LAYER_PATH");
+        PrintTableElement(var);
         PrintTableElement("");
         PrintTableElement("");
         PrintTableElement("");
@@ -1387,6 +1348,38 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemExplicitLayerInfo() {
             cur_json = env_value;
             result = PrintExplicitLayersInFolder(explicit_layer_id, cur_json);
         }
+    }
+    return result;
+}
+
+ViaSystem::ViaResults ViaSystemLinux::PrintSystemExplicitLayerInfo() {
+    ViaResults result = VIA_SUCCESSFUL;
+    std::string explicit_layer_id;
+
+    PrintBeginTable("Vulkan Explicit Layers", 4);
+
+    if (0 != _layer_override_search_path.size()) {
+        explicit_layer_id = "Override";
+
+        PrintBeginTableRow();
+        PrintTableElement("Override Paths");
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        for (uint32_t cur_path = 0; cur_path < _layer_override_search_path.size(); cur_path++) {
+            result = PrintExplicitLayersInFolder(explicit_layer_id, _layer_override_search_path[cur_path]);
+        }
+    }
+
+    ViaResults tmp_result = PrintLayerEnvVar("VK_LAYER_PATH");
+    if (tmp_result != VIA_SUCCESSFUL) {
+        result = tmp_result;
+    }
+    tmp_result = PrintLayerEnvVar("VK_ADD_LAYER_PATH");
+    if (tmp_result != VIA_SUCCESSFUL) {
+        result = tmp_result;
     }
 
     PrintBeginTableRow();

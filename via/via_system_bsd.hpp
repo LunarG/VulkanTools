@@ -47,6 +47,8 @@ class ViaSystemBSD : public ViaSystem {
    private:
     bool ReadDriverJson(std::string cur_driver_json, bool &found_lib);
     ViaResults PrintExplicitLayersInFolder(const std::string &id, std::string &folder_loc);
+    void PrintDriverEnvVarInfo(const char* var, bool& found_json, bool& found_lib);
+    ViaResults PrintLayerEnvVar(const char* var);
 };
 
 #endif  // VIA_LINUX_TARGET
