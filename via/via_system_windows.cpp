@@ -1142,6 +1142,74 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
     return found_json;
 }
 
+void ViaSystemWindows::PrintDriverEnvVarInfo(const char* var, const std::string& system_path, bool& found_json, bool& found_lib) {
+    char env_value[1024];
+    char generic_string[1024];
+
+    // The user can override the driver file manually
+    if (0 != GetEnvironmentVariableA(var, env_value, 1023) && 0 != strlen(env_value)) {
+        WIN32_FIND_DATAA ffd;
+        HANDLE hFind;
+        uint32_t i = 0;
+        char *tok = NULL;
+        bool keep_looping = false;
+        char full_driver_path[1024];
+        bool found_this_lib = false;
+
+        PrintBeginTableRow();
+        PrintTableElement(var);
+        PrintTableElement(env_value);
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        tok = strtok(env_value, ";");
+        if (NULL != tok) {
+            keep_looping = true;
+            strncpy(full_driver_path, tok, 1023);
+        } else {
+            strncpy(full_driver_path, env_value, 1023);
+        }
+
+        do {
+            snprintf(generic_string, 1023, "Driver %d", i++);
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement(generic_string, VIA_ALIGN_RIGHT);
+            PrintTableElement(full_driver_path);
+            PrintTableElement("");
+            PrintEndTableRow();
+
+            hFind = FindFirstFileA(full_driver_path, &ffd);
+            if (hFind != INVALID_HANDLE_VALUE) {
+                if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                    std::vector<std::tuple<std::string, bool, std::string>> cur_driver_jsons;
+                    cur_driver_jsons.emplace_back(ffd.cFileName, true, full_driver_path);
+                    if (PrintDriverRegistryInfo(cur_driver_jsons, system_path, found_this_lib)) {
+                        found_json = true;
+                        found_lib |= found_this_lib;
+                    }
+                }
+                FindClose(hFind);
+            } else {
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("Driver Not Found");
+                PrintTableElement("");
+                PrintTableElement("");
+                PrintEndTableRow();
+            }
+
+            tok = strtok(NULL, ";");
+            if (NULL == tok) {
+                keep_looping = false;
+            } else {
+                strncpy(full_driver_path, tok, 1023);
+            }
+        } while (keep_looping);
+    }
+}
+
 ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     PrintBeginTable("Vulkan Driver Info", 4);
@@ -1161,7 +1229,6 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
         std::string system_path;
         char cur_vulkan_driver_json[1024];
         char env_value[1024];
-        uint32_t i = 0;
         std::ifstream *stream = NULL;
         bool found_json = false;
         bool found_lib = false;
@@ -1206,143 +1273,10 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
                 found_lib |= found_this_lib;
             }
         }
-
-        // The user can override the drivers path manually
-        if (0 != GetEnvironmentVariableA("VK_DRIVERS_PATH", env_value, 1023) && 0 != strlen(env_value)) {
-            WIN32_FIND_DATAA ffd;
-            HANDLE hFind;
-            char *tok = NULL;
-            bool keep_looping = false;
-            char full_driver_path[1024];
-            char cur_driver_path[1024];
-            uint32_t path = 0;
-
-            PrintBeginTableRow();
-            PrintTableElement("VK_DRIVERS_PATH");
-            PrintTableElement(ConvertPathFormat(env_value));
-            PrintTableElement("");
-            PrintTableElement("");
-            PrintEndTableRow();
-
-            tok = strtok(env_value, ";");
-            if (NULL != tok) {
-                keep_looping = true;
-                strncpy(cur_driver_path, tok, 1023);
-            } else {
-                strncpy(cur_driver_path, env_value, 1023);
-            }
-
-            do {
-                snprintf(generic_string, 1023, "Path %d", path++);
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement(generic_string, VIA_ALIGN_CENTER);
-                PrintTableElement(ConvertPathFormat(cur_driver_path));
-                PrintTableElement("");
-                PrintEndTableRow();
-
-                // Look for any JSON files in that folder.
-                snprintf(full_driver_path, 1023, "%s\\*.json", cur_driver_path);
-                hFind = FindFirstFileA(full_driver_path, &ffd);
-                if (hFind != INVALID_HANDLE_VALUE) {
-                    do {
-                        if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                            snprintf(generic_string, 1023, "Driver %d", i++);
-                            snprintf(cur_vulkan_driver_json, 1023, "%s\\%s", cur_driver_path, ffd.cFileName);
-
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement(generic_string, VIA_ALIGN_RIGHT);
-                            PrintTableElement(ffd.cFileName);
-                            PrintTableElement("");
-                            PrintEndTableRow();
-
-                            // Parse the driver JSON file.
-                            std::vector<std::tuple<std::string, bool, std::string>> cur_driver_jsons;
-                            cur_driver_jsons.emplace_back(ffd.cFileName, true, cur_vulkan_driver_json);
-                            if (PrintDriverRegistryInfo(cur_driver_jsons, system_path, found_this_lib)) {
-                                found_json = true;
-                                found_lib |= found_this_lib;
-                            }
-                        }
-                    } while (FindNextFileA(hFind, &ffd) != 0);
-                    FindClose(hFind);
-                }
-
-                tok = strtok(NULL, ";");
-                if (NULL == tok) {
-                    keep_looping = false;
-                } else {
-                    strncpy(cur_driver_path, tok, 1023);
-                }
-            } while (keep_looping);
-        }
-
-        // The user can override the driver file manually
-        if (0 != GetEnvironmentVariableA("VK_ICD_FILENAMES", env_value, 1023) && 0 != strlen(env_value)) {
-            WIN32_FIND_DATAA ffd;
-            HANDLE hFind;
-            char *tok = NULL;
-            bool keep_looping = false;
-            char full_driver_path[1024];
-
-            PrintBeginTableRow();
-            PrintTableElement("VK_ICD_FILENAMES");
-            PrintTableElement(env_value);
-            PrintTableElement("");
-            PrintTableElement("");
-            PrintEndTableRow();
-
-            tok = strtok(env_value, ";");
-            if (NULL != tok) {
-                keep_looping = true;
-                strncpy(full_driver_path, tok, 1023);
-            } else {
-                strncpy(full_driver_path, env_value, 1023);
-            }
-
-            do {
-                snprintf(generic_string, 1023, "Driver %d", i++);
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement(generic_string, VIA_ALIGN_RIGHT);
-                PrintTableElement(full_driver_path);
-                PrintTableElement("");
-                PrintEndTableRow();
-
-                hFind = FindFirstFileA(full_driver_path, &ffd);
-                if (hFind != INVALID_HANDLE_VALUE) {
-                    if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                        std::vector<std::tuple<std::string, bool, std::string>> cur_driver_jsons;
-                        cur_driver_jsons.emplace_back(ffd.cFileName, true, full_driver_path);
-                        if (PrintDriverRegistryInfo(cur_driver_jsons, system_path, found_this_lib)) {
-                            found_lib |= found_this_lib;
-                        }
-                    }
-                    FindClose(hFind);
-                } else {
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("Driver Not Found");
-                    PrintTableElement("");
-                    PrintTableElement("");
-                    PrintEndTableRow();
-                }
-
-                tok = strtok(NULL, ";");
-                if (NULL == tok) {
-                    keep_looping = false;
-                } else {
-                    strncpy(full_driver_path, tok, 1023);
-                }
-            } while (keep_looping);
-        }
-
-        if (!found_json) {
-            result = VIA_MISSING_DRIVER_JSON;
-        } else if (!found_lib) {
-            result = VIA_MISSING_DRIVER_LIB;
-        }
+\
+        PrintDriverEnvVarInfo("VK_DRIVER_FILES", system_path, found_json, found_lib);
+        PrintDriverEnvVarInfo("VK_ICD_FILENAMES", system_path, found_json, found_lib);
+        PrintDriverEnvVarInfo("VK_ADD_DRIVER_FILES", system_path, found_json, found_lib);
     }
 
     PrintEndTable();
@@ -1920,43 +1854,27 @@ ViaSystem::ViaResults ViaSystemWindows::FindAndPrintAllExplicitLayersInPath(cons
     return res;
 }
 
-ViaSystem::ViaResults ViaSystemWindows::PrintSystemExplicitLayerInfo() {
+ViaSystem::ViaResults ViaSystemWindows::PrintLayerEnvVar(const char* var, bool& printed_more_layers) {
     ViaResults result = VIA_SUCCESSFUL;
-    bool printed_more_layers = false;
     char generic_string[1024];
-    PrintBeginTable("Vulkan Explicit Layers", 4);
 
-    if (0 != _layer_override_search_path.size()) {
-        for (uint32_t cur_path = 0; cur_path < _layer_override_search_path.size(); cur_path++) {
-            PrintBeginTableRow();
-            PrintTableElement("Override Path");
-            PrintTableElement(_layer_override_search_path[cur_path]);
-            PrintTableElement("");
-            PrintTableElement("");
-            PrintEndTableRow();
-
-            result = FindAndPrintAllExplicitLayersInPath(_layer_override_search_path[cur_path]);
-        }
-        printed_more_layers = true;
-    }
-
-    // If the user's system has VK_LAYER_PATH set, dump out the layer
+    // If the user's system has the provied environment variable set, dump out the layer
     // information found in that folder.  This is important because if
     // a user is having problems with the layers, they may be using
     // non-standard layers.
-    if (0 != GetEnvironmentVariableA("VK_LAYER_PATH", generic_string, 1023)) {
+    if (0 != GetEnvironmentVariableA(var, generic_string, 1023)) {
         std::string cur_layer_path;
         bool keep_looping = false;
         uint32_t path = 0;
 
         PrintBeginTableRow();
-        PrintTableElement("VK_LAYER_PATH");
+        PrintTableElement(var);
         PrintTableElement(generic_string);
         PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
 
-        // VK_LAYER_PATH may have multiple folders listed in it (colon
+        // Variable may have multiple folders listed in it (colon
         // ';' delimited)
         char *tok = strtok(generic_string, ";");
         if (tok != NULL) {
@@ -1987,6 +1905,37 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemExplicitLayerInfo() {
             }
         } while (keep_looping);
         printed_more_layers = true;
+    }
+    return result;
+}
+
+ViaSystem::ViaResults ViaSystemWindows::PrintSystemExplicitLayerInfo() {
+    ViaResults result = VIA_SUCCESSFUL;
+    bool printed_more_layers = false;
+
+    PrintBeginTable("Vulkan Explicit Layers", 4);
+
+    if (0 != _layer_override_search_path.size()) {
+        for (uint32_t cur_path = 0; cur_path < _layer_override_search_path.size(); cur_path++) {
+            PrintBeginTableRow();
+            PrintTableElement("Override Path");
+            PrintTableElement(_layer_override_search_path[cur_path]);
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+
+            result = FindAndPrintAllExplicitLayersInPath(_layer_override_search_path[cur_path]);
+        }
+        printed_more_layers = true;
+    }
+
+    ViaResults tmp_result = PrintLayerEnvVar("VK_LAYER_PATH", printed_more_layers);
+    if (tmp_result != VIA_SUCCESSFUL) {
+        result = tmp_result;
+    }
+    tmp_result = PrintLayerEnvVar("VK_ADD_LAYER_PATH", printed_more_layers);
+    if (tmp_result != VIA_SUCCESSFUL) {
+        result = tmp_result;
     }
 
     if (!printed_more_layers) {
