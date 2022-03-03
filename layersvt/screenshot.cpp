@@ -518,12 +518,16 @@ WritePPMCleanupData::~WritePPMCleanupData() {
 // expected to assert.  Recovery and clean up are implemented for image memory
 // allocation failures.
 // (TODO) It would be nice to pass any failure info to DebugReport or something.
-static void writePPM(const char *filename, VkImage image1) {
+//
+// Returns true if file is successfully written, false otherwise.
+//
+static bool writePPM(const char *filename, VkImage image1) {
     VkResult err;
     bool pass;
 
     // Bail immediately if we can't find the image.
-    if (imageMap.empty() || imageMap.find(image1) == imageMap.end()) return;
+    if (imageMap.empty() || imageMap.find(image1) == imageMap.end())
+        return false;
 
     // Collect object info from maps.  This info is generally recorded
     // by the other functions hooked in this layer.
@@ -533,7 +537,7 @@ static void writePPM(const char *filename, VkImage image1) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     if (NULL == dispMap) {
         assert(0);
-        return;
+        return false;
     }
     VkQueue queue = getQueueForScreenshot(device);
     if (!queue) {
@@ -542,7 +546,7 @@ static void writePPM(const char *filename, VkImage image1) {
 #else
         fprintf(stderr, "Screenshot could not find a capable queue\n");
 #endif
-        return;
+        return false;
     }
     VkLayerDispatchTable *pTableDevice = dispMap->device_dispatch_table;
     VkLayerDispatchTable *pTableQueue = get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
@@ -559,7 +563,7 @@ static void writePPM(const char *filename, VkImage image1) {
 
     if ((3 != numChannels) && (4 != numChannels)) {
         assert(0);
-        return;
+        return false;
     }
 
     // Initial dest format is undefined as we will look for one
@@ -681,7 +685,7 @@ static void writePPM(const char *filename, VkImage image1) {
 
     if ((FormatCompatibilityClass(destformat) != FormatCompatibilityClass(format))) {
         assert(0);
-        return;
+        return false;
     }
 
     // General Approach
@@ -729,9 +733,14 @@ static void writePPM(const char *filename, VkImage image1) {
         if (!bltLinear && !bltOptimal) {
             // Cannot blit to either target tiling type.  It should be pretty
             // unlikely to have a device that cannot blit to either type.
-            // But punt by just doing a copy and possibly have the wrong
-            // colors.  This should be quite rare.
-            copyOnly = true;
+            // This should be quite rare. Punt.
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_DEBUG, "screenshot",
+                                "Output format not supported, screen capture failed");
+#else
+            fprintf(stderr, "Output format not supported, screen capture failed\n");
+#endif
+            return false;
         } else if (!bltLinear && bltOptimal) {
             // Cannot blit to a linear target but can blt to optimal, so copy
             // after blit is needed.
@@ -785,7 +794,8 @@ static void writePPM(const char *filename, VkImage image1) {
     // final image.
     err = pTableDevice->CreateImage(device, &imgCreateInfo2, NULL, &data.image2);
     assert(!err);
-    if (VK_SUCCESS != err) return;
+    if (VK_SUCCESS != err)
+        return false;
     pTableDevice->GetImageMemoryRequirements(device, data.image2, &memRequirements);
     memAllocInfo.allocationSize = memRequirements.size;
     pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
@@ -795,16 +805,19 @@ static void writePPM(const char *filename, VkImage image1) {
     assert(pass);
     err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem2);
     assert(!err);
-    if (VK_SUCCESS != err) return;
+    if (VK_SUCCESS != err)
+        return false;
     err = pTableQueue->BindImageMemory(device, data.image2, data.mem2, 0);
     assert(!err);
-    if (VK_SUCCESS != err) return;
+    if (VK_SUCCESS != err)
+        return false;
 
     // Create image3 and allocate its memory, if needed.
     if (need2steps) {
         err = pTableDevice->CreateImage(device, &imgCreateInfo3, NULL, &data.image3);
         assert(!err);
-        if (VK_SUCCESS != err) return;
+        if (VK_SUCCESS != err)
+            return false;
         pTableDevice->GetImageMemoryRequirements(device, data.image3, &memRequirements);
         memAllocInfo.allocationSize = memRequirements.size;
         pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
@@ -813,10 +826,12 @@ static void writePPM(const char *filename, VkImage image1) {
         assert(pass);
         err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem3);
         assert(!err);
-        if (VK_SUCCESS != err) return;
+        if (VK_SUCCESS != err)
+            return false;
         err = pTableQueue->BindImageMemory(device, data.image3, data.mem3, 0);
         assert(!err);
-        if (VK_SUCCESS != err) return;
+        if (VK_SUCCESS != err)
+            return false;
     }
 
     // We want to create our own command pool to be sure we can use it from this thread
@@ -836,7 +851,8 @@ static void writePPM(const char *filename, VkImage image1) {
                                                                 data.commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
     err = pTableDevice->AllocateCommandBuffers(device, &allocCommandBufferInfo, &data.commandBuffer);
     assert(!err);
-    if (VK_SUCCESS != err) return;
+    if (VK_SUCCESS != err)
+        return false;
 
     VkDevice cmdBuf = static_cast<VkDevice>(static_cast<void *>(data.commandBuffer));
     if (deviceMap.find(cmdBuf) != deviceMap.end()) {
@@ -1012,28 +1028,28 @@ static void writePPM(const char *filename, VkImage image1) {
         pTableDevice->GetImageSubresourceLayout(device, data.image2, &sr, &srLayout);
         err = pTableDevice->MapMemory(device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
         assert(!err);
-        if (VK_SUCCESS != err) return;
+        if (VK_SUCCESS != err)
+             return false;
         data.mem2mapped = true;
     } else {
         pTableDevice->GetImageSubresourceLayout(device, data.image3, &sr, &srLayout);
         err = pTableDevice->MapMemory(device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
         assert(!err);
-        if (VK_SUCCESS != err) return;
+        if (VK_SUCCESS != err)
+            return false;
         data.mem3mapped = true;
     }
 
     // Write the data to a PPM file.
     ofstream file(filename, ios::binary);
-    assert(file.is_open());
-
     if (!file.is_open()) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_DEBUG, "screenshot",
-                            "Failed to open output file: %s.  Be sure to grant read and write permissions.", filename);
+                            "Failed to open output file: %s", filename);
 #else
-        fprintf(stderr, "Failed to open output file:%s,  Be sure to grant read and write permissions\n", filename);
+        fprintf(stderr, "Failed to open output file: %s\n", filename);
 #endif
-        return;
+        return false;
     }
 
     file << "P6\n";
@@ -1060,6 +1076,9 @@ static void writePPM(const char *filename, VkImage image1) {
     file.close();
 
     // Clean up handled by ~WritePPMCleanupData()
+
+    // writePPM succeeded
+    return true;
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
@@ -1337,11 +1356,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                 fileName = vk_screenshot_dir;
                 fileName += "/" + to_string(frameNumber) + ".ppm";
             }
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
-#else
-            printf("Screen Capture file is: %s \n", fileName.c_str());
-#endif
 
             VkImage image;
             VkSwapchainKHR swapchain;
@@ -1350,7 +1364,13 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
                 swapchain = pPresentInfo->pSwapchains[0];
                 image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-                writePPM(fileName.c_str(), image);
+                if (writePPM(fileName.c_str(), image)) {
+#ifdef ANDROID
+                    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
+#else
+                    printf("Screen Capture file is: %s \n", fileName.c_str());
+#endif
+                }
             } else {
 #ifdef ANDROID
                 __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - no swapchain specified\n");
