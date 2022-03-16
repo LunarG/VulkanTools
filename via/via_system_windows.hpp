@@ -67,6 +67,8 @@ class ViaSystemWindows : public ViaSystem {
     bool PrintImplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::string>>& cur_layer_json,
                                     std::vector<std::string>& override_paths, ViaResults& res);
     ViaResults FindAndPrintAllExplicitLayersInPath(const std::string& layer_path);
+    void PrintDriverEnvVarInfo(const char* var, const std::string& system_path, bool& found_json, bool& found_lib);
+    ViaResults PrintLayerEnvVar(const char* var, bool& printed_more_layers);
 
     OSVERSIONINFOEX _os_version_info;
     SYSTEM_INFO _system_info;
