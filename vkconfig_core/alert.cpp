@@ -102,7 +102,7 @@ QMessageBox::Button Alert::LayerImplicitExcluded(const char* layer_name) {
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 
-QMessageBox::Button Alert::LayerDevSim() {
+QMessageBox::Button Alert::LayerProfiles() {
     QMessageBox alert;
     alert.QDialog::setWindowTitle("Overridding or excluding ALL explicit layers is recommanded");
     alert.setText(

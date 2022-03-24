@@ -11,7 +11,13 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.4.4](https://github.com/LunarG/VulkanTools/tree/master) - February 2022
+## [Vulkan Configurator 2.4.5](https://github.com/LunarG/VulkanTools/tree/master) - April 2022
+
+### Features:
+- Removed built-in support of `VK_LAYER_LUNARG_device_simulation` layer #1628
+  - Use `VK_LAYER_KHRONOS_profiles` layer instead
+
+## [Vulkan Configurator 2.4.4](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.204.1) - March 2022
 
 ### Features:
 - Add markdown documentation export
