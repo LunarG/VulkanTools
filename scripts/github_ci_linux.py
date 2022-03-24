@@ -115,8 +115,6 @@ def RunVTTests(args):
     RunATest(vt_cmd, vt_env)
     vt_cmd = '%s/tests/apidump_test.sh -t %s/Vulkan-Tools/%s' % (BUILD_DIR_NAME, EXTERNAL_DIR, BUILD_DIR_NAME)
     RunATest(vt_cmd, vt_env)
-    vt_cmd = 'python tests/devsim_layer_tests.py %s/Vulkan-Tools/%s/%s --dir=tests' % (EXTERNAL_DIR, BUILD_DIR_NAME, INSTALL_DIR_NAME)
-    RunATest(vt_cmd, vt_env)
 
 #
 # Module Entrypoint
