@@ -479,8 +479,8 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
     LayerState layer_state = static_cast<LayerState>(selection);
 
-    if (layer_state == LAYER_STATE_OVERRIDDEN && current_parameter->key == "VK_LAYER_LUNARG_device_simulation") {
-        if (Alert::LayerDevSim() == QMessageBox::Yes) {
+    if (layer_state == LAYER_STATE_OVERRIDDEN && current_parameter->key == "VK_LAYER_KHRONOS_profiles") {
+        if (Alert::LayerProfiles() == QMessageBox::Yes) {
             OverrideAllExplicitLayers();
         }
     } else if (layer_state == LAYER_STATE_EXCLUDED) {
