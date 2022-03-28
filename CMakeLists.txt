@@ -56,22 +56,22 @@ endif()
 message(STATUS "Using Vulkan-Headers install located at ${VULKAN_HEADERS_INSTALL_DIR}")
 
 if(NOT VULKAN_LOADER_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_LOADER_INSTALL_DIR})
-message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
+    message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
 endif()
 
 # Cmake command line option overrides environment variable
 if(NOT VULKAN_LOADER_INSTALL_DIR)
-set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
+    set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
 endif()
 message(STATUS "Using Vulkan-Loader install located at ${VULKAN_LOADER_INSTALL_DIR}")
 
 if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
+    message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
 endif()
 
 # Cmake command line option overrides environment variable
 if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
-set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+    set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
 endif()
 message(STATUS "Using Vulkan-ValidationLayers install located at ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}")
 

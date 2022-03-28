@@ -12,10 +12,12 @@ Both VkTrace and VkReplay have been removed from VulkanTools and can now be foun
 Both these tools are also no longer part of the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/).
 
 ## CI Build Status
-| Platform | Build Status |
-|:--------:|:------------:|
-| Linux/Android | [![Build Status](https://travis-ci.com/LunarG/VulkanTools.svg?branch=master)](https://travis-ci.com/LunarG/VulkanTools) |
-| Windows | [![Build status](https://ci.appveyor.com/api/projects/status/2ncmy766ufb2hnh2/branch/master?svg=true)](https://ci.appveyor.com/project/karl-lunarg/vulkantools/branch/master) |
+| Build Status |
+|:------------|
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_windows.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux_gn.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_android.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
 
 ## Contributing
 
