@@ -17,6 +17,9 @@
 - Removed built-in support of `VK_LAYER_LUNARG_device_simulation` layer #1628
   - Use `VK_LAYER_KHRONOS_profiles` layer instead
 
+### Improvements:
+- Improve the Portability built-in configuration to check only what's necessary, reducing validation overhead.
+
 ## [Vulkan Configurator 2.4.4](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.204.1) - March 2022
 
 ### Features:
