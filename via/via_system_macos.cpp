@@ -1181,7 +1181,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintLayerEnvVar(const char* var) {
     ViaResults result = VIA_SUCCESSFUL;
 
     // Look at the environment variable paths if it is set.
-    env_value = getenv(var);
+    char *env_value = getenv(var);
     std::string cur_json;
     if (NULL != env_value) {
         char *tok = strtok(env_value, ":");
