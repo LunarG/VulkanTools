@@ -65,27 +65,27 @@ endif ()
 
 if (WIN32)
     macro(add_vk_layer target)
-    FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def DEF_FILE)
-    add_custom_target(copy-${target}-def-file ALL
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEF_FILE} VkLayer_${target}.def
-        VERBATIM
-    )
-    add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY} vku)
-    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
-    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
-    set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def DEF_FILE)
+        add_custom_target(copy-${target}-def-file ALL
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEF_FILE} VkLayer_${target}.def
+            VERBATIM
+        )
+        add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
+        target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
+        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
+        set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endmacro()
 else()
     macro(add_vk_layer target)
-    add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY} vku)
-    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
-    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
-    if (NOT APPLE)
-        set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
-    endif ()
-    install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+        add_library(VkLayer_${target} SHARED ${ARGN})
+        target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
+        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
+        if (NOT APPLE)
+            set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
+        endif ()
+        install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
 endif()
 
@@ -123,11 +123,11 @@ run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
 run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_json.h)
 
 if (NOT APPLE)
-    add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
-    add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
+    add_vk_layer(monitor monitor.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
+    add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
 endif ()
 
-add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
+add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
 
 # json file creation
 

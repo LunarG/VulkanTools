@@ -40,6 +40,8 @@ jobs:
             cc: "gcc", cxx: "g++"
           }
     steps:
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
     - name: Clone repository
       uses: actions/checkout@v1
     - name: Execute Source Code Format Checking Script
@@ -56,18 +58,20 @@ jobs:
         - {
             name: "Ubuntu GCC Debug",
             os: ubuntu-latest,
-            type: "debug",
+            type: "Debug",
             build_dir: "build",
             cc: "gcc", cxx: "g++"
           }
         - {
             name: "Ubuntu Clang Debug",
             os: ubuntu-latest,
-            type: "debug",
+            type: "Debug",
             build_dir: "build",
             cc: "clang", cxx: "clang++"
           }
     steps:
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
     - name: Clone repository
       uses: actions/checkout@v1
     - name: Install build dependencies
@@ -76,10 +80,25 @@ jobs:
         sudo apt-get install -y libxkbcommon-dev libwayland-dev libxrandr-dev qt5-default\
                               libx11-xcb-dev libxcb-randr0-dev cmake jq wget
     - name: Build and Test VulkanTools 
-      run: |
-        python3 scripts/github_ci_linux.py --config ${{ matrix.config.type }}
-        cd build
-        ctest --parallel 8 --output-on-failure
+      run: python3 scripts/github_ci_linux.py --config ${{ matrix.config.type }}
+
+  windows:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ x64 ]
+        config: [ Debug ]
+        os: [ windows-latest, windows-2019 ]
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Build and Test VulkanTools
+        run: python3 scripts/github_ci_win.py --config ${{ matrix.config }} --arch ${{ matrix.arch }}
 
   android:
     name: ${{ matrix.config.name }}
@@ -104,5 +123,4 @@ jobs:
     - name: Clone repository
       uses: actions/checkout@v1
     - name: Build VulkanTools
-      run: |
-        python3 scripts/github_ci_android.py --abi ${{ matrix.config.abi }}
+      run: python3 scripts/github_ci_android.py --abi ${{ matrix.config.abi }}
