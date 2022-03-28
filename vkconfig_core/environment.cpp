@@ -109,14 +109,14 @@ LoaderMessageLevel GetLoaderDebug(const std::string& value) {
 
 std::string GetLoaderDebugToken(LoaderMessageLevel level) {
     static const char* LOADER_MESSAGE_LEVEL[]{
-        "",       // LOADER_MESSAGE_NONE
-        "error",  // LOADER_MESSAGE_ERROR
-        "warn",   // LOADER_MESSAGE_WARN
-        "info",   // LOADER_MESSAGE_INFO
-        "debug",  // LOADER_MESSAGE_DEBUG
-        "layer",  // LOADER_MESSAGE_LAYER
-        "implem", // LOADER_MESSAGE_IMPLEMENTATION
-        "all"     // LOADER_MESSAGE_ALL
+        "",        // LOADER_MESSAGE_NONE
+        "error",   // LOADER_MESSAGE_ERROR
+        "warn",    // LOADER_MESSAGE_WARN
+        "info",    // LOADER_MESSAGE_INFO
+        "debug",   // LOADER_MESSAGE_DEBUG
+        "layer",   // LOADER_MESSAGE_LAYER
+        "implem",  // LOADER_MESSAGE_IMPLEMENTATION
+        "all"      // LOADER_MESSAGE_ALL
     };
 
     static_assert(countof(LOADER_MESSAGE_LEVEL) == LOADER_MESSAGE_COUNT,
@@ -231,20 +231,30 @@ bool Environment::Load() {
     user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI] =
         ConvertString(settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList());
 
+    static const char* SEPARATOR[] = {
+        ";",  // ENVIRONMENT_WIN32
+        ":"   // ENVIRONMENT_UNIX
+    };
+    static_assert(countof(SEPARATOR) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
     // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
     const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
     if (!VK_LAYER_PATH.isEmpty()) {
-        static const char* TABLE[] = {
-            ";",  // ENVIRONMENT_WIN32
-            ":"   // ENVIRONMENT_UNIX
-        };
-        static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV] =
-            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(TABLE[VKC_ENV]));
+        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET] =
+            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(SEPARATOR[VKC_ENV]));
     } else {
-        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV].clear();
+        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
+    }
+
+    // See if the VK_ADD_LAYER_PATH environment variable is set. If so, parse it and
+    // assemble a list of paths that take precidence for layer discovery.
+    const QString VK_ADD_LAYER_PATH(qgetenv("VK_ADD_LAYER_PATH"));
+    if (!VK_ADD_LAYER_PATH.isEmpty()) {
+        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD] =
+            ConvertString(QString(qgetenv("VK_ADD_LAYER_PATH")).split(SEPARATOR[VKC_ENV]));
+    } else {
+        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
     }
 
     // Load application list
@@ -282,12 +292,12 @@ bool Environment::LoadApplications() {
                     application.override_layers = !app_object.value("exclude_override").toBool();
                     application.log_file = app_object.value("log_file").toString().toStdString();
                     if (application.app_name.length() == 0) {
-                       std::string path = application.executable_path.c_str();
-                       if (path.find(GetNativeSeparator()) != std::string::npos) {
-                           application.app_name = path.substr(path.rfind(GetNativeSeparator()) + 1);
-                       } else {
-                           application.app_name = path;
-                       }
+                        std::string path = application.executable_path.c_str();
+                        if (path.find(GetNativeSeparator()) != std::string::npos) {
+                            application.app_name = path.substr(path.rfind(GetNativeSeparator()) + 1);
+                        } else {
+                            application.app_name = path;
+                        }
                     }
 
                     // Arguments are in an array to make room for adding more in a future version

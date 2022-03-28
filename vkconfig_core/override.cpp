@@ -43,7 +43,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     bool has_missing_layers = false;
 
     const QStringList& path_gui = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI));
-    const QStringList& path_env = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV));
+    const QStringList& path_env_set = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_SET));
+    const QStringList& path_env_add = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_ADD));
 
     QStringList layer_system_paths;
 
@@ -68,7 +69,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         const std::string absolute_path(file.absolutePath().toStdString().c_str());
 
         if (!path_gui.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
-            !path_env.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str())) {
+            !path_env_set.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
+            !path_env_add.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str())) {
             // Make sure the path is not already in the system path list
             if (layer_system_paths.contains(absolute_path.c_str())) continue;
 
@@ -154,17 +156,16 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 }
 
 // Create and write vk_layer_settings.txt file
-bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
-                           const Configuration& configuration, const std::string& settings_path) {
-
+bool WriteSettingsOverride(const std::vector<Layer>& available_layers, const Configuration& configuration,
+                           const std::string& settings_path) {
     if (settings_path.empty() || !QFileInfo(settings_path.c_str()).absoluteDir().exists()) {
-        fprintf(stderr, "Cannot open file %s\n",  settings_path.c_str());
+        fprintf(stderr, "Cannot open file %s\n", settings_path.c_str());
         exit(1);
     };
     QFile file(settings_path.c_str());
     const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
     if (!result_settings_file) {
-        fprintf(stderr, "Cannot open file %s\n",  settings_path.c_str());
+        fprintf(stderr, "Cannot open file %s\n", settings_path.c_str());
         exit(1);
     }
     QTextStream stream(&file);
@@ -221,20 +222,20 @@ bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
             std::size_t pos;
             while ((pos = description.find(" ")) != std::string::npos) {
                 words.push_back(description.substr(0, pos));
-                description.erase(0, pos+1);
+                description.erase(0, pos + 1);
             }
             if (description.size() > 0) words.push_back(description);
             if (words.size() > 0) {
-               stream << "#";
-               std::size_t nchars = 2;
-               for (auto word : words) {
-                   if (word.size() + nchars > 80) {
-                       stream << "\n#";
-                       nchars = 2;
-                   }
-                   stream << " " << word.c_str();
-                   nchars += (word.size()+1);
-               }
+                stream << "#";
+                std::size_t nchars = 2;
+                for (auto word : words) {
+                    if (word.size() + nchars > 80) {
+                        stream << "\n#";
+                        nchars = 2;
+                    }
+                    stream << " " << word.c_str();
+                    nchars += (word.size() + 1);
+                }
             }
             stream << "\n";
 
