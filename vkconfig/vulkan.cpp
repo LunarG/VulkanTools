@@ -117,7 +117,8 @@ std::string GenerateVulkanStatus() {
         }
     }
 
-    log += GetUserDefinedLayersPathsLog("VK_LAYER_PATH environment variable", USER_DEFINED_LAYERS_PATHS_ENV);
+    log += GetUserDefinedLayersPathsLog("VK_LAYER_PATH environment variable", USER_DEFINED_LAYERS_PATHS_ENV_SET);
+    log += GetUserDefinedLayersPathsLog("VK_ADD_LAYER_PATH environment variable", USER_DEFINED_LAYERS_PATHS_ENV_ADD);
     if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers))
         log += GetUserDefinedLayersPathsLog("Vulkan Configurator", USER_DEFINED_LAYERS_PATHS_GUI);
 
