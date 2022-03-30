@@ -90,6 +90,11 @@ def BuildVT(args):
     test_cmd = 'ctest --parallel %s --output-on-failure --config %s' % (os.cpu_count(), args.configuration)
     RunShellCmd(test_cmd, VT_BUILD_DIR)
 
+    print("Build Vulkan Configurator with QtCreator")
+    os.chdir('%s/../vkconfig' % VT_BUILD_DIR)
+    RunShellCmd('qmake vkconfig.pro', '%s/../vkconfig' % VT_BUILD_DIR)
+    RunShellCmd('make', '%s/../vkconfig' % VT_BUILD_DIR)
+
 ret_code = 0
 def RunATest(vt_cmd, vt_env):
     try:
