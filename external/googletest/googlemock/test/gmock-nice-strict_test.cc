@@ -31,6 +31,7 @@
 
 #include <string>
 #include <utility>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
@@ -67,6 +68,12 @@ class NotDefaultConstructible {
   explicit NotDefaultConstructible(int) {}
 };
 
+class CallsMockMethodInDestructor {
+ public:
+  ~CallsMockMethodInDestructor() { OnDestroy(); }
+  MOCK_METHOD(void, OnDestroy, ());
+};
+
 // Defines some mock classes needed by the tests.
 
 class Foo {
@@ -97,7 +104,8 @@ class MockBar {
   MockBar(char a1, char a2, std::string a3, std::string a4, int a5, int a6,
           const std::string& a7, const std::string& a8, bool a9, bool a10) {
     str_ = std::string() + a1 + a2 + a3 + a4 + static_cast<char>(a5) +
-        static_cast<char>(a6) + a7 + a8 + (a9 ? 'T' : 'F') + (a10 ? 'T' : 'F');
+           static_cast<char>(a6) + a7 + a8 + (a9 ? 'T' : 'F') +
+           (a10 ? 'T' : 'F');
   }
 
   virtual ~MockBar() {}
@@ -112,7 +120,6 @@ class MockBar {
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(MockBar);
 };
-
 
 class MockBaz {
  public:
@@ -156,8 +163,7 @@ TEST(RawMockTest, WarningForUninterestingCallAfterDeath) {
 
   MockFoo* const raw_foo = new MockFoo;
 
-  ON_CALL(*raw_foo, DoThis())
-      .WillByDefault(Invoke(raw_foo, &MockFoo::Delete));
+  ON_CALL(*raw_foo, DoThis()).WillByDefault(Invoke(raw_foo, &MockFoo::Delete));
 
   CaptureStdout();
   raw_foo->DoThis();
@@ -275,8 +281,8 @@ TEST(NiceMockTest, NonDefaultConstructor) {
 // Tests that NiceMock works with a mock class that has a 10-ary
 // non-default constructor.
 TEST(NiceMockTest, NonDefaultConstructor10) {
-  NiceMock<MockBar> nice_bar('a', 'b', "c", "d", 'e', 'f',
-                             "g", "h", true, false);
+  NiceMock<MockBar> nice_bar('a', 'b', "c", "d", 'e', 'f', "g", "h", true,
+                             false);
   EXPECT_EQ("abcdefghTF", nice_bar.str());
 
   nice_bar.This();
@@ -300,6 +306,13 @@ TEST(NiceMockTest, AcceptsClassNamedMock) {
   NiceMock< ::Mock> nice;
   EXPECT_CALL(nice, DoThis());
   nice.DoThis();
+}
+
+TEST(NiceMockTest, IsNiceInDestructor) {
+  {
+    NiceMock<CallsMockMethodInDestructor> nice_on_destroy;
+    // Don't add an expectation for the call before the mock goes out of scope.
+  }
 }
 
 TEST(NiceMockTest, IsNaggy_IsNice_IsStrict) {
@@ -378,8 +391,8 @@ TEST(NaggyMockTest, NonDefaultConstructor) {
 // Tests that NaggyMock works with a mock class that has a 10-ary
 // non-default constructor.
 TEST(NaggyMockTest, NonDefaultConstructor10) {
-  NaggyMock<MockBar> naggy_bar('0', '1', "2", "3", '4', '5',
-                               "6", "7", true, false);
+  NaggyMock<MockBar> naggy_bar('0', '1', "2", "3", '4', '5', "6", "7", true,
+                               false);
   EXPECT_EQ("01234567TF", naggy_bar.str());
 
   naggy_bar.This();
@@ -403,6 +416,22 @@ TEST(NaggyMockTest, AcceptsClassNamedMock) {
   NaggyMock< ::Mock> naggy;
   EXPECT_CALL(naggy, DoThis());
   naggy.DoThis();
+}
+
+TEST(NaggyMockTest, IsNaggyInDestructor) {
+  const std::string saved_flag = GMOCK_FLAG(verbose);
+  GMOCK_FLAG(verbose) = "warning";
+  CaptureStdout();
+
+  {
+    NaggyMock<CallsMockMethodInDestructor> naggy_on_destroy;
+    // Don't add an expectation for the call before the mock goes out of scope.
+  }
+
+  EXPECT_THAT(GetCapturedStdout(),
+              HasSubstr("Uninteresting mock function call"));
+
+  GMOCK_FLAG(verbose) = saved_flag;
 }
 
 TEST(NaggyMockTest, IsNaggy_IsNice_IsStrict) {
@@ -462,8 +491,8 @@ TEST(StrictMockTest, NonDefaultConstructor) {
 // Tests that StrictMock works with a mock class that has a 10-ary
 // non-default constructor.
 TEST(StrictMockTest, NonDefaultConstructor10) {
-  StrictMock<MockBar> strict_bar('a', 'b', "c", "d", 'e', 'f',
-                                 "g", "h", true, false);
+  StrictMock<MockBar> strict_bar('a', 'b', "c", "d", 'e', 'f', "g", "h", true,
+                                 false);
   EXPECT_EQ("abcdefghTF", strict_bar.str());
 
   EXPECT_NONFATAL_FAILURE(strict_bar.That(5, true),
@@ -487,6 +516,16 @@ TEST(StrictMockTest, AcceptsClassNamedMock) {
   StrictMock< ::Mock> strict;
   EXPECT_CALL(strict, DoThis());
   strict.DoThis();
+}
+
+TEST(StrictMockTest, IsStrictInDestructor) {
+  EXPECT_NONFATAL_FAILURE(
+      {
+        StrictMock<CallsMockMethodInDestructor> strict_on_destroy;
+        // Don't add an expectation for the call before the mock goes out of
+        // scope.
+      },
+      "Uninteresting mock function call");
 }
 
 TEST(StrictMockTest, IsNaggy_IsNice_IsStrict) {
