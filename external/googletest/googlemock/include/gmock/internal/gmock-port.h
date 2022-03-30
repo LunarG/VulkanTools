@@ -37,11 +37,13 @@
 
 // GOOGLETEST_CM0002 DO NOT DELETE
 
-#ifndef GMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
-#define GMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
+#ifndef GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
+#define GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
 
 #include <assert.h>
 #include <stdlib.h>
+
+#include <cstdint>
 #include <iostream>
 
 // Most of the utilities needed for porting Google Mock are also
@@ -52,13 +54,13 @@
 // here, as Google Mock depends on Google Test.  Only add a utility
 // here if it's truly specific to Google Mock.
 
-#include "gtest/internal/gtest-port.h"
 #include "gmock/internal/custom/gmock-port.h"
+#include "gtest/internal/gtest-port.h"
 
 // For MS Visual C++, check the compiler version. At least VS 2015 is
 // required to compile Google Mock.
 #if defined(_MSC_VER) && _MSC_VER < 1900
-# error "At least Visual C++ 2015 (14.0) is required to compile Google Mock."
+#error "At least Visual C++ 2015 (14.0) is required to compile Google Mock."
 #endif
 
 // Macro for referencing flags.  This is public as we want the user to
@@ -68,20 +70,19 @@
 #if !defined(GMOCK_DECLARE_bool_)
 
 // Macros for declaring flags.
-# define GMOCK_DECLARE_bool_(name) extern GTEST_API_ bool GMOCK_FLAG(name)
-# define GMOCK_DECLARE_int32_(name) \
-    extern GTEST_API_ ::testing::internal::Int32 GMOCK_FLAG(name)
-# define GMOCK_DECLARE_string_(name) \
-    extern GTEST_API_ ::std::string GMOCK_FLAG(name)
+#define GMOCK_DECLARE_bool_(name) extern GTEST_API_ bool GMOCK_FLAG(name)
+#define GMOCK_DECLARE_int32_(name) extern GTEST_API_ int32_t GMOCK_FLAG(name)
+#define GMOCK_DECLARE_string_(name) \
+  extern GTEST_API_ ::std::string GMOCK_FLAG(name)
 
 // Macros for defining flags.
-# define GMOCK_DEFINE_bool_(name, default_val, doc) \
-    GTEST_API_ bool GMOCK_FLAG(name) = (default_val)
-# define GMOCK_DEFINE_int32_(name, default_val, doc) \
-    GTEST_API_ ::testing::internal::Int32 GMOCK_FLAG(name) = (default_val)
-# define GMOCK_DEFINE_string_(name, default_val, doc) \
-    GTEST_API_ ::std::string GMOCK_FLAG(name) = (default_val)
+#define GMOCK_DEFINE_bool_(name, default_val, doc) \
+  GTEST_API_ bool GMOCK_FLAG(name) = (default_val)
+#define GMOCK_DEFINE_int32_(name, default_val, doc) \
+  GTEST_API_ int32_t GMOCK_FLAG(name) = (default_val)
+#define GMOCK_DEFINE_string_(name, default_val, doc) \
+  GTEST_API_ ::std::string GMOCK_FLAG(name) = (default_val)
 
 #endif  // !defined(GMOCK_DECLARE_bool_)
 
-#endif  // GMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
+#endif  // GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_

@@ -27,16 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 // Google Mock - a framework for writing C++ mock classes.
 //
 // This file implements Matcher<const string&>, Matcher<string>, and
 // utilities for defining matchers.
 
 #include "gmock/gmock-matchers.h"
-#include "gmock/gmock-generated-matchers.h"
 
 #include <string.h>
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -219,8 +218,6 @@ class MaxBipartiteMatchState {
   // right_[left_[i]] = i.
   ::std::vector<size_t> left_;
   ::std::vector<size_t> right_;
-
-  GTEST_DISALLOW_ASSIGN_(MaxBipartiteMatchState);
 };
 
 const size_t MaxBipartiteMatchState::kUnused;
