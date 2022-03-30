@@ -24,10 +24,10 @@
 #include <cstddef>
 #include <string>
 
-static const char *VKCONFIG_NAME = "Vulkan Configurator";
-static const char *VKCONFIG_SHORT_NAME = "vkconfig";
-
 #define SUPPORT_LAYER_CONFIG_2_2_0 1
+
+extern const char *VKCONFIG_NAME;
+extern const char *VKCONFIG_SHORT_NAME;
 
 class Version {
    public:

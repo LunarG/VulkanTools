@@ -38,7 +38,7 @@ std::string format(const char* message, ...) {
     std::size_t const STRING_BUFFER(4096);
 
     assert(message != nullptr);
-    assert(strlen(message) >= 0 && strlen(message) < STRING_BUFFER);
+    assert(strlen(message) < STRING_BUFFER);
 
     char buffer[STRING_BUFFER];
     va_list list;
@@ -202,4 +202,3 @@ std::string GetLayerSettingPrefix(const std::string& key) {
     result.remove("VK_LAYER_");
     return ToLowerCase(result.toStdString()) + ".";
 }
-
