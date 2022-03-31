@@ -357,8 +357,8 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
 
                 if (!doc.isNull() && !doc.isEmpty()) {
                     const QJsonObject& json_root_object = doc.object();
-                    if (json_root_object.value("$schema").toString().toStdString().find(
-                            "https://schema.khronos.org/vulkan/profiles-1.") == std::string::npos) {
+                    const std::string schema = json_root_object.value("$schema").toString().toStdString();
+                    if (schema.find("https://schema.khronos.org/vulkan/profiles") == std::string::npos) {
                         Alert::FileNotProfile(value.c_str());
                         return;
                     }

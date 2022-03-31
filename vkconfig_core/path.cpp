@@ -165,9 +165,8 @@ std::string GetPath(BuiltinPath path) {
                 } else {
                     result = GetPath(BUILTIN_PATH_LOCAL);
                 }
-            } else {    // VULKAN_SDK may be set on macOS
-                if(VKC_PLATFORM == VKC_PLATFORM_MACOS)
-                    result += "/share/vulkan";
+            } else {  // VULKAN_SDK may be set on macOS
+                if (VKC_PLATFORM == VKC_PLATFORM_MACOS) result += "/share/vulkan";
             }
 
             break;
@@ -306,7 +305,7 @@ std::vector<std::string> GetProfileNames(const std::string& profile_path) {
     }
 
     const QJsonObject& json_root_object = doc.object();
-    if (json_root_object.value("$schema").toString().toStdString().find("https://schema.khronos.org/vulkan/profiles-1.") ==
+    if (json_root_object.value("$schema").toString().toStdString().find("https://schema.khronos.org/vulkan/profiles") ==
         std::string::npos) {
         Alert::FileNotProfile(value.c_str());
         return std::vector<std::string>();
