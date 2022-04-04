@@ -1091,7 +1091,7 @@ void MainWindow::launchSetExecutable() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    const std::string exe = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, application.executable_path.c_str());
+    const std::string exe = configurator.path.SelectPath(this, PATH_EXECUTABLE, application.executable_path.c_str());
 
     // The user has cancel the operation
     if (exe.empty()) return;
