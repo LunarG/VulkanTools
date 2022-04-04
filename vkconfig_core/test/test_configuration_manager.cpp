@@ -33,7 +33,7 @@ TEST(test_configuration_manager, create_remove) {
     layer.manifest_path = "VK_LAYER_KHRONOS_validation.dummy_path";
     available_layers.push_back(layer);
 
-    ConfigurationManager configuration_manager(path_manager, environment);
+    ConfigurationManager configuration_manager(environment);
 
     // No active configuration by default
     EXPECT_EQ(nullptr, configuration_manager.GetActiveConfiguration());
