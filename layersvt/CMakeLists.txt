@@ -42,25 +42,32 @@ endif()
 
 add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
 
-add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
-add_custom_target( generate_api_h DEPENDS api_dump_text.h )
-add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
-set_target_properties(generate_api_cpp generate_api_h generate_api_html_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
-add_custom_target( generate_api_json_h DEPENDS api_dump_json.h )
-set_target_properties(generate_api_cpp generate_api_h generate_api_json_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+if (BUILD_APIDUMP)
+    add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
+    add_custom_target( generate_api_h DEPENDS api_dump_text.h )
+    add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
+    set_target_properties(generate_api_cpp generate_api_h generate_api_html_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+    add_custom_target( generate_api_json_h DEPENDS api_dump_json.h )
+    set_target_properties(generate_api_cpp generate_api_h generate_api_json_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+endif()
 
 if (NOT APPLE)
-    set(TARGET_NAMES
-        VkLayer_api_dump
-        VkLayer_monitor
-        VkLayer_screenshot
-        )
+    if(BUILD_APIDUMP)
+        set(TARGET_NAMES ${TARGET_NAMES} VkLayer_api_dump)
+    endif()
+    if(BUILD_MONITOR)
+        set(TARGET_NAMES ${TARGET_NAMES} VkLayer_monitor)
+    endif()
+    if(BUILD_SCREENSHOT)
+        set(TARGET_NAMES ${TARGET_NAMES} VkLayer_screenshot)
+    endif()
+
     set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
     set(CMAKE_INSTALL_RPATH ${VK_LAYER_RPATH})
 else()
-    set(TARGET_NAMES
-        VkLayer_api_dump
-        )
+    if(BUILD_APIDUMP)
+        set(TARGET_NAMES VkLayer_api_dump)
+    endif()
 endif ()
 
 if (WIN32)
@@ -72,8 +79,10 @@ if (WIN32)
         )
         add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
         target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
-        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
-        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
+        if(BUILD_APIDUMP)
+            add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
+            add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
+        endif()
         set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endmacro()
 else()
@@ -117,17 +126,25 @@ else()
 endif()
 
 #VulkanTools layers
-run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
-run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
-run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
-run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_json.h)
-
-if (NOT APPLE)
-    add_vk_layer(monitor monitor.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
-    add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
+if(BUILD_APIDUMP)
+    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
+    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
+    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
+    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_json.h)
 endif ()
 
-add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
+if (NOT APPLE)
+    if(BUILD_MONITOR)
+        add_vk_layer(monitor monitor.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
+    endif ()
+    if(BUILD_SCREENSHOT)
+        add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
+    endif ()
+endif ()
+
+if(BUILD_APIDUMP)
+    add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
+endif ()
 
 # json file creation
 
