@@ -43,7 +43,7 @@ void ShowDoc(DocType doc_type) {
         }
         case DOC_FIND_LAYERS: {
             const std::string url =
-                "https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers";
+                "https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.adoc#vulkan-layers";
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
