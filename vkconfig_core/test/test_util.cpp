@@ -136,6 +136,53 @@ TEST(test_util, format_strings_list) {
     EXPECT_EQ(0, list.size());
 }
 
+TEST(test_util, split_merge_delimiter) {
+    std::vector<std::string> delimiters;
+    delimiters.push_back(",");
+    delimiters.push_back(";");
+    delimiters.push_back(":");
+    delimiters.push_back(" ");
+    delimiters.push_back("< >");
+    delimiters.push_back("[{()}]");
+
+    for (std::size_t i = 0, n = delimiters.size(); i < n; ++i) {
+        const std::string delimiter = delimiters[i];
+        const std::string merge = format("pouet%sgni%sa%sgnu", delimiter.c_str(), delimiter.c_str(), delimiter.c_str());
+        const std::vector<std::string> split = Split(merge, delimiter);
+
+        EXPECT_EQ(4, split.size());
+
+        EXPECT_STREQ("pouet", split[0].c_str());
+        EXPECT_STREQ("gni", split[1].c_str());
+        EXPECT_STREQ("a", split[2].c_str());
+        EXPECT_STREQ("gnu", split[3].c_str());
+
+        EXPECT_STREQ(merge.c_str(), Merge(split, delimiter).c_str());
+    }
+}
+
+TEST(test_util, split_merge_end) {
+    std::vector<std::string> delimiters;
+    delimiters.push_back(",");
+    delimiters.push_back(";");
+    delimiters.push_back(":");
+    delimiters.push_back(" ");
+    delimiters.push_back("< >");
+    delimiters.push_back("[{()}]");
+
+    for (std::size_t i = 0, n = delimiters.size(); i < n; ++i) {
+        const std::string delimiter = delimiters[i];
+        const std::string merge = format("pouet%sgni%sa%s", delimiter.c_str(), delimiter.c_str(), delimiter.c_str());
+        const std::vector<std::string> split = Split(merge, delimiter);
+
+        EXPECT_EQ(3, split.size());
+
+        EXPECT_STREQ("pouet", split[0].c_str());
+        EXPECT_STREQ("gni", split[1].c_str());
+        EXPECT_STREQ("a", split[2].c_str());
+    }
+}
+
 TEST(test_util, format_find) {
     struct Element {
         std::string key;
@@ -188,6 +235,12 @@ TEST(test_util, to_upper_case) {
 
 TEST(test_util, is_number) {
     EXPECT_EQ(true, IsNumber("0123456789"));
+    EXPECT_EQ(true, IsNumber("0x1F"));
+    EXPECT_EQ(true, IsNumber("-0x1F"));
+    EXPECT_EQ(true, IsNumber("0x1adf"));
+    EXPECT_EQ(true, IsNumber("-0x48e"));
+    EXPECT_EQ(true, IsNumber("-0x3AC7e"));
+
     EXPECT_EQ(false, IsNumber("01234c56789"));
     EXPECT_EQ(false, IsNumber("$%#&@()-_[]{}"));
 }

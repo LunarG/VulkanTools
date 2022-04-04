@@ -98,6 +98,10 @@ void AppendString(std::vector<std::string>& list, const std::string& value);
 
 bool IsStringFound(const std::vector<std::string>& list, const std::string& value);
 
+std::vector<std::string> Split(const std::string& value, const std::string& delimiter);
+
+std::string Merge(const std::vector<std::string>& value, const std::string& delimiter);
+
 std::vector<std::string> ConvertString(const QStringList& string_list);
 
 QStringList ConvertString(const std::vector<std::string>& strings);
