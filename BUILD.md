@@ -10,7 +10,7 @@ supplementing the loader and validation layer core components found at https://g
 
 Windows 7+ with additional required software packages:
 
-- Microsoft Visual Studio 2015 Professional or 2017 Professional.  Note: it is possible that lesser/older versions may work, but not guaranteed.
+- Microsoft Visual Studio 2017 or 2019: it is possible that lesser/older versions may work, but not guaranteed.
 - [CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-win64-x64.zip) is recommended.
   - Tell the installer to "Add CMake to the system `PATH`" environment variable.
 - Python 3 (from https://www.python.org/downloads).  Notes:
@@ -25,6 +25,7 @@ Optional software packages:
 - *[Qt 5](https://www.qt.io/download)* is required to build *[Vulkan Configurator]*(./vkconfig/vkconfig.md).
   - The Qt `bin` directory requires to be added to the `PATH` environment variable for *Qt* to be detected and Vulkan Configurator built.
   - If `Qt` is not directed, *[Vulkan Configurator]* build will be skipped.
+  - Vulkan Configurator requires at least Qt 5.5 with the binaries corresponding to the Visual Studio toolset.
 - *Cygwin* (from https://www.cygwin.com/).
   - *Cygwin* provides some Linux-like tools, which are valuable for obtaining the source code, and running CMake.
     Especially valuable are the *BASH* shell and git packages.
