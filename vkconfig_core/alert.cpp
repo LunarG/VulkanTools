@@ -104,7 +104,7 @@ QMessageBox::Button Alert::LayerImplicitExcluded(const char* layer_name) {
 
 QMessageBox::Button Alert::LayerProfiles() {
     QMessageBox alert;
-    alert.QDialog::setWindowTitle("Overridding or excluding ALL explicit layers is recommanded");
+    alert.QDialog::setWindowTitle("Overridding or excluding ALL explicit layers is recommended");
     alert.setText(
         "VK_LAYER_KHRONOS_profiles requires being executed close to the Vulkan drivers. However, "
         "application-controlled layers are executed after Vulkan Configurator overridden layers.");
