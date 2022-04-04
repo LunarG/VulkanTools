@@ -30,7 +30,6 @@
 #include <cassert>
 #include <algorithm>
 
-static const char* VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME = "VK_LAYER_LUNARG_device_simulation";
 static const char* VK_LAYER_KHRONOS_PROFILES_NAME = "VK_LAYER_KHRONOS_profiles";
 static const char* VK_LAYER_KHRONOS_VALIDATION_NAME = "VK_LAYER_KHRONOS_validation";
 
@@ -87,13 +86,7 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
                     return false;
                 else if (b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
                     return true;
-                else if (a.key == VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME)
-                    return false;
-                else if (b.key == VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME)
-                    return true;
                 else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME && b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
-                    return true;
-                else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME && b.key == VK_LAYER_LUNARG_DEVICE_SIMULATION_NAME)
                     return true;
                 else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
                     return false;
