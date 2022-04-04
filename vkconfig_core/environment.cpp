@@ -20,6 +20,7 @@
 
 #include "environment.h"
 #include "platform.h"
+#include "setting.h"
 #include "util.h"
 
 #include <QSettings>
@@ -231,18 +232,14 @@ bool Environment::Load() {
     user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI] =
         ConvertString(settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList());
 
-    static const char* SEPARATOR[] = {
-        ";",  // ENVIRONMENT_WIN32
-        ":"   // ENVIRONMENT_UNIX
-    };
-    static_assert(countof(SEPARATOR) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    const char* SEPARATOR = GetToken(PARSE_ENV_VAR);
 
     // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
     const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
     if (!VK_LAYER_PATH.isEmpty()) {
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET] =
-            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(SEPARATOR[VKC_ENV]));
+            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(SEPARATOR));
     } else {
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
     }
@@ -252,7 +249,7 @@ bool Environment::Load() {
     const QString VK_ADD_LAYER_PATH(qgetenv("VK_ADD_LAYER_PATH"));
     if (!VK_ADD_LAYER_PATH.isEmpty()) {
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD] =
-            ConvertString(QString(qgetenv("VK_ADD_LAYER_PATH")).split(SEPARATOR[VKC_ENV]));
+            ConvertString(QString(qgetenv("VK_ADD_LAYER_PATH")).split(SEPARATOR));
     } else {
         user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
     }
