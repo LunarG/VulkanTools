@@ -172,8 +172,8 @@ void MainWindow::UpdateUI() {
     ui->group_box_configurations->setEnabled(environment.UseOverride());
 
     ui->configuration_tree->setCurrentItem(nullptr);
-    ui->configuration_tree->setSelectionMode(has_active_configuration ? QAbstractItemView::NoSelection
-                                                                      : QAbstractItemView::SingleSelection);
+    ui->configuration_tree->setSelectionMode(has_active_configuration ? QAbstractItemView::SingleSelection
+                                                                      : QAbstractItemView::NoSelection);
     for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(item);
