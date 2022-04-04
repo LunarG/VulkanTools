@@ -132,6 +132,7 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     // Reload from file to workaround the lack of SettingSet copy support
     Configuration configuration;
     const bool result = configuration.Load(available_layers, path.c_str());
+    assert(result);
 
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
