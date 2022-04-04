@@ -171,6 +171,9 @@ void MainWindow::UpdateUI() {
     // Update configurations
     ui->group_box_configurations->setEnabled(environment.UseOverride());
 
+    ui->configuration_tree->setCurrentItem(nullptr);
+    ui->configuration_tree->setSelectionMode(active_contiguration_name.empty() ? QAbstractItemView::NoSelection
+                                                                               : QAbstractItemView::SingleSelection);
     for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(item);
@@ -193,6 +196,8 @@ void MainWindow::UpdateUI() {
         if (item->configuration_name == active_contiguration_name) {
             ui->configuration_tree->setCurrentItem(item);
             item->radio_button->setChecked(true);
+        } else {
+            item->radio_button->setChecked(false);
         }
     }
 
@@ -1550,8 +1555,6 @@ void MainWindow::on_push_button_launcher_clicked() {
 
         const std::string failed_log = std::string("Failed to launch ") + active_application.executable_path.c_str() + "!\n";
         Log(failed_log);
-        UpdateUI();
-        return;
     }
 
     UpdateUI();
