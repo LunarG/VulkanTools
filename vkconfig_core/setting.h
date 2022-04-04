@@ -95,6 +95,10 @@ enum ExportMode {
 
 enum { EXPORT_MODE_COUNT = EXPORT_MODE_LAST - EXPORT_MODE_FIRST + 1 };
 
+enum ParseSource { PARSE_SETTING = 0, PARSE_ENV_VAR };
+
+const char* GetToken(ParseSource type);
+
 class Layer;
 struct SettingMeta;
 struct SettingData;

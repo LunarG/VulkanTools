@@ -34,6 +34,12 @@
 
 #include <QJsonArray>
 
+const char* GetToken(ParseSource type) {
+    static const char* table[] = {",", VKC_ENV == VKC_ENV_WIN32 ? ";" : ":"};
+
+    return table[type];
+}
+
 SettingType GetSettingType(const char* token) {
     assert(token != nullptr);
     assert(std::strcmp(token, "") != 0);
