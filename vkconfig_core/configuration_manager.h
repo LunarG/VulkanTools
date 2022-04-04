@@ -29,7 +29,7 @@
 
 class ConfigurationManager {
    public:
-    ConfigurationManager(const PathManager& path_manager, Environment& environment);
+    ConfigurationManager(Environment& environment);
     ~ConfigurationManager();
 
     void LoadAllConfigurations(const std::vector<Layer>& available_layers);
@@ -82,7 +82,5 @@ class ConfigurationManager {
     void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
 
     Configuration* active_configuration;
-
-    const PathManager& path_manager;
     Environment& environment;
 };

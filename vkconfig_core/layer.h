@@ -40,7 +40,7 @@ class Layer {
     Layer();
     Layer(const std::string& key, const LayerType layer_type);
     Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
-          const std::string& implementation_version, const std::string& library_path, const std::string& type);
+          const std::string& implementation_version, const std::string& library_path);
 
     bool IsValid() const;
 

@@ -29,8 +29,7 @@
 
 static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_2", "_2_2_1"};
 
-ConfigurationManager::ConfigurationManager(const PathManager &path_manager, Environment &environment)
-    : active_configuration(nullptr), path_manager(path_manager), environment(environment) {}
+ConfigurationManager::ConfigurationManager(Environment &environment) : active_configuration(nullptr), environment(environment) {}
 
 ConfigurationManager::~ConfigurationManager() {}
 

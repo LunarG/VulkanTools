@@ -26,7 +26,6 @@
 #include <cassert>
 
 int run_doc_html(const CommandLine& commandLine) {
-
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
@@ -48,7 +47,6 @@ int run_doc_html(const CommandLine& commandLine) {
 }
 
 int run_doc_markdown(const CommandLine& commandLine) {
-
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
@@ -70,27 +68,26 @@ int run_doc_markdown(const CommandLine& commandLine) {
 }
 
 int run_doc_settings(const CommandLine& commandLine) {
-
     int rval = 0;
     PathManager paths;
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
-    ConfigurationManager configuration_manager(paths, environment);
+    ConfigurationManager configuration_manager(environment);
     Configuration config;
     LayerManager layers(environment);
-    Layer *layer;
+    Layer* layer;
 
     layers.LoadLayer(commandLine.doc_layer_name);
     layer = FindByKey(layers.available_layers, commandLine.doc_layer_name.c_str());
     if (!layer) {
-       fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
-       fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
-       return -1;
+        fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
+        fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
+        return -1;
     }
     config = configuration_manager.CreateConfiguration(layers.available_layers, "Config");
     config.parameters = GatherParameters(config.parameters, layers.available_layers);
     config.parameters[0].state = LAYER_STATE_OVERRIDDEN;
-    ExportSettingsDoc(layers.available_layers, config, commandLine.doc_out_dir+"/vk_layer_settings.txt");
+    ExportSettingsDoc(layers.available_layers, config, commandLine.doc_out_dir + "/vk_layer_settings.txt");
 
     return rval;
 }

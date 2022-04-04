@@ -46,8 +46,7 @@ Configurator &Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator()
-    : environment(path), layers(environment), configurations(path, environment), request_vulkan_status(true) {}
+Configurator::Configurator() : environment(path), layers(environment), configurations(environment), request_vulkan_status(true) {}
 
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.available_layers);
