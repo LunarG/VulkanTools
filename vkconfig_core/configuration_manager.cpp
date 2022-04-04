@@ -134,6 +134,8 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     const bool result = configuration.Load(available_layers, path.c_str());
     assert(result);
 
+    RemoveConfigurationFile(new_configuration.key);
+
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
 
