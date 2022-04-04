@@ -105,10 +105,14 @@ static int RunLayersList(const CommandLine& command_line) {
     layers.LoadAllInstalledLayers();
 
     printf("\n");
-    for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
-        const Layer& layer = layers.available_layers[i];
+    if (layers.available_layers.empty()) {
+        printf("No Vulkan layer found\n");
+    } else {
+        for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
+            const Layer& layer = layers.available_layers[i];
 
-        printf("%s\n", layer.key.c_str());
+            printf("%s\n", layer.key.c_str());
+        }
     }
 
     return 0;
