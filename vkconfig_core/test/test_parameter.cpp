@@ -31,15 +31,15 @@ inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key
 
 static std::vector<Layer> GenerateTestLayers() {
     std::vector<Layer> layers;
-    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer I0", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer I1", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer I2", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer C0", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer C1", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
-    layers.push_back(Layer("Layer C2", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json", "GLOBAL"));
+    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer I0", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer I1", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer I2", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer C0", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer C1", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer C2", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
     return layers;
 }
 
