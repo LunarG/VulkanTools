@@ -174,23 +174,26 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     CMAKE_SYSTEM_NAME MATCHES "BSD")
 
     option(BUILD_TESTS "Build tests" ON)
-    option(BUILD_LAYERSVT "Build layersvt" ON)
+    option(BUILD_APIDUMP "Build api_dump layer" ON)
+    option(BUILD_MONITOR "Build monitor layer" ON)
+    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
     option(BUILD_VLF "Build layer_factory" ON)
     option(BUILD_VIA "Build via" ON)
 
-    option(BUILD_LAYERMGR "Build layer manager" ON)
+    option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
     option(BUILD_LOADER OFF)
     option(BUILD_TESTS OFF)
-    option(BUILD_LAYERS OFF)
-    option(BUILD_LAYERSVT "Build layersvt" ON)
+    option(BUILD_APIDUMP "Build api_dump layer" ON)
+    option(BUILD_MONITOR "Build monitor layer" ON)
+    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
     option(BUILD_VLF OFF)
     option(BUILD_DEMOS OFF)
     option(BUILD_VKJSON OFF)
     option(BUILD_VIA "Build VIA" ON)
-    option(BUILD_LAYERMGR "Build layer manager" ON)
+    option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
 endif()
 
@@ -242,7 +245,7 @@ if(BUILD_VIA)
 endif()
 
 add_subdirectory(vku)
-if(BUILD_LAYERSVT)
+if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
     add_subdirectory(layersvt)
 endif()
 
