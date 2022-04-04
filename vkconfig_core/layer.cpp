@@ -81,7 +81,7 @@ Layer::Layer(const std::string& key, const LayerType layer_type)
     : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT), type(layer_type) {}
 
 Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
-             const std::string& implementation_version, const std::string& library_path, const std::string& type)
+             const std::string& implementation_version, const std::string& library_path)
     : key(key),
       file_format_version(file_format_version),
       binary_path(library_path),
