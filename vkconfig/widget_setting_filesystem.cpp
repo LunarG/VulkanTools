@@ -30,17 +30,6 @@
 
 #include <cassert>
 
-static std::vector<std::string> LoadProfiles(const QJsonDocument& doc) {
-    assert(!doc.isNull() && !doc.isEmpty());
-
-    const QJsonObject& json_root_object = doc.object();
-    if (json_root_object.value("profiles") == QJsonValue::Undefined) {
-        return std::vector<std::string>();
-    }
-
-    return ConvertString(ReadObject(json_root_object, "profiles").keys());
-}
-
 WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFilesystem& meta,
                                                  SettingDataSet& data_set)
     : WidgetSettingBase(tree, item),

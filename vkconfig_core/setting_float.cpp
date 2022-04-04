@@ -84,7 +84,7 @@ bool SettingMetaFloat::Equal(const SettingMeta& other) const {
 
 // SettingDataFloat
 
-SettingDataFloat::SettingDataFloat(const SettingMetaFloat* meta) : SettingData(meta->key, meta->type), meta(meta), value(0.0f) {}
+SettingDataFloat::SettingDataFloat(const SettingMetaFloat* meta) : SettingData(meta->key, meta->type), value(0.0f), meta(meta) {}
 
 void SettingDataFloat::Reset() {
     assert(this->meta != nullptr);

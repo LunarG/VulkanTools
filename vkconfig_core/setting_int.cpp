@@ -73,7 +73,7 @@ bool SettingMetaInt::Equal(const SettingMeta& other) const {
 // SettingDataInt
 
 SettingDataInt::SettingDataInt(const SettingMetaInt* meta)
-    : SettingData(meta->key, meta->type), meta(meta), value(meta->default_value) {}
+    : SettingData(meta->key, meta->type), value(meta->default_value), meta(meta) {}
 
 void SettingDataInt::Reset() { this->value = this->meta->default_value; }
 
