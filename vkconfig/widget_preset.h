@@ -24,8 +24,8 @@
 #include "../vkconfig_core/parameter.h"
 
 #include "widget_setting.h"
+#include "combo_box.h"
 
-#include <QComboBox>
 #include <QResizeEvent>
 
 #include <vector>
@@ -53,5 +53,5 @@ class WidgetPreset : public WidgetSettingBase {
     std::vector<std::string> preset_labels;  // The preset in the combobox
     const Layer& layer;
     Parameter& parameter;
-    QComboBox* field;
+    ComboBox* field;
 };

@@ -953,6 +953,7 @@ void MainWindow::SetupLauncherTree() {
     ui->launcher_tree->addTopLevelItem(launcher_parent);
 
     _launcher_apps_combo = new QComboBox();
+    _launcher_apps_combo->setFocusPolicy(Qt::StrongFocus);
     _launcher_apps_combo->setMinimumHeight(LAUNCH_ROW_HEIGHT);
     _launcher_apps_combo->setMaximumHeight(LAUNCH_ROW_HEIGHT);
     ui->launcher_tree->setItemWidget(launcher_parent, 1, _launcher_apps_combo);
@@ -1200,6 +1201,10 @@ const Layer *GetLayer(QTreeWidget *tree, QTreeWidgetItem *item) {
 }
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
+    if (event->type() == QEvent::Wheel) {
+        return true;
+    }
+
     // Launch tree does some fancy resizing and since it's down in
     // layouts and splitters, we can't just rely on the resize method
     // of this window. Any resize coming through needs to trigger this

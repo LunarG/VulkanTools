@@ -30,7 +30,6 @@
 
 #include <QObject>
 #include <QTreeWidget>
-#include <QComboBox>
 
 #include <vector>
 #include <memory>

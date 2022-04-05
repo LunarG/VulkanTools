@@ -34,7 +34,6 @@
 #endif
 
 #include <QMessageBox>
-#include <QComboBox>
 #include <QStyle>
 #include <QFileDialog>
 #include <QMenu>

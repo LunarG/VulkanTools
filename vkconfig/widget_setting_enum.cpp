@@ -37,9 +37,10 @@ static const std::vector<std::string>& GetProfileNames(SettingDataSet& data_set)
 
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta,
                                      SettingDataSet& data_set)
-    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QComboBox(this)) {
+    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new ComboBox(this)) {
     assert(&meta);
 
+    this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->show();
 
     this->item->setText(0, GetLabel(this->meta).c_str());
