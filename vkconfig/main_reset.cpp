@@ -52,15 +52,7 @@ static int RunReset(int argc, char* argv[], bool hard) {
 
     QApplication app(argc, argv);
 
-    Configurator& configurator = Configurator::Get();
-    configurator.layers.LoadAllInstalledLayers();
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
-
-    if (hard) {
-        configurator.configurations.ResetDefaultsConfigurations(configurator.layers.available_layers);
-    } else {
-        configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.available_layers);
-    }
+    Configurator::Get().ResetToDefault(hard);
 
     return 0;
 }

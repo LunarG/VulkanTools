@@ -147,3 +147,15 @@ bool Configurator::SupportApplicationList(Version *return_loader_version) const 
 
     return version >= Version("1.2.141");
 }
+
+void Configurator::ResetToDefault(bool hard) {
+    if (hard) {
+        this->environment.Reset(Environment::CLEAR);
+        this->environment.ClearCustomLayerPath();
+        this->layers.LoadAllInstalledLayers();
+        this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
+    } else {
+        this->configurations.ReloadDefaultsConfigurations(this->layers.available_layers);
+    }
+    this->configurations.RefreshConfiguration(this->layers.available_layers);
+}

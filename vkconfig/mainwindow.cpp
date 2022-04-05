@@ -426,11 +426,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     if (Alert::ConfiguratorResetAll() == QMessageBox::No) return;
 
     Configurator &configurator = Configurator::Get();
-    configurator.environment.Reset(Environment::CLEAR);
-    configurator.environment.ClearCustomLayerPath();
-    configurator.configurations.ResetDefaultsConfigurations(configurator.layers.available_layers);
-
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.ResetToDefault(true);
 
     LoadConfigurationList();
 
