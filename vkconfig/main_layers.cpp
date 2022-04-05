@@ -104,7 +104,6 @@ static int RunLayersList(const CommandLine& command_line) {
     LayerManager layers(environment);
     layers.LoadAllInstalledLayers();
 
-    printf("\n");
     if (layers.available_layers.empty()) {
         printf("No Vulkan layer found\n");
     } else {
@@ -131,7 +130,7 @@ static int RunLayersVerbose(const CommandLine& command_line) {
     for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
         const Layer& layer = layers.available_layers[i];
 
-        printf("\n%s (%s) %s-%s\n", layer.key.c_str(), GetLayerTypeLabel(layer.type), layer.api_version.str().c_str(),
+        printf("%s (%s) %s-%s\n", layer.key.c_str(), GetLayerTypeLabel(layer.type), layer.api_version.str().c_str(),
                layer.implementation_version.c_str());
         printf("- %s\n", layer.description.c_str());
         printf("- %s\n", layer.manifest_path.c_str());
