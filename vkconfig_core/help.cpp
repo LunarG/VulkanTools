@@ -75,7 +75,7 @@ void ShowDoc(DocType doc_type) {
             const int minor = 2;
 #elif defined(VK_VERSION_1_1)
             const int minor = 1;
-#elif defined(VK_VERSION_1_0)
+#else
             const int minor = 0;
 #endif
 
