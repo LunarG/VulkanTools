@@ -39,7 +39,6 @@
 #include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
 
-#include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QRadioButton>

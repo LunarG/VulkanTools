@@ -15,41 +15,17 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
-#include "widget_setting.h"
-#include "combo_box.h"
+#include <QComboBox>
+#include <QWidget>
 
-#include "../vkconfig_core/setting_flags.h"
-
-#include <QResizeEvent>
-
-class WidgetSettingEnum : public WidgetSettingBase {
-    Q_OBJECT
-
+class ComboBox : public QComboBox {
    public:
-    explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataSet& data_set);
+    ComboBox(QWidget* widget) : QComboBox(widget) {}
 
-    void Refresh(RefreshAreas refresh_areas) override;
-
-   public Q_SLOTS:
-    void OnIndexChanged(int index);
-
-   Q_SIGNALS:
-    void itemChanged();
-
-   private:
-    void resizeEvent(QResizeEvent* event) override;
-
-    SettingDataEnum& data();
-
-    const SettingMetaEnum& meta;
-    SettingDataSet& data_set;
-
-    ComboBox* field;
-    std::vector<std::size_t> enum_indexes;
+    void wheelEvent(QWheelEvent* e) override { return; }
 };

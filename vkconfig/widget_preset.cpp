@@ -23,10 +23,11 @@
 #include <cassert>
 
 WidgetPreset::WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer& layer, Parameter& parameter)
-    : WidgetSettingBase(tree, item), layer(layer), parameter(parameter), field(new QComboBox(this)) {
+    : WidgetSettingBase(tree, item), layer(layer), parameter(parameter), field(new ComboBox(this)) {
     assert(&layer);
     assert(&parameter);
 
+    this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->addItem(Layer::NO_PRESET);
 
     preset_labels.push_back(Layer::NO_PRESET);
