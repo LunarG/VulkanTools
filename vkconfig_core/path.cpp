@@ -78,8 +78,8 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_CONFIG_REF: {
             static const char* TABLE[] = {
-                "/vkconfig/configurations",        // ENVIRONMENT_WIN32
-                "/lunarg-vkconfig/configurations"  // ENVIRONMENT_UNIX
+                "/vkconfig3/configurations",        // ENVIRONMENT_WIN32
+                "/lunarg-vkconfig3/configurations"  // ENVIRONMENT_UNIX
             };
             static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
@@ -100,8 +100,8 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_OVERRIDE_SETTINGS: {
             static const char* TABLE[] = {
-                "/vkconfig/override",  // ENVIRONMENT_WIN32
-                "/settings.d"          // ENVIRONMENT_UNIX
+                "/vkconfig3/override",  // ENVIRONMENT_WIN32
+                "/settings.d"           // ENVIRONMENT_UNIX
             };
             static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
@@ -117,8 +117,8 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_OVERRIDE_LAYERS: {
             static const char* TABLE[] = {
-                "/vkconfig/override",  // ENVIRONMENT_WIN32
-                "/implicit_layer.d"    // ENVIRONMENT_UNIX
+                "/vkconfig3/override",  // ENVIRONMENT_WIN32
+                "/implicit_layer.d"     // ENVIRONMENT_UNIX
             };
             static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");

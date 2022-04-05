@@ -107,6 +107,8 @@ class Environment {
     Environment(PathManager& paths, const Version& api_version = Version::VKHEADER);
     ~Environment();
 
+    bool mode_disable_layers;
+
     enum ResetMode { DEFAULT = 0, CLEAR, SYSTEM };
 
     void Reset(ResetMode mode);

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>resourcefiles/vulkan_configurator.png</file>
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
     </qresource>

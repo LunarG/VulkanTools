@@ -60,6 +60,7 @@ class MainWindow : public QMainWindow {
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void InitUI();
     void UpdateUI();
     void UpdateConfiguration();
 
@@ -132,10 +133,11 @@ class MainWindow : public QMainWindow {
 
     void on_push_button_launcher_clicked();
     void on_push_button_clear_log_clicked();
-    void on_radio_fully_clicked();
-    void on_radio_override_clicked();
+    void on_radio_vulkan_applications_clicked();
+    void on_radio_vulkan_configurator_clicked();
     void on_check_box_apply_list_clicked();
-    void on_check_box_persistent_clicked();
+    void on_check_box_disable_clicked();
+    void on_combo_box_mode_changed(int index);
     void on_check_box_clear_on_launch_clicked();
     void on_push_button_applications_clicked();
     void on_push_button_edit_clicked();

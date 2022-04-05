@@ -32,6 +32,7 @@ struct Application {
     Path executable_path;
     Path working_folder;
     std::string arguments;
+    std::string env;
     Path log_file;
     bool override_layers;
 };

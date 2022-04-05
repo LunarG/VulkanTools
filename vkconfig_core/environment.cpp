@@ -127,7 +127,8 @@ std::string GetLoaderDebugToken(LoaderMessageLevel level) {
 }
 
 Environment::Environment(PathManager& paths, const Version& api_version)
-    : api_version(api_version),
+    : mode_disable_layers(false),
+      api_version(api_version),
       loader_message_level(GetLoaderDebug(qgetenv("VK_LOADER_DEBUG").toStdString())),
       paths_manager(paths),
       paths(paths_manager) {
