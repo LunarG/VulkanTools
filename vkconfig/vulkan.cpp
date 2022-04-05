@@ -173,11 +173,9 @@ std::string GenerateVulkanStatus() {
         }
 
         if (status.empty()) {
-            log +=
-                format("    - %s (%s)\n", layers_properties[i].layerName, Version(layers_properties[i].specVersion).str().c_str());
+            log += format("    - %s\n", layers_properties[i].layerName);
         } else {
-            log += format("    - %s (%s - %s)\n", layers_properties[i].layerName,
-                          Version(layers_properties[i].specVersion).str().c_str(), status.c_str());
+            log += format("    - %s (%s)\n", layers_properties[i].layerName, status.c_str());
         }
     }
 
