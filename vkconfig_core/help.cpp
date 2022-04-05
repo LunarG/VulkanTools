@@ -22,6 +22,8 @@
 #include "util.h"
 #include "platform.h"
 
+#include <vulkan/vulkan.h>
+
 #include <QDesktopServices>
 #include <QUrl>
 
@@ -61,7 +63,9 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_VULKAN_SPEC: {
-            const std::string url = format("https://vulkan.lunarg.com/doc/view/latest/%s/1.2-extensions/vkspec.html", platform);
+            const std::string url =
+                format("https://vulkan.lunarg.com/doc/view/latest/%s/%d.%d-extensions/vkspec.html", platform,
+                       VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
