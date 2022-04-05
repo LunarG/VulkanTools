@@ -63,9 +63,24 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_VULKAN_SPEC: {
+#ifdef VK_HEADER_VERSION_COMPLETE
+            const int major = VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE);
+#else
+            const int major = 1;
+#endif
+
+#ifdef VK_HEADER_VERSION_COMPLETE
+            const int minor = VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE);
+#elif defined(VK_VERSION_1_2)
+            const int minor = 2;
+#elif defined(VK_VERSION_1_1)
+            const int minor = 1;
+#elif defined(VK_VERSION_1_0)
+            const int minor = 0;
+#endif
+
             const std::string url =
-                format("https://vulkan.lunarg.com/doc/view/latest/%s/%d.%d-extensions/vkspec.html", platform,
-                       VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE), VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
+                format("https://vulkan.lunarg.com/doc/view/latest/%s/%d.%d-extensions/vkspec.html", platform, major, minor);
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
