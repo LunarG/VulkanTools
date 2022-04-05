@@ -28,8 +28,9 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(2, 5, 6);
+const Version Version::VKCONFIG(3, 0, 0);
 const Version Version::LAYER_CONFIG(2, 2, 3);
+
 #ifdef VK_HEADER_VERSION_COMPLETE
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 #elif defined(VK_VERSION_1_2)
@@ -41,7 +42,7 @@ const Version Version::VKHEADER(1, 0, VK_HEADER_VERSION);
 #endif
 const Version Version::VERSION_NULL(0u);
 const char *VKCONFIG_NAME = "Vulkan Configurator";
-const char *VKCONFIG_SHORT_NAME = "vkconfig";
+const char *VKCONFIG_SHORT_NAME = "vkconfig3";
 
 static Version GetVersionData(const char *version) {
     uint32_t version_major = 0;

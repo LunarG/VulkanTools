@@ -27,7 +27,7 @@
 #include <QMessageBox>
 #include <QFileInfoList>
 
-static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_3", "_2_2_2", "_2_2_1"};
+static const char *SUPPORTED_CONFIG_FILES[] = {"_3_0_0"};
 
 ConfigurationManager::ConfigurationManager(Environment &environment) : active_configuration(nullptr), environment(environment) {}
 

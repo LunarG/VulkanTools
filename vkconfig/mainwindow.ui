@@ -41,215 +41,326 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QSplitter" name="splitter_3">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="opaqueResize">
-       <bool>true</bool>
-      </property>
-      <property name="handleWidth">
-       <number>5</number>
-      </property>
-      <property name="childrenCollapsible">
+      <property name="autoFillBackground">
        <bool>false</bool>
       </property>
-      <widget class="QSplitter" name="splitter_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <widget class="QWidget" name="widgetTopLeft" native="true">
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <property name="spacing">
-          <number>16</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="group_box_management">
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab_diagnostic">
+       <attribute name="title">
+        <string>Diagnostic</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QTextBrowser" name="textBrowser"/>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <property name="leftMargin">
+           <number>32</number>
+          </property>
+          <property name="topMargin">
+           <number>32</number>
+          </property>
+          <property name="rightMargin">
+           <number>32</number>
+          </property>
+          <property name="bottomMargin">
+           <number>32</number>
+          </property>
+          <item>
+           <widget class="QDial" name="dial"/>
+          </item>
+          <item>
+           <widget class="QDial" name="dial_3"/>
+          </item>
+          <item>
+           <widget class="QDial" name="dial_2"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_layers">
+       <attribute name="title">
+        <string>Layers</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QSplitter" name="splitter_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="opaqueResize">
+           <bool>false</bool>
+          </property>
+          <property name="handleWidth">
+           <number>3</number>
+          </property>
+          <property name="childrenCollapsible">
+           <bool>false</bool>
+          </property>
+          <widget class="QSplitter" name="splitter_2">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>4</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>135</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>135</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Vulkan Layers Management</string>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="radio_fully">
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Layers Fully Controlled by the Vulkan Applications</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QRadioButton" name="radio_override">
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Overriding Layers by the Vulkan Configurator</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <layout class="QGridLayout" name="gridLayout_6">
-              <item row="0" column="0">
-               <widget class="QWidget" name="widget" native="true">
-                <property name="maximumSize">
-                 <size>
-                  <width>20</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="check_box_apply_list">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>24</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Apply only to the Vulkan Applications List</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QWidget" name="widget_2" native="true">
-                <property name="maximumSize">
-                 <size>
-                  <width>20</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QCheckBox" name="check_box_persistent">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>24</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Continue Overriding Layers on Exit</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QPushButton" name="push_button_applications">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>136</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>136</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Edit Applications...</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="group_box_configurations">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>1</horstretch>
+            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="title">
-            <string>Vulkan Layers Configurations</string>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <property name="spacing">
-             <number>6</number>
+           <widget class="QWidget" name="widgetTopLeft" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QTreeWidget" name="configuration_tree">
+            <layout class="QVBoxLayout" name="verticalLayout_12">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QVBoxLayout" name="layout_layers_control" stretch="0,0">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <layout class="QGridLayout" name="gridLayout">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item row="1" column="0">
+                  <widget class="QRadioButton" name="radio_vulkan_configurator">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Layers controlled by Vulkan Configurator</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QRadioButton" name="radio_vulkan_applications">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Layers controlled by Vulkan Applications</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="combo_box_mode">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>While Running</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Persistent on Exit</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <spacer name="horizontalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="gridLayout_15">
+                 <property name="leftMargin">
+                  <number>16</number>
+                 </property>
+                 <item row="4" column="3">
+                  <spacer name="horizontalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="4" column="2">
+                  <widget class="QPushButton" name="push_button_applications">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>32</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>0</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>...</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QCheckBox" name="check_box_disable">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Disable all Vulkan Layers</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QCheckBox" name="check_box_apply_list">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Apply only to the Vulkan Applications List</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QSplitter" name="splitter">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <widget class="QTreeWidget" name="tree_configurations">
                 <property name="font">
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
                  </font>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Plain</enum>
+                </property>
+                <property name="lineWidth">
+                 <number>1</number>
                 </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
@@ -280,314 +391,1004 @@
                  </property>
                 </column>
                </widget>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout">
-                <property name="leftMargin">
-                 <number>5</number>
-                </property>
-                <property name="topMargin">
-                 <number>5</number>
-                </property>
-                <property name="rightMargin">
-                 <number>5</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>5</number>
-                </property>
-                <item>
-                 <widget class="QPushButton" name="push_button_new">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>New...</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="push_button_edit">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Edit...</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="push_button_duplicate">
-                  <property name="text">
-                   <string>Duplicate</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="push_button_remove">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Remove</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Expanding</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
+               <widget class="QWidget" name="verticalLayoutWidget_5">
+                <layout class="QVBoxLayout" name="verticalLayout">
+                 <item>
+                  <widget class="QTreeWidget" name="treeWidget">
+                   <column>
+                    <property name="text">
+                     <string notr="true">1</string>
+                    </property>
+                   </column>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="layout_layers_buttons">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QPushButton" name="push_button_new">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>New...</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="push_button_edit">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Edit...</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="push_button_duplicate">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Find...</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="push_button_remove">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Remove</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QGroupBox" name="group_box_launcher">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>1</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="title">
-         <string>Vulkan Application Launcher</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="check_box_clear_on_launch">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Clear log at launch</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="4">
-          <widget class="QComboBox" name="launcher_loader_debug">
+          <widget class="QSplitter" name="splitter_settings">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error&lt;br/&gt;- warn (warnings)&lt;br/&gt;- info (information)&lt;br/&gt;- debug&lt;br/&gt;- layer (layer information)&lt;br/&gt;- implem (implementation/icd information)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <item>
-            <property name="text">
-             <string>none</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string extracomment="Only Errors">error</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>warn</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>info</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>debug</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>layer</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>implem</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>all</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <spacer name="horizontalSpacer">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="5">
-          <widget class="QPushButton" name="push_button_launcher">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Launch</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="push_button_clear_log">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Clear</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="6">
-          <widget class="QTreeWidget" name="launcher_tree">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>98</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>98</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="autoScroll">
-            <bool>false</bool>
-           </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="columnCount">
-            <number>3</number>
-           </property>
-           <attribute name="headerVisible">
-            <bool>false</bool>
-           </attribute>
-           <attribute name="headerCascadingSectionResizes">
-            <bool>true</bool>
-           </attribute>
-           <attribute name="headerStretchLastSection">
-            <bool>false</bool>
-           </attribute>
-           <column>
-            <property name="text">
+           <widget class="QGroupBox" name="group_box_settings">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>1</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="baseSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="title">
              <string/>
             </property>
-           </column>
-           <column>
-            <property name="text">
-             <string notr="true">2</string>
+            <property name="flat">
+             <bool>false</bool>
             </property>
-           </column>
-           <column>
-            <property name="text">
-             <string notr="true">3</string>
+            <property name="checkable">
+             <bool>false</bool>
             </property>
-           </column>
+            <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0">
+             <property name="leftMargin">
+              <number>1</number>
+             </property>
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="rightMargin">
+              <number>1</number>
+             </property>
+             <property name="bottomMargin">
+              <number>2</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="1" column="0">
+              <widget class="QTreeWidget" name="settings_tree">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Plain</enum>
+               </property>
+               <property name="lineWidth">
+                <number>0</number>
+               </property>
+               <property name="horizontalScrollBarPolicy">
+                <enum>Qt::ScrollBarAlwaysOff</enum>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="sortingEnabled">
+                <bool>false</bool>
+               </property>
+               <property name="animated">
+                <bool>false</bool>
+               </property>
+               <property name="columnCount">
+                <number>1</number>
+               </property>
+               <attribute name="headerVisible">
+                <bool>false</bool>
+               </attribute>
+               <attribute name="headerMinimumSectionSize">
+                <number>160</number>
+               </attribute>
+               <attribute name="headerDefaultSectionSize">
+                <number>200</number>
+               </attribute>
+               <column>
+                <property name="text">
+                 <string notr="true"/>
+                </property>
+               </column>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Vulkan Loader Messages:</string>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_launcher">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <attribute name="title">
+        <string>Launcher</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,0,0">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
+         <number>6</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,7">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QTreeWidget" name="launcher_tree">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>120</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="horizontalScrollBarPolicy">
+               <enum>Qt::ScrollBarAlwaysOff</enum>
+              </property>
+              <property name="autoScroll">
+               <bool>false</bool>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="itemsExpandable">
+               <bool>true</bool>
+              </property>
+              <property name="columnCount">
+               <number>3</number>
+              </property>
+              <attribute name="headerVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="headerCascadingSectionResizes">
+               <bool>true</bool>
+              </attribute>
+              <attribute name="headerStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <column>
+               <property name="text">
+                <string/>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string notr="true">2</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string notr="true">3</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="pushButton_4">
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_2">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_5">
+                <property name="text">
+                 <string>*</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="edit_log"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="edit_dir"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Executable:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="edit_arguments"/>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="edit_env">
+              <property name="toolTip">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="pushButton_dir">
+              <property name="maximumSize">
+               <size>
+                <width>32</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Output Log:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="edit_executable"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Working Dir:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="pushButton_exe">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>32</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Arguments:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Env Variables:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QPushButton" name="pushButton_log">
+              <property name="maximumSize">
+               <size>
+                <width>32</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="group_box_launcher">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <property name="leftMargin">
+            <number>6</number>
            </property>
-          </widget>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="push_button_clear_log">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Clear</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="check_box_clear_on_launch">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Clear log at launch</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QComboBox" name="launcher_loader_debug">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error&lt;br/&gt;- warn (warnings)&lt;br/&gt;- info (information)&lt;br/&gt;- debug&lt;br/&gt;- layer (layer information)&lt;br/&gt;- implem (implementation/icd information)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>none</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string extracomment="Only Errors">error</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>warn</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>info</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>debug</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>layer</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>implem</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>all</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Vulkan Loader Messages:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="5">
+            <widget class="QPushButton" name="push_button_launcher">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Launch</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="log_browser">
+          <property name="font">
+           <font>
+            <family>Consolas</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="lineWidth">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Help</string>
+       </attribute>
+       <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="geometry">
+         <rect>
+          <x>640</x>
+          <y>520</y>
+          <width>151</width>
+          <height>32</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::NoButton</set>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>250</y>
+          <width>551</width>
+          <height>171</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>About</string>
+        </property>
+        <widget class="QLabel" name="label_11">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>161</width>
+           <height>71</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextBrowserInteraction</set>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_10">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>90</y>
+           <width>91</width>
+           <height>81</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="resources.qrc">:/resourcefiles/qt_logo.png</pixmap>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_7">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>50</y>
+           <width>241</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Licensed under Apache 2.0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_9">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>20</y>
+           <width>241</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Copyright (c) 2020-2022 LunarG, Inc.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pbAboutQt">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>130</y>
+           <width>81</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>About Qt</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_8">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>90</y>
+           <width>231</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Qt licensed under LGPL 3.0</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_8">
+         <property name="geometry">
+          <rect>
+           <x>410</x>
+           <y>130</y>
+           <width>131</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Reset to Default</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>430</y>
+          <width>551</width>
+          <height>111</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Tools</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QPushButton" name="pushButton_6">
+             <property name="text">
+              <string>Vulkan Info</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_7">
+             <property name="text">
+              <string>Vulkan Installation Analysis</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>551</width>
+          <height>231</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Documentation</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>&lt;a href=&quot;https://&quot;&gt;Find More Layers!&lt;/a&gt;</string>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::TextBrowserInteraction</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>&lt;a href=&quot;https://&quot;&gt;Vulkan Specification&lt;/a&gt;</string>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string>&lt;a href=&quot;https://&quot;&gt;Vulkan Layer Specification&lt;/a&gt;</string>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>&lt;a href=&quot;https://&quot;&gt;Vulkan GPU Info Reports&lt;/a&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>&lt;a href=&quot;https://&quot;&gt;Vulkan Configurator Readme&lt;/a&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>&lt;a href=&quot;https://&quot;&gt;Vulkan Configurator Changelog&lt;/a&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="2" column="0" colspan="6">
           <widget class="QPlainTextEdit" name="log_browser">
@@ -604,136 +1405,43 @@
          </item>
         </layout>
        </widget>
-      </widget>
-      <widget class="QSplitter" name="splitter">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <widget class="QGroupBox" name="group_box_settings">
+       <widget class="QLabel" name="label_18">
+        <property name="geometry">
+         <rect>
+          <x>570</x>
+          <y>30</y>
+          <width>421</width>
+          <height>171</height>
+         </rect>
+        </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
+        <property name="text">
+         <string/>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
+        <property name="pixmap">
+         <pixmap resource="resources.qrc">:/resourcefiles/vulkan_configurator.png</pixmap>
         </property>
-        <property name="baseSize">
-         <size>
-          <width>400</width>
-          <height>0</height>
-         </size>
+        <property name="scaledContents">
+         <bool>true</bool>
         </property>
-        <property name="title">
-         <string>Configuration Settings</string>
+        <property name="textInteractionFlags">
+         <set>Qt::TextBrowserInteraction</set>
         </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <property name="topMargin">
-          <number>9</number>
-         </property>
-         <item row="1" column="0">
-          <widget class="QTreeWidget" name="settings_tree">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-           </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-           <property name="sortingEnabled">
-            <bool>false</bool>
-           </property>
-           <property name="animated">
-            <bool>false</bool>
-           </property>
-           <property name="columnCount">
-            <number>1</number>
-           </property>
-           <attribute name="headerVisible">
-            <bool>false</bool>
-           </attribute>
-           <attribute name="headerMinimumSectionSize">
-            <number>160</number>
-           </attribute>
-           <attribute name="headerDefaultSectionSize">
-            <number>200</number>
-           </attribute>
-           <column>
-            <property name="text">
-             <string notr="true"/>
-            </property>
-           </column>
-          </widget>
-         </item>
-        </layout>
        </widget>
+       <zorder>label_18</zorder>
+       <zorder>buttonBox</zorder>
+       <zorder>groupBox</zorder>
+       <zorder>groupBox_2</zorder>
+       <zorder>groupBox_3</zorder>
       </widget>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1024</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-    <addaction name="actionVulkan_Info"/>
-    <addaction name="actionVulkan_Installation"/>
-    <addaction name="separator"/>
-    <addaction name="actionRestore_Default_Configurations"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="action_find_more_layers"/>
-    <addaction name="separator"/>
-    <addaction name="actionVulkan_specification"/>
-    <addaction name="actionVulkan_Layer_Specification"/>
-    <addaction name="actionGPU_Info_Reports"/>
-    <addaction name="separator"/>
-    <addaction name="action_readme"/>
-    <addaction name="action_changelog"/>
-    <addaction name="separator"/>
-    <addaction name="actionAbout"/>
-   </widget>
-   <addaction name="menuTools"/>
-   <addaction name="menuHelp"/>
   </widget>
   <action name="actionHistory">
    <property name="text">
@@ -826,6 +1534,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

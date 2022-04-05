@@ -38,6 +38,7 @@
 #include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/date.h"
 
+#include <QMenu>
 #include <QProcess>
 #include <QMessageBox>
 #include <QFrame>
@@ -80,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
       been_warned_about_old_loader(false) {
     ui->setupUi(this);
     ui->launcher_tree->installEventFilter(this);
-    ui->configuration_tree->installEventFilter(this);
+    ui->tree_configurations->installEventFilter(this);
     ui->settings_tree->installEventFilter(this);
 
     SetupLauncherTree();
@@ -97,11 +98,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
     connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
 
-    connect(ui->configuration_tree, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
+    connect(ui->tree_configurations, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
             SLOT(OnConfigurationItemChanged(QTreeWidgetItem *, int)));
-    connect(ui->configuration_tree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
+    connect(ui->tree_configurations, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
             SLOT(OnConfigurationTreeChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(ui->configuration_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
+    connect(ui->tree_configurations, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(OnConfigurationTreeClicked(QTreeWidgetItem *, int)));
 
     connect(ui->settings_tree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(editorExpanded(QTreeWidgetItem *)));
@@ -123,6 +124,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_2->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER2));
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
+    // Update launcher
+    const Application &application = configurator.environment.GetApplication(0);
+    ui->edit_executable->setText(application.executable_path.c_str());
+    ui->edit_dir->setText(application.working_folder.c_str());
+    ui->edit_arguments->setText(application.arguments.c_str());
+    ui->edit_env->setText(application.env.c_str());
+    ui->edit_log->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+
     LoadConfigurationList();
 
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
@@ -130,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
     ui->log_browser->document()->setMaximumBlockCount(2048);
-    ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
+    ui->tree_configurations->scrollToItem(ui->tree_configurations->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
     if (configurator.configurations.HasSelectConfiguration()) {
         _settings_tree_manager.CreateGUI(ui->settings_tree);
@@ -151,26 +162,34 @@ static std::string GetMainWindowTitle(bool active) {
     return title;
 }
 
+void MainWindow::InitUI() {
+    Configurator &configurator = Configurator::Get();
+    const Environment &environment = configurator.environment;
+
+    ui->radio_vulkan_configurator->setChecked(environment.UseOverride());
+    ui->radio_vulkan_applications->setChecked(!environment.UseOverride());
+}
+
 void MainWindow::UpdateUI() {
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
     const bool has_select_configuration = configurator.configurations.HasSelectConfiguration();
     const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-    ui->configuration_tree->blockSignals(true);
+    ui->tree_configurations->blockSignals(true);
 
-    // Mode states
-    ui->radio_override->setChecked(environment.UseOverride());
-    ui->radio_fully->setChecked(!environment.UseOverride());
+    ui->radio_vulkan_configurator->setChecked(environment.UseOverride());
+    ui->radio_vulkan_applications->setChecked(!ui->radio_vulkan_configurator->isChecked());
 
     // Update configurations
-    ui->group_box_configurations->setEnabled(environment.UseOverride());
+    ui->layout_layers_buttons->setEnabled(ui->radio_vulkan_configurator->isChecked() && !environment.mode_disable_layers);
+    ui->tree_configurations->setEnabled(ui->radio_vulkan_configurator->isChecked() && !environment.mode_disable_layers);
+    ui->tree_configurations->setCurrentItem(nullptr);
+    ui->tree_configurations->setSelectionMode(ui->radio_vulkan_configurator->isChecked() ? QAbstractItemView::SingleSelection
+                                                                                         : QAbstractItemView::NoSelection);
+    for (int i = 0, n = ui->tree_configurations->topLevelItemCount(); i < n; ++i) {
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->tree_configurations->topLevelItem(i));
 
-    ui->configuration_tree->setCurrentItem(nullptr);
-    // ui->configuration_tree->setSelectionMode(has_active_configuration ? QAbstractItemView::SingleSelection
-    //                                                                  : QAbstractItemView::NoSelection);
-    for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(item);
         assert(!item->configuration_name.empty());
 
@@ -183,7 +202,7 @@ void MainWindow::UpdateUI() {
         item->radio_button->setToolTip(configuration->description.c_str());
 
         if (item->configuration_name == active_contiguration_name) {
-            ui->configuration_tree->setCurrentItem(item);
+            ui->tree_configurations->setCurrentItem(item);
             item->radio_button->setChecked(true);
         } else {
             item->radio_button->setChecked(false);
@@ -195,12 +214,10 @@ void MainWindow::UpdateUI() {
     ui->push_button_remove->setEnabled(environment.UseOverride() && has_select_configuration);
     ui->push_button_duplicate->setEnabled(environment.UseOverride() && has_select_configuration);
     ui->push_button_new->setEnabled(environment.UseOverride());
-    ui->settings_tree->setEnabled(environment.UseOverride() && has_select_configuration);
-    ui->group_box_settings->setTitle(has_select_configuration ? (active_contiguration_name + " Settings").c_str()
-                                                              : "Configuration Settings");
+    ui->settings_tree->setEnabled(environment.UseOverride() && !environment.mode_disable_layers && has_select_configuration);
 
     // Handle application lists states
-    ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && environment.UseOverride());
+    ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && ui->radio_vulkan_configurator->isChecked());
     ui->check_box_apply_list->setChecked(!been_warned_about_old_loader && environment.UseApplicationListOverrideMode());
     ui->push_button_applications->setEnabled(!been_warned_about_old_loader && ui->check_box_apply_list->isChecked());
 
@@ -229,12 +246,15 @@ void MainWindow::UpdateUI() {
     _launcher_apps_combo->blockSignals(false);
 
     // Handle persistent states
-    ui->check_box_persistent->setEnabled(environment.UseOverride());
-    ui->check_box_persistent->setChecked(environment.UsePersistentOverrideMode());
+    ui->combo_box_mode->setEnabled(ui->radio_vulkan_configurator->isChecked());
+    ui->combo_box_mode->setCurrentIndex(environment.UsePersistentOverrideMode() ? 1 : 0);
+
+    ui->check_box_disable->setEnabled(ui->radio_vulkan_configurator->isChecked());
+    ui->check_box_disable->setChecked(environment.mode_disable_layers);
 
     // Launcher states
     const bool has_application_list = !environment.GetApplications().empty();
-    ui->push_button_launcher->setEnabled(has_application_list);
+    ui->push_button_launcher->setEnabled(ui->check_box_apply_list->isChecked());
     ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
     ui->check_box_clear_on_launch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
     ui->launcher_loader_debug->setCurrentIndex(environment.GetLoaderMessage());
@@ -282,7 +302,7 @@ void MainWindow::UpdateUI() {
                                       configurator.environment.UseOverride())
                        .c_str());
 
-    ui->configuration_tree->blockSignals(false);
+    ui->tree_configurations->blockSignals(false);
 }
 
 void MainWindow::UpdateConfiguration() {}
@@ -293,8 +313,8 @@ void MainWindow::LoadConfigurationList() {
     // There are lots of ways into this, and in none of them
     // can we have an active editor running.
     _settings_tree_manager.CleanupGUI();
-    ui->configuration_tree->blockSignals(true);  // No signals firing off while we do this
-    ui->configuration_tree->clear();
+    ui->tree_configurations->blockSignals(true);  // No signals firing off while we do this
+    ui->tree_configurations->clear();
 
     Configurator &configurator = Configurator::Get();
 
@@ -312,14 +332,14 @@ void MainWindow::LoadConfigurationList() {
         item->radio_button->setFixedSize(QSize(24, 24));
         item->radio_button->setToolTip(configuration.description.c_str());
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        ui->configuration_tree->addTopLevelItem(item);
-        ui->configuration_tree->setItemWidget(item, 0, item->radio_button);
+        ui->tree_configurations->addTopLevelItem(item);
+        ui->tree_configurations->setItemWidget(item, 0, item->radio_button);
         connect(item->radio_button, SIGNAL(clicked(bool)), this, SLOT(OnConfigurationItemClicked(bool)));
     }
 
-    ui->configuration_tree->blockSignals(false);
-    ui->configuration_tree->resizeColumnToContents(0);
-    ui->configuration_tree->resizeColumnToContents(1);
+    ui->tree_configurations->blockSignals(false);
+    ui->tree_configurations->resizeColumnToContents(0);
+    ui->tree_configurations->resizeColumnToContents(1);
 
     configurator.request_vulkan_status = true;
     this->UpdateUI();
@@ -332,8 +352,8 @@ void MainWindow::LoadConfigurationList() {
 /// when an event occurs. This unambigously answers that question.
 ConfigurationListItem *MainWindow::GetCheckedItem() {
     // Just go through all the top level items
-    for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
+    for (int i = 0, n = ui->tree_configurations->topLevelItemCount(); i < n; ++i) {
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->tree_configurations->topLevelItem(i));
 
         if (item == nullptr) continue;
         if (item->radio_button->isChecked()) return item;
@@ -343,7 +363,7 @@ ConfigurationListItem *MainWindow::GetCheckedItem() {
 }
 
 /// Use the active profile as the override
-void MainWindow::on_radio_override_clicked() {
+void MainWindow::on_radio_vulkan_configurator_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
@@ -354,7 +374,7 @@ void MainWindow::on_radio_override_clicked() {
 }
 
 // No override at all, fully controlled by the application
-void MainWindow::on_radio_fully_clicked() {
+void MainWindow::on_radio_vulkan_applications_clicked() {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
@@ -401,8 +421,15 @@ void MainWindow::on_check_box_apply_list_clicked() {
     UpdateUI();
 }
 
-void MainWindow::on_check_box_persistent_clicked() {
-    Configurator::Get().environment.SetMode(OVERRIDE_MODE_PERISTENT, ui->check_box_persistent->isChecked());
+void MainWindow::on_check_box_disable_clicked() {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.mode_disable_layers = ui->check_box_disable->isChecked();
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    UpdateUI();
+}
+
+void MainWindow::on_combo_box_mode_changed(int index) {
+    Configurator::Get().environment.SetMode(OVERRIDE_MODE_PERISTENT, index == 1);
 }
 
 void MainWindow::on_check_box_clear_on_launch_clicked() {
@@ -433,7 +460,7 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
 
     // This appears redundant on Windows, but under linux it is needed
     // to ensure the new item is "selected"
-    ui->configuration_tree->setCurrentItem(item);
+    ui->tree_configurations->setCurrentItem(item);
 
     Configurator::Get().ActivateConfiguration(item->configuration_name);
 
@@ -491,9 +518,9 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
         if (failed || duplicate_configuration != nullptr) {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
 
-            ui->configuration_tree->blockSignals(true);
+            ui->tree_configurations->blockSignals(true);
             item->setText(1, old_name.c_str());
-            ui->configuration_tree->blockSignals(false);
+            ui->tree_configurations->blockSignals(false);
 
             configurator.ActivateConfiguration(old_name);
         } else {
@@ -838,7 +865,7 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
     assert(item);
 
-    ui->configuration_tree->editItem(item, 1);
+    ui->tree_configurations->editItem(item, 1);
 }
 
 void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
@@ -856,8 +883,8 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     LoadConfigurationList();
 
     ConfigurationListItem *new_item = nullptr;
-    for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
-        ConfigurationListItem *searched_item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
+    for (int i = 0, n = ui->tree_configurations->topLevelItemCount(); i < n; ++i) {
+        ConfigurationListItem *searched_item = dynamic_cast<ConfigurationListItem *>(ui->tree_configurations->topLevelItem(i));
         assert(searched_item);
 
         if (searched_item->configuration_name != duplicated_configuration.key) continue;
@@ -866,7 +893,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
         break;
     }
     assert(new_item);
-    ui->configuration_tree->editItem(new_item, 1);
+    ui->tree_configurations->editItem(new_item, 1);
 }
 
 void MainWindow::ImportClicked(ConfigurationListItem *item) {
@@ -1301,11 +1328,11 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Do not pass on
             return true;
         }
-    } else if (target == ui->configuration_tree) {
+    } else if (target == ui->tree_configurations) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {  // && event->type() == QEvent::ContextMenu) {
             // Which item were we over?
-            QTreeWidgetItem *configuration_item = ui->configuration_tree->itemAt(right_click->pos());
+            QTreeWidgetItem *configuration_item = ui->tree_configurations->itemAt(right_click->pos());
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
             const Environment &environment = configurator.environment;
@@ -1314,7 +1341,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             const bool active = environment.UseOverride() && !active_contiguration_name.empty();
 
             // Create context menu here
-            QMenu menu(ui->configuration_tree);
+            QMenu menu(ui->tree_configurations);
 
             QAction *edit_action = new QAction("Edit...", nullptr);
             edit_action->setEnabled(active && item != nullptr);
@@ -1397,12 +1424,12 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 bool MainWindow::SelectConfigurationItem(const std::string &configuration_name) {
     assert(!configuration_name.empty());
 
-    for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
+    for (int i = 0, n = ui->tree_configurations->topLevelItemCount(); i < n; ++i) {
+        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->tree_configurations->topLevelItem(i));
         assert(item != nullptr);
         assert(!item->configuration_name.empty());
         if (item->configuration_name == configuration_name) {
-            ui->configuration_tree->setCurrentItem(item);
+            ui->tree_configurations->setCurrentItem(item);
             return true;
         }
     }
@@ -1498,13 +1525,12 @@ void MainWindow::on_push_button_launcher_clicked() {
     connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    _launch_application->setProgram(active_application.executable_path.c_str());
-    _launch_application->setWorkingDirectory(active_application.working_folder.c_str());
-    _launch_application->setEnvironment(BuildEnvVariables());
+    _launch_application->setProgram(ui->edit_executable->text());
+    _launch_application->setWorkingDirectory(ui->edit_dir->text());
+    _launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(" "));
 
     if (!active_application.arguments.empty()) {
-        const QStringList args = QString(active_application.arguments.c_str()).split(" ");
-        _launch_application->setArguments(args);
+        _launch_application->setArguments(ui->edit_arguments->text().split(" "));
     }
 
     _launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
