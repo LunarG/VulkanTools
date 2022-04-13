@@ -19,7 +19,8 @@
   - Use `VK_LAYER_KHRONOS_profiles` layer instead
 
 ### Improvements:
-- Improve the Portability built-in configuration to check only what's necessary, reducing validation overhead.
+- Improve the Portability built-in configuration to check only what's necessary, reducing validation overhead
+- Refinement of the layers window UI design
 
 ## [Vulkan Configurator 2.4.4](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.204.1) - March 2022
 
