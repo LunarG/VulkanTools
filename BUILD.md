@@ -215,7 +215,6 @@ To use, simply push it to the device and run it.  The resulting json file will b
 ```
 /sdcard/Android/<output>.json
 ```
-A working example can be found in [devsim_layer_test_anroid.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/devsim_layer_test_android.sh)
 
 ## The VulkanTools repository
 
