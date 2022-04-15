@@ -132,10 +132,10 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
             if (!applications[i].override_layers) continue;
 
-            const std::string& application_name(
-                ConvertNativeSeparators(QFileInfo(applications[i].app_name.c_str()).absoluteFilePath().toStdString()));
-            assert(QFileInfo(application_name.c_str()).exists());
-            json_applist.append(application_name.c_str());
+            const std::string& executable_path(
+                ConvertNativeSeparators(QFileInfo(applications[i].executable_path.c_str()).absoluteFilePath().toStdString()));
+            assert(QFileInfo(executable_path.c_str()).exists());
+            json_applist.append(executable_path.c_str());
         }
 
         layer.insert("app_keys", json_applist);
