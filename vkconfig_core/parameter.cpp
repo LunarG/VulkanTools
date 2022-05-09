@@ -84,7 +84,7 @@ Version ComputeMinApiVersion(const std::vector<Parameter>& parameters, const std
         if (min_version == Version::VERSION_NULL)
             min_version = layer->api_version;
         else
-            min_version = min_version > layer->api_version ? min_version : layer->api_version;
+            min_version = min_version < layer->api_version ? min_version : layer->api_version;
     }
 
     return min_version;
