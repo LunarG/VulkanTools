@@ -281,10 +281,13 @@ QMessageBox::Button Alert::LayerNewerVersions(const char* message) {
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 
-QMessageBox::Button Alert::LayerIncompatibleVersions(const char* message) {
+QMessageBox::Button Alert::LayerIncompatibleVersions(const char* message, const Version& loader_version) {
     QMessageBox alert;
     alert.setWindowTitle("Incompatible layers versions");
-    alert.setText("The Vulkan Loader requires that the layers are built with the same Vulkan Headers version.");
+    alert.setText(format("The system has Vulkan Loader %s. The Vulkan Loader 1.3.211 and older requires that the layers use the "
+                         "same Vulkan Headers minor version.",
+                         loader_version.str().c_str())
+                      .c_str());
     alert.setInformativeText((std::string("Are you sure you want to keep using these layers?\n") + message).c_str());
     alert.setIcon(QMessageBox::Warning);
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
