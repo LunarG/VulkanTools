@@ -323,3 +323,11 @@ TEST(test_parameter, gather_parameters_all) {
     EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
     EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
 }
+
+TEST(test_parameter, compute_min_api_version) {
+    std::vector<Parameter> parameters = GenerateTestParametersExist();
+    std::vector<Layer> layers = GenerateTestLayers();
+
+    Version min_version = ComputeMinApiVersion(parameters, layers);
+    EXPECT_EQ(Version(1, 2, 148), min_version);
+}

@@ -84,6 +84,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         }
     }
 
+    const Version version = ComputeMinApiVersion(configuration.parameters, available_layers);
+
     QJsonArray json_paths;
 
     // First add override paths so that they take precedent over system paths
@@ -116,7 +118,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     QJsonObject layer;
     layer.insert("name", "VK_LAYER_LUNARG_override");
     layer.insert("type", "GLOBAL");
-    layer.insert("api_version", environment.api_version.str().c_str());
+    layer.insert("api_version", version.str().c_str());
     layer.insert("implementation_version", "1");
     layer.insert("description", "LunarG Override Layer");
     layer.insert("override_paths", json_paths);
