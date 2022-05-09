@@ -36,6 +36,8 @@ class Configurator {
 
     // The list of applications affected
    public:
+    bool SupportDifferentLayerVersions(Version* return_loader_version = nullptr) const;
+
     // If return_loader_version is not null, the function will return the loader version
     // If quiet is false, message box will be generate
     bool SupportApplicationList(Version* return_loader_version = nullptr) const;

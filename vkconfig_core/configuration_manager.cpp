@@ -383,9 +383,9 @@ bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &avail
                 }
 
                 if (is_less) {
-                    if (layer.api_version > version) result = false;
+                    if (layer.api_version.GetMinor() > version.GetMinor()) result = false;
                 } else {
-                    if (layer.api_version != current_version) result = false;
+                    if (layer.api_version.GetMinor() != current_version.GetMinor()) result = false;
                 }
 
                 log_versions += format("%s - %s\n", layer.key.c_str(), layer.api_version.str().c_str());
