@@ -14,7 +14,7 @@
 ## [Vulkan Configurator 2.4.6](https://github.com/LunarG/VulkanTools/tree/master) - June 2022
 
 ### Improvements:
-- Allow using multiple layers built with different Vulkan header version when Loader 211 or newer is installed on the system
+- Allow using multiple layers built with different Vulkan header version when Loader 212 or newer is installed on the system
 
 ## [Vulkan Configurator 2.4.5](https://github.com/LunarG/VulkanTools/tree/master) - April 2022
 

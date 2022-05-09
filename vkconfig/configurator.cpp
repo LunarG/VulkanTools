@@ -145,7 +145,7 @@ bool Configurator::SupportDifferentLayerVersions(Version *return_loader_version)
         *return_loader_version = version;
     }
 
-    return version >= Version("1.3.211");
+    return version >= Version("1.3.212");
 }
 
 bool Configurator::SupportApplicationList(Version *return_loader_version) const {
