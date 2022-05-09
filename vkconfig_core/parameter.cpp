@@ -72,6 +72,24 @@ ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, c
     }
 }
 
+Version ComputeMinApiVersion(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
+    if (parameters.empty()) return Version::VERSION_NULL;
+
+    Version min_version = Version::VERSION_NULL;
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Layer* layer = FindByKey(layers, parameters[i].key.c_str());
+        if (layer == nullptr) continue;
+
+        if (min_version == Version::VERSION_NULL)
+            min_version = layer->api_version;
+        else
+            min_version = min_version > layer->api_version ? min_version : layer->api_version;
+    }
+
+    return min_version;
+}
+
 void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
     struct ParameterCompare {
         ParameterCompare(const std::vector<Layer>& layers) : layers(layers) {}
