@@ -99,6 +99,9 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_shader_gpu_indirect;
     QCheckBox *widget_shader_gpu_indirect;
 
+    QTreeWidgetItem *item_shader_gpu_vma_linear_output;
+    QCheckBox *widget_shader_gpu_vma_linear_output;
+
     QTreeWidgetItem *item_shader_printf;
     QRadioButton *widget_shader_printf;
 
@@ -149,6 +152,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     void OnShaderGPUDescIndexingChecked(bool checked);
     void OnShaderGPUOOBChecked(bool checked);
     void OnShaderGPUIndirectChecked(bool checked);
+    void OnShaderGPUVMALinearOutput(bool checked);
 
     void OnShaderPrintfChecked(bool checked);
     void OnShaderPrintfStdoutChecked(bool checked);
