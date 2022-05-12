@@ -585,20 +585,34 @@ void MainWindow::StartTool(Tool tool) {
 void MainWindow::toolsVulkanCapsViewer(bool checked) {
     (void)checked;
 
+    static const char *DIR_TABLE[] = {
+        "/Tools/vulkancapsviewer",                     // PLATFORM_WINDOWS
+        "/Tools/vulkancapsviewer",                     // PLATFORM_LINUX
+        "/Tools/vulkancapsviewer.app/Contents/MacOS",  // PLATFORM_MACOS
+        "N/A"                                          // PLATFORM_ANDROID
+    };
+    static_assert(countof(DIR_TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    static const char *PROGRAM_TABLE[] = {
+        "/vulkanCapsViewer.exe",  // PLATFORM_WINDOWS
+        "/vulkanCapsViewer",      // PLATFORM_LINUX
+        "/vulkanCapsViewer",      // PLATFORM_MACOS
+        "N/A"                     // PLATFORM_ANDROID
+    };
+    static_assert(countof(PROGRAM_TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
     if (_launch_vkcapsviewer) {
         _launch_vkcapsviewer->kill();
         _launch_vkcapsviewer->waitForFinished();
         _launch_vkcapsviewer.reset();
     }
 
-    // static const TABLE[] = {"/vulkanCapsViewer.exe"};
-
     _launch_vkcapsviewer.reset(new QProcess(this));
     connect(_launch_vkcapsviewer.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(processvkcapsviewerClosed(int, QProcess::ExitStatus)));
 
-    const std::string directory_path = ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) + "/Tools/vulkancapsviewer");
-    const std::string program_path = ConvertNativeSeparators(directory_path + "/vulkanCapsViewer.exe");
+    const std::string directory_path = ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) + DIR_TABLE[VKC_PLATFORM]);
+    const std::string program_path = ConvertNativeSeparators(directory_path + PROGRAM_TABLE[VKC_PLATFORM]);
 
     _launch_vkcapsviewer->setProgram(program_path.c_str());
     _launch_vkcapsviewer->setWorkingDirectory(directory_path.c_str());
