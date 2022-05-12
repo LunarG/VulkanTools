@@ -116,6 +116,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       widget_shader_gpu_desc_indexing(nullptr),
       item_shader_gpu_indirect(nullptr),
       widget_shader_gpu_indirect(nullptr),
+      item_shader_gpu_vma_linear_output(nullptr),
+      widget_shader_gpu_vma_linear_output(nullptr),
       item_shader_printf(nullptr),
       widget_shader_printf(nullptr),
 
