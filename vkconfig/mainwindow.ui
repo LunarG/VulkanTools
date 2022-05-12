@@ -727,6 +727,7 @@
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionVulkan_Hardware_Capability_Viewer"/>
     <addaction name="actionVulkan_Info"/>
     <addaction name="actionVulkan_Installation"/>
     <addaction name="separator"/>
@@ -838,6 +839,11 @@
   <action name="action_find_more_layers">
    <property name="text">
     <string>Find More Layers!</string>
+   </property>
+  </action>
+  <action name="actionVulkan_Hardware_Capability_Viewer">
+   <property name="text">
+    <string>Vulkan Hardware Capability Viewer</string>
    </property>
   </action>
  </widget>

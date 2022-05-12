@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
+    connect(ui->actionVulkan_Hardware_Capability_Viewer, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanCapsViewer(bool)));
     connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
     connect(ui->action_readme, SIGNAL(triggered(bool)), this, SLOT(OnHelpReadme(bool)));
     connect(ui->action_changelog, SIGNAL(triggered(bool)), this, SLOT(OnHelpChangelog(bool)));
@@ -577,6 +578,38 @@ void MainWindow::StartTool(Tool tool) {
 
     if (!active_configuration.empty()) {
         configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration);
+    }
+}
+
+/// Launch Vulkan Caps Viewer if it doesn't already exits & show it.
+void MainWindow::toolsVulkanCapsViewer(bool checked) {
+    (void)checked;
+
+    if (_launch_vkcapsviewer) {
+        _launch_vkcapsviewer->kill();
+        _launch_vkcapsviewer->waitForFinished();
+        _launch_vkcapsviewer.reset();
+    }
+
+    // static const TABLE[] = {"/vulkanCapsViewer.exe"};
+
+    _launch_vkcapsviewer.reset(new QProcess(this));
+    connect(_launch_vkcapsviewer.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
+            SLOT(processvkcapsviewerClosed(int, QProcess::ExitStatus)));
+
+    const std::string directory_path = ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) + "/Tools/vulkancapsviewer");
+    const std::string program_path = ConvertNativeSeparators(directory_path + "/vulkanCapsViewer.exe");
+
+    _launch_vkcapsviewer->setProgram(program_path.c_str());
+    _launch_vkcapsviewer->setWorkingDirectory(directory_path.c_str());
+    _launch_vkcapsviewer->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
+    _launch_vkcapsviewer->setProcessChannelMode(QProcess::MergedChannels);
+    _launch_vkcapsviewer->closeWriteChannel();
+
+    // Wait... did we start? Give it 4 seconds, more than enough time
+    if (!_launch_vkcapsviewer->waitForStarted(4000)) {
+        _launch_vkcapsviewer->deleteLater();
+        _launch_vkcapsviewer = nullptr;
     }
 }
 
@@ -1559,6 +1592,20 @@ void MainWindow::on_push_button_launcher_clicked() {
     }
 
     UpdateUI();
+}
+
+/// The process we are following is closed. We don't actually care about the
+/// exit status/code, we just need to know to destroy the QProcess object
+/// and set it back to nullptr so that we know we can launch a new app.
+/// Also, if we are logging, it's time to close the log file.
+void MainWindow::processvkcapsviewerClosed(int exit_code, QProcess::ExitStatus status) {
+    (void)exit_code;
+    (void)status;
+
+    assert(_launch_vkcapsviewer);
+
+    disconnect(_launch_vkcapsviewer.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
+               SLOT(processvkcapsviewerClosed(int, QProcess::ExitStatus)));
 }
 
 /// The process we are following is closed. We don't actually care about the
