@@ -66,9 +66,8 @@ class MainWindow : public QMainWindow {
    private:
     SettingsTreeManager _settings_tree_manager;
 
-    std::unique_ptr<QProcess> _launch_vkcapsviewer;  // Keeps track of the Vulkan Caps Viewer
-    std::unique_ptr<QProcess> _launch_application;   // Keeps track of the monitored app
-    QFile _log_file;                                 // Log file for layer output
+    std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
+    QFile _log_file;                                // Log file for layer output
 
     void LoadConfigurationList();
     void SetupLauncherTree();
@@ -107,7 +106,6 @@ class MainWindow : public QMainWindow {
     void EditCustomPathsClicked(ConfigurationListItem *item);
 
    public Q_SLOTS:
-    void toolsVulkanCapsViewer(bool checked);
     void toolsVulkanInfo(bool checked);
     void toolsVulkanInstallation(bool checked);
     void toolsSetCustomPaths(bool checked);
@@ -157,10 +155,9 @@ class MainWindow : public QMainWindow {
     void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
     void OnLauncherLoaderMessageChanged(int level);
 
-    void standardOutputAvailable();                                             // stdout output is available
-    void errorOutputAvailable();                                                // Layeroutput is available
-    void processClosed(int exitCode, QProcess::ExitStatus status);              // app died
-    void processvkcapsviewerClosed(int exitCode, QProcess::ExitStatus status);  // app died
+    void standardOutputAvailable();                                 // stdout output is available
+    void errorOutputAvailable();                                    // Layeroutput is available
+    void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
 
    private:
     MainWindow(const MainWindow &) = delete;
