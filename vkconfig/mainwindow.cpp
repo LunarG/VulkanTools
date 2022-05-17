@@ -587,7 +587,7 @@ void MainWindow::toolsVulkanCapsViewer(bool checked) {
 
     static const char *DIR_TABLE[] = {
         "/Tools/vulkancapsviewer",                     // PLATFORM_WINDOWS
-        "/Tools/vulkancapsviewer",                     // PLATFORM_LINUX
+        "/x86_64/bin",                                 // PLATFORM_LINUX
         "/Tools/vulkancapsviewer.app/Contents/MacOS",  // PLATFORM_MACOS
         "N/A"                                          // PLATFORM_ANDROID
     };
@@ -611,7 +611,13 @@ void MainWindow::toolsVulkanCapsViewer(bool checked) {
     connect(_launch_vkcapsviewer.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(processvkcapsviewerClosed(int, QProcess::ExitStatus)));
 
-    const std::string directory_path = ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) + DIR_TABLE[VKC_PLATFORM]);
+    std::string directory_path = ConvertNativeSeparators(GetPath(BUILTIN_PATH_VULKAN_SDK) + DIR_TABLE[VKC_PLATFORM]);
+    if (VKC_PLATFORM == VKC_PLATFORM_LINUX) {
+        // If the vulkanCapsViewer was installed using packages
+        const QFileInfo directory_info(directory_path.c_str());
+        if (!directory_info.exists()) directory_path = "/usr/bin";
+    }
+
     const std::string program_path = ConvertNativeSeparators(directory_path + PROGRAM_TABLE[VKC_PLATFORM]);
 
     _launch_vkcapsviewer->setProgram(program_path.c_str());
