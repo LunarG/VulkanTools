@@ -624,13 +624,6 @@ void MainWindow::toolsVulkanCapsViewer(bool checked) {
     if (!_launch_vkcapsviewer->waitForStarted(4000)) {
         _launch_vkcapsviewer->deleteLater();
         _launch_vkcapsviewer = nullptr;
-
-        QMessageBox alert(this);
-        alert.setWindowTitle("Vulkan Hardware Capability Viewer could not be found");
-        alert.setText("Vulkan Hardware Capability Viewer could not be found on the system.");
-        alert.setInformativeText("Please, install Vulkan SDK 1.3.215 or newer.");
-        alert.setIcon(QMessageBox::Warning);
-        alert.exec();
     }
 }
 
