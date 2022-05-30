@@ -13,6 +13,9 @@
 
 ## [Vulkan Configurator 2.4.6](https://github.com/LunarG/VulkanTools/tree/master) - June 2022
 
+### Features:
+- Add `VK_KHR_portability_enumeration` extension support
+
 ### Improvements:
 - Allow using multiple layers built with different Vulkan header version when Loader 212 or newer is installed on the system
 

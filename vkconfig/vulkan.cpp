@@ -82,6 +82,54 @@ static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLa
     return log;
 }
 
+VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_portability) {
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties =
+        (PFN_vkEnumerateInstanceExtensionProperties)library.resolve("vkEnumerateInstanceExtensionProperties");
+    assert(vkEnumerateInstanceExtensionProperties);
+
+    uint32_t property_count = 0;
+    VkResult err = vkEnumerateInstanceExtensionProperties(nullptr, &property_count, nullptr);
+    assert(err == VK_SUCCESS);
+
+    std::vector<VkExtensionProperties> instance_properties(property_count);
+    err = vkEnumerateInstanceExtensionProperties(nullptr, &property_count, &instance_properties[0]);
+    assert(err == VK_SUCCESS);
+
+    bool has_portability_enum = false;
+    const char *portability_enum_name = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
+    for (std::size_t i = 0, n = instance_properties.size(); i < n && enumerate_portability; ++i) {
+        if (instance_properties[i].extensionName == std::string(portability_enum_name)) {
+            has_portability_enum = true;
+        }
+    }
+
+    // Check Vulkan Devices
+
+    VkApplicationInfo app = {};
+    app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app.pNext = nullptr;
+    app.pApplicationName = VKCONFIG_SHORT_NAME;
+    app.applicationVersion = 0;
+    app.pEngineName = VKCONFIG_SHORT_NAME;
+    app.engineVersion = 0;
+    app.apiVersion = VK_API_VERSION_1_0;
+
+    VkInstanceCreateInfo inst_info = {};
+    inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    if (has_portability_enum) inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    inst_info.pNext = nullptr;
+    inst_info.pApplicationInfo = &app;
+    inst_info.enabledLayerCount = 0;
+    inst_info.ppEnabledLayerNames = nullptr;
+    inst_info.enabledExtensionCount = has_portability_enum ? 1 : 0;
+    inst_info.ppEnabledExtensionNames = has_portability_enum ? &portability_enum_name : nullptr;
+
+    PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)library.resolve("vkCreateInstance");
+    assert(vkCreateInstance);
+
+    return vkCreateInstance(&inst_info, nullptr, &instance);
+}
+
 std::string GenerateVulkanStatus() {
     std::string log;
 
@@ -179,44 +227,27 @@ std::string GenerateVulkanStatus() {
         }
     }
 
-    // Check Vulkan Devices
-
-    VkApplicationInfo app = {};
-    app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    app.pNext = NULL;
-    app.pApplicationName = VKCONFIG_SHORT_NAME;
-    app.applicationVersion = 0;
-    app.pEngineName = VKCONFIG_SHORT_NAME;
-    app.engineVersion = 0;
-    app.apiVersion = VK_API_VERSION_1_0;
-
-    VkInstanceCreateInfo inst_info = {};
-    inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    inst_info.pNext = NULL;
-    inst_info.pApplicationInfo = &app;
-    inst_info.enabledLayerCount = 0;
-    inst_info.ppEnabledLayerNames = NULL;
-    inst_info.enabledExtensionCount = 0;
-    inst_info.ppEnabledExtensionNames = NULL;
-
-    uint32_t gpu_count;
-
-    VkInstance inst;
-    PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)library.resolve("vkCreateInstance");
-    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
-
-    assert(vkCreateInstance);
-    err = vkCreateInstance(&inst_info, NULL, &inst);
+    VkInstance inst = VK_NULL_HANDLE;
+    err = CreateInstance(library, inst, false);
     if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-        Alert::InstanceFailure();
+        // If no compatible driver were found, trying with portability enumeration
+        err = CreateInstance(library, inst, true);
+        if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
+            Alert::InstanceFailure();
 
-        log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
-        return log;
+            log += "- Cannot find a compatible Vulkan installable client driver (ICD).\n";
+            return log;
+        }
     }
+    assert(err == VK_SUCCESS);
 
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
         (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
+
+    uint32_t gpu_count = 0;
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, NULL);
+
+    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
 
     // This can fail on a new Linux setup. Check and fail gracefully rather than crash.
     if (err != VK_SUCCESS) {
