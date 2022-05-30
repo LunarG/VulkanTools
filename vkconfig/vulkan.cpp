@@ -83,6 +83,8 @@ static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLa
 }
 
 VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_portability) {
+    if (!enumerate_portability) return VK_ERROR_INCOMPATIBLE_DRIVER;
+
     PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties =
         (PFN_vkEnumerateInstanceExtensionProperties)library.resolve("vkEnumerateInstanceExtensionProperties");
     assert(vkEnumerateInstanceExtensionProperties);
@@ -95,11 +97,12 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
     err = vkEnumerateInstanceExtensionProperties(nullptr, &property_count, &instance_properties[0]);
     assert(err == VK_SUCCESS);
 
-    bool has_portability_enum = false;
-    const char *portability_enum_name = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
+    // Handle Portability Enumeration requirements
+    std::vector<const char *> instance_extensions;
     for (std::size_t i = 0, n = instance_properties.size(); i < n && enumerate_portability; ++i) {
-        if (instance_properties[i].extensionName == std::string(portability_enum_name)) {
-            has_portability_enum = true;
+        if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
+            instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+            break;
         }
     }
 
@@ -116,13 +119,15 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
 
     VkInstanceCreateInfo inst_info = {};
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    if (has_portability_enum) inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    if (!instance_extensions.empty()) {
+        inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    }
     inst_info.pNext = nullptr;
     inst_info.pApplicationInfo = &app;
     inst_info.enabledLayerCount = 0;
     inst_info.ppEnabledLayerNames = nullptr;
-    inst_info.enabledExtensionCount = has_portability_enum ? 1 : 0;
-    inst_info.ppEnabledExtensionNames = has_portability_enum ? &portability_enum_name : nullptr;
+    inst_info.enabledExtensionCount = static_cast<uint32_t>(instance_extensions.size());
+    inst_info.ppEnabledExtensionNames = instance_extensions.empty() ? nullptr : &instance_extensions[0];
 
     PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)library.resolve("vkCreateInstance");
     assert(vkCreateInstance);
