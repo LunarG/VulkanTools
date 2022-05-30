@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "vulkan.h"
+#include "vulkan_util.h"
 #include "configurator.h"
 
 #include "../vkconfig_core/alert.h"

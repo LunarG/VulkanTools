@@ -29,7 +29,7 @@
 #include "dialog_custom_paths.h"
 
 #include "configurator.h"
-#include "vulkan.h"
+#include "vulkan_util.h"
 
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/util.h"
