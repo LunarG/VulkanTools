@@ -19,7 +19,7 @@
 ### Improvements:
 - Allow using multiple layers built with different Vulkan header version when Loader 212 or newer is installed on the system
 
-## [Vulkan Configurator 2.4.5](https://github.com/LunarG/VulkanTools/tree/master) - April 2022
+## [Vulkan Configurator 2.4.5](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.211.0) - April 2022
 
 ### Features:
 - Add `VK_ADD_LAYER_PATH` Vulkan Loader variable handling
