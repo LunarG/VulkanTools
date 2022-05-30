@@ -40,8 +40,6 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     assert(!layers_path.empty());
     assert(QFileInfo(layers_path.c_str()).absoluteDir().exists());
 
-    bool has_missing_layers = false;
-
     const QStringList& path_gui = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI));
     const QStringList& path_env_set = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_SET));
     const QStringList& path_env_add = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_ADD));
@@ -59,7 +57,6 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer == nullptr) {
-            has_missing_layers = true;
             continue;
         }
 
