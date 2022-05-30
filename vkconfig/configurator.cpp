@@ -21,7 +21,7 @@
  */
 
 #include "configurator.h"
-#include "vulkan.h"
+#include "vulkan_util.h"
 
 #include "dialog_custom_paths.h"
 
