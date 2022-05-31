@@ -429,3 +429,4 @@ make -j8
   execution.
 - Please use `update_deps.py --help` to list additional options and read the
   internal documentation in `update_deps.py` for further information.
+  Test to see what the CLA is.
