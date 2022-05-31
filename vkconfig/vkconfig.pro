@@ -5,8 +5,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
 CONFIG += c++11
 CONFIG += sdk_no_version_check
 
-INCLUDEPATH += ../Vulkan-Headers/include
 INCLUDEPATH += ../Build/Vulkan-Headers/include
+INCLUDEPATH += ../Vulkan-Headers/include
 # INCLUDEPATH += ../external
 
 # Ignore JSON validation
