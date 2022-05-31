@@ -81,7 +81,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         }
     }
 
-    const Version version = ComputeMinApiVersion(configuration.parameters, available_layers);
+    const Version version = ComputeMinApiVersion(environment.api_version, configuration.parameters, available_layers);
 
     QJsonArray json_paths;
 
