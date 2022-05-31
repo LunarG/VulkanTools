@@ -33,8 +33,8 @@
 extern bool WriteLayersOverride(const Environment& environment, const std::vector<Layer>& available_layers,
                                 const Configuration& configuration, const std::string& layers_path);
 
-extern bool WriteSettingsOverride(const std::vector<Layer>& available_layers,
-                                  const Configuration& configuration, const std::string& settings_path);
+extern bool WriteSettingsOverride(const std::vector<Layer>& available_layers, const Configuration& configuration,
+                                  const std::string& settings_path);
 
 extern bool EraseLayersOverride(const std::string& layers_path);
 
@@ -45,7 +45,7 @@ TEST(test_override, write_erase_2_2_2) {
     const std::string SETTINGS("/override_settings_2_2_2_schema_1_2_1.txt");
 
     PathManager paths;
-    Environment env(paths, Version(1, 2, 162));
+    Environment env(paths, Version(1, 2, 170));
     env.Reset(Environment::DEFAULT);
 
     LayerManager layer_manager(env);
@@ -177,8 +177,7 @@ TEST(test_override, vk_layer_settings_txt) {
     EXPECT_STREQ("79-82,75", vku::GetLayerSettingFrames(LAYER, "frames_with_optional").c_str());
 
     EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "list_required_only"));
-    std::vector<std::pair<std::string, int>> list_required_only =
-        vku::GetLayerSettingList(LAYER, "list_required_only");
+    std::vector<std::pair<std::string, int>> list_required_only = vku::GetLayerSettingList(LAYER, "list_required_only");
 
     EXPECT_EQ(76, list_required_only[0].second);
     EXPECT_EQ(82, list_required_only[1].second);
@@ -186,8 +185,7 @@ TEST(test_override, vk_layer_settings_txt) {
     EXPECT_STREQ("stringD", list_required_only[3].first.c_str());
 
     EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "list_with_optional"));
-    std::vector<std::pair<std::string, int>> list_with_optional =
-        vku::GetLayerSettingList(LAYER, "list_with_optional");
+    std::vector<std::pair<std::string, int>> list_with_optional = vku::GetLayerSettingList(LAYER, "list_with_optional");
 
     EXPECT_EQ(76, list_with_optional[0].second);
     EXPECT_STREQ("stringA", list_with_optional[1].first.c_str());

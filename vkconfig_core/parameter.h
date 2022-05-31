@@ -52,7 +52,7 @@ struct Parameter {
 };
 
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
-Version ComputeMinApiVersion(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
 std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers);
