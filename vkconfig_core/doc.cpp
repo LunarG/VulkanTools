@@ -329,8 +329,7 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
     }
     if (!layer.settings.empty()) {
-        text +=
-            format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", GetNumSettings(layer, layer.settings));
+        text += format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", GetNumSettings(layer));
     }
     if (!layer.presets.empty()) {
         text += format("\t<li><a href=\"#presets\">Number of Layer Presets: %d</a></li>\n", layer.presets.size());
