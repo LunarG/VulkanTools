@@ -328,6 +328,6 @@ TEST(test_parameter, compute_min_api_version) {
     std::vector<Parameter> parameters = GenerateTestParametersExist();
     std::vector<Layer> layers = GenerateTestLayers();
 
-    Version min_version = ComputeMinApiVersion(parameters, layers);
+    Version min_version = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
     EXPECT_EQ(Version(1, 2, 148), min_version);
 }
