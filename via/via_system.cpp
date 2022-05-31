@@ -350,32 +350,24 @@ ViaSystem::ViaResults ViaSystem::GenerateSystemInfo() {
 // to a Vulkan Instance, and attempt to create one.
 ViaSystem::ViaResults ViaSystem::GenerateInstanceInfo(void) {
     ViaResults res = VIA_SUCCESSFUL;
-    VkApplicationInfo app_info;
-    VkInstanceCreateInfo inst_info;
-    uint32_t ext_count;
+    VkApplicationInfo app_info{};
+    VkInstanceCreateInfo inst_info{};
+    uint32_t ext_count = 0;
     std::vector<VkExtensionProperties> ext_props;
-    VkResult status;
+    VkResult status = VK_SUCCESS;
     char generic_string[1024];
     VulkanApiVersion max_inst_api_version = {};
     max_inst_api_version.major = 1;
 
-    memset(&app_info, 0, sizeof(VkApplicationInfo));
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    app_info.pNext = NULL;
     app_info.pApplicationName = "via";
     app_info.applicationVersion = 1;
     app_info.pEngineName = "via";
     app_info.engineVersion = 1;
     app_info.apiVersion = VK_API_VERSION_1_0;
 
-    memset(&inst_info, 0, sizeof(VkInstanceCreateInfo));
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    inst_info.pNext = NULL;
     inst_info.pApplicationInfo = &app_info;
-    inst_info.enabledLayerCount = 0;
-    inst_info.ppEnabledLayerNames = NULL;
-    inst_info.enabledExtensionCount = 0;
-    inst_info.ppEnabledExtensionNames = NULL;
 
     PrintBeginTable("Instance", 3);
 
@@ -434,6 +426,16 @@ ViaSystem::ViaResults ViaSystem::GenerateInstanceInfo(void) {
                 PrintTableElement(generic_string);
                 PrintEndTableRow();
             }
+        }
+    }
+
+    const char* portability_instance_extension_list[] = {VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME};
+    for (const auto& extension : ext_props) {
+        if (strcmp(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0) {
+            inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+            inst_info.enabledExtensionCount = 1;
+            inst_info.ppEnabledExtensionNames = portability_instance_extension_list;
+            break;
         }
     }
 
@@ -1011,8 +1013,8 @@ out:
 // device for each physical device we found.
 ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
     ViaResults res = VIA_SUCCESSFUL;
-    VkDeviceCreateInfo device_create_info;
-    VkDeviceQueueCreateInfo queue_create_info;
+    VkDeviceCreateInfo device_create_info{};
+    VkDeviceQueueCreateInfo queue_create_info{};
     VkResult status = VK_SUCCESS;
     uint32_t dev_count;
     char generic_string[1024];
@@ -1048,23 +1050,11 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
 
         vulkan_info->vk_logical_devices.resize(dev_count);
         for (uint32_t dev = 0; dev < dev_count; dev++) {
-            memset(&device_create_info, 0, sizeof(VkDeviceCreateInfo));
+            device_create_info = {};
             device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-            device_create_info.pNext = NULL;
-            device_create_info.queueCreateInfoCount = 0;
-            device_create_info.pQueueCreateInfos = NULL;
-            device_create_info.enabledLayerCount = 0;
-            device_create_info.ppEnabledLayerNames = NULL;
-            device_create_info.enabledExtensionCount = 0;
-            device_create_info.ppEnabledExtensionNames = NULL;
-            device_create_info.queueCreateInfoCount = 1;
-            device_create_info.enabledLayerCount = 0;
-            device_create_info.ppEnabledLayerNames = NULL;
-            device_create_info.enabledExtensionCount = 0;
-            device_create_info.ppEnabledExtensionNames = NULL;
 
-            memset(&queue_create_info, 0, sizeof(VkDeviceQueueCreateInfo));
             float queue_priority = 0;
+            queue_create_info = {};
             queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             queue_create_info.pNext = NULL;
             queue_create_info.queueCount = 1;
@@ -1076,6 +1066,7 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
                     break;
                 }
             }
+            device_create_info.queueCreateInfoCount = 1;
             device_create_info.pQueueCreateInfos = &queue_create_info;
 
             PrintBeginTableRow();
