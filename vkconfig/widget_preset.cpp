@@ -51,6 +51,8 @@ WidgetPreset::WidgetPreset(QTreeWidget* tree, QTreeWidgetItem* item, const Layer
 }
 
 void WidgetPreset::Refresh(RefreshAreas refresh_areas) {
+    (void)refresh_areas;
+
     const std::string& preset_label = layer.FindPresetLabel(parameter.settings);
 
     this->field->blockSignals(true);

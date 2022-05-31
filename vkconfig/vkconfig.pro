@@ -64,7 +64,7 @@ SOURCES += \
     ../vkconfig_core/setting_string.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
-    vulkan.cpp \
+    vulkan_util.cpp \
     widget_preset.cpp \
     widget_setting.cpp \
     widget_setting_bool.cpp \
@@ -132,7 +132,7 @@ HEADERS += \
     ../vkconfig_core/setting_string.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \
-    vulkan.h \
+    vulkan_util.h \
     widget_preset.h \
     widget_setting.h \
     widget_setting_bool.h \
