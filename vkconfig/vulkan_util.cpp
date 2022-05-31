@@ -99,12 +99,14 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
 
     // Handle Portability Enumeration requirements
     std::vector<const char *> instance_extensions;
+#if VK_KHR_portability_enumeration
     for (std::size_t i = 0, n = instance_properties.size(); i < n && enumerate_portability; ++i) {
         if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
             instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
             break;
         }
     }
+#endif
 
     // Check Vulkan Devices
 
@@ -119,9 +121,11 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
 
     VkInstanceCreateInfo inst_info = {};
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+#if VK_KHR_portability_enumeration
     if (!instance_extensions.empty()) {
         inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     }
+#endif
     inst_info.pNext = nullptr;
     inst_info.pApplicationInfo = &app;
     inst_info.enabledLayerCount = 0;
