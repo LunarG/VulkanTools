@@ -280,6 +280,8 @@ bool EraseLayersOverride(const std::string& layers_path) { return std::remove(la
 bool EraseSettingsOverride(const std::string& settings_path) { return std::remove(settings_path.c_str()) == 0; }
 
 bool SurrenderConfiguration(const Environment& environment) {
+    (void)environment;
+
     const std::string layers_path = GetPath(BUILTIN_PATH_OVERRIDE_LAYERS);
     const std::string settings_path = GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
 

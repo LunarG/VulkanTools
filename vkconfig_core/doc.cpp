@@ -44,8 +44,7 @@ static std::string BuildPlatformsMarkdown(int platform_flags) {
     const std::vector<std::string>& platforms = GetPlatformTokens(platform_flags);
     for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
         text += platforms[i];
-        if (i < platforms.size()-1)
-        text += ", ";
+        if (i < platforms.size() - 1) text += ", ";
     }
 
     return text;
@@ -165,15 +164,12 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
             if (IsEnum(setting->type) || IsFlags(setting->type)) {
                 const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
                 if (setting_enum.enum_values.size() > 0) {
-
                     text += "<table>\n";
                     if (IsEnum(setting->type)) {
-                        text +=
-                            "<thead><tr><th>Enum Value</th><th>Label</th><th class=\"desc\">Description</th><th>Platforms ";
+                        text += "<thead><tr><th>Enum Value</th><th>Label</th><th class=\"desc\">Description</th><th>Platforms ";
                     } else {
                         // Flags
-                        text +=
-                            "<thead><tr><th>Flags</th><th>Label</th><th class=\"desc\">Description</th><th>Platforms ";
+                        text += "<thead><tr><th>Flags</th><th>Label</th><th class=\"desc\">Description</th><th>Platforms ";
                     }
                     text += "</th></tr></thead>\n";
                     text += "<tbody>\n";
@@ -230,15 +226,15 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
             text += "- Platforms: " + BuildPlatformsMarkdown(setting->platform_flags) + "\n\n";
 
             if (setting->view != SETTING_VIEW_STANDARD) {
-                text += format("Setting Level: %s\n" , GetToken(setting->view));
+                text += format("Setting Level: %s\n", GetToken(setting->view));
             }
 
-            text += format("Setting Type: %s - Setting Default Value: %s\n" , GetToken(setting->type), setting->Export(EXPORT_MODE_DOC).c_str());
+            text += format("Setting Type: %s - Setting Default Value: %s\n", GetToken(setting->type),
+                           setting->Export(EXPORT_MODE_DOC).c_str());
 
             if (IsEnum(setting->type) || IsFlags(setting->type)) {
                 const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
                 if (setting_enum.enum_values.size() > 0) {
-
                     if (IsEnum(setting->type)) {
                         text += "|Enum Value|Label|Description|Platforms|\n";
                     } else {
@@ -270,7 +266,7 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
     }
 }
 
-size_t GetNumSettings(const Layer& layer, const SettingMetaSet& settings) {
+size_t GetNumSettings(const Layer& layer) {
     std::size_t rval = layer.settings.size();
     for (std::size_t i = 0, n = layer.settings.size(); i < n; ++i) {
         const SettingMeta* setting = layer.settings[i];
@@ -333,7 +329,8 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
     }
     if (!layer.settings.empty()) {
-        text += format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", GetNumSettings(layer, layer.settings));
+        text +=
+            format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", GetNumSettings(layer, layer.settings));
     }
     if (!layer.presets.empty()) {
         text += format("\t<li><a href=\"#presets\">Number of Layer Presets: %d</a></li>\n", layer.presets.size());
@@ -463,9 +460,7 @@ void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     }
 }
 
-void ExportSettingsDoc(const std::vector<Layer>& available_layers,
-                       const Configuration& configuration, const std::string& path) {
-
+void ExportSettingsDoc(const std::vector<Layer>& available_layers, const Configuration& configuration, const std::string& path) {
     if (WriteSettingsOverride(available_layers, configuration, path))
         printf("vkconfig: settings written to %s\n", path.c_str());
     else

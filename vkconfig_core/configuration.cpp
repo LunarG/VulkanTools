@@ -213,6 +213,8 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 }
 
 void Configuration::Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager) {
+    (void)path_manager;
+
     // Case 1: reset using built-in configuration files
     const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/configurations/");
     for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {

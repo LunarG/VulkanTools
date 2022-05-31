@@ -27,5 +27,8 @@ class ComboBox : public QComboBox {
    public:
     ComboBox(QWidget* widget) : QComboBox(widget) {}
 
-    void wheelEvent(QWheelEvent* e) override { return; }
+    void wheelEvent(QWheelEvent* e) override {
+        (void)e;
+        return;
+    }
 };
