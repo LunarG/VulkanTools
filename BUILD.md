@@ -108,7 +108,7 @@ Install the required tools for Linux and Windows covered above, then add the
 following.
 
 #### Android Studio
-- Install 2.1 or later version of [Android Studio](http://tools.android.com/download/studio/stable)
+- Install 2.1 or later version of [Android Studio](https://developer.android.com/studio)
 - From the "Welcome to Android Studio" splash screen, add the following components using Configure > SDK Manager:
   - SDK Tools > Android NDK
 
