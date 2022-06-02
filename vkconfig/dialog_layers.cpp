@@ -525,27 +525,26 @@ void LayersDialog::accept() {
         return;
     }
 
+    FilterParameters(this->configuration.parameters, LAYER_STATE_APPLICATION_CONTROLLED);
+
+    Version loader_version;
+    if (!configurator.SupportDifferentLayerVersions(&loader_version)) {
+        std::string log_versions;
+        if (!configurator.configurations.CheckLayersVersions(configurator.layers.available_layers, &this->configuration,
+                                                             log_versions)) {
+            Alert::LayerIncompatibleVersions(log_versions.c_str(), loader_version);
+            return;
+        }
+    }
+
     Configuration *saved_configuration =
         FindByKey(configurator.configurations.available_configurations, this->configuration.key.c_str());
     assert(saved_configuration != nullptr);
-
-    FilterParameters(this->configuration.parameters, LAYER_STATE_APPLICATION_CONTROLLED);
 
     saved_configuration->key = ui->lineEditName->text().toStdString();
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
     saved_configuration->parameters = this->configuration.parameters;
     saved_configuration->setting_tree_state.clear();
-
-    Version loader_version;
-    if (!configurator.SupportDifferentLayerVersions(&loader_version)) {
-        std::string log_versions;
-        if (!configurator.configurations.CheckLayersVersions(configurator.layers.available_layers, saved_configuration,
-                                                             log_versions)) {
-            if (Alert::LayerIncompatibleVersions(log_versions.c_str(), loader_version) == QMessageBox::No) {
-                return;
-            }
-        }
-    }
 
     configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
     QDialog::accept();
