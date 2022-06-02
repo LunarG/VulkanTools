@@ -274,10 +274,8 @@ QMessageBox::Button Alert::LayerIncompatibleVersions(const char* message, const 
                          "same Vulkan Headers minor version.",
                          loader_version.str().c_str())
                       .c_str());
-    alert.setInformativeText((std::string("Are you sure you want to keep using these layers?\n") + message).c_str());
-    alert.setIcon(QMessageBox::Warning);
-    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    alert.setDefaultButton(QMessageBox::No);
+    alert.setInformativeText(message);
+    alert.setIcon(QMessageBox::Critical);
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 

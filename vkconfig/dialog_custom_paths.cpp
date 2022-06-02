@@ -68,9 +68,8 @@ void UserDefinedPathsDialog::accept() {
             std::string log_versions;
             if (!configurator.configurations.CheckLayersVersions(configurator.layers.available_layers, active_configuration,
                                                                  log_versions)) {
-                if (Alert::LayerIncompatibleVersions(log_versions.c_str(), loader_version) == QMessageBox::No) {
-                    return;
-                }
+                Alert::LayerIncompatibleVersions(log_versions.c_str(), loader_version);
+                return;
             }
         }
     }
