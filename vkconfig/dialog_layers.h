@@ -80,7 +80,6 @@ class LayersDialog : public QDialog {
     void LoadUserDefinedPaths();
     void Reload();
     void Reinit();
-    void SaveLayersPaths(const std::vector<std::string> &layers_paths);
     void AddLayerItem(const Parameter &parameter);
     void BuildParameters();
     void OverrideAllExplicitLayers();
@@ -91,6 +90,4 @@ class LayersDialog : public QDialog {
     std::string selected_sorted_layer_name;
 
     std::unique_ptr<Ui::dialog_layers> ui;
-    std::vector<std::string> layers_paths;
-    std::vector<std::string> layers_paths_saved;
 };
