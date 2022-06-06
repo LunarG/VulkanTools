@@ -116,7 +116,7 @@ void UserDefinedPathsDialog::RepopulateTree() {
             }
 
             QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, layer.key.c_str());
+            child->setText(0, (layer.key + " - " + layer.api_version.str()).c_str());
             item->addChild(child);
         }
     }

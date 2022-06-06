@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
-    <height>500</height>
+    <width>1024</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
-    <height>400</height>
+    <width>1024</width>
+    <height>640</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -37,19 +37,7 @@
   <property name="windowTitle">
    <string>Edit Vulkan Layers</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
-   <property name="leftMargin">
-    <number>9</number>
-   </property>
-   <property name="topMargin">
-    <number>9</number>
-   </property>
-   <property name="rightMargin">
-    <number>9</number>
-   </property>
-   <property name="bottomMargin">
-    <number>9</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="sizePolicy">
@@ -128,38 +116,17 @@
    </item>
    <item>
     <widget class="QSplitter" name="splitter">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>1</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
      <property name="lineWidth">
-      <number>0</number>
-     </property>
-     <property name="midLineWidth">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="opaqueResize">
+      <bool>false</bool>
+     </property>
      <property name="handleWidth">
-      <number>3</number>
+      <number>10</number>
      </property>
      <property name="childrenCollapsible">
       <bool>false</bool>
@@ -197,7 +164,7 @@
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>4</number>
+        <number>0</number>
        </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -352,7 +319,7 @@
         <height>0</height>
        </size>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout1">
        <property name="spacing">
         <number>1</number>
        </property>
@@ -360,7 +327,7 @@
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>4</number>
+        <number>0</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
@@ -438,6 +405,85 @@
           <widget class="QPushButton" name="pushButtonDown">
            <property name="text">
             <string>Execute Closer to the Vulkan Drivers</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <layout class="QVBoxLayout" name="widgetVerticalPathList">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QTreeWidget" name="layerTreePath">
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="columnCount">
+          <number>1</number>
+         </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="headerMinimumSectionSize">
+          <number>0</number>
+         </attribute>
+         <attribute name="headerDefaultSectionSize">
+          <number>0</number>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>1</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="pushButtonAdd">
+           <property name="text">
+            <string>Add User-Defined Path...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonRemove">
+           <property name="text">
+            <string>Remove User-Defined Path</string>
            </property>
           </widget>
          </item>
