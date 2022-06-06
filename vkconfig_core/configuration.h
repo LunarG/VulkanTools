@@ -52,8 +52,6 @@ class Configuration {
     bool IsBuiltIn() const;
 
    private:
-    bool Load2_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object, const std::string& full_path);
-    bool Load2_1(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
     bool Load2_2(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
 };
 

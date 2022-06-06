@@ -128,6 +128,7 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     ui->lineEditName->setText(configuration.key.c_str());
     ui->lineEditDescription->setText(configuration.description.c_str());
     ui->buttonBox->setEnabled(!configurator.layers.Empty());
+    ui->pushButtonRemove->setEnabled(false);
 
     Environment &environment = configurator.environment;
     restoreGeometry(environment.Get(LAYOUT_LAYER_GEOMETRY));
@@ -150,11 +151,7 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     connect(ui->layerTreeSorted, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(OnLayerTreeSortedClicked(QTreeWidgetItem *, int)));
 
-    BuildParameters();
-    LoadAvailableLayersUI();
-    LoadSortedLayersUI();
-
-    UpdateUI();
+    this->Reinit();
 }
 
 LayersDialog::~LayersDialog() {
@@ -164,12 +161,58 @@ LayersDialog::~LayersDialog() {
     environment.Set(LAYOUT_LAYER_GEOMETRY, saveGeometry());
 }
 
+void LayersDialog::Reinit() {
+    this->BuildParameters();
+
+    this->LoadAvailableLayersUI();
+    this->LoadSortedLayersUI();
+    this->LoadUserDefinedPaths();
+
+    this->UpdateUI();
+}
+
+struct ParameterState {
+    std::string key;
+    LayerState state;
+};
+
+static std::vector<ParameterState> StoreParameterStates(const std::vector<Parameter> &parameters) {
+    std::vector<ParameterState> ParameterStates;
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        ParameterState state;
+        state.key = parameters[i].key;
+        state.state = parameters[i].state;
+        ParameterStates.push_back(state);
+    }
+    return ParameterStates;
+}
+
+static void RestoreParameterStates(std::vector<Parameter> &Parameters, const std::vector<ParameterState> &states) {
+    for (std::size_t i = 0, n = states.size(); i < n; ++i) {
+        Parameter *saved_parameter = FindByKey(Parameters, states[i].key.c_str());
+        if (saved_parameter == nullptr) continue;
+
+        saved_parameter->state = states[i].state;
+    }
+}
+
 void LayersDialog::Reload() {
+    std::string configuration_name = this->configuration.key;
+    const std::vector<ParameterState> &ParameterStates = StoreParameterStates(this->configuration.parameters);
+
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.available_configurations.clear();
 
     configurator.layers.LoadAllInstalledLayers();
     configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+
+    Configuration *saved_configuration =
+        FindByKey(configurator.configurations.available_configurations, configuration_name.c_str());
+    this->configuration = *saved_configuration;
+    this->BuildParameters();
+
+    RestoreParameterStates(this->configuration.parameters, ParameterStates);
+
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     configurator.request_vulkan_status = true;
 }
@@ -218,8 +261,6 @@ void LayersDialog::UpdateUI() {
 
     const bool has_below_sorted_item = ui->layerTreeSorted->itemBelow(current_sorted_layers) != nullptr;
     ui->pushButtonDown->setEnabled(has_selected_sorted_item && has_below_sorted_item);
-
-    this->RepopulateTreePaths();
 }
 
 void LayersDialog::OnLayerTreeSortedClicked(QTreeWidgetItem *item, int column) {
@@ -318,6 +359,49 @@ void LayersDialog::LoadSortedLayersUI() {
     }
 }
 
+void LayersDialog::LoadUserDefinedPaths() {
+    Configurator &configurator = Configurator::Get();
+
+    // Populate the tree
+    ui->layerTreePath->clear();
+
+    // Building the list is not obvious. Each custom path may have multiple layers and there
+    // could be duplicates, which are not allowed. The layer paths are traversed in order, and
+    // layers are used on a first occurance basis. So we can't just show the layers that are
+    // present in the folder (because they may not be used). We have to list the custom layer paths
+    // and then look for layers that are already loaded that are from that path.
+
+    for (std::size_t custom_path_index = 0, count = this->layers_paths.size(); custom_path_index < count; ++custom_path_index) {
+        const std::string user_defined_path(ConvertNativeSeparators(this->layers_paths[custom_path_index]));
+
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        ui->layerTreePath->addTopLevelItem(item);
+        item->setText(0, user_defined_path.c_str());
+        item->setExpanded(true);
+
+        // Look for layers that are loaded that are also from this folder
+        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; ++i) {
+            const Layer &layer = configurator.layers.available_layers[i];
+
+            const QFileInfo file_info(layer.manifest_path.c_str());
+            const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
+            if (path != user_defined_path) {
+                continue;
+            }
+
+            std::string decorated_name(layer.key);
+            if (layer.status != STATUS_STABLE) {
+                decorated_name += format(" (%s)", GetToken(layer.status));
+            }
+            decorated_name += format(" - %s", layer.api_version.str().c_str());
+
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0, decorated_name.c_str());
+            item->addChild(child);
+        }
+    }
+}
+
 // The only way to catch the resize from the layouts
 // (which is screwing up the spacing with the combo boxes)
 void LayersDialog::showEvent(QShowEvent *event) {
@@ -384,10 +468,7 @@ void LayersDialog::on_button_reset_clicked() {
 
     configuration.Reset(configurator.layers.available_layers, configurator.path);
 
-    BuildParameters();
-    LoadAvailableLayersUI();
-    LoadSortedLayersUI();
-    UpdateUI();
+    this->Reinit();
 
     ui->button_reset->setEnabled(false);
 }
@@ -409,6 +490,8 @@ void LayersDialog::OverrideOrder(const std::string layer_name, const TreeWidgetI
     OrderParameter(configuration.parameters, Configurator::Get().layers.available_layers);
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
+    LoadUserDefinedPaths();
+
     UpdateUI();
 }
 
@@ -530,10 +613,12 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
 
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
+    LoadUserDefinedPaths();
+
     UpdateUI();
 }
 
-void LayersDialog::on_treeWidget_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
+void LayersDialog::on_layerTreePath_itemSelectionChanged() { ui->pushButtonRemove->setEnabled(true); }
 
 void LayersDialog::on_pushButtonAdd_clicked() {
     Configurator &configurator = Configurator::Get();
@@ -545,7 +630,7 @@ void LayersDialog::on_pushButtonAdd_clicked() {
 
             this->SaveLayersPaths(this->layers_paths);
             this->Reload();
-            this->UpdateUI();
+            this->Reinit();
         }
     }
 
@@ -566,10 +651,10 @@ void LayersDialog::on_pushButtonRemove_clicked() {
 
     this->SaveLayersPaths(this->layers_paths);
     this->Reload();
-    this->UpdateUI();
+    this->Reinit();
 
     // Nothing is selected, so disable remove button
-    ui->buttonBox->setEnabled(!Configurator::Get().layers.Empty());
+    ui->pushButtonRemove->setEnabled(false);
 }
 
 void LayersDialog::accept() {
@@ -590,8 +675,6 @@ void LayersDialog::accept() {
         return;
     }
 
-    FilterParameters(this->configuration.parameters, LAYER_STATE_APPLICATION_CONTROLLED);
-
     Version loader_version;
     if (!configurator.SupportDifferentLayerVersions(&loader_version)) {
         std::string log_versions;
@@ -601,6 +684,8 @@ void LayersDialog::accept() {
             return;
         }
     }
+
+    FilterParameters(this->configuration.parameters, LAYER_STATE_APPLICATION_CONTROLLED);
 
     Configuration *saved_configuration =
         FindByKey(configurator.configurations.available_configurations, this->configuration.key.c_str());
@@ -616,8 +701,11 @@ void LayersDialog::accept() {
 }
 
 void LayersDialog::reject() {
-    this->SaveLayersPaths(this->layers_paths_saved);
-    this->Reload();
+    if (this->layers_paths_saved != this->layers_paths) {
+        // Restore layers
+        this->SaveLayersPaths(this->layers_paths_saved);
+        this->Reload();
+    }
 
     QDialog::reject();
 }
@@ -625,41 +713,4 @@ void LayersDialog::reject() {
 void LayersDialog::BuildParameters() {
     Configurator &configurator = Configurator::Get();
     this->configuration.parameters = GatherParameters(this->configuration.parameters, configurator.layers.available_layers);
-}
-
-void LayersDialog::RepopulateTreePaths() {
-    Configurator &configurator = Configurator::Get();
-
-    // Populate the tree
-    ui->layerTreePath->clear();
-
-    // Building the list is not obvious. Each custom path may have multiple layers and there
-    // could be duplicates, which are not allowed. The layer paths are traversed in order, and
-    // layers are used on a first occurance basis. So we can't just show the layers that are
-    // present in the folder (because they may not be used). We have to list the custom layer paths
-    // and then look for layers that are already loaded that are from that path.
-
-    for (std::size_t custom_path_index = 0, count = this->layers_paths.size(); custom_path_index < count; ++custom_path_index) {
-        const std::string user_defined_path(ConvertNativeSeparators(this->layers_paths[custom_path_index]));
-
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        ui->layerTreePath->addTopLevelItem(item);
-        item->setText(0, user_defined_path.c_str());
-        item->setExpanded(true);
-
-        // Look for layers that are loaded that are also from this folder
-        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; ++i) {
-            const Layer &layer = configurator.layers.available_layers[i];
-
-            const QFileInfo file_info(layer.manifest_path.c_str());
-            const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
-            if (path != user_defined_path) {
-                continue;
-            }
-
-            QTreeWidgetItem *child = new QTreeWidgetItem();
-            child->setText(0, (layer.key + " - " + layer.api_version.str()).c_str());
-            item->addChild(child);
-        }
-    }
 }
