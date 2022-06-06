@@ -95,8 +95,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(OnHelpLayerSpec(bool)));
     connect(ui->actionGPU_Info_Reports, SIGNAL(triggered(bool)), this, SLOT(OnHelpGPUInfo(bool)));
 
-    connect(ui->actionCustom_Layer_Paths, SIGNAL(triggered(bool)), this, SLOT(toolsSetCustomPaths(bool)));
-
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
     connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
 
@@ -204,7 +202,6 @@ void MainWindow::UpdateUI() {
     // Update settings
     ui->push_button_edit->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->push_button_remove->setEnabled(environment.UseOverride() && has_active_configuration);
-    ui->push_button_find->setEnabled(environment.UseOverride());
     ui->push_button_new->setEnabled(environment.UseOverride());
     ui->settings_tree->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->group_box_settings->setTitle(has_active_configuration ? (active_contiguration_name + " Settings").c_str()
@@ -915,16 +912,6 @@ void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
     }
 }
 
-void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
-    (void)item;
-    FindLayerPaths();
-}
-
-void MainWindow::toolsSetCustomPaths(bool checked) {
-    (void)checked;
-    FindLayerPaths();
-}
-
 void MainWindow::editorExpanded(QTreeWidgetItem *item) {
     (void)item;
     ui->settings_tree->resizeColumnToContents(0);
@@ -1334,7 +1321,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Create context menu here
             QMenu menu(ui->configuration_tree);
 
-            QAction *edit_action = new QAction("Edit Layers...", nullptr);
+            QAction *edit_action = new QAction("Edit...", nullptr);
             edit_action->setEnabled(active && item != nullptr);
             menu.addAction(edit_action);
 
@@ -1378,12 +1365,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             reload_default_action->setEnabled(true);
             menu.addAction(reload_default_action);
 
-            menu.addSeparator();
-
-            QAction *custom_path_action = new QAction("Edit User-Defined Layers Paths...", nullptr);
-            custom_path_action->setEnabled(true);
-            menu.addAction(custom_path_action);
-
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
 
@@ -1405,8 +1386,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 ImportClicked(item);
             } else if (action == reload_default_action) {
                 ReloadDefaultClicked(item);
-            } else if (action == custom_path_action) {
-                EditCustomPathsClicked(item);
             } else {
                 return false;  // Unknown action
             }
