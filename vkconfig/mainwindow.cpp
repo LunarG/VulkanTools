@@ -202,6 +202,7 @@ void MainWindow::UpdateUI() {
     // Update settings
     ui->push_button_edit->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->push_button_remove->setEnabled(environment.UseOverride() && has_active_configuration);
+    ui->push_button_duplicate->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->push_button_new->setEnabled(environment.UseOverride());
     ui->settings_tree->setEnabled(environment.UseOverride() && has_active_configuration);
     ui->group_box_settings->setTitle(has_active_configuration ? (active_contiguration_name + " Settings").c_str()
@@ -713,6 +714,20 @@ void MainWindow::on_push_button_remove_clicked() {
     Configurator &configurator = Configurator::Get();
 
     this->RemoveConfiguration(configurator.configurations.GetActiveConfiguration()->key);
+}
+
+void MainWindow::on_push_button_duplicate_clicked() {
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configutation = configurator.configurations.GetActiveConfiguration();
+    assert(configutation != nullptr);
+
+    const Configuration &duplicated_configuration =
+        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, configutation->key, true);
+
+    this->SetActiveConfiguration(duplicated_configuration.key);
+
+    LoadConfigurationList();
 }
 
 void MainWindow::on_push_button_edit_clicked() {

@@ -346,6 +346,13 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QPushButton" name="push_button_duplicate">
+                  <property name="text">
+                   <string>Duplicate</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="push_button_remove">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">

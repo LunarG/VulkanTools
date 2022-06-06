@@ -144,6 +144,7 @@ class MainWindow : public QMainWindow {
     void on_push_button_find_clicked();
     void on_push_button_new_clicked();
     void on_push_button_remove_clicked();
+    void on_push_button_duplicate_clicked();
 
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);
