@@ -122,8 +122,7 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     Configurator &configurator = Configurator::Get();
-    this->layers_paths_saved = this->layers_paths =
-        configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
 
     ui->lineEditName->setText(configuration.key.c_str());
     ui->lineEditDescription->setText(configuration.description.c_str());
@@ -199,31 +198,27 @@ static void RestoreParameterStates(std::vector<Parameter> &Parameters, const std
 void LayersDialog::Reload() {
     std::string configuration_name = this->configuration.key;
     const std::vector<ParameterState> &ParameterStates = StoreParameterStates(this->configuration.parameters);
+    std::vector<std::string> user_defined_paths = this->configuration.user_defined_paths;
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.available_configurations.clear();
+    configurator.environment.SetCustomLayerPaths(this->configuration.user_defined_paths);
 
     configurator.layers.LoadAllInstalledLayers();
     configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
 
     Configuration *saved_configuration =
         FindByKey(configurator.configurations.available_configurations, configuration_name.c_str());
-    this->configuration = *saved_configuration;
-    this->BuildParameters();
+    if (saved_configuration != nullptr) {
+        this->configuration = *saved_configuration;
+        this->BuildParameters();
+    }
 
     RestoreParameterStates(this->configuration.parameters, ParameterStates);
+    this->configuration.user_defined_paths = user_defined_paths;
 
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     configurator.request_vulkan_status = true;
-}
-
-void LayersDialog::SaveLayersPaths(const std::vector<std::string> &layers_paths) {
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.ClearCustomLayerPath();
-
-    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        configurator.environment.AppendCustomLayerPath(layers_paths[i]);
-    }
 }
 
 void LayersDialog::UpdateUI() {
@@ -371,8 +366,8 @@ void LayersDialog::LoadUserDefinedPaths() {
     // present in the folder (because they may not be used). We have to list the custom layer paths
     // and then look for layers that are already loaded that are from that path.
 
-    for (std::size_t custom_path_index = 0, count = this->layers_paths.size(); custom_path_index < count; ++custom_path_index) {
-        const std::string user_defined_path(ConvertNativeSeparators(this->layers_paths[custom_path_index]));
+    for (std::size_t path_index = 0, count = this->configuration.user_defined_paths.size(); path_index < count; ++path_index) {
+        const std::string user_defined_path(ConvertNativeSeparators(this->configuration.user_defined_paths[path_index]));
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         ui->layerTreePath->addTopLevelItem(item);
@@ -625,10 +620,11 @@ void LayersDialog::on_pushButtonAdd_clicked() {
     const std::string custom_path = configurator.path.SelectPath(this, PATH_USER_DEFINED_LAYERS_GUI);
 
     if (!custom_path.empty()) {
-        if (std::find(layers_paths.begin(), layers_paths.end(), custom_path) == layers_paths.end()) {
-            this->layers_paths.push_back(custom_path);
+        std::vector<std::string> &user_defined_paths = this->configuration.user_defined_paths;
 
-            this->SaveLayersPaths(this->layers_paths);
+        if (std::find(user_defined_paths.begin(), user_defined_paths.end(), custom_path) == user_defined_paths.end()) {
+            user_defined_paths.push_back(custom_path);
+
             this->Reload();
             this->Reinit();
         }
@@ -647,9 +643,8 @@ void LayersDialog::on_pushButtonRemove_clicked() {
 
     while (selected->parent() != nullptr) selected = selected->parent();
 
-    RemoveString(this->layers_paths, selected->text(0).toStdString());
+    RemoveString(this->configuration.user_defined_paths, selected->text(0).toStdString());
 
-    this->SaveLayersPaths(this->layers_paths);
     this->Reload();
     this->Reinit();
 
@@ -694,6 +689,7 @@ void LayersDialog::accept() {
     saved_configuration->key = ui->lineEditName->text().toStdString();
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
     saved_configuration->parameters = this->configuration.parameters;
+    saved_configuration->user_defined_paths = this->configuration.user_defined_paths;
     saved_configuration->setting_tree_state.clear();
 
     configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
@@ -701,9 +697,14 @@ void LayersDialog::accept() {
 }
 
 void LayersDialog::reject() {
-    if (this->layers_paths_saved != this->layers_paths) {
+    Configurator &configurator = Configurator::Get();
+    Configuration *saved_configuration =
+        FindByKey(configurator.configurations.available_configurations, this->configuration.key.c_str());
+    assert(saved_configuration != nullptr);
+
+    if (saved_configuration->user_defined_paths != this->configuration.user_defined_paths) {
+        configurator.environment.SetCustomLayerPaths(saved_configuration->user_defined_paths);
         // Restore layers
-        this->SaveLayersPaths(this->layers_paths_saved);
         this->Reload();
     }
 

@@ -48,6 +48,7 @@ class Configuration {
     bool view_advanced_settings;
 
     std::vector<Parameter> parameters;
+    std::vector<std::string> user_defined_paths;
 
     bool IsBuiltIn() const;
 
