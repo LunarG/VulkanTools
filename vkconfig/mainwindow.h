@@ -160,7 +160,6 @@ class MainWindow : public QMainWindow {
     MainWindow &operator=(const MainWindow &) = delete;
 
     void RemoveConfiguration(const std::string &configuration_name);
-    void SetActiveConfiguration(const std::string &configuration_name);
     bool SelectConfigurationItem(const std::string &configuration_name);
     void ResetLaunchApplication();
     void StartTool(Tool tool);

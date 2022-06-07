@@ -139,8 +139,12 @@ bool Configurator::Init() {
 void Configurator::ActivateConfiguration(const std::string &configuration_name) {
     const std::string name = configuration_name;
 
+    if (this->environment.Get(ACTIVE_CONFIGURATION) == name) return;
+
     Configuration *configuration = FindByKey(this->configurations.available_configurations, name.c_str());
     if (configuration == nullptr) return;
+
+    this->environment.Set(ACTIVE_CONFIGURATION, configuration->key.c_str());
 
     // If the layers paths are differents, we need to reload the layers and the configurations
     if (configuration->user_defined_paths != this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI)) {
@@ -148,7 +152,7 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         this->layers.LoadAllInstalledLayers();
         this->configurations.LoadAllConfigurations(this->layers.available_layers);
     }
-    this->configurations.SetActiveConfiguration(this->layers.available_layers, name);
+    this->configurations.RefreshConfiguration(this->layers.available_layers);
     this->request_vulkan_status = true;
 }
 

@@ -686,6 +686,10 @@ void LayersDialog::accept() {
         FindByKey(configurator.configurations.available_configurations, this->configuration.key.c_str());
     assert(saved_configuration != nullptr);
 
+    if (saved_configuration->key != ui->lineEditName->text().toStdString()) {
+        configurator.configurations.RemoveConfigurationFile(saved_configuration->key);
+    }
+
     saved_configuration->key = ui->lineEditName->text().toStdString();
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
     saved_configuration->parameters = this->configuration.parameters;

@@ -447,7 +447,6 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     ui->configuration_tree->setCurrentItem(item);
 
     Configurator::Get().ActivateConfiguration(item->configuration_name);
-    // this->SetActiveConfiguration(item->configuration_name);
 
     UpdateUI();
 }
@@ -458,7 +457,6 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
     if (configuration_item != nullptr) {
         Configurator::Get().ActivateConfiguration(configuration_item->configuration_name);
-        // this->SetActiveConfiguration(configuration_item->configuration_name);
     }
 
     UpdateUI();
@@ -477,7 +475,8 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
 
         // We are renaming the file. Things can go wrong here...
         // This is the name of the configuratin we are changing
-        const std::string full_path = GetPath(BUILTIN_PATH_CONFIG_LAST) + configuration_item->configuration_name + ".json";
+        // const std::string full_path =
+        //    ConvertNativeSeparators(GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + configuration_item->configuration_name + ".json");
 
         // This is the new name we want to use for the configuration
         const std::string &new_name = configuration_item->text(1).toStdString();
@@ -508,14 +507,12 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             ui->configuration_tree->blockSignals(false);
 
             configurator.ActivateConfiguration(old_name);
-            // this->SetActiveConfiguration(old_name);
         } else {
             // Rename configuration ; Remove old configuration file ; change the name of the configuration
-            std::remove(full_path.c_str());
+            configurator.configurations.RemoveConfigurationFile(old_name);
             configuration->key = configuration_item->configuration_name = new_name;
 
             configurator.ActivateConfiguration(new_name);
-            // this->SetActiveConfiguration(new_name);
 
             LoadConfigurationList();
             SelectConfigurationItem(new_name.c_str());
@@ -545,7 +542,6 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 
     configuration_item->radio_button->setChecked(true);
     configurator.ActivateConfiguration(configuration_item->configuration_name);
-    // SetActiveConfiguration(configuration_item->configuration_name);
 
     _settings_tree_manager.CreateGUI(ui->settings_tree);
 
@@ -730,7 +726,7 @@ void MainWindow::on_push_button_duplicate_clicked() {
     const Configuration &duplicated_configuration =
         configurator.configurations.CreateConfiguration(configurator.layers.available_layers, configutation->key, true);
 
-    this->SetActiveConfiguration(duplicated_configuration.key);
+    configurator.ActivateConfiguration(duplicated_configuration.key);
 
     LoadConfigurationList();
 }
@@ -760,7 +756,6 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
 
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
-        // this->SetActiveConfiguration(configuration->key);
         LoadConfigurationList();
     }
 }
@@ -775,7 +770,6 @@ void MainWindow::NewClicked() {
     LayersDialog dlg(this, new_configuration);
     switch (dlg.exec()) {
         case QDialog::Accepted:
-            // this->SetActiveConfiguration(new_configuration.key);
             break;
         case QDialog::Rejected:
             configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, new_configuration.key);
@@ -866,7 +860,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     item->configuration_name = duplicated_configuration.key;
 
-    this->SetActiveConfiguration(duplicated_configuration.key);
+    configurator.ActivateConfiguration(duplicated_configuration.key);
 
     LoadConfigurationList();
 
@@ -1408,19 +1402,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
     // Pass it on
     return false;
-}
-
-void MainWindow::SetActiveConfiguration(const std::string &configuration_name) {
-    assert(!configuration_name.empty());
-
-    // Sort will invalidate the name
-    const std::string name_copy = configuration_name;
-
-    Configurator &configurator = Configurator::Get();
-    configurator.request_vulkan_status = true;
-
-    configurator.configurations.SortConfigurations();
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, name_copy);
 }
 
 bool MainWindow::SelectConfigurationItem(const std::string &configuration_name) {
