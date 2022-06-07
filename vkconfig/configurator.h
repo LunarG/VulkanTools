@@ -46,6 +46,8 @@ class Configurator {
         return SupportApplicationList() && environment.UseApplicationListOverrideMode();
     }
 
+    void ActivateConfiguration(const std::string& configuration_name);
+
     void ResetToDefault(bool hard);
 
     std::string profile_file;
