@@ -117,8 +117,6 @@ class MainWindow : public QMainWindow {
     void OnHelpLayerSpec(bool checked);
     void OnHelpGPUInfo(bool checked);
 
-    void FindLayerPaths();
-
     void editorExpanded(QTreeWidgetItem *item);
 
     void launchItemExpanded(QTreeWidgetItem *item);
@@ -141,7 +139,6 @@ class MainWindow : public QMainWindow {
     void on_check_box_clear_on_launch_clicked();
     void on_push_button_applications_clicked();
     void on_push_button_edit_clicked();
-    void on_push_button_find_clicked();
     void on_push_button_new_clicked();
     void on_push_button_remove_clicked();
     void on_push_button_duplicate_clicked();

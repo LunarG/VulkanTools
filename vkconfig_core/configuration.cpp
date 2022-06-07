@@ -66,6 +66,10 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
     }
 
+    if (json_configuration_object.value("layers_paths") != QJsonValue::Undefined) {
+        this->user_defined_paths = ReadStringArray(json_configuration_object, "layers_paths");
+    }
+
     // Required configuration layers values
     const QJsonArray& json_layers_array = ReadArray(json_configuration_object, "layers");
     for (int layer_index = 0, layer_count = json_layers_array.size(); layer_index < layer_count; ++layer_index) {
@@ -190,6 +194,13 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     }
     json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
     json_configuration.insert("layers", json_layers);
+
+    QJsonArray json_paths;
+    for (std::size_t i = 0, n = user_defined_paths.size(); i < n; ++i) {
+        json_paths.append(user_defined_paths[i].c_str());
+    }
+    json_configuration.insert("layers_paths", json_paths);
+
     root.insert("configuration", json_configuration);
 
     QJsonDocument doc(root);

@@ -692,6 +692,8 @@ void LayersDialog::accept() {
     saved_configuration->user_defined_paths = this->configuration.user_defined_paths;
     saved_configuration->setting_tree_state.clear();
 
+    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+
     configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
     QDialog::accept();
 }

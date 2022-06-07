@@ -735,22 +735,12 @@ void MainWindow::on_push_button_edit_clicked() {
     Configuration *configuration = configurator.configurations.GetActiveConfiguration();
     assert(configuration != nullptr);
 
+    const std::string configuration_name = configuration->key;
+
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
-        this->SetActiveConfiguration(configuration->key);
         LoadConfigurationList();
     }
-}
-
-void MainWindow::on_push_button_find_clicked() { this->FindLayerPaths(); }
-
-/// Allow addition or removal of custom layer paths. Afterwards reset the list
-/// of loaded layers, but only if something was changed.
-void MainWindow::FindLayerPaths() {
-    UserDefinedPathsDialog dlg(this);
-    dlg.exec();
-
-    LoadConfigurationList();
 }
 
 // Edit the layers for the given configuration.
@@ -811,6 +801,7 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, configuration_name);
+    configurator.request_vulkan_status = true;
     LoadConfigurationList();
 }
 
