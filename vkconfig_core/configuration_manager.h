@@ -68,6 +68,7 @@ class ConfigurationManager {
     bool Empty() const { return available_configurations.empty(); }
 
     bool HasFile(const Configuration& configuration) const;
+    void RemoveConfigurationFile(const std::string& key);
 
     std::vector<Configuration> available_configurations;
 
@@ -76,7 +77,6 @@ class ConfigurationManager {
                                const Version& version, std::string& log_versions, bool is_less) const;
 
     void RemoveConfigurationFiles();
-    void RemoveConfigurationFile(const std::string& key);
 
     void LoadConfigurationsPath(const std::vector<Layer>& available_layers, const char* path);
     void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);

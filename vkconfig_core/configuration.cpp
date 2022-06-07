@@ -39,7 +39,7 @@
 #include <string>
 #include <algorithm>
 
-static const char* SUPPORTED_CONFIG_FILES[] = {"_2_2_2", "_2_2_1"};
+static const char* SUPPORTED_CONFIG_FILES[] = {"_2_2_3", "_2_2_2", "_2_2_1"};
 
 Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
 
