@@ -446,7 +446,8 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     // to ensure the new item is "selected"
     ui->configuration_tree->setCurrentItem(item);
 
-    this->SetActiveConfiguration(item->configuration_name);
+    Configurator::Get().ActivateConfiguration(item->configuration_name);
+    // this->SetActiveConfiguration(item->configuration_name);
 
     UpdateUI();
 }
@@ -456,7 +457,8 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
 
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
     if (configuration_item != nullptr) {
-        this->SetActiveConfiguration(configuration_item->configuration_name);
+        Configurator::Get().ActivateConfiguration(configuration_item->configuration_name);
+        // this->SetActiveConfiguration(configuration_item->configuration_name);
     }
 
     UpdateUI();
@@ -505,13 +507,15 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             item->setText(1, old_name.c_str());
             ui->configuration_tree->blockSignals(false);
 
-            this->SetActiveConfiguration(old_name);
+            configurator.ActivateConfiguration(old_name);
+            // this->SetActiveConfiguration(old_name);
         } else {
             // Rename configuration ; Remove old configuration file ; change the name of the configuration
             std::remove(full_path.c_str());
             configuration->key = configuration_item->configuration_name = new_name;
 
-            this->SetActiveConfiguration(new_name);
+            configurator.ActivateConfiguration(new_name);
+            // this->SetActiveConfiguration(new_name);
 
             LoadConfigurationList();
             SelectConfigurationItem(new_name.c_str());
@@ -540,7 +544,8 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
     _settings_tree_manager.CleanupGUI();
 
     configuration_item->radio_button->setChecked(true);
-    SetActiveConfiguration(configuration_item->configuration_name);
+    configurator.ActivateConfiguration(configuration_item->configuration_name);
+    // SetActiveConfiguration(configuration_item->configuration_name);
 
     _settings_tree_manager.CreateGUI(ui->settings_tree);
 
@@ -755,7 +760,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
 
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
-        this->SetActiveConfiguration(configuration->key);
+        // this->SetActiveConfiguration(configuration->key);
         LoadConfigurationList();
     }
 }
@@ -770,7 +775,7 @@ void MainWindow::NewClicked() {
     LayersDialog dlg(this, new_configuration);
     switch (dlg.exec()) {
         case QDialog::Accepted:
-            this->SetActiveConfiguration(new_configuration.key);
+            // this->SetActiveConfiguration(new_configuration.key);
             break;
         case QDialog::Rejected:
             configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, new_configuration.key);

@@ -178,8 +178,8 @@ void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
 
         const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
         for (int j = 0, o = configuration_files.size(); j < o; ++j) {
-            const std::string filename = configuration_files[j].baseName().toStdString();
-            if (filename == key) {
+            const QString filename = configuration_files[j].fileName();
+            if (filename.toStdString() == key + ".json") {
                 std::remove(configuration_files[j].filePath().toStdString().c_str());
             }
         }

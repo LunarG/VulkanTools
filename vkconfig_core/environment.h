@@ -141,7 +141,7 @@ class Environment {
 
     bool AppendCustomLayerPath(const std::string& path);
     bool RemoveCustomLayerPath(const std::string& path);
-    void SetCustomLayerPaths(const std::vector<std::string>& paths) {
+    void SetUserDefinedLayersPaths(const std::vector<std::string>& paths) {
         std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
         custom_layer_paths_gui.clear();
         for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
