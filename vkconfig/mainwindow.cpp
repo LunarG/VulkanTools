@@ -744,6 +744,15 @@ void MainWindow::on_push_button_edit_clicked() {
     }
 }
 
+/// Allow addition or removal of custom layer paths. Afterwards reset the list
+/// of loaded layers, but only if something was changed.
+void MainWindow::FindLayerPaths() {
+    UserDefinedPathsDialog dlg(this);
+    dlg.exec();
+
+    LoadConfigurationList();
+}
+
 // Edit the layers for the given configuration.
 void MainWindow::EditClicked(ConfigurationListItem *item) {
     assert(item);
@@ -915,6 +924,11 @@ void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
         LoadConfigurationList();
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
+}
+
+void MainWindow::EditCustomPathsClicked(ConfigurationListItem *item) {
+    (void)item;
+    FindLayerPaths();
 }
 
 void MainWindow::editorExpanded(QTreeWidgetItem *item) {
@@ -1370,6 +1384,12 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             reload_default_action->setEnabled(true);
             menu.addAction(reload_default_action);
 
+            menu.addSeparator();
+
+            QAction *custom_path_action = new QAction("Edit Global Layers Paths...", nullptr);
+            custom_path_action->setEnabled(true);
+            menu.addAction(custom_path_action);
+
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
 
@@ -1391,6 +1411,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 ImportClicked(item);
             } else if (action == reload_default_action) {
                 ReloadDefaultClicked(item);
+            } else if (action == custom_path_action) {
+                EditCustomPathsClicked(item);
             } else {
                 return false;  // Unknown action
             }

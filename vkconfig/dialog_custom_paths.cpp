@@ -33,7 +33,7 @@ UserDefinedPathsDialog::UserDefinedPathsDialog(QWidget *parent) : QDialog(parent
 
     Configurator &configurator = Configurator::Get();
     this->layers_paths_saved = this->layers_paths =
-        configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+        configurator.environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL);
     this->RepopulateTree();
 
     ui->buttonBox->setEnabled(!configurator.layers.Empty());
@@ -51,10 +51,10 @@ void UserDefinedPathsDialog::Reload() {
 
 void UserDefinedPathsDialog::SaveLayersPaths(const std::vector<std::string> &layers_paths) {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.ClearCustomLayerPath();
+    configurator.environment.ClearGlobalUserDefinedLayerPaths();
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        configurator.environment.AppendCustomLayerPath(layers_paths[i]);
+        configurator.environment.AppendGlobalUserDefinedLayerPath(layers_paths[i]);
     }
 }
 
