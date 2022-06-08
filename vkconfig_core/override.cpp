@@ -40,7 +40,9 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     assert(!layers_path.empty());
     assert(QFileInfo(layers_path.c_str()).absoluteDir().exists());
 
-    const QStringList& path_gui = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI));
+    const QStringList& path_gui_config =
+        ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI_PER_CONFIG));
+    const QStringList& path_gui_global = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL));
     const QStringList& path_env_set = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_SET));
     const QStringList& path_env_add = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_ADD));
 
@@ -65,7 +67,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         const QFileInfo file(layer->manifest_path.c_str());
         const std::string absolute_path(file.absolutePath().toStdString().c_str());
 
-        if (!path_gui.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
+        if (!path_gui_config.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
+            !path_gui_global.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
             !path_env_set.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
             !path_env_add.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str())) {
             // Make sure the path is not already in the system path list

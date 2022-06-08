@@ -229,7 +229,7 @@ bool Environment::Load() {
     this->default_configuration_filenames = ConvertString(settings.value("default_configuration_files").toStringList());
 
     // Load user-defined paths
-    user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI] =
+    user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL] =
         ConvertString(settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList());
 
     const char* SEPARATOR = GetToken(PARSE_ENV_VAR);
@@ -340,7 +340,7 @@ bool Environment::Save() const {
     }
 
     // Save user-defined paths
-    settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, ConvertString(user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI]));
+    settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, ConvertString(user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL]));
 
     // Save default configuration initizalized
     settings.setValue("default_configuration_files", ConvertString(this->default_configuration_filenames));
@@ -504,10 +504,10 @@ const std::string& Environment::Get(Active active) const { return actives[active
 
 void Environment::Set(Active active, const std::string& key) { actives[active] = key; }
 
-bool Environment::AppendCustomLayerPath(const std::string& path) {
+bool Environment::AppendGlobalUserDefinedLayerPath(const std::string& path) {
     assert(!path.empty());
 
-    std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
+    std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL];
 
     for (std::size_t i = 0, n = custom_layer_paths_gui.size(); i < n; ++i) {
         if (ConvertNativeSeparators(custom_layer_paths_gui[i]) == ConvertNativeSeparators(path)) {
@@ -519,12 +519,12 @@ bool Environment::AppendCustomLayerPath(const std::string& path) {
     return true;
 }
 
-bool Environment::RemoveCustomLayerPath(const std::string& path) {
+bool Environment::RemoveGlobalUserDefinedLayerPath(const std::string& path) {
     assert(!path.empty());
 
     bool found = false;
 
-    std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
+    std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL];
 
     std::vector<std::string> new_custom_layer_paths_gui;
     for (std::size_t i = 0, n = custom_layer_paths_gui.size(); i < n; ++i) {
@@ -540,7 +540,7 @@ bool Environment::RemoveCustomLayerPath(const std::string& path) {
     return found;
 }
 
-void Environment::ClearCustomLayerPath() { user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI].clear(); }
+void Environment::ClearGlobalUserDefinedLayerPaths() { user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL].clear(); }
 
 bool Environment::IsDefaultConfigurationInit(const std::string& default_configuration_filename) const {
     for (std::size_t i = 0, n = default_configuration_filenames.size(); i < n; ++i) {

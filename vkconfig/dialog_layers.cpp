@@ -202,7 +202,7 @@ void LayersDialog::Reload() {
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.available_configurations.clear();
-    configurator.environment.SetUserDefinedLayersPaths(this->configuration.user_defined_paths);
+    configurator.environment.SetPerConfigUserDefinedLayersPaths(this->configuration.user_defined_paths);
 
     configurator.layers.LoadAllInstalledLayers();
     configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
@@ -709,7 +709,7 @@ void LayersDialog::reject() {
     assert(saved_configuration != nullptr);
 
     if (saved_configuration->user_defined_paths != this->configuration.user_defined_paths) {
-        configurator.environment.SetUserDefinedLayersPaths(saved_configuration->user_defined_paths);
+        configurator.environment.SetPerConfigUserDefinedLayersPaths(saved_configuration->user_defined_paths);
         // Restore layers
         this->Reload();
     }

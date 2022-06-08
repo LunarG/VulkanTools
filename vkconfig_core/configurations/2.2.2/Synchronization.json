@@ -3,7 +3,6 @@
     "configuration": {
         "name": "Synchronization",
         "platforms": [
-            "WINDOWS",
             "LINUX",
             "MACOS"
         ],

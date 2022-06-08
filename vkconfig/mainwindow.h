@@ -103,6 +103,7 @@ class MainWindow : public QMainWindow {
     void ExportClicked(ConfigurationListItem *item);
     void ImportClicked(ConfigurationListItem *item);
     void ReloadDefaultClicked(ConfigurationListItem *item);
+    void EditCustomPathsClicked(ConfigurationListItem *item);
 
    public Q_SLOTS:
     void toolsVulkanInfo(bool checked);
@@ -116,6 +117,8 @@ class MainWindow : public QMainWindow {
     void OnHelpVulkanSpec(bool checked);
     void OnHelpLayerSpec(bool checked);
     void OnHelpGPUInfo(bool checked);
+
+    void FindLayerPaths();
 
     void editorExpanded(QTreeWidgetItem *item);
 

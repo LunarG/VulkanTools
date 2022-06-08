@@ -72,10 +72,11 @@ enum { ACTIVE_COUNT = ACTIVE_LAST - ACTIVE_FIRST + 1 };
 enum UserDefinedLayersPaths {
     USER_DEFINED_LAYERS_PATHS_ENV_SET = 0,  // VK_LAYER_PATH
     USER_DEFINED_LAYERS_PATHS_ENV_ADD,      // VK_ADD_LAYER_PATH
-    USER_DEFINED_LAYERS_PATHS_GUI,
+    USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL,
+    USER_DEFINED_LAYERS_PATHS_GUI_PER_CONFIG,
 
     USER_DEFINED_LAYERS_PATHS_FIRST = USER_DEFINED_LAYERS_PATHS_ENV_SET,
-    USER_DEFINED_LAYERS_PATHS_LAST = USER_DEFINED_LAYERS_PATHS_GUI,
+    USER_DEFINED_LAYERS_PATHS_LAST = USER_DEFINED_LAYERS_PATHS_GUI_PER_CONFIG,
 };
 
 enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_DEFINED_LAYERS_PATHS_FIRST + 1 };
@@ -139,16 +140,18 @@ class Environment {
     bool first_run;
     const Version api_version;
 
-    bool AppendCustomLayerPath(const std::string& path);
-    bool RemoveCustomLayerPath(const std::string& path);
-    void SetUserDefinedLayersPaths(const std::vector<std::string>& paths) {
-        std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
+    bool AppendGlobalUserDefinedLayerPath(const std::string& path);
+    bool RemoveGlobalUserDefinedLayerPath(const std::string& path);
+    void ClearGlobalUserDefinedLayerPaths();
+
+    void SetPerConfigUserDefinedLayersPaths(const std::vector<std::string>& paths) {
+        std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI_PER_CONFIG];
         custom_layer_paths_gui.clear();
         for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
             custom_layer_paths_gui.push_back(ConvertNativeSeparators(paths[i]).c_str());
         }
     }
-    void ClearCustomLayerPath();
+
     const std::vector<std::string>& GetUserDefinedLayersPaths(UserDefinedLayersPaths user_defined_layers_paths_id) const {
         return user_defined_layers_paths[user_defined_layers_paths_id];
     }

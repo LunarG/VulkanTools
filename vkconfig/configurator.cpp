@@ -147,8 +147,9 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
     this->environment.Set(ACTIVE_CONFIGURATION, configuration->key.c_str());
 
     // If the layers paths are differents, we need to reload the layers and the configurations
-    if (configuration->user_defined_paths != this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI)) {
-        this->environment.SetUserDefinedLayersPaths(configuration->user_defined_paths);
+    if (configuration->user_defined_paths !=
+        this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI_PER_CONFIG)) {
+        this->environment.SetPerConfigUserDefinedLayersPaths(configuration->user_defined_paths);
         this->layers.LoadAllInstalledLayers();
         this->configurations.LoadAllConfigurations(this->layers.available_layers);
     }
@@ -183,7 +184,7 @@ bool Configurator::SupportApplicationList(Version *return_loader_version) const 
 void Configurator::ResetToDefault(bool hard) {
     if (hard) {
         this->environment.Reset(Environment::CLEAR);
-        this->environment.ClearCustomLayerPath();
+        this->environment.ClearGlobalUserDefinedLayerPaths();
         this->layers.LoadAllInstalledLayers();
         this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
     } else {
