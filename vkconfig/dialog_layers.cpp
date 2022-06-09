@@ -114,7 +114,6 @@ static bool IsDLL32Bit(const std::string full_path) {
 
 LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     : QDialog(parent), configuration(configuration), ui(new Ui::dialog_layers) {
-    assert(parent);
     assert(&configuration);
 
     ui->setupUi(this);

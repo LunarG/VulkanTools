@@ -49,6 +49,7 @@ class ConfigurationManager {
     void SetActiveConfiguration(const std::vector<Layer>& available_layers, Configuration* active_configuration);
     void SetActiveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
     bool HasActiveConfiguration(const std::vector<Layer>& available_layers) const;
+    bool HasSelectConfiguration() const { return this->active_configuration != nullptr; }
 
     void RefreshConfiguration(const std::vector<Layer>& available_layers);
 

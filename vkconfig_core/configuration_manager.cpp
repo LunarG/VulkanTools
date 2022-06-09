@@ -257,8 +257,9 @@ void ConfigurationManager::RefreshConfiguration(const std::vector<Layer> &availa
 }
 
 bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
+    std::string missing_layer;
     if (this->active_configuration != nullptr)
-        return !HasMissingLayer(this->active_configuration->parameters, available_layers);
+        return !HasMissingLayer(this->active_configuration->parameters, available_layers, missing_layer);
     else
         return false;
 }

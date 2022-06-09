@@ -109,6 +109,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             std::string layer_text = parameter.key;
             if (layer == nullptr) {
                 layer_text += " (Missing)";
+                layer_item->setDisabled(true);
             } else if (layer->status != STATUS_STABLE) {
                 layer_text += std::string(" (") + GetToken(layer->status) + ")";
             }
