@@ -66,19 +66,6 @@ void Alert::ApplicationListEmpty() {
     alert.exec();
 }
 
-void Alert::LayerInitFailed() {
-    const std::string message =
-        format("No Vulkan Layers were found in standard paths or in the SDK path. Vulkan Layers are required in order to use %s.",
-               VKCONFIG_NAME);
-
-    QMessageBox alert;
-    alert.QDialog::setWindowTitle("No Vulkan Layers found");
-    alert.setText(message.c_str());
-    alert.setInformativeText("Please select the path where you have your layers located.");
-    alert.setIcon(QMessageBox::Warning);
-    alert.exec();
-}
-
 void Alert::LayerInvalid(const char* path, const char* message) {
     const std::string text = format("%s is not a valid layer manifest. \n\n", path) + message;
 
@@ -120,14 +107,6 @@ void Alert::ConfiguratorSingleton() {
     alert.setIcon(QMessageBox::Critical);
     alert.setText(format("Another copy of %s is currently running.", VKCONFIG_NAME).c_str());
     alert.setInformativeText("Please close the other instance and try again.");
-    alert.exec();
-}
-
-void Alert::ConfiguratorInitFailed() {
-    QMessageBox alert;
-    alert.QDialog::setWindowTitle(VKCONFIG_NAME);
-    alert.setText(format("Could not initialize %s.", VKCONFIG_NAME).c_str());
-    alert.setIcon(QMessageBox::Critical);
     alert.exec();
 }
 

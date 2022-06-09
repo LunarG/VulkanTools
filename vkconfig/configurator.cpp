@@ -24,6 +24,7 @@
 #include "vulkan_util.h"
 
 #include "dialog_custom_paths.h"
+#include "dialog_layers.h"
 
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/path.h"
@@ -61,22 +62,6 @@ bool Configurator::Init() {
     // override app list.
     layers.LoadAllInstalledLayers();
 
-    const bool has_layers = !layers.Empty();
-
-    // If no layers are found, give the user another chance to add some custom paths
-    if (!has_layers) {
-        Alert::LayerInitFailed();
-
-        UserDefinedPathsDialog dlg;
-        dlg.exec();
-    }
-
-    if (!has_layers) {
-        Alert::ConfiguratorInitFailed();
-
-        return false;
-    }
-
     QSettings settings;
     if (settings.value("crashed", QVariant(false)).toBool()) {
         settings.setValue("crashed", false);
@@ -94,45 +79,6 @@ bool Configurator::Init() {
         configurations.FirstDefaultsConfigurations(layers.available_layers);
     }
 
-    if (configurations.HasActiveConfiguration(layers.available_layers)) {
-        Configuration *active_configuration = configurations.GetActiveConfiguration();
-        assert(active_configuration != nullptr);
-
-        if (HasMissingLayer(active_configuration->parameters, layers.available_layers)) {
-            if (settings.value("VKCONFIG_WARN_MISSING_LAYERS_IGNORE").toBool() == false) {
-                QMessageBox alert;
-                alert.QDialog::setWindowTitle(format("%s couldn't find some Vulkan layers...", VKCONFIG_NAME).c_str());
-                alert.setText(format("%s is missing layers", active_configuration->key.c_str()).c_str());
-                alert.setInformativeText("Do you want to add a path to find the layers?");
-                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-                alert.setDefaultButton(QMessageBox::Yes);
-                alert.setIcon(QMessageBox::Warning);
-                alert.setCheckBox(new QCheckBox("Do not show again."));
-                if (alert.exec() == QMessageBox::Yes) {
-                    UserDefinedPathsDialog dlg;
-                    dlg.exec();
-                }
-                if (alert.checkBox()->isChecked()) {
-                    settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", true);
-                }
-            }
-        }
-    }
-
-    /*
-    qputenv("VK_REF_ENUM", "value2");
-    qputenv("VK_REF_FLAGS", "flag0,flag2");
-    qputenv("VK_REF_STRING", "Hello world");
-    qputenv("VK_REF_BOOL", "true");
-    qputenv("VK_REF_LOAD_FILE", "Pouet.txt");
-    qputenv("VK_REF_SAVE_FILE", "Pouet.txt");
-    qputenv("VK_REF_SAVE_FOLDER", "~/VulkanSDK/Pouet");
-    qputenv("VK_REF_INT", "76");
-    qputenv("VK_REF_FLOAT", "0.9999");
-    qputenv("VK_REF_FRAMES", "75-76,82");
-    qputenv("VK_REF_LIST", "76,stringB");
-    */
-
     return true;
 }
 
@@ -147,13 +93,32 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
     this->environment.Set(ACTIVE_CONFIGURATION, configuration->key.c_str());
 
     // If the layers paths are differents, we need to reload the layers and the configurations
-    if (configuration->user_defined_paths !=
-        this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI_PER_CONFIG)) {
+    if (configuration->user_defined_paths != this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI)) {
         this->environment.SetPerConfigUserDefinedLayersPaths(configuration->user_defined_paths);
         this->layers.LoadAllInstalledLayers();
         this->configurations.LoadAllConfigurations(this->layers.available_layers);
     }
     this->configurations.RefreshConfiguration(this->layers.available_layers);
+
+    std::string missing_layer;
+    if (HasMissingLayer(configuration->parameters, layers.available_layers, missing_layer)) {
+        QMessageBox alert;
+        alert.QDialog::setWindowTitle("Vulkan layer missing...");
+        alert.setText(format("%s couldn't find '%s' layer required by '%s' configuration:", VKCONFIG_NAME, missing_layer.c_str(),
+                             configuration->key.c_str())
+                          .c_str());
+        alert.setInformativeText("Do you want to edit the configuration to locate the layer?");
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::Yes);
+        alert.setIcon(QMessageBox::Warning);
+        if (alert.exec() == QMessageBox::Yes) {
+            LayersDialog dlg(nullptr, *configuration);
+            dlg.exec();
+
+            ActivateConfiguration(configuration->key);
+        }
+    }
+
     this->request_vulkan_status = true;
 }
 
@@ -184,7 +149,6 @@ bool Configurator::SupportApplicationList(Version *return_loader_version) const 
 void Configurator::ResetToDefault(bool hard) {
     if (hard) {
         this->environment.Reset(Environment::CLEAR);
-        this->environment.ClearGlobalUserDefinedLayerPaths();
         this->layers.LoadAllInstalledLayers();
         this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
     } else {

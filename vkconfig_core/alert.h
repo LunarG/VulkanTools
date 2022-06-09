@@ -32,13 +32,11 @@ struct Alert {
     static void ApplicationListUnsupported(const char* message);
     static void ApplicationListEmpty();
 
-    static void LayerInitFailed();
     static void LayerInvalid(const char* path, const char* message);
     static QMessageBox::Button LayerImplicitExcluded(const char* layer_name);
     static QMessageBox::Button LayerProfiles();
 
     static void ConfiguratorSingleton();
-    static void ConfiguratorInitFailed();
     static void ConfiguratorRestart();
     static QMessageBox::Button ConfiguratorResetAll();
     static QMessageBox::Button ConfiguratorReloadDefault();

@@ -176,10 +176,7 @@ std::string GenerateVulkanStatus() {
 
     log += "- User-Defined Layers locations:\n";
     log += GetUserDefinedLayersPathsLog("VK_LAYER_PATH variable", USER_DEFINED_LAYERS_PATHS_ENV_SET);
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        log += GetUserDefinedLayersPathsLog("Per-configuration paths", USER_DEFINED_LAYERS_PATHS_GUI_PER_CONFIG);
-        log += GetUserDefinedLayersPathsLog("Global paths", USER_DEFINED_LAYERS_PATHS_GUI_GLOBAL);
-    }
+    log += GetUserDefinedLayersPathsLog("Per-configuration paths", USER_DEFINED_LAYERS_PATHS_GUI);
     log += GetUserDefinedLayersPathsLog("VK_ADD_LAYER_PATH variable", USER_DEFINED_LAYERS_PATHS_ENV_ADD);
 
     const std::string layer_settings_path(qgetenv("VK_LAYER_SETTINGS_PATH"));
