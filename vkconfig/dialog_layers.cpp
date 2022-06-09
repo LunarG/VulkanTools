@@ -20,7 +20,6 @@
  */
 
 #include "dialog_layers.h"
-#include "dialog_custom_paths.h"
 
 #include "configurator.h"
 

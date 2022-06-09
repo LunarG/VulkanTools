@@ -23,7 +23,6 @@
 #include "configurator.h"
 #include "vulkan_util.h"
 
-#include "dialog_custom_paths.h"
 #include "dialog_layers.h"
 
 #include "../vkconfig_core/util.h"
