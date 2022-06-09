@@ -26,7 +26,6 @@
 #include "dialog_vulkan_info.h"
 #include "dialog_layers.h"
 #include "dialog_applications.h"
-#include "dialog_custom_paths.h"
 
 #include "configurator.h"
 #include "vulkan_util.h"
