@@ -228,30 +228,26 @@ bool Environment::Load() {
     // Load default configuration already init
     this->default_configuration_filenames = ConvertString(settings.value("default_configuration_files").toStringList());
 
-    // Load user-defined paths
-    user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI] =
-        ConvertString(settings.value(VKCONFIG_KEY_CUSTOM_PATHS).toStringList());
-
     const char* SEPARATOR = GetToken(PARSE_ENV_VAR);
 
     // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
     const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
     if (!VK_LAYER_PATH.isEmpty()) {
-        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET] =
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET] =
             ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(SEPARATOR));
     } else {
-        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
     }
 
     // See if the VK_ADD_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
     const QString VK_ADD_LAYER_PATH(qgetenv("VK_ADD_LAYER_PATH"));
     if (!VK_ADD_LAYER_PATH.isEmpty()) {
-        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD] =
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD] =
             ConvertString(QString(qgetenv("VK_ADD_LAYER_PATH")).split(SEPARATOR));
     } else {
-        user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
     }
 
     // Load application list
@@ -338,9 +334,6 @@ bool Environment::Save() const {
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
         settings.setValue(GetLayoutStateToken(static_cast<LayoutState>(i)), layout_states[i]);
     }
-
-    // Save user-defined paths
-    settings.setValue(VKCONFIG_KEY_CUSTOM_PATHS, ConvertString(user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI]));
 
     // Save default configuration initizalized
     settings.setValue("default_configuration_files", ConvertString(this->default_configuration_filenames));
