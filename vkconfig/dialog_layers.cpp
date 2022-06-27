@@ -688,15 +688,16 @@ void LayersDialog::accept() {
         configurator.configurations.RemoveConfigurationFile(saved_configuration->key);
     }
 
-    saved_configuration->key = ui->lineEditName->text().toStdString();
+    const std::string active_configuration_name = saved_configuration->key = ui->lineEditName->text().toStdString();
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
     saved_configuration->parameters = this->configuration.parameters;
     saved_configuration->user_defined_paths = this->configuration.user_defined_paths;
     saved_configuration->setting_tree_state.clear();
 
     configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
 
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, saved_configuration);
+    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration_name.c_str());
     QDialog::accept();
 }
 
