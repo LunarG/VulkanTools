@@ -503,6 +503,8 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             // Rename configuration ; Remove old configuration file ; change the name of the configuration
             configurator.configurations.RemoveConfigurationFile(old_name);
             configuration->key = configuration_item->configuration_name = new_name;
+            configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+            configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
 
             configurator.ActivateConfiguration(new_name);
 
