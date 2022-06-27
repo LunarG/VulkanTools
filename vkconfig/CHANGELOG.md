@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.0](https://github.com/LunarG/VulkanTools/tree/master) - Aout 2022
+## [Vulkan Configurator 2.5.0](https://github.com/LunarG/VulkanTools/tree/master) - August 2022
 
 ### Features:
 - Add per layers-configuration user-defined layers paths #1711
