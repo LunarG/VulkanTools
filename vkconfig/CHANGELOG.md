@@ -18,6 +18,7 @@
 
 ### Improvements:
 - Add reordering of configurations when renaming a configuration
+- Improve handling of missing layers
 
 ## [Vulkan Configurator 2.4.6](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.216.0) - June 2022
 
