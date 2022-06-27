@@ -67,7 +67,24 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
     }
 
     if (json_configuration_object.value("layers_paths") != QJsonValue::Undefined) {
-        this->user_defined_paths = ReadStringArray(json_configuration_object, "layers_paths");
+        std::vector<std::string> paths = ReadStringArray(json_configuration_object, "layers_paths");
+        for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
+            const QFileInfo info(paths[i].c_str());
+            if (info.exists()) {
+                this->user_defined_paths.push_back(paths[i]);
+            } else {
+                QMessageBox alert;
+                alert.QDialog::setWindowTitle("User-defined layer path doesn't exist");
+                alert.setText(format("'%s' user-defined layer path doesn't exist.", paths[i].c_str()).c_str());
+                alert.setInformativeText(
+                    format("'%s' configuration specifies this path, some expected layers might not be found.", this->key.c_str())
+                        .c_str());
+                alert.setStandardButtons(QMessageBox::Ok);
+                alert.setDefaultButton(QMessageBox::Ok);
+                alert.setIcon(QMessageBox::Warning);
+                alert.exec();
+            }
+        }
     }
 
     // Required configuration layers values

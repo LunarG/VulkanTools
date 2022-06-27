@@ -78,6 +78,10 @@ bool Configurator::Init() {
         configurations.FirstDefaultsConfigurations(layers.available_layers);
     }
 
+    const std::string configuration_name = this->environment.Get(ACTIVE_CONFIGURATION);
+    this->environment.Set(ACTIVE_CONFIGURATION, "");  // Force ActivateConfiguration
+    this->ActivateConfiguration(configuration_name);
+
     return true;
 }
 
@@ -92,7 +96,8 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
     this->environment.Set(ACTIVE_CONFIGURATION, configuration->key.c_str());
 
     // If the layers paths are differents, we need to reload the layers and the configurations
-    if (configuration->user_defined_paths != this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI)) {
+    const std::vector<std::string> paths = this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+    if (configuration->user_defined_paths != paths) {
         this->environment.SetPerConfigUserDefinedLayersPaths(configuration->user_defined_paths);
         this->layers.LoadAllInstalledLayers();
         this->configurations.LoadAllConfigurations(this->layers.available_layers);

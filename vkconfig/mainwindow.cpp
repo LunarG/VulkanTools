@@ -123,10 +123,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter_2->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER2));
     ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
 
-    const std::string configuration_name = environment.Get(ACTIVE_CONFIGURATION);
-    environment.Set(ACTIVE_CONFIGURATION, "");  // Force ActivateConfiguration
-    configurator.ActivateConfiguration(configuration_name);
-
     LoadConfigurationList();
 
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
