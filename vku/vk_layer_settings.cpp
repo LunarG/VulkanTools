@@ -198,11 +198,6 @@ static std::string string_toupper(const std::string &s) {
     return result;
 }
 
-VK_LAYER_EXPORT const char *GetLayerEnvVar(const char *setting_env) {
-    vk_layer_settings.vk_layer_disables_env_var = GetEnvironment(setting_env);
-    return vk_layer_settings.vk_layer_disables_env_var.c_str();
-}
-
 static std::string TrimPrefix(const std::string &layer_key) {
     assert(layer_key.find("VK_LAYER_") == 0);
     std::size_t prefix = std::strlen("VK_LAYER_");
@@ -299,7 +294,7 @@ VK_LAYER_EXPORT bool IsLayerSetting(const char *layer_key, const char *setting_k
 static std::string GetLayerSettingData(const char *layer_key, const char *setting_key) {
     // First search in the environment variables
     for (int i = TRIM_FIRST, n = TRIM_LAST; i <= n; ++i) {
-        std::string setting = GetLayerEnvVar(GetEnvVarKey(layer_key, setting_key, static_cast<TrimMode>(i)).c_str());
+        std::string setting = GetEnvironment(GetEnvVarKey(layer_key, setting_key, static_cast<TrimMode>(i)).c_str());
         if (!setting.empty()) return setting;
     }
 
