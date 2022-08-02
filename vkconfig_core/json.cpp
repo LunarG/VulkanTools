@@ -40,7 +40,6 @@ QJsonDocument ParseJsonFile(const char* file) {
         }
         return json_document;
     } else {
-        Alert::FileNotFound(file);
         return QJsonDocument();
     }
 }
