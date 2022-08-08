@@ -110,12 +110,12 @@
                     {
                         "key": "profile_file",
                         "type": "LOAD_FILE",
-                        "value": "${VULKAN_CONTENT}/VK_LAYER_KHRONOS_profiles/VP_LUNARG_desktop_baseline_2022_subset.json"
+                        "value": "${VULKAN_CONTENT}/VK_LAYER_KHRONOS_profiles/VP_LUNARG_desktop_portability_2022.json"
                     },
                     {
                         "key": "profile_name",
                         "type": "ENUM",
-                        "value": "VP_LUNARG_desktop_baseline_2022_subset"
+                        "value": "VP_LUNARG_desktop_portability_2022"
                     }
                 ],
                 "state": "OVERRIDDEN"
