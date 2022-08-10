@@ -1574,7 +1574,7 @@ void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
     if (nullptr == settings_stream || settings_stream->fail()) {
         // No file was found.  This is NOT an error.
         PrintTableElement(ConvertPathFormat(settings_file));
-        PrintTableElement("Failed to open settings file");
+        PrintTableElement("File not found");
         PrintTableElement("");
         PrintEndTableRow();
     } else {
