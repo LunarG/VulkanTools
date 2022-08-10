@@ -2019,7 +2019,6 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
 
     BeginSection("External Tests");
     if (_found_sdk) {
-        bool found_exe = false;
         std::string cube_exe;
         std::string full_cmd;
         std::string path = "";
@@ -2065,11 +2064,6 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
             full_cmd = cube_exe;
             full_cmd += " --c 100 --suppress_popups";
             int test_result = RunTestInDirectory(path, cube_exe, full_cmd);
-            if (test_result == 0) {
-                found_exe = true;
-            } else {
-                continue;
-            }
 
             PrintBeginTable("Cube", 2);
 
@@ -2105,15 +2099,6 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
             // Make it this far, we shouldn't test anymore
             break;
         }
-
-        if (!found_exe) {
-            res = VIA_TEST_FAILED;
-            PrintBeginTableRow();
-            PrintTableElement("Failed to find either \'vkcube\' or \'cube\' executables");
-            PrintTableElement("FAILURE");
-            PrintEndTableRow();
-        }
-
         PrintEndTable();
     } else {
         PrintStandardText("No SDK found by VIA, skipping test section");
