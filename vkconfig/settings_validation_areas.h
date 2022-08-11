@@ -99,6 +99,9 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_shader_gpu_indirect;
     QCheckBox *widget_shader_gpu_indirect;
 
+    QTreeWidgetItem *item_shader_dispatch_indirect;
+    QCheckBox *widget_shader_dispatch_indirect;
+
     QTreeWidgetItem *item_shader_gpu_vma_linear_output;
     QCheckBox *widget_shader_gpu_vma_linear_output;
 
@@ -152,6 +155,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     void OnShaderGPUDescIndexingChecked(bool checked);
     void OnShaderGPUOOBChecked(bool checked);
     void OnShaderGPUIndirectChecked(bool checked);
+    void OnShaderDispatchIndirectChecked(bool checked);
     void OnShaderGPUVMALinearOutput(bool checked);
 
     void OnShaderPrintfChecked(bool checked);
