@@ -51,6 +51,7 @@ static const char *TOKEN_SHADER_GPU_RESERVE = "VK_VALIDATION_FEATURE_ENABLE_GPU_
 static const char *TOKEN_SHADER_PRINTF = "VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT";
 
 static const char *TOKEN_SYNC = "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT";
+static const char *TOKEN_SYNC_QUEUE_SUBMIT = "VALIDATION_CHECK_ENABLE_SYNCHRONIZATION_VALIDATION_QUEUE_SUBMIT";
 
 static const char *TOKEN_BEST = "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT";
 static const char *TOKEN_BEST_ARM = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM";
@@ -132,6 +133,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
 
       item_sync(nullptr),
       widget_sync(nullptr),
+      item_sync_queue_submit(nullptr),
+      widget_sync_queue_submit(nullptr),
       item_best(nullptr),
       widget_best(nullptr),
       item_best_arm(nullptr),
@@ -406,6 +409,11 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     this->widget_sync = this->CreateWidget(this->item, &this->item_sync, "enables", TOKEN_SYNC);
     if (this->widget_sync != nullptr) {
         this->connect(this->widget_sync, SIGNAL(clicked(bool)), this, SLOT(OnSyncChecked(bool)));
+
+        this->widget_sync_queue_submit =
+            this->CreateWidget(this->item_sync, &this->item_sync_queue_submit, "enables", TOKEN_SYNC_QUEUE_SUBMIT);
+        if (this->widget_sync_queue_submit != nullptr)
+            this->connect(this->widget_sync_queue_submit, SIGNAL(clicked(bool)), this, SLOT(OnSyncQueueSubmitChecked(bool)));
     }
 
     // Best Practices
@@ -614,6 +622,11 @@ void WidgetSettingValidation::OnSyncChecked(bool checked) {
     }
 
     this->UpdateFlag("enables", TOKEN_SYNC, checked);
+    this->OnSettingChanged();
+}
+
+void WidgetSettingValidation::OnSyncQueueSubmitChecked(bool checked) {
+    this->UpdateFlag("enables", TOKEN_SYNC_QUEUE_SUBMIT, checked);
     this->OnSettingChanged();
 }
 
@@ -865,6 +878,13 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
 
     if (this->widget_sync != nullptr && refresh_areas == REFRESH_ENABLE_AND_STATE) {
         this->widget_sync->setChecked(HasDataFlag("enables", TOKEN_SYNC));
+    }
+
+    if (this->widget_sync_queue_submit != nullptr && refresh_areas == REFRESH_ENABLE_AND_STATE) {
+        this->widget_sync_queue_submit->setChecked(HasDataFlag("enables", TOKEN_SYNC));
+        if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+            this->widget_sync_queue_submit->setChecked(HasDataFlag("enables", TOKEN_SYNC_QUEUE_SUBMIT));
+        }
     }
 
     if (this->widget_best != nullptr && refresh_areas == REFRESH_ENABLE_AND_STATE) {

@@ -120,6 +120,9 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_sync;
     QCheckBox *widget_sync;
 
+    QTreeWidgetItem *item_sync_queue_submit;
+    QCheckBox *widget_sync_queue_submit;
+
     QTreeWidgetItem *item_best;
     QCheckBox *widget_best;
 
@@ -163,6 +166,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     void OnShaderPrintfVerboseChecked(bool checked);
 
     void OnSyncChecked(bool checked);
+    void OnSyncQueueSubmitChecked(bool checked);
 
     void OnBestChecked(bool checked);
     void OnBestArmChecked(bool checked);
