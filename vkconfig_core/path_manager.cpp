@@ -64,7 +64,10 @@ static const DirectoryDesc& GetDesc(PathType directory) {
 PathManager::PathManager(const std::string& VULKAN_SDK) {
     const bool result = Load();
 
-    this->SetPath(PATH_VULKAN_SDK, VULKAN_SDK.empty() ? qgetenv("VULKAN_SDK").toStdString() : VULKAN_SDK);
+    const std::string path = VULKAN_SDK.empty() ? qgetenv("VULKAN_SDK").toStdString() : VULKAN_SDK;
+    if (!path.empty()) {
+        this->SetPath(PATH_VULKAN_SDK, path);
+    }
 
     assert(result);
 }
