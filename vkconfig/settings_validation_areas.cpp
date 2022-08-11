@@ -65,13 +65,15 @@ QCheckBox *WidgetSettingValidation::CreateWidget(QTreeWidgetItem *parent, QTreeW
         return nullptr;
     }
 
+    const std::string status = value->status == STATUS_STABLE ? "" : std::string(" (") + GetToken(value->status) + ")";
+
     *item = new QTreeWidgetItem();
     (*item)->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     parent->addChild(*item);
     (*item)->setExpanded(true);
 
     QCheckBox *widget = new QCheckBox(this);
-    widget->setText(value->label.c_str());
+    widget->setText((value->label + status).c_str());
     widget->setToolTip(value->description.c_str());
     this->tree->setItemWidget(*item, 0, widget);
     return widget;
@@ -880,8 +882,8 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
         this->widget_sync->setChecked(HasDataFlag("enables", TOKEN_SYNC));
     }
 
-    if (this->widget_sync_queue_submit != nullptr && refresh_areas == REFRESH_ENABLE_AND_STATE) {
-        this->widget_sync_queue_submit->setChecked(HasDataFlag("enables", TOKEN_SYNC));
+    if (this->widget_sync_queue_submit != nullptr) {
+        this->widget_sync_queue_submit->setEnabled(HasDataFlag("enables", TOKEN_SYNC));
         if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
             this->widget_sync_queue_submit->setChecked(HasDataFlag("enables", TOKEN_SYNC_QUEUE_SUBMIT));
         }
