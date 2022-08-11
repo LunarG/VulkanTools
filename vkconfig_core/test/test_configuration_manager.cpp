@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 
 TEST(test_configuration_manager, create_remove) {
-    PathManager path_manager;
+    PathManager path_manager("");
     Environment environment(path_manager);
     environment.Reset(Environment::DEFAULT);
 

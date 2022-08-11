@@ -61,7 +61,8 @@ static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parame
 
 struct TestBuilin {
     TestBuilin(const char* layers_version, const char* configurations_version)
-        : layers_version(layers_version),
+        : paths(""),
+          layers_version(layers_version),
           configurations_version(configurations_version),
           environment(paths),
           layer_manager(environment) {
