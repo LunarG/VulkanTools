@@ -33,16 +33,17 @@ enum PathType {
     PATH_WORKING_DIR,               // The last path used as a working directory
     PATH_LAUNCHER_LOG_FILE,         // The last path used by the user to set the launcher log file
     PATH_USER_DEFINED_LAYERS_GUI,   // The last user-defined layers path
+    PATH_VULKAN_SDK,                // Path of the Vulkan SDK
 
     PATH_FIRST = PATH_IMPORT_CONFIGURATION,
-    PATH_LAST = PATH_USER_DEFINED_LAYERS_GUI
+    PATH_LAST = PATH_VULKAN_SDK
 };
 
 enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };
 
 class PathManager {
    public:
-    PathManager();
+    PathManager(const std::string& VULKAN_SDK);
     ~PathManager();
 
     bool Load();

@@ -24,7 +24,16 @@
 #include <string>
 #include <vector>
 
-enum CommandType { COMMAND_NONE = 0, COMMAND_SHOW_USAGE, COMMAND_VERSION, COMMAND_GUI, COMMAND_RESET, COMMAND_LAYERS, COMMAND_DOC};
+enum CommandType {
+    COMMAND_NONE = 0,
+    COMMAND_SHOW_USAGE,
+    COMMAND_VERSION,
+    COMMAND_GUI,
+    COMMAND_RESET,
+    COMMAND_LAYERS,
+    COMMAND_DOC,
+    COMMAND_VULKAN_SDK
+};
 
 enum CommandLayersArg {
     COMMAND_LAYERS_NONE = 0,
@@ -34,12 +43,7 @@ enum CommandLayersArg {
     COMMAND_LAYERS_VERBOSE
 };
 
-enum CommandDocArg {
-    COMMAND_DOC_NONE = 0,
-    COMMAND_DOC_HTML,
-    COMMAND_DOC_MARKDOWN,
-    COMMAND_DOC_SETTINGS
-};
+enum CommandDocArg { COMMAND_DOC_NONE = 0, COMMAND_DOC_HTML, COMMAND_DOC_MARKDOWN, COMMAND_DOC_SETTINGS };
 
 enum CommandResetArg { COMMAND_RESET_NONE = 0, COMMAND_RESET_SOFT, COMMAND_RESET_HARD };
 
@@ -67,6 +71,7 @@ class CommandLine {
     const CommandLayersArg& command_layers_arg;
     const std::string& layers_configuration_path;
     const CommandDocArg& command_doc_arg;
+    const std::string& command_vulkan_sdk;
     const std::string& doc_layer_name;
     const std::string& doc_out_dir;
 
@@ -82,6 +87,7 @@ class CommandLine {
     CommandLayersArg _command_layers_arg;
     std::string _layers_configuration_path;
     CommandDocArg _command_doc_arg;
+    std::string _command_vulkan_sdk;
     std::string _doc_layer_name;
     std::string _doc_out_dir;
 

@@ -153,7 +153,7 @@ std::string GenerateVulkanStatus() {
     }
 
     // Check Vulkan SDK path
-    const std::string search_path(qgetenv("VULKAN_SDK"));
+    const std::string search_path(configurator.path.GetPath(PATH_VULKAN_SDK));
     if (!search_path.empty())
         log += format("- VULKAN_SDK environment variable: %s\n", search_path.c_str());
     else

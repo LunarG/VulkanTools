@@ -96,6 +96,12 @@ enum LoaderMessageLevel {
 
 enum { LOADER_MESSAGE_COUNT = LOADER_MESSAGE_LAST - LOADER_MESSAGE_FIRST + 1 };
 
+struct DefaultApplication {
+    std::string name;
+    std::string key;
+    std::string arguments;
+};
+
 class Environment {
    public:
     Environment(PathManager& paths, const Version& api_version = Version::VKHEADER);
@@ -154,6 +160,9 @@ class Environment {
     bool IsDefaultConfigurationInit(const std::string& configuration_filename) const;
     void InitDefaultConfiguration(const std::string& configuration_filename);
 
+    // Search for all the applications in the list, an remove the application which executable can't be found
+    std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications) const;
+
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
@@ -171,20 +180,19 @@ class Environment {
 
     std::vector<std::string> default_configuration_filenames;
 
+    // Update default applications path to use relative path (really useful only on Windows)
+    std::vector<Application> UpdateDefaultApplications(const std::vector<Application>& applications) const;
+
+    // Create a list of default applications, eg vkcube
+    std::vector<Application> CreateDefaultApplications() const;
+    Application CreateDefaultApplication(const DefaultApplication& default_application) const;
+    std::string GetDefaultExecutablePath(const std::string& executable_name) const;
+
    public:
     const PathManager& paths;
 };
 
 bool ExactExecutableFromAppBundle(std::string& path);
-
-// Search for all the applications in the list, an remove the application which executable can't be found
-std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications);
-
-// Create a list of default applications, eg vkcube
-std::vector<Application> CreateDefaultApplications();
-
-// Update default applications path to use relative path (really useful only on Windows)
-std::vector<Application> UpdateDefaultApplications(const std::vector<Application>& applications);
 
 LoaderMessageLevel GetLoaderDebug(const std::string& value);
 std::string GetLoaderDebugToken(LoaderMessageLevel level);

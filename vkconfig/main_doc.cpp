@@ -25,8 +25,8 @@
 
 #include <cassert>
 
-int run_doc_html(const CommandLine& commandLine) {
-    PathManager paths;
+int run_doc_html(const CommandLine& command_line) {
+    PathManager paths(command_line.command_vulkan_sdk);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -35,19 +35,19 @@ int run_doc_html(const CommandLine& commandLine) {
 
     for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
         const Layer& layer = layers.available_layers[i];
-        if (layer.key == commandLine.doc_layer_name) {
-            const std::string path = format("%s/%s.html", commandLine.doc_out_dir.c_str(), layer.key.c_str());
+        if (layer.key == command_line.doc_layer_name) {
+            const std::string path = format("%s/%s.html", command_line.doc_out_dir.c_str(), layer.key.c_str());
             ExportHtmlDoc(layer, path);
             return 0;
         }
     }
-    fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
+    fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
     fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
     return -1;
 }
 
-int run_doc_markdown(const CommandLine& commandLine) {
-    PathManager paths;
+int run_doc_markdown(const CommandLine& command_line) {
+    PathManager paths(command_line.command_vulkan_sdk);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -56,20 +56,20 @@ int run_doc_markdown(const CommandLine& commandLine) {
 
     for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
         const Layer& layer = layers.available_layers[i];
-        if (layer.key == commandLine.doc_layer_name) {
-            const std::string path = format("%s/%s.md", commandLine.doc_out_dir.c_str(), layer.key.c_str());
+        if (layer.key == command_line.doc_layer_name) {
+            const std::string path = format("%s/%s.md", command_line.doc_out_dir.c_str(), layer.key.c_str());
             ExportMarkdownDoc(layer, path);
             return 0;
         }
     }
-    fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
+    fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
     fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
     return -1;
 }
 
-int run_doc_settings(const CommandLine& commandLine) {
+int run_doc_settings(const CommandLine& command_line) {
     int rval = 0;
-    PathManager paths;
+    PathManager paths(command_line.command_vulkan_sdk);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
     ConfigurationManager configuration_manager(environment);
@@ -77,17 +77,17 @@ int run_doc_settings(const CommandLine& commandLine) {
     LayerManager layers(environment);
     Layer* layer;
 
-    layers.LoadLayer(commandLine.doc_layer_name);
-    layer = FindByKey(layers.available_layers, commandLine.doc_layer_name.c_str());
+    layers.LoadLayer(command_line.doc_layer_name);
+    layer = FindByKey(layers.available_layers, command_line.doc_layer_name.c_str());
     if (!layer) {
-        fprintf(stderr, "vkconfig: Could not load layer %s\n", commandLine.doc_layer_name.c_str());
+        fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
         fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
         return -1;
     }
     config = configuration_manager.CreateConfiguration(layers.available_layers, "Config");
     config.parameters = GatherParameters(config.parameters, layers.available_layers);
     config.parameters[0].state = LAYER_STATE_OVERRIDDEN;
-    ExportSettingsDoc(layers.available_layers, config, commandLine.doc_out_dir + "/vk_layer_settings.txt");
+    ExportSettingsDoc(layers.available_layers, config, command_line.doc_out_dir + "/vk_layer_settings.txt");
 
     return rval;
 }

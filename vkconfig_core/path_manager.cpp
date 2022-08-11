@@ -54,14 +54,18 @@ static const DirectoryDesc& GetDesc(PathType directory) {
         {nullptr, "lastWorkingDirPath", nullptr, PATH_EXECUTABLE},            // PATH_EXECUTABLE
         {".txt", "lastLauncherLogFile", "log", PATH_LAUNCHER_LOG_FILE},       // PATH_LAUNCHER_LOG_FILE
         {".json", "lastLayersPaths", nullptr, PATH_USER_DEFINED_LAYERS_GUI},  // PATH_USER_DEFINED_LAYERS_GUI
+        {nullptr, "vulkan_sdk", nullptr, PATH_VULKAN_SDK}                     // PATH_VULKAN_SDK
     };
     static_assert(countof(table) == PATH_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[directory];
 }
 
-PathManager::PathManager() {
+PathManager::PathManager(const std::string& VULKAN_SDK) {
     const bool result = Load();
+
+    this->SetPath(PATH_VULKAN_SDK, VULKAN_SDK.empty() ? qgetenv("VULKAN_SDK").toStdString() : VULKAN_SDK);
+
     assert(result);
 }
 

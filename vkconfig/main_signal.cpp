@@ -36,7 +36,7 @@ void SurrenderConfiguration(int signal) {
         settings.setValue("crashed", true);
     }
 
-    PathManager paths;
+    PathManager paths("");
     Environment environment(paths);
 
     SurrenderConfiguration(environment);
