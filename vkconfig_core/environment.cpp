@@ -612,7 +612,7 @@ static std::string GetDefaultExecutablePath(const std::string& executable_name) 
         }
     }
 
-    return "";
+    return "./" + executable_name;
 }
 
 struct DefaultApplication {
