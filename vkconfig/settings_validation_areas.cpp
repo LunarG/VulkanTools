@@ -116,6 +116,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       widget_shader_gpu_desc_indexing(nullptr),
       item_shader_gpu_indirect(nullptr),
       widget_shader_gpu_indirect(nullptr),
+      item_shader_dispatch_indirect(nullptr),
+      widget_shader_dispatch_indirect(nullptr),
       item_shader_gpu_vma_linear_output(nullptr),
       widget_shader_gpu_vma_linear_output(nullptr),
       item_shader_printf(nullptr),
@@ -294,6 +296,23 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                     this->tree->setItemWidget(this->item_shader_gpu_indirect, 0, this->widget_shader_gpu_indirect);
                     this->connect(this->widget_shader_gpu_indirect, SIGNAL(clicked(bool)), this,
                                   SLOT(OnShaderGPUIndirectChecked(bool)));
+                }
+            }
+
+            {
+                const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "validate_dispatch_indirect");
+                if (IsSupported(value)) {
+                    this->item_shader_dispatch_indirect = new QTreeWidgetItem();
+                    this->item_shader_dispatch_indirect->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                    this->item_shader_gpu->addChild(this->item_shader_dispatch_indirect);
+                    this->item_shader_gpu->setExpanded(true);
+
+                    this->widget_shader_dispatch_indirect = new QCheckBox(this);
+                    this->widget_shader_dispatch_indirect->setText(value->label.c_str());
+                    this->widget_shader_dispatch_indirect->setToolTip(value->description.c_str());
+                    this->tree->setItemWidget(this->item_shader_dispatch_indirect, 0, this->widget_shader_dispatch_indirect);
+                    this->connect(this->widget_shader_dispatch_indirect, SIGNAL(clicked(bool)), this,
+                                  SLOT(OnShaderDispatchIndirectChecked(bool)));
                 }
             }
 
@@ -562,6 +581,11 @@ void WidgetSettingValidation::OnShaderGPUIndirectChecked(bool checked) {
     this->OnSettingChanged();
 }
 
+void WidgetSettingValidation::OnShaderDispatchIndirectChecked(bool checked) {
+    static_cast<SettingDataBool *>(FindSetting(this->data_set, "validate_dispatch_indirect"))->value = checked;
+    this->OnSettingChanged();
+}
+
 void WidgetSettingValidation::OnShaderGPUVMALinearOutput(bool checked) {
     static_cast<SettingDataBool *>(FindSetting(this->data_set, "vma_linear_output"))->value = checked;
     this->OnSettingChanged();
@@ -792,6 +816,12 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
                 this->widget_shader_gpu_indirect->setEnabled(shader_gpu);
                 if (refresh_areas == REFRESH_ENABLE_AND_STATE)
                     this->widget_shader_gpu_indirect->setChecked(this->HasDataBool("validate_draw_indirect"));
+            }
+
+            if (this->widget_shader_dispatch_indirect != nullptr) {
+                this->widget_shader_dispatch_indirect->setEnabled(shader_gpu);
+                if (refresh_areas == REFRESH_ENABLE_AND_STATE)
+                    this->widget_shader_dispatch_indirect->setChecked(this->HasDataBool("validate_dispatch_indirect"));
             }
 
             if (this->widget_shader_gpu_vma_linear_output != nullptr) {
