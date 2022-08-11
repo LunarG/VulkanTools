@@ -44,7 +44,7 @@ TEST(test_override, write_erase_2_2_2) {
     const std::string LAYERS("/override_layers_2_2_2_schema_1_2_1.json");
     const std::string SETTINGS("/override_settings_2_2_2_schema_1_2_1.txt");
 
-    PathManager paths;
+    PathManager paths("");
     Environment env(paths, Version(1, 2, 170));
     env.Reset(Environment::DEFAULT);
 
@@ -101,7 +101,7 @@ TEST(test_override, write_erase_2_2_2) {
 TEST(test_override, vk_layer_settings_txt) {
     const char* LAYER = "VK_LAYER_LUNARG_reference_1_2_1";
 
-    PathManager paths;
+    PathManager paths("");
     Environment env(paths, Version(1, 2, 162));
     env.Reset(Environment::DEFAULT);
 
@@ -202,7 +202,7 @@ TEST(test_override, vk_layer_settings_txt) {
 TEST(test_override, env_var) {
     const char* LAYER = "VK_LAYER_LUNARG_reference_1_2_1";
 
-    PathManager paths;
+    PathManager paths("");
     Environment env(paths, Version(1, 2, 162));
     env.Reset(Environment::DEFAULT);
 

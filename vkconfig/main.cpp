@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
             return run_reset(argc, argv, command_line);
         }
         case COMMAND_GUI: {
-            return run_gui(argc, argv);
+            return run_gui(argc, argv, command_line);
         }
         case COMMAND_DOC: {
             return run_doc(command_line);

@@ -31,7 +31,7 @@
 
 class Configurator {
    public:
-    static Configurator& Get();
+    static Configurator& Get(const std::string& VULKAN_SDK = "");
     bool Init();
 
     // The list of applications affected
@@ -53,7 +53,7 @@ class Configurator {
     std::string profile_file;
 
    private:
-    Configurator();
+    Configurator(const std::string& VULKAN_SDK);
     ~Configurator();
 
     Configurator(const Configurator&) = delete;

@@ -29,7 +29,7 @@
 #include <QApplication>
 #include <QCheckBox>
 
-int run_gui(int argc, char* argv[]) {
+int run_gui(int argc, char* argv[], const CommandLine& command_line) {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
 
@@ -64,7 +64,9 @@ int run_gui(int argc, char* argv[]) {
     }
 
     // We simply cannot run without any layers
-    if (Configurator::Get().Init() == false) return -1;
+    Configurator& configurator = Configurator::Get(command_line.command_vulkan_sdk);
+
+    if (configurator.Init() == false) return -1;
 
     // The main GUI is driven here
     MainWindow main_window;

@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 
 TEST(test_layer_manager, load_only_layer_json) {
-    PathManager paths;
+    PathManager paths("");
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 

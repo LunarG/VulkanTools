@@ -37,7 +37,8 @@ struct CommandHelpDesc {
 };
 
 static const CommandHelpDesc command_help_desc[] = {
-    {HELP_HELP, "help"}, {HELP_VERSION, "version"}, {HELP_GUI, "gui"}, {HELP_LAYERS, "layers"}, {HELP_DOC, "doc"}, {HELP_RESET, "reset"},
+    {HELP_HELP, "help"},     {HELP_VERSION, "version"}, {HELP_GUI, "gui"},
+    {HELP_LAYERS, "layers"}, {HELP_DOC, "doc"},         {HELP_RESET, "reset"},
 };
 
 static HelpType GetCommandHelpId(const char* token) {
@@ -57,17 +58,18 @@ struct ModeDesc {
 };
 
 static const ModeDesc mode_desc[] = {
-    {COMMAND_NONE, "", HELP_DEFAULT},              // COMMAND_NONE
-    {COMMAND_SHOW_USAGE, "-h", HELP_HELP},         // COMMAND_SHOW_USAGE
-    {COMMAND_SHOW_USAGE, "--help", HELP_HELP},     // COMMAND_SHOW_USAGE
-    {COMMAND_SHOW_USAGE, "help", HELP_HELP},       // COMMAND_SHOW_USAGE
-    {COMMAND_VERSION, "-v", HELP_VERSION},         // COMMAND_VERSION
-    {COMMAND_VERSION, "--version", HELP_VERSION},  // COMMAND_VERSION
-    {COMMAND_VERSION, "version", HELP_VERSION},    // COMMAND_VERSION
-    {COMMAND_GUI, "gui", HELP_GUI},                // COMMAND_GUI
-    {COMMAND_LAYERS, "layers", HELP_LAYERS},       // COMMAND_LAYERS
-    {COMMAND_DOC, "doc", HELP_DOC},                // COMMAND_DOC
-    {COMMAND_RESET, "reset", HELP_RESET}           // COMMAND_RESET
+    {COMMAND_NONE, "", HELP_DEFAULT},               // COMMAND_NONE
+    {COMMAND_SHOW_USAGE, "-h", HELP_HELP},          // COMMAND_SHOW_USAGE
+    {COMMAND_SHOW_USAGE, "--help", HELP_HELP},      // COMMAND_SHOW_USAGE
+    {COMMAND_SHOW_USAGE, "help", HELP_HELP},        // COMMAND_SHOW_USAGE
+    {COMMAND_VERSION, "-v", HELP_VERSION},          // COMMAND_VERSION
+    {COMMAND_VERSION, "--version", HELP_VERSION},   // COMMAND_VERSION
+    {COMMAND_VERSION, "version", HELP_VERSION},     // COMMAND_VERSION
+    {COMMAND_GUI, "gui", HELP_GUI},                 // COMMAND_GUI
+    {COMMAND_LAYERS, "layers", HELP_LAYERS},        // COMMAND_LAYERS
+    {COMMAND_DOC, "doc", HELP_DOC},                 // COMMAND_DOC
+    {COMMAND_RESET, "reset", HELP_RESET},           // COMMAND_RESET
+    {COMMAND_VULKAN_SDK, "VULKAN_SDK", HELP_RESET}  // COMMAND_VULKAN_SDK
 };
 
 static CommandType GetModeId(const char* token) {
@@ -198,6 +200,7 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_layers_arg(_command_layers_arg),
       command_doc_arg(_command_doc_arg),
       layers_configuration_path(_layers_configuration_path),
+      command_vulkan_sdk(_command_vulkan_sdk),
       doc_layer_name(_doc_layer_name),
       doc_out_dir(_doc_out_dir),
       error(_error),
@@ -214,6 +217,9 @@ CommandLine::CommandLine(int argc, char* argv[])
     int arg_offset = 1;
 
     switch (_command = GetModeId(argv[arg_offset + 0])) {
+        case COMMAND_VULKAN_SDK: {
+            _command_vulkan_sdk = argv[arg_offset + 1];
+        } break;
         case COMMAND_LAYERS: {
             if (argc <= arg_offset + 1) {
                 _error = ERROR_MISSING_COMMAND_ARGUMENT;

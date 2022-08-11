@@ -563,19 +563,19 @@ bool ExactExecutableFromAppBundle(std::string& app_path) {
     return true;
 }
 
-static std::string GetDefaultExecutablePath(const std::string& executable_name) {
+std::string Environment::GetDefaultExecutablePath(const std::string& executable_name) const {
     static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
 
     // Using VULKAN_SDK environement variable
-    const QString env(qgetenv("VULKAN_SDK"));
-    if (!env.isEmpty()) {
+    const std::string env(paths_manager.GetPath(PATH_VULKAN_SDK));
+    if (!env.empty()) {
         static const char* TABLE[] = {
             "/Bin",  // ENVIRONMENT_WIN32
             "/bin",  // ENVIRONMENT_UNIX
         };
         static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
-        const std::string search_path = env.toStdString() + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str();
+        const std::string search_path = env + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str();
         const QFileInfo file_info(search_path.c_str());
         if (file_info.exists()) {
             return file_info.absoluteFilePath().toStdString();
@@ -615,16 +615,10 @@ static std::string GetDefaultExecutablePath(const std::string& executable_name) 
     return "./" + executable_name;
 }
 
-struct DefaultApplication {
-    std::string name;
-    std::string key;
-    std::string arguments;
-};
-
 static const DefaultApplication defaults_applications[] = {{"vkcube", ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
                                                            {"vkcubepp", ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
 
-static Application CreateDefaultApplication(const DefaultApplication& default_application) {
+Application Environment::CreateDefaultApplication(const DefaultApplication& default_application) const {
     const std::string executable_path = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
     if (executable_path.empty()) Application();  // application could not be found..
 
@@ -640,7 +634,7 @@ static Application CreateDefaultApplication(const DefaultApplication& default_ap
     return application;
 }
 
-std::vector<Application> CreateDefaultApplications() {
+std::vector<Application> Environment::CreateDefaultApplications() const {
     std::vector<Application> new_applications;
 
     for (std::size_t name_index = 0, name_count = countof(defaults_applications); name_index < name_count; ++name_index) {
@@ -654,7 +648,7 @@ std::vector<Application> CreateDefaultApplications() {
     return new_applications;
 }
 
-std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications) {
+std::vector<Application> Environment::RemoveMissingApplications(const std::vector<Application>& applications) const {
     std::vector<Application> valid_applications;
 
     // Remove applications that can't be found
@@ -670,7 +664,7 @@ std::vector<Application> RemoveMissingApplications(const std::vector<Application
     return valid_applications;
 }
 
-std::vector<Application> UpdateDefaultApplications(const std::vector<Application>& applications) {
+std::vector<Application> Environment::UpdateDefaultApplications(const std::vector<Application>& applications) const {
     std::vector<Application> search_applications;
     std::vector<Application> updated_applications = applications;
 

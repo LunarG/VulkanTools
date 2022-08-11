@@ -27,6 +27,9 @@
 #include <gtest/gtest.h>
 
 TEST(test_environment, remove_missing_applications) {
+    PathManager path_manager("");
+    Environment environment(path_manager);
+
     QFile file("my_exciting_executable");
     const bool result = file.open(QIODevice::WriteOnly);
     ASSERT_TRUE(result);
@@ -35,5 +38,5 @@ TEST(test_environment, remove_missing_applications) {
     applications.push_back(Application("missing", "my_missing_executable", ""));
     applications.push_back(Application("exciting", "my_exciting_executable", ""));
 
-    EXPECT_EQ(1, RemoveMissingApplications(applications).size());
+    EXPECT_EQ(1, environment.RemoveMissingApplications(applications).size());
 }

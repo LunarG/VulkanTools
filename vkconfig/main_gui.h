@@ -20,4 +20,6 @@
 
 #pragma once
 
-int run_gui(int argc, char* argv[]);
+#include "../vkconfig_core/command_line.h"
+
+int run_gui(int argc, char* argv[], const CommandLine& command_line);
