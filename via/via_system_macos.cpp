@@ -1016,7 +1016,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemSdkInfo() {
     dirent *cur_ent;
     char *env_value;
 
-    PrintBeginTable("LunarG Vulkan SDKs", 4);
+    PrintBeginTable("Vulkan SDKs", 4);
 
     // First, try environmental variables
     sdk_env_name = "VULKAN_SDK";

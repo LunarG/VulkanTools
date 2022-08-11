@@ -1664,7 +1664,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
     }
     FindRegistryJsons(registry_top_hkey, registry_locations, layer_jsons);
 
-    PrintBeginTable("LunarG Vulkan SDKs", 4);
+    PrintBeginTable("Vulkan SDKs", 4);
 
     PrintBeginTableRow();
     PrintTableElement("SDKs Found In Registry");

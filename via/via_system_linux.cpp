@@ -1097,7 +1097,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
     dirent *cur_ent;
     char *env_value;
 
-    PrintBeginTable("LunarG Vulkan SDKs", 4);
+    PrintBeginTable("Vulkan SDKs", 4);
 
     // First, try environmental variables
     for (uint32_t dir = 0; dir < 2; dir++) {
