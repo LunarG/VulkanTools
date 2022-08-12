@@ -184,6 +184,7 @@ class ViaSystem {
     std::string _exe_path;
     std::string _cur_path;
     std::string _out_file;
+    std::string _full_out_file;
     std::ofstream _out_ofstream;
 
     // Command Line Argument items

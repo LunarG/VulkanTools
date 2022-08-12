@@ -75,4 +75,4 @@ class ViaSystemWindows : public ViaSystem {
     std::vector<std::tuple<std::string, DEVINST>> _device_ids;
 };
 
-#endif  // VIA_WINDOWS_TARGET
+#endif  //  VIA_WINDOWS_TARGET

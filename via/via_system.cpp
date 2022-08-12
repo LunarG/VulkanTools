@@ -27,6 +27,10 @@
 
 #include "via_system.hpp"
 
+#ifdef VIA_WINDOWS_TARGET
+#include <windows.h>
+#endif
+
 ViaSystem::ViaSystem() {
     _generate_unique_file = false;
     _out_file = "";
@@ -128,13 +132,14 @@ bool ViaSystem::Init(int argc, char** argv) {
 
     // Write the output file to the current executing directory, or, if
     // that fails, write it out to the user's home folder.
-    std::string full_out_path = file_path + _out_file;
-    _out_ofstream.open(full_out_path);
+
+    _full_out_file = file_path + _out_file;
+    _out_ofstream.open(_full_out_file);
     if (_out_ofstream.fail()) {
-        full_out_path = _home_path + _out_file;
-        _out_ofstream.open(full_out_path);
+        _full_out_file = _home_path + _out_file;
+        _out_ofstream.open(_full_out_file);
         if (_out_ofstream.fail()) {
-            LogError("Failed creating output file in folder!");
+            LogError("Failed creating output file!");
             return false;
         }
     }
@@ -243,7 +248,15 @@ print_results:
     return (results == VIA_SUCCESSFUL);
 }
 
-ViaSystem::~ViaSystem() { _out_ofstream.close(); }
+ViaSystem::~ViaSystem() {
+    _out_ofstream.close();
+#ifdef VIA_WINDOWS_TARGET
+    if (_out_file_format == VIA_HTML_FORMAT) {
+        // Open the html file in a browser
+        ShellExecute(NULL, "open", _full_out_file.c_str(), NULL, NULL, SW_SHOWNORMAL);
+    }
+#endif
+}
 
 void ViaSystem::LogError(const std::string& error) { std::cerr << "VIA_ERROR:   " << error << std::endl; }
 
