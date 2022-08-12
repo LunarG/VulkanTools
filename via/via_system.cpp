@@ -253,7 +253,24 @@ ViaSystem::~ViaSystem() {
 #ifdef VIA_WINDOWS_TARGET
     if (_out_file_format == VIA_HTML_FORMAT) {
         // Open the html file in a browser
+        // Sleep 1 second before bringing up the browser so console window is visible for a little
+        // while before browser comes up and covers it.
+        Sleep(1000);
         ShellExecute(NULL, "open", _full_out_file.c_str(), NULL, NULL, SW_SHOWNORMAL);
+
+        // If we are running in a console, wait for user to to press enter before
+        // exitting. We do this so that the user can read the output.
+        // Note that running vkvia from a Windows CMD prompt or from a Cygwin shell
+        // is not considered running in a console, so we don't wait for user to press
+        // enter in those cases.
+        HWND consoleWnd = GetConsoleWindow();
+        DWORD dwProcessId;
+        GetWindowThreadProcessId(consoleWnd, &dwProcessId);
+        if (GetCurrentProcessId()==dwProcessId)
+        {
+            std::cout <<std::endl << "Press enter to close this window" << std::endl;
+            std::cin.get();
+        }
     }
 #endif
 }
