@@ -1229,8 +1229,6 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
         std::vector<std::tuple<std::string, bool, std::string>> driver_jsons;
         std::vector<HKEY> registry_top_hkey;
         std::string system_path;
-        char cur_vulkan_driver_json[1024];
-        char env_value[1024];
         std::ifstream *stream = NULL;
         bool found_json = false;
         bool found_lib = false;
