@@ -106,7 +106,7 @@ void Alert::ConfiguratorSingleton() {
     alert.QDialog::setWindowTitle(format("Cannot start another instance of %s", VKCONFIG_NAME).c_str());
     alert.setIcon(QMessageBox::Critical);
     alert.setText(format("Another copy of %s is currently running.", VKCONFIG_NAME).c_str());
-    alert.setInformativeText("Please close the other instance and try again.");
+    alert.setInformativeText(format("Please close the other %s instance and then press OK.", VKCONFIG_NAME).c_str());
     alert.exec();
 }
 
