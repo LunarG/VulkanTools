@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
         case COMMAND_RESET: {
             return run_reset(argc, argv, command_line);
         }
+        case COMMAND_VULKAN_SDK:
         case COMMAND_GUI: {
             return run_gui(argc, argv, command_line);
         }
