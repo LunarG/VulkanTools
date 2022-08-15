@@ -56,6 +56,7 @@ static const char *TOKEN_SYNC_QUEUE_SUBMIT = "VALIDATION_CHECK_ENABLE_SYNCHRONIZ
 static const char *TOKEN_BEST = "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT";
 static const char *TOKEN_BEST_ARM = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM";
 static const char *TOKEN_BEST_AMD = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_AMD";
+static const char *TOKEN_BEST_NVIDIA = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_NVIDIA";
 
 QCheckBox *WidgetSettingValidation::CreateWidget(QTreeWidgetItem *parent, QTreeWidgetItem **item, const char *key,
                                                  const char *flag) {
@@ -143,6 +144,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       widget_best_arm(nullptr),
       item_best_amd(nullptr),
       widget_best_amd(nullptr),
+      item_best_nvidia(nullptr),
+      widget_best_nvidia(nullptr),
 
       meta_set(meta_set),
       data_set(data_set) {
@@ -423,13 +426,17 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
     if (this->widget_best != nullptr) {
         this->connect(this->widget_best, SIGNAL(clicked(bool)), this, SLOT(OnBestChecked(bool)));
 
+        this->widget_best_amd = this->CreateWidget(this->item_best, &this->item_best_amd, "enables", TOKEN_BEST_AMD);
+        if (this->widget_best_amd != nullptr)
+            this->connect(this->widget_best_amd, SIGNAL(clicked(bool)), this, SLOT(OnBestAmdChecked(bool)));
+
         this->widget_best_arm = this->CreateWidget(this->item_best, &this->item_best_arm, "enables", TOKEN_BEST_ARM);
         if (this->widget_best_arm != nullptr)
             this->connect(this->widget_best_arm, SIGNAL(clicked(bool)), this, SLOT(OnBestArmChecked(bool)));
 
-        this->widget_best_amd = this->CreateWidget(this->item_best, &this->item_best_amd, "enables", TOKEN_BEST_AMD);
-        if (this->widget_best_amd != nullptr)
-            this->connect(this->widget_best_amd, SIGNAL(clicked(bool)), this, SLOT(OnBestAmdChecked(bool)));
+        this->widget_best_nvidia = this->CreateWidget(this->item_best, &this->item_best_nvidia, "enables", TOKEN_BEST_NVIDIA);
+        if (this->widget_best_nvidia != nullptr)
+            this->connect(this->widget_best_nvidia, SIGNAL(clicked(bool)), this, SLOT(OnBestNvidiaChecked(bool)));
     }
 
     this->tree->setItemWidget(this->item, 0, this);
@@ -649,6 +656,11 @@ void WidgetSettingValidation::OnBestArmChecked(bool checked) {
 
 void WidgetSettingValidation::OnBestAmdChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_BEST_AMD, checked);
+    this->OnSettingChanged();
+}
+
+void WidgetSettingValidation::OnBestNvidiaChecked(bool checked) {
+    this->UpdateFlag("enables", TOKEN_BEST_NVIDIA, checked);
     this->OnSettingChanged();
 }
 
@@ -904,6 +916,13 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
         this->widget_best_amd->setEnabled(HasDataFlag("enables", TOKEN_BEST));
         if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
             this->widget_best_amd->setChecked(HasDataFlag("enables", TOKEN_BEST_AMD));
+        }
+    }
+
+    if (this->widget_best_nvidia != nullptr) {
+        this->widget_best_nvidia->setEnabled(HasDataFlag("enables", TOKEN_BEST));
+        if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+            this->widget_best_nvidia->setChecked(HasDataFlag("enables", TOKEN_BEST_NVIDIA));
         }
     }
 
