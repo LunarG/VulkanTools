@@ -107,11 +107,11 @@ QMessageBox::Button Alert::ConfiguratorSingleton() {
     alert.setIcon(QMessageBox::Critical);
     alert.setDefaultButton(QMessageBox::Cancel);
     alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-    alert.setText(format("Another copy of %s is currently running.", VKCONFIG_NAME).c_str());
-    alert.setInformativeText(
-        format("Please close the other %s instance and then press OK. Just press CANCEL to the launch of a new %s instance.",
-               VKCONFIG_NAME, VKCONFIG_NAME)
-            .c_str());
+    alert.setText(format("Another copy of %s is currently running. Please close it to continue.", VKCONFIG_NAME).c_str());
+    alert.setInformativeText(format("Press OK to continue launching the new instance of %s when the other instance is "
+                                    "stopped.\nPress CANCEL to stop the launch of a new %s instance.",
+                                    VKCONFIG_NAME, VKCONFIG_NAME)
+                                 .c_str());
 
     return static_cast<QMessageBox::Button>(alert.exec());
 }
