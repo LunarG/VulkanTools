@@ -103,7 +103,7 @@ QMessageBox::Button Alert::LayerProfiles() {
 
 QMessageBox::Button Alert::ConfiguratorSingleton() {
     QMessageBox alert;
-    alert.QDialog::setWindowTitle(format("Cannot start another instance of %s", VKCONFIG_NAME).c_str());
+    alert.QDialog::setWindowTitle(format("Cannot start new instance of %s", VKCONFIG_NAME).c_str());
     alert.setIcon(QMessageBox::Critical);
     alert.setDefaultButton(QMessageBox::Cancel);
     alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
