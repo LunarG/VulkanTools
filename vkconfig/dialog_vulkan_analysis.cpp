@@ -130,7 +130,7 @@ void VulkanAnalysisDialog::Run() {
     QJsonObject vkRunTimeObject = vkRunTimeValue.toObject();
     LoadTable(vkRunTimeObject, ui->vkRuntimesTable);
 
-    QJsonValue lunarGSDKValue = json_object.value(QString(tr("LunarG Vulkan SDKs")));
+    QJsonValue lunarGSDKValue = json_object.value(QString(tr("Vulkan SDKs")));
     QJsonObject lunarGSDKObject = lunarGSDKValue.toObject();
     LoadTable(lunarGSDKObject, ui->lunarGSDKTable);
 
