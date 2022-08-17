@@ -57,10 +57,15 @@ int run_gui(int argc, char* argv[], const CommandLine& command_line) {
 
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.
-    const ApplicationSingleton singleton("vkconfig_single_instance");
-    if (!singleton.IsFirstInstance()) {
-        Alert::ConfiguratorSingleton();
-        return -1;
+    while (true) {
+        const ApplicationSingleton singleton("vkconfig_single_instance");
+        if (singleton.IsFirstInstance()) {
+            break;
+        }
+
+        if (Alert::ConfiguratorSingleton() == QMessageBox::Cancel) {
+            return -1;
+        }
     }
 
     // We simply cannot run without any layers
