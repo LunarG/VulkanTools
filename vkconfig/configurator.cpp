@@ -154,10 +154,15 @@ bool Configurator::SupportApplicationList(Version *return_loader_version) const 
 void Configurator::ResetToDefault(bool hard) {
     if (hard) {
         this->environment.Reset(Environment::CLEAR);
-        this->layers.LoadAllInstalledLayers();
+
+        const std::string configuration_name = this->environment.Get(ACTIVE_CONFIGURATION);
+        this->environment.Set(ACTIVE_CONFIGURATION, "");  // Force ActivateConfiguration
+        this->ActivateConfiguration(configuration_name);
+
         this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
     } else {
         this->configurations.ReloadDefaultsConfigurations(this->layers.available_layers);
     }
+
     this->configurations.RefreshConfiguration(this->layers.available_layers);
 }

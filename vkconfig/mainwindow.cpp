@@ -420,8 +420,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     LoadConfigurationList();
 
-    configurator.request_vulkan_status = true;
-
     UpdateUI();
 }
 
