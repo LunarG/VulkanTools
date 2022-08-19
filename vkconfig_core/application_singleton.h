@@ -30,6 +30,7 @@
 #pragma once
 
 #include <QtNetwork/QLocalServer>
+#include <QtNetwork/QLocalSocket>
 
 #include <string>
 
@@ -38,11 +39,12 @@ class ApplicationSingleton {
     ApplicationSingleton(const std::string &application_name, int timeout = 5000);
     ~ApplicationSingleton();
 
-    bool IsFirstInstance() const { return is_first_instance; }
+    bool IsFirstInstance();
 
    private:
     QLocalServer _local_server;
-    bool is_first_instance;
+    std::string _application_name;
+    int _timeout;
 
     ApplicationSingleton(const ApplicationSingleton &) = delete;
     ApplicationSingleton &operator=(const ApplicationSingleton &) = delete;

@@ -57,12 +57,9 @@ int run_gui(int argc, char* argv[], const CommandLine& command_line) {
 
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.
-    while (true) {
-        const ApplicationSingleton singleton("vkconfig_single_instance");
-        if (singleton.IsFirstInstance()) {
-            break;
-        }
+    ApplicationSingleton singleton("vkconfig_single_instance");
 
+    while (!singleton.IsFirstInstance()) {
         if (Alert::ConfiguratorSingleton() == QMessageBox::Cancel) {
             return -1;
         }
