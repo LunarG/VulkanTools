@@ -459,13 +459,28 @@ ViaSystem::ViaResults ViaSystem::GenerateInstanceInfo(void) {
         }
     }
 
-    const char* portability_instance_extension_list[] = {VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME};
+    // Need to specify VK_KHR_portability_enumeration extension on Mac in vkCreateInstance. This
+    // is because the Vulkan on Metal driver is not fully Vulkan conformant, and VK_KHR_portability
+    // needs to be enabled in order for the Vulkan Loader to report the Vulkan device.
+
+    // Also need to specify the VK_KHR_get_physical_device_properties2 extension because we will be
+    // be using the VK_KHR_portability_subset extension in vkCreateDevice.
+
+    std::vector<const char *> portability_instance_extension_list;
+    inst_info.flags = 0;
+    inst_info.enabledExtensionCount = 0;
+    inst_info.ppEnabledExtensionNames = NULL;
     for (const auto& extension : ext_props) {
         if (strcmp(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0) {
+            portability_instance_extension_list.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+            inst_info.ppEnabledExtensionNames = portability_instance_extension_list.data();
             inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-            inst_info.enabledExtensionCount = 1;
-            inst_info.ppEnabledExtensionNames = portability_instance_extension_list;
-            break;
+            inst_info.enabledExtensionCount++;
+        }
+        if (strcmp(extension.extensionName, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0) {
+            portability_instance_extension_list.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+            inst_info.ppEnabledExtensionNames = portability_instance_extension_list.data();
+            inst_info.enabledExtensionCount++;
         }
     }
 
@@ -1098,6 +1113,33 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
             }
             device_create_info.queueCreateInfoCount = 1;
             device_create_info.pQueueCreateInfos = &queue_create_info;
+
+            std::vector<const char *> portability_device_extension_list;
+            std::vector<VkExtensionProperties> ext_props;
+            uint32_t prop_count = 0;
+            status = vkEnumerateDeviceExtensionProperties(phys_devices[dev].vk_phys_dev, NULL, &prop_count, NULL);
+            ext_props.resize(prop_count);
+            if (VK_SUCCESS == status) {
+                status = vkEnumerateDeviceExtensionProperties(phys_devices[dev].vk_phys_dev, NULL, &prop_count, ext_props.data());
+            }
+            if (VK_SUCCESS != status) {
+                prop_count = 0;
+            }
+            device_create_info.flags = 0;
+            device_create_info.enabledExtensionCount = 0;
+            device_create_info.ppEnabledExtensionNames = NULL;
+            if (prop_count) {
+                // Need to specify the VK_KHR_portability_subset extension in vkCreateDevice on Mac.
+                // This is because the Vulkan on Metal driver is not fully Vulkan conformant.
+                for (const auto& extension : ext_props) {
+                    if (strcmp(extension.extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) == 0) {
+                        portability_device_extension_list.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+                        device_create_info.ppEnabledExtensionNames = portability_device_extension_list.data();
+                        device_create_info.enabledExtensionCount++;
+                        break;
+                     }
+                 }
+            }
 
             PrintBeginTableRow();
             PrintTableElement("");
