@@ -29,28 +29,31 @@
 
 #include "application_singleton.h"
 
-#include <QtNetwork/QLocalSocket>
+ApplicationSingleton::ApplicationSingleton(const std::string& application_name, int timeout)
+    : _application_name(application_name)
+    , _timeout(timeout) {
+}
 
-ApplicationSingleton::ApplicationSingleton(const std::string& application_name, int timeout) {
+ApplicationSingleton::~ApplicationSingleton() { _local_server.close(); }
+
+bool ApplicationSingleton::IsFirstInstance() {
     // If we can connect to the server, it means there is another copy running
     QLocalSocket localSocket;
-    localSocket.connectToServer(application_name.c_str());
+    localSocket.connectToServer(_application_name.c_str());
 
     // The default timeout is 5 seconds, which should be enough under
     // the most extreme circumstances. Note, that it will actually
     // only time out if the server exists and for some reason it can't
     // connect. Too small a timeout on the other hand can give false
     // assurance that another copy is not running.
-    if (localSocket.waitForConnected(timeout)) {
-        is_first_instance = false;
+    if (localSocket.waitForConnected(_timeout)) {
         localSocket.close();
-        return;
+        return false;
     }
 
     // Not connected, OR timed out
     // We are the first, start a server
-    is_first_instance = true;
-    _local_server.listen(application_name.c_str());
-}
+    _local_server.listen(_application_name.c_str());
 
-ApplicationSingleton::~ApplicationSingleton() { _local_server.close(); }
+    return true;
+}
