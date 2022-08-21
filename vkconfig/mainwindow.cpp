@@ -265,8 +265,8 @@ void MainWindow::UpdateUI() {
 
     if (configurator.request_vulkan_status) {
         ui->log_browser->clear();
-        ui->log_browser->append("<B>Vulkan Development Status:</B>");
-        ui->log_browser->append(GenerateVulkanStatus().c_str());
+
+        ui->log_browser->setPlainText(("Vulkan Development Status:\n" + GenerateVulkanStatus()).c_str());
         ui->push_button_clear_log->setEnabled(true);
         configurator.request_vulkan_status = false;
 
@@ -1567,7 +1567,7 @@ void MainWindow::errorOutputAvailable() {
 }
 
 void MainWindow::Log(const std::string &log) {
-    ui->log_browser->append(log.c_str());
+    ui->log_browser->setPlainText(ui->log_browser->toPlainText() + "\n" + log.c_str());
     ui->push_button_clear_log->setEnabled(true);
 
     if (_log_file.isOpen()) {
