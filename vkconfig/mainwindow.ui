@@ -508,19 +508,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="6">
-          <widget class="QTextBrowser" name="log_browser">
-           <property name="font">
-            <font>
-             <family>Consolas</family>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="push_button_clear_log">
            <property name="font">
@@ -599,6 +586,19 @@
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Vulkan Loader Messages:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="6">
+          <widget class="QPlainTextEdit" name="log_browser">
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="acceptDrops">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
