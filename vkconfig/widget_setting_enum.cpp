@@ -72,6 +72,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->enum_indexes.clear();
 
         const std::vector<std::string>& profiles = GetProfileNames(data_set);
+        this->item->setHidden(profiles.size() <= 1);
 
         int selection = 0;
         const std::string value = this->data().value;
@@ -119,6 +120,7 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
         for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
         }
+        this->item->setHidden(profiles.size() <= 1);
     } else {
         for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (this->meta.enum_values[i].label + "0000").c_str()));
@@ -135,6 +137,7 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
         this->data().value = profiles[index];
+        this->item->setHidden(profiles.size() <= 1);
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
