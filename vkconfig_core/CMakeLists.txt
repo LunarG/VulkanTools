@@ -57,6 +57,11 @@ if(Qt5_FOUND)
         target_link_libraries(vkconfig_core Cfgmgr32)
     endif()
 
+    if (CMAKE_COMPILER_IS_GNUCC)
+        # Disable -Wno-maybe-uninitialized because of warnings with jsoncpp and GCC 12
+        add_compile_options("-Wno-maybe-uninitialized")
+     endif()
+
     target_include_directories(vkconfig_core PRIVATE "${Vulkan_INCLUDE_DIR}")
     target_link_libraries(vkconfig_core vku Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
