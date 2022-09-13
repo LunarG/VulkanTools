@@ -81,6 +81,9 @@ jobs:
                               libx11-xcb-dev libxcb-randr0-dev cmake jq wget
     - name: Build and Test VulkanTools 
       run: python3 scripts/github_ci_linux.py --config ${{ matrix.config.type }}
+      env:
+        CC: ${{matrix.config.cc}}
+        CXX: ${{matrix.config.cxx}}
 
   windows:
     runs-on: ${{matrix.os}}
