@@ -82,8 +82,10 @@ Version ComputeMinApiVersion(const Version api_version, const std::vector<Parame
         const Layer* layer = FindByKey(layers, parameters[i].key.c_str());
         if (layer == nullptr) continue;
 
-        if (parameters[i].state && PARAMETER_RANK_EXCLUDED) continue;
-        if (parameters[i].state && PARAMETER_RANK_MISSING) continue;
+        const ParameterRank state = GetParameterOrdering(layers, parameters[i]);
+
+        if (state == PARAMETER_RANK_EXCLUDED) continue;
+        if (state == PARAMETER_RANK_MISSING) continue;
 
         min_version = min_version < layer->api_version ? min_version : layer->api_version;
     }
