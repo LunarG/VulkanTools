@@ -11,7 +11,12 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.0](https://github.com/LunarG/VulkanTools/tree/master) - August 2022
+## [Vulkan Configurator 2.5.1](https://github.com/LunarG/VulkanTools/tree/master) - October 2022
+
+### Fixes:
+- Fix override layer version when some layers are excluded or missing #1743
+
+## [Vulkan Configurator 2.5.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.2224.0) - August 2022
 
 ### Features:
 - Add per layers-configuration user-defined layers paths #1711
