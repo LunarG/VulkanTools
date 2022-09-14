@@ -333,3 +333,98 @@ TEST(test_parameter, compute_min_api_version) {
     Version min_version = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
     EXPECT_EQ(Version(1, 2, 148), min_version);
 }
+
+TEST(test_parameter, compute_min_api_version_exclude_middle) {
+    std::vector<Layer> layers;
+    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
+    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
+
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
+    parameters.push_back(Parameter("Layer E2", LAYER_STATE_APPLICATION_CONTROLLED));
+
+    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 148), min_version_A);
+
+    Version min_version_B = ComputeMinApiVersion(Version(1, 2, 140), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 140), min_version_B);
+}
+
+TEST(test_parameter, compute_min_api_version_exclude_older) {
+    std::vector<Layer> layers;
+    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
+    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
+
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("Layer E0", LAYER_STATE_EXCLUDED));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E2", LAYER_STATE_APPLICATION_CONTROLLED));
+
+    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 162), min_version_A);
+
+    Version min_version_B = ComputeMinApiVersion(Version(1, 2, 160), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 160), min_version_B);
+}
+
+TEST(test_parameter, compute_min_api_version_exclude_newer) {
+    std::vector<Layer> layers;
+    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
+    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
+
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("Layer E0", LAYER_STATE_APPLICATION_CONTROLLED));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E2", LAYER_STATE_EXCLUDED));
+
+    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 148), min_version_A);
+
+    Version min_version_B = ComputeMinApiVersion(Version(1, 2, 140), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 140), min_version_B);
+}
+
+TEST(test_parameter, compute_min_api_version_exclude_all) {
+    std::vector<Layer> layers;
+    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
+    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
+
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("Layer E0", LAYER_STATE_EXCLUDED));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
+    parameters.push_back(Parameter("Layer E2", LAYER_STATE_EXCLUDED));
+
+    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 170), min_version_A);
+}
+
+TEST(test_parameter, compute_min_api_version_missing_one) {
+    std::vector<Layer> layers;
+    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
+
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("Layer E0", LAYER_STATE_APPLICATION_CONTROLLED));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E2", LAYER_STATE_OVERRIDDEN));
+
+    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 148), min_version_A);
+}
+
+TEST(test_parameter, compute_min_api_version_missing_all) {
+    std::vector<Layer> layers;
+
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("Layer E0", LAYER_STATE_APPLICATION_CONTROLLED));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E2", LAYER_STATE_OVERRIDDEN));
+
+    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
+    EXPECT_EQ(Version(1, 2, 170), min_version_A);
+}
