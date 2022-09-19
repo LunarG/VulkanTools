@@ -57,6 +57,8 @@ class SettingsTreeManager : QObject {
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
+    bool UseBuiltinValidationUI(Parameter &parameter) const;
+
     void BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta);
