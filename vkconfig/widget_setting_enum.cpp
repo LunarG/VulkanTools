@@ -143,7 +143,9 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
-        this->data().value = this->meta.enum_values[enum_indexes[static_cast<std::size_t>(index)]].key;
+        const std::size_t value_index = enum_indexes[static_cast<std::size_t>(index)];
+        this->data().value = this->meta.enum_values[value_index].key;
+        this->field->setToolTip(this->meta.enum_values[value_index].description.c_str());
     }
 
     emit itemChanged();
