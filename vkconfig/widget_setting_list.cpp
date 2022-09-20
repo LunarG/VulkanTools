@@ -88,12 +88,13 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
 }
 
 void WidgetSettingList::Refresh(RefreshAreas refresh_areas) {
-    const bool enabled = ::CheckDependence(this->meta, data_set);
+    const SettingDependenceMode enabled = ::CheckDependence(this->meta, data_set);
 
-    this->item->setDisabled(!enabled);
-    this->setEnabled(enabled);
-    this->field->setEnabled(enabled && (!this->meta.list_only || !this->list.empty()));
-    this->add_button->setEnabled(enabled && !this->field->text().isEmpty());
+    this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
+    this->item->setDisabled(enabled != SETTING_DEPENDENCE_ENABLE);
+    this->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
+    this->field->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE && (!this->meta.list_only || !this->list.empty()));
+    this->add_button->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE && !this->field->text().isEmpty());
 
     if (this->meta.list_only && this->list.empty()) {
         this->field->hide();

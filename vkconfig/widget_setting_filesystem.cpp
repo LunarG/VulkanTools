@@ -62,13 +62,14 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
 }
 
 void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
-    const bool enabled = ::CheckDependence(this->meta, data_set);
+    const SettingDependenceMode enabled = ::CheckDependence(this->meta, data_set);
 
-    this->item->setDisabled(!enabled);
-    this->item_child->setDisabled(!enabled);
-    this->setEnabled(enabled);
-    this->field->setEnabled(enabled);
-    this->button->setEnabled(enabled);
+    this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
+    this->item->setDisabled(enabled != SETTING_DEPENDENCE_ENABLE);
+    this->item_child->setDisabled(enabled != SETTING_DEPENDENCE_ENABLE);
+    this->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
+    this->field->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
+    this->button->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
         LoadFile(this->data().value);

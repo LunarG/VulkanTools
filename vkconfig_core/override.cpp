@@ -239,7 +239,7 @@ bool WriteSettingsOverride(const std::vector<Layer>& available_layers, const Con
             stream << "\n";
 
             // If feature has unmet dependency, output it but comment it out
-            if (!::CheckDependence(*meta, parameter.settings)) {
+            if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
                 stream << "#";
             }
 

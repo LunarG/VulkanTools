@@ -68,11 +68,12 @@ WidgetSettingFloat::~WidgetSettingFloat() {
 }
 
 void WidgetSettingFloat::Refresh(RefreshAreas refresh_areas) {
-    const bool enabled = ::CheckDependence(this->meta, data_set);
+    const SettingDependenceMode enabled = ::CheckDependence(this->meta, data_set);
 
-    this->item->setDisabled(!enabled);
-    this->setEnabled(enabled);
-    this->field->setEnabled(enabled);
+    this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
+    this->item->setDisabled(enabled != SETTING_DEPENDENCE_ENABLE);
+    this->field->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
+    this->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
         if (::CheckSettingOverridden(this->meta)) {

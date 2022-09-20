@@ -281,20 +281,22 @@ std::string GetSettingOverride(const SettingMeta& meta) {
     return result;
 }
 
-bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
+SettingDependenceMode CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
     switch (meta.dependence_mode) {
         default:
         case DEPENDENCE_NONE: {
-            return true;
+            return SETTING_DEPENDENCE_ENABLE;
         }
         case DEPENDENCE_ALL: {
             for (std::size_t i = 0, n = meta.dependence.size(); i < n; ++i) {
+                const SettingDependenceMode mode =
+                    meta.dependence[i]->type == SETTING_ENUM ? SETTING_DEPENDENCE_HIDE : SETTING_DEPENDENCE_DISABLE;
                 const SettingData* data = FindSetting(data_set, meta.dependence[i]->key.c_str());
-                if (data == nullptr) return false;
+                if (data == nullptr) return mode;
 
-                if (*data != *meta.dependence[i]) return false;
+                if (*data != *meta.dependence[i]) return mode;
             }
-            return true;
+            return SETTING_DEPENDENCE_ENABLE;
         }
         case DEPENDENCE_ANY: {
             for (std::size_t i = 0, n = meta.dependence.size(); i < n; ++i) {
@@ -304,20 +306,21 @@ bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set) {
                 if (meta.dependence[i]->type == SETTING_FLAGS) {
                     const SettingDataFlags& data_flags = static_cast<const SettingDataFlags&>(*data);
                     const SettingDataFlags& dep_flags = static_cast<const SettingDataFlags&>(*meta.dependence[i]);
+
                     std::size_t found_flags = 0;
                     for (std::size_t j = 0, o = dep_flags.value.size(); j < o; ++j) {
                         if (IsStringFound(data_flags.value, dep_flags.value[j])) {
                             ++found_flags;
                         }
                     }
-                    if (found_flags == dep_flags.value.size()) return true;
+                    if (found_flags == dep_flags.value.size()) return SETTING_DEPENDENCE_ENABLE;
                 }
 
                 if (*data == *meta.dependence[i]) {
-                    return true;
+                    return SETTING_DEPENDENCE_ENABLE;
                 }
             }
-            return false;
+            return SETTING_DEPENDENCE_DISABLE;
         }
     }
 }
