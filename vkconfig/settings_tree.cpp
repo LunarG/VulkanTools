@@ -366,6 +366,19 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
 
             WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, parameter.settings);
             this->connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+
+            SettingDataEnum *data = FindSetting<SettingDataEnum>(parameter.settings, meta.key.c_str());
+
+            for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
+                const SettingEnumValue &value = meta.enum_values[i];
+
+                if (!IsPlatformSupported(value.platform_flags)) continue;
+                if (value.view == SETTING_VIEW_HIDDEN) continue;
+
+                for (std::size_t i = 0, n = value.settings.size(); i < n; ++i) {
+                    this->BuildTreeItem(item, parameter, *value.settings[i]);
+                }
+            }
         } break;
 
         case SETTING_FLAGS: {

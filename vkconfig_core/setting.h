@@ -28,6 +28,8 @@
 
 #include <QJsonObject>
 
+enum SettingDependenceMode { SETTING_DEPENDENCE_DISABLE = 0, SETTING_DEPENDENCE_HIDE, SETTING_DEPENDENCE_ENABLE };
+
 enum SettingInputError {
     SETTING_INPUT_NO_ERROR = 0,
     SETTING_INPUT_ERROR_EMPTY,
@@ -197,7 +199,7 @@ bool CheckSettingOverridden(const SettingMeta& meta);
 
 std::string GetSettingOverride(const SettingMeta& meta);
 
-bool CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set);
+SettingDependenceMode CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set);
 
 template <typename SETTING_DATA>
 inline SETTING_DATA* Instantiate(SettingMeta* meta) {
