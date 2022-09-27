@@ -45,7 +45,7 @@
                     {
                         "key": "log_output_to_console",
                         "type": "BOOL",
-                        "value": false
+                        "value": true
                     },
                     {
                         "key": "log_break_on_error",
@@ -75,12 +75,12 @@
                     {
                         "key": "log_file_keep_open",
                         "type": "BOOL",
-                        "value": false
+                        "value": true
                     },
                     {
                         "key": "log_file_create_new",
                         "type": "BOOL",
-                        "value": false
+                        "value": true
                     },
                     {
                         "key": "log_level",
