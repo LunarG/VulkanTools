@@ -143,10 +143,10 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 // This file is ***GENERATED***.  Do Not Edit.
 // See layer_factory_generator.py for modifications.
 
-/* Copyright (c) 2015-2020 The Khronos Group Inc.
- * Copyright (c) 2015-2020 Valve Corporation
- * Copyright (c) 2015-2020 LunarG, Inc.
- * Copyright (c) 2015-2020 Google Inc.
+/* Copyright (c) 2015-2022 The Khronos Group Inc.
+ * Copyright (c) 2015-2022 Valve Corporation
+ * Copyright (c) 2015-2022 LunarG, Inc.
+ * Copyright (c) 2015-2022 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,7 +169,6 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 
 #define VALIDATION_ERROR_MAP_IMPL
 
-#include "vk_loader_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vk_layer_data.h"
 #include "vk_layer_extension_utils.h"
