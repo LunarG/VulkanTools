@@ -32,6 +32,10 @@
 #include <vulkan/vk_layer.h>
 #include <vulkan/vulkan.h>
 
+#if defined(__linux__ )
+#include <dlfcn.h>
+#endif
+
 #if (!defined(VK_USE_PLATFORM_XCB_KHR) && !defined(VK_USE_PLATFORM_WIN32_KHR))
 #warning "Monitor layer only has code for XCB and Windows at this time"
 #endif
