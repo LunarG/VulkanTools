@@ -1,0 +1,75 @@
+{
+    "ComputePipelineState" :
+    {
+        "YcbcrSamplers" :
+        [
+        ],
+        "ImmutableSamplers" :
+        [
+        ],
+        "DescriptorSetLayouts" :
+        [
+        ],
+        "PipelineLayout" : 
+        {
+            "sType" : "VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO",
+            "pNext":"NULL",
+            "flags" : 0,
+            "setLayoutCount" : 0,
+            "pSetLayouts":
+            "NULL",
+            "pushConstantRangeCount" : 0,
+            "pPushConstantRanges": 
+            "NULL"
+        },
+        "ComputePipeline" : 
+        {
+            "sType" : "VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO",
+            "pNext":"NULL",
+            "flags" : "0",
+            "stage": 
+            {
+                "sType" : "VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO",
+                "pNext":"NULL",
+                "flags" : "0",
+                "stage" : "VK_SHADER_STAGE_COMPUTE_BIT",
+                "module" : "",
+                "pName" : "main",
+                "pSpecializationInfo": 
+                "NULL"
+            },
+            "layout" : "",
+            "basePipelineHandle" : "",
+            "basePipelineIndex" : 0
+        },
+        "ShaderFileNames" :
+        [
+            {
+                "stage" : "VK_SHADER_STAGE_COMPUTE_BIT",
+                "filename" : "JSON_GEN_LAYER_TESTS_pipeline_1.compute.spv"
+            }
+        ]
+    },
+    "EnabledExtensions" : 
+    [
+    ],
+    "PipelineUUID" : 
+    [
+        0,
+        92,
+        99,
+        197,
+        34,
+        32,
+        36,
+        136,
+        145,
+        57,
+        35,
+        207,
+        203,
+        7,
+        104,
+        136
+    ]
+}

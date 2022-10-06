@@ -1,0 +1,17 @@
+
+;;;; Begin Copyright Notice ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Copyright (c) 2020 The Khronos Group Inc.
+; Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+;
+; SPDX-License-Identifier: Apache-2.0
+;
+;;;;  End Copyright Notice ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+LIBRARY VkLayer_json_gen
+EXPORTS
+vkGetInstanceProcAddr
+vkGetDeviceProcAddr
+vkEnumerateInstanceLayerProperties
+vkEnumerateInstanceExtensionProperties
+vkCreateInstance

@@ -19,6 +19,8 @@ Windows 7+ with additional required software packages:
 - Git (from http://git-scm.com/download/win).
   - Tell the installer to allow it to be used for "Developer Prompt" as well as "Git Bash".
   - Tell the installer to treat line endings "as is" (i.e. both DOS and Unix-style line endings).
+- Require OpenSSL package which is used by the Json Gen Layer to calculate MD5 hash of the pipeline.
+  - From https://www.openssl.org/source/
 
 Optional software packages:
 
@@ -47,6 +49,9 @@ sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev libx
 
 # If performing 32-bit builds, you will also need:
 sudo apt-get install libc6-dev-i386 g++-multilib
+
+# Require OpenSSL package which is used by the Json Gen Layer
+sudo apt-get install libssl-dev # For development package
 ```
 
 Optional software packages:
@@ -101,6 +106,17 @@ export PATH=/usr/local/bin:$PATH
 - Add packages with the following (may need refinement)
 ```
 brew install python python3 git
+
+# Install OpenSSL package which is used by the Json Gen Layer
+brew install openssl
+
+# For pkg-config to find openssl@3 you may need to set:
+export PKG_CONFIG_PATH="/usr/local/opt/openssl@3/lib/pkgconfig"
+
+# For linking against openssl@3 you may need to set:
+cmake -DOPENSSL_CRYPTO_LIBRARY="/usr/local/opt/openssl@3/lib/libcrypto.dylib" \
+    -DOPENSSL_SSL_LIBRARY="/usr/local/opt/openssl@3/lib/libssl.dylib" \
+    -C helper.cmake ..
 ```
 
 ### Android Additional System Requirements
