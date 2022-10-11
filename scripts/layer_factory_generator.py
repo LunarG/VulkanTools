@@ -167,6 +167,20 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 #include <string.h>
 #include <mutex>
 
+#include <vulkan/vulkan.h>
+
+#if defined(WIN32)
+/* Windows-specific common code: */
+// WinBase.h defines CreateSemaphore and synchapi.h defines CreateEvent
+//  undefine them to avoid conflicts with VkLayerDispatchTable struct members.
+#ifdef CreateSemaphore
+#undef CreateSemaphore
+#endif
+#ifdef CreateEvent
+#undef CreateEvent
+#endif
+#endif
+
 #define VALIDATION_ERROR_MAP_IMPL
 
 #include "vk_dispatch_table_helper.h"
