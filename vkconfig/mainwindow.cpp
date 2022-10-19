@@ -132,7 +132,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->document()->setMaximumBlockCount(2048);
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
+    if (configurator.configurations.HasSelectConfiguration()) {
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
+    }
 
     UpdateUI();
 }
