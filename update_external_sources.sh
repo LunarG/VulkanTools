@@ -1,12 +1,14 @@
 #!/bin/bash
 
+PYTHON=$(which python python3 | head -1)
+
 set -e
 
 if [[ $(uname) == "Linux" || $(uname) == "FreeBSD" || $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" ]]; then
     CURRENT_DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
     CORE_COUNT=$(nproc || echo 4)
 elif [[ $(uname) == "Darwin" ]]; then
-    CURRENT_DIR="$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' ${BASH_SOURCE[0]})")"
+    CURRENT_DIR="$(dirname "$($PYTHON -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' ${BASH_SOURCE[0]})")"
     CORE_COUNT=$(sysctl -n hw.ncpu || echo 4)
 fi
 echo CURRENT_DIR=$CURRENT_DIR
@@ -19,5 +21,5 @@ git submodule update --init --recursive
 
 echo "Building ${BASEDIR}/jsoncpp"
 cd ${BASEDIR}/jsoncpp
-python amalgamate.py
+$PYTHON amalgamate.py
 
