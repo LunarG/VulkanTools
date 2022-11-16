@@ -25,6 +25,7 @@
 #include <memory>
 #include <vector>
 #include <cassert>
+#include <limits>
 
 #include <QJsonObject>
 
